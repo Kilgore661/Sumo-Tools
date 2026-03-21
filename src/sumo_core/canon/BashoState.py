@@ -3,7 +3,7 @@ Canonical transitional basho state model.
 
 NOTE:
 - File name: BashoState.py
-- Class name: BashoStateWithAnnotations (temporary)
+- Class name: BashoState
 - Will be renamed to BashoState once migration is complete
 
 Represents the state of a basho.
@@ -17,19 +17,19 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from Banzuke import BanzukeWithAnnotations
+from Banzuke import Banzuke
 from Summary import Summary
 
 
 @dataclass(frozen=True)
-class BashoStateWithAnnotations:
-    banzuke: BanzukeWithAnnotations
+class BashoState:
+    banzuke: Banzuke
     summary: Summary
 
     def __post_init__(self):
-        if not isinstance(self.banzuke, BanzukeWithAnnotations):
+        if not isinstance(self.banzuke, Banzuke):
             raise TypeError(
-                f"banzuke must be BanzukeWithAnnotations, got {type(self.banzuke)}"
+                f"banzuke must be Banzuke, got {type(self.banzuke)}"
             )
 
         if not isinstance(self.summary, Summary):
