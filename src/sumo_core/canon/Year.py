@@ -36,11 +36,8 @@ class Year(int):
             Year: validated year instance
 
         Raises:
-            TypeError: if value is not an int
             ValueError: if value is before MIN_YEAR
         """
-        if not isinstance(value, int):
-            raise TypeError(f"Year must be int, got {type(value).__name__}")
 
         if value < cls.MIN_YEAR:
             raise ValueError(
@@ -50,7 +47,7 @@ class Year(int):
         return int.__new__(cls, value)
 
     def __repr__(self) -> str:
-        return f"Year({int(self)})"
+        return f"{int(self)}"
 
     def __str__(self) -> str:
         return str(int(self))
