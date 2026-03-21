@@ -1,0 +1,38 @@
+"""
+Canonical transitional basho state model.
+
+NOTE:
+- File name: BashoState.py
+- Class name: BashoStateWithAnnotations (temporary)
+- Will be renamed to BashoState once migration is complete
+
+Represents the state of a basho.
+
+A BashoState consists of:
+- banzuke : the set of rikishi and their ranks
+- summary : the recorded results and performances
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+from Banzuke import BanzukeWithAnnotations
+from Summary import Summary
+
+
+@dataclass(frozen=True)
+class BashoStateWithAnnotations:
+    banzuke: BanzukeWithAnnotations
+    summary: Summary
+
+    def __post_init__(self):
+        if not isinstance(self.banzuke, BanzukeWithAnnotations):
+            raise TypeError(
+                f"banzuke must be BanzukeWithAnnotations, got {type(self.banzuke)}"
+            )
+
+        if not isinstance(self.summary, Summary):
+            raise TypeError(
+                f"summary must be Summary, got {type(self.summary)}"
+            )
