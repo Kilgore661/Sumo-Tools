@@ -3,14 +3,14 @@ Canonical transitional history model.
 
 NOTE:
 - File name: History.py
-- Class name: HistoryWithAnnotations (temporary)
+- Class name: History 
 - Will be renamed to History once migration is complete
 
 Represents the complete recorded history of basho.
 
 A History is a partial function:
 
-    Date -> BashoStateWithAnnotations
+    Date -> BashoState
 
 Implemented as a dictionary with function-call syntax.
 """
@@ -18,10 +18,10 @@ Implemented as a dictionary with function-call syntax.
 from __future__ import annotations
 
 from Date import Date
-from BashoState import BashoStateWithAnnotations
+from BashoState import BashoState
 
 
-class HistoryWithAnnotations(dict):
+class History(dict):
     def __new__(cls, mapping=None):
         instance = super().__new__(cls)
 
@@ -29,13 +29,13 @@ class HistoryWithAnnotations(dict):
             for date, basho_state in mapping.items():
                 if not isinstance(date, Date):
                     raise TypeError(
-                        f"Keys in HistoryWithAnnotations must be Date objects, got {type(date)}"
+                        f"Keys in History must be Date objects, got {type(date)}"
                     )
 
-                if not isinstance(basho_state, BashoStateWithAnnotations):
+                if not isinstance(basho_state, BashoState):
                     raise TypeError(
-                        "Values in HistoryWithAnnotations must be "
-                        f"BashoStateWithAnnotations objects, got {type(basho_state)}"
+                        "Values in History must be "
+                        f"BashoState objects, got {type(basho_state)}"
                     )
 
                 instance[date] = basho_state
@@ -44,7 +44,7 @@ class HistoryWithAnnotations(dict):
 
     def __call__(self, date: Date):
         """
-        Return the BashoStateWithAnnotations for the given date,
+        Return the BashoState for the given date,
         or None if undefined.
         """
         return self[date]

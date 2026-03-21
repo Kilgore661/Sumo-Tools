@@ -1,16 +1,11 @@
 """
 Canonical transitional rank model.
 
-NOTE:
-- The file name is Chii.py
-- The class name remains NewFoo for now
-- When the migration is complete, NewFoo will be renamed to Chii
-
-NewFoo is the authoritative rank object in the model.
+Chii is the authoritative rank object in the model.
 
 Its authoritative value is:
 
-    NewFoo.ordinal()
+    Chii.ordinal()
 
 This means that:
 
@@ -20,15 +15,15 @@ This means that:
 - all indexing
 - all matrix axes
 
-must use the ordinal (or NewFoo objects whose comparison is defined by ordinal),
+must use the ordinal (or Chii objects whose comparison is defined by ordinal),
 never the display string.
 
-A NewFoo consists of:
+A Chii consists of:
 
 - level      : Level = MSD + Division - {MAKUUCHI}
 - number     : positive integer
 - side       : Side
-- ann        : NewAnn
+- ann        : Annotation
 
 String form is presentation only.
 It must never be used to drive logic.
@@ -44,11 +39,11 @@ from Division import Division
 from MSD import MSD
 from Side import Side
 from Level import Level
-from Annotation import NewAnn
+from Annotation import Annotation
 
 
 @dataclass(frozen=True, eq=False)
-class NewFoo:
+class Chii:
     """
     Immutable, hashable, intrinsically sortable representation of a sumo rank.
 
@@ -57,7 +52,7 @@ class NewFoo:
     level: Level
     number: int
     side: Side
-    ann: NewAnn
+    ann: Annotation
 
     _sort_key_level: int = field(init=False, repr=False, compare=False)
     _sort_key_number: int = field(init=False, repr=False, compare=False)
@@ -71,17 +66,17 @@ class NewFoo:
         The rest is trusted by contract.
         """
         if self.number <= 0:
-            raise ValueError(f"NewFoo.number must be positive, got {self.number}")
+            raise ValueError(f"Chii.number must be positive, got {self.number}")
 
         core_level_enum = self.level
 
-        # Levels are made comparable only in the context of NewFoo.
+        # Levels are made comparable only in the context of Chii.
         # MSD values come first; lower divisions follow after an offset.
         if isinstance(core_level_enum, MSD):
             level_val_for_sort = core_level_enum.value
         elif isinstance(core_level_enum, Division):
             if core_level_enum == Division.MAKUUCHI:
-                raise ValueError("NewFoo cannot be formed with Division.MAKUUCHI as level.")
+                raise ValueError("Chii cannot be formed with Division.MAKUUCHI as level.")
             level_val_for_sort = len(MSD.__members__) + (core_level_enum.value - 1)
         else:
             raise TypeError(f"Unexpected level type: {type(core_level_enum)}")
@@ -92,7 +87,7 @@ class NewFoo:
         object.__setattr__(self, "_sort_key_ann", self.ann.value)
 
     @classmethod
-    def from_str(cls, chii_str: str) -> "NewFoo":
+    def from_str(cls, chii_str: str) -> "Chii":
         """
         Parse a display-form rank string.
 
@@ -130,7 +125,7 @@ class NewFoo:
         number = int(match.group(2))
 
         side = Side.NONE
-        ann = NewAnn.EMPTY
+        ann = Annotation.EMPTY
 
         suffix = match.group(3)
         if suffix.startswith("e"):
@@ -142,11 +137,11 @@ class NewFoo:
 
         if suffix:
             try:
-                ann = NewAnn[suffix]
+                ann = Annotation[suffix]
             except KeyError:
                 raise ValueError(f"Invalid annotation part '{suffix}' in chii string '{chii_str}'")
 
-        return NewFoo(level=level, number=number, side=side, ann=ann)
+        return Chii(level=level, number=number, side=side, ann=ann)
 
     def ordinal(self) -> int:
         """
@@ -177,9 +172,9 @@ class NewFoo:
         return int(ord_val)
 
     @classmethod
-    def from_ordinal(cls, ordinal: int) -> "NewFoo":
+    def from_ordinal(cls, ordinal: int) -> "Chii":
         """
-        Reconstruct a NewFoo from its ordinal.
+        Reconstruct a Chii from its ordinal.
 
         This is the inverse of ordinal().
         """
@@ -197,7 +192,7 @@ class NewFoo:
             side_key_map = {s.value: s for s in Side}
 
             ann_from_inverted_key = {}
-            for ann_member in NewAnn:
+            for ann_member in Annotation:
                 inverted_key = 5 - ann_member.value
                 ann_from_inverted_key[inverted_key] = ann_member
 
@@ -228,7 +223,7 @@ class NewFoo:
         except Exception as e:
             raise ValueError(f"Failed to parse ordinal {ordinal}: {e}")
 
-        return NewFoo(level=level, number=number_val, side=side, ann=ann)
+        return Chii(level=level, number=number_val, side=side, ann=ann)
 
     def __gt__(self, other: Any) -> bool:
         return self.ordinal() > other.ordinal()
@@ -257,7 +252,7 @@ class NewFoo:
             side_char = "w"
 
         ann_str = ""
-        if self.ann != NewAnn.EMPTY:
+        if self.ann != Annotation.EMPTY:
             ann_str = self.ann.name
 
         return f"{level_abbr}{self.number}{side_char}{ann_str}".strip()
