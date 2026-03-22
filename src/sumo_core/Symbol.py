@@ -21,8 +21,6 @@ from __future__ import annotations
 
 from enum import Enum, auto
 
-from Outcome import Outcome
-
 
 class Symbol(Enum):
     W = auto()
@@ -60,19 +58,3 @@ class Symbol(Enum):
             "\u25B3": cls.DRAW, # △
         }
         return reverse_map.get(unicode_char, None)
-
-    def inconsistent(self, out: Outcome) -> bool:
-        """
-        Return True iff this Symbol is inconsistent with the given Outcome.
-        """
-        if self == Symbol.W and out == Outcome.W:
-            return False
-        if self == Symbol.L and out == Outcome.L:
-            return False
-        if self == Symbol.FS and out == Outcome.FS:
-            return False
-        if self == Symbol.FP and out == Outcome.FP:
-            return False
-        if self == Symbol.DRAW and out == Outcome.DRAW:
-            return False
-        return True
