@@ -1,10 +1,11 @@
 from multiprocessing import shared_memory
 import pickle
 import sys
+from .version import VERSION
 from time import time
 def connect():
     try:
-        shm = shared_memory.SharedMemory(name='history3')
+        shm = shared_memory.SharedMemory(name=f'history{VERSION}')
         print("Loading annotated history from shared memory ... ", end='', flush=True)
         t0=time()
         history = pickle.loads(bytes(shm.buf))
@@ -13,8 +14,8 @@ def connect():
         return history
         
     except FileNotFoundError:
-        print("\n\n\nError: Shared memory segment 'history3' not found.")
-        print("py -m sandpit.GTB.optimisation.others.infrastructure.memory.shared_memory_start\n\n")
+        print(f"\n\n\nError: Shared memory segment 'history{VERSION}' not found.")
+        print("py -m infra.memory.shared_memory_start\n\n")
         return None
     except Exception as e:
         print(f"\nError: {str(e)}")
@@ -25,4 +26,5 @@ def connect():
 
 if __name__ == '__main__':
     h = connect()
-    print( "Connected to history3." )
+    if h:
+        print( f"Connected to 'history{VERSION}'" )

@@ -1,39 +1,24 @@
-"""
-Performance value object for sumo history.
+from dataclasses import dataclass, field
+from typing import FrozenSet, Optional
 
-Represents a rikishi's performance in a single basho.
+from .BasicEnums import Prize, Direction
 
-A Performance consists of:
-- wins      : number of wins
-- losses    : number of losses
-- absences  : number of absences
-- yusho     : whether the rikishi won the tournament
-- prizes    : set of special prizes awarded
-
-Invariant:
-- wins, losses, absences must be non-negative integers
-"""
-
-from __future__ import annotations
-
-from dataclasses import dataclass
-from Prize import Prize
-
-
-@dataclass
+@dataclass(frozen=True)
 class Performance:
-    wins: int
-    losses: int
-    absences: int
-    yusho: bool
-    prizes: set[Prize]
+    """
+    Represents awards and status changes for a basho result.
+    Immutable version using dataclass(frozen=True).
+    """
+    # Define fields as class attributes with type hints
+    # Use FrozenSet for immutability and hashability
+    # Use field(default_factory=...) for mutable defaults like sets
+    prizes: FrozenSet[Prize] = field(default_factory=frozenset)
+    updown: Optional[Direction] = None
 
     def __post_init__(self):
-        if self.wins < 0:
-            raise ValueError(f"wins must be non-negative, got {self.wins}")
-
-        if self.losses < 0:
-            raise ValueError(f"losses must be non-negative, got {self.losses}")
-
-        if self.absences < 0:
-            raise ValueError(f"absences must be non-negative, got {self.absences}")
+        """
+        Validation performed after the auto-generated __init__ runs.
+        """
+        # Check for the conflicting major awards constraint
+        if Prize.YUSHO in self.prizes and Prize.JUN_YUSHO in self.prizes:
+            raise ValueError("Performance cannot contain both YUSHO and JUN_YUSHO prizes")

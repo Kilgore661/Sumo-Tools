@@ -1,27 +1,62 @@
-"""
-Canonical transitional history model.
+from dataclasses import dataclass
+from .BashoState import BashoState
+from .BasicPrimitives import Year, Month
 
-NOTE:
-- File name: History.py
-- Class name: History 
-- Will be renamed to History once migration is complete
+################################################################################
 
-Represents the complete recorded history of basho.
+@dataclass(frozen=True)
+class Date:
+    """
+    Date value object for sumo history.
 
-A History is a partial function:
+    A Date represents a basho date as a pair (Year, Month).
 
-    Date -> BashoState
+    It is immutable, hashable, and orderable.
+    Its string form is "YYYY/MM".
+    """
 
-Implemented as a dictionary with function-call syntax.
-"""
+    year: Year
+    month: Month
 
-from __future__ import annotations
+    def __str__(self) -> str:
+        return f"{self.year}/{self.month:02d}"
 
-from Date import Date
-from BashoState import BashoState
+    def __lt__(self, other: "Date") -> bool:
+        return self.year < other.year or (
+            self.year == other.year and self.month < other.month
+        )
 
+    def __gt__(self, other: "Date") -> bool:
+        return self.year > other.year or (
+            self.year == other.year and self.month > other.month
+        )
+
+    def __le__(self, other: "Date") -> bool:
+        return self < other or self == other
+
+    def __ge__(self, other: "Date") -> bool:
+        return self > other or self == other
+################################################################################
 
 class History(dict):
+
+    """
+    Canonical transitional history model.
+
+    NOTE:
+    - File name: History.py
+    - Class name: History 
+    - Will be renamed to History once migration is complete
+
+    Represents the complete recorded history of basho.
+
+    A History is a partial function:
+
+        Date -> BashoState
+
+    Implemented as a dictionary with function-call syntax.
+    """
+
     def __new__(cls, mapping=None):
         instance = super().__new__(cls)
 

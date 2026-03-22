@@ -3,8 +3,8 @@ from zipfile import ZipFile, ZIP_DEFLATED
 import json, os
 from typing import Any, Dict, Type
 
-class BaseSerializer:
-    """Base class for serializers with common functionality"""
+class BaseSerialiser:
+    """Base class for serialisers with common functionality"""
     
     @staticmethod
     def enum_to_str(obj: Any) -> Any:

@@ -1,10 +1,61 @@
+from dataclasses import dataclass
+
+from .BasicPrimitives import RikId, Riks, Shikona
+from .Chii import Chii
+
+
+################################################################################
+
+"""
+Mapping from RikId to Shikona.
+
+Represents a partial function:
+
+    RikId -> Shikona
+"""
+
+class RikShikona(dict):
+    def __new__(cls, mapping=None):
+        instance = super().__new__(cls)
+
+        if mapping is not None:
+            for rid, shik in mapping.items():
+                instance[rid] = shik
+
+        return instance
+
+    def __call__(self, rid: RikId):
+        return self.get(rid)
+
+"""
+Canonical transitional mapping from RikId to Chii.
+
+Represents a partial function:
+
+    RikId → Chii
+
+This is implemented as a dictionary with function-call syntax.
+"""
+
+
+
+class RikChii(dict):
+    def __new__(cls, mapping=None):
+        instance = super().__new__(cls)
+
+        if mapping is not None:
+            for rid, foo in mapping.items():
+                instance[rid] = foo
+
+        return instance
+
+    def __call__(self, rid: RikId):
+        return self.get(rid)
+
+################################################################################
+
 """
 Canonical banzuke model.
-
-NOTE:
-- File name: Banzuke.py
-- Class name: Banzuke
-- Will be renamed to Banzuke once migration is complete
 
 A Banzuke consists of:
 
@@ -15,15 +66,6 @@ A Banzuke consists of:
 The defining structural constraint is that these three objects have
 the same domain.
 """
-
-from __future__ import annotations
-
-from dataclasses import dataclass
-
-from Riks import Riks
-from RikChii import RikChii
-from RikShikona import RikShikona
-from RikId import RikId
 
 
 @dataclass(frozen=True)
