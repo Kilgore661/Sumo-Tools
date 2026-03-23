@@ -1,0 +1,113 @@
+# **Programming Style Statement**
+
+I design software **top-down, by contract**.
+
+## 1. Core Principle
+
+Every function, module, or component has a **clear contract**:
+
+* Inputs are assumed to satisfy their stated types and preconditions
+* Outputs must satisfy their stated guarantees
+
+I aim to **eliminate invalid states at the boundaries**, not handle them internally.
+
+---
+
+## 2. Trust in Inputs
+
+I do **not** write defensive checks for conditions that are ruled out by the contract.
+
+Examples of what I avoid:
+
+* Redundant type checks:
+
+  ```python
+  def f(x: int):
+      if isinstance(x, int): ...
+  ```
+
+* Handling impossible values:
+
+  ```python
+  def f(x: int) -> float:
+      if x != 0:
+          return 1 / x
+  ```
+
+If `x` must be non-zero, that should be enforced by the design (e.g. a `NonZeroInt` concept), not guarded at runtime.
+
+---
+
+## 3. Handle Only Real Uncertainty
+
+I explicitly handle only conditions that are **admitted by the requirements**.
+
+Examples:
+
+* Network unreliability → must be handled
+* External data may be incomplete or provisional → must be handled
+
+Examples I do **not** handle:
+
+* Files randomly disappearing
+* Arbitrary internal corruption
+* Violations of internal invariants without cause
+
+In short:
+
+> If a failure mode is not part of the problem domain, it should not appear in the code.
+
+---
+
+## 4. Avoid Defensive Clutter
+
+I avoid patterns that introduce noise without adding meaning:
+
+* excessive `try/except`
+* `dict.get()` when keys are guaranteed
+* unnecessary `Optional` / `None` handling
+* duplicated checks of already-established conditions
+
+Redundant checks obscure the real logic and the real sources of uncertainty.
+
+---
+
+## 5. Prefer Strong Contracts Over Runtime Checks
+
+Where possible, I prefer:
+
+* clear function signatures
+* explicit result types (e.g. enums for outcomes)
+* well-defined invariants
+
+over:
+
+* runtime validation
+* defensive programming patterns
+
+---
+
+## 6. Separation of Concerns
+
+I aim for clean separation between:
+
+* **pure logic** (deterministic, contract-driven)
+* **impure interactions** (I/O, network, external data)
+
+Only the latter should introduce uncertainty into the system.
+
+---
+
+## 7. Result
+
+The goal is code that is:
+
+* **clear** — logic is not obscured by defensive noise
+* **trustworthy** — outputs are guaranteed by design
+* **focused** — only real problem-domain uncertainty is handled
+
+---
+
+## One-line summary
+
+> I design by contract, trust my inputs, and only handle failure modes that the requirements say can actually occur.
