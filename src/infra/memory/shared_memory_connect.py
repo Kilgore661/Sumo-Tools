@@ -27,4 +27,4 @@ def connect():
 if __name__ == '__main__':
     h = connect()
     if h:
-        print( f"Connected to 'history{VERSION}'" )
+        print( f"Connected to 'history{VERSION}', {len(h)} basho." )
