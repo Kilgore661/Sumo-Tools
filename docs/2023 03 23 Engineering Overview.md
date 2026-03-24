@@ -1,132 +1,180 @@
-# Sumo Tools — Engineering Notes
+# Engineering Overview (Revised Draft v1.1)
 
-## 1. Context
+## Purpose
 
-We are building a set of tools for analysing sumo data.
+The purpose of this system is to construct and maintain a canonical representation of sumo history.
 
-The system is structured in layers:
+This representation must be:
 
-    raw data → canonical model → shared memory → tools
+* **validated** — internally consistent and structurally correct
+* **structured** — expressed in terms of the `sumo_core` domain model
+* **complete (time-relative)** — containing all results that should have been published as of the current time
 
-- Raw data: scraped HTML and related files
-- Canonical model: validated representation of sumo history (`sumo_core`)
-- Shared memory: fast access layer for tools
-- Tools: analysis, reporting, etc.
-
-The immediate goal is to establish a reliable pipeline that produces a
-canonical representation of sumo history and keeps it up to date.
+The system prioritises **correctness over completeness**: no canonical state is published unless it is fully validated.
 
 ---
 
-## 2. General Principles
+## Publication Time
 
-### Top-down, contract-first design
+During a basho, results for each day are published at **10:00 UK time**.
 
-The system is designed from the top level downwards.
+Define:
 
-Each component is defined in terms of:
+> **Last day (of results)** = the latest day of the current basho for which results should have been published as of the current UK time.
 
-- what it assumes (inputs)
-- what it guarantees (outputs)
+When the context is clear, this is abbreviated to **“the last day.”**
 
-Lower-level modules are then implemented to satisfy these contracts.
-
----
-
-### Separation of concerns
-
-Each layer has a single responsibility:
-
-- tracker: when to run
-- scraper: fetch data
-- parser: validate and build canonical model
-- persistence: write canonical snapshot
-- memory: load into shared memory
-- tools: consume
-
-Components do not take on responsibilities outside their layer.
+This quantity determines how far the canonical history is expected to extend at any given time.
 
 ---
 
-### Time-driven orchestration
+## Canonical Model
 
-The system is driven by when data is expected to exist,
-not by inspecting the filesystem.
+The canonical model (`History`) is:
 
----
+> A validated, structured representation of sumo history that is complete from the epoch (1958/01) through the last day.
 
-### Offensive (non-defensive) coding
+Formally, `History` is defined over the domain:
 
-Code assumes that inputs satisfy their declared contracts.
+```
+(BashoDate, Day) where Day ∈ [1, 15]
+```
 
-Invalid states are excluded by design, not handled defensively.
+restricted to all `(BashoDate, Day)` pairs whose results should have been published as of the current time.
 
-Checks are only introduced where failure modes are part of the problem
-domain (e.g. network unreliability, provisional external data).
+For each such pair, `History` contains:
 
----
+* bout-by-bout results for that day
+* the standings as of that day
 
-### Explicit handling of real uncertainty
-
-Only uncertainty that arises from the domain is handled explicitly:
-
-- network failures (scraping)
-- provisional or incomplete data (parsing)
-
-Other hypothetical failure modes are not treated as part of normal execution.
+A canonical `History` must be **total over this domain**.
 
 ---
 
-### OOP as a design tool, not an implementation requirement
+## System Responsibilities
 
-Object-oriented thinking is used to identify:
+The system is divided into four components:
 
-- concepts (e.g. BashoWindow, UpdateResult)
-- responsibilities
-- boundaries
+* **Tracker** — determines when updates should occur and orchestrates the update cycle
+* **Scraper** — obtains raw source data
+* **Parser** — validates and constructs canonical data from raw inputs
+* **Persistence** — writes canonical snapshots
 
-Implementation remains simple:
-
-- data structures for state
-- functions for behaviour
-
-Classes are used only where they add clarity.
+Each component has a strictly defined responsibility.
 
 ---
 
-### Incremental development with traceability
+## Tracker
 
-Development proceeds in small, coherent steps:
+**Role**
+The tracker maintains a canonical `History` that is complete from the epoch through the last day.
 
-- define contracts
-- implement minimal structure
-- refine through use
+**Behaviour**
 
-Progress is recorded alongside the design.
+* Determines when new results should be available based on time
+* Initiates update cycles
+* Does not inspect or reason about historical completeness
+* Does not interpret raw data
+
+**Success condition**
+
+An update cycle succeeds iff a canonical `History` is produced or confirmed to be complete through the last day.
 
 ---
 
-## 3. Progress
+## Scraper
 
-(Monday 23 March 2026)
+**Role**
+The scraper obtains raw artifacts required to construct history up to the last day.
 
-- Canonical model (`sumo_core`) established and validated via shared memory
-  (repository tag: `core-v1`)
+**Behaviour**
 
-- Tracker implementation started (tagged `tracker)
-  (responsible for maintaining an up-to-date canonical `History`)
+* Fetches raw source data (e.g. HTML or equivalent)
+* Does not parse or interpret the data
+* Does not reason about history or completeness
+* Does not decide what constitutes a valid result
 
-- Tracker skeleton implemented:
-  
-  - main loop and state model (DORMANT / READY / ACTIVE)
-  - scheduling logic (basho window, trigger hour)
-  - update cycle interface
-  - in-memory ledger
-  - stub tray and alert modules
+**Success condition**
 
-- Tracker runs and scheduling works; scraper and parser not yet implemented
+A scrape succeeds iff all raw artifacts required to cover every `(BashoDate, Day)` up to the last day have been obtained.
 
-- Next steps:
-  
-  - implement scraper
-  - implement parser / canonical builder
+**Failure mode**
+
+* Failures are expected (e.g. network issues)
+* Failures are recoverable
+* No partial success is accepted
+
+---
+
+## Parser
+
+**Role**
+The parser constructs and validates the canonical `History` from scraped data.
+
+**Behaviour**
+
+* Interprets raw artifacts
+* Validates structural and logical correctness
+* Assembles a canonical `History`
+
+**Success condition**
+
+A parse succeeds iff the scraped artifacts are sufficient to construct a valid canonical `History` that is total through the last day.
+
+Otherwise, the update is rejected.
+
+---
+
+## Persistence
+
+**Role**
+Persistence writes canonical snapshots.
+
+**Behaviour**
+
+* Serialises the canonical `History`
+* Writes timestamped artifacts (e.g. zip files)
+* Does not interpret or validate data
+
+---
+
+## System Invariants
+
+At all times:
+
+* The canonical `History` is **valid**
+* The canonical `History` is **total through the last day**
+* The system may lag behind real-world publication, but must never publish invalid data
+
+---
+
+## Design Principles
+
+* **Correctness over completeness**
+  Incomplete updates are acceptable; invalid canonical states are not.
+
+* **Separation of concerns**
+  Each component has a single, clearly defined responsibility.
+
+* **Deterministic contracts**
+  Each stage has a clear success/failure condition.
+
+* **Monotonic extension**
+  History is extended forward in time; existing canonical data is not revised.
+
+---
+
+## Summary
+
+The system maintains a canonical `History` that is:
+
+* validated
+* structured
+* complete through the last day of published results
+
+The tracker determines when updates should occur.
+The scraper obtains raw data.
+The parser validates and constructs the canonical model.
+Persistence records the result.
+
+Completeness is defined relative to publication time, and correctness is never compromised.
