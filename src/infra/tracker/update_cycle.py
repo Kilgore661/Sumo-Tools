@@ -1,151 +1,70 @@
 """
-Tracker update cycle.
+Tracker update-cycle orchestration.
 
-This module orchestrates a single tracker update attempt.
+This module coordinates one tracker update cycle.
 
-An update cycle is:
+Current implementation:
 
-    scrape requested BashoDayRefs
-    -> parse requested BashoDayRefs
-    -> confirm canonical zip written
+1. asks the scraper to ensure the required raw artifacts exist
 
-The tracker uses the result of this cycle to decide whether to:
-- record a successful run
-- retry later
-- do nothing
-- terminate
+Future versions will also:
 
-This module defines:
-    - run_update_cycle(): execute one update cycle
-    - set_scraper(): inject scraper implementation
-    - set_parser(): inject parser implementation
-    - set_zip_probe(): inject canonical zip probe
+2. ask the parser to construct / validate canonical History
+3. check that the canonical zip was published
 
-Contract summary:
+It returns an UpdateResult describing the outcome.
 
-- The tracker owns planning. It supplies an ordered list of requested
-  BashoDayRefs.
-- The scraper owns acquisition. It fetches raw files for those requests.
-- The parser owns construction/validation. It attempts to build canonical
-  History from the fetched raw files.
+This module owns the concrete sequencing of tracker sub-steps.
+It does not expose dependency-injection hooks because there is only one
+scraper, one parser, and one zip probe in this system.
 """
 
-from pathlib import Path
-from typing import Callable, List, Optional
-
-from infra.tracker.types import UpdateResult
-from .types import BashoDayRef, RequestedDateDays
-
-_scraper: Optional[Callable[[RequestedDateDays], bool]] = None
-_parser: Optional[Callable[[RequestedDateDays], str]] = None
-_zip_probe: Optional[Callable[[], Optional[Path]]] = None
-
-
-def set_scraper(scraper: Callable[[RequestedDateDays], bool]) -> None:
-    """
-    Set the scraper implementation.
-
-    Contract:
-        scraper(requested_date_days) -> bool
-
-    The ordered list `requested_date_days` is computed by the tracker.
-
-    Returns True iff scraping succeeded for all requested BashoDayRefs.
-    """
-    global _scraper
-    _scraper = scraper
-
-
-def set_parser(parser: Callable[[RequestedDateDays], str]) -> None:
-    """
-    Set the parser implementation.
-
-    Contract:
-        parser(requested_date_days) -> str
-
-    Expected return values:
-        "success"       parser succeeded and wrote a new canonical zip
-        "provisional"   parser found provisional / unusable data
-        "fatal"         parser encountered a fatal error
-    """
-    global _parser
-    _parser = parser
-
-
-def set_zip_probe(zip_probe: Callable[[], Optional[Path]]) -> None:
-    """
-    Set the canonical zip probe implementation.
-
-    Contract:
-        zip_probe() -> Optional[Path]
-
-    Returns the path of the most recently written canonical zip, or None if
-    no such zip exists.
-    """
-    global _zip_probe
-    _zip_probe = zip_probe
+from .types import RequestedDateDays, UpdateResult
+from .scraper import scrape
+#from .zip_probe import canonical_zip_exists
+#from .parser import parse
 
 
 def run_update_cycle(requested_date_days: RequestedDateDays) -> UpdateResult:
     """
-    Execute one tracker update cycle.
+    Run one update cycle for the requested BashoDayRefs.
 
-    The cycle is:
+    Current behaviour:
+    - run the scraper for the requested BashoDayRefs
+    - return SCRAPE_FAILED on scrape failure
+    - return SUCCESS on scrape success
 
-        1. if no requests exist, do nothing
-        2. run scraper on the requested BashoDayRefs
-        3. run parser on the requested BashoDayRefs
-        4. confirm that a canonical zip exists
-
-    Returns:
-        UpdateResult.SUCCESS
-        UpdateResult.SCRAPE_FAILED
-        UpdateResult.NO_NEW_DATA
-        UpdateResult.PARSER_FATAL_ERROR
+    Future versions will extend this with parser and persistence checks.
     """
-    if len(requested_date_days) == 0:
+
+    if not requested_date_days:
         return UpdateResult.NO_NEW_DATA
 
-    scrape_result = _scrape(requested_date_days)
-    if not scrape_result:
+    print(
+        f"[update_cycle] running update cycle for "
+        f"{len(requested_date_days)} requested BashoDayRefs"
+    )
+
+    if not scrape(requested_date_days):
+        print("[update_cycle] scrape failed")
         return UpdateResult.SCRAPE_FAILED
 
-    parse_result = _parse(requested_date_days)
-    if parse_result == "provisional":
-        return UpdateResult.NO_NEW_DATA
+#    parse_result = parse(requested_date_days)
+#
+#    if parse_result == "fatal":
+#        print("[update_cycle] parser reported fatal error")
+#        return UpdateResult.PARSER_FATAL_ERROR
+#
+#    if parse_result == "provisional":
+#        print("[update_cycle] parser produced no new canonical state")
+#        return UpdateResult.NO_NEW_DATA
+#
+#    if parse_result != "success":
+#        raise RuntimeError(f"Unexpected parser result: {parse_result!r}")
+#
+#    if not canonical_zip_exists():
+#        print("[update_cycle] parser reported success but canonical zip is missing")
+#        return UpdateResult.PARSER_FATAL_ERROR
 
-    if parse_result == "fatal":
-        return UpdateResult.PARSER_FATAL_ERROR
-
-    latest_zip = _latest_zip()
-    if latest_zip is None:
-        return UpdateResult.PARSER_FATAL_ERROR
-
+    print("[update_cycle] update cycle succeeded")
     return UpdateResult.SUCCESS
-
-
-def _scrape(requested_date_days: RequestedDateDays) -> bool:
-    """
-    Run the configured scraper.
-    """
-    if _scraper is None:
-        raise RuntimeError("No scraper has been configured")
-    return _scraper(requested_date_days)
-
-
-def _parse(requested_date_days: RequestedDateDays) -> str:
-    """
-    Run the configured parser.
-    """
-    if _parser is None:
-        raise RuntimeError("No parser has been configured")
-    return _parser(requested_date_days)
-
-
-def _latest_zip() -> Optional[Path]:
-    """
-    Return the latest canonical zip path.
-    """
-    if _zip_probe is None:
-        raise RuntimeError("No zip probe has been configured")
-    return _zip_probe()
