@@ -20,7 +20,7 @@ scraper, one parser, and one zip probe in this system.
 """
 
 from .types import RequestedDateDays, UpdateResult
-from .scraper import scrape
+from .scraper import scraper
 #from .zip_probe import canonical_zip_exists
 #from .parser import parse
 
