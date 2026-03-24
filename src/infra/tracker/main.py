@@ -9,7 +9,7 @@ The tracker runs continuously. On each iteration it:
 1. Determines the current basho scheduling window
 2. Derives the current run state (DORMANT / READY)
 3. Decides whether new data may exist and a run should be attempted
-4. If so, determines the ordered list of requested (Date, Day) pairs
+4. If so, determines the ordered list of requested BashoDayRefs
 5. Enters ACTIVE state and runs the update cycle:
        scrape requested pairs
        -> parse requested pairs
@@ -20,7 +20,7 @@ The tracker runs continuously. On each iteration it:
        - no new data -> do nothing
        - parser failure -> alert and terminate
 
-The tracker is time-driven. It determines which (Date, Day) pairs should
+The tracker is time-driven. It determines which BashoDayRefs should
 now exist and requests them explicitly. It does not parse, validate, or
 construct canonical History itself.
 
@@ -104,14 +104,14 @@ def run(config: TrackerConfig) -> None:
             sleep(config.poll_interval_seconds)
             continue
 
-        requested_date_days = get_requested_date_days(
+        requested_basho_days = get_requested_date_days(
             now,
             ledger,
             config,
         )
 
-        if len(requested_date_days) == 0:
-            print("[tracker] planner returned no requested date/day pairs")
+        if len(requested_basho_days) == 0:
+            print("[tracker] planner returned no requested BashoDayRefs")
             runtime.state = RunState.READY
             set_tray_state(runtime.state)
             sleep(config.poll_interval_seconds)
@@ -120,7 +120,7 @@ def run(config: TrackerConfig) -> None:
         runtime.state = RunState.ACTIVE
         set_tray_state(runtime.state)
 
-        result = run_update_cycle(requested_date_days)
+        result = run_update_cycle(requested_basho_days)
 
         handle_update_result(
             result,

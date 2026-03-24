@@ -3,8 +3,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum, auto
-from typing import Optional
-
+from typing import Optional, List
+from sumo_core.History import Date
+from sumo_core.BasicPrimitives import Day
 
 """
 Core types used by the tracker.
@@ -63,3 +64,39 @@ class TrackerRuntime:
     current_time: Optional[datetime] = None
     current_window: Optional[BashoWindow] = None
     next_run_time: Optional[datetime] = None
+
+
+@dataclass(frozen=True)
+class BashoDayRef:
+    """
+    Reference to a specific day within a specific basho.
+
+    A BashoDayRef is the canonical identifier for a unit of work in the
+    tracker/scraper/parser pipeline.
+
+    It consists of:
+    - date : the basho date (Year, Month)
+    - day  : the day number within the basho (1–15)
+
+    This replaces the informal use of (Date, Day) tuples and provides a
+    clear, type-safe representation of a basho day.
+    """
+
+    date: Date
+    day: Day
+
+    def __post_init__(self):
+        if not isinstance(self.date, Date):
+            raise TypeError(
+                f"date must be Date, got {type(self.date)}"
+            )
+
+        if not isinstance(self.day, Day):
+            raise TypeError(
+                f"day must be Day, got {type(self.day)}"
+            )
+
+    def __str__(self) -> str:
+        return f"{self.date} Day {int(self.day)}"
+
+RequestedDateDays = List[BashoDayRef]

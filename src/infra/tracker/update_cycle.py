@@ -5,8 +5,8 @@ This module orchestrates a single tracker update attempt.
 
 An update cycle is:
 
-    scrape requested (Date, Day) pairs
-    -> parse requested (Date, Day) pairs
+    scrape requested BashoDayRefs
+    -> parse requested BashoDayRefs
     -> confirm canonical zip written
 
 The tracker uses the result of this cycle to decide whether to:
@@ -24,7 +24,7 @@ This module defines:
 Contract summary:
 
 - The tracker owns planning. It supplies an ordered list of requested
-  (Date, Day) pairs.
+  BashoDayRefs.
 - The scraper owns acquisition. It fetches raw files for those requests.
 - The parser owns construction/validation. It attempts to build canonical
   History from the fetched raw files.
@@ -34,10 +34,7 @@ from pathlib import Path
 from typing import Callable, List, Optional
 
 from infra.tracker.types import UpdateResult
-from sumo_core.BasicPrimitives import Day
-from sumo_core.History import Date
-
-RequestedDateDays = List[tuple[Date, Day]]
+from .types import BashoDayRef, RequestedDateDays
 
 _scraper: Optional[Callable[[RequestedDateDays], bool]] = None
 _parser: Optional[Callable[[RequestedDateDays], str]] = None
@@ -53,7 +50,7 @@ def set_scraper(scraper: Callable[[RequestedDateDays], bool]) -> None:
 
     The ordered list `requested_date_days` is computed by the tracker.
 
-    Returns True iff scraping succeeded for all requested (Date, Day) pairs.
+    Returns True iff scraping succeeded for all requested BashoDayRefs.
     """
     global _scraper
     _scraper = scraper
@@ -96,8 +93,8 @@ def run_update_cycle(requested_date_days: RequestedDateDays) -> UpdateResult:
     The cycle is:
 
         1. if no requests exist, do nothing
-        2. run scraper on the requested (Date, Day) pairs
-        3. run parser on the requested (Date, Day) pairs
+        2. run scraper on the requested BashoDayRefs
+        3. run parser on the requested BashoDayRefs
         4. confirm that a canonical zip exists
 
     Returns:
