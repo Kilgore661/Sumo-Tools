@@ -1,11 +1,13 @@
 """
 Tracker update cycle.
 
-This module contains the orchestration of a single tracker update attempt.
+This module orchestrates a single tracker update attempt.
 
 An update cycle is:
 
-    scrape -> parse -> confirm canonical zip written
+    scrape requested (Date, Day) pairs
+    -> parse requested (Date, Day) pairs
+    -> confirm canonical zip written
 
 The tracker uses the result of this cycle to decide whether to:
 - record a successful run
@@ -19,42 +21,50 @@ This module defines:
     - set_parser(): inject parser implementation
     - set_zip_probe(): inject canonical zip probe
 
-The current version is intentionally minimal. Scraper, parser, and zip
-confirmation are supplied by injected callables so that tracker control flow
-can be developed before the concrete implementations are written.
+Contract summary:
+
+- The tracker owns planning. It supplies an ordered list of requested
+  (Date, Day) pairs.
+- The scraper owns acquisition. It fetches raw files for those requests.
+- The parser owns construction/validation. It attempts to build canonical
+  History from the fetched raw files.
 """
 
-from datetime import datetime
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Callable, List, Optional
 
 from infra.tracker.types import UpdateResult
+from sumo_core.BasicPrimitives import Day
+from sumo_core.History import Date
 
+RequestedDateDays = List[tuple[Date, Day]]
 
-_scraper: Optional[Callable[[datetime], bool]] = None
-_parser: Optional[Callable[[datetime], str]] = None
+_scraper: Optional[Callable[[RequestedDateDays], bool]] = None
+_parser: Optional[Callable[[RequestedDateDays], str]] = None
 _zip_probe: Optional[Callable[[], Optional[Path]]] = None
 
 
-def set_scraper(scraper: Callable[[datetime], bool]) -> None:
+def set_scraper(scraper: Callable[[RequestedDateDays], bool]) -> None:
     """
     Set the scraper implementation.
 
     Contract:
-        scraper(now) -> bool
+        scraper(requested_date_days) -> bool
 
-    Returns True iff scraping succeeded.
+    The ordered list `requested_date_days` is computed by the tracker.
+
+    Returns True iff scraping succeeded for all requested (Date, Day) pairs.
     """
     global _scraper
     _scraper = scraper
 
 
-def set_parser(parser: Callable[[datetime], str]) -> None:
+def set_parser(parser: Callable[[RequestedDateDays], str]) -> None:
     """
     Set the parser implementation.
 
     Contract:
-        parser(now) -> str
+        parser(requested_date_days) -> str
 
     Expected return values:
         "success"       parser succeeded and wrote a new canonical zip
@@ -79,15 +89,16 @@ def set_zip_probe(zip_probe: Callable[[], Optional[Path]]) -> None:
     _zip_probe = zip_probe
 
 
-def run_update_cycle(now: datetime) -> UpdateResult:
+def run_update_cycle(requested_date_days: RequestedDateDays) -> UpdateResult:
     """
     Execute one tracker update cycle.
 
     The cycle is:
 
-        1. run scraper
-        2. run parser
-        3. confirm that a canonical zip exists
+        1. if no requests exist, do nothing
+        2. run scraper on the requested (Date, Day) pairs
+        3. run parser on the requested (Date, Day) pairs
+        4. confirm that a canonical zip exists
 
     Returns:
         UpdateResult.SUCCESS
@@ -95,11 +106,14 @@ def run_update_cycle(now: datetime) -> UpdateResult:
         UpdateResult.NO_NEW_DATA
         UpdateResult.PARSER_FATAL_ERROR
     """
-    scrape_result = _scrape(now)
+    if len(requested_date_days) == 0:
+        return UpdateResult.NO_NEW_DATA
+
+    scrape_result = _scrape(requested_date_days)
     if not scrape_result:
         return UpdateResult.SCRAPE_FAILED
 
-    parse_result = _parse(now)
+    parse_result = _parse(requested_date_days)
     if parse_result == "provisional":
         return UpdateResult.NO_NEW_DATA
 
@@ -113,22 +127,22 @@ def run_update_cycle(now: datetime) -> UpdateResult:
     return UpdateResult.SUCCESS
 
 
-def _scrape(now: datetime) -> bool:
+def _scrape(requested_date_days: RequestedDateDays) -> bool:
     """
     Run the configured scraper.
     """
     if _scraper is None:
         raise RuntimeError("No scraper has been configured")
-    return _scraper(now)
+    return _scraper(requested_date_days)
 
 
-def _parse(now: datetime) -> str:
+def _parse(requested_date_days: RequestedDateDays) -> str:
     """
     Run the configured parser.
     """
     if _parser is None:
         raise RuntimeError("No parser has been configured")
-    return _parser(now)
+    return _parser(requested_date_days)
 
 
 def _latest_zip() -> Optional[Path]:

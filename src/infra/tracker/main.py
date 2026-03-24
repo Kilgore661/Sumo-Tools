@@ -9,40 +9,45 @@ The tracker runs continuously. On each iteration it:
 1. Determines the current basho scheduling window
 2. Derives the current run state (DORMANT / READY)
 3. Decides whether new data may exist and a run should be attempted
-4. If so, enters ACTIVE state and runs the update cycle:
-       scrape → parse → write canonical zip
-5. Handles the outcome according to policy:
-       - success → record successful run for the day
-       - scrape failure → retry later
-       - no new data → do nothing
-       - parser failure → alert and terminate
+4. If so, determines the ordered list of requested (Date, Day) pairs
+5. Enters ACTIVE state and runs the update cycle:
+       scrape requested pairs
+       -> parse requested pairs
+       -> write canonical zip
+6. Handles the outcome according to policy:
+       - success -> record successful run for the day
+       - scrape failure -> retry later
+       - no new data -> do nothing
+       - parser failure -> alert and terminate
 
-The tracker is time-driven and does not inspect repository completeness.
-It assumes that, at any time new data may exist, prior data is complete.
+The tracker is time-driven. It determines which (Date, Day) pairs should
+now exist and requests them explicitly. It does not parse, validate, or
+construct canonical History itself.
 
 This module defines:
     - run(): the main loop
     - handle_update_result(): policy for update outcomes
 
-All domain-specific work (scraping, parsing, persistence) is delegated
-to other modules.
+All domain-specific work (planning, scraping, parsing, persistence) is
+delegated to other modules.
 """
 
 from datetime import date, datetime
 from time import sleep
 
+from infra.tracker.alert import alert_fatal
 from infra.tracker.config import TrackerConfig
-from infra.tracker.types import RunState, TrackerRuntime, UpdateResult
+from infra.tracker.ledger import InMemoryLedger
+from infra.tracker.planner import get_requested_date_days
 from infra.tracker.schedule import (
     get_basho_window,
-    state_for,
     next_run_time,
+    state_for,
     time_when_new_data_may_exist,
 )
-from infra.tracker.ledger import InMemoryLedger
-from infra.tracker.update_cycle import run_update_cycle
 from infra.tracker.tray import set_tray_state
-from infra.tracker.alert import alert_fatal
+from infra.tracker.types import RunState, TrackerRuntime, UpdateResult
+from infra.tracker.update_cycle import run_update_cycle
 
 
 def handle_update_result(
@@ -99,10 +104,23 @@ def run(config: TrackerConfig) -> None:
             sleep(config.poll_interval_seconds)
             continue
 
+        requested_date_days = get_requested_date_days(
+            now,
+            ledger,
+            config,
+        )
+
+        if len(requested_date_days) == 0:
+            print("[tracker] planner returned no requested date/day pairs")
+            runtime.state = RunState.READY
+            set_tray_state(runtime.state)
+            sleep(config.poll_interval_seconds)
+            continue
+
         runtime.state = RunState.ACTIVE
         set_tray_state(runtime.state)
 
-        result = run_update_cycle(now)
+        result = run_update_cycle(requested_date_days)
 
         handle_update_result(
             result,
