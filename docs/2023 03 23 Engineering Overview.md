@@ -113,7 +113,7 @@ Progress is recorded alongside the design.
 - Canonical model (`sumo_core`) established and validated via shared memory
   (repository tag: `core-v1`)
 
-- Tracker implementation started
+- Tracker implementation started (tagged `tracker)
   (responsible for maintaining an up-to-date canonical `History`)
 
 - Tracker skeleton implemented:
