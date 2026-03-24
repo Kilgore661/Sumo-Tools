@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from .BasicPrimitives import Day, Torikumi, Pair, RikId, Pair
 from .BasicEnums import Outcome, Symbol
 from .Kimarite import Kimarite
+from .Performance import Performances
 
 ################################################################################
 
