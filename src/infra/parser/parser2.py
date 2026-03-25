@@ -30,7 +30,7 @@ from .parser_warning_logger import logger
 from .parser2_utils import RESULTS_DIR, adapt_banzuke_for_daily_parser
 from .parser2_body_adapter import _extract_performance
 
-OUTPUT_DIR = 'files/output_fsm'
+OUTPUT_DIR = 'files/output'
 
 def tidy_up(
         d: Date,
@@ -161,14 +161,14 @@ def parse_and_save_history(start_year, end_year):
         return
 
     # Step 2: Define the output path and filename.
-    output_dir = f"{OUTPUT_DIR}/histories_with_annotations"
+    output_dir = f"{OUTPUT_DIR}/Historys"
     filename = f"{start_year}_01 to {end_year}_11"
     full_path = os.path.join(output_dir, filename)
 
     # Step 3: Ensure the output directory exists.
     os.makedirs(output_dir, exist_ok=True)
 
-    # Step 4: Call the new serializer to save the data.
+    # Step 4: Call the new serialiser to save the data.
     print(f"\nSaving history to {full_path}.zip...")
     save_history_with_annotations(history, full_path)
     print("Save complete.")
