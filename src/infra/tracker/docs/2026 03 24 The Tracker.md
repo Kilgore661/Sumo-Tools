@@ -30,8 +30,6 @@ A retrieval attempt is considered unsuccessful if any required data cannot be ob
 
 ---
 
-
-
 # 2. Specification
 
 ## 2.1 Overview

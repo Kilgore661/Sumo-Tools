@@ -77,3 +77,96 @@ Anything beyond that is internal to the FSM package as far as the parser files y
 ### Most important parser-level dependency summary
 
 `parser2.py` depends on `parser2_body.parse_and_validate_body(...)`; `parser2_body.py` is the only shown file that directly depends on the FSM package; and the final parser output only needs the validated `Dict[RikId, FinalBanzukeEntry]` that comes back out of that stage.  
+
+From the files you shared, the **exact parser-visible contract** of the FSM layer is this:
+
+```python
+# Public data types
+
+@dataclass(frozen=True)
+class RikishiData:
+    id: RikId
+    shikona: Shikona
+
+@dataclass(frozen=True)
+class BanzukeRow:
+    east: Optional[RikishiData]
+    west: Optional[RikishiData]
+    rank_string: str
+
+@dataclass(frozen=True)
+class FinalBanzukeEntry:
+    chii: NewFoo
+    shikona: Shikona
+```
+
+That is stated directly in `FSM_data_classes.py`.
+
+The concrete FSM classes exposed by name are:
+
+```python
+class YokozunaFSM(SanyakuBaseFSM):
+    def __init__(self, date: Date, sorted_margin_data: list, dups: dict): ...
+
+class OSK_FSM(SanyakuBaseFSM):
+    def __init__(self, rank: str, date: Date, sorted_margin_data: list, dups: dict): ...
+
+class GruntFSM(BaseFSM):
+    def __init__(self, *args, **kwargs): ...
+```
+
+`OSK_FSM` additionally enforces `rank in ['O', 'S', 'K']` and raises `ValueError` otherwise. `YokozunaFSM` hardwires rank `'Y'`.
+
+All FSMs inherit the same operational surface from `BaseFSM`:
+
+```python
+class BaseFSM(ABC):
+    def __init__(self, date: Date,
+                 sorted_margin_data: List[Tuple[RikId, NewFoo]],
+                 dups: Dict):
+        self.output: Dict[RikId, FinalBanzukeEntry]
+        self.rows_processed: int
+
+    def run(self, banzuke_row_stream: List[BanzukeRow]) -> Dict[RikId, FinalBanzukeEntry]
+```
+
+`run(...)` consumes `List[BanzukeRow]`, increments `rows_processed` for every accepted row, may stop on `UnclassifiableRowError` or state `4`, calls `_end_of_stream_action()`, raises `ReconciliationError` if margin rows remain, and returns `self.output`.
+
+So the **minimum exact public contract**, as used by the parser, is:
+
+```python
+# names
+GruntFSM
+OSK_FSM
+YokozunaFSM
+FinalBanzukeEntry
+BanzukeRow
+RikishiData
+
+# constructor shapes
+YokozunaFSM(date, sorted_margin_data, dups)
+OSK_FSM(rank, date, sorted_margin_data, dups)   # rank must be 'O' | 'S' | 'K'
+GruntFSM(date, sorted_margin_data, dups)        # via BaseFSM-compatible args
+
+# instance API
+fsm.run(banzuke_row_stream: List[BanzukeRow]) -> Dict[RikId, FinalBanzukeEntry]
+fsm.output: Dict[RikId, FinalBanzukeEntry]
+fsm.rows_processed: int
+```
+
+That is the contract the code actually guarantees from the files shown.
+
+The FSM-specific exception types defined in the package are also:
+
+```python
+class BanzukeParsingError(Exception): ...
+class ReconciliationError(BanzukeParsingError): ...
+class UnclassifiableRowError(BanzukeParsingError): ...
+class RankOrderValidationError(BanzukeParsingError): ...
+```
+
+Those are public in the Python sense, although from the material shown I cannot prove the parser imports them from `.FSM`; I can only say they are defined in the FSM package files you shared.
+
+One important caveat: I have **not** seen the package’s `FSM/__init__.py`, so I cannot prove which names are re-exported by the module object itself. The contract above is the exact one implied by the concrete class files plus your parser-facing summary, not a proven `__all__` list.
+
+I

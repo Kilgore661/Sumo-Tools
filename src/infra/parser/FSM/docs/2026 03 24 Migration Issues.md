@@ -56,7 +56,7 @@ If `str(Chii)` differs from `str(NewFoo)`:
 ### Action
 
 * Compare `str(NewFoo(x))` vs `str(Chii(x))` for representative cases:
-
+  
   * normal ranks
   * sideless ranks
   * annotated ranks
@@ -118,9 +118,10 @@ ann == YO
 ### Action
 
 * Verify mapping:
-
+  
   * `NewAnn.EMPTY` → `Annotation.EMPTY`
   * `NewAnn.YO` → `Annotation.YO`
+
 * Confirm no hidden differences in meaning or usage
 
 ---
@@ -262,10 +263,13 @@ Here’s a checklist version.
 ## Rank model substitution
 
 * [ ] Replace `NewFoo` imports with `Chii`
-* [ ] Replace `NewAnn` imports with `Annotation`
-* [ ] Replace `IntDate` with `Date` or keep `IntDate` consistently
-* [ ] Replace all type hints:
 
+* [ ] Replace `NewAnn` imports with `Annotation`
+
+* [ ] Replace `IntDate` with `Date` or keep `IntDate` consistently
+
+* [ ] Replace all type hints:
+  
   * [ ] `NewFoo` → `Chii`
   * [ ] `Optional[NewFoo]` → `Optional[Chii]`
   * [ ] `Tuple[RikId, NewFoo]` → `Tuple[RikId, Chii]`
@@ -274,36 +278,45 @@ Here’s a checklist version.
 ## Rank object behavior
 
 * [ ] Confirm `Chii` exposes:
-
+  
   * [ ] `.level`
   * [ ] `.number`
   * [ ] `.side`
   * [ ] `.ann`
+
 * [ ] Confirm `Chii.from_str(...)` can parse all needed rank strings
+
 * [ ] Confirm `Chii` equality behaves as FSM expects
+
 * [ ] Confirm `Chii` hashing behaves as FSM expects
+
 * [ ] Confirm `Chii` ordering/ordinal behavior matches FSM needs
 
 ## Duplicate-key normalization
 
 * [ ] Find every place FSM uses `str(foo)` as a key
-* [ ] Compare `str(NewFoo)` vs `str(Chii)` for:
 
+* [ ] Compare `str(NewFoo)` vs `str(Chii)` for:
+  
   * [ ] normal ranks
   * [ ] sideless ranks
   * [ ] annotated ranks
   * [ ] yokozuna/edge cases
+
 * [ ] Confirm duplicate lookup keys still match migrated data
 
 ## Sideless recovery
 
 * [ ] Find every place FSM constructs a sideless rank
-* [ ] Confirm `Side.NONE` is still the correct representation
-* [ ] Confirm making a rank sideless preserves:
 
+* [ ] Confirm `Side.NONE` is still the correct representation
+
+* [ ] Confirm making a rank sideless preserves:
+  
   * [ ] level
   * [ ] number
   * [ ] annotation
+
 * [ ] Confirm sideless `Chii` compares the same way as sideless `NewFoo`
 
 ## Annotation recovery
@@ -336,12 +349,13 @@ Here’s a checklist version.
 ## Imports and module paths
 
 * [ ] Update moved core imports, especially:
-
+  
   * [ ] `Performance`
   * [ ] `RikId`
   * [ ] `Day`
   * [ ] `RikChii`
   * [ ] `RikShikona`
+
 * [ ] Remove stale transitional imports once migration is complete
 
 ## Testing strategy
@@ -355,7 +369,7 @@ Here’s a checklist version.
 ## Red-flag rule
 
 * [ ] If a change touches:
-
+  
   * [ ] `str(foo)`
   * [ ] sideless logic
   * [ ] annotation recovery
