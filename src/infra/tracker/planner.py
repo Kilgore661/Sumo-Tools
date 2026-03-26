@@ -18,7 +18,6 @@ only the missing suffix or isolated missing days.
 """
 
 from datetime import datetime, timedelta
-from typing import List
 
 from infra.tracker.config import TrackerConfig
 from infra.tracker.ledger import InMemoryLedger
@@ -55,8 +54,8 @@ def get_requested_date_days(
     """
     _ = ledger  # Reserved for future coverage-aware planning.
 
-    last_date, last_day = _latest_published_date_day(now, config)
-    return _enumerate_from_epoch_to(last_date, last_day)
+    latest_ref = _latest_published_date_day(now, config)
+    return _enumerate_from_epoch_to(latest_ref.date, latest_ref.day)
 
 
 def _latest_published_date_day(
@@ -82,10 +81,16 @@ def _latest_published_date_day(
     published_day = _last_published_day_in_basho(now, current_start, config)
 
     if published_day is not None:
-        return BashoDayRef( Date(Year(current_year), Month(current_month)), published_day )
+        return BashoDayRef(
+            Date(Year(current_year), Month(current_month)),
+            published_day,
+        )
 
     previous_year, previous_month = add_months(current_year, current_month, -2)
-    return BashoDayRef( Date(Year(previous_year), Month(previous_month)), Day(15) )
+    return BashoDayRef(
+        Date(Year(previous_year), Month(previous_month)),
+        Day(15),
+    )
 
 
 def _most_recent_basho_year_month(now: datetime) -> tuple[int, int]:

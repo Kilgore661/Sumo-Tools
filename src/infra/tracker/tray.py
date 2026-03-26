@@ -9,16 +9,18 @@ tray implementation can later replace the stub without affecting tracker
 control flow.
 
 This module defines:
-    - set_tray_state(state): reflect the current tracker state
+    - set_tray_state(state, now): reflect the current tracker state
 """
 
+from datetime import datetime
 from infra.tracker.types import RunState
 
 
-def set_tray_state(state: RunState) -> None:
+def set_tray_state(state: RunState, now: datetime) -> None:
     """
     Reflect the current tracker state.
 
     Current implementation: console output only.
     """
-    print(f"[tray] state -> {state.name}")
+    timestamp = now.strftime("%Y/%m/%d %H:%M")
+    print(f"[tray] {timestamp} state -> {state.name}")

@@ -20,7 +20,7 @@ scraper, one parser, and one zip probe in this system.
 """
 
 from .types import RequestedDateDays, UpdateResult
-from .scraper import scraper
+from .scraper.scraper import scrape
 #from .zip_probe import canonical_zip_exists
 #from .parser import parse
 
@@ -40,10 +40,7 @@ def run_update_cycle(requested_date_days: RequestedDateDays) -> UpdateResult:
     if not requested_date_days:
         return UpdateResult.NO_NEW_DATA
 
-    print(
-        f"[update_cycle] running update cycle for "
-        f"{len(requested_date_days)} requested BashoDayRefs"
-    )
+    print( f"[update_cycle] checking {len(requested_date_days)} previous results")
 
     if not scrape(requested_date_days):
         print("[update_cycle] scrape failed")

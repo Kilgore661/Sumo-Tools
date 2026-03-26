@@ -31,7 +31,7 @@ from infra.tracker.types import BashoDayRef
 
 
 BASE_URL = "https://sumodb.sumogames.de"
-OUTPUT_ROOT = Path("../files") / "output"
+OUTPUT_ROOT = Path("files") / "output"
 HTML_RESULTS_ROOT = OUTPUT_ROOT / "HTML results"
 CURRENT_STANDINGS_ROOT = OUTPUT_ROOT / "current standings"
 WEIRDNESS_PATH = OUTPUT_ROOT / "text_weirdness.html"
@@ -69,10 +69,10 @@ def scrape(requested_basho_days: Iterable[BashoDayRef]) -> bool:
 
     for basho_date in requested_dates:
         if _is_no_data_basho(basho_date):
-            print(
-                f"[scraper] skipping current standings for no-data basho "
-                f"{basho_date.year}/{basho_date.month:02d}"
-            )
+            #print(
+            #    f"[scraper] skipping current standings for no-data basho "
+            #    f"{basho_date.year}/{basho_date.month:02d}"
+            #)
             continue
 
         if not _ensure_current_standings(basho_date):
@@ -81,10 +81,10 @@ def scrape(requested_basho_days: Iterable[BashoDayRef]) -> bool:
     for ref in requested_list:
         basho_date = BashoDate(int(ref.date.year), int(ref.date.month))
         if _is_no_data_basho(basho_date):
-            print(
-                f"[scraper] skipping daily results for no-data basho "
-                f"{basho_date.year}/{basho_date.month:02d} Day {int(ref.day)}"
-            )
+            #print(
+            #    f"[scraper] skipping daily results for no-data basho "
+            #    f"{basho_date.year}/{basho_date.month:02d} Day {int(ref.day)}"
+            #)
             continue
 
         if not _ensure_daily_results(ref):
@@ -112,7 +112,7 @@ def _ensure_current_standings(date: BashoDate) -> bool:
 
     if path.exists() and not _should_refresh_current_standings(path, date):
         if _looks_like_current_standings(path.read_text(encoding="utf-8", errors="replace")):
-            print(f"[scraper] reusing current standings {path}")
+            #print(f"[scraper] reusing current standings {path}")
             return True
         print(f"[scraper] existing current standings is unusable; re-fetching {path}")
 
@@ -138,7 +138,7 @@ def _ensure_daily_results(ref: BashoDayRef) -> bool:
     if path.exists():
         existing_text = path.read_text(encoding="utf-8", errors="replace")
         if _looks_like_daily_results(existing_text):
-            print(f"[scraper] reusing daily results {path}")
+            #print(f"[scraper] reusing daily results {path}")
             return True
         print(f"[scraper] existing daily results is unusable; re-fetching {path}")
 
