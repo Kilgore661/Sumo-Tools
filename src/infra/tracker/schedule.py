@@ -98,7 +98,8 @@ def state_for(now: datetime, window: BashoWindow) -> RunState:
     Derive the tracker run state from the current time and basho window.
 
     ACTIVE is not produced here; it is a transient execution state set by
-    the main loop when work actually begins.
+    the main loop when work actually begins. RECOVERY is also not produced
+    here; it is entered only after a failed scrape.
     """
     if within_window(now, window):
         return RunState.READY
@@ -151,11 +152,11 @@ def time_when_new_data_may_exist(
     Return True iff the tracker should attempt an update now.
 
     Conditions:
-    - the tracker is in READY state
+    - the tracker is in READY or RECOVERY state
     - the current time is at or after the trigger hour for today
     - there has not yet been a successful run today
     """
-    if state != RunState.READY:
+    if state not in (RunState.READY, RunState.RECOVERY):
         return False
 
     trigger_time = now.replace(

@@ -16,7 +16,7 @@ The tracker runs continuously. On each iteration it:
        -> write canonical zip
 6. Handles the outcome according to policy:
        - success -> record successful run for the day
-       - scrape failure -> retry later
+       - scrape failure -> enter RECOVERY and retry later
        - no new data -> do nothing
        - parser failure -> alert and terminate
 
@@ -48,7 +48,6 @@ delegated to other modules.
 
 import argparse
 import time
-from dataclasses import replace
 from datetime import date, datetime, timedelta
 from time import sleep
 
@@ -61,6 +60,7 @@ from infra.tracker.schedule import (
     next_run_time,
     state_for,
     time_when_new_data_may_exist,
+    within_window,
 )
 from infra.tracker.tray import set_tray_state
 from infra.tracker.types import RunState, TrackerRuntime, UpdateResult
@@ -126,14 +126,15 @@ def handle_update_result(
         return
 
     if result == UpdateResult.SCRAPE_FAILED:
-        print("[tracker] scrape failed; will retry later")
-        runtime.state = RunState.READY
+        print(
+            "[tracker] scrape failed; entering RECOVERY and will retry later"
+        )
+        runtime.state = RunState.RECOVERY
         set_tray_state(runtime.state, now)
         return
 
     if result == UpdateResult.NO_NEW_DATA:
         print("[tracker] no new canonical data produced")
-        runtime.state = RunState.READY
         set_tray_state(runtime.state, now)
         return
 
@@ -165,8 +166,12 @@ def _run_one_cycle_now(
 
     if len(requested_basho_days) == 0:
         print("[tracker] planner returned no requested BashoDayRefs")
-        runtime.state = RunState.READY
-        set_tray_state(runtime.state, now)
+        handle_update_result(
+            UpdateResult.NO_NEW_DATA,
+            now.date(),
+            ledger,
+            runtime,
+        )
         return
 
     runtime.state = RunState.ACTIVE
@@ -203,6 +208,21 @@ def _effective_poll_interval_seconds(
 
     # Four checks per simulated day, but do not spin too fast.
     return max(0.05, real_seconds_per_simulated_day / 4.0)
+
+
+def _fatal_recovery_message(now: datetime, runtime: TrackerRuntime) -> str:
+    """
+    Return the fatal message used when the active window closes while the
+    tracker is still in RECOVERY.
+    """
+    window = runtime.current_window
+    assert window is not None
+
+    return (
+        "active basho window closed while required data is still missing; "
+        f"recovery did not complete by {window.basho_end.isoformat(sep=' ')} "
+        f"(now={now.isoformat(sep=' ')})"
+    )
 
 
 def run(
@@ -243,8 +263,16 @@ def run(
         now = clock.now()
         runtime.current_time = now
         runtime.current_window = get_basho_window(now, config)
-        runtime.state = state_for(now, runtime.current_window)
         runtime.next_run_time = next_run_time(now, runtime.current_window, config)
+
+        if not within_window(now, runtime.current_window):
+            if runtime.state == RunState.RECOVERY:
+                alert_fatal(_fatal_recovery_message(now, runtime))
+                raise SystemExit(1)
+            runtime.state = RunState.DORMANT
+        else:
+            if runtime.state not in (RunState.ACTIVE, RunState.RECOVERY):
+                runtime.state = state_for(now, runtime.current_window)
 
         set_tray_state(runtime.state, now)
 

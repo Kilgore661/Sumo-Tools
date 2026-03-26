@@ -1,289 +1,209 @@
-# Scraper (Draft 1.0)
+# 1. Scraper
 
-## Purpose
+## 1.1 Purpose
 
-The scraper is responsible for acquiring the raw HTML artifacts required to construct canonical `History`.
+The scraper module provides the basic data-acquisition functionality of the tracker: it downloads whatever sumo data the tracker asks for.
 
-It performs **data acquisition only**.
+The scraper does not decide what data is needed. It receives a set of requested basho days from the tracker and attempts to ensure that the corresponding raw HTML artifacts exist locally.
 
-It does not interpret, validate, or reason about the data.
-
----
-
-## Role within Tracker
-
-The scraper is a **tracker module**.
-
-The tracker:
-
-* determines which `(Date, Day)` pairs are required
-* invokes the scraper with those requests
-
-The scraper:
-
-* obtains the corresponding raw artifacts
-* ensures they are present in the raw-data area
-
-The scraper does **not** determine what should be requested.
+If the scraper fails, it simply reports this to the tracker; it is then up to the tracker to try again.
 
 ---
 
-## Input
+## 1.2 Interface
 
-The scraper is invoked with an ordered list of requested `BashoDayRef`s.
+```
+scrape(requested_basho_days) -> bool
+```
 
-Each `BashoDayRef` represents:
+### 1.2.1 Inputs
 
-* a basho `Date`
-* a basho `Day` (1–15)
+* `requested_basho_days`: an iterable of `(year, month, day)` tuples
 
-This list is determined entirely by the tracker.
+### 1.2.2 Output
 
----
-
-## Required Artifacts
-
-Given a requested list of `BashoDayRef`s, the scraper must ensure the existence of:
-
-### Daily Results
-
-For each requested `(Date, Day)`:
-
-* obtain the corresponding daily results HTML
-* store it in the raw-data location used by the legacy system
+* `True` if all required artifacts are present and usable after the run
+* `False` if any required artifact could not be obtained or validated
 
 ---
 
-### Current Standings
+## 1.3 Responsibilities
 
-For each distinct `Date` represented in the request list:
+### 1.3.1 The scraper is responsible for
 
-* obtain the corresponding per-basho standings HTML
-* store it in the raw-data location used by the legacy system
+* ensuring **daily results** pages exist for each requested basho day
+* ensuring **current standings** pages exist for each distinct `(year, month)` in the request
+* validating that stored or fetched HTML is usable
+* writing HTML artifacts to disk
 
-This artifact represents the **current standings** of the basho.
+### 1.3.2 The scraper is not responsible for
 
-It is not restricted to post–day-15 “final results”.
-
----
-
-## Success Condition
-
-A scrape succeeds iff:
-
-* all required daily results artifacts are present and usable, and
-* all required current-standings artifacts are present and usable
-
-after the scrape attempt.
-
-Partial success is failure.
+* deciding which basho days are needed
+* interpreting or parsing HTML content
+* retrying failures across runs
+* maintaining coverage or completeness state
 
 ---
 
-## Failure Handling
+## 1.4 Usability criteria
 
-Failures are:
+The scraper applies minimal, heuristic checks to determine whether an HTML artifact is usable.
 
-* expected
-* recoverable
-* non-fatal to the tracker
+### 1.4.1 Daily results
 
-Typical causes:
+A daily results HTML file is usable if:
 
-* network failure
-* blank or malformed responses
-* failure to write required artifacts
-
-On failure, the tracker will retry in a subsequent cycle.
+* it can be read from disk, and
+* its length is at least **4000 characters**
 
 ---
 
-## Existing Artifacts
+### 1.4.2 Current standings
 
-If a required artifact is already present and usable:
+A current standings HTML file is usable if:
 
-* it may be reused
-* it does not need to be re-downloaded
-
-For current-standings artifacts:
-
-* the scraper may refresh an existing artifact
-* this allows the stored state to reflect the evolving basho
+* it can be read from disk, and
+* it contains the string `<h1` (case-insensitive)
 
 ---
 
-## Scraper-Level Validation
+### 1.4.3 General notes
 
-The scraper may perform minimal checks to reject:
-
-* blank pages
-* truncated pages
-* clearly incorrect responses
-
-The scraper does **not** perform semantic validation.
+* These checks are intentionally simple and conservative
+* They are designed only to reject clearly invalid or incomplete content
+* The scraper does not attempt deeper validation or interpretation
 
 ---
 
-## Non-Responsibilities
+## 1.5 Behaviour
 
-The scraper does **not**:
-
-* determine current time or basho state
-* decide whether new data should exist
-* choose which `(Date, Day)` pairs are required
-* interpret HTML content
-* construct or validate `History`
-* reason about completeness
+Given a set of requested basho days, the scraper performs two phases.
 
 ---
 
-## Defining Behaviour
+### 1.5.1 Phase 1 — Current standings (per basho)
 
-The legacy scraper defines:
+For each distinct `(year, month)`:
 
-* which artifacts correspond to a given `(Date, Day)`
-* where those artifacts are stored
-* what constitutes a usable raw page
+1. If the basho is known to have no data, it is skipped
+2. Otherwise:
 
-The legacy date-selection logic is not part of this contract.
+   * if a usable file already exists, it may be reused
+   * if the basho has finished and the existing file predates completion, it is refreshed
+   * if no usable file exists, a fetch is performed
 
----
-
-## Summary
-
-The scraper ensures that all raw HTML artifacts required for the requested `BashoDayRef`s exist in the raw-data area.
-
-It performs acquisition only.
-
-It succeeds only if all required artifacts are present and usable.
+If any required standings page cannot be obtained in usable form, the scrape fails.
 
 ---
 
-## Algorithm
+### 1.5.2 Phase 2 — Daily results (per requested day)
 
-The scraper operates as a deterministic executor over the requested `BashoDayRef`s.
+For each `(year, month, day)`:
 
-It is **postcondition-based**: its goal is to ensure that all required raw artifacts are present and usable after execution, regardless of whether they were newly fetched or already present.
+1. If the basho is known to have no data, it is skipped
+2. Otherwise:
 
-### High-Level Procedure
+   * if a usable file already exists, it is reused
+   * if not, a fetch is performed and the result is validated
 
-Given an ordered list of requested `BashoDayRef`s:
+If fetched HTML appears invalid (e.g. too short), it is written to:
 
-1. Derive the set of distinct `Date`s represented in the request list
-2. Ensure current-standings artifacts for each `Date`
-3. Ensure daily-results artifacts for each requested `BashoDayRef`
-4. Return success iff all required artifacts are present and usable
+```
+files/output/text_weirdness.html
+```
 
----
+to aid debugging.
 
-### Step 1: Derive Required Artifact Sets
-
-From the requested list:
-
-* `requested_days` = all requested `BashoDayRef`s
-* `requested_dates` = distinct `Date`s appearing in the list
-
-These determine the complete set of required raw artifacts.
+If any required daily results page cannot be obtained in usable form, the scrape fails.
 
 ---
 
-### Step 2: Ensure Current Standings
+## 1.6 Handling of unusable cached artifacts
 
-For each `Date` in `requested_dates`:
+If a cached HTML file exists but does not meet the usability criteria defined in Section 1.4, it is treated as **unusable**.
 
-1. Determine the expected storage location for the current-standings artifact
-2. If a usable artifact already exists:
+### 1.6.1 Behaviour
 
-   * it may be reused
-3. Otherwise:
+In this case:
 
-   * fetch the corresponding standings HTML
-   * perform minimal sanity checks (e.g. not blank, structurally plausible)
-   * write the artifact to the expected location
-
-If any required current-standings artifact cannot be established as present and usable, the scrape fails.
-
-The scraper may refresh an existing artifact when necessary to reflect the current basho state.
+1. The existing file is **not accepted** as satisfying the requirement
+2. The scraper performs **a single fetch attempt** to obtain a replacement
+3. The fetched content is validated using the same usability rules
 
 ---
 
-### Step 3: Ensure Daily Results
+### 1.6.2 Outcomes
 
-For each requested `BashoDayRef`:
+* **If the fetched content is usable**
 
-1. Determine the expected storage location for the daily-results artifact
-2. If a usable artifact already exists:
+  * it is written to disk, overwriting the previous file
 
-   * it may be reused
-3. Otherwise:
+* **If the fetched content is not usable**
 
-   * fetch the corresponding daily-results HTML
-   * perform minimal sanity checks (e.g. not truncated or clearly invalid)
-   * write the artifact to the expected location
+  * the existing (unusable) file is left in place
+  * the scrape **fails** and returns `False`
 
-If any required daily-results artifact cannot be established as present and usable, the scrape fails.
+No further attempts are made within the same run.
 
 ---
 
-### Step 4: Return Result
+## 1.7 Failure model
 
-The scraper returns:
+The scraper follows an **all-or-nothing** model:
 
-* `True` if all required artifacts are present and usable after execution
-* `False` otherwise
+* success means *all* required artifacts are present and usable
+* failure means *at least one* required artifact could not be obtained or validated
 
----
+### 1.7.1 Key rule
 
-## Design Notes
-
-### Postcondition-Based Behaviour
-
-The scraper does not distinguish between:
-
-* artifacts fetched during this run, and
-* artifacts already present
-
-It only guarantees that all required artifacts exist and are usable after execution.
-
-This allows:
-
-* idempotent operation
-* safe retries
-* reuse of previously acquired data
+> An unusable cached artifact must either be successfully replaced during the scrape, or the entire scrape fails.
 
 ---
 
-### Ordering
+## 1.8 Special cases
 
-The scraper may process:
+The following basho are treated as having no data and are skipped:
 
-* current-standings before daily results, or
-* daily results before current-standings
+* March 2011 `(2011, 3)`
+* May 2020 `(2020, 5)`
 
-The contract does not depend on ordering.
-
-The only requirement is that all required artifacts are established.
+No files are required or fetched for these tournaments.
 
 ---
 
-### Failure Model
+## 1.9 Rationale
 
-Failure is immediate and global:
+The scraper is designed to be:
 
-* if any required artifact cannot be obtained or validated, the scrape fails
-* partial success is not accepted
+* **single-shot** — it performs at most one fetch per artifact per run
+* **stateless** — it does not track past failures or manage retries
+* **minimal** — it only ensures raw data availability, not correctness beyond basic checks
 
-This aligns with the tracker’s all-or-nothing update model .
+Retaining unusable files is intentional:
+
+* it allows inspection of unexpected or malformed responses
+* it avoids discarding potentially useful debugging information
+
+This is acceptable because:
+
+* the planner currently does **not** infer coverage from cached files
+* it requests the full required range on each run
+* therefore, an unusable file will be revisited in subsequent runs
 
 ---
 
-### Relationship to Legacy Behaviour
+## 1.10 Summary
 
-This algorithm reproduces the behaviour of the legacy scraper in a request-driven form:
+The scraper guarantees the following:
 
-* identical artifact mapping (day → daily results, date → standings)
-* identical storage locations
-* equivalent minimal sanity checks
-* reuse of existing artifacts
+* it will attempt to ensure all requested artifacts exist and are usable
+* it will reuse valid cached data where possible
+* it will attempt a single replacement for invalid data
+* it will fail if any required artifact cannot be validated
 
-Legacy date-selection logic is intentionally excluded.
+It does not guarantee:
+
+* completeness of the request set
+* correctness of HTML beyond basic heuristics
+* recovery from failure within a single run
+

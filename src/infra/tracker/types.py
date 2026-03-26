@@ -28,9 +28,13 @@ TrackerRuntime:
 class RunState(Enum):
     """
     High-level tracker state.
+
+    RECOVERY means the tracker is still retry-eligible, but a prior scrape
+    failure implies that required data is currently presumed missing.
     """
     DORMANT = auto()
     READY = auto()
+    RECOVERY = auto()
     ACTIVE = auto()
 
 
