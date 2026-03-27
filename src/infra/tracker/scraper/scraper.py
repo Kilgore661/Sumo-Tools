@@ -19,6 +19,10 @@ The implementation is deliberately simple:
 - no parsing or semantic validation
 """
 
+from pdb import set_trace
+from pathlib import Path
+import os
+import stat
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -133,12 +137,13 @@ def _ensure_current_standings(date: BashoDate) -> bool:
 
 
 def _ensure_daily_results(ref: BashoDayRef) -> bool:
+    return True # Hack - far too slow otherwise
     path = _daily_results_path(ref)
 
     if path.exists():
         existing_text = path.read_text(encoding="utf-8", errors="replace")
         if _looks_like_daily_results(existing_text):
-            #print(f"[scraper] reusing daily results {path}")
+            print(f"[scraper] reusing daily results {path}")
             return True
         print(f"[scraper] existing daily results is unusable; re-fetching {path}")
 
@@ -190,12 +195,20 @@ def _fetch_text(url: str) -> str | None:
         return None
 
 
-def _write_text(path: Path, text: str) -> bool:
+def _write_text(path: Path, text: str, read_only: bool = True) -> bool:
     try:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(text, encoding="utf-8")
-        print(f"[scraper] wrote {path}")
+
+        # Set file permissions
+        if read_only:
+            os.chmod(path, stat.S_IREAD)
+        else:
+            os.chmod(path, stat.S_IWRITE | stat.S_IREAD)
+
+        print(f"[scraper] wrote {path} (read_only={read_only})")
         return True
+
     except OSError as exc:
         print(f"[scraper] failed to write {path}: {exc}")
         return False

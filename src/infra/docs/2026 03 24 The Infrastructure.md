@@ -40,7 +40,6 @@ The Tracker governs this process by determining what data should exist, identify
 
 The system is designed to tolerate incomplete upstream data, incremental updates, and repeated processing, while ensuring that any materialised `History` instance is internally consistent and reconstructible from persisted state.
 
-
 ---
 
 ## 3. System Overview
@@ -102,8 +101,6 @@ The **Parser owns `History`**. It defines:
 * the structure of the model
 * the invariants that must hold
 * what constitutes a valid instance
-
-
 
 ---
 
@@ -906,7 +903,6 @@ Other tools or subsystems may require different infrastructure, and should not a
 
 ---
 
-
 ## 11. Relationship to Module Documentation
 
 This document provides a system-level view of the `infra` subsystem. It defines the roles of components, the flow of data, and the invariants that govern correctness.
@@ -1119,4 +1115,3 @@ Module-level documentation varies in completeness and terminology, having been d
 
 **Next Step**
 Align module-level documentation with the system model defined here, ensuring consistent terminology and explicit connections between components.
-

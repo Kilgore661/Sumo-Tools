@@ -2,7 +2,7 @@
 Tracker main loop.
 
 This module contains the top-level orchestration for maintaining the
-canonical sumo dataset.
+canonical sumo dataset and its mandatory downstream products.
 
 The tracker runs continuously. On each iteration it:
 
@@ -14,9 +14,11 @@ The tracker runs continuously. On each iteration it:
        scrape requested pairs
        -> parse requested pairs
        -> write canonical zip
+       -> refresh cache
+       -> run required analysis/products
 6. Handles the outcome according to policy:
        - success -> record successful run for the day
-       - scrape failure -> enter RECOVERY and retry later
+       - scrape/cache/analysis failure -> enter RECOVERY and retry later
        - no new data -> do nothing
        - parser failure -> alert and terminate
 
@@ -42,8 +44,8 @@ This module defines:
     - run(): the main loop
     - handle_update_result(): policy for update outcomes
 
-All domain-specific work (planning, scraping, parsing, persistence) is
-delegated to other modules.
+All domain-specific work (planning, scraping, parsing, persistence,
+cache refresh, analysis) is delegated to other modules.
 """
 
 import argparse
@@ -128,6 +130,22 @@ def handle_update_result(
     if result == UpdateResult.SCRAPE_FAILED:
         print(
             "[tracker] scrape failed; entering RECOVERY and will retry later"
+        )
+        runtime.state = RunState.RECOVERY
+        set_tray_state(runtime.state, now)
+        return
+
+    if result == UpdateResult.CACHE_FAILED:
+        print(
+            "[tracker] cache refresh failed; entering RECOVERY and will retry later"
+        )
+        runtime.state = RunState.RECOVERY
+        set_tray_state(runtime.state, now)
+        return
+
+    if result == UpdateResult.ANALYSIS_FAILED:
+        print(
+            "[tracker] required analysis failed; entering RECOVERY and will retry later"
         )
         runtime.state = RunState.RECOVERY
         set_tray_state(runtime.state, now)
@@ -219,7 +237,7 @@ def _fatal_recovery_message(now: datetime, runtime: TrackerRuntime) -> str:
     assert window is not None
 
     return (
-        "active basho window closed while required data is still missing; "
+        "active basho window closed while required maintained state is still unresolved; "
         f"recovery did not complete by {window.basho_end.isoformat(sep=' ')} "
         f"(now={now.isoformat(sep=' ')})"
     )

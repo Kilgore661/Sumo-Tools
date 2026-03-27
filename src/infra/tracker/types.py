@@ -29,8 +29,9 @@ class RunState(Enum):
     """
     High-level tracker state.
 
-    RECOVERY means the tracker is still retry-eligible, but a prior scrape
-    failure implies that required data is currently presumed missing.
+    RECOVERY means the tracker is still retry-eligible, but a prior update
+    failure implies that required maintained state is currently presumed
+    missing, stale, or otherwise unresolved.
     """
     DORMANT = auto()
     READY = auto()
@@ -46,6 +47,8 @@ class UpdateResult(Enum):
     SCRAPE_FAILED = auto()
     NO_NEW_DATA = auto()
     PARSER_FATAL_ERROR = auto()
+    CACHE_FAILED = auto()
+    ANALYSIS_FAILED = auto()
 
 
 @dataclass(frozen=True)
