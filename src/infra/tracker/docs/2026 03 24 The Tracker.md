@@ -32,6 +32,39 @@ A retrieval attempt is considered unsuccessful if any required data cannot be ob
 
 # 2. Specification
 
+## 2.0 Hack: Basho Schedule and Update Behaviour
+
+Basho follow a fixed schedule:
+
+- Each basho begins on the **second Sunday of each odd-numbered month**
+- Each basho lasts for **15 days**
+
+---
+
+### Active Basho Window
+
+During an active basho window, the Tracker executes repeated update cycles.
+
+Each day of the basho:
+
+- the Tracker attempts to download that day’s results
+- if a download attempt fails, it is retried on subsequent days within the same basho
+
+The system therefore incrementally builds a complete set of results for the basho over the 15-day period.
+
+---
+
+### Completion and Failure Handling
+
+At the end of the basho:
+
+- if results for all 15 days have been successfully obtained, the basho is complete
+- if one or more days are missing:
+  - the Tracker signals that the basho is incomplete
+  - no further attempts are made to retrieve missing data for that basho
+
+After this point, the Tracker returns to its initial state, waiting for the next basho to begin.
+
 ## 2.1 Overview
 
 The tracker is a continuously running program that periodically attempts to ensure that all required basho records are present and usable.
@@ -74,10 +107,7 @@ An update cycle consists of:
 
 2. Attempting to retrieve all required data
 
-3. Evaluating the outcome
-
-An update attempt is **all-or-nothing**:
-
+3. Evaluating the outcome: an update attempt is **all-or-nothing**:
 - If all required data is successfully retrieved and usable → success
 
 - If any required data cannot be obtained or validated → failure
@@ -89,7 +119,7 @@ An update attempt is **all-or-nothing**:
 Each update cycle has one of the following outcomes:
 
 - **Success**  
-  All required data is present and usable.
+  he resulting `History` is serialised and stored as the canonical representation. The cache is *not* invalidated. This needs fixing.
 
 - **Failure**  
   One or more required items could not be obtained or are unusable.
@@ -377,7 +407,9 @@ The design leaves some matters for future refinement.
 
 - Richer tray or UI behaviour
 
-- Possible future optimisation of planning or retrieval strategy
+- Possible future optimisation of planning or retrieval strategy.
+
+- The cache should be invalidated when there is a new zip file, or the tracker should at least say "WARNING! The current cache is invalid!!"
 
 These do not alter the present design contract, but they may affect future implementations.
 
