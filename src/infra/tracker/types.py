@@ -1,11 +1,10 @@
-from __future__ import annotations
-
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum, auto
-from typing import Optional, List
-from sumo_core.History import Date
+from typing import List, Optional
+
 from sumo_core.BasicPrimitives import Day
+from sumo_core.History import Date
 
 """
 Core types used by the tracker.
@@ -15,6 +14,9 @@ RunState:
 
 UpdateResult:
     Outcome of a single update cycle.
+
+RetrievalResult:
+    Outcome of the retrieval stage within an update cycle.
 
 BashoWindow:
     Concrete scheduling window for a basho, including pre-basho period
@@ -29,10 +31,11 @@ class RunState(Enum):
     """
     High-level tracker state.
 
-    RECOVERY means the tracker is still retry-eligible, but a prior update
-    failure implies that required maintained state is currently presumed
-    missing, stale, or otherwise unresolved.
+    RECOVERY means the tracker is still retry-eligible, but a prior
+    retrieval failure implies that required source data is currently
+    presumed missing.
     """
+
     DORMANT = auto()
     READY = auto()
     RECOVERY = auto()
@@ -43,12 +46,25 @@ class UpdateResult(Enum):
     """
     Outcome of a single update cycle.
     """
+
     SUCCESS = auto()
-    SCRAPE_FAILED = auto()
     NO_NEW_DATA = auto()
-    PARSER_FATAL_ERROR = auto()
+    RETRIEVAL_FAILED = auto()
+    REBUILD_FAILED = auto()
+    PUBLISH_FAILED = auto()
     CACHE_FAILED = auto()
     ANALYSIS_FAILED = auto()
+    DERIVED_ARTIFACTS_MISSING = auto()
+
+
+class RetrievalResult(Enum):
+    """
+    Outcome of the retrieval stage within an update cycle.
+    """
+
+    FAILURE = auto()
+    SUCCESS_UNCHANGED = auto()
+    SUCCESS_CHANGED = auto()
 
 
 @dataclass(frozen=True)
@@ -56,6 +72,7 @@ class BashoWindow:
     """
     Concrete scheduling window for a basho.
     """
+
     pre_basho_start: datetime
     basho_start: datetime
     basho_end: datetime
@@ -67,10 +84,14 @@ class TrackerRuntime:
     """
     Ephemeral runtime state of the tracker loop.
     """
+
     state: RunState
-    current_time: Optional[datetime] = None
-    current_window: Optional[BashoWindow] = None
-    next_run_time: Optional[datetime] = None
+    current_time: datetime
+    current_window: BashoWindow
+    next_run_time: Optional[datetime] = None # Hack
+    # Strictly speaking, there are two TrackerRuntimes. One is for during a
+    # basho, when there is no next time after Day 15. The other is outside the
+    # window when there is always a next basho.
 
 
 @dataclass(frozen=True)
@@ -94,16 +115,13 @@ class BashoDayRef:
 
     def __post_init__(self):
         if not isinstance(self.date, Date):
-            raise TypeError(
-                f"date must be Date, got {type(self.date)}"
-            )
+            raise TypeError(f"date must be Date, got {type(self.date)}")
 
         if not isinstance(self.day, Day):
-            raise TypeError(
-                f"day must be Day, got {type(self.day)}"
-            )
+            raise TypeError(f"day must be Day, got {type(self.day)}")
 
     def __str__(self) -> str:
         return f"{self.date} Day {int(self.day)}"
+
 
 RequestedDateDays = List[BashoDayRef]

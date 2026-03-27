@@ -3,81 +3,149 @@ Tracker update-cycle orchestration.
 
 This module coordinates one tracker update cycle.
 
-Current implementation:
+It owns the concrete sequencing of tracker sub-steps and returns an
+UpdateResult describing the overall outcome.
 
-1. asks the scraper to ensure the required raw artifacts exist
-2. calls the analysis stage as a first-class required downstream step
+Current structure:
 
-Future versions will also:
+1. retrieval / download
+2. conditional rebuild
+3. conditional publish
+4. conditional cache handling
+5. conditional analysis
+6. derived-artifact validation
 
-3. ask the parser to construct / validate canonical History
-4. refresh the cache from the canonical zip
-5. verify the canonical zip was published
-
-It returns an UpdateResult describing the outcome.
-
-This module owns the concrete sequencing of tracker sub-steps.
-It does not expose dependency-injection hooks because there is only one
-scraper, one parser, one cache publisher, and one analysis entry point in
-this system.
+Only the retrieval stage is currently wired to real downloader behaviour.
+The downstream stages are present as placeholders so that the orchestration
+shape already matches the agreed design.
 """
 
-from .types import RequestedDateDays, UpdateResult
-from .scraper.scraper import scrape
-from analysis.main import analyse
-# from .zip_probe import canonical_zip_exists
-# from .parser import parse
-# from .cache import refresh_cache
+from .types import RequestedDateDays, RetrievalResult, UpdateResult
+from .scraper.downloader import download
+from ..parser.parser2 import parse_and_save_history, logger, OUTPUT_DIR
+
+
+def _rebuild_canonical_history() -> bool:
+    """
+    Rebuild and publish canonical history.
+
+    Delegates to parser2.parse_and_save_history, including the required
+    logger lifecycle that parser2.main() would normally provide.
+    """
+    try:
+        logger.initialise(output_dir=OUTPUT_DIR)
+
+        # TEMP: fixed range for testing - how do we get these numbers from the state/params?
+        # Don't use 2026 because I think sumodb have changed the format of the Mz section
+        parse_and_save_history(start_year=1958, end_year=2025)
+
+        logger.close()
+        return True
+
+    except Exception as exc:
+        print(f"[update_cycle] rebuild failed: {exc}")
+        return False
+
+def _publish_canonical_history() -> bool:
+    """
+    Placeholder for canonical-history publication.
+    """
+    return True
+
+
+def _refresh_cache() -> bool:
+    """
+    Placeholder for cache refresh after source change.
+    """
+    return True
+
+
+def _ensure_cache() -> bool:
+    """
+    Placeholder for cache presence when source data is unchanged.
+    """
+    return True
+
+
+def _analyse() -> bool:
+    """
+    Placeholder for required analysis/product generation.
+    """
+    return True
+
+
+def _derived_artifacts_exist() -> bool:
+    """
+    Placeholder for derived-artifact validation.
+
+    Current agreed meaning of validation is existence only.
+    """
+    return True
 
 
 def run_update_cycle(requested_date_days: RequestedDateDays) -> UpdateResult:
     """
     Run one update cycle for the requested BashoDayRefs.
-
-    Current behaviour:
-    - run the scraper for the requested BashoDayRefs
-    - run the required downstream analysis stage
-    - return SCRAPE_FAILED on scrape failure
-    - return ANALYSIS_FAILED on analysis failure
-    - return SUCCESS only if every required implemented stage succeeds
-
-    Future versions will extend this with parser, cache, and persistence
-    checks between scraping and analysis.
     """
-
     if not requested_date_days:
         return UpdateResult.NO_NEW_DATA
 
     print(f"[update_cycle] checking {len(requested_date_days)} previous results")
 
-    if not scrape(requested_date_days):
-        print("[update_cycle] scrape failed")
-        return UpdateResult.SCRAPE_FAILED
+    retrieval_result = download(requested_date_days)
 
-    # parse_result = parse(requested_date_days)
-    #
-    # if parse_result == "fatal":
-    #     print("[update_cycle] parser reported fatal error")
-    #     return UpdateResult.PARSER_FATAL_ERROR
-    #
-    # if parse_result == "provisional":
-    #     print("[update_cycle] parser produced no new canonical state")
-    #     return UpdateResult.NO_NEW_DATA
-    #
-    # if parse_result != "success":
-    #     raise RuntimeError(f"Unexpected parser result: {parse_result!r}")
-    #
-    # if not canonical_zip_exists():
-    #     print("[update_cycle] parser reported success but canonical zip is missing")
-    #     return UpdateResult.PARSER_FATAL_ERROR
-    #
-    # if not refresh_cache():
-    #     print("[update_cycle] cache refresh failed")
-    #     return UpdateResult.CACHE_FAILED
+    match retrieval_result:
+        case RetrievalResult.FAILURE:
+            print("[update_cycle] retrieval failed")
+            return UpdateResult.RETRIEVAL_FAILED
 
-    if not analyse():
-        print("[update_cycle] required analysis failed")
-        return UpdateResult.ANALYSIS_FAILED
+        case RetrievalResult.SUCCESS_CHANGED:
+            print("[update_cycle] retrieval changed source dataset")
 
-    print("[update_cycle] update cycle succeeded")
-    return UpdateResult.SUCCESS
+            if not _rebuild_canonical_history():
+                print("[update_cycle] rebuild failed")
+                return UpdateResult.REBUILD_FAILED
+
+            if not _publish_canonical_history():
+                print("[update_cycle] publish failed")
+                return UpdateResult.PUBLISH_FAILED
+
+            if not _refresh_cache():
+                print("[update_cycle] cache refresh failed")
+                return UpdateResult.CACHE_FAILED
+
+            if not _analyse():
+                print("[update_cycle] analysis failed")
+                return UpdateResult.ANALYSIS_FAILED
+
+            if not _derived_artifacts_exist():
+                print("[update_cycle] required derived artifacts are missing")
+                return UpdateResult.DERIVED_ARTIFACTS_MISSING
+
+            print("[update_cycle] update cycle succeeded after source change")
+            return UpdateResult.SUCCESS
+
+        case RetrievalResult.SUCCESS_UNCHANGED:
+            print("[update_cycle] retrieval left source dataset unchanged")
+
+            if not _ensure_cache():
+                print("[update_cycle] cache ensure failed")
+                return UpdateResult.CACHE_FAILED
+
+            if _derived_artifacts_exist():
+                print("[update_cycle] no new data and downstream state already satisfied")
+                return UpdateResult.NO_NEW_DATA
+
+            if not _analyse():
+                print("[update_cycle] analysis failed while repairing downstream state")
+                return UpdateResult.ANALYSIS_FAILED
+
+            if not _derived_artifacts_exist():
+                print("[update_cycle] required derived artifacts are still missing")
+                return UpdateResult.DERIVED_ARTIFACTS_MISSING
+
+            print("[update_cycle] update cycle succeeded by repairing downstream state")
+            return UpdateResult.SUCCESS
+
+        case _:
+            raise RuntimeError(f"Unhandled RetrievalResult: {retrieval_result!r}")

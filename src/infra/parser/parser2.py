@@ -154,7 +154,11 @@ def parse_and_save_history(start_year, end_year):
     serializing the resulting History object to a file.
     """
     # Step 1: Run the full parsing process to get the history object in memory.
+    from time import time
+    t0 = time()
     history = parse_range(start_year, end_year)
+    t1 = time()
+    print( f'range {start_year} - {end_year} parsed in {t1-t0:.3f} sec.' )
 
     if not history:
         print("No data was parsed. Nothing to save.")
@@ -171,7 +175,7 @@ def parse_and_save_history(start_year, end_year):
     # Step 4: Call the new serialiser to save the data.
     print(f"\nSaving history to {full_path}.zip...")
     save_history_with_annotations(history, full_path)
-    print("Save complete.")
+    print(f"Save complete in {time()-t1:0.3f} sec.")
 
 
 ### MODIFIED ### - Main function is now simpler and calls the new orchestrator.

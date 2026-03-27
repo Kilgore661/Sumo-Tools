@@ -18,9 +18,9 @@ The tracker runs continuously. On each iteration it:
        -> run required analysis/products
 6. Handles the outcome according to policy:
        - success -> record successful run for the day
-       - scrape/cache/analysis failure -> enter RECOVERY and retry later
+       - download failure -> enter RECOVERY and retry later
+       - parser/cache/analysis failure -> alert and terminate
        - no new data -> do nothing
-       - parser failure -> alert and terminate
 
 Immediate mode:
     If started with --now, the tracker performs one update cycle
@@ -111,57 +111,43 @@ class ScaledClock:
 
 
 def handle_update_result(
+    runtime: TrackerRuntime,
     result: UpdateResult,
     run_date: date,
     ledger: InMemoryLedger,
-    runtime: TrackerRuntime,
 ) -> None:
     """
-    Apply tracker policy to the result of one update cycle.
+    Update tracker runtime and side effects based on one cycle result.
+
+    Policy:
+    - SUCCESS records a successful run for the day and returns the tracker to READY.
+    - RETRIEVAL_FAILED enters RECOVERY.
+    - NO_NEW_DATA makes no state change.
+    - All other failure results are fatal.
     """
-    now = runtime.current_time
-    if result == UpdateResult.SUCCESS:
-        ledger.record_success_for(run_date)
-        print(f"[tracker] successful run recorded for {run_date.isoformat()}")
-        runtime.state = RunState.READY
-        set_tray_state(runtime.state, now)
-        return
+    match result:
+        case UpdateResult.SUCCESS:
+            ledger.record_success_for(run_date)
+            runtime.state = RunState.READY
 
-    if result == UpdateResult.SCRAPE_FAILED:
-        print(
-            "[tracker] scrape failed; entering RECOVERY and will retry later"
-        )
-        runtime.state = RunState.RECOVERY
-        set_tray_state(runtime.state, now)
-        return
+        case UpdateResult.RETRIEVAL_FAILED:
+            runtime.state = RunState.RECOVERY
 
-    if result == UpdateResult.CACHE_FAILED:
-        print(
-            "[tracker] cache refresh failed; entering RECOVERY and will retry later"
-        )
-        runtime.state = RunState.RECOVERY
-        set_tray_state(runtime.state, now)
-        return
+        case UpdateResult.NO_NEW_DATA:
+            pass
 
-    if result == UpdateResult.ANALYSIS_FAILED:
-        print(
-            "[tracker] required analysis failed; entering RECOVERY and will retry later"
-        )
-        runtime.state = RunState.RECOVERY
-        set_tray_state(runtime.state, now)
-        return
+        case (
+            UpdateResult.REBUILD_FAILED
+            | UpdateResult.PUBLISH_FAILED
+            | UpdateResult.CACHE_FAILED
+            | UpdateResult.ANALYSIS_FAILED
+            | UpdateResult.DERIVED_ARTIFACTS_MISSING
+        ):
+            alert_fatal(f"Tracker update cycle failed fatally: {result.name}")
+            raise RuntimeError(f"Fatal update cycle failure: {result.name}")
 
-    if result == UpdateResult.NO_NEW_DATA:
-        print("[tracker] no new canonical data produced")
-        set_tray_state(runtime.state, now)
-        return
-
-    if result == UpdateResult.PARSER_FATAL_ERROR:
-        alert_fatal("parser failed on valid input; tracker terminating")
-        raise SystemExit(1)
-
-    raise RuntimeError(f"Unhandled update result: {result!r}")
-
+        case _:
+            raise RuntimeError(f"Unhandled UpdateResult: {result!r}")
 
 def _run_one_cycle_now(
     now: datetime,
@@ -185,10 +171,10 @@ def _run_one_cycle_now(
     if len(requested_basho_days) == 0:
         print("[tracker] planner returned no requested BashoDayRefs")
         handle_update_result(
+            runtime,
             UpdateResult.NO_NEW_DATA,
             now.date(),
             ledger,
-            runtime,
         )
         return
 
@@ -198,10 +184,10 @@ def _run_one_cycle_now(
     result = run_update_cycle(requested_basho_days)
 
     handle_update_result(
+        runtime,
         result,
         now.date(),
         ledger,
-        runtime,
     )
 
 
@@ -209,7 +195,7 @@ def _effective_poll_interval_seconds(
     config: TrackerConfig,
     *,
     test_mode: bool,
-    real_seconds_per_simulated_day: float | None,
+    real_seconds_per_simulated_day: float
 ) -> float:
     """
     Return the sleep interval to use in the main loop.
@@ -222,8 +208,6 @@ def _effective_poll_interval_seconds(
     if not test_mode:
         return config.poll_interval_seconds
 
-    assert real_seconds_per_simulated_day is not None
-
     # Four checks per simulated day, but do not spin too fast.
     return max(0.05, real_seconds_per_simulated_day / 4.0)
 
@@ -234,7 +218,6 @@ def _fatal_recovery_message(now: datetime, runtime: TrackerRuntime) -> str:
     tracker is still in RECOVERY.
     """
     window = runtime.current_window
-    assert window is not None
 
     return (
         "active basho window closed while required maintained state is still unresolved; "
@@ -248,7 +231,7 @@ def run(
     *,
     immediate: bool = False,
     clock=None,
-    poll_interval_seconds: float | None = None,
+    poll_interval_seconds: float
 ) -> None:
     """
     Run the tracker main loop.
@@ -256,19 +239,19 @@ def run(
     if clock is None:
         clock = RealClock()
 
-    if poll_interval_seconds is None:
-        poll_interval_seconds = config.poll_interval_seconds
-
     ledger = InMemoryLedger()
-    runtime = TrackerRuntime(state=RunState.DORMANT)
+
+    now = clock.now()
+    current_window = get_basho_window(now, config)
+
+    runtime = TrackerRuntime(
+        state=state_for(now, current_window),
+        current_time=now,
+        current_window=current_window,
+        next_run_time=next_run_time(now, current_window, config),
+    )
 
     if immediate:
-        now = clock.now()
-        runtime.current_time = now
-        runtime.current_window = get_basho_window(now, config)
-        runtime.state = RunState.READY
-        runtime.next_run_time = next_run_time(now, runtime.current_window, config)
-
         _run_one_cycle_now(
             now,
             config,
@@ -312,7 +295,6 @@ def run(
         )
 
         sleep(poll_interval_seconds)
-
 
 def _parse_date(date_text: str) -> datetime.date:
     """
