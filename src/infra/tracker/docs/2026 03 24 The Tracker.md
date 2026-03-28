@@ -412,5 +412,3 @@ The design leaves some matters for future refinement.
 - The cache should be invalidated when there is a new zip file, or the tracker should at least say "WARNING! The current cache is invalid!!"
 
 These do not alter the present design contract, but they may affect future implementations.
-
-# 

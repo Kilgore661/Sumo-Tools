@@ -53,6 +53,16 @@ def get_requested_date_days(
         Chronologically ordered requested BashoDayRefs.
     """
     _ = ledger  # Reserved for future coverage-aware planning.
+    # The planner is deliberately coverage-blind: it returns the full set of
+    # BashoDayRefs that should exist as of `now`, from the epoch up to the
+    # latest expected day.
+    #
+    # A possible future refinement is to make the planner coverage-aware,
+    # using a ledger or similar record to return only missing data
+    # (e.g. a suffix or isolated gaps) rather than the full prefix.
+    #
+    # This is an optimisation only. Correctness does not depend on it,
+    # because the downloader already handles existing files efficiently.
 
     latest_ref = _latest_published_date_day(now, config)
     return _enumerate_from_epoch_to(latest_ref.date, latest_ref.day)

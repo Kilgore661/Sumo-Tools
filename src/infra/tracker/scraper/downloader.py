@@ -2,10 +2,10 @@
 Tracker downloader.
 
 This module implements the request-driven downloader described in
-`tracker/downloader/docs/Scraper.md`.
+`The Downoader.md`.
 
 Contract:
-    downloader(requested_basho_days) -> RetrievalResult
+    download(requested_basho_days) -> RetrievalResult
 
 It ensures that:
 - daily-results HTML exists for every requested BashoDayRef

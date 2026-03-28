@@ -39,12 +39,12 @@ def _rebuild_canonical_history() -> bool:
         # Don't use 2026 because I think sumodb have changed the format of the Mz section
         parse_and_save_history(start_year=1958, end_year=2025)
 
-        logger.close()
         return True
 
     except Exception as exc:
         print(f"[update_cycle] rebuild failed: {exc}")
         return False
+    logger.close()
 
 def _publish_canonical_history() -> bool:
     """

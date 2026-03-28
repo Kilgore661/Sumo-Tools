@@ -9,10 +9,11 @@ The tracker runs continuously. On each iteration it:
 1. Determines the current basho scheduling window
 2. Derives the current run state (DORMANT / READY)
 3. Decides whether new data may exist and a run should be attempted
-4. If so, determines the ordered list of requested BashoDayRefs
+4. If so, determines the ordered list of required BashoDayRefs
 5. Enters ACTIVE state and runs the update cycle:
-       scrape requested pairs
-       -> parse requested pairs
+       compute required BashoDayRef
+       -> run update cycle (download / rebuild / publish / cache / analysis as needed)
+       -> parse BashoDayRefs
        -> write canonical zip
        -> refresh cache
        -> run required analysis/products
@@ -36,15 +37,16 @@ Test mode:
         --time HH:MM        simulated start time
         --rate FLOAT        real seconds per simulated day
 
-The tracker is time-driven. It determines which BashoDayRefs should
-now exist and requests them explicitly. It does not parse, validate, or
-construct canonical History itself.
+The tracker is time-driven. It determines the full set of BashoDayRefs that
+should exist as of now and supplies this set to the update cycle; the retrieval
+component then decides which corresponding artifacts must actually be fetched.
+It does not parse, validate, or construct canonical History itself.
 
 This module defines:
     - run(): the main loop
     - handle_update_result(): policy for update outcomes
 
-All domain-specific work (planning, scraping, parsing, persistence,
+All domain-specific work (planning, downloading, parsing, persistence,
 cache refresh, analysis) is delegated to other modules.
 """
 
@@ -129,7 +131,7 @@ def _run_one_cycle_now(
     )
 
     if len(requested_basho_days) == 0:
-        print("[tracker] planner returned no requested BashoDayRefs")
+        print("[tracker] planner returned no required BashoDayRefs")
         handle_update_result(
             runtime,
             UpdateResult.NO_NEW_DATA,
