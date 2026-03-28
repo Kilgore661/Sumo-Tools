@@ -84,6 +84,8 @@ def download(requested_basho_days: Iterable[BashoDayRef]) -> RetrievalResult:
     from time import time
     t0 = time()
 
+    print( f'BashoRef check at {datetime.fromtimestamp(t0).strftime("%Y/%m/%d %H:%M:%S")}' )
+
     for ref in requested_list:
         basho_date = BashoDate(int(ref.date.year), int(ref.date.month))
         if _is_no_data_basho(basho_date):
@@ -158,6 +160,7 @@ def _ensure_daily_results(ref: BashoDayRef) -> bool | None:
     path = _daily_results_path(ref)
 
     if path.exists():
+        return False # Hack to improve speed.
         existing_text = path.read_text(encoding="utf-8", errors="replace")
         if _looks_like_daily_results(existing_text):
             print(f"[downloader] reusing daily results {path}")
