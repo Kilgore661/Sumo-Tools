@@ -408,6 +408,8 @@ def _parse_division_rows( year, month, table_content):
             chii = _process_standard_row(cells, row_class, rikishi_list, last_chii)
         elif len(cells) >= 3:  # Row with only east or west rikishi
             chii = _process_partial_row(cells, row_class, rikishi_list, last_chii)
+        else:
+            set_trace()
         last_chii = chii
     
     return rikishi_list

@@ -7,10 +7,13 @@ import os
 import re
 from typing import Dict, List
 
-# --- Main Application Dependencies ---
-from .parser2_margin import get_margin_data
-from .parser2_body import parse_and_validate_body
-from .parser2_IntDate import IntDate as Date
+try:
+    # --- Main Application Dependencies ---
+    from .parser2_margin import get_margin_data
+    from .parser2_body import parse_and_validate_body
+    from .parser2_IntDate import IntDate as Date
+except:
+    print( 'If running from Sumo-Tools, you need to do\n$env:PYTHONPATH = "X:\Sumo\Sumo-Tools\src' )
 
 from .FSM import FinalBanzukeEntry
 # --- Core Model Dependencies (Original and New) ---

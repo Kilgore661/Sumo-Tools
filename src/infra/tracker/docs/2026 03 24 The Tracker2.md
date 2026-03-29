@@ -1718,6 +1718,72 @@ This does not eliminate the fundamental limitation of scaled time, but:
 - improves reliability of simulation
 - provides an empirical basis for choosing test parameters
 
+## **13. Publication stage implementation**
+
+### **Current state**
+
+The publication stage (writing the canonical History zip) is currently implemented as a stub:
+
+- always reports success
+
+- does not enforce that the canonical representation is actually written or valid
+
+---
+
+### **Required work**
+
+- implement canonical History serialization and persistence
+
+- ensure:
+  
+  - the output reflects the rebuilt History exactly
+  
+  - failure to write or persist is detected
+
+- return `PUBLISH_FAILED` on failure
+
+---
+
+### **Design note**
+
+Publication is a **mandatory stage**:
+
+> a successful update cycle must guarantee that the canonical representation exists and is correct
+
+---
+
+---
+
+## **14. Cache / downstream state implementation**
+
+### **Current state**
+
+Cache handling and downstream state management are currently stubbed:
+
+- cache refresh / ensure functions always succeed
+
+- no actual cache population or validation is performed
+
+---
+
+### **Required work**
+
+- implement cache population from the canonical History
+
+- define and enforce required cache state
+
+- ensure:
+  
+  - cache is present and consistent after a successful cycle
+  
+  - missing or invalid cache is detected
+
+- return `CACHE_FAILED` or `DERIVED_ARTIFACTS_MISSING` as appropriate
+
+---
+
+### 
+
 # ✔️ Summary
 
 You’re now in a very good state:

@@ -163,4 +163,3 @@ With it, you can just assume:
 
 * either the data is fine
 * or the system has told you it isn’t
-

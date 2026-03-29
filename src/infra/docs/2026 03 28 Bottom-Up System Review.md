@@ -3,10 +3,12 @@
 ### 1. Module-by-module review (bottom-up)
 
 * Checked whether each module doc:
-
+  
   * describes what the module *does*
   * matches how the code actually behaves
+
 * Focused on the **tracker-side modules** (planner, downloader, tracker, etc.)
+
 * Skipped the lowest-level/basic modules on the assumption they are straightforward
 
 ---
@@ -14,7 +16,7 @@
 ### 2. Boundary / integration review
 
 * Checked consistency between:
-
+  
   * docs
   * code
   * docstrings
@@ -51,9 +53,11 @@ We did **not**:
 Instead we:
 
 * aligned docs with intended design
-* added caveats where implementation is temporary
-* classified things as:
 
+* added caveats where implementation is temporary
+
+* classified things as:
+  
   * **design**
   * **implementation detail**
   * **limitation**
@@ -106,4 +110,3 @@ If you want to continue in the same spirit, the next logical pass would be:
 But for the bottom-up/module alignment exercise:
 
 👉 **you’re done** 👍
-
