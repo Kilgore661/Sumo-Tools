@@ -37,7 +37,7 @@ def _rebuild_canonical_history() -> bool:
 
         # TEMP: fixed range for testing - how do we get these numbers from the state/params?
         # Don't use 2026 because I think sumodb have changed the format of the Mz section
-        parse_and_save_history(start_year=1958, end_year=2025)
+        parse_and_save_history(start_year=1958, end_year=2026)
 
         return True
 

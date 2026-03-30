@@ -23,6 +23,7 @@ import os
 import stat
 from dataclasses import dataclass
 from datetime import datetime, timedelta
+from time import time, sleep
 from typing import Iterable
 from urllib.error import URLError, HTTPError
 from urllib.request import Request, urlopen
@@ -81,7 +82,6 @@ def download(requested_basho_days: Iterable[BashoDayRef]) -> RetrievalResult:
         if result:
             changed = True
 
-    from time import time
     t0 = time()
 
     print( f'BashoRef check at {datetime.fromtimestamp(t0).strftime("%Y/%m/%d %H:%M:%S")}' )
@@ -95,6 +95,7 @@ def download(requested_basho_days: Iterable[BashoDayRef]) -> RetrievalResult:
         if result is None:
             return RetrievalResult.FAILURE
         if result:
+            sleep( 0.5 )
             changed = True
 
     print( f'{len(requested_list)} BashoDateRefs checked in {time()-t0:.3f} sec.' )

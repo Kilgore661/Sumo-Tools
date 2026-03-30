@@ -10,7 +10,7 @@ from .version import VERSION
 from time import time
 t0 = time()
 print('Loading zip ...', end=' ', flush=True)
-h = load_history_with_annotations('../files/output/fsm/Historys/1958_01 to 2025_11')
+h = load_history_with_annotations('../files/output/Historys/1958_01 to 2026_11')
 print(f'Done.')# Size in memory: ', end='', flush=True)
 
 # Serialize the history object

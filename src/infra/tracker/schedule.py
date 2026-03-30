@@ -155,6 +155,9 @@ def time_when_new_data_may_exist(
     - the tracker is in READY or RECOVERY state
     - the current time is at or after the trigger hour for today
     - there has not yet been a successful run today
+
+    NB Use of the ledger is an implementaion detail. It prevents the code from
+    doing unneccesary work.
     """
     if state not in (RunState.READY, RunState.RECOVERY):
         return False

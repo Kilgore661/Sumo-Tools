@@ -84,7 +84,7 @@ class BoutResult:
 
         if outcome_pair not in valid_pairs:
             raise ValueError(
-                f"Invalid outcome combination: {self.outcome1}, {self.outcome2}"
+                f"Invalid outcome combination: {self.outcome1}, {self.outcome2}.\nAdd double FP to double_FP in parser_daily.py."
             )
 ################################################################################
 

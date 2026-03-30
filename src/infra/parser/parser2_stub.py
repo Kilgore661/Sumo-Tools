@@ -24,8 +24,19 @@ row_pat = re.compile(
     r'<tr(?:\s+class="([^"]*)")?\s*>(.*?)</tr>',
     re.DOTALL
 )
+
+# Post-2025 fix
+# changed
+#   (?:nowrap="nowrap")
+# to
+#   (?:nowrap="nowrap"|style="white-space:nowrap;|style="border-color:Red;")
+# 
+# The new format of the nowrap is used in the main division and Mz cells. The
+# red border is for Mz (and other?) cells.
+#
+# May not need the old nowrap syntax?
 cell_pat = re.compile(
-    r'<td(?:\s+class="([^"]*)")?\s*(?:nowrap="nowrap")?\s*(?:colspan="(\d+)")?\s*>(.*?)</td>',
+    r'<td(?:\s+class="([^"]*)")?\s*(?:nowrap="nowrap"|style="white-space:nowrap;"|style="border-color:Red;")?\s*(?:colspan="(\d+)")?\s*>(.*?)</td>',
     re.DOTALL
 )
 rikishi_pat = re.compile(
