@@ -1387,6 +1387,14 @@ This gives you:
 
 # 🧾 Next Steps / Outstanding Issues
 
+## 0. Command-line robustness
+
+The tracker must be run from the project root:
+
+> `PS X:\Sumo\Sumo-Tools> py -m src.infra.tracker.tracker ...`
+
+(and *not* `Sumo-Tools/src` otherwise "files" will refer to the wrong location due the to use of relative paths.
+
 ## 1. Derived artifacts (TBD)
 
 - The tracker spec defines “downstream state” / “derived artifacts” as mandatory.

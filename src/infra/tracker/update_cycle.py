@@ -22,35 +22,35 @@ shape already matches the agreed design.
 
 from .types import RequestedDateDays, RetrievalResult, UpdateResult
 from .scraper.downloader import download
-from ..parser.parser2 import parse_and_save_history, logger, OUTPUT_DIR
+from sumo_core.History import History
+from ..parser.parser2 import parse_history, logger, OUTPUT_DIR
+from ..persistence.new_sumo_serialiser import save_history_with_annotations
 
 
-def _rebuild_canonical_history() -> bool:
-    """
-    Rebuild and publish canonical history.
-
-    Delegates to parser2.parse_and_save_history, including the required
-    logger lifecycle that parser2.main() would normally provide.
-    """
+def _rebuild_canonical_history(start_year: int, end_year: int) -> History | None:
     try:
         logger.initialise(output_dir=OUTPUT_DIR)
-
-        # TEMP: fixed range for testing - how do we get these numbers from the state/params?
-        # Don't use 2026 because I think sumodb have changed the format of the Mz section
-        parse_and_save_history(start_year=1958, end_year=2026)
-
-        return True
-
+        return parse_history(start_year, end_year)
     except Exception as exc:
         print(f"[update_cycle] rebuild failed: {exc}")
-        return False
-    logger.close()
+        return None
+    finally:
+        logger.close()
 
-def _publish_canonical_history() -> bool:
-    """
-    Placeholder for canonical-history publication.
-    """
-    return True
+def _canonical_history_path(start_year: int, end_year: int) -> str:
+    output_dir = f"{OUTPUT_DIR}/Historys"
+    filename = f"{start_year}_01 to {end_year}_11"
+    os.makedirs(output_dir, exist_ok=True)
+    return os.path.join(output_dir, filename)
+
+def _publish_canonical_history(history: History, start_year: int, end_year: int) -> bool:
+    try:
+        full_path = _canonical_history_path(start_year, end_year)
+        save_history_with_annotations(history, full_path)
+        return os.path.exists(full_path + ".zip")
+    except Exception as exc:
+        print(f"[update_cycle] publish failed: {exc}")
+        return False
 
 
 def _refresh_cache() -> bool:
@@ -86,6 +86,13 @@ def _derived_artifacts_exist() -> bool:
 def run_update_cycle(requested_date_days: RequestedDateDays) -> UpdateResult:
     """
     Run one update cycle for the requested BashoDayRefs.
+
+    Policy:
+    - retrieval failure => RETRIEVAL_FAILED
+    - source changed => rebuild History, publish canonical zip, refresh cache,
+      run analysis, and verify required derived artifacts
+    - source unchanged => keep existing canonical zip, ensure cache, and repair
+      downstream state only if needed
     """
     if not requested_date_days:
         return UpdateResult.NO_NEW_DATA
@@ -102,11 +109,15 @@ def run_update_cycle(requested_date_days: RequestedDateDays) -> UpdateResult:
         case RetrievalResult.SUCCESS_CHANGED:
             print("[update_cycle] retrieval changed source dataset")
 
-            if not _rebuild_canonical_history():
+            start_year = 1958 # Hard-code for now
+            end_year = int(requested_date_days[-1].date.year)
+
+            history = _rebuild_canonical_history(start_year, end_year)
+            if history is None:
                 print("[update_cycle] rebuild failed")
                 return UpdateResult.REBUILD_FAILED
 
-            if not _publish_canonical_history():
+            if not _publish_canonical_history(history, start_year, end_year):
                 print("[update_cycle] publish failed")
                 return UpdateResult.PUBLISH_FAILED
 

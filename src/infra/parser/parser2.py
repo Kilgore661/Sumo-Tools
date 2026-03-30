@@ -13,7 +13,7 @@ try:
     from .parser2_body import parse_and_validate_body
     from .parser2_IntDate import IntDate as Date
 except:
-    print( 'If running from Sumo-Tools, you need to do\n$env:PYTHONPATH = "X:\Sumo\Sumo-Tools\src' )
+    print( 'If running from Sumo-Tools, you need to do\n$env:PYTHONPATH = "X:\\Sumo\\Sumo-Tools\\src' )
 
 from .FSM import FinalBanzukeEntry
 # --- Core Model Dependencies (Original and New) ---
@@ -23,7 +23,6 @@ from sumo_core.BasicPrimitives import RikId, Day
 from sumo_core.History import History
 from sumo_core.BashoState import BashoState
 from sumo_core.Chii import Chii
-from ..persistence.new_sumo_serialiser import save_history_with_annotations
 from .parser_daily import _parse_daily_results
 
 # --- Helper/Utility Dependencies ---
@@ -149,8 +148,9 @@ def parse_range(start_year, end_year=None, start_month=1, end_month=11) -> Histo
     print(f'\nAll files processed.{" "*40}')
     return history
 
+def parse_history(start_year: int, end_year: int) -> History:
+    return parse_range(start_year, end_year)
 
-### NEW ### - A new top-level function to handle the full parse-and-save workflow.
 def parse_and_save_history(start_year, end_year):
     """
     Orchestrates the entire process: parsing a date range and then
