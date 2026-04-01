@@ -2,7 +2,7 @@
 Tracker main loop.
 
 This module contains the top-level orchestration for maintaining the
-canonical sumo dataset and its mandatory downstream products.
+sumo data store.
 
 The tracker runs continuously. On each iteration it:
 
@@ -11,16 +11,15 @@ The tracker runs continuously. On each iteration it:
 3. Decides whether new data may exist and a run should be attempted
 4. If so, determines the ordered list of required BashoDayRefs
 5. Enters ACTIVE state and runs the update cycle:
-       compute required BashoDayRef
-       -> run update cycle (download / rebuild / publish / cache / analysis as needed)
-       -> parse BashoDayRefs
+       compute required BashoDayRefs
+       -> run update cycle (download/rebuild/publish/live store  as needed)
+       -> rebuild canonical History (parse source files)
        -> write canonical zip
-       -> refresh cache
-       -> run required analysis/products
+       -> refresh live store
 6. Handles the outcome according to policy:
        - success -> record successful run for the day
        - download failure -> enter RECOVERY and retry later
-       - parser/cache/analysis failure -> alert and terminate
+       - rebuild / publish / live-store failure -> alert and terminate
        - no new data -> do nothing
 
 Immediate mode:
@@ -47,12 +46,11 @@ This module defines:
     - handle_update_result(): policy for update outcomes
 
 All domain-specific work (planning, downloading, parsing, persistence,
-cache refresh, analysis) is delegated to other modules.
+live store refresh) is delegated to other modules.
 """
 
 import argparse
-import time
-from datetime import date, datetime, timedelta
+from datetime import date, datetime
 from time import sleep
 
 from infra.tracker.alert import alert_fatal
@@ -67,10 +65,17 @@ from infra.tracker.schedule import (
     within_window,
 )
 from infra.tracker.tray import set_tray_state
-from infra.tracker.types import RunState, TrackerRuntime, UpdateResult
+from infra.tracker.types import (
+    RunState,
+    TrackerRuntime,
+    UpdateResult,
+    RealClock,
+    ScaledClock
+)
 from infra.tracker.update_cycle import run_update_cycle
-
-from .Clocks import RealClock, ScaledClock
+from infra.live_store.LiveStore import LiveStore, get_store
+from infra.live_store.config import VERSION
+from infra.live_store.api import write_published_name, clear_published_name
 
 def handle_update_result(
     runtime: TrackerRuntime,
@@ -84,7 +89,7 @@ def handle_update_result(
     Policy:
     - SUCCESS records a successful run for the day and returns the tracker to READY.
     - RETRIEVAL_FAILED enters RECOVERY.
-    - NO_NEW_DATA makes no state change.
+    - NO_NEW_DATA - record the day and enter READY
     - All other failure results are fatal.
     """
     match result:
@@ -96,14 +101,13 @@ def handle_update_result(
             runtime.state = RunState.RECOVERY
 
         case UpdateResult.NO_NEW_DATA:
-            pass
+            ledger.record_success_for(run_date)
+            runtime.state = RunState.READY
 
         case (
             UpdateResult.REBUILD_FAILED
             | UpdateResult.PUBLISH_FAILED
-            | UpdateResult.CACHE_FAILED
-            | UpdateResult.ANALYSIS_FAILED
-            | UpdateResult.DERIVED_ARTIFACTS_MISSING
+            | UpdateResult.LIVE_STORE_FAILED
         ):
             alert_fatal(f"Tracker update cycle failed fatally: {result.name}")
             raise RuntimeError(f"Fatal update cycle failure: {result.name}")
@@ -188,6 +192,20 @@ def _fatal_recovery_message(now: datetime, runtime: TrackerRuntime) -> str:
     )
 
 
+def _initialise_live_store() -> None:
+    """
+    Establish a usable live store before entering the tracker FSM.
+
+    If no live store is present, bootstrap it from the canonical zip.
+    In either case, advertise the current store name.
+    """
+    store = LiveStore(f"history{VERSION}")
+
+    if not store.exists():
+        store = get_store()
+
+    write_published_name(store.name)
+
 def run(
     config: TrackerConfig,
     *,
@@ -200,6 +218,8 @@ def run(
     """
     if clock is None:
         clock = RealClock()
+    clear_published_name()
+    _initialise_live_store()
 
     ledger = InMemoryLedger()
 

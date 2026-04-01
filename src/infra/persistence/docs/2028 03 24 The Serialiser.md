@@ -165,13 +165,13 @@ load_history_with_annotations(filename)
 ## File Format
 
 * Output files are saved as:
-
+  
   ```
   <filename>.zip
   ```
 
 * Inside the ZIP:
-
+  
   ```
   <filename>.json
   ```
@@ -236,4 +236,3 @@ This module provides a robust, extensible system for:
 * Ensuring reliable, reversible transformations between objects and storage
 
 It is designed to balance **clarity**, **performance**, and **long-term maintainability**.
-

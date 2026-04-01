@@ -11,7 +11,7 @@ Current policy (deliberately simple):
 - request every BashoDayRef from the epoch up to that point
 
 This gives a complete, deterministic request list and keeps the contract
-clear while the tracker/parser/scraper boundaries are being established.
+clear while the tracker/parser/downloader boundaries are being established.
 
 Later versions may use the ledger and/or canonical state to reduce this to
 only the missing suffix or isolated missing days.
@@ -25,8 +25,7 @@ from infra.tracker.schedule import add_months, second_sunday
 from sumo_core.BasicPrimitives import Day, Month, Year
 from sumo_core.History import Date
 from .types import BashoDayRef, RequestedDateDays
-
-EPOCH = Date(Year(1958), Month(1))
+from ..config import EPOCH
 
 
 def get_requested_date_days(
@@ -165,8 +164,8 @@ def _enumerate_from_epoch_to(
     """
     requested: RequestedDateDays = []
 
-    year = int(EPOCH.year)
-    month = int(EPOCH.month)
+    year = EPOCH
+    month = 11
 
     while True:
         date = Date(Year(year), Month(month))

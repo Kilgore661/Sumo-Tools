@@ -1,6 +1,7 @@
 import inspect
 import os
 import argparse
+from .config import EPOCH
 
 def app_dir():
     # Get the frame of the caller
@@ -41,5 +42,5 @@ def parse_args(args=None):
     elif args.end is not None:
         return {'end': args.end}
     else:
-        return { 'start': 1958, 'end': 2026 }
+        return { 'start': EPOCH, 'end': 2026 }
 

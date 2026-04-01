@@ -99,7 +99,7 @@ def state_for(now: datetime, window: BashoWindow) -> RunState:
 
     ACTIVE is not produced here; it is a transient execution state set by
     the main loop when work actually begins. RECOVERY is also not produced
-    here; it is entered only after a failed scrape.
+    here; it is entered only after a failed download.
     """
     if within_window(now, window):
         return RunState.READY
@@ -156,8 +156,8 @@ def time_when_new_data_may_exist(
     - the current time is at or after the trigger hour for today
     - there has not yet been a successful run today
 
-    NB Use of the ledger is an implementaion detail. It prevents the code from
-    doing unneccesary work.
+    NB Use of the ledger is an implementation detail. It prevents the code from
+    doing unneccessary work.
     """
     if state not in (RunState.READY, RunState.RECOVERY):
         return False

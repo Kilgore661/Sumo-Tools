@@ -22,3 +22,4 @@ class TrackerConfig:
 
     # Main loop polling interval in seconds
     poll_interval_seconds: float = 60.0
+

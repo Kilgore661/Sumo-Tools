@@ -11,21 +11,24 @@ Current structure:
 1. retrieval / download
 2. conditional rebuild
 3. conditional publish
-4. conditional cache handling
-5. conditional analysis
-6. derived-artifact validation
+4. conditional live store handling
 
 Only the retrieval stage is currently wired to real downloader behaviour.
 The downstream stages are present as placeholders so that the orchestration
 shape already matches the agreed design.
 """
 
+import os
 from .types import RequestedDateDays, RetrievalResult, UpdateResult
 from .scraper.downloader import download
 from sumo_core.History import History
 from ..parser.parser2 import parse_history, logger, OUTPUT_DIR
 from ..persistence.new_sumo_serialiser import save_history_with_annotations
+from ..config import EPOCH
 
+from ..live_store.LiveStore import LiveStore
+from ..live_store.config import VERSION
+from ..live_store.api import write_published_name
 
 def _rebuild_canonical_history(start_year: int, end_year: int) -> History | None:
     try:
@@ -53,34 +56,25 @@ def _publish_canonical_history(history: History, start_year: int, end_year: int)
         return False
 
 
-def _refresh_cache() -> bool:
+def _refresh_live_store(history: History) -> bool:
     """
-    Placeholder for cache refresh after source change.
+    Publish the rebuilt History into the live store and advertise its name.
     """
+    store = LiveStore(f"history{VERSION}")
+
+    if not store.publish(history):
+        return False
+
+    write_published_name(store.name)
     return True
 
 
-def _ensure_cache() -> bool:
+def _ensure_live_store() -> bool:
     """
-    Placeholder for cache presence when source data is unchanged.
+    Return True iff the live store currently exists.
     """
-    return True
-
-
-def _analyse() -> bool:
-    """
-    Placeholder for required analysis/product generation.
-    """
-    return True
-
-
-def _derived_artifacts_exist() -> bool:
-    """
-    Placeholder for derived-artifact validation.
-
-    Current agreed meaning of validation is existence only.
-    """
-    return True
+    store = LiveStore(f"history{VERSION}")
+    return store.exists()
 
 
 def run_update_cycle(requested_date_days: RequestedDateDays) -> UpdateResult:
@@ -89,11 +83,10 @@ def run_update_cycle(requested_date_days: RequestedDateDays) -> UpdateResult:
 
     Policy:
     - retrieval failure => RETRIEVAL_FAILED
-    - source changed => rebuild History, publish canonical zip, refresh cache,
-      run analysis, and verify required derived artifacts
-    - source unchanged => keep existing canonical zip, ensure cache, and repair
-      downstream state only if needed
+    - source changed => rebuild History, publish canonical zip, refresh live store
+    - source unchanged => ensure live store and return NO_NEW_DATA
     """
+
     if not requested_date_days:
         return UpdateResult.NO_NEW_DATA
 
@@ -109,7 +102,7 @@ def run_update_cycle(requested_date_days: RequestedDateDays) -> UpdateResult:
         case RetrievalResult.SUCCESS_CHANGED:
             print("[update_cycle] retrieval changed source dataset")
 
-            start_year = 1958 # Hard-code for now
+            start_year = EPOCH # Hard-code for now
             end_year = int(requested_date_days[-1].date.year)
 
             history = _rebuild_canonical_history(start_year, end_year)
@@ -121,17 +114,9 @@ def run_update_cycle(requested_date_days: RequestedDateDays) -> UpdateResult:
                 print("[update_cycle] publish failed")
                 return UpdateResult.PUBLISH_FAILED
 
-            if not _refresh_cache():
-                print("[update_cycle] cache refresh failed")
-                return UpdateResult.CACHE_FAILED
-
-            if not _analyse():
-                print("[update_cycle] analysis failed")
-                return UpdateResult.ANALYSIS_FAILED
-
-            if not _derived_artifacts_exist():
-                print("[update_cycle] required derived artifacts are missing")
-                return UpdateResult.DERIVED_ARTIFACTS_MISSING
+            if not _refresh_live_store( history ):
+                print("[update_cycle] live store refresh failed")
+                return UpdateResult.LIVE_STORE_FAILED
 
             print("[update_cycle] update cycle succeeded after source change")
             return UpdateResult.SUCCESS
@@ -139,24 +124,12 @@ def run_update_cycle(requested_date_days: RequestedDateDays) -> UpdateResult:
         case RetrievalResult.SUCCESS_UNCHANGED:
             print("[update_cycle] retrieval left source dataset unchanged")
 
-            if not _ensure_cache():
-                print("[update_cycle] cache ensure failed")
-                return UpdateResult.CACHE_FAILED
+            if not _ensure_live_store():
+                print("[update_cycle] live store ensure failed")
+                return UpdateResult.LIVE_STORE_FAILED
 
-            if _derived_artifacts_exist():
-                print("[update_cycle] no new data and downstream state already satisfied")
-                return UpdateResult.NO_NEW_DATA
-
-            if not _analyse():
-                print("[update_cycle] analysis failed while repairing downstream state")
-                return UpdateResult.ANALYSIS_FAILED
-
-            if not _derived_artifacts_exist():
-                print("[update_cycle] required derived artifacts are still missing")
-                return UpdateResult.DERIVED_ARTIFACTS_MISSING
-
-            print("[update_cycle] update cycle succeeded by repairing downstream state")
-            return UpdateResult.SUCCESS
+            print("[update_cycle] no new data")
+            return UpdateResult.NO_NEW_DATA
 
         case _:
             raise RuntimeError(f"Unhandled RetrievalResult: {retrieval_result!r}")

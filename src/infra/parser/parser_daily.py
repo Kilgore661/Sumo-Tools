@@ -36,7 +36,7 @@ double_FP = {
 
 def _parse_daily_results( year: int, month: int, day: Day, 
                        banzuke_mz: Dict[int, Dict[str, str]]) -> Optional[DailyResults]:
-    ''' Parses daily results page scraped with SIMPLE=ON i.e. one big flat table '''
+    ''' Parses daily results page downloaded with SIMPLE=ON i.e. one big flat table '''
 
     fn = os.path.join(RESULTS_DIR, f'{year} {month:02d}', f'{day:02d}.html')
     

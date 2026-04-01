@@ -20,8 +20,8 @@ def alert_fatal(message: str) -> None:
     Emit a fatal tracker alert.
 
     The alert is intended for hard failures such as parser failure on valid
-    input, failure to publish a canonical zip, or window-close with unresolved
-    recovery work.
+    input, failure to publish a canonical zip, live store failure, or
+    window-close with unresolved recovery work.
     """
     print(f"[alert] FATAL: {message}")
     winsound.Beep(1000, 500)
