@@ -53,7 +53,7 @@ def get_history() -> History:
     """
     t0 = time()
     if not PUBLISHED_NAME_FILE.exists():
-        sys.exit("[live_store.api] no published live store name-file found")
+        sys.exit("[live_store.api] no published live store name-file found. Use:\n\n    py -m src.infra.tracker.tracker\n\nfrom X:\Sumo\Sumo-Tools.")
 
     try:
         name = PUBLISHED_NAME_FILE.read_text(encoding="utf-8").strip()

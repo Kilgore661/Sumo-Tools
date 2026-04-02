@@ -2025,8 +2025,6 @@ Retain the current scaled clock only if:
 
 > **Advance simulated time only during `clock.sleep()`, not during computation.**
 
-
-
 ---
 
 ### Proposal: Configurable Live Store Initialisation for Testing
@@ -2308,11 +2306,11 @@ or:
 ### Suggested implementation steps
 
 1. Add a new enum in `types.py`:
-
+   
    * `WindowPhase` or `SchedulePhase`
 
 2. Add a helper in `schedule.py`:
-
+   
    * `phase_for(now, window) -> WindowPhase`
 
 3. Extend `TrackerRuntime` with a `phase` field.
@@ -2374,27 +2372,27 @@ This phase executes once at startup and is independent of scheduling and `--now`
 ## Design Principles
 
 1. **Separation of concerns**
-
+   
    * Bootstrap establishes initial state
    * FSM maintains that state over time
 
 2. **Single source selection**
-
+   
    * Prefer canonical zip
    * Fall back to raw HTML
    * Fall back to download
 
 3. **Operational validity, not exhaustive verification**
-
+   
    * Zip is valid if it can be opened and read
    * Raw data is valid if rebuild succeeds
 
 4. **Fail fast**
-
+   
    * If a valid state cannot be established, terminate with a fatal alert
 
 5. **Reuse existing pipeline**
-
+   
    * Planner defines required dataset
    * Downloader ensures coverage
    * Parser rebuilds History
@@ -2599,4 +2597,3 @@ The tracker becomes:
 ```
 
 which is exactly the model you described.
-

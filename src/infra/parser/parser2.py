@@ -10,6 +10,7 @@ from typing import Dict, List
 from .parser2_margin import get_margin_data
 from .parser2_body import parse_and_validate_body
 from .parser2_IntDate import IntDate as Date
+from ..persistence.new_sumo_serialiser import save_history_with_annotations
 
 from .FSM import FinalBanzukeEntry
 # --- Core Model Dependencies (Original and New) ---
