@@ -3,10 +3,20 @@ import datetime
 import os
 import sys
 import zipfile
+from time import time
 import pickle  # or whatever your serializer uses
 
 from src.infra.config import EPOCH
 from src.infra.live_store.api import get_history
+
+import argparse
+import datetime
+
+from src.infra.config import EPOCH
+from src.infra.live_store.api import get_history
+from src.infra.persistence.new_sumo_serialiser import load_history_with_annotations
+
+
 
 # Adjust if your serializer uses something else
 def load_history_from_zip(start_year: int, end_year: int):
@@ -44,14 +54,6 @@ def parse_args():
     return parser.parse_args()
 
 
-import argparse
-import datetime
-
-from src.infra.config import EPOCH
-from src.infra.live_store.api import get_history
-from src.infra.persistence.new_sumo_serialiser import load_history_with_annotations
-
-
 def load_history_from_zip(start_year: int, end_year: int):
     filename = f"files/output/Historys/{start_year}_01 to {end_year}_11"
     return load_history_with_annotations(filename)
@@ -79,12 +81,14 @@ def main():
     args = parse_args()
     validate_years(args.start, args.end)
 
+    t0 = time()
     if args.zip:
-        print(f"[loader] loading from zip: {args.start}..{args.end}")
+        print(f"[loader] loading from zip: {args.start} - {args.end} ...", end = ' ', flush = True )
         history = load_history_from_zip(args.start, args.end)
     else:
-        print("[loader] loading from live store")
+        print("[loader] loading from live store ...", end = ' ', flush = True )
         history = get_history()
+    print( f'{time()-t0:.0f} seconds.' )
 
     dates = list(history.keys())
     print(f"{len(history)} basho, {dates[0]} to {dates[-1]}")

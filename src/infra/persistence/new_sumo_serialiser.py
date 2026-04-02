@@ -1,5 +1,5 @@
 import json
-import os
+import os, sys
 from zipfile import ZipFile, ZIP_DEFLATED
 
 # --- Import the new data model classes ---
@@ -137,5 +137,8 @@ def load_history_with_annotations(filename: str) -> History:
     Load a History object from a compressed JSON file.
     The filename should not include the .zip extension.
     """
+    if not os.path.exists( f'{filename}.zip' ):
+        print( f'File "{filename}" does not exist. Use\n    py -m src.infra.parser.parser2 -s <start> -e <end>\nfrom Sumo-Tools.' )
+        sys.exit()
     data = NewSumoSerialiser.load_from_zip(filename)
     return NewSumoSerialiser.deserialise_history_with_ann(data)
