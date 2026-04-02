@@ -2,7 +2,7 @@
 from .FSM_base_fsm import BaseFSM
 from .FSM_data_classes import *
 from .FSM_exceptions import *
-from sumo_core.Chii import Chii
+from ....sumo_core.Chii import Chii
 
 class SanyakuBaseFSM(BaseFSM):
     def __init__(self, *args, **kwargs):

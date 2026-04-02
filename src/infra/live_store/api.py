@@ -33,9 +33,10 @@ details such as shared-memory naming or versioning.
 """
 
 import sys
+from time import time
 from pathlib import Path
 
-from sumo_core.History import History
+from ...sumo_core.History import History
 
 from .LiveStore import LiveStore
 from .config import PUBLISHED_NAME_FILE
@@ -50,6 +51,7 @@ def get_history() -> History:
     - the file is empty
     - the named shared-memory segment cannot be connected to
     """
+    t0 = time()
     if not PUBLISHED_NAME_FILE.exists():
         sys.exit("[live_store.api] no published live store name-file found")
 
@@ -66,6 +68,7 @@ def get_history() -> History:
 
     if history is None:
         sys.exit(f"[live_store.api] could not connect to published live store '{name}'")
+    print( f'Connection made in {time()-t0:.0f} seconds.' )
 
     return history
 

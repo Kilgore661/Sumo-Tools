@@ -1,34 +1,12 @@
-"""
-Tracker update-cycle orchestration.
-
-This module coordinates one tracker update cycle.
-
-It owns the concrete sequencing of tracker sub-steps and returns an
-UpdateResult describing the overall outcome.
-
-Current structure:
-
-1. retrieval / download
-2. conditional rebuild
-3. conditional publish
-4. conditional live store handling
-
-Only the retrieval stage is currently wired to real downloader behaviour.
-The downstream stages are present as placeholders so that the orchestration
-shape already matches the agreed design.
-"""
-
 import os
 from .types import RequestedDateDays, RetrievalResult, UpdateResult
 from .scraper.downloader import download
-from sumo_core.History import History
+from ...sumo_core.History import History
 from ..parser.parser2 import parse_history, logger, OUTPUT_DIR
 from ..persistence.new_sumo_serialiser import save_history_with_annotations
 from ..config import EPOCH
-
 from ..live_store.LiveStore import LiveStore
-from ..live_store.config import VERSION
-from ..live_store.api import write_published_name
+
 
 def _rebuild_canonical_history(start_year: int, end_year: int) -> History | None:
     try:
@@ -40,13 +18,19 @@ def _rebuild_canonical_history(start_year: int, end_year: int) -> History | None
     finally:
         logger.close()
 
+
 def _canonical_history_path(start_year: int, end_year: int) -> str:
     output_dir = f"{OUTPUT_DIR}/Historys"
     filename = f"{start_year}_01 to {end_year}_11"
     os.makedirs(output_dir, exist_ok=True)
     return os.path.join(output_dir, filename)
 
-def _publish_canonical_history(history: History, start_year: int, end_year: int) -> bool:
+
+def _publish_canonical_history(
+    history: History,
+    start_year: int,
+    end_year: int,
+) -> bool:
     try:
         full_path = _canonical_history_path(start_year, end_year)
         save_history_with_annotations(history, full_path)
@@ -56,28 +40,24 @@ def _publish_canonical_history(history: History, start_year: int, end_year: int)
         return False
 
 
-def _refresh_live_store(history: History) -> bool:
+def _refresh_live_store(live_store: LiveStore, history: History) -> bool:
     """
-    Publish the rebuilt History into the live store and advertise its name.
+    Publish the rebuilt History into the already-owned live store.
     """
-    store = LiveStore(f"history{VERSION}")
-
-    if not store.publish(history):
-        return False
-
-    write_published_name(store.name)
-    return True
+    return live_store.publish(history)
 
 
-def _ensure_live_store() -> bool:
+def _ensure_live_store(live_store: LiveStore) -> bool:
     """
-    Return True iff the live store currently exists.
+    Return True iff the owned live store currently exists.
     """
-    store = LiveStore(f"history{VERSION}")
-    return store.exists()
+    return live_store.exists()
 
 
-def run_update_cycle(requested_date_days: RequestedDateDays) -> UpdateResult:
+def run_update_cycle(
+    requested_date_days: RequestedDateDays,
+    live_store: LiveStore,
+) -> UpdateResult:
     """
     Run one update cycle for the requested BashoDayRefs.
 
@@ -86,7 +66,6 @@ def run_update_cycle(requested_date_days: RequestedDateDays) -> UpdateResult:
     - source changed => rebuild History, publish canonical zip, refresh live store
     - source unchanged => ensure live store and return NO_NEW_DATA
     """
-
     if not requested_date_days:
         return UpdateResult.NO_NEW_DATA
 
@@ -102,7 +81,7 @@ def run_update_cycle(requested_date_days: RequestedDateDays) -> UpdateResult:
         case RetrievalResult.SUCCESS_CHANGED:
             print("[update_cycle] retrieval changed source dataset")
 
-            start_year = EPOCH # Hard-code for now
+            start_year = EPOCH
             end_year = int(requested_date_days[-1].date.year)
 
             history = _rebuild_canonical_history(start_year, end_year)
@@ -114,7 +93,7 @@ def run_update_cycle(requested_date_days: RequestedDateDays) -> UpdateResult:
                 print("[update_cycle] publish failed")
                 return UpdateResult.PUBLISH_FAILED
 
-            if not _refresh_live_store( history ):
+            if not _refresh_live_store(live_store, history):
                 print("[update_cycle] live store refresh failed")
                 return UpdateResult.LIVE_STORE_FAILED
 
@@ -124,7 +103,7 @@ def run_update_cycle(requested_date_days: RequestedDateDays) -> UpdateResult:
         case RetrievalResult.SUCCESS_UNCHANGED:
             print("[update_cycle] retrieval left source dataset unchanged")
 
-            if not _ensure_live_store():
+            if not _ensure_live_store(live_store):
                 print("[update_cycle] live store ensure failed")
                 return UpdateResult.LIVE_STORE_FAILED
 

@@ -3,14 +3,14 @@ from enum import Enum
 from typing import Any, Dict, Type, List
 from zipfile import ZipFile, ZIP_DEFLATED
 
-from sumo_core.BashoState import BashoState
-from sumo_core.Summary import BoutResult, ResultLookup, DailyResults, Summary
-from sumo_core.Performance import Performance
-from sumo_core.Banzuke import Chii, RikChii, Shikona, RikShikona, Banzuke
-from sumo_core.BasicEnums import Division, MSD, Outcome, Side, Symbol, Annotation, Prize, Direction
-from sumo_core.Kimarite import Kimarite
-from sumo_core.BasicPrimitives import RikId, Day, Pair, Torikumi, Riks
-from sumo_core.History import History, Date, Year, Month
+from ...sumo_core.BashoState import BashoState
+from ...sumo_core.Summary import BoutResult, ResultLookup, DailyResults, Summary
+from ...sumo_core.Performance import Performance
+from ...sumo_core.Banzuke import Chii, RikChii, Shikona, RikShikona, Banzuke
+from ...sumo_core.BasicEnums import Division, MSD, Outcome, Side, Symbol, Annotation, Prize, Direction
+from ...sumo_core.Kimarite import Kimarite
+from ...sumo_core.BasicPrimitives import RikId, Day, Pair, Torikumi, Riks
+from ...sumo_core.History import History, Date, Year, Month
 from ..parser.TableTypes import TableType, BodyTable, BanzukeTables
 
 from .base_serialiser import BaseSerialiser

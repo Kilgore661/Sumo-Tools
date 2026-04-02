@@ -7,27 +7,23 @@ import os
 import re
 from typing import Dict, List
 
-try:
-    # --- Main Application Dependencies ---
-    from .parser2_margin import get_margin_data
-    from .parser2_body import parse_and_validate_body
-    from .parser2_IntDate import IntDate as Date
-except:
-    print( 'If running from Sumo-Tools, you need to do\n$env:PYTHONPATH = "X:\\Sumo\\Sumo-Tools\\src' )
+from .parser2_margin import get_margin_data
+from .parser2_body import parse_and_validate_body
+from .parser2_IntDate import IntDate as Date
 
 from .FSM import FinalBanzukeEntry
 # --- Core Model Dependencies (Original and New) ---
-from sumo_core.Banzuke import Banzuke, RikShikona, Riks, RikChii
-from sumo_core.Summary import Summary
-from sumo_core.BasicPrimitives import RikId, Day
-from sumo_core.History import History
-from sumo_core.BashoState import BashoState
-from sumo_core.Chii import Chii
+from ...sumo_core.Banzuke import Banzuke, RikShikona, Riks, RikChii
+from ...sumo_core.Summary import Summary
+from ...sumo_core.BasicPrimitives import RikId, Day
+from ...sumo_core.History import History
+from ...sumo_core.BashoState import BashoState
+from ...sumo_core.Chii import Chii
 from .parser_daily import _parse_daily_results
 
 # --- Helper/Utility Dependencies ---
-from infra.helpers import parse_args
-from infra.ETA3 import EtaModule
+from ..helpers import parse_args
+from ..ETA3 import EtaModule
 from .parser_warning_logger import logger
 from .parser2_utils import RESULTS_DIR, adapt_banzuke_for_daily_parser
 from .parser2_body_adapter import _extract_performance

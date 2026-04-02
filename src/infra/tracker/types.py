@@ -3,8 +3,8 @@ from datetime import datetime
 from enum import Enum, auto
 from typing import List, Optional
 
-from sumo_core.BasicPrimitives import Day
-from sumo_core.History import Date
+from ...sumo_core.BasicPrimitives import Day
+from ...sumo_core.History import Date
 
 """
 Core runtime and scheduling types used by the Tracker.

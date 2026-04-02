@@ -7,8 +7,8 @@ from .TableTypes import BanzukeTables, TableType
 # The new, structured data classes for the FSM
 from .FSM import BanzukeRow, RikishiData
 # The core data types
-from sumo_core.BasicPrimitives import RikId
-from sumo_core.Banzuke import Shikona
+from ...sumo_core.BasicPrimitives import RikId
+from ...sumo_core.Banzuke import Shikona
 from .parser2_IntDate import IntDate as Date
 
 def _create_rikishi_data(rikishi_dict: Optional[Dict]) -> Optional[RikishiData]:

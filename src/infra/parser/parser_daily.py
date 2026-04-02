@@ -3,11 +3,11 @@ import sys
 from pdb import set_trace
 from typing import Dict, Set, Tuple, Optional, List, Union, Literal
 
-from sumo_core.BasicEnums import Prize, Direction, Outcome
-from sumo_core.Banzuke import Shikona
-from sumo_core.Summary import BoutResult, DailyResults
-from sumo_core.Kimarite import Kimarite
-from sumo_core.BasicPrimitives import RikId, Day, Torikumi
+from ...sumo_core.BasicEnums import Prize, Direction, Outcome
+from ...sumo_core.Banzuke import Shikona
+from ...sumo_core.Summary import BoutResult, DailyResults
+from ...sumo_core.Kimarite import Kimarite
+from ...sumo_core.BasicPrimitives import RikId, Day, Torikumi
 from .parser_warning_logger import logger
 from .parser2_utils import RESULTS_DIR
 

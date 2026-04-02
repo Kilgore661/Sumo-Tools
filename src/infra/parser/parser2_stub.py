@@ -5,10 +5,10 @@ import re
 from pdb import set_trace
 from typing import Dict, Set, Tuple, Optional, List, Union, Literal
 
-from sumo_core.BasicEnums import Prize, Direction
-from sumo_core.Banzuke import Shikona
-from sumo_core.Performance import Performance
-from sumo_core.BasicPrimitives import RikId
+from ...sumo_core.BasicEnums import Prize, Direction
+from ...sumo_core.Banzuke import Shikona
+from ...sumo_core.Performance import Performance
+from ...sumo_core.BasicPrimitives import RikId
 from .parser_warning_logger import logger
 from .TableTypes import TableType, BodyTable, BanzukeTables
 WEIRD = 'X'

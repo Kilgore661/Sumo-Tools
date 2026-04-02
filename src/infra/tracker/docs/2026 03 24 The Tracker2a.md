@@ -2185,3 +2185,418 @@ This change:
 - keeps the system architecture clean and aligned with SDSM principles
 
 and can be implemented with minimal, localised changes.
+
+Here is a draft proposal.
+
+## Proposal: distinguish pre-basho and in-basho readiness in tracker state reporting
+
+### Summary
+
+The tracker currently reports a single `READY` state for all times within the active window. That is sufficient for control flow, but it hides an operational distinction that matters to a human reader:
+
+* the **pre-basho** period, when the tracker is active because a basho is approaching
+* the **in-basho** period, when daily results are expected
+* the **between-basho** period, when the tracker is inactive
+
+At present, `state_for(...)` returns `READY` for the entire interval from `pre_basho_start` to `basho_end`, and `DORMANT` outside it.  The runtime state model likewise only distinguishes `DORMANT`, `READY`, `RECOVERY`, and `ACTIVE`. 
+
+This proposal adds a separate notion of **schedule phase** for reporting and observability, while leaving the existing execution-state machine unchanged.
+
+### Motivation
+
+The current model is good enough for deciding whether the tracker may run, but not for expressing *what kind of readiness* applies.
+
+For example, these are both currently shown as `READY`:
+
+* two days before a basho starts
+* day 11 of an active basho
+
+Operationally, those states are different. The tracker is eligible to run in both cases, but the expectation is different:
+
+* before the basho, the system is in a preparatory or watchful state
+* during the basho, the system is in a live daily-results state
+
+The distinction would improve:
+
+* tray/status output
+* log readability
+* debugging of timing behaviour
+* future policy changes, if pre-basho and in-basho need different handling
+
+### Current behaviour
+
+The current scheduling code defines a `BashoWindow` with:
+
+* `pre_basho_start`
+* `basho_start`
+* `basho_end`
+* `trigger_hour` 
+
+`state_for(...)` currently does only this:
+
+* `READY` if `now` is within the window
+* `DORMANT` otherwise 
+
+The tray output simply prints `state.name`. 
+
+### Proposed change
+
+Add a second, separate concept called `WindowPhase` or `SchedulePhase`.
+
+Suggested values:
+
+```python
+class WindowPhase(Enum):
+    BETWEEN_BASHO = auto()
+    PRE_BASHO = auto()
+    IN_BASHO = auto()
+```
+
+The classification would be:
+
+* `BETWEEN_BASHO` if `now < pre_basho_start` or `now > basho_end`
+* `PRE_BASHO` if `pre_basho_start <= now < basho_start`
+* `IN_BASHO` if `basho_start <= now <= basho_end`
+
+This should be derived from the existing `BashoWindow`, so no scheduling semantics need to change.
+
+### Design principle
+
+Do **not** split `RunState.READY` into multiple execution states.
+
+`RunState` currently mixes lifecycle and operational flow:
+
+* `READY`
+* `ACTIVE`
+* `RECOVERY`
+* `DORMANT` 
+
+Those are execution-oriented states.
+
+By contrast, pre-basho versus in-basho is a **calendar phase**, not an execution state. Keeping the concepts separate avoids muddying the state machine.
+
+Recommended model:
+
+* `RunState`: execution/lifecycle state
+* `WindowPhase`: calendar/scheduling phase
+
+### Scope of first implementation
+
+The initial implementation should be **observational only**.
+
+That means:
+
+* no change to run eligibility
+* no change to `time_when_new_data_may_exist(...)`
+* no change to planner behaviour
+* no change to update-cycle policy
+
+The new phase should only affect reporting.
+
+Suggested tray output:
+
+```text
+[tray] 2026/03/22 11:28 state -> READY (IN_BASHO)
+```
+
+or:
+
+```text
+[tray] 2026/04/26 09:00 state -> READY (PRE_BASHO)
+```
+
+### Suggested implementation steps
+
+1. Add a new enum in `types.py`:
+
+   * `WindowPhase` or `SchedulePhase`
+
+2. Add a helper in `schedule.py`:
+
+   * `phase_for(now, window) -> WindowPhase`
+
+3. Extend `TrackerRuntime` with a `phase` field.
+
+4. In `run()`, update `runtime.phase` each loop alongside `runtime.current_window` and `runtime.state`. 
+
+5. Update `set_tray_state(...)` so that it can display both lifecycle state and phase. The current tray function only prints the state. 
+
+### Alternative minimal implementation
+
+A smaller first step would be to avoid changing `TrackerRuntime` and compute phase only when printing tray output.
+
+That would reduce structural change, but it spreads scheduling interpretation into presentation code. The cleaner long-term design is to compute phase once in scheduling/runtime logic and pass it to the tray layer.
+
+### Backward compatibility
+
+This proposal is backward-compatible if introduced carefully.
+
+* Existing control flow remains unchanged.
+* Existing `RunState` values remain unchanged.
+* Existing policy logic remains unchanged.
+* Only the formatting of status output changes.
+
+If needed, tray output could remain backward-compatible by only showing the phase when explicitly requested.
+
+### Benefits
+
+This change would make the tracker easier to reason about without increasing risk in the core update logic.
+
+It would give a clearer account of what `READY` means in practice:
+
+* `READY (PRE_BASHO)`
+* `READY (IN_BASHO)`
+
+while preserving the existing execution semantics that now appear to be working correctly.
+
+### Recommendation
+
+Implement this as a small, reporting-only enhancement after the current happy-path and failure-path behaviour is considered stable.
+
+That keeps the scheduling and update logic untouched while improving visibility into tracker behaviour.
+
+Here is a clean draft proposal, with no branching or alternatives.
+
+---
+
+# Proposal: Bootstrap Phase for Tracker Startup
+
+## Summary
+
+Introduce a **bootstrap phase** at tracker startup whose sole responsibility is:
+
+> **Ensure a valid canonical History exists and is published in the live store before the tracker FSM begins.**
+
+This phase executes once at startup and is independent of scheduling and `--now`.
+
+---
+
+## Design Principles
+
+1. **Separation of concerns**
+
+   * Bootstrap establishes initial state
+   * FSM maintains that state over time
+
+2. **Single source selection**
+
+   * Prefer canonical zip
+   * Fall back to raw HTML
+   * Fall back to download
+
+3. **Operational validity, not exhaustive verification**
+
+   * Zip is valid if it can be opened and read
+   * Raw data is valid if rebuild succeeds
+
+4. **Fail fast**
+
+   * If a valid state cannot be established, terminate with a fatal alert
+
+5. **Reuse existing pipeline**
+
+   * Planner defines required dataset
+   * Downloader ensures coverage
+   * Parser rebuilds History
+   * Persistence writes canonical zip
+   * Live store publishes result
+
+---
+
+## Bootstrap Algorithm
+
+At tracker startup, before entering the main loop:
+
+```text
+1. Obtain current time:
+       now = clock.now()
+
+2. Attempt to load canonical zip:
+
+       IF canonical zip exists AND can be opened and read:
+           load History from zip
+           initialise live store with this History
+           publish live store name
+           SUCCESS → proceed to FSM
+
+3. Attempt rebuild from raw HTML:
+
+       TRY:
+           rebuild History from raw HTML files
+       IF rebuild succeeds:
+           write canonical zip
+           initialise live store with rebuilt History
+           publish live store name
+           SUCCESS → proceed to FSM
+
+4. Download and rebuild:
+
+       requested = planner(now)
+
+       retrieval_result = download(requested)
+
+       IF retrieval_result == FAILURE:
+           FATAL → terminate
+
+       rebuild History
+
+       IF rebuild fails:
+           FATAL → terminate
+
+       write canonical zip
+
+       IF write fails:
+           FATAL → terminate
+
+       initialise live store with rebuilt History
+       publish live store name
+
+       SUCCESS → proceed to FSM
+```
+
+---
+
+## Definitions
+
+### Canonical zip validity
+
+A canonical zip is considered valid if:
+
+* the file exists
+* it can be opened
+* it can be read successfully into a `History`
+
+No attempt is made to verify that its contents exactly match raw HTML.
+
+---
+
+### Raw data validity
+
+Raw HTML data is considered usable if:
+
+* a rebuild using the parser succeeds
+
+No pre-check for completeness is required.
+
+---
+
+### Required dataset
+
+The required dataset is determined by:
+
+```python
+requested = get_requested_date_days(now, ledger, config)
+```
+
+This represents all BashoDayRefs that should exist as of `now`. 
+
+The downloader is responsible for determining which of these require fetching. 
+
+---
+
+## Integration with Existing Code
+
+### New structure
+
+```text
+run():
+    bootstrap()
+    enter FSM loop
+```
+
+### Bootstrap responsibilities
+
+* determine initial source of truth
+* construct canonical History if needed
+* initialise and retain live store
+* publish store name
+
+### FSM responsibilities (unchanged)
+
+* scheduling
+* triggering update cycles
+* maintaining canonical state over time
+
+---
+
+## Live Store Handling
+
+Bootstrap must:
+
+* create a single `LiveStore` instance
+* initialise it with the chosen History
+* retain ownership for the lifetime of the tracker process
+* publish its name via `write_published_name(...)`
+
+This aligns with current live-store ownership semantics.  
+
+---
+
+## Failure Handling
+
+Bootstrap terminates the tracker with a fatal alert if:
+
+* canonical zip cannot be read and rebuild fails
+* download fails
+* rebuild fails after download
+* canonical zip cannot be written
+
+This ensures the FSM never runs without a valid initial state.
+
+---
+
+## Relationship to `--now`
+
+`--now` remains unchanged in meaning:
+
+> Run one update cycle immediately after startup.
+
+Execution order:
+
+```text
+bootstrap
+if --now:
+    run one update cycle
+enter FSM loop
+```
+
+`--now` does not participate in bootstrap logic.
+
+---
+
+## Benefits
+
+* Guarantees a valid initial state before FSM begins
+* Eliminates reliance on implicit repair via update cycle
+* Keeps bootstrap logic simple and deterministic
+* Reuses existing, well-tested components
+* Aligns behaviour with original mental model of the tracker
+
+---
+
+## Non-goals
+
+* No attempt to validate zip contents against raw HTML
+* No optimisation of download scope (planner remains coverage-blind)
+* No change to scheduling or update-cycle behaviour
+
+---
+
+## Conclusion
+
+This proposal introduces a clear and minimal bootstrap phase that:
+
+* resolves the current startup gap
+* preserves the existing architecture
+* keeps complexity low
+* matches the intended behaviour of the tracker
+
+The tracker becomes:
+
+```text
+1. Establish valid state
+2. Maintain it
+```
+
+which is exactly the model you described.
+

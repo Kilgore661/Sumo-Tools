@@ -4,11 +4,11 @@ from pathlib import Path
 from datetime import datetime
 from time import time
 
-from sumo_core.History import History
-from infra.persistence.annotated_serialiser import load_history_with_annotations
-from infra.parser.parser2 import OUTPUT_DIR
+from ...sumo_core.History import History
+from ..persistence.annotated_serialiser import load_history_with_annotations
+from ..parser.parser2 import OUTPUT_DIR
 
-from infra.config import EPOCH
+from ..config import EPOCH
 from .config import VERSION
 
 
@@ -69,9 +69,11 @@ class LiveStore:
         try:
             zip_path = str(_canonical_zip_path())
             print(f"Loading {zip_path}.zip ...", end=" ", flush=True)
+            t0 = time()
             history = load_history_with_annotations(zip_path)
             payload = pickle.dumps(history)
             self._replace_segment(payload)
+            print( f'complete in {time()-t0:.0f} seconds.' )
             return True
         except Exception as exc:
             print(f"[live_store] init_live_store() failed: {exc}")

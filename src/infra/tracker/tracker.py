@@ -12,7 +12,7 @@ The tracker runs continuously. On each iteration it:
 4. If so, determines the ordered list of required BashoDayRefs
 5. Enters ACTIVE state and runs the update cycle:
        compute required BashoDayRefs
-       -> run update cycle (download/rebuild/publish/live store  as needed)
+       -> run update cycle (download/rebuild/publish/live store as needed)
        -> rebuild canonical History (parse source files)
        -> write canonical zip
        -> refresh live store
@@ -53,29 +53,30 @@ import argparse
 from datetime import date, datetime
 from time import sleep
 
-from infra.tracker.alert import alert_fatal
-from infra.tracker.config import TrackerConfig
-from infra.tracker.ledger import InMemoryLedger
-from infra.tracker.planner import get_requested_date_days
-from infra.tracker.schedule import (
+from .alert import alert_fatal
+from .config import TrackerConfig
+from .ledger import InMemoryLedger
+from .planner import get_requested_date_days
+from .schedule import (
     get_basho_window,
     next_run_time,
     state_for,
     time_when_new_data_may_exist,
     within_window,
 )
-from infra.tracker.tray import set_tray_state
-from infra.tracker.types import (
+from .tray import set_tray_state
+from .types import (
     RunState,
     TrackerRuntime,
     UpdateResult,
     RealClock,
-    ScaledClock
+    ScaledClock,
 )
-from infra.tracker.update_cycle import run_update_cycle
-from infra.live_store.LiveStore import LiveStore, get_store
-from infra.live_store.config import VERSION
-from infra.live_store.api import write_published_name, clear_published_name
+from .update_cycle import run_update_cycle
+from ..live_store.LiveStore import LiveStore, get_store
+from ..live_store.config import VERSION
+from ..live_store.api import write_published_name, clear_published_name
+
 
 def handle_update_result(
     runtime: TrackerRuntime,
@@ -89,7 +90,7 @@ def handle_update_result(
     Policy:
     - SUCCESS records a successful run for the day and returns the tracker to READY.
     - RETRIEVAL_FAILED enters RECOVERY.
-    - NO_NEW_DATA - record the day and enter READY
+    - NO_NEW_DATA records the day and enters READY.
     - All other failure results are fatal.
     """
     match result:
@@ -115,12 +116,14 @@ def handle_update_result(
         case _:
             raise RuntimeError(f"Unhandled UpdateResult: {result!r}")
 
+
 def _run_one_cycle_now(
     now: datetime,
     config: TrackerConfig,
     ledger: InMemoryLedger,
     runtime: TrackerRuntime,
     *,
+    live_store: LiveStore,
     reason: str,
 ) -> None:
     """
@@ -147,7 +150,7 @@ def _run_one_cycle_now(
     runtime.state = RunState.ACTIVE
     set_tray_state(runtime.state, now)
 
-    result = run_update_cycle(requested_basho_days)
+    result = run_update_cycle(requested_basho_days, live_store)
 
     handle_update_result(
         runtime,
@@ -155,13 +158,14 @@ def _run_one_cycle_now(
         now.date(),
         ledger,
     )
+    set_tray_state(runtime.state, now)
 
 
 def _effective_poll_interval_seconds(
     config: TrackerConfig,
     *,
     test_mode: bool,
-    real_seconds_per_simulated_day: float
+    real_seconds_per_simulated_day: float,
 ) -> float:
     """
     Return the sleep interval to use in the main loop.
@@ -192,12 +196,16 @@ def _fatal_recovery_message(now: datetime, runtime: TrackerRuntime) -> str:
     )
 
 
-def _initialise_live_store() -> None:
+def _initialise_live_store() -> LiveStore:
     """
-    Establish a usable live store before entering the tracker FSM.
+    Establish and return a usable live store before entering the tracker FSM.
 
     If no live store is present, bootstrap it from the canonical zip.
     In either case, advertise the current store name.
+
+    The returned LiveStore object must be retained by the tracker for the
+    lifetime of the process so that its owning shared-memory handle remains
+    alive.
     """
     store = LiveStore(f"history{VERSION}")
 
@@ -205,78 +213,91 @@ def _initialise_live_store() -> None:
         store = get_store()
 
     write_published_name(store.name)
+    return store
+
 
 def run(
     config: TrackerConfig,
     *,
     immediate: bool = False,
     clock=None,
-    poll_interval_seconds: float
+    poll_interval_seconds: float,
 ) -> None:
     """
     Run the tracker main loop.
     """
     if clock is None:
         clock = RealClock()
+
     clear_published_name()
-    _initialise_live_store()
+    live_store = _initialise_live_store()
 
-    ledger = InMemoryLedger()
+    try:
+        ledger = InMemoryLedger()
 
-    now = clock.now()
-    current_window = get_basho_window(now, config)
-
-    runtime = TrackerRuntime(
-        state=state_for(now, current_window),
-        current_time=now,
-        current_window=current_window,
-        next_run_time=next_run_time(now, current_window, config),
-    )
-
-    if immediate:
-        _run_one_cycle_now(
-            now,
-            config,
-            ledger,
-            runtime,
-            reason="immediate",
-        )
-
-    while True:
         now = clock.now()
-        runtime.current_time = now
-        runtime.current_window = get_basho_window(now, config)
-        runtime.next_run_time = next_run_time(now, runtime.current_window, config)
+        current_window = get_basho_window(now, config)
 
-        if not within_window(now, runtime.current_window):
-            if runtime.state == RunState.RECOVERY:
-                alert_fatal(_fatal_recovery_message(now, runtime))
-                raise SystemExit(1)
-            runtime.state = RunState.DORMANT
-        else:
-            if runtime.state not in (RunState.ACTIVE, RunState.RECOVERY):
-                runtime.state = state_for(now, runtime.current_window)
-
-        set_tray_state(runtime.state, now)
-
-        if not time_when_new_data_may_exist(
-            now,
-            runtime.state,
-            runtime.current_window,
-            ledger,
-        ):
-            sleep(poll_interval_seconds)
-            continue
-
-        _run_one_cycle_now(
-            now,
-            config,
-            ledger,
-            runtime,
-            reason="scheduled",
+        runtime = TrackerRuntime(
+            state=state_for(now, current_window),
+            current_time=now,
+            current_window=current_window,
+            next_run_time=next_run_time(now, current_window, config),
         )
 
-        sleep(poll_interval_seconds)
+        if immediate:
+            _run_one_cycle_now(
+                now,
+                config,
+                ledger,
+                runtime,
+                live_store=live_store,
+                reason="immediate",
+            )
+
+        while True:
+            now = clock.now()
+            runtime.current_time = now
+            runtime.current_window = get_basho_window(now, config)
+            runtime.next_run_time = next_run_time(now, runtime.current_window, config)
+
+            if not within_window(now, runtime.current_window):
+                if runtime.state == RunState.RECOVERY:
+                    alert_fatal(_fatal_recovery_message(now, runtime))
+                    raise SystemExit(1)
+                runtime.state = RunState.DORMANT
+            else:
+                if runtime.state not in (RunState.ACTIVE, RunState.RECOVERY):
+                    runtime.state = state_for(now, runtime.current_window)
+
+            set_tray_state(runtime.state, now)
+
+            if not time_when_new_data_may_exist(
+                now,
+                runtime.state,
+                runtime.current_window,
+                ledger,
+            ):
+                sleep(poll_interval_seconds)
+                continue
+
+            _run_one_cycle_now(
+                now,
+                config,
+                ledger,
+                runtime,
+                live_store=live_store,
+                reason="scheduled",
+            )
+
+            sleep(poll_interval_seconds)
+
+    finally:
+        try:
+            live_store.close()
+        finally:
+            clear_published_name()
+
 
 def _parse_date(date_text: str) -> datetime.date:
     """

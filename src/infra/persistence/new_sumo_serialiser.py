@@ -3,12 +3,12 @@ import os
 from zipfile import ZipFile, ZIP_DEFLATED
 
 # --- Import the new data model classes ---
-from sumo_core.Banzuke import Banzuke, RikChii
-from sumo_core.Summary import Summary
-from sumo_core.BasicPrimitives import RikId
-from sumo_core.History import History, Date, Year, Month
-from sumo_core.BashoState import BashoState
-from sumo_core.Chii import Chii
+from ...sumo_core.Banzuke import Banzuke, RikChii
+from ...sumo_core.Summary import Summary
+from ...sumo_core.BasicPrimitives import RikId
+from ...sumo_core.History import History, Date, Year, Month
+from ...sumo_core.BashoState import BashoState
+from ...sumo_core.Chii import Chii
 
 # --- Import the original serialiser to reuse its stable methods ---
 from .serialiser import SumoSerialiser

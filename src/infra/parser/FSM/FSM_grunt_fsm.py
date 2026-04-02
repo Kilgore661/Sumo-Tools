@@ -4,7 +4,7 @@ import re
 from .FSM_base_fsm import BaseFSM
 from .FSM_data_classes import *
 from .FSM_exceptions import *
-from sumo_core.Chii import Chii
+from ....sumo_core.Chii import Chii
 from ..parser2_IntDate import IntDate as Date
 
 class GruntFSM(BaseFSM):

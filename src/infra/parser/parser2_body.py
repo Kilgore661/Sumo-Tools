@@ -12,10 +12,10 @@ from .FSM import (
 )
 
 from .parser2_IntDate import IntDate as Date
-from sumo_core.BasicPrimitives import RikId
-from sumo_core.Chii import Chii
-from sumo_core.BasicEnums import Division, MSD, Outcome
-from sumo_core.Performance import Performance
+from ...sumo_core.BasicPrimitives import RikId
+from ...sumo_core.Chii import Chii
+from ...sumo_core.BasicEnums import Division, MSD, Outcome
+from ...sumo_core.Performance import Performance
 from .parser2_body_adapter import _extract_performance
 
 FSM_CONFIG = {

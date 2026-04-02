@@ -7,9 +7,9 @@ from typing import List, Tuple, Dict
 # --- Core Model Dependencies ---
 # These would be imported from their proper locations in the project.
 from .parser2_IntDate import IntDate as Date
-from sumo_core.BasicPrimitives import RikId
-from sumo_core.BasicEnums import Symbol
-from sumo_core.Chii import Chii
+from ...sumo_core.BasicPrimitives import RikId
+from ...sumo_core.BasicEnums import Symbol
+from ...sumo_core.Chii import Chii
 
 # --- Constants and Patterns from the trusted legacy parser ---
 YUSHO_DIR = 'files/output/current standings'

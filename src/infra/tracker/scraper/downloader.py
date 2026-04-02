@@ -28,7 +28,7 @@ from typing import Iterable
 from urllib.error import URLError, HTTPError
 from urllib.request import Request, urlopen
 
-from infra.tracker.types import BashoDayRef, RetrievalResult
+from ..types import BashoDayRef, RetrievalResult
 
 
 BASE_URL = "https://sumodb.sumogames.de"

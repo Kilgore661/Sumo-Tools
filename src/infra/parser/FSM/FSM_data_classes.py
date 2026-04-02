@@ -3,8 +3,8 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from sumo_core.BasicPrimitives import RikId, Shikona
-from sumo_core.Chii import Chii
+from ....sumo_core.BasicPrimitives import RikId, Shikona
+from ....sumo_core.Chii import Chii
 
 # --- Input/Output Data Classes ---
 @dataclass(frozen=True)

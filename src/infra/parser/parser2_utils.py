@@ -1,10 +1,10 @@
 import re
 from typing import Dict, List, Tuple
 from .FSM import FinalBanzukeEntry # For type hinting
-from sumo_core.BasicPrimitives import RikId
 from .TableTypes import TableType, BodyTable, BanzukeTables
-from sumo_core.Banzuke import Shikona
-from sumo_core.BasicPrimitives import Day
+from ...sumo_core.BasicPrimitives import RikId
+from ...sumo_core.Banzuke import Shikona
+from ...sumo_core.BasicPrimitives import Day
 
 FULL_CHII_PAT = re.compile(r'(([MKSOYJ]|Ms|Sd|Jd|Jk)(\d+)(OB|TD|((e|w)(HD|YO|OB)?)))')
 RESULTS_DIR='files/output/HTML results'

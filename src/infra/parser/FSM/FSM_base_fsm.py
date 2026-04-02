@@ -4,10 +4,10 @@ from abc import ABC, abstractmethod
 from typing import List, Dict, Tuple
 from .FSM_data_classes import *
 from .FSM_exceptions import *
-from sumo_core.BasicPrimitives import RikId
-from sumo_core.BasicEnums import Side, Annotation
-from sumo_core.Chii import Chii
-from sumo_core.History import Date
+from ....sumo_core.BasicPrimitives import RikId
+from ....sumo_core.BasicEnums import Side, Annotation
+from ....sumo_core.Chii import Chii
+from ....sumo_core.History import Date
 
 class BaseFSM(ABC):
     def __init__(self, date: Date, sorted_margin_data: List[Tuple[RikId, Chii]], dups: Dict):

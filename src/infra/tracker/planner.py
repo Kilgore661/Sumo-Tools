@@ -19,11 +19,11 @@ only the missing suffix or isolated missing days.
 
 from datetime import datetime, timedelta
 
-from infra.tracker.config import TrackerConfig
-from infra.tracker.ledger import InMemoryLedger
-from infra.tracker.schedule import add_months, second_sunday
-from sumo_core.BasicPrimitives import Day, Month, Year
-from sumo_core.History import Date
+from .config import TrackerConfig
+from .ledger import InMemoryLedger
+from .schedule import add_months, second_sunday
+from ...sumo_core.BasicPrimitives import Day, Month, Year
+from ...sumo_core.History import Date
 from .types import BashoDayRef, RequestedDateDays
 from ..config import EPOCH
 
@@ -64,6 +64,7 @@ def get_requested_date_days(
     # because the downloader already handles existing files efficiently.
 
     latest_ref = _latest_published_date_day(now, config)
+    #from pdb import set_trace; set_trace()
     return _enumerate_from_epoch_to(latest_ref.date, latest_ref.day)
 
 
@@ -165,7 +166,7 @@ def _enumerate_from_epoch_to(
     requested: RequestedDateDays = []
 
     year = EPOCH
-    month = 11
+    month = 1
 
     while True:
         date = Date(Year(year), Month(month))

@@ -26,8 +26,8 @@ import calendar
 from datetime import datetime, timedelta
 from typing import Optional
 
-from infra.tracker.config import TrackerConfig
-from infra.tracker.types import BashoWindow, RunState
+from .config import TrackerConfig
+from .types import BashoWindow, RunState
 
 
 def second_sunday(year: int, month: int, hour: int = 8) -> datetime:

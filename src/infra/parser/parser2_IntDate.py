@@ -1,4 +1,4 @@
-from sumo_core.History import Date, Year, Month
+from ...sumo_core.History import Date, Year, Month
 
 class IntDate(Date):
     def __init__(self, year: int, month: int):

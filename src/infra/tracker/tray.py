@@ -13,7 +13,7 @@ This module defines:
 """
 
 from datetime import datetime
-from infra.tracker.types import RunState
+from .types import RunState
 
 
 def set_tray_state(state: RunState, now: datetime) -> None:
