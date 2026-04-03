@@ -82,7 +82,7 @@ def connect():
     else:
         print("[loader] loading from live store ...", end = ' ', flush = True )
         history = get_history()
-    print( f'{time()-t0:.0f} seconds.' )
+    #print( f'{time()-t0:.0f} seconds.' )
 
     return history
 
