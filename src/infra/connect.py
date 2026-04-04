@@ -5,7 +5,6 @@ import zipfile
 from time import time
 import pickle  # or whatever your serializer uses
 
-from src.infra.config import EPOCH
 from src.infra.live_store.api import get_history
 
 import argparse
@@ -63,26 +62,14 @@ def validate_years(start: int, end: int) -> None:
         )
 
 
-def parse_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--start", type=int, default=EPOCH)
-    parser.add_argument("--end", type=int, default=datetime.datetime.now().year)
-    parser.add_argument("--zip", action="store_true")
-    return parser.parse_args()
-
-
-def connect():
-    args = parse_args()
-    validate_years(args.start, args.end)
-
-    t0 = time()
-    if args.zip:
-        print(f"[loader] loading from zip: {args.start} - {args.end} ...", end = ' ', flush = True )
-        history = load_history_from_zip(args.start, args.end)
+def connect(start: int, end: int, use_zip: bool = False):
+    if use_zip:
+        validate_years(start, end)
+        print(f"[loader] loading from zip: {start} - {end} ...", end=" ", flush=True)
+        history = load_history_from_zip(start, end)
     else:
-        print("[loader] loading from live store ...", end = ' ', flush = True )
+        print("[loader] loading from live store ...", end=" ", flush=True)
         history = get_history()
-    #print( f'{time()-t0:.0f} seconds.' )
 
     return history
 

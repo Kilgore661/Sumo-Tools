@@ -1,7 +1,9 @@
-from pdb import set_trace
-from pathlib import Path
+import argparse
+import datetime
 import json
 
+
+from src.infra.config import EPOCH
 from ...infra.connect import connect
 from ...sumo_core.History import Date
 from ...sumo_core.BasicPrimitives import RikId, Day, Year, Month
@@ -13,13 +15,34 @@ from .config import BIOS_PATH
 
 
 def main() -> None:
-    raw_history = connect()
-    with open(BIOS_PATH, "r", encoding="utf-8") as f:
-        bios = json.load(f)
-    oracle = make_oracle(raw_history, bios)
+    parser = argparse.ArgumentParser(
+        description="Experiment 1 (closed system): single-pass Equelo with diagnostics"
+    )
+    parser.add_argument("--start", type=int, default=EPOCH)
+    parser.add_argument("--end", type=int, default=datetime.datetime.now().year)
+    parser.add_argument("--zip", action="store_true")
+    parser.add_argument(
+        "--closed",
+        action="store_true",
+        help="Enable closed-system retirement redistribution.",
+    )
+    args = parser.parse_args()
 
+    raw_history = connect(args.start, args.end, use_zip=args.zip)
+
+    with open(BIOS_PATH, "r", encoding="utf-8") as f:
+        raw_bios = json.load(f)
+    bios = {RikId(int(k)): v for k, v in raw_bios.items()}
+
+    oracle = make_oracle(raw_history, bios)
     params = EloParams()
-    results = get_ratings_and_diagnostics(oracle.history, params)
+
+    results = get_ratings_and_diagnostics(
+        oracle.history,
+        params,
+        bios=oracle.bios,
+        closed=args.closed,
+    )
 
     dates = sorted(results.ratings.keys())
     if not dates:
@@ -44,15 +67,16 @@ def main() -> None:
     print(f"  Date:    {test_date}")
     print(f"  Day:     {test_day}")
     print(f"  Rikishi: {test_rikishi}")
-
-    rating = results.ratings[test_date][test_day][test_rikishi]
-    print(f"  Rating:  {rating}")
+    print(f"  Rating:  {results.ratings[test_date][test_day][test_rikishi]}")
 
     print()
     print("Diagnostics:")
     for note in results.diagnostics.notes:
         print(f"  - {note}")
-    set_trace()
+    if results.diagnostics.basho_summary_csv_path is not None:
+        print(f"  - basho summary csv: {results.diagnostics.basho_summary_csv_path}")
+    if results.diagnostics.retirements_csv_path is not None:
+        print(f"  - retirements csv:   {results.diagnostics.retirements_csv_path}")
 
 
 if __name__ == "__main__":
