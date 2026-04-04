@@ -1,9 +1,0 @@
-I want to calculate Elo-like ratings for sumo. The problems are:
-1. Inflation - true of all naive implementations of Elo ratings when the pool
-of cmpetitors is not constant.
-2. The lack of available results for very many rikishi pre-1989.
-
-The obvious idea is to only calculate reatings post-1989, but I want to be
-able to compare rikishi from pre-1989 with those post-1989.
-
-Idea

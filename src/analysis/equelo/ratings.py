@@ -47,45 +47,71 @@ def _is_retired_before_date(
     )
 
 
-def _handle_retirements(
+def _handle_departures(
     current_ratings: DailyRatings,
+    previous_active_rikishi: set[RikId],
+    current_active_rikishi: set[RikId],
     bios: Bios,
     date: Date,
     diagnostics: DiagnosticsCollector,
     closed: bool,
 ) -> None:
-    if not closed:
-        return
-    retirees = [
-        rikid
-        for rikid in list(current_ratings.keys())
-        if _is_retired_before_date(rikid, date, bios)
-    ]
+    """
+    Preserve the mean on the basho-relevant universe.
 
-    for rikid in sorted(retirees):
-        rating = current_ratings[rikid]
-        mean_before = sum(current_ratings.values()) / len(current_ratings)
-        n = len(current_ratings) - 1
+    The backing store may contain dormant ratings for efficiency, but the
+    conserved universe is the active set. Departures are rikishi who were
+    active in the previous basho and are absent from the current one.
+    Redistribution is computed on the previous active set only.
+    """
+    departures = sorted(previous_active_rikishi - current_active_rikishi)
 
-        delta = mean_before - rating
-        delta_per_rikishi = (delta / n) if n > 0 else 0.0
+    if closed:
+        for rikid in departures:
+            active_before = [rid for rid in previous_active_rikishi if rid in current_ratings]
+            if rikid not in current_ratings or rikid not in active_before:
+                continue
 
-        del current_ratings[rikid]
+            rating = current_ratings[rikid]
+            mean_before = sum(current_ratings[rid] for rid in active_before) / len(active_before)
+            survivors = [rid for rid in active_before if rid != rikid]
+            n = len(survivors)
 
-        if closed and n > 0:
-            for survivor in current_ratings:
-                current_ratings[survivor] -= delta_per_rikishi
+            delta = mean_before - rating
+            delta_per_rikishi = (delta / n) if n > 0 else 0.0
 
-        diagnostics.on_retirement(
-            date=date,
-            rikid=rikid,
-            rating=rating,
-            n=n,
-            delta=delta,
-            delta_per_rikishi=delta_per_rikishi if closed and n > 0 else 0.0,
-            abs_delta_per_rikishi=abs(delta_per_rikishi) if closed and n > 0 else 0.0,
-            closed=closed,
-        )
+            if n > 0:
+                for survivor in survivors:
+                    current_ratings[survivor] -= delta_per_rikishi
+
+            del current_ratings[rikid]
+
+            diagnostics.on_retirement(
+                date=date,
+                rikid=rikid,
+                rating=rating,
+                n=n,
+                delta=delta,
+                delta_per_rikishi=delta_per_rikishi if n > 0 else 0.0,
+                abs_delta_per_rikishi=abs(delta_per_rikishi) if n > 0 else 0.0,
+                closed=True,
+            )
+    else:
+        for rikid in departures:
+            if rikid not in current_ratings:
+                continue
+            rating = current_ratings[rikid]
+            del current_ratings[rikid]
+            diagnostics.on_retirement(
+                date=date,
+                rikid=rikid,
+                rating=rating,
+                n=len(current_active_rikishi),
+                delta=0.0,
+                delta_per_rikishi=0.0,
+                abs_delta_per_rikishi=0.0,
+                closed=False,
+            )
 
 
 def _initialise_basho_rikishi(
@@ -189,16 +215,20 @@ def get_ratings_and_diagnostics(
     current_ratings: DailyRatings = {}
     diagnostics = DiagnosticsCollector(params, closed=closed)
     bios = {} if bios is None else bios
+    previous_active_rikishi: set[RikId] = set()
 
     for date in sorted(history.keys()):
         basho_state: BashoState = history[date]
         banzuke: Banzuke = basho_state.banzuke
         summary: Summary = basho_state.summary
+        current_active_rikishi = set(banzuke.riks)
 
         diagnostics.on_basho_start(date=date, ratings=current_ratings, banzuke=banzuke)
 
-        _handle_retirements(
+        _handle_departures(
             current_ratings=current_ratings,
+            previous_active_rikishi=previous_active_rikishi,
+            current_active_rikishi=current_active_rikishi,
             bios=bios,
             date=date,
             diagnostics=diagnostics,
@@ -229,5 +259,7 @@ def get_ratings_and_diagnostics(
 
         diagnostics.on_basho_end(date=date, ratings=current_ratings, banzuke=banzuke)
         ratings[date] = basho_ratings
+        previous_active_rikishi = current_active_rikishi
 
     return RatingsResults(ratings=ratings, diagnostics=diagnostics.finalise())
+

@@ -53,6 +53,8 @@ class DiagnosticsCollector:
         self._ignored_blank_count = 0
         self._entry_count = 0
         self._retirement_count = 0
+        self._max_abs_adjustment_pre_1989 = 0.0
+        self._max_abs_adjustment_post_1989 = 0.0
 
     def on_basho_start(self, date: Date, ratings: dict[RikId, float], banzuke: Banzuke) -> None:
         self._current_basho_abs_updates = []
@@ -83,6 +85,14 @@ class DiagnosticsCollector:
                 abs_delta_per_rikishi=abs_delta_per_rikishi,
             )
         )
+
+        if closed and n > 0:
+            if date.year < 1989:
+                if abs_delta_per_rikishi > self._max_abs_adjustment_pre_1989:
+                    self._max_abs_adjustment_pre_1989 = abs_delta_per_rikishi
+            else:
+                if abs_delta_per_rikishi > self._max_abs_adjustment_post_1989:
+                    self._max_abs_adjustment_post_1989 = abs_delta_per_rikishi
 
     def on_day_start(self, date: Date, day: Day, ratings: dict[RikId, float]) -> None:
         pass
@@ -162,6 +172,14 @@ class DiagnosticsCollector:
         diagnostics.notes.append(f"Total retirements observed: {self._retirement_count}")
         diagnostics.notes.append(f'Total ignored "fusen" bouts: {self._ignored_fusen_count}')
         diagnostics.notes.append(f'Total ignored "blank" bouts: {self._ignored_blank_count}')
+        diagnostics.notes.append(
+            "Maximum abs(retiree adjustment) / number of rikishi in basho, pre-1989: "
+            f"{self._max_abs_adjustment_pre_1989:.12f}"
+        )
+        diagnostics.notes.append(
+            "Maximum abs(retiree adjustment) / number of rikishi in basho, 1989+: "
+            f"{self._max_abs_adjustment_post_1989:.12f}"
+        )
         return diagnostics
 
     def _suffix(self) -> str:
@@ -186,3 +204,4 @@ class DiagnosticsCollector:
             for row in rows:
                 writer.writerow([str(row.date), int(row.rikid), row.rating, row.n, row.delta, row.delta_per_rikishi, row.abs_delta_per_rikishi])
         return path
+
