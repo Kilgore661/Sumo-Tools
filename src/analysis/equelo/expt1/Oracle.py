@@ -1,15 +1,23 @@
-# src/analysis/equelo/Oracle.py
+from __future__ import annotations
+
+"""Historical cleansing logic used by Expt1.
+
+This module still lives under ``expt1`` so the experiment is self-contained,
+but its behaviour is intentionally documented as shared preprocessing logic.
+If Expt2 depends on the same rules, this module is a candidate for promotion to
+shared infrastructure.
+"""
 
 from dataclasses import dataclass
 from typing import Any
 
-from ...sumo_core.History import History, Date
-from ...sumo_core.BashoState import BashoState
-from ...sumo_core.Banzuke import Banzuke, RikChii, RikShikona
-from ...sumo_core.Summary import Summary, DailyResults, ResultLookup
-from ...sumo_core.BasicPrimitives import RikId, Riks, Torikumi
-from ...sumo_core.BasicEnums import MSD, Division, Annotation
-from ...sumo_core.Chii import Chii
+from ....sumo_core.History import History
+from ....sumo_core.BashoState import BashoState
+from ....sumo_core.Banzuke import Banzuke, RikChii, RikShikona
+from ....sumo_core.Summary import Summary, DailyResults, ResultLookup
+from ....sumo_core.BasicPrimitives import RikId, Riks, Torikumi
+from ....sumo_core.BasicEnums import MSD, Division, Annotation
+from ....sumo_core.Chii import Chii
 
 
 Bios = dict[RikId, dict[str, Any]]
@@ -17,6 +25,8 @@ Bios = dict[RikId, dict[str, Any]]
 
 @dataclass(frozen=True)
 class Oracle:
+    """Cleaned historical input for Elo simulation."""
+
     history: History
     bios: Bios
 
@@ -51,10 +61,10 @@ def _rebuild_banzuke(original_banzuke: Banzuke, rikishi_to_keep: set[RikId]) -> 
 
 
 def _filter_basho_pre_1989(basho: BashoState) -> BashoState:
-    """
-    Pre-1989 policy:
-    keep only bouts where at least one participant is sekitori,
-    then rebuild the banzuke from the participants in retained bouts.
+    """Apply the pre-1989 observability policy.
+
+    Retain only bouts in which at least one participant is sekitori, then
+    rebuild the banzuke from the participants in the retained bouts.
     """
     filtered_days: dict = {}
     relevant_rikishi: set[RikId] = set()
@@ -92,10 +102,10 @@ def _filter_basho_pre_1989(basho: BashoState) -> BashoState:
 
 
 def _filter_basho_1989_onward(basho: BashoState) -> BashoState:
-    """
-    1989 onward policy:
-    keep only bouts whose participants are both on the banzuke,
-    then rebuild the banzuke on the original banzuke domain.
+    """Apply the 1989-onward observability policy.
+
+    Retain only bouts whose participants are both on the banzuke, then rebuild
+    the banzuke on the original banzuke domain with annotations collapsed.
     """
     filtered_days: dict = {}
 
@@ -123,8 +133,13 @@ def _filter_basho_1989_onward(basho: BashoState) -> BashoState:
 
 
 def make_oracle(history: History, bios: Bios) -> Oracle:
-    """
-    Build a cleaned oracle history suitable for Elo processing.
+    """Build a cleaned oracle history suitable for Elo simulation.
+
+    Rules:
+        * skip pre-1958 data
+        * before 1989, keep only bouts with at least one sekitori
+        * from 1989 onward, keep only bouts consistent with the banzuke
+        * collapse rank annotations before the Elo layer sees ordinals
     """
     clean_history = History()
 

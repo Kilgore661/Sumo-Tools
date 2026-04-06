@@ -185,4 +185,4 @@ if __name__ == "__main__":
     s = get_store()
     h = s.connect()
     if h:
-        print(f"\nConnected to '{s.name}', {len(h)} basho in {time()-t0:.0f} seconds.")
+        print(f"\nconnected to '{s.name}', {len(h)} basho in {time()-t0:.0f} seconds.")

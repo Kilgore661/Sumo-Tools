@@ -1,17 +1,26 @@
+from __future__ import annotations
+
+"""Diagnostics collection for Expt1 runs.
+
+The simulation API does not return diagnostics. Instead, a caller may attach a
+collector implementing the observer hooks used here. This keeps programmatic
+simulation results separate from audit/log artefacts.
+"""
+
 from dataclasses import dataclass, field
 import csv
 from pathlib import Path
 
-from ...sumo_core.History import Date
-from ...sumo_core.Banzuke import Banzuke
-from ...sumo_core.Summary import BoutResult
-from ...sumo_core.BasicPrimitives import RikId, Day
+from ....sumo_core.History import Date
+from ....sumo_core.Banzuke import Banzuke
+from ....sumo_core.Summary import BoutResult
+from ....sumo_core.BasicPrimitives import RikId, Day
 
-from .EloParams import EloParams
-from .config import OUTPUT_ROOT
+from .params import EloParams
+from ..config_main import OUTPUT_ROOT
 
 
-@dataclass
+@dataclass(frozen=True)
 class BashoSummaryRow:
     date: Date
     n_rikishi: int
@@ -20,7 +29,7 @@ class BashoSummaryRow:
     mean_abs_bout_update: float
 
 
-@dataclass
+@dataclass(frozen=True)
 class RetirementRow:
     date: Date
     rikid: RikId
@@ -31,19 +40,43 @@ class RetirementRow:
     abs_delta_per_rikishi: float
 
 
-@dataclass
-class RatingsDiagnostics:
+@dataclass(frozen=True)
+class DiagnosticsSummary:
+    """Structured summary of one simulation run.
+
+    This object is intended for logging and audit, not as the main simulation
+    result contract.
+    """
+
     basho_rows: list[BashoSummaryRow] = field(default_factory=list)
     retirement_rows: list[RetirementRow] = field(default_factory=list)
-    notes: list[str] = field(default_factory=list)
+    max_abs_mean_deviation_from_b: float = 0.0
+    max_abs_bout_mass_change: float = 0.0
+    ignored_fusen_count: int = 0
+    ignored_blank_count: int = 0
+    entry_count: int = 0
+    retirement_count: int = 0
+    max_abs_adjustment_pre_1989: float = 0.0
+    max_abs_adjustment_post_1989: float = 0.0
     basho_summary_csv_path: Path | None = None
     retirements_csv_path: Path | None = None
+    run_log_path: Path | None = None
 
 
 class DiagnosticsCollector:
-    def __init__(self, params: EloParams, closed: bool = False) -> None:
+    """Observer that records Expt1 diagnostics and persists them to disk.
+
+    The collector is mode-aware:
+
+    * ``OPEN`` means departures simply leave the active universe
+    * ``CLOSED`` means departures are redistributed uniformly over the active
+      survivors so that the active-universe mean is preserved at basho
+      boundaries
+    """
+
+    def __init__(self, params: EloParams, mode_name: str) -> None:
         self.params = params
-        self.closed = closed
+        self.mode_name = mode_name
         self._basho_rows: list[BashoSummaryRow] = []
         self._retirement_rows: list[RetirementRow] = []
         self._current_basho_abs_updates: list[float] = []
@@ -57,9 +90,11 @@ class DiagnosticsCollector:
         self._max_abs_adjustment_post_1989 = 0.0
 
     def on_basho_start(self, date: Date, ratings: dict[RikId, float], banzuke: Banzuke) -> None:
+        del date, ratings, banzuke
         self._current_basho_abs_updates = []
 
     def on_entry(self, date: Date, rikid: RikId, rating: float, ratings: dict[RikId, float]) -> None:
+        del date, rikid, rating, ratings
         self._entry_count += 1
 
     def on_retirement(
@@ -73,6 +108,7 @@ class DiagnosticsCollector:
         abs_delta_per_rikishi: float,
         closed: bool,
     ) -> None:
+        del closed
         self._retirement_count += 1
         self._retirement_rows.append(
             RetirementRow(
@@ -86,7 +122,7 @@ class DiagnosticsCollector:
             )
         )
 
-        if closed and n > 0:
+        if n > 0:
             if date.year < 1989:
                 if abs_delta_per_rikishi > self._max_abs_adjustment_pre_1989:
                     self._max_abs_adjustment_pre_1989 = abs_delta_per_rikishi
@@ -95,7 +131,7 @@ class DiagnosticsCollector:
                     self._max_abs_adjustment_post_1989 = abs_delta_per_rikishi
 
     def on_day_start(self, date: Date, day: Day, ratings: dict[RikId, float]) -> None:
-        pass
+        del date, day, ratings
 
     def on_bout(
         self,
@@ -110,19 +146,21 @@ class DiagnosticsCollector:
         rating_mass_before: float,
         rating_mass_after: float,
     ) -> None:
+        del date, day, bout, r1_before, r2_before, r1_after, r2_after
         self._current_basho_abs_updates.append(abs(delta))
         abs_mass_change = abs(rating_mass_after - rating_mass_before)
         if abs_mass_change > self._max_abs_bout_mass_change:
             self._max_abs_bout_mass_change = abs_mass_change
 
     def on_ignored_bout(self, date: Date, day: Day, bout: BoutResult) -> None:
+        del date, day
         if bout.decision == "fusen":
             self._ignored_fusen_count += 1
         elif bout.decision == "blank":
             self._ignored_blank_count += 1
 
     def on_day_end(self, date: Date, day: Day, ratings: dict[RikId, float]) -> None:
-        pass
+        del date, day, ratings
 
     def on_basho_end(self, date: Date, ratings: dict[RikId, float], banzuke: Banzuke) -> None:
         basho_end_ratings = [ratings[rid] for rid in banzuke.riks]
@@ -146,44 +184,28 @@ class DiagnosticsCollector:
             )
         )
 
-    def finalise(self) -> RatingsDiagnostics:
+    def finalise(self) -> DiagnosticsSummary:
         basho_path = self._write_basho_summary_csv(self._basho_rows)
         retirements_path = self._write_retirements_csv(self._retirement_rows)
-        diagnostics = RatingsDiagnostics(
+        run_log_path = self._write_run_log()
+        return DiagnosticsSummary(
             basho_rows=self._basho_rows,
             retirement_rows=self._retirement_rows,
-            notes=[],
+            max_abs_mean_deviation_from_b=self._max_abs_mean_deviation_from_b,
+            max_abs_bout_mass_change=self._max_abs_bout_mass_change,
+            ignored_fusen_count=self._ignored_fusen_count,
+            ignored_blank_count=self._ignored_blank_count,
+            entry_count=self._entry_count,
+            retirement_count=self._retirement_count,
+            max_abs_adjustment_pre_1989=self._max_abs_adjustment_pre_1989,
+            max_abs_adjustment_post_1989=self._max_abs_adjustment_post_1989,
             basho_summary_csv_path=basho_path,
             retirements_csv_path=retirements_path,
+            run_log_path=run_log_path,
         )
-        diagnostics.notes.append('"fusen" is ignored as a rating event.')
-        diagnostics.notes.append('"blank" is ignored as a rating event.')
-        diagnostics.notes.append(
-            "Closed retirement handling is enabled."
-            if self.closed else "Retirement handling is not yet implemented."
-        )
-        diagnostics.notes.append(
-            f"Maximum absolute deviation of basho-end mean rating from b: {self._max_abs_mean_deviation_from_b:.12f}"
-        )
-        diagnostics.notes.append(
-            f"Maximum absolute change in rating mass across a scored bout: {self._max_abs_bout_mass_change:.12f}"
-        )
-        diagnostics.notes.append(f"Total new-entry events: {self._entry_count}")
-        diagnostics.notes.append(f"Total retirements observed: {self._retirement_count}")
-        diagnostics.notes.append(f'Total ignored "fusen" bouts: {self._ignored_fusen_count}')
-        diagnostics.notes.append(f'Total ignored "blank" bouts: {self._ignored_blank_count}')
-        diagnostics.notes.append(
-            "Maximum abs(retiree adjustment) / number of rikishi in basho, pre-1989: "
-            f"{self._max_abs_adjustment_pre_1989:.12f}"
-        )
-        diagnostics.notes.append(
-            "Maximum abs(retiree adjustment) / number of rikishi in basho, 1989+: "
-            f"{self._max_abs_adjustment_post_1989:.12f}"
-        )
-        return diagnostics
 
     def _suffix(self) -> str:
-        return "_closed" if self.closed else ""
+        return f"_{self.mode_name.lower()}"
 
     def _write_basho_summary_csv(self, rows: list[BashoSummaryRow]) -> Path:
         OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
@@ -205,3 +227,28 @@ class DiagnosticsCollector:
                 writer.writerow([str(row.date), int(row.rikid), row.rating, row.n, row.delta, row.delta_per_rikishi, row.abs_delta_per_rikishi])
         return path
 
+    def _write_run_log(self) -> Path:
+        OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
+        path = OUTPUT_ROOT / f"run_log{self._suffix()}.txt"
+        with open(path, "w", encoding="utf-8") as f:
+            f.write("Expt1 diagnostics log\n")
+            f.write(f"mode: {self.mode_name}\n")
+            f.write(f"baseline b: {self.params.b}\n")
+            f.write(f"q: {self.params.q}\n")
+            f.write(f"max abs basho-end mean deviation from b: {self._max_abs_mean_deviation_from_b:.12f}\n")
+            f.write(f"max abs rating-mass change across scored bout: {self._max_abs_bout_mass_change:.12f}\n")
+            f.write(f"entry events: {self._entry_count}\n")
+            f.write(f"retirement events: {self._retirement_count}\n")
+            f.write(f"ignored fusen bouts: {self._ignored_fusen_count}\n")
+            f.write(f"ignored blank bouts: {self._ignored_blank_count}\n")
+            f.write(
+                "max abs retiree redistribution per rikishi, pre-1989: "
+                f"{self._max_abs_adjustment_pre_1989:.12f}\n"
+            )
+            f.write(
+                "max abs retiree redistribution per rikishi, 1989+: "
+                f"{self._max_abs_adjustment_post_1989:.12f}\n"
+            )
+            f.write("open mode meaning: departures leave the active universe without redistribution\n")
+            f.write("closed mode meaning: departures are redistributed uniformly over active survivors\n")
+        return path
