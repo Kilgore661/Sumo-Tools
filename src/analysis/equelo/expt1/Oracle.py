@@ -1,4 +1,4 @@
-from __future__ import annotations
+from pdb import set_trace
 
 """Historical cleansing logic used by Expt1.
 
@@ -11,13 +11,13 @@ shared infrastructure.
 from dataclasses import dataclass
 from typing import Any
 
-from ....sumo_core.History import History
-from ....sumo_core.BashoState import BashoState
-from ....sumo_core.Banzuke import Banzuke, RikChii, RikShikona
-from ....sumo_core.Summary import Summary, DailyResults, ResultLookup
-from ....sumo_core.BasicPrimitives import RikId, Riks, Torikumi
 from ....sumo_core.BasicEnums import MSD, Division, Annotation
+from ....sumo_core.BasicPrimitives import RikId, Riks, Torikumi
+from ....sumo_core.Banzuke import Banzuke, RikChii, RikShikona
+from ....sumo_core.BashoState import BashoState
 from ....sumo_core.Chii import Chii
+from ....sumo_core.History import History
+from ....sumo_core.Summary import Summary, DailyResults, ResultLookup
 
 
 Bios = dict[RikId, dict[str, Any]]

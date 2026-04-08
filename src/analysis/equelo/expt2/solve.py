@@ -1,3 +1,5 @@
+from pdb import set_trace
+
 import time
 
 from ....sumo_core.History import History
@@ -20,6 +22,7 @@ from .types import (
     ProbeSet,
     SolveResult,
 )
+
 
 
 def initialise(base: float, chiis: set[Chii]) -> ChiiRatings:
@@ -77,6 +80,7 @@ def _slice_history_years(history: History, start_year: int, end_year: int) -> Hi
         if start_year <= date.year <= end_year:
             sliced[date] = history[date]
     return sliced
+
 
 
 def _extend_mu_to_history_domain(
@@ -211,6 +215,8 @@ def solve_variant_b(
     output_csv_path=None,
     diagnostics: IterationDiagnosticsSink | None = None,
     base: float = INITIAL_ELO,
+    calibration_stem: str = "expt2_variant_b_calibration",
+    calibration_metadata: dict[str, str] | None = None,
 ) -> SolveResult:
     if probes is None:
         probes = default_probe_set()
@@ -220,8 +226,9 @@ def solve_variant_b(
     calibration_history = _slice_history_years(history, calibration_start_year, calibration_end_year)
     calibration_diagnostics = IterationDiagnosticsWriter(
         probes=probes,
-        stem="expt2_variant_b_calibration",
+        stem=calibration_stem,
         echo_to_console=True,
+        metadata=calibration_metadata,
     )
     print(f"[variant B] calibration ({calibration_start_year}–{calibration_end_year})")
     calibration_mu_result = solve(
@@ -232,7 +239,7 @@ def solve_variant_b(
         max_iter=max_iter,
         mode=mode,
         probes=probes,
-        output_csv_path=output_csv_path.parent / "_unused_variant_b_calibration.csv",
+        output_csv_path=output_csv_path.parent / "intermediate_variant_b_calibration.csv",
         diagnostics=calibration_diagnostics,
     )
 
@@ -298,7 +305,8 @@ def _solve_from_initial_mu(
             )
 
         if final_delta < epsilon:
-            csv_path = write_final_ratings_csv(mu_next, output_csv_path)
+            write_final_ratings_csv(mu_next, output_csv_path)
+            csv_path = write_final_ratings_csv(mu_next, EQUELO_RATINGS)
             if diagnostics is not None:
                 diagnostics_path = diagnostics.finalise()
                 summary = diagnostics.summary_line() if hasattr(diagnostics, "summary_line") else None

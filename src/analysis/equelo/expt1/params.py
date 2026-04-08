@@ -1,4 +1,4 @@
-from __future__ import annotations
+from pdb import set_trace
 
 """Elo parameter definitions for Expt1.
 
@@ -8,14 +8,15 @@ already-resolved callable.
 """
 
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Callable
 import json
+from pathlib import Path
+from typing import Callable, Literal
+
+from ..config_main import INITIAL_ELO, INITIAL_Q, CONSTANT_K
 
 
 KFn = Callable[[int], float]
-
-from ..config_main import INITIAL_ELO, INITIAL_Q, CONSTANT_K
+KPolicy = Literal["constant", "divisional"]
 
 DEFAULT_K_CONFIG_PATH = Path("files/input/elo_fide.json")
 
@@ -112,3 +113,32 @@ def load_divisional_k_fn(config_path: Path = DEFAULT_K_CONFIG_PATH) -> KFn:
         return k_map[division_index]
 
     return k_fn
+
+
+def build_elo_params(
+    k_policy: KPolicy,
+    b: float = INITIAL_ELO,
+    q: float = INITIAL_Q,
+    k_value: float | None = None,
+    config_path: Path | None = None,
+) -> EloParams:
+    """Build :class:`EloParams` from an explicit K-policy.
+
+    Strict policy handling is intentional:
+
+    * ``constant`` accepts ``k_value`` and rejects ``config_path``
+    * ``divisional`` accepts ``config_path`` and rejects ``k_value``
+    """
+    if k_policy == "constant":
+        if config_path is not None:
+            raise ValueError("k_policy='constant' does not accept a divisional config path")
+        resolved_k_value = CONSTANT_K if k_value is None else float(k_value)
+        return EloParams.constant(b=b, q=q, k_value=resolved_k_value)
+
+    if k_policy == "divisional":
+        if k_value is not None:
+            raise ValueError("k_policy='divisional' does not accept a constant k_value")
+        resolved_config_path = DEFAULT_K_CONFIG_PATH if config_path is None else Path(config_path)
+        return EloParams.divisional(b=b, q=q, config_path=resolved_config_path)
+
+    raise ValueError(f"Unknown k_policy: {k_policy}")

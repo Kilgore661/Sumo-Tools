@@ -8,5 +8,5 @@ from pathlib import Path
 
 BIOS_PATH = Path("files/input/bios.json")
 OUTPUT_ROOT = Path("files/output/Equelo")
-EQUELO_RATINGS = "expt2_variant_b_final.csv"
+EQUELO_RATINGS = OUTPUT_ROOT / "equelo.csv"
 

@@ -1,3 +1,5 @@
+from pdb import set_trace
+
 """Historical Elo simulation for Expt1 and Expt2.
 
 The public entry point is :func:`simulate`.
@@ -12,17 +14,15 @@ Design notes:
     * Diagnostics are optional observers and are not part of the return value.
 """
 
-from pdb import set_trace
-
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Protocol, TypeAlias
 
-from ....sumo_core.History import History, Date
-from ....sumo_core.BashoState import BashoState
-from ....sumo_core.Banzuke import Banzuke
-from ....sumo_core.Summary import DailyResults, BoutResult
 from ....sumo_core.BasicPrimitives import RikId, Day
+from ....sumo_core.Banzuke import Banzuke
+from ....sumo_core.BashoState import BashoState
+from ....sumo_core.History import History, Date
+from ....sumo_core.Summary import DailyResults, BoutResult
 
 from .initialisation import EntrantInitialiser
 from .params import EloParams

@@ -1,4 +1,4 @@
-from __future__ import annotations
+from pdb import set_trace
 
 """Entrant-initialisation helpers.
 
@@ -8,9 +8,9 @@ This module defines that public boundary.
 
 from typing import Callable
 
+from ....sumo_core.BasicPrimitives import RikId
 from ....sumo_core.Chii import Chii
 from ....sumo_core.History import Date
-from ....sumo_core.BasicPrimitives import RikId
 
 
 EntrantInitialiser = Callable[[RikId, Chii, Date], float]

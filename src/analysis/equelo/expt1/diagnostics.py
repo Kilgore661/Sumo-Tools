@@ -1,4 +1,4 @@
-from __future__ import annotations
+from pdb import set_trace
 
 """Diagnostics collection for Expt1 runs.
 
@@ -7,14 +7,14 @@ collector implementing the observer hooks used here. This keeps programmatic
 simulation results separate from audit/log artefacts.
 """
 
-from dataclasses import dataclass, field
 import csv
+from dataclasses import dataclass, field
 from pathlib import Path
 
-from ....sumo_core.History import Date
 from ....sumo_core.Banzuke import Banzuke
-from ....sumo_core.Summary import BoutResult
 from ....sumo_core.BasicPrimitives import RikId, Day
+from ....sumo_core.History import Date
+from ....sumo_core.Summary import BoutResult
 
 from .params import EloParams
 from ..config_main import OUTPUT_ROOT
@@ -74,9 +74,19 @@ class DiagnosticsCollector:
       boundaries
     """
 
-    def __init__(self, params: EloParams, mode_name: str) -> None:
+    def __init__(
+        self,
+        params: EloParams,
+        mode_name: str,
+        k_policy: str,
+        k_value: float | None = None,
+        k_config_path: Path | None = None,
+    ) -> None:
         self.params = params
         self.mode_name = mode_name
+        self.k_policy = k_policy
+        self.k_value = k_value
+        self.k_config_path = k_config_path
         self._basho_rows: list[BashoSummaryRow] = []
         self._retirement_rows: list[RetirementRow] = []
         self._current_basho_abs_updates: list[float] = []
@@ -235,6 +245,11 @@ class DiagnosticsCollector:
             f.write(f"mode: {self.mode_name}\n")
             f.write(f"baseline b: {self.params.b}\n")
             f.write(f"q: {self.params.q}\n")
+            f.write(f"k policy: {self.k_policy}\n")
+            if self.k_policy == "constant":
+                f.write(f"k value: {self.k_value}\n")
+            elif self.k_config_path is not None:
+                f.write(f"k config path: {self.k_config_path}\n")
             f.write(f"max abs basho-end mean deviation from b: {self._max_abs_mean_deviation_from_b:.12f}\n")
             f.write(f"max abs rating-mass change across scored bout: {self._max_abs_bout_mass_change:.12f}\n")
             f.write(f"entry events: {self._entry_count}\n")
