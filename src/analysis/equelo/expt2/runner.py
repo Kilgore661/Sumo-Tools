@@ -22,6 +22,7 @@ from .types import SolveResult
 
 VALID_K_POLICIES = ("constant", "divisional")
 VALID_VARIANTS = ("naive", "modern", "combined")
+VALID_COLLAPSE_MODES = ("annotation-only", "chii-bucket")
 RUNS_ROOT = OUTPUT_ROOT / "runs"
 
 
@@ -48,14 +49,12 @@ def build_single_parser() -> argparse.ArgumentParser:
     return parser
 
 
-
 def build_run_all_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Run naive and combined variants into a single timestamped output folder"
     )
     _add_common_args(parser, include_variant=False)
     return parser
-
 
 
 def _add_common_args(parser: argparse.ArgumentParser, include_variant: bool) -> None:
@@ -82,7 +81,14 @@ def _add_common_args(parser: argparse.ArgumentParser, include_variant: bool) -> 
         default=None,
         help="Path to divisional K JSON config. Valid only with --k-policy divisional.",
     )
-
+    parser.add_argument(
+        "--collapse",
+        "--collapse-mode",
+        dest="collapse_mode_cli",
+        choices=VALID_COLLAPSE_MODES,
+        default="annotation-only",
+        help="Select how chii values are canonicalised before simulation.",
+    )
 
 
 def validate_k_args(parser: argparse.ArgumentParser, args: argparse.Namespace) -> None:
@@ -103,17 +109,22 @@ def validate_k_args(parser: argparse.ArgumentParser, args: argparse.Namespace) -
     parser.error(f"Unsupported --k-policy: {args.k_policy}")
 
 
-
 def mode_from_args(args: argparse.Namespace) -> SimulationMode:
     return SimulationMode.OPEN if args.open else SimulationMode.CLOSED
 
+
+def oracle_collapse_mode_from_args(args: argparse.Namespace) -> str:
+    mapping = {
+        "annotation-only": "annotation_only",
+        "chii-bucket": "chii_bucket",
+    }
+    return mapping[args.collapse_mode_cli]
 
 
 def create_run_dir(now: datetime.datetime) -> Path:
     run_dir = RUNS_ROOT / now.strftime("%Y-%m-%d_%H-%M-%S")
     run_dir.mkdir(parents=True, exist_ok=False)
     return run_dir
-
 
 
 def stage_output_paths(run_dir: Path, stage: str) -> dict[str, Path]:
@@ -125,20 +136,16 @@ def stage_output_paths(run_dir: Path, stage: str) -> dict[str, Path]:
     }
 
 
-
 def stdout_path(run_dir: Path) -> Path:
     return run_dir / "stdout.txt"
-
 
 
 def manifest_path(run_dir: Path) -> Path:
     return run_dir / "manifest.json"
 
 
-
 def write_manifest(path: Path, payload: dict[str, Any]) -> None:
     path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
-
 
 
 def _resolved_params_dict(
@@ -160,8 +167,8 @@ def _resolved_params_dict(
         "k_policy": args.k_policy,
         "k_value": args.k_value,
         "k_config": None if args.k_config is None else str(args.k_config),
+        "collapse_mode": args.collapse_mode_cli,
     }
-
 
 
 def _expanded_command(module_name: str, params: dict[str, object]) -> str:
@@ -188,8 +195,8 @@ def _expanded_command(module_name: str, params: dict[str, object]) -> str:
         command.extend(["--k-value", f"{params['k_value']:g}"])
     else:
         command.extend(["--k-config", str(params["k_config"])])
+    command.extend(["--collapse", str(params["collapse_mode"])])
     return shlex.join(command)
-
 
 
 def _load_history_and_params(args: argparse.Namespace):
@@ -197,7 +204,11 @@ def _load_history_and_params(args: argparse.Namespace):
     with open(BIOS_PATH, "r", encoding="utf-8") as f:
         raw_bios = json.load(f)
     bios = {RikId(int(k)): v for k, v in raw_bios.items()}
-    oracle = make_oracle(raw_history, bios)
+    oracle = make_oracle(
+        raw_history,
+        bios,
+        collapse_mode=oracle_collapse_mode_from_args(args),
+    )
     params = build_elo_params(
         k_policy=args.k_policy,
         k_value=args.k_value,
@@ -206,19 +217,18 @@ def _load_history_and_params(args: argparse.Namespace):
     return oracle.history, params
 
 
-
 def _build_stage_metadata(args: argparse.Namespace, mode: SimulationMode, *, variant: str) -> dict[str, str]:
     metadata = {
         "variant": variant,
         "mode": mode.value,
         "k_policy": args.k_policy,
+        "collapse_mode": args.collapse_mode_cli,
     }
     if args.k_policy == "constant":
         metadata["k_value"] = f"{args.k_value:g}"
     else:
         metadata["k_config"] = str(args.k_config)
     return metadata
-
 
 
 def _run_one_variant(
@@ -299,9 +309,9 @@ def _run_one_variant(
     )
 
 
-
 def _print_single_variant_summary(variant: str, result: SolveResult, args: argparse.Namespace) -> None:
     print(f"K policy: {args.k_policy}")
+    print(f"Collapse mode: {oracle_collapse_mode_from_args(args)}")
     if args.k_policy == "constant":
         print(f"K value: {args.k_value:g}")
     else:
@@ -325,7 +335,6 @@ def _print_single_variant_summary(variant: str, result: SolveResult, args: argpa
         print(f"Modern diagnostics log: {result.modern_diagnostics_path}")
         print(f"Modern CSV: {result.modern_output_csv_path}")
         print(f"Modern stats CSV: {result.modern_stats_csv_path}")
-
 
 
 def _outputs_for_single_variant(variant: str, result: SolveResult) -> dict[str, object]:
@@ -354,7 +363,6 @@ def _outputs_for_single_variant(variant: str, result: SolveResult) -> dict[str, 
             "diagnostics_csv": None if result.modern_diagnostics_path is None else str(result.modern_diagnostics_path),
         }
     return outputs
-
 
 
 def execute_single_run(args: argparse.Namespace, typed_argv: list[str], *, module_name: str) -> Path:
@@ -422,7 +430,6 @@ def execute_single_run(args: argparse.Namespace, typed_argv: list[str], *, modul
     }
     write_manifest(manifest_path(run_dir), final_manifest)
     return run_dir
-
 
 
 def execute_run_all(args: argparse.Namespace, typed_argv: list[str], *, module_name: str) -> Path:

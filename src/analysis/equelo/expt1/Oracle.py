@@ -9,9 +9,9 @@ shared infrastructure.
 """
 
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Callable
 
-from ....sumo_core.BasicEnums import MSD, Division, Annotation
+from ....sumo_core.BasicEnums import MSD, Division, Annotation, Side
 from ....sumo_core.BasicPrimitives import RikId, Riks, Torikumi
 from ....sumo_core.Banzuke import Banzuke, RikChii, RikShikona
 from ....sumo_core.BashoState import BashoState
@@ -21,6 +21,7 @@ from ....sumo_core.Summary import Summary, DailyResults, ResultLookup
 
 
 Bios = dict[RikId, dict[str, Any]]
+ChiiCollapseFn = Callable[[Chii], Chii]
 
 
 @dataclass(frozen=True)
@@ -44,11 +45,46 @@ def _collapse_annotation(chii: Chii) -> Chii:
     )
 
 
-def _rebuild_banzuke(original_banzuke: Banzuke, rikishi_to_keep: set[RikId]) -> Banzuke:
+def _collapse_chii_bucket(chii: Chii) -> Chii:
+    """Collapse chii to the coarser bucket scheme.
+
+    Rules:
+        * Y, O, S, K -> Y1e, O1e, S1e, K1e respectively
+        * all other levels -> keep level + number, force east
+        * annotations are always removed
+    """
+    top_levels = {
+        MSD.YOKOZUNA,
+        MSD.OZEKI,
+        MSD.SEKIWAKE,
+        MSD.KOMUSUBI,
+    }
+
+    if chii.level in top_levels:
+        return Chii(
+            level=chii.level,
+            number=1,
+            side=Side.EAST,
+            ann=Annotation.EMPTY,
+        )
+
+    return Chii(
+        level=chii.level,
+        number=chii.number,
+        side=Side.EAST,
+        ann=Annotation.EMPTY,
+    )
+
+
+def _rebuild_banzuke(
+    original_banzuke: Banzuke,
+    rikishi_to_keep: set[RikId],
+    collapse_fn: ChiiCollapseFn,
+) -> Banzuke:
     riks = Riks(rikishi_to_keep)
 
     rikchii = RikChii({
-        rid: _collapse_annotation(original_banzuke.rikchii[rid])
+        rid: collapse_fn(original_banzuke.rikchii[rid])
         for rid in rikishi_to_keep
     })
 
@@ -60,7 +96,10 @@ def _rebuild_banzuke(original_banzuke: Banzuke, rikishi_to_keep: set[RikId]) -> 
     return Banzuke(riks=riks, rikchii=rikchii, rikshik=rikshik)
 
 
-def _filter_basho_pre_1989(basho: BashoState) -> BashoState:
+def _filter_basho_pre_1989(
+    basho: BashoState,
+    collapse_fn: ChiiCollapseFn,
+) -> BashoState:
     """Apply the pre-1989 observability policy.
 
     Retain only bouts in which at least one participant is sekitori, then
@@ -94,18 +133,21 @@ def _filter_basho_pre_1989(basho: BashoState) -> BashoState:
                 results_lookup=filtered_lookup,
             )
 
-    rebuilt_banzuke = _rebuild_banzuke(basho.banzuke, relevant_rikishi)
+    rebuilt_banzuke = _rebuild_banzuke(basho.banzuke, relevant_rikishi, collapse_fn)
     return BashoState(
         banzuke=rebuilt_banzuke,
         summary=Summary(filtered_days, performances=basho.summary.performances),
     )
 
 
-def _filter_basho_1989_onward(basho: BashoState) -> BashoState:
+def _filter_basho_1989_onward(
+    basho: BashoState,
+    collapse_fn: ChiiCollapseFn,
+) -> BashoState:
     """Apply the 1989-onward observability policy.
 
     Retain only bouts whose participants are both on the banzuke, then rebuild
-    the banzuke on the original banzuke domain with annotations collapsed.
+    the banzuke on the original banzuke domain with the requested collapse rule.
     """
     filtered_days: dict = {}
 
@@ -125,22 +167,42 @@ def _filter_basho_1989_onward(basho: BashoState) -> BashoState:
                 results_lookup=filtered_lookup,
             )
 
-    rebuilt_banzuke = _rebuild_banzuke(basho.banzuke, set(basho.banzuke.riks))
+    rebuilt_banzuke = _rebuild_banzuke(
+        basho.banzuke,
+        set(basho.banzuke.riks),
+        collapse_fn,
+    )
     return BashoState(
         banzuke=rebuilt_banzuke,
         summary=Summary(filtered_days, performances=basho.summary.performances),
     )
 
 
-def make_oracle(history: History, bios: Bios) -> Oracle:
+def make_oracle(
+    history: History,
+    bios: Bios,
+    *,
+    collapse_mode: str = "annotation_only",
+) -> Oracle:
     """Build a cleaned oracle history suitable for Elo simulation.
 
     Rules:
         * skip pre-1958 data
         * before 1989, keep only bouts with at least one sekitori
         * from 1989 onward, keep only bouts consistent with the banzuke
-        * collapse rank annotations before the Elo layer sees ordinals
+        * apply the requested chii collapse before the Elo layer sees ordinals
+
+    collapse_mode:
+        * "annotation_only": current behaviour; drop annotations only
+        * "chii_bucket": Y/O/S/K -> l1e, all others -> lne
     """
+    if collapse_mode == "annotation_only":
+        collapse_fn = _collapse_annotation
+    elif collapse_mode == "chii_bucket":
+        collapse_fn = _collapse_chii_bucket
+    else:
+        raise ValueError(f"Unsupported collapse_mode: {collapse_mode}")
+
     clean_history = History()
 
     for date, basho in history.items():
@@ -148,9 +210,9 @@ def make_oracle(history: History, bios: Bios) -> Oracle:
             continue
 
         if date.year < 1989:
-            clean_basho = _filter_basho_pre_1989(basho)
+            clean_basho = _filter_basho_pre_1989(basho, collapse_fn)
         else:
-            clean_basho = _filter_basho_1989_onward(basho)
+            clean_basho = _filter_basho_1989_onward(basho, collapse_fn)
 
         clean_history[date] = clean_basho
 
