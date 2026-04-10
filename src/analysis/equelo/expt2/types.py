@@ -49,5 +49,6 @@ class SolveResult:
     output_csv_path: Path | None
     stats_csv_path: Path | None
     diagnostics_path: Path | None
-    calibration_output_csv_path: Path | None = None
-    calibration_stats_csv_path: Path | None = None
+    modern_output_csv_path: Path | None = None
+    modern_stats_csv_path: Path | None = None
+    modern_diagnostics_path: Path | None = None

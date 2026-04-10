@@ -14,10 +14,11 @@ from ..expt1.Oracle import make_oracle
 from ..expt1.params import DEFAULT_K_CONFIG_PATH, build_elo_params
 from ..expt1.simulate import SimulationMode
 from .diagnostics import IterationDiagnosticsWriter, default_probe_set
-from .solve import solve_variant_a, solve_variant_b
+from .solve import solve_variant_combined, solve_variant_modern, solve_variant_naive
 
 
 VALID_K_POLICIES = ("constant", "divisional")
+VALID_VARIANTS = ("naive", "modern", "combined")
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -29,8 +30,10 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--zip", action="store_true")
     parser.add_argument("--epsilon", type=float, default=1)
     parser.add_argument("--max-iter", type=int, default=10000000)
-    parser.add_argument("--variant", choices=["a", "b"], default="a")
+    parser.add_argument("--variant", choices=VALID_VARIANTS, default="naive")
     parser.add_argument("--open", action="store_true", help="Use open active-universe semantics")
+    parser.add_argument("--modern-start-year", type=int, default=1989)
+    parser.add_argument("--modern-end-year", type=int, default=2026)
     parser.add_argument("--k-policy", choices=VALID_K_POLICIES, default="constant")
     parser.add_argument(
         "--k-value",
@@ -114,8 +117,8 @@ def main() -> None:
     diagnostics = IterationDiagnosticsWriter(probes=probes, stem=stem, metadata=metadata)
     output_csv_path = OUTPUT_ROOT / f"{stem}_final.csv"
 
-    if args.variant == "a":
-        result = solve_variant_a(
+    if args.variant == "naive":
+        result = solve_variant_naive(
             history=oracle.history,
             params=params,
             epsilon=args.epsilon,
@@ -125,18 +128,34 @@ def main() -> None:
             output_csv_path=output_csv_path,
             diagnostics=diagnostics,
         )
-    else:
-        result = solve_variant_b(
+    elif args.variant == "modern":
+        result = solve_variant_modern(
             history=oracle.history,
             params=params,
             epsilon=args.epsilon,
             max_iter=args.max_iter,
+            modern_start_year=args.modern_start_year,
+            modern_end_year=args.modern_end_year,
             mode=mode,
             probes=probes,
             output_csv_path=output_csv_path,
             diagnostics=diagnostics,
-            calibration_stem=f"{stem}_calibration",
-            calibration_metadata=metadata,
+        )
+    else:
+        modern_stem = f"expt2_variant_modern_{mode.value}_{policy_stem}"
+        result = solve_variant_combined(
+            history=oracle.history,
+            params=params,
+            epsilon=args.epsilon,
+            max_iter=args.max_iter,
+            modern_start_year=args.modern_start_year,
+            modern_end_year=args.modern_end_year,
+            mode=mode,
+            probes=probes,
+            output_csv_path=output_csv_path,
+            diagnostics=diagnostics,
+            modern_stem=modern_stem,
+            modern_metadata={**metadata, "variant": "modern"},
         )
 
     print(f"K policy: {args.k_policy}")
@@ -150,7 +169,9 @@ def main() -> None:
     print(f"Diagnostics log: {result.diagnostics_path}")
     print(f"Final CSV: {result.output_csv_path}")
     print(f"Final stats CSV: {result.stats_csv_path}")
-    if result.calibration_output_csv_path is not None:
-        print(f"Calibration CSV: {result.calibration_output_csv_path}")
-    if result.calibration_stats_csv_path is not None:
-        print(f"Calibration stats CSV: {result.calibration_stats_csv_path}")
+    if result.modern_diagnostics_path is not None:
+        print(f"Modern diagnostics log: {result.modern_diagnostics_path}")
+    if result.modern_output_csv_path is not None:
+        print(f"Modern CSV: {result.modern_output_csv_path}")
+    if result.modern_stats_csv_path is not None:
+        print(f"Modern stats CSV: {result.modern_stats_csv_path}")

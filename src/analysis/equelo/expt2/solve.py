@@ -157,6 +157,22 @@ def _write_outputs(
 
 
 
+def _with_modern_aliases(result: SolveResult) -> SolveResult:
+    return SolveResult(
+        mu=result.mu,
+        converged=result.converged,
+        iterations=result.iterations,
+        final_delta=result.final_delta,
+        output_csv_path=result.output_csv_path,
+        stats_csv_path=result.stats_csv_path,
+        diagnostics_path=result.diagnostics_path,
+        modern_output_csv_path=result.output_csv_path,
+        modern_stats_csv_path=result.stats_csv_path,
+        modern_diagnostics_path=result.diagnostics_path,
+    )
+
+
+
 def solve(
     history: History,
     params: EloParams,
@@ -243,7 +259,7 @@ def solve(
 
 
 
-def solve_variant_a(
+def solve_variant_naive(
     history: History,
     params: EloParams,
     epsilon: float,
@@ -257,8 +273,8 @@ def solve_variant_a(
     if probes is None:
         probes = default_probe_set()
     if output_csv_path is None:
-        output_csv_path = OUTPUT_ROOT / "expt2_variant_a_final.csv"
-    return solve(
+        output_csv_path = OUTPUT_ROOT / "expt2_variant_naive_final.csv"
+    result = solve(
         history=history,
         params=params,
         base=base,
@@ -270,61 +286,97 @@ def solve_variant_a(
         diagnostics=diagnostics,
         include_ci_stats=True,
     )
+    return _with_modern_aliases(result)
 
 
 
-def solve_variant_b(
+def solve_variant_modern(
     history: History,
     params: EloParams,
     epsilon: float,
     max_iter: int,
-    calibration_start_year: int = 1989,
-    calibration_end_year: int = 2026,
+    modern_start_year: int = 1989,
+    modern_end_year: int = 2026,
     mode: SimulationMode = SimulationMode.CLOSED,
     probes: ProbeSet | None = None,
     output_csv_path=None,
     diagnostics: IterationDiagnosticsSink | None = None,
     base: float = INITIAL_ELO,
-    calibration_stem: str = "expt2_variant_b_calibration",
-    calibration_metadata: dict[str, str] | None = None,
 ) -> SolveResult:
     if probes is None:
         probes = default_probe_set()
     if output_csv_path is None:
-        output_csv_path = OUTPUT_ROOT / EQUELO_RATINGS
+        output_csv_path = OUTPUT_ROOT / "expt2_variant_modern_final.csv"
 
-    calibration_history = _slice_history_years(history, calibration_start_year, calibration_end_year)
-    calibration_diagnostics = IterationDiagnosticsWriter(
-        probes=probes,
-        stem=calibration_stem,
-        echo_to_console=True,
-        metadata=calibration_metadata,
-    )
-    calibration_output_csv_path = output_csv_path.parent / "intermediate_variant_b_calibration.csv"
-    print(f"[variant B] calibration ({calibration_start_year}–{calibration_end_year})")
-    calibration_mu_result = solve(
-        history=calibration_history,
+    modern_history = _slice_history_years(history, modern_start_year, modern_end_year)
+    result = solve(
+        history=modern_history,
         params=params,
         base=base,
         epsilon=epsilon,
         max_iter=max_iter,
         mode=mode,
         probes=probes,
-        output_csv_path=calibration_output_csv_path,
-        diagnostics=calibration_diagnostics,
+        output_csv_path=output_csv_path,
+        diagnostics=diagnostics,
+        include_ci_stats=True,
+    )
+    return _with_modern_aliases(result)
+
+
+
+def solve_variant_combined(
+    history: History,
+    params: EloParams,
+    epsilon: float,
+    max_iter: int,
+    modern_start_year: int = 1989,
+    modern_end_year: int = 2026,
+    mode: SimulationMode = SimulationMode.CLOSED,
+    probes: ProbeSet | None = None,
+    output_csv_path=None,
+    diagnostics: IterationDiagnosticsSink | None = None,
+    base: float = INITIAL_ELO,
+    modern_stem: str = "expt2_variant_modern",
+    modern_metadata: dict[str, str] | None = None,
+) -> SolveResult:
+    if probes is None:
+        probes = default_probe_set()
+    if output_csv_path is None:
+        output_csv_path = OUTPUT_ROOT / EQUELO_RATINGS
+
+    modern_history = _slice_history_years(history, modern_start_year, modern_end_year)
+    modern_diagnostics = IterationDiagnosticsWriter(
+        probes=probes,
+        stem=modern_stem,
+        echo_to_console=True,
+        metadata=modern_metadata,
+    )
+    modern_output_csv_path = output_csv_path.parent / f"{modern_stem}_final.csv"
+    print(f"[combined] modern ({modern_start_year}–{modern_end_year})")
+    modern_result = solve(
+        history=modern_history,
+        params=params,
+        base=base,
+        epsilon=epsilon,
+        max_iter=max_iter,
+        mode=mode,
+        probes=probes,
+        output_csv_path=modern_output_csv_path,
+        diagnostics=modern_diagnostics,
         include_ci_stats=True,
     )
 
-    if calibration_mu_result.stats_csv_path is not None:
-        print(f"[variant B] calibration stats CSV: {calibration_mu_result.stats_csv_path}")
+    if modern_result.stats_csv_path is not None:
+        print(f"[combined] modern stats CSV: {modern_result.stats_csv_path}")
 
     refinement_mu = _extend_mu_to_history_domain(
-        mu=calibration_mu_result.mu,
+        mu=modern_result.mu,
         history=history,
         base=base,
     )
 
-    print("[variant B] refinement (full history)")
+    print("[combined] refinement (full history)")
     refinement_result = _solve_from_initial_mu(
         history=history,
         params=params,
@@ -345,8 +397,9 @@ def solve_variant_b(
         output_csv_path=refinement_result.output_csv_path,
         stats_csv_path=refinement_result.stats_csv_path,
         diagnostics_path=refinement_result.diagnostics_path,
-        calibration_output_csv_path=calibration_mu_result.output_csv_path,
-        calibration_stats_csv_path=calibration_mu_result.stats_csv_path,
+        modern_output_csv_path=modern_result.output_csv_path,
+        modern_stats_csv_path=modern_result.stats_csv_path,
+        modern_diagnostics_path=modern_result.diagnostics_path,
     )
 
 
@@ -426,3 +479,8 @@ def _solve_from_initial_mu(
         stats_csv_path=None,
         diagnostics_path=diagnostics_path,
     )
+
+
+# Backward-compatible aliases for any in-package callers not yet updated.
+solve_variant_a = solve_variant_naive
+solve_variant_b = solve_variant_combined
