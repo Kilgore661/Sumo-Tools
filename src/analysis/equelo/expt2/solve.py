@@ -7,7 +7,7 @@ from pathlib import Path
 from ....sumo_core.Chii import Chii
 from ....sumo_core.History import History
 
-from ..config_main import EQUELO_RATINGS, INITIAL_ELO, OUTPUT_ROOT
+from ..config_main import INITIAL_ELO, OUTPUT_ROOT
 from ..expt1.initialisation import EntrantInitialiser
 from ..expt1.params import EloParams
 from ..expt1.simulate import SimulationMode, SimulationResult, simulate
@@ -181,7 +181,7 @@ def solve(
     max_iter: int,
     mode: SimulationMode,
     probes: ProbeSet,
-    output_csv_path,
+    output_csv_path: Path,
     diagnostics: IterationDiagnosticsSink | None = None,
     include_ci_stats: bool = False,
 ) -> SolveResult:
@@ -266,14 +266,14 @@ def solve_variant_naive(
     max_iter: int,
     mode: SimulationMode = SimulationMode.CLOSED,
     probes: ProbeSet | None = None,
-    output_csv_path=None,
+    output_csv_path: Path | None = None,
     diagnostics: IterationDiagnosticsSink | None = None,
     base: float = INITIAL_ELO,
 ) -> SolveResult:
     if probes is None:
         probes = default_probe_set()
     if output_csv_path is None:
-        output_csv_path = OUTPUT_ROOT / "expt2_variant_naive_final.csv"
+        output_csv_path = OUTPUT_ROOT / "primary_final.csv"
     result = solve(
         history=history,
         params=params,
@@ -299,14 +299,14 @@ def solve_variant_modern(
     modern_end_year: int = 2026,
     mode: SimulationMode = SimulationMode.CLOSED,
     probes: ProbeSet | None = None,
-    output_csv_path=None,
+    output_csv_path: Path | None = None,
     diagnostics: IterationDiagnosticsSink | None = None,
     base: float = INITIAL_ELO,
 ) -> SolveResult:
     if probes is None:
         probes = default_probe_set()
     if output_csv_path is None:
-        output_csv_path = OUTPUT_ROOT / "expt2_variant_modern_final.csv"
+        output_csv_path = OUTPUT_ROOT / "primary_final.csv"
 
     modern_history = _slice_history_years(history, modern_start_year, modern_end_year)
     result = solve(
@@ -334,25 +334,27 @@ def solve_variant_combined(
     modern_end_year: int = 2026,
     mode: SimulationMode = SimulationMode.CLOSED,
     probes: ProbeSet | None = None,
-    output_csv_path=None,
+    output_csv_path: Path | None = None,
     diagnostics: IterationDiagnosticsSink | None = None,
     base: float = INITIAL_ELO,
-    modern_stem: str = "expt2_variant_modern",
-    modern_metadata: dict[str, str] | None = None,
+    modern_output_csv_path: Path | None = None,
+    modern_diagnostics: IterationDiagnosticsSink | None = None,
 ) -> SolveResult:
     if probes is None:
         probes = default_probe_set()
     if output_csv_path is None:
-        output_csv_path = OUTPUT_ROOT / EQUELO_RATINGS
+        output_csv_path = OUTPUT_ROOT / "primary_final.csv"
+    if modern_output_csv_path is None:
+        modern_output_csv_path = OUTPUT_ROOT / "modern_final.csv"
+    if modern_diagnostics is None:
+        modern_diagnostics = IterationDiagnosticsWriter(
+            probes=probes,
+            stem="modern_iterations",
+            echo_to_console=True,
+            output_root=modern_output_csv_path.parent,
+        )
 
     modern_history = _slice_history_years(history, modern_start_year, modern_end_year)
-    modern_diagnostics = IterationDiagnosticsWriter(
-        probes=probes,
-        stem=modern_stem,
-        echo_to_console=True,
-        metadata=modern_metadata,
-    )
-    modern_output_csv_path = output_csv_path.parent / f"{modern_stem}_final.csv"
     print(f"[combined] modern ({modern_start_year}–{modern_end_year})")
     modern_result = solve(
         history=modern_history,
@@ -413,7 +415,7 @@ def _solve_from_initial_mu(
     max_iter: int,
     mode: SimulationMode,
     probes: ProbeSet,
-    output_csv_path,
+    output_csv_path: Path,
     diagnostics: IterationDiagnosticsSink | None = None,
 ) -> SolveResult:
     loop_started_at = time.perf_counter()
@@ -444,8 +446,7 @@ def _solve_from_initial_mu(
             )
 
         if final_delta < epsilon:
-            write_final_ratings_csv(mu_next, output_csv_path)
-            csv_path, stats_csv_path, _ = _write_outputs(history, mu_next, EQUELO_RATINGS)
+            csv_path, stats_csv_path, _ = _write_outputs(history, mu_next, output_csv_path)
             if diagnostics is not None:
                 diagnostics_path = diagnostics.finalise()
                 summary = diagnostics.summary_line() if hasattr(diagnostics, "summary_line") else None

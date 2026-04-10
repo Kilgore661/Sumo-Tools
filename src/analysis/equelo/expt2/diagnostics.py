@@ -65,11 +65,13 @@ class IterationDiagnosticsWriter:
         stem: str = "expt2_iterations",
         echo_to_console: bool = True,
         metadata: dict[str, str] | None = None,
+        output_root: Path | None = None,
     ) -> None:
         self.probes = list(probes)
         self.stem = stem
         self.echo_to_console = echo_to_console
         self.metadata = {} if metadata is None else {str(k): str(v) for k, v in metadata.items()}
+        self.output_root = OUTPUT_ROOT if output_root is None else output_root
         self._rows: list[IterationDiagnosticsRow] = []
         self._printed_header = False
         self._printed_counts = False
@@ -99,8 +101,8 @@ class IterationDiagnosticsWriter:
         if not self._rows:
             return None
 
-        OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
-        csv_path = OUTPUT_ROOT / f"{self.stem}.csv"
+        self.output_root.mkdir(parents=True, exist_ok=True)
+        csv_path = self.output_root / f"{self.stem}.csv"
         self._write_csv(csv_path)
         return csv_path
 
