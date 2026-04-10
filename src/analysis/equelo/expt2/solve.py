@@ -157,22 +157,6 @@ def _write_outputs(
 
 
 
-def _with_modern_aliases(result: SolveResult) -> SolveResult:
-    return SolveResult(
-        mu=result.mu,
-        converged=result.converged,
-        iterations=result.iterations,
-        final_delta=result.final_delta,
-        output_csv_path=result.output_csv_path,
-        stats_csv_path=result.stats_csv_path,
-        diagnostics_path=result.diagnostics_path,
-        modern_output_csv_path=result.output_csv_path,
-        modern_stats_csv_path=result.stats_csv_path,
-        modern_diagnostics_path=result.diagnostics_path,
-    )
-
-
-
 def solve(
     history: History,
     params: EloParams,
@@ -273,8 +257,8 @@ def solve_variant_naive(
     if probes is None:
         probes = default_probe_set()
     if output_csv_path is None:
-        output_csv_path = OUTPUT_ROOT / "primary_final.csv"
-    result = solve(
+        output_csv_path = OUTPUT_ROOT / "naive_final.csv"
+    return solve(
         history=history,
         params=params,
         base=base,
@@ -286,7 +270,6 @@ def solve_variant_naive(
         diagnostics=diagnostics,
         include_ci_stats=True,
     )
-    return _with_modern_aliases(result)
 
 
 
@@ -306,10 +289,10 @@ def solve_variant_modern(
     if probes is None:
         probes = default_probe_set()
     if output_csv_path is None:
-        output_csv_path = OUTPUT_ROOT / "primary_final.csv"
+        output_csv_path = OUTPUT_ROOT / "modern_final.csv"
 
     modern_history = _slice_history_years(history, modern_start_year, modern_end_year)
-    result = solve(
+    return solve(
         history=modern_history,
         params=params,
         base=base,
@@ -321,7 +304,6 @@ def solve_variant_modern(
         diagnostics=diagnostics,
         include_ci_stats=True,
     )
-    return _with_modern_aliases(result)
 
 
 
@@ -343,7 +325,7 @@ def solve_variant_combined(
     if probes is None:
         probes = default_probe_set()
     if output_csv_path is None:
-        output_csv_path = OUTPUT_ROOT / "primary_final.csv"
+        output_csv_path = OUTPUT_ROOT / "combined_final.csv"
     if modern_output_csv_path is None:
         modern_output_csv_path = OUTPUT_ROOT / "modern_final.csv"
     if modern_diagnostics is None:
@@ -354,19 +336,19 @@ def solve_variant_combined(
             output_root=modern_output_csv_path.parent,
         )
 
-    modern_history = _slice_history_years(history, modern_start_year, modern_end_year)
     print(f"[combined] modern ({modern_start_year}–{modern_end_year})")
-    modern_result = solve(
-        history=modern_history,
+    modern_result = solve_variant_modern(
+        history=history,
         params=params,
-        base=base,
         epsilon=epsilon,
         max_iter=max_iter,
+        modern_start_year=modern_start_year,
+        modern_end_year=modern_end_year,
         mode=mode,
         probes=probes,
         output_csv_path=modern_output_csv_path,
         diagnostics=modern_diagnostics,
-        include_ci_stats=True,
+        base=base,
     )
 
     if modern_result.stats_csv_path is not None:
@@ -390,6 +372,7 @@ def solve_variant_combined(
         probes=probes,
         output_csv_path=output_csv_path,
         diagnostics=diagnostics,
+        include_ci_stats=True,
     )
     return SolveResult(
         mu=refinement_result.mu,
@@ -417,6 +400,7 @@ def _solve_from_initial_mu(
     probes: ProbeSet,
     output_csv_path: Path,
     diagnostics: IterationDiagnosticsSink | None = None,
+    include_ci_stats: bool = False,
 ) -> SolveResult:
     loop_started_at = time.perf_counter()
     mu = dict(initial_mu)
@@ -446,7 +430,20 @@ def _solve_from_initial_mu(
             )
 
         if final_delta < epsilon:
-            csv_path, stats_csv_path, _ = _write_outputs(history, mu_next, output_csv_path)
+            basho_start_ratings_by_chii = None
+            if include_ci_stats:
+                basho_start_ratings_by_chii = _final_analysis_basho_start_ratings_by_chii(
+                    history=history,
+                    params=params,
+                    mu=mu_next,
+                    mode=mode,
+                )
+            csv_path, stats_csv_path, _ = _write_outputs(
+                history,
+                mu_next,
+                output_csv_path,
+                basho_start_ratings_by_chii=basho_start_ratings_by_chii,
+            )
             if diagnostics is not None:
                 diagnostics_path = diagnostics.finalise()
                 summary = diagnostics.summary_line() if hasattr(diagnostics, "summary_line") else None
@@ -485,3 +482,4 @@ def _solve_from_initial_mu(
 # Backward-compatible aliases for any in-package callers not yet updated.
 solve_variant_a = solve_variant_naive
 solve_variant_b = solve_variant_combined
+
