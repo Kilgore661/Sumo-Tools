@@ -11,6 +11,9 @@ from ..parser.parser2 import OUTPUT_DIR
 from ..config import EPOCH
 from .config import VERSION
 
+# Change Log
+#   2026/04/09: Improved error message for when live store is not running.
+
 
 class LiveStore:
     """
@@ -55,7 +58,7 @@ class LiveStore:
                 shm.close()
 
         except FileNotFoundError:
-            print(f"[live_store] '{self.name}' not found")
+            print(f"[live_store] '{self.name}' not found\n\nTry:\n    PS X:\\Sumo\\Sumo-Tools> py -m src.infra.tracker.tracker")
             return None
 
         except Exception as exc:

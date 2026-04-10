@@ -10,6 +10,7 @@ from ....sumo_core.Chii import Chii
 ChiiRatings: TypeAlias = dict[Chii, float]
 ProbeSet: TypeAlias = list[Chii]
 ProbeCounts: TypeAlias = dict[Chii, int]
+BashoStartRatingsByChii: TypeAlias = dict[Chii, list[float]]
 
 
 @dataclass(frozen=True)
@@ -46,4 +47,7 @@ class SolveResult:
     iterations: int
     final_delta: float
     output_csv_path: Path | None
+    stats_csv_path: Path | None
     diagnostics_path: Path | None
+    calibration_output_csv_path: Path | None = None
+    calibration_stats_csv_path: Path | None = None

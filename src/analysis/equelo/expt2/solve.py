@@ -1,28 +1,28 @@
 from pdb import set_trace
 
 import time
+from collections import defaultdict
+from pathlib import Path
 
-from ....sumo_core.History import History
 from ....sumo_core.Chii import Chii
+from ....sumo_core.History import History
 
-from ..config_main import INITIAL_ELO, OUTPUT_ROOT, EQUELO_RATINGS
-
+from ..config_main import EQUELO_RATINGS, INITIAL_ELO, OUTPUT_ROOT
 from ..expt1.initialisation import EntrantInitialiser
 from ..expt1.params import EloParams
 from ..expt1.simulate import SimulationMode, SimulationResult, simulate
-
 from .aggregate import aggregate
 from .diagnostics import IterationDiagnosticsWriter, default_probe_set, probe_values
 from .normalise import normalise
-from .output import write_final_ratings_csv
+from .output import write_final_ratings_csv, write_final_ratings_stats_csv
 from .types import (
+    BashoStartRatingsByChii,
     ChiiRatings,
     IterationDiagnosticsRow,
     IterationDiagnosticsSink,
     ProbeSet,
     SolveResult,
 )
-
 
 
 def initialise(base: float, chiis: set[Chii]) -> ChiiRatings:
@@ -34,8 +34,7 @@ def initialise(base: float, chiis: set[Chii]) -> ChiiRatings:
 def make_entrant_initialiser(mu: ChiiRatings) -> EntrantInitialiser:
     """Return the entrant-initialiser induced by the current chii-rating map."""
 
-    def entrant_initialiser(rikid, chii, date) -> float:
-        del rikid, date
+    def entrant_initialiser(chii) -> float:
         return mu[chii]
 
     return entrant_initialiser
@@ -104,6 +103,60 @@ def _print_total_runtime(label: str, started_at: float) -> None:
 
 
 
+def _stats_output_csv_path(output_csv_path: Path) -> Path:
+    return output_csv_path.with_name(f"{output_csv_path.stem}_with_stats{output_csv_path.suffix}")
+
+
+
+def _collect_basho_start_ratings_by_chii(
+    history: History,
+    results: SimulationResult,
+) -> BashoStartRatingsByChii:
+    ratings_by_chii: BashoStartRatingsByChii = defaultdict(list)
+
+    for date in sorted(history.keys()):
+        if date not in results.basho_start_ratings:
+            continue
+
+        basho_state = history[date]
+        start_ratings = results.basho_start_ratings[date]
+
+        for rikid, chii in basho_state.banzuke.rikchii.items():
+            ratings_by_chii[chii].append(start_ratings[rikid])
+
+    return {chii: values for chii, values in ratings_by_chii.items()}
+
+
+
+def _final_analysis_basho_start_ratings_by_chii(
+    history: History,
+    params: EloParams,
+    mu: ChiiRatings,
+    mode: SimulationMode,
+) -> BashoStartRatingsByChii:
+    final_results = simulate_with_prior(history=history, params=params, mu=mu, mode=mode)
+    return _collect_basho_start_ratings_by_chii(history, final_results)
+
+
+
+def _write_outputs(
+    history: History,
+    mu: ChiiRatings,
+    output_csv_path: Path,
+    basho_start_ratings_by_chii: BashoStartRatingsByChii | None = None,
+) -> tuple[Path, Path, int]:
+    csv_path = write_final_ratings_csv(mu, output_csv_path)
+    stats_csv_path, violation_count = write_final_ratings_stats_csv(
+        mu=mu,
+        history=history,
+        output_path=_stats_output_csv_path(output_csv_path),
+        basho_start_ratings_by_chii=basho_start_ratings_by_chii,
+    )
+    print(f"[ratings] total violations: {violation_count}")
+    return csv_path, stats_csv_path, violation_count
+
+
+
 def solve(
     history: History,
     params: EloParams,
@@ -114,6 +167,7 @@ def solve(
     probes: ProbeSet,
     output_csv_path,
     diagnostics: IterationDiagnosticsSink | None = None,
+    include_ci_stats: bool = False,
 ) -> SolveResult:
     """Estimate a self-consistent basho-start prior by fixed-point iteration."""
     loop_started_at = time.perf_counter()
@@ -145,7 +199,20 @@ def solve(
             )
 
         if final_delta < epsilon:
-            csv_path = write_final_ratings_csv(mu_next, output_csv_path)
+            basho_start_ratings_by_chii = None
+            if include_ci_stats:
+                basho_start_ratings_by_chii = _final_analysis_basho_start_ratings_by_chii(
+                    history=history,
+                    params=params,
+                    mu=mu_next,
+                    mode=mode,
+                )
+            csv_path, stats_csv_path, _ = _write_outputs(
+                history,
+                mu_next,
+                output_csv_path,
+                basho_start_ratings_by_chii=basho_start_ratings_by_chii,
+            )
             if diagnostics is not None:
                 diagnostics_path = diagnostics.finalise()
             _print_total_runtime("solve", loop_started_at)
@@ -155,6 +222,7 @@ def solve(
                 iterations=iteration,
                 final_delta=final_delta,
                 output_csv_path=csv_path,
+                stats_csv_path=stats_csv_path,
                 diagnostics_path=diagnostics_path,
             )
 
@@ -169,6 +237,7 @@ def solve(
         iterations=max_iter,
         final_delta=final_delta,
         output_csv_path=None,
+        stats_csv_path=None,
         diagnostics_path=diagnostics_path,
     )
 
@@ -199,6 +268,7 @@ def solve_variant_a(
         probes=probes,
         output_csv_path=output_csv_path,
         diagnostics=diagnostics,
+        include_ci_stats=True,
     )
 
 
@@ -230,6 +300,7 @@ def solve_variant_b(
         echo_to_console=True,
         metadata=calibration_metadata,
     )
+    calibration_output_csv_path = output_csv_path.parent / "intermediate_variant_b_calibration.csv"
     print(f"[variant B] calibration ({calibration_start_year}–{calibration_end_year})")
     calibration_mu_result = solve(
         history=calibration_history,
@@ -239,9 +310,13 @@ def solve_variant_b(
         max_iter=max_iter,
         mode=mode,
         probes=probes,
-        output_csv_path=output_csv_path.parent / "intermediate_variant_b_calibration.csv",
+        output_csv_path=calibration_output_csv_path,
         diagnostics=calibration_diagnostics,
+        include_ci_stats=True,
     )
+
+    if calibration_mu_result.stats_csv_path is not None:
+        print(f"[variant B] calibration stats CSV: {calibration_mu_result.stats_csv_path}")
 
     refinement_mu = _extend_mu_to_history_domain(
         mu=calibration_mu_result.mu,
@@ -250,7 +325,7 @@ def solve_variant_b(
     )
 
     print("[variant B] refinement (full history)")
-    return _solve_from_initial_mu(
+    refinement_result = _solve_from_initial_mu(
         history=history,
         params=params,
         initial_mu=refinement_mu,
@@ -261,6 +336,17 @@ def solve_variant_b(
         probes=probes,
         output_csv_path=output_csv_path,
         diagnostics=diagnostics,
+    )
+    return SolveResult(
+        mu=refinement_result.mu,
+        converged=refinement_result.converged,
+        iterations=refinement_result.iterations,
+        final_delta=refinement_result.final_delta,
+        output_csv_path=refinement_result.output_csv_path,
+        stats_csv_path=refinement_result.stats_csv_path,
+        diagnostics_path=refinement_result.diagnostics_path,
+        calibration_output_csv_path=calibration_mu_result.output_csv_path,
+        calibration_stats_csv_path=calibration_mu_result.stats_csv_path,
     )
 
 
@@ -306,7 +392,7 @@ def _solve_from_initial_mu(
 
         if final_delta < epsilon:
             write_final_ratings_csv(mu_next, output_csv_path)
-            csv_path = write_final_ratings_csv(mu_next, EQUELO_RATINGS)
+            csv_path, stats_csv_path, _ = _write_outputs(history, mu_next, EQUELO_RATINGS)
             if diagnostics is not None:
                 diagnostics_path = diagnostics.finalise()
                 summary = diagnostics.summary_line() if hasattr(diagnostics, "summary_line") else None
@@ -319,6 +405,7 @@ def _solve_from_initial_mu(
                 iterations=iteration,
                 final_delta=final_delta,
                 output_csv_path=csv_path,
+                stats_csv_path=stats_csv_path,
                 diagnostics_path=diagnostics_path,
             )
 
@@ -336,5 +423,6 @@ def _solve_from_initial_mu(
         iterations=max_iter,
         final_delta=final_delta,
         output_csv_path=None,
+        stats_csv_path=None,
         diagnostics_path=diagnostics_path,
     )

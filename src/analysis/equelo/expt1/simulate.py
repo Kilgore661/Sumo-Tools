@@ -189,7 +189,7 @@ def _initialise_basho_rikishi(
     """
     for rid in banzuke.riks:
         if rid not in current_ratings:
-            rating = entrant_initialiser(rid, banzuke.rikchii[rid], date)
+            rating = entrant_initialiser(banzuke.rikchii[rid])
             current_ratings[rid] = rating
             if observer is not None:
                 observer.on_entry(

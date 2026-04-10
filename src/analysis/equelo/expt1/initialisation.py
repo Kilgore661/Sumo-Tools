@@ -13,14 +13,12 @@ from ....sumo_core.Chii import Chii
 from ....sumo_core.History import Date
 
 
-EntrantInitialiser = Callable[[RikId, Chii, Date], float]
+EntrantInitialiser = Callable[Chii, float]
 """Callable used to initialise a rikishi with no prior visible rating.
 
 The contract is intentionally rank-centred:
 
-* ``rikid`` is provided for flexibility and logging
 * ``chii`` is the primary information Expt2 is expected to use
-* ``date`` is provided so a future caller may make time-dependent choices
 """
 
 
@@ -31,8 +29,8 @@ def constant_initialiser(baseline: float) -> EntrantInitialiser:
     simulator.
     """
 
-    def initialise(rikid: RikId, chii: Chii, date: Date) -> float:
-        del rikid, chii, date
+    def initialise(chii: Chii) -> float:
+        del chii
         return float(baseline)
 
     return initialise

@@ -28,7 +28,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--end", type=int, default=datetime.datetime.now().year)
     parser.add_argument("--zip", action="store_true")
     parser.add_argument("--epsilon", type=float, default=1)
-    parser.add_argument("--max-iter", type=int, default=150)
+    parser.add_argument("--max-iter", type=int, default=10000000)
     parser.add_argument("--variant", choices=["a", "b"], default="a")
     parser.add_argument("--open", action="store_true", help="Use open active-universe semantics")
     parser.add_argument("--k-policy", choices=VALID_K_POLICIES, default="constant")
@@ -149,3 +149,8 @@ def main() -> None:
     print(f"Final delta: {result.final_delta:.6f}")
     print(f"Diagnostics log: {result.diagnostics_path}")
     print(f"Final CSV: {result.output_csv_path}")
+    print(f"Final stats CSV: {result.stats_csv_path}")
+    if result.calibration_output_csv_path is not None:
+        print(f"Calibration CSV: {result.calibration_output_csv_path}")
+    if result.calibration_stats_csv_path is not None:
+        print(f"Calibration stats CSV: {result.calibration_stats_csv_path}")
