@@ -95,6 +95,11 @@ def _rebuild_banzuke(
 
     return Banzuke(riks=riks, rikchii=rikchii, rikshik=rikshik)
 
+def _is_ignored_rank(chii: Chii) -> bool:
+    return (
+        chii.level == MSD.MAEGASHIRA
+        and 19 <= chii.number <= 22
+    )
 
 def _filter_basho_pre_1989(
     basho: BashoState,
@@ -114,6 +119,9 @@ def _filter_basho_pre_1989(
         for pair, bout in daily_results.results_lookup.items():
             r1 = bout.rikishi1
             r2 = bout.rikishi2
+            # Experimental hack to see if M13 problem is caused by M19-M22s (in late '50s!) but it isn't
+            #if r1 in basho.banzuke.rikchii and _is_ignored_rank(basho.banzuke.rikchii[r1]) or r2 in basho.banzuke.rikchii and _is_ignored_rank(basho.banzuke.rikchii[r2]):
+            #    continue
 
             r1_is_sekitori = (
                 r1 in basho.banzuke.rikchii and _is_sekitori(basho.banzuke.rikchii[r1])
