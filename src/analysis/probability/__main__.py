@@ -49,7 +49,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--bin-width",
         type=float,
-        default=0.05,
+        default=0.01,
         help="Probability bin width.",
     )
     parser.add_argument(
