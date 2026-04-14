@@ -43,7 +43,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--q",
         type=float,
-        default=850.0,
+        default=400.0,
         help="Elo logistic scale parameter.",
     )
     parser.add_argument(

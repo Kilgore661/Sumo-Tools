@@ -1,5 +1,5 @@
 INITIAL_ELO = 1500.0
-INITIAL_Q = 400.0
+INITIAL_Q = 850.0
 CONSTANT_K = 35.0
 
 from pathlib import Path
