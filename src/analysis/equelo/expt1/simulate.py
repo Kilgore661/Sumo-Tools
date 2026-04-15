@@ -325,9 +325,6 @@ def simulate(
         if observer is not None:
             observer.on_basho_start(date=date, ratings=current_ratings, banzuke=banzuke)
 
-        if str(date) == '2015/09':
-            from pdb import set_trace; set_trace()
-
         _handle_departures(
             current_ratings=current_ratings,
             previous_active_rikishi=previous_active_rikishi,

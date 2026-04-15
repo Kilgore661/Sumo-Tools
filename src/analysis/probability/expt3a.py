@@ -167,13 +167,17 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--start", type=int, default=EPOCH)
     parser.add_argument("--end", type=int, default=datetime.datetime.now().year)
     parser.add_argument("--zip", action="store_true")
-    parser.add_argument("--closed", action="store_true")
-    parser.add_argument("--k-policy", choices=("constant", "divisional"), default="constant")
+    parser.add_argument(
+        "--open",
+        action="store_true",
+        help="Run in open mode. Default is closed mode.",
+    )
+    parser.add_argument("--k-policy", choices=("constant", "divisional"), default="divisional")
     parser.add_argument("--k-value", type=float, default=None)
     parser.add_argument("--k-config", type=Path, default=None)
     parser.add_argument("--b", type=float, default=INITIAL_ELO)
     parser.add_argument("--q", type=float, default=INITIAL_Q)
-    parser.add_argument("--bin-width", type=float, default=0.01)
+    parser.add_argument("--bin-width", type=float, default=0.02)
     parser.add_argument(
         "--output",
         type=Path,
@@ -449,7 +453,7 @@ def main() -> None:
         k_value=args.k_value,
         config_path=args.k_config,
     )
-    mode = SimulationMode.CLOSED if args.closed else SimulationMode.OPEN
+    mode = SimulationMode.OPEN if args.open else SimulationMode.CLOSED
 
     observer = Expt3ProbabilityObserver(q=params.q)
     simulate(

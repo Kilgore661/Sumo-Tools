@@ -1,5 +1,5 @@
 INITIAL_ELO = 1500.0
-INITIAL_Q = 850.0
+INITIAL_Q = 850.0 # ~1430.333 +/- 0.333 is optimal
 CONSTANT_K = 35.0
 
 from pathlib import Path
