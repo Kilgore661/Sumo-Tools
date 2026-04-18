@@ -226,27 +226,27 @@ This is not treated as an error, but as something to be **made visible and measu
 On this basis, the work aims to address questions of the following kind:
 
 * **Information efficiency**
-
+  
   * How well does chii predict outcomes compared to an outcome-only system?
   * Does it preserve the same predictive information, or compress it?
 
 * **Sufficiency**
-
+  
   * Does chii fully capture the information contained in outcomes?
   * Or do outcome-based ratings retain predictive power beyond rank?
 
 * **Structure**
-
+  
   * Can chii be understood as a discretisation of a continuous ability scale?
   * Do rank boundaries correspond to stable thresholds in that scale?
 
 * **Dynamics**
-
+  
   * How does the institutional system respond to changes in performance?
   * Does it systematically lag, smooth, or resist volatility?
 
 * **Deviation**
-
+  
   * Where do the largest discrepancies between outcome-based and institutional rankings occur?
   * Are these random, or do they follow identifiable patterns?
 
@@ -299,4 +299,3 @@ In this sense, the work is epistemological:
 ## Closing line (optional tone-setting)
 
 > The intention is not to eliminate judgement, but to make its effects legible.
-

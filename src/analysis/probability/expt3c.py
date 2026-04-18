@@ -24,6 +24,8 @@ import datetime
 import json
 import math
 from pathlib import Path
+import statistics
+from collections import Counter
 
 from src.infra.config import EPOCH
 from src.infra.connect import connect
@@ -226,13 +228,20 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--bin-width", type=float, default=0.02)
     parser.add_argument(
         "--entrant-policy",
-        choices=("constant", "expt2_example"),
+        choices=("constant", "expt2_example", "expt2_scaled"),
         default="constant",
         help=(
             "Entrant initialisation policy. "
             "'constant' is the default Expt3 policy. "
             "'expt2_example' demonstrates one non-constant alternative backed by Expt2 output."
+            "'expt2_scaled' uses the expt2 numbers scaled by alpha in [0,1]."
         ),
+    )
+    parser.add_argument(
+        "--expt2-alpha",
+        type=float,
+        default=None,
+        help="Shrink factor for expt2_scaled entrant initialisation.",
     )
     parser.add_argument(
         "--output",
@@ -514,28 +523,43 @@ def variable_initialiser(chii_ratings: dict[Chii, float]):
 
     return initialise
 
+def scaled_initialiser(chii_ratings: dict[Chii, float], alpha: float):
+    if not (0.0 <= alpha <= 1.0):
+        raise ValueError(f"alpha must lie in [0, 1], got {alpha}")
+
+    mu = sum(chii_ratings.values()) / len(chii_ratings)
+    scaled = {
+        chii: mu + alpha * (float(r) - mu)
+        for chii, r in chii_ratings.items()
+    }
+    return variable_initialiser(scaled)
 
 def _select_entrant_initialiser(
     entrant_policy: str,
     baseline: float,
+    expt2_alpha: float | None = None,
 ):
-    """Resolve the entrant initialiser from the selected entrant policy."""
     if entrant_policy == "constant":
         return constant_initialiser(baseline)
 
-    if entrant_policy == "expt2_example":
-        # Example only: this preserves one concrete non-constant entrant rule
-        # using Expt2-derived Chii ratings. It is not the default or preferred
-        # Expt3 configuration.
-        return variable_initialiser(
-            load_ratings_csv(EXPT2_OUTPUT_ROOT / "expt2_combined_final.csv")
+    if entrant_policy in ("expt2_example", "expt2_scaled"):
+        expt2_ratings = load_ratings_csv(
+            EXPT2_OUTPUT_ROOT / "expt2_combined_final.csv"
         )
 
+        if entrant_policy == "expt2_example":
+            # Example only: this preserves one concrete non-constant entrant rule
+            # using Expt2-derived Chii ratings. It is not the default or preferred
+            # Expt3 configuration.
+            return variable_initialiser(expt2_ratings)
+
+        if entrant_policy == "expt2_scaled":
+            # Second variant of using expt2a to try and beat the best MAE
+            if expt2_alpha is None:
+                raise ValueError("expt2_scaled requires expt2_alpha")
+            return scaled_initialiser(expt2_ratings, alpha=expt2_alpha)
+
     raise ValueError(f"Unknown entrant_policy: {entrant_policy}")
-
-import statistics
-from collections import Counter
-
 
 def summarise_predicted_distribution(
     bouts: list[BoutForecast],
@@ -614,12 +638,13 @@ def main() -> None:
         b=args.b,
         q=args.q,
         k_value=args.k_value,
-        config_path=args.k_config,
+        config_path=args.k_config
     )
     mode = SimulationMode.OPEN if args.open else SimulationMode.CLOSED
     entrant_initialiser = _select_entrant_initialiser(
         entrant_policy=args.entrant_policy,
         baseline=params.b,
+        expt2_alpha = args.expt2_alpha
     )
 
     observer = Expt3ProbabilityObserver(q=params.q)

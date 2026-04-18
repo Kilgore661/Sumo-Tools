@@ -334,9 +334,11 @@ These are unused by plain `solve(...)` itself and are populated by the combined 
 For a given `history`, `solve(...)` performs the following loop:
 
 1. Build the `Chii` domain from the history
-2. Initialise a flat prior `mu` at `base` over that domain
-3. Repeat for `iteration = 1..max_iter`:
 
+2. Initialise a flat prior `mu` at `base` over that domain
+
+3. Repeat for `iteration = 1..max_iter`:
+   
    1. Run Expt1 simulation with entrant prior induced by current `mu`
    2. Aggregate basho-start ratings into mean rating by `Chii`
    3. Uniformly normalise those means so the unweighted mean equals `base`
@@ -344,6 +346,7 @@ For a given `history`, `solve(...)` performs the following loop:
    5. Emit diagnostics row if configured
    6. If `final_delta < epsilon`, write outputs and return success
    7. Otherwise set `mu = mu_next` and continue
+
 4. If the loop exhausts `max_iter`, finalise diagnostics and return failure
 
 This is the complete fixed-point contract implemented in `solve.py`.
@@ -825,4 +828,3 @@ In practice, that second layer is what governs reproducible results.
 * test convergence,
 
 and on success writes final rating tables and stats. The most important practical parameters come from the Expt2 CLI/config layer, because they determine the cleaned history, collapse regime, population mode, K-policy, stopping rule, and variant strategy that define the solved fixed point.
-
