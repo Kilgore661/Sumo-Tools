@@ -1,15 +1,15 @@
 """
 Core domain logic for multiple-basho standings.
 
-Defines the core result types and computes aggregated win and bout totals
-for a contiguous window of basho under a specified wins policy.
+Defines the core standings result types and computes ranked totals for a
+contiguous window of basho under a specified wins policy.
 
-This module is concerned only with domain calculation:
+This module is concerned only with core calculation:
 
     History × selected_dates -> MultipleBashoCore
 
-It does not perform I/O, persistence, argument parsing, derived metric
-calculation, or final presentation.
+It does not perform derived-metric calculation, formatting, persistence, or
+argument parsing.
 """
 
 from dataclasses import dataclass
@@ -27,6 +27,7 @@ class WinsMode(Enum):
 
 @dataclass(frozen=True)
 class MultipleBashoCoreRow:
+    position: int
     rikishi_id: RikId
     real_wins: int
     all_wins: int
@@ -39,9 +40,55 @@ class MultipleBashoCore:
     rows: tuple[MultipleBashoCoreRow, ...]
 
 
+def resolve_date(
+    history: History,
+    direction: str,
+    requested_date: str | None,
+) -> Date:
+    dates = sorted(history.keys())
+
+    if requested_date is not None:
+        matching = [date for date in dates if str(date) == requested_date]
+        if not matching:
+            raise ValueError(f"Date '{requested_date}' not found in History.")
+        return matching[0]
+
+    if direction == "BACKWARDS":
+        return dates[-1]
+
+    if direction == "FORWARDS":
+        return dates[0]
+
+    raise ValueError(f"Unsupported direction: {direction}")
+
+
+def resolve_window_dates(
+    history: History,
+    date: Date,
+    direction: str,
+    num_basho: int,
+) -> tuple[Date, ...]:
+    if num_basho <= 0:
+        raise ValueError("num_basho must be positive.")
+
+    dates = sorted(history.keys())
+    idx = dates.index(date)
+
+    if direction == "BACKWARDS":
+        start = max(0, idx - num_basho + 1)
+        return tuple(dates[start : idx + 1])
+
+    if direction == "FORWARDS":
+        end = min(len(dates), idx + num_basho)
+        return tuple(dates[idx:end])
+
+    raise ValueError(f"Unsupported direction: {direction}")
+
+
 def get_multiple_basho_core(
     history: History,
     selected_dates: tuple[Date, ...],
+    wins_mode: WinsMode,
 ) -> MultipleBashoCore:
     totals: dict[RikId, dict[str, object]] = {}
 
@@ -92,18 +139,46 @@ def get_multiple_basho_core(
                 elif bout.outcome2 == Outcome.FS:
                     totals[r2]["all_wins"] = int(totals[r2]["all_wins"]) + 1
 
-    ordered_rikishi_ids = sorted(totals.keys(), key=int)
-    rows = tuple(
-        MultipleBashoCoreRow(
-            rikishi_id=rid,
-            real_wins=int(totals[rid]["real_wins"]),
-            all_wins=int(totals[rid]["all_wins"]),
-            bout_count=int(totals[rid]["bout_count"]),
-        )
-        for rid in ordered_rikishi_ids
+    if wins_mode == WinsMode.REAL:
+        primary = "real_wins"
+        secondary = "all_wins"
+    elif wins_mode == WinsMode.ALL:
+        primary = "all_wins"
+        secondary = "real_wins"
+    else:
+        raise ValueError(f"Unsupported wins mode: {wins_mode}")
+
+    ordered = sorted(
+        totals.values(),
+        key=lambda row: (
+            -int(row[primary]),
+            -int(row[secondary]),
+            int(row["rikishi_id"]),
+        ),
     )
 
-    return MultipleBashoCore(
-        selected_dates=selected_dates,
-        rows=rows,
-    )
+    ranked_rows: list[MultipleBashoCoreRow] = []
+    previous_primary_value = None
+    previous_position = 0
+
+    for index, row in enumerate(ordered, start=1):
+        current_primary_value = int(row[primary])
+
+        if current_primary_value == previous_primary_value:
+            position = previous_position
+        else:
+            position = index
+            previous_position = position
+            previous_primary_value = current_primary_value
+
+        ranked_rows.append(
+            MultipleBashoCoreRow(
+                position=position,
+                rikishi_id=row["rikishi_id"],
+                real_wins=int(row["real_wins"]),
+                all_wins=int(row["all_wins"]),
+                bout_count=int(row["bout_count"]),
+            )
+        )
+
+    return MultipleBashoCore(selected_dates=selected_dates, rows=tuple(ranked_rows))

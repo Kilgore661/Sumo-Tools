@@ -2,36 +2,37 @@
 Command-line entry point for multiple-basho standings.
 
 Parses command-line arguments, establishes valid inputs for downstream
-functions, loads History, selects a contiguous basho window, computes core
-standings totals, derives average-based results, and writes output files.
+functions, loads History, selects the requested basho window, computes core
+standings totals, derives per-basho metrics, and writes output files.
 
 Conceptually:
 
-    argv -> console messages × output files
+    argv -> core standings -> derived standings view -> console messages × output files
 """
 
 import argparse
-from pathlib import Path
+from datetime import datetime
 
 from src.analysis.standings.multiple_basho import (
     WinsMode,
     get_multiple_basho_core,
+    resolve_date,
+    resolve_window_dates,
 )
 from src.analysis.standings.multiple_basho_reports import (
-    default_multiple_basho_output_file,
-    ensure_multiple_basho_run_output_dir,
-    new_run_stamp,
+    ensure_output_dir,
+    ensure_run_output_dir,
+    multiple_basho_run_file,
     write_multiple_basho_view_csv,
 )
-from src.analysis.standings.multiple_basho_view import (
-    get_multiple_basho_view,
-)
+from src.analysis.standings.multiple_basho_view import get_multiple_basho_view
 from src.infra.live_store.api import get_history
+from .helpers import escape_date
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Compute multiple-basho standings.")
-    parser.add_argument("--date", help="Anchor basho date YYYY/MM")
+    parser.add_argument("--date", help="Basho date YYYY/MM")
     parser.add_argument(
         "--direction",
         choices=["BACKWARDS", "FORWARDS"],
@@ -42,70 +43,31 @@ def parse_args() -> argparse.Namespace:
         "--num-basho",
         type=int,
         default=1,
-        help="Number of basho in the selected window",
+        help="Number of basho in the standings window",
     )
     parser.add_argument(
         "--wins",
         choices=["real", "all"],
         default="real",
-        help="Default average ranking key",
-    )
-    parser.add_argument(
-        "--output",
-        help="Output CSV path",
+        help="Primary ranking key",
     )
     return parser.parse_args()
-
-
-def resolve_anchor_date(history, requested_date: str | None, direction: str):
-    dates = sorted(history.keys())
-
-    if requested_date is None:
-        if direction == "BACKWARDS":
-            return dates[-1]
-        if direction == "FORWARDS":
-            return dates[0]
-        raise ValueError(f"Unsupported direction: {direction}")
-
-    matching = [date for date in dates if str(date) == requested_date]
-    if not matching:
-        raise ValueError(f"Date '{requested_date}' not found in History.")
-
-    return matching[0]
-
-
-def resolve_selected_dates(history, anchor_date, direction: str, num_basho: int) -> tuple:
-    if num_basho <= 0:
-        raise ValueError("--num-basho must be greater than zero.")
-
-    dates = sorted(history.keys())
-    index = dates.index(anchor_date)
-
-    if direction == "BACKWARDS":
-        start = max(0, index - num_basho + 1)
-        return tuple(dates[start : index + 1])
-
-    if direction == "FORWARDS":
-        end = min(len(dates), index + num_basho)
-        return tuple(dates[index:end])
-
-    raise ValueError(f"Unsupported direction: {direction}")
 
 
 def main() -> None:
     args = parse_args()
 
     history = get_history()
-
-    anchor_date = resolve_anchor_date(
+    from time import time
+    t0 = time()
+    anchor_date = resolve_date(
         history=history,
-        requested_date=args.date,
         direction=args.direction,
+        requested_date=args.date,
     )
-
-    selected_dates = resolve_selected_dates(
+    selected_dates = resolve_window_dates(
         history=history,
-        anchor_date=anchor_date,
+        date=anchor_date,
         direction=args.direction,
         num_basho=args.num_basho,
     )
@@ -120,27 +82,24 @@ def main() -> None:
     core = get_multiple_basho_core(
         history=history,
         selected_dates=selected_dates,
+        wins_mode=wins_mode,
     )
-
     view = get_multiple_basho_view(
         history=history,
-        anchor_date=anchor_date,
         core=core,
         wins_mode=wins_mode,
     )
 
-    if args.output is None:
-        run_stamp = new_run_stamp()
-        ensure_multiple_basho_run_output_dir(run_stamp)
-        output_file = default_multiple_basho_output_file(
-            run_stamp=run_stamp,
-            date=anchor_date,
-            direction=args.direction,
-            num_basho=args.num_basho,
-            wins=args.wins,
-        )
-    else:
-        output_file = Path(args.output)
+    ensure_output_dir()
+    run_stamp = datetime.now().strftime("%Y-%m-%d %H-%M-%S")
+    ensure_run_output_dir(run_stamp)
+    output_file = multiple_basho_run_file(
+        run_stamp=run_stamp,
+        date=escape_date(anchor_date),
+        direction=args.direction,
+        num_basho=args.num_basho,
+        wins=args.wins,
+    )
 
     write_multiple_basho_view_csv(view, output_file)
 
@@ -151,6 +110,7 @@ def main() -> None:
     print(f"Rows: {len(view.rows)}")
     print(f"Output: {output_file}")
 
+    print(f'run complete in {time()-t0:.0f}s')
 
 if __name__ == "__main__":
     main()

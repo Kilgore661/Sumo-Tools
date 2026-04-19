@@ -1,51 +1,43 @@
 """
-Persistence and reporting for multiple-basho standings outputs.
+Persistence and reporting for multiple-basho derived standings outputs.
 
-Writes derived standings data to CSV files and manages run-specific output
-folders so that each run can be reconstructed from its artefact location and
-filename.
+Writes multiple-basho derived results to external artefacts such as CSV files
+and manages run-specific output paths.
 
-This module is responsible only for rendering/persistence and contains no
-standings calculation logic.
+This module is responsible only for rendering/persistence and contains no core
+or derived standings calculation logic.
 """
 
 import csv
-from datetime import datetime
 from pathlib import Path
 
+from src.analysis.standings.config import OUTPUT_DIR
 from src.analysis.standings.multiple_basho_view import MultipleBashoView
-from .helpers import escape_date
 
 
-OUTPUT_DIR = Path("files/output/standings")
+def ensure_output_dir() -> None:
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
-def multiple_basho_run_output_dir(run_stamp: str) -> Path:
+def run_output_dir(run_stamp: str) -> Path:
     return OUTPUT_DIR / run_stamp
 
 
-def ensure_multiple_basho_run_output_dir(run_stamp: str) -> Path:
-    out_dir = multiple_basho_run_output_dir(run_stamp)
+def ensure_run_output_dir(run_stamp: str) -> Path:
+    out_dir = run_output_dir(run_stamp)
     out_dir.mkdir(parents=True, exist_ok=True)
     return out_dir
 
 
-def new_run_stamp() -> str:
-    return datetime.now().strftime("%Y-%m-%d %H-%M-%S")
-
-
-def default_multiple_basho_output_file(
+def multiple_basho_run_file(
     run_stamp: str,
-    date,
+    date: str,
     direction: str,
     num_basho: int,
     wins: str,
 ) -> Path:
-    filename = (
-        f"multiple basho standings view "
-        f"({escape_date(date)}, {direction}, {num_basho}, {wins}).csv"
-    )
-    return multiple_basho_run_output_dir(run_stamp) / filename
+    filename = f"multiple basho standings view ({date}, {direction}, {num_basho}, {wins}).csv"
+    return run_output_dir(run_stamp) / filename
 
 
 def write_multiple_basho_view_csv(
@@ -67,6 +59,18 @@ def write_multiple_basho_view_csv(
         "window_average_all_wins",
         "presence_average_real_wins",
         "presence_average_all_wins",
+        "window_stdev_real_wins",
+        "window_stdev_all_wins",
+        "presence_stdev_real_wins",
+        "presence_stdev_all_wins",
+        "window_sem_real_wins",
+        "window_sem_all_wins",
+        "presence_sem_real_wins",
+        "presence_sem_all_wins",
+        "window_ci95_half_width_real_wins",
+        "window_ci95_half_width_all_wins",
+        "presence_ci95_half_width_real_wins",
+        "presence_ci95_half_width_all_wins",
     ]
 
     output_file.parent.mkdir(parents=True, exist_ok=True)
@@ -92,5 +96,17 @@ def write_multiple_basho_view_csv(
                     "window_average_all_wins": row.window_average_all_wins,
                     "presence_average_real_wins": row.presence_average_real_wins,
                     "presence_average_all_wins": row.presence_average_all_wins,
+                    "window_stdev_real_wins": row.window_stdev_real_wins,
+                    "window_stdev_all_wins": row.window_stdev_all_wins,
+                    "presence_stdev_real_wins": row.presence_stdev_real_wins,
+                    "presence_stdev_all_wins": row.presence_stdev_all_wins,
+                    "window_sem_real_wins": row.window_sem_real_wins,
+                    "window_sem_all_wins": row.window_sem_all_wins,
+                    "presence_sem_real_wins": row.presence_sem_real_wins,
+                    "presence_sem_all_wins": row.presence_sem_all_wins,
+                    "window_ci95_half_width_real_wins": row.window_ci95_half_width_real_wins,
+                    "window_ci95_half_width_all_wins": row.window_ci95_half_width_all_wins,
+                    "presence_ci95_half_width_real_wins": row.presence_ci95_half_width_real_wins,
+                    "presence_ci95_half_width_all_wins": row.presence_ci95_half_width_all_wins,
                 }
             )
