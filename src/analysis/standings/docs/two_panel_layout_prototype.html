@@ -6,13 +6,17 @@
   <title>Two Panel Layout Prototype</title>
   <style>
     :root {
-      --header-bg: #0f172a;
-      --header-fg: #f9fafb;
-      --menu-bg: #162033;
-      --content-bg: #101826;
-      --page-bg: #020617;
-      --border: #4b5563;
-      --text: #f3f4f6;
+      --header-bg: #050814;
+      --header-fg: #f5f7ff;
+      --menu-bg: #0d1630;
+      --content-bg: #081224;
+      --page-bg: #020611;
+      --border: #5f7399;
+      --text: #eef3ff;
+      --table-bg: #0b1730;
+      --table-head-bg: #243f68;
+      --table-row-odd: #132744;
+      --table-row-even: #1b3356;
     }
 
     * {
@@ -101,7 +105,7 @@
     .standings-table {
       width: max-content;
       border-collapse: collapse;
-      background: rgba(30, 41, 59, 0.92);
+      background: var(--table-bg);
     }
 
     .standings-table th,
@@ -111,16 +115,26 @@
       padding: 8px 12px;
       text-align: center;
       white-space: nowrap;
+      color: var(--text);
     }
 
     .standings-table th {
-      background: rgba(96, 165, 250, 0.32);
+      background: var(--table-head-bg);
       position: sticky;
       top: 0;
+      border-left: 1px solid #7f93ba;
+      border-right: 1px solid #7f93ba;
+      border-top: 1px solid #90a4cc;
+      border-bottom: 1px solid #90a4cc;
+      box-shadow: inset 0 -1px 0 #90a4cc;
+    }
+
+    .standings-table tbody tr:nth-child(odd) {
+      background: var(--table-row-odd);
     }
 
     .standings-table tbody tr:nth-child(even) {
-      background: rgba(255, 255, 255, 0.06);
+      background: var(--table-row-even);
     }
 
     
@@ -198,3 +212,4 @@
   </div>
 </body>
 </html>
+

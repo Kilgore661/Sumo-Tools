@@ -1,40 +1,268 @@
-Yes — by “display identity” I meant exactly **shikona** and **chii**.
+# Presentation Layer Position Document
 
-Here is a proposal text you can paste into your notes.
+## 1. Status and Prematurity
 
-# Presentation Layer Proposal
+It should be acknowledged at the outset that this work is, in one sense, premature.
 
-## 1. Purpose
+The standings calculation capability is still evolving, and the presentation layer cannot yet be considered a fully constrained downstream requirement because the final data contract is not yet settled.
 
-The standings capability shall support a presentation-oriented layer whose initial form is an HTML page showing **multiple-basho standings** for a selected basho-window length.
+In particular:
 
-This layer is intended to present a simple, accessible view of the standings for users who want the obvious headline numbers rather than the fuller analytical output.
+* identity semantics for displayed `shikona` and `chii` remain to be corrected
+* exact output artefacts are not yet frozen
+* some standings metrics may still evolve
+* publication workflow is not yet automated
 
-The page is conceptually driven by the output of the multiple-basho standings process, currently exposed through the `multiple_basho_main` entrypoint and its derived multiple-basho view output.  
+However, this does **not** make exploratory design work wasteful.
+
+There is practical value in thinking through the presentation layer in advance in order to identify architectural traps and usability issues before implementation hardens.
+
+Examples of useful early discoveries include:
+
+* the desirability of a static-site model rather than server-side execution
+* the need for a visible editable template rather than a JS-only shell
+* the importance of preserving graceful behaviour when data is unavailable
+* layout behaviour when content exceeds viewport height
+* layout behaviour when width becomes constrained
+* sensible defaults for controls and sorting
+
+Accordingly, this document records what is currently understood about the intended presentation layer and why the chosen direction is sound in principle.
 
 ---
 
-## 2. Scope
+## 2. Purpose of the Presentation Layer
 
-The initial presentation layer concerns the case:
+The standings capability shall support a presentation-oriented layer whose initial form is a browser-based HTML page presenting multiple-basho standings in a simple and accessible form.
+
+The initial target audience is not users seeking advanced statistical interpretation, but users who want obvious headline standings numbers in a clean and navigable table.
+
+This layer is intentionally narrower than the full analytical outputs already produced by the standings engine.
+
+It is intended to provide:
+
+* an immediately readable standings table
+* quick switching between basho-window lengths
+* quick switching between divisions
+* sortable columns
+* desktop-oriented usability
+* stable visual presentation
+
+---
+
+## 3. Scope of Initial View
+
+The initial page concerns standings equivalent in concept to:
 
 ```text
 py -m src.analysis.standings.multiple_basho_main --num-basho N
 ```
 
-with backwards-looking semantics relative to the current default anchor date unless another anchor date is explicitly selected upstream.
+with backwards-looking semantics relative to the current default anchor date unless another anchor date is selected upstream.
 
-The presentation layer is not responsible for running the standings computation on demand. Instead, standings data shall be computed in advance and made available to the page as pre-generated artefacts.
+The page itself is not responsible for computing standings.
 
-This keeps the presentation layer separate from standings calculation, which is already structured as a calculation/view/reporting pipeline.   
+The standings engine computes data elsewhere. The page consumes published outputs.
 
 ---
 
-## 3. User Controls
+## 4. Core Architectural Decision
 
-The page shall provide a **num-basho** selector.
+The agreed delivery model is:
 
-Initial supported values shall be:
+## Static site with client-side interactivity
+
+Meaning:
+
+* Python standings code runs offline, not on the web server
+* precomputed data files are generated separately
+* Apache serves static assets only
+* browser-side JavaScript handles controls, filtering, sorting, and redraw
+
+No CGI, WSGI, PHP, database, or server-side standings execution is required.
+
+This model is appropriate because the application is fundamentally:
+
+* read-mostly
+* data-table oriented
+* modestly interactive
+* not dependent on per-user server state
+* suitable for periodic republising rather than live transaction processing
+
+---
+
+## 5. Why This Architecture Works
+
+## 5.1 Separation of Responsibilities
+
+The architecture separates concerns cleanly:
+
+### Standings engine
+
+Responsible for:
+
+* correctness of rankings
+* metric calculations
+* generation of outputs
+
+### Publication process
+
+Responsible for:
+
+* generating supported data files
+* copying files to hosting locations
+
+### Browser page
+
+Responsible for:
+
+* rendering
+* sorting
+* filtering
+* interaction
+
+This avoids mixing calculation logic with page logic.
+
+## 5.2 Operational Simplicity
+
+Static hosting works on:
+
+* local Apache server
+* remote legacy Apache server
+
+with minimal differences beyond copying files and path management.
+
+## 5.3 Robustness
+
+If JavaScript fails or data is unavailable, the page can still remain a page rather than collapsing into nothing.
+
+## 5.4 Low Cost
+
+No runtime server compute is required.
+
+No database is required.
+
+No application server is required.
+
+---
+
+## 6. Template-First Decision
+
+A key design issue explored during planning was whether the site should become a JavaScript-generated shell with no meaningful editable HTML template.
+
+That direction was rejected.
+
+The preferred model is:
+
+## HTML page as real template, enhanced by JavaScript
+
+Meaning:
+
+* the HTML file is a visible page in its own right
+* it contains the real layout
+* it contains the real headings
+* it contains representative demo rows
+* JavaScript optionally upgrades it with live data
+
+This preserves the practical advantages of template-based web development:
+
+* tangible editable page source
+* compatibility with visual HTML editing tools
+* direct inspection in browser
+* graceful fallback behaviour
+* easier maintenance
+
+This avoids the failure mode where the HTML file is merely an empty vessel awaiting JS reconstruction.
+
+---
+
+## 7. JavaScript Role
+
+JavaScript is therefore treated as a **helper layer**, not the generator of the universe.
+
+On page load:
+
+1. Browser loads HTML template.
+2. Browser loads CSS.
+3. Browser loads JavaScript helper file.
+4. JS decides whether live data is available.
+5. If yes, it loads data and replaces dynamic regions.
+6. If no, it exits quietly and leaves template content visible.
+
+This is progressive enhancement.
+
+The page exists before JS runs.
+
+JS improves it.
+
+---
+
+## 8. Why Template + Helper JS Is Preferable Here
+
+For this project specifically:
+
+* columns are known in advance
+* layout is stable
+* interactivity is modest
+* data changes periodically, not continuously
+* inspectable files are desirable
+* maintainability matters more than fashionable tooling
+
+Accordingly, HTML + CSS + modest JS is better suited than a framework-heavy model.
+
+---
+
+## 9. Visual Layout Direction
+
+A prototype page (`two_panel_layout_prototype.html`) has already validated the broad layout.
+
+## 9.1 Desktop-Oriented Layout
+
+The target device is desktop/laptop rather than phone.
+
+The intended browser window shape is approximately A4 portrait: moderate width and as tall as the screen permits.
+
+## 9.2 Overall Structure
+
+The page consists of:
+
+* title bar across top
+* left sidebar panel
+* right content panel
+
+## 9.3 Sidebar
+
+The sidebar is only as wide as needed to contain its controls.
+
+## 9.4 Content Panel
+
+The content panel fills remaining width.
+
+## 9.5 Scrolling Behaviour
+
+If content exceeds screen height:
+
+* page scrolls normally
+
+Both sidebar and content styling continue for full content height.
+
+This avoids the common defect where a coloured sidebar ends prematurely.
+
+## 9.6 Width Constraint Behaviour
+
+If browser width becomes too narrow:
+
+* two-column layout remains
+* browser horizontal scrollbar appears if needed
+
+The content should not collapse underneath the sidebar.
+
+---
+
+## 10. Initial Controls
+
+The page shall provide a **num_basho** selector.
+
+Supported values:
 
 * 1
 * 2
@@ -48,9 +276,9 @@ Initial supported values shall be:
 * 36
 * 60
 
-The page shall also provide a **division** selector.
+The page shall provide a **division** selector.
 
-Initial supported values shall be:
+Supported values:
 
 * All
 * Makuuchi (default)
@@ -60,140 +288,232 @@ Initial supported values shall be:
 * Jonidan
 * Jonokuchi
 
-Division filtering shall be based on **chii ordinal**, not on chii string display.
+---
+
+## 11. Table Structure
+
+Visible columns:
+
+* blank row-number column
+* Shikona
+* Chii
+* Wins
+* Count
+* Mean
+
+Column meanings:
+
+* Row Number = display row count after current filter/sort
+* Shikona = anchor-basho shikona
+* Chii = anchor-basho chii string
+* Wins = `all_wins`
+* Count = `bout_count`
+* Mean = `window_average_all_wins`
 
 ---
 
-## 4. Table Columns
+## 12. Sorting Behaviour
 
-The initial visible columns shall be:
+Default sort:
 
-* **Row Number**
-* **Shikona**
-* **Chii**
-* **Wins**
-* **Count**
-* **Mean**
+* Mean descending
 
-These columns shall have the following meanings:
+Clickable headings:
 
-* **Row Number**: display row index in the currently displayed table, always shown as `1, 2, 3, ...`
-* **Shikona**: shikona at the anchor basho
-* **Chii**: chii string at the anchor basho
-* **Wins**: `all_wins`
-* **Count**: `bout_count`
-* **Mean**: `window_average_all_wins`
+* Shikona
+* Chii
+* Wins
+* Count
+* Mean
 
-The current multiple-basho view already contains `shikona`, `chii`, `chii_ordinal`, `all_wins`, `bout_count`, and `window_average_all_wins`, so these columns are compatible with the existing derived view shape. 
+Chii sorting uses ordinal value, while displaying string value.
 
----
+Default Chii sort direction:
 
-## 5. Sorting Behaviour
+* ascending
 
-The default table ordering shall be by **Mean descending**.
+Other default numeric sort directions:
 
-All column headings except **Row Number** shall be clickable.
+* descending
 
-Clicking a heading shall toggle the sort order for that column.
-
-### Column-specific sort semantics
-
-* **Shikona**: sort on displayed shikona text
-* **Chii**: display chii string, but sort using `chii_ordinal`
-* **Wins**: sort on `all_wins`
-* **Count**: sort on `bout_count`
-* **Mean**: sort on `window_average_all_wins`
-
-For **Chii**, the default sort direction shall be **ascending**, since lower ordinal corresponds to higher rank.
-
-For **Wins**, **Count**, and **Mean**, the default sort direction shall be **descending**.
-
-Secondary sort keys are not yet specified.
+Secondary sort keys remain undecided.
 
 ---
 
-## 6. Division Semantics
+## 13. Division Logic
 
-Division filtering shall be derived from **chii ordinal**.
+Division filtering shall be derived from `chii_ordinal`.
 
-The intended grouping rule is:
+Using:
 
-* `ordinal // 100000 = 0..4` → **Makuuchi**
-* `ordinal // 100000 = 5` → **Juryo**
-* `ordinal // 100000 = 6` → **Makushita**
-* `ordinal // 100000 = 7` → **Sandanme**
-* `ordinal // 100000 = 8` → **Jonidan**
-* `ordinal // 100000 = 9` → **Jonokuchi**
+* `0..4` → Makuuchi
+* `5` → Juryo
+* `6` → Makushita
+* `7` → Sandanme
+* `8` → Jonidan
+* `9` → Jonokuchi
 
-The presentation layer may use these ordinal bands directly for filtering.
+where the value is:
 
----
-
-## 7. Identity Semantics
-
-Where shikona and chii are shown, they shall be interpreted as the values applying at the **anchor basho**.
-
-They shall not be interpreted as timeless identity fields.
-
-They shall not be taken from whichever selected basho in the window happens to be latest for that rikishi.
-
-This matters because the current multiple-basho view logic presently sources display identity from the **most recent selected basho in which the rikishi was present**, rather than explicitly from the anchor basho. 
+```text
+ordinal // 100000
+```
 
 ---
 
-## 8. Data Supply Model
+## 14. Data Supply Model
 
-The page shall consume **precomputed standings data**.
+Current preference is to serve CSV.
 
-The server shall not invoke Python standings computation interactively in response to page actions.
+Reasons:
 
-A separate script or scheduled process shall generate the standings artefacts for the supported `num-basho` values and publish them for the page to load.
+* already produced by standings pipeline
+* human-readable
+* easy to inspect manually
+* avoids maintaining CSV + JSON in parallel
+* adequate size characteristics
 
-The precise transport/storage format for those artefacts remains undecided.
+Indicative current sizes:
 
----
+* one CSV for one N ≈ 177 KB
+* ten windows ≈ 1.8 MB before compression
 
-## 9. Relationship to Existing Outputs
+This is acceptable even for a modest legacy host, especially with gzip and browser caching.
 
-This presentation layer is intentionally narrower than the full current multiple-basho analytical output.
-
-The existing multiple-basho CSV/reporting output includes many additional fields, including exposure counts, presence averages, standard deviations, SEM values, and CI95 half-widths.  
-
-The initial HTML view does **not** attempt to expose all of these.
-
-Instead it presents a reduced, simpler surface oriented around:
-
-* obvious total wins
-* obvious participation count
-* obvious window-average wins
-* familiar identity fields for display
-
-This is a deliberate simplification for first presentation use.
+JavaScript parsing CSV is considered acceptable.
 
 ---
 
-## 10. TBD
+## 15. File Layout (Illustrative)
 
-The following items remain open:
+```text
+/standings/
+    index.html
+    standings.css
+    standings.js
+    /data/
+        standings-1.csv
+        standings-2.csv
+        ...
+        standings-60.csv
+```
 
-### 10.1 Identity Fix
+---
 
-The standings data supplied to the presentation layer should be corrected so that displayed **shikona** and **chii** are taken from the **anchor basho**, not from the latest selected basho in which the rikishi was present. The current multiple-basho view does not yet implement this semantics. 
+## 16. CSS / JS Relationship
 
-### 10.2 Data Format
+CSS and JavaScript are not directly bound to one another.
 
-Whether the page should consume **JSON**, **CSV**, or some other static artefact format remains undecided.
+Both operate against the HTML / DOM.
 
-### 10.3 Delivery Architecture
+Meaning:
 
-Whether the page is served locally or remotely, and what web-serving arrangement is most appropriate, remains undecided.
+* HTML defines structure
+* CSS styles matching elements
+* JS updates matching elements
 
-### 10.4 Secondary Sort Keys
+This allows:
 
-No secondary or tertiary sort-key policy has yet been fixed.
+* style redesign without rewriting data logic
+* JS replacement of demo rows with live rows
+* reuse of same styles for static and dynamic content
 
-### 10.5 Broader Analytical Features
+The shared naming contract (IDs, classes) should be kept small and stable.
 
-The initial page does not expose richer measures such as presence averages, variability measures, or confidence-style metrics, though these already exist in the current multiple-basho derived output. Whether and how such features should later be surfaced remains open. 
+---
 
-If you want, I can also turn this into a more formal spec-style section matching the tone of your revised standings document.
+## 17. Why Demo Rows Matter
+
+A blank dynamic table body is technically acceptable but poor for design work.
+
+Therefore the preferred template contains representative demo rows.
+
+Benefits:
+
+* visible page when opened directly
+* styling experiments immediately visible
+* no-data fallback
+* easier visual iteration
+
+When live data loads successfully, JS replaces the demo rows.
+
+---
+
+## 18. Supported Hosting Environments
+
+The page should work identically on:
+
+* local Apache installation
+* remote Apache server
+
+Differences should be operational only:
+
+* copying files
+* directory paths
+* permissions
+* compression configuration
+
+---
+
+## 19. Publication Workflow
+
+Preferred verb: **publish**
+
+Typical process:
+
+1. Run standings generation locally.
+2. Produce/update CSV artefacts.
+3. Copy HTML/CSS/JS/data files to local host.
+4. Copy same files to remote host.
+5. Refresh browser.
+
+This can later be scripted.
+
+---
+
+## 20. Important Outstanding Domain Issue
+
+Before production release, standings identity semantics should be corrected.
+
+Displayed:
+
+* shikona
+* chii
+
+must come from the **anchor basho**, not from the most recent selected basho in which the rikishi happened to appear.
+
+This is a data issue, not a page issue, but materially affects correctness of presentation.
+
+---
+
+## 21. What Is Still TBD
+
+* automated publish script
+* exact directory conventions
+* cache-busting/versioning approach
+* whether data files load lazily or eagerly
+* final visual styling refinements
+* broader metrics beyond obvious numbers
+* secondary sort policy
+* final wording of labels
+* anchor-date selection controls, if any
+
+---
+
+## 22. Final Position
+
+Although the presentation layer is not yet driven by a fully frozen data contract, the exploratory work has been worthwhile.
+
+It has already established that a coherent and low-risk solution exists:
+
+* static hosting
+* editable HTML template
+* CSS-driven presentation
+* JavaScript helper enhancement
+* precomputed CSV data
+* desktop-first table interface
+
+This direction avoids unnecessary complexity while preserving future growth.
+
+Most importantly, it preserves a real page that can be inspected, edited, published, and understood.
+
