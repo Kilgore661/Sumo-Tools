@@ -1,8 +1,8 @@
 """
 Persistence and reporting for multiple-basho derived standings outputs.
 
-Writes multiple-basho derived results to external artefacts such as CSV files
-and manages run-specific output paths.
+Writes multiple-basho derived results to external artefacts such as CSV files,
+and manages run-specific output paths and convenience copies.
 
 This module is responsible only for rendering/persistence and contains no core
 or derived standings calculation logic.
@@ -15,21 +15,32 @@ from src.analysis.standings.config import OUTPUT_DIR
 from src.analysis.standings.multiple_basho_view import MultipleBashoView
 
 
+MULTIPLE_BASHO_DIRNAME = "multiple_basho"
+
+
 def ensure_output_dir() -> None:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
-def run_output_dir(run_stamp: str) -> Path:
-    return OUTPUT_DIR / run_stamp
+def multiple_basho_output_dir() -> Path:
+    return OUTPUT_DIR / MULTIPLE_BASHO_DIRNAME
 
 
-def ensure_run_output_dir(run_stamp: str) -> Path:
-    out_dir = run_output_dir(run_stamp)
+def multiple_basho_runs_dir() -> Path:
+    return multiple_basho_output_dir() / "runs"
+
+
+def multiple_basho_run_output_dir(run_stamp: str) -> Path:
+    return multiple_basho_runs_dir() / run_stamp
+
+
+def ensure_multiple_basho_run_output_dir(run_stamp: str) -> Path:
+    out_dir = multiple_basho_run_output_dir(run_stamp)
     out_dir.mkdir(parents=True, exist_ok=True)
     return out_dir
 
 
-def multiple_basho_run_file(
+def multiple_basho_run_csv_file(
     run_stamp: str,
     date: str,
     direction: str,
@@ -37,7 +48,19 @@ def multiple_basho_run_file(
     wins: str,
 ) -> Path:
     filename = f"multiple basho standings view ({date}, {direction}, {num_basho}, {wins}).csv"
-    return run_output_dir(run_stamp) / filename
+    return multiple_basho_run_output_dir(run_stamp) / filename
+
+
+def multiple_basho_run_json_file(run_stamp: str) -> Path:
+    return multiple_basho_run_output_dir(run_stamp) / "run.json"
+
+
+def latest_multiple_basho_csv_file() -> Path:
+    return OUTPUT_DIR / "multiple_basho_latest.csv"
+
+
+def latest_multiple_basho_json_file() -> Path:
+    return OUTPUT_DIR / "multiple_basho_latest_run.json"
 
 
 def write_multiple_basho_view_csv(

@@ -11,7 +11,9 @@ Conceptually:
 """
 
 import argparse
-from datetime import datetime
+import os
+import sys
+from time import time
 
 from src.analysis.standings.multiple_basho import (
     WinsMode,
@@ -20,14 +22,17 @@ from src.analysis.standings.multiple_basho import (
     resolve_window_dates,
 )
 from src.analysis.standings.multiple_basho_reports import (
+    ensure_multiple_basho_run_output_dir,
     ensure_output_dir,
-    ensure_run_output_dir,
-    multiple_basho_run_file,
+    latest_multiple_basho_csv_file,
+    latest_multiple_basho_json_file,
+    multiple_basho_run_csv_file,
+    multiple_basho_run_json_file,
     write_multiple_basho_view_csv,
 )
 from src.analysis.standings.multiple_basho_view import get_multiple_basho_view
 from src.infra.live_store.api import get_history
-from .helpers import escape_date
+from .helpers import copy_file, escape_date, make_run_stamp, write_json
 
 
 def parse_args() -> argparse.Namespace:
@@ -57,9 +62,9 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
 
-    history = get_history()
-    from time import time
     t0 = time()
+    history = get_history()
+
     anchor_date = resolve_date(
         history=history,
         direction=args.direction,
@@ -91,17 +96,31 @@ def main() -> None:
     )
 
     ensure_output_dir()
-    run_stamp = datetime.now().strftime("%Y-%m-%d %H-%M-%S")
-    ensure_run_output_dir(run_stamp)
-    output_file = multiple_basho_run_file(
+    run_stamp = make_run_stamp()
+    ensure_multiple_basho_run_output_dir(run_stamp)
+
+    output_file = multiple_basho_run_csv_file(
         run_stamp=run_stamp,
         date=escape_date(anchor_date),
         direction=args.direction,
         num_basho=args.num_basho,
         wins=args.wins,
     )
+    run_file = multiple_basho_run_json_file(run_stamp)
 
     write_multiple_basho_view_csv(view, output_file)
+
+    run_payload = {
+        "command": getattr(sys, "orig_argv", [sys.executable, *sys.argv]),
+        "cwd": os.getcwd(),
+    }
+    write_json(run_file, run_payload)
+
+    latest_csv = latest_multiple_basho_csv_file()
+    latest_json = latest_multiple_basho_json_file()
+
+    copy_file(output_file, latest_csv)
+    copy_file(run_file, latest_json)
 
     print(f"Multiple-basho standings anchored at {anchor_date}")
     print(f"Direction: {args.direction}")
@@ -109,8 +128,11 @@ def main() -> None:
     print(f"Wins mode: {args.wins}")
     print(f"Rows: {len(view.rows)}")
     print(f"Output: {output_file}")
+    print(f"Run: {run_file}")
+    print(f"Latest CSV: {latest_csv}")
+    print(f"Latest JSON: {latest_json}")
+    print(f"run complete in {time() - t0:.0f}s")
 
-    print(f'run complete in {time()-t0:.0f}s')
 
 if __name__ == "__main__":
     main()

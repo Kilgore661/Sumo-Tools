@@ -28,7 +28,6 @@ The design goal is therefore:
 
 > provide a robust, reusable standings engine whose scope is controlled, whose outputs are understandable, and whose future extension remains possible without driving unnecessary complexity into the first implementation.
 
-
 # 2. Requirements
 
 ## 2.1 Core Capability
