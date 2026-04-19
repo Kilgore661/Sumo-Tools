@@ -106,14 +106,19 @@ def main() -> None:
 
             t3 = perf_counter()
 
+            rikishi_with_bouts = sum(1 for row in standings_rows if int(row.get("bout_count", 0)) > 0)
+
             print(f"date: {resolved_date}{' (defaulted)' if args.date is None else ''}")
             print(f"direction: {args.direction}")
-            print(f"num_basho: {args.num_basho}")
             print(f"wins: {args.wins}")
-            print(f"selected basho: {', '.join(selected_dates)}")
+            print(
+                f"selected basho: {selected_dates[0]} to {selected_dates[-1]} "
+                f"({len(selected_dates)} basho)"
+            )
             print(f"cache: {cache_status} files/output/standings/totals_cache.csv")
             print(f"cache rows: {len(cache_rows)}")
             print(f"rikishi ranked: {len(standings_rows)}")
+            print(f"rikishi in at least one bout: {rikishi_with_bouts}")
             print(f"cache + selection time: {t1 - t0:.2f}s")
             print(f"standing calculation time: {t2 - t1:.2f}s")
             print(f"CSV write + latest copy time: {t3 - t2:.2f}s")

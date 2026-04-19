@@ -1,3 +1,12 @@
+"""
+Persistence and reporting for multi-basho standings runs.
+
+Provides output-folder management, run-folder naming, CSV writing, and
+latest-file copying for the main standings workflow.
+
+Contains no standings calculation logic.
+"""
+
 import csv
 import shutil
 from pathlib import Path
@@ -53,7 +62,14 @@ def run_log_file(run_stamp: str) -> Path:
 
 
 def write_standings_csv(rows: list[dict], output_file: Path) -> None:
-    fieldnames = ["position", "rikishi_id", "shikona", "real_wins", "all_wins"]
+    fieldnames = [
+        "position",
+        "rikishi_id",
+        "shikona",
+        "real_wins",
+        "all_wins",
+        "bout_count",
+    ]
 
     output_file.parent.mkdir(parents=True, exist_ok=True)
 

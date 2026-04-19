@@ -1,3 +1,10 @@
+"""
+Simple output-stream duplicator.
+
+Provides a file-like object that mirrors writes to multiple streams,
+typically console output and a log file.
+"""
+
 class Tee:
     def __init__(self, *streams):
         self.streams = streams

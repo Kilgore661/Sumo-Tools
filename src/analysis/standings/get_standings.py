@@ -23,8 +23,11 @@ def build_totals_cache_rows(history: History) -> list[dict[str, int | str]]:
                 r1 = int(bout.rikishi1)
                 r2 = int(bout.rikishi2)
 
-                rikishi_totals.setdefault(r1, {"real_wins": 0, "all_wins": 0})
-                rikishi_totals.setdefault(r2, {"real_wins": 0, "all_wins": 0})
+                rikishi_totals.setdefault(r1, {"real_wins": 0, "all_wins": 0, "bout_count": 0})
+                rikishi_totals.setdefault(r2, {"real_wins": 0, "all_wins": 0, "bout_count": 0})
+
+                rikishi_totals[r1]["bout_count"] += 1
+                rikishi_totals[r2]["bout_count"] += 1
 
                 if bout.outcome1 == Outcome.W:
                     rikishi_totals[r1]["real_wins"] += 1
@@ -40,7 +43,7 @@ def build_totals_cache_rows(history: History) -> list[dict[str, int | str]]:
 
         for rid in sorted(banzuke.riks):
             rid_int = int(rid)
-            totals = rikishi_totals.get(rid_int, {"real_wins": 0, "all_wins": 0})
+            totals = rikishi_totals.get(rid_int, {"real_wins": 0, "all_wins": 0, "bout_count": 0})
 
             rows.append(
                 {
@@ -49,6 +52,7 @@ def build_totals_cache_rows(history: History) -> list[dict[str, int | str]]:
                     "shikona": str(banzuke.get_shik(rid)),
                     "real_wins": totals["real_wins"],
                     "all_wins": totals["all_wins"],
+                    "bout_count": totals["bout_count"],
                 }
             )
 
@@ -61,7 +65,7 @@ def write_totals_cache(
 ) -> None:
     cache_file.parent.mkdir(parents=True, exist_ok=True)
 
-    fieldnames = ["date", "rikishi_id", "shikona", "real_wins", "all_wins"]
+    fieldnames = ["date", "rikishi_id", "shikona", "real_wins", "all_wins", "bout_count"]
 
     with cache_file.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
@@ -153,10 +157,12 @@ def compute_standings(
                 "shikona": row["shikona"],
                 "real_wins": 0,
                 "all_wins": 0,
+                "bout_count": 0,
             }
 
         totals[rid]["real_wins"] += int(row["real_wins"])
         totals[rid]["all_wins"] += int(row["all_wins"])
+        totals[rid]["bout_count"] += int(row.get("bout_count", 0))
 
     if wins == "real":
         primary = "real_wins"
@@ -196,6 +202,7 @@ def compute_standings(
                 "shikona": row["shikona"],
                 "real_wins": row["real_wins"],
                 "all_wins": row["all_wins"],
+                "bout_count": row["bout_count"],
             }
         )
 
