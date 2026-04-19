@@ -132,27 +132,40 @@ It shall not depend upon any particular presentation layer such as a command-lin
 
 ---
 
-# 3. Initial Specification
+# ## 3. Revised Specification
 
-## 3.1 First Delivered Capability
+## 3.1 Delivered Capability
 
-The first implementation shall provide standings ranked by **total wins** over a selected basho window.
+The standings capability now provides ranked standings over one or more basho selected from the canonical `History`.
 
-The implementation shall operate over the canonical `History`.
+The implementation supports:
+
+- **single-basho standings**
+
+- **multiple-basho standings over a contiguous basho window**
+
+- alternative win definitions
+
+- ranked structured outputs
+
+- derived comparative metrics for multi-basho analysis
+
+The capability continues to operate over canonical `History`.
 
 ---
 
 ## 3.2 Interface Shape
 
-The initial consumer-facing interface may be expressed as a command-line tool or equivalent callable interface.
+The current consumer-facing interface is provided as command-line tools or equivalent callable interfaces.
 
-A representative command shape is:
+Representative command shapes are:
 
 ```text
-get_standings --date YYYY/MM --direction DIR --num-basho N
+single_basho_main --date YYYY/MM --wins MODE
+multiple_basho_main --date YYYY/MM --direction DIR --num-basho N --wins MODE
 ```
 
-This command shape is illustrative of the required functionality and does not constrain future interfaces.
+These command shapes are illustrative of the required functionality and do not constrain future interfaces.
 
 ---
 
@@ -160,57 +173,79 @@ This command shape is illustrative of the required functionality and does not co
 
 ### `date`
 
-A basho date used as the reference point for selecting the standings window.
+A basho date used as the reference point for selecting the standings scope.
+
+For single-basho mode, this identifies the basho to evaluate.
+
+For multiple-basho mode, this is the anchor date for selecting the basho window.
 
 ### `direction`
 
 Supported values:
 
-* `BACKWARDS`
-* `FORWARDS`
+- `BACKWARDS`
 
-Semantics:
+- `FORWARDS`
 
-* `BACKWARDS`: the given date is the last basho in scope
-* `FORWARDS`: the given date is the first basho in scope
+Semantics for multi-basho mode:
+
+- `BACKWARDS`: the given date is the last basho in scope
+
+- `FORWARDS`: the given date is the first basho in scope
 
 ### `num-basho`
 
-The number of basho in the standings window.
+The number of basho in the standings window for multiple-basho mode.
+
+### `wins`
+
+Supported values:
+
+- `real`
+
+- `all`
 
 ---
 
 ## 3.4 Defaults
 
-Initial defaults shall be:
+Initial defaults remain:
 
-* `direction = BACKWARDS`
-* `num-basho = 1`
+- `direction = BACKWARDS`
 
-Date default shall depend on direction:
+- `num-basho = 1`
 
-* if `BACKWARDS`: latest basho in `History`
-* if `FORWARDS`: earliest basho in `History`
+- `wins = real`
+
+Date default depends on mode and direction:
+
+- single-basho mode: latest basho in `History`
+
+- multiple-basho mode with `BACKWARDS`: latest basho in `History`
+
+- multiple-basho mode with `FORWARDS`: earliest basho in `History`
 
 ---
 
 ## 3.5 Current Basho Handling
 
-If the selected window includes the current basho at the relevant edge of the window, that basho shall contribute results up to the last defined day only.
+If the selected scope includes the current basho, standings shall be computed using results available up to the last day for which results are defined.
 
-All earlier basho in the selected window shall contribute all available results.
+A current basho remains a basho; only the available day cutoff differs.
 
 ---
 
 ## 3.6 Win Policy
 
-The first implementation shall support:
+Supported standings modes are:
 
-* standings by **real wins**
-* standings by **all wins**
-* output that displays both values for comparison
+- **real wins**: wins in bouts where both rikishi fought
 
-Paper wins need not be separately stored or ranked, as they are derivable:
+- **all wins**: real wins plus fusen-sho
+
+Outputs may expose both values regardless of the selected ranking mode.
+
+Paper wins remain derivable:
 
 ```text
 paper wins = all wins - real wins
@@ -218,25 +253,63 @@ paper wins = all wins - real wins
 
 ---
 
-## 3.7 Output Form
+## 3.7 Output Forms
 
-The initial output shall be a flat ranked table.
+The capability currently produces structured tabular outputs suitable for presentation or further processing.
 
-Each row should contain at least:
+At minimum, rows identify the rikishi and include ranking position and relevant standings metrics.
 
-* position
-* rikishi id
-* shikona
-* real wins
-* all wins
+### Single-basho outputs
 
-Additional columns may be added provided they do not obscure the primary standing.
+Rows contain at least:
+
+- position
+
+- rikishi id
+
+- shikona
+
+- chii
+
+- chii ordinal
+
+- real wins
+
+- all wins
+
+- bout count
+
+### Multiple-basho outputs
+
+Rows contain at least:
+
+- position
+
+- rikishi id
+
+- shikona
+
+- chii
+
+- chii ordinal
+
+- real wins
+
+- all wins
+
+- bout count
+
+- selected basho count
+
+- basho present count
+
+and may include derived comparative metrics.
 
 ---
 
-## 3.8 Ties
+## 3.8 Ranking Semantics
 
-Tied standings shall use competition ranking semantics.
+Standings shall support tied positions using competition ranking semantics.
 
 Example:
 
@@ -247,49 +320,92 @@ Example:
 4
 ```
 
-A stable secondary ordering (for example rikishi id) may be used for display consistency.
+Stable secondary ordering (for example rikishi id) may be used for deterministic presentation.
+
+Single-basho standings are ranked primarily by selected wins totals.
+
+Multiple-basho standings may be ranked by derived average measures appropriate to the selected win mode.
 
 ---
 
-## 3.9 Example Uses
+## 3.9 Derived Metrics
 
-### Latest Basho
+For multiple-basho standings, the capability may compute derived metrics from core totals.
 
-```text
-get_standings
-```
+Currently supported categories include:
 
-Equivalent to:
+### Exposure Measures
 
-```text
-get_standings --direction BACKWARDS --num-basho 1
-```
+- basho present count
 
-using the latest available basho.
+- selected basho count
 
-### Last Three Basho Ending at May 2026
+### Average Measures
 
-```text
-get_standings --date 2026/05 --direction BACKWARDS --num-basho 3
-```
+- window average wins
 
-### First Five Basho from Earliest Available Date
+- presence average wins
 
-```text
-get_standings --direction FORWARDS --num-basho 5
-```
+### Reliability Measures
+
+- standard deviation
+
+- standard error of mean (SEM)
+
+- CI95 half-width using a symmetric normal-style approximation
+
+These metrics are derived outputs and do not alter the underlying core standings totals.
 
 ---
 
-## 3.10 Deferred Features
+## 3.10 Persistence and Run Artefacts
 
-The following are recognized as desirable but are not part of the first implementation:
+Runs may produce persistent artefacts for later inspection.
 
-* normalized standings based on average wins
-* exposure-aware denominators
-* reliability measures (e.g. CI95 width)
-* support thresholds and support bins
-* richer comparative views
-* additional derived metrics beyond wins
+Current conventions may include:
 
-The first implementation should remain focused on delivering a clear and trustworthy total-wins standings capability.
+- timestamped run folders
+
+- CSV outputs
+
+- run metadata files such as `run.json`
+
+- latest convenience copies of recent outputs
+
+These persistence conventions are operational details and may evolve without affecting standings logic.
+
+---
+
+## 3.11 Architecture
+
+The implementation is structured in layers where practical:
+
+- **core**: standings totals and rankings from `History`
+
+- **derived**: enriched or comparative metrics computed from core outputs
+
+- **reporting**: CSV or other persisted artefacts
+
+- **entrypoints**: command-line orchestration
+
+This separation supports maintainability and future extension.
+
+---
+
+## 3.12 Deferred Features
+
+The following remain recognised as desirable but are not currently required:
+
+- richer presentation layers (HTML, dashboards, interactive tools)
+
+- robustness or sensitivity analysis over window-length choices
+
+- predictive or forward-looking models
+
+- threshold filters and support bins
+
+- additional domain-specific comparative metrics
+
+- persisted optimisation caches if justified by use-cases
+
+The capability should remain focused on delivering clear and trustworthy standings outputs.
