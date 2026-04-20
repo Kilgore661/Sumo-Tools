@@ -1,0 +1,152 @@
+:root {
+  --header-bg: #050814;
+  --header-fg: #f5f7ff;
+  --menu-bg: #0d1630;
+  --content-bg: #081224;
+  --page-bg: #020611;
+  --border: #5f7399;
+  --text: #eef3ff;
+  --table-bg: #0b1730;
+  --table-head-bg: #243f68;
+  --table-row-odd: #132744;
+  --table-row-even: #1b3356;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: Arial, Helvetica, sans-serif;
+  color: var(--text);
+  background: var(--page-bg);
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 16px;
+  overflow-x: auto;
+}
+
+.page {
+  min-width: 760px;
+  width: min(900px, 100%);
+  min-height: calc(100vh - 32px);
+  display: flex;
+  flex-direction: column;
+  border: 2px solid var(--border);
+  background: #0b1324;
+}
+
+.title-bar {
+  background: var(--header-bg);
+  color: var(--header-fg);
+  padding: 16px 20px;
+  font-size: 28px;
+  font-weight: bold;
+  border-bottom: 2px solid var(--border);
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+  min-height: 0;
+}
+
+.menu {
+  background: var(--menu-bg);
+  border-right: 2px solid var(--border);
+  padding: 16px;
+  min-width: max-content;
+}
+
+.menu h2,
+.content h2 {
+  margin: 0 0 12px 0;
+  font-size: 20px;
+}
+
+.menu ul {
+  margin: 0 0 16px 0;
+  padding-left: 20px;
+}
+
+.menu li {
+  margin: 0 0 10px 0;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
+.content {
+  flex: 1;
+  min-width: 520px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--content-bg);
+  padding: 16px 20px;
+}
+
+.standings-table {
+  width: max-content;
+  border-collapse: collapse;
+  background: var(--table-bg);
+}
+
+.standings-table th,
+.standings-table td {
+  width: auto;
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  text-align: center;
+  white-space: nowrap;
+  color: var(--text);
+}
+
+.standings-table th {
+  background: var(--table-head-bg);
+  position: sticky;
+  top: 0;
+  border-left: 1px solid #7f93ba;
+  border-right: 1px solid #7f93ba;
+  border-top: 1px solid #90a4cc;
+  border-bottom: 1px solid #90a4cc;
+  box-shadow: inset 0 -1px 0 #90a4cc;
+}
+
+.standings-table tbody tr:nth-child(odd) {
+  background: var(--table-row-odd);
+}
+
+.standings-table tbody tr:nth-child(even) {
+  background: var(--table-row-even);
+}
+.notes {
+  width: 100%;
+  margin-top: 18px;
+  text-align: left;
+  align-self: stretch;
+}
+
+.notes h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+}
+
+.notes ol {
+  margin: 0;
+  padding-left: 24px;
+}
+
+.notes li {
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
