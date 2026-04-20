@@ -1,0 +1,302 @@
+/*
+Simple Standings browser client.
+
+Responsibilities:
+- load site_config.json
+- populate selectors
+- load selected CSV + sidecar JSON
+- render standings table
+- filter by division
+- sort visible columns
+
+No standings calculations are performed here.
+*/
+
+const DATA_DIR = "./data";
+
+const state = {
+  config: null,
+  rows: [],
+  meta: null,
+  currentNumBasho: null,
+  currentDivision: null,
+  sortColumn: "presence_average_real_wins",
+  sortDescending: true,
+};
+
+const el = {
+  numBasho: document.getElementById("num-basho-select"),
+  division: document.getElementById("division-select"),
+  body: document.getElementById("standings-body"),
+  range: document.getElementById("range-label"),
+  title: document.getElementById("table-title"),
+  headers: document.querySelectorAll("#standings-table th[data-column]"),
+};
+
+/* -------------------------------------------------- */
+/* startup                                            */
+/* -------------------------------------------------- */
+
+document.addEventListener("DOMContentLoaded", init);
+
+async function init() {
+  try {
+    state.config = await loadJson(`${DATA_DIR}/site_config.json`);
+
+    buildNumBashoOptions();
+
+    state.currentNumBasho = state.config.default_num_basho;
+    state.currentDivision = state.config.default_division;
+
+    el.numBasho.value = String(state.currentNumBasho);
+    el.division.value = state.currentDivision;
+
+    wireEvents();
+
+    await loadWindow(state.currentNumBasho);
+  } catch (err) {
+    fail(err);
+  }
+}
+
+/* -------------------------------------------------- */
+/* config / controls                                  */
+/* -------------------------------------------------- */
+
+function buildNumBashoOptions() {
+  el.numBasho.innerHTML = "";
+
+  for (const n of state.config.supported_num_basho) {
+    const option = document.createElement("option");
+    option.value = String(n);
+    option.textContent = String(n);
+    el.numBasho.appendChild(option);
+  }
+}
+
+function wireEvents() {
+  el.numBasho.addEventListener("change", async () => {
+    state.currentNumBasho = Number(el.numBasho.value);
+    await loadWindow(state.currentNumBasho);
+  });
+
+  el.division.addEventListener("change", () => {
+    state.currentDivision = el.division.value;
+    render();
+  });
+
+  el.headers.forEach((th) => {
+    th.style.cursor = "pointer";
+
+    th.addEventListener("click", () => {
+      const col = th.dataset.column;
+
+      if (state.sortColumn === col) {
+        state.sortDescending = !state.sortDescending;
+      } else {
+        state.sortColumn = col;
+        state.sortDescending = true;
+      }
+
+      render();
+    });
+  });
+}
+
+/* -------------------------------------------------- */
+/* loading                                            */
+/* -------------------------------------------------- */
+
+async function loadWindow(numBasho) {
+  const root = fileRoot(numBasho);
+
+  state.rows = await loadCsv(`${root}.csv`);
+  state.meta = await loadJson(`${root}.json`);
+
+  render();
+}
+
+function fileRoot(numBasho) {
+  const anchor = state.config.anchor_token;
+  const direction = state.config.direction;
+
+  return `${DATA_DIR}/multiple basho standings view (${anchor}, ${direction}, ${numBasho})`;
+}
+
+/* -------------------------------------------------- */
+/* rendering                                          */
+/* -------------------------------------------------- */
+
+function render() {
+  const rows = getSortedRows(getFilteredRows());
+
+  renderMeta();
+  renderTable(rows);
+}
+
+function renderMeta() {
+  el.title.textContent =
+    `Standings (${state.currentNumBasho} basho)`;
+
+  el.range.textContent =
+    `${state.meta.effective_start_date} to ${state.meta.effective_end_date}`;
+}
+
+function renderTable(rows) {
+  el.body.innerHTML = "";
+
+  for (const row of rows) {
+    const tr = document.createElement("tr");
+
+    appendCell(tr, row.position);
+    appendCell(tr, row.shikona);
+    appendCell(tr, row.chii);
+    appendCell(tr, row.real_wins);
+    appendCell(tr, row.bout_count);
+    appendCell(tr, format2(row.presence_average_real_wins));
+
+    el.body.appendChild(tr);
+  }
+}
+
+function appendCell(tr, value) {
+  const td = document.createElement("td");
+  td.textContent = value;
+  tr.appendChild(td);
+}
+
+/* -------------------------------------------------- */
+/* filtering                                          */
+/* -------------------------------------------------- */
+
+function getFilteredRows() {
+  if (state.currentDivision === "all") {
+    return [...state.rows];
+  }
+
+  return state.rows.filter((row) =>
+    divisionMatches(
+      Number(row.chii_ordinal),
+      state.currentDivision
+    )
+  );
+}
+
+function divisionMatches(chiiOrdinal, division) {
+  const d = Math.floor(chiiOrdinal / 100000);
+
+  if (division === "makuuchi") {
+    return d >= 0 && d <= 4;
+  }
+
+  if (division === "juryo") {
+    return d === 5;
+  }
+
+  if (division === "makushita") {
+    return d === 6;
+  }
+
+  if (division === "sandanme") {
+    return d === 7;
+  }
+
+  if (division === "jonidan") {
+    return d === 8;
+  }
+
+  if (division === "jonokuchi") {
+    return d === 9;
+  }
+
+  return true;
+}
+
+/* -------------------------------------------------- */
+/* sorting                                            */
+/* -------------------------------------------------- */
+
+function getSortedRows(rows) {
+  const out = [...rows];
+  const col = state.sortColumn;
+  const dir = state.sortDescending ? -1 : 1;
+
+  out.sort((a, b) => compare(a[col], b[col]) * dir);
+
+  return out;
+}
+
+function compare(a, b) {
+  const na = Number(a);
+  const nb = Number(b);
+
+  const aNum = !Number.isNaN(na);
+  const bNum = !Number.isNaN(nb);
+
+  if (aNum && bNum) {
+    return na - nb;
+  }
+
+  return String(a).localeCompare(String(b));
+}
+
+/* -------------------------------------------------- */
+/* helpers                                            */
+/* -------------------------------------------------- */
+
+async function loadJson(url) {
+  const r = await fetch(url);
+
+  if (!r.ok) {
+    throw new Error(`Cannot load ${url}`);
+  }
+
+  return await r.json();
+}
+
+async function loadCsv(url) {
+  const r = await fetch(url);
+
+  if (!r.ok) {
+    throw new Error(`Cannot load ${url}`);
+  }
+
+  const text = await r.text();
+
+  return parseCsv(text);
+}
+
+function parseCsv(text) {
+  const lines = text.trim().split(/\r?\n/);
+
+  const headers = splitCsvLine(lines[0]);
+
+  const rows = [];
+
+  for (let i = 1; i < lines.length; i++) {
+    const values = splitCsvLine(lines[i]);
+
+    const row = {};
+
+    headers.forEach((h, idx) => {
+      row[h] = values[idx] ?? "";
+    });
+
+    rows.push(row);
+  }
+
+  return rows;
+}
+
+function splitCsvLine(line) {
+  return line.split(",");
+}
+
+function format2(value) {
+  return Number(value).toFixed(2);
+}
+
+function fail(err) {
+  console.error(err);
+  alert("Unable to load standings data.");
+}

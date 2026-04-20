@@ -88,7 +88,7 @@ def resolve_window_dates(
 def get_multiple_basho_core(
     history: History,
     selected_dates: tuple[Date, ...],
-    wins_mode: WinsMode,
+    wins_mode: WinsMode = WinsMode.ALL
 ) -> MultipleBashoCore:
     totals: dict[RikId, dict[str, object]] = {}
 

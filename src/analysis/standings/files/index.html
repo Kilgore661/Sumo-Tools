@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="standings.css" />
+  <title>Simple Standings</title>
+</head>
+<body>
+  <div class="page">
+    <header class="title-bar">
+      <div id="page-title">Simple Standings</div>
+      <div id="range-label"></div>
+    </header>
+
+    <div class="main">
+      <aside class="menu">
+        <h2>Options</h2>
+
+        <div class="control-group">
+          <label for="num-basho-select">Number of basho</label>
+          <select name="num_basho" id="num-basho-select"></select>
+        </div>
+
+        <div class="control-group">
+          <label for="division-select">Division</label>
+          <select name="division" id="division-select">
+            <option value="all">All</option>
+            <option value="makuuchi" selected>Makuuchi</option>
+            <option value="juryo">Juryo</option>
+            <option value="makushita">Makushita</option>
+            <option value="sandanme">Sandanme</option>
+            <option value="jonidan">Jonidan</option>
+            <option value="jonokuchi">Jonokuchi</option>
+          </select>
+        </div>
+      </aside>
+
+      <main class="content">
+        <h2 id="table-title">Standings</h2>
+
+        <table class="standings-table" id="standings-table">
+          <thead>
+            <tr>
+              <th data-column="position">Pos</th>
+              <th data-column="shikona">Shikona</th>
+              <th data-column="chii">Chii</th>
+              <th data-column="real_wins">Wins</th>
+              <th data-column="bout_count">Count</th>
+              <th data-column="presence_average_real_wins">Mean</th>
+            </tr>
+          </thead>
+
+          <tbody id="standings-body">
+            <tr><td>1</td><td>Onosato</td><td>Y1e</td><td>103</td><td>138</td><td>10.30</td></tr>
+            <tr><td>2</td><td>Aonishiki</td><td>O1w</td><td>102</td><td>141</td><td>10.20</td></tr>
+            <tr><td>3</td><td>Kotozakura</td><td>O1e</td><td>98</td><td>135</td><td>9.80</td></tr>
+            <tr><td>4</td><td>Hoshoryu</td><td>S1e</td><td>96</td><td>133</td><td>9.60</td></tr>
+            <tr><td>5</td><td>Kirishima</td><td>S1w</td><td>94</td><td>132</td><td>9.40</td></tr>
+            <tr><td>6</td><td>Wakamotoharu</td><td>K1e</td><td>91</td><td>130</td><td>9.10</td></tr>
+            <tr><td>7</td><td>Abi</td><td>K1w</td><td>89</td><td>129</td><td>8.90</td></tr>
+            <tr><td>8</td><td>Daieisho</td><td>M1e</td><td>87</td><td>128</td><td>8.70</td></tr>
+            <tr><td>9</td><td>Gonoyama</td><td>M1w</td><td>85</td><td>127</td><td>8.50</td></tr>
+            <tr><td>10</td><td>Oho</td><td>M2e</td><td>84</td><td>126</td><td>8.40</td></tr>
+          </tbody>
+        </table>
+
+        <div class="notes" id="notes">
+          <h3>Notes</h3>
+          <ol>
+            <li>The shikona and chii shown are the latest found in the relevant basho.</li>
+          </ol>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="standings.js"></script>
+</body>
+</html>

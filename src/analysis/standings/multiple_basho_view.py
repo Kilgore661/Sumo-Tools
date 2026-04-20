@@ -135,7 +135,7 @@ def _latest_selected_basho_with_rikishi(
 def get_multiple_basho_view(
     history: History,
     core: MultipleBashoCore,
-    wins_mode: WinsMode,
+    wins_mode: WinsMode = WinsMode.REAL
 ) -> MultipleBashoView:
     selected_basho_count = len(core.selected_dates)
 

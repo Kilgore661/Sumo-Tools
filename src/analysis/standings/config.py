@@ -1,6 +1,6 @@
 from pathlib import Path
 
-OUTPUT_DIR = Path("files/output/standings")
+OUTPUT_DIR = Path("files/output/standings/engine")
 CACHE_FILE = OUTPUT_DIR / "totals_cache.csv"
 
 LATEST_STANDINGS_FILE = OUTPUT_DIR / "standings.csv"
