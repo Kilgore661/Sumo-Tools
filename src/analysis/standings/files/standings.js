@@ -20,7 +20,7 @@ const state = {
   meta: null,
   currentNumBasho: null,
   currentDivision: null,
-  sortColumn: "presence_average_real_wins",
+  sortColumn: "containing_average_fought_wins",
   sortDescending: true,
 };
 
@@ -151,9 +151,9 @@ function renderTable(rows) {
     appendCell(tr, row.position);
     appendCell(tr, row.shikona);
     appendCell(tr, row.chii);
-    appendCell(tr, row.real_wins);
+    appendCell(tr, row.fought_wins);
     appendCell(tr, row.bout_count);
-    appendCell(tr, format2(row.presence_average_real_wins));
+    appendCell(tr, format2(row.containing_average_fought_wins));
 
     el.body.appendChild(tr);
   }

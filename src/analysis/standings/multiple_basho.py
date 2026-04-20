@@ -2,7 +2,7 @@
 Core domain logic for multiple-basho standings.
 
 Defines the core standings result types and computes ranked totals for a
-contiguous window of basho under a specified wins policy.
+contiguous window of basho under a specified win policy.
 
 This module is concerned only with core calculation:
 
@@ -13,24 +13,21 @@ argument parsing.
 """
 
 from dataclasses import dataclass
-from enum import Enum, auto
 
 from src.sumo_core.BasicEnums import Outcome
 from src.sumo_core.BasicPrimitives import RikId
 from src.sumo_core.History import Date, History
 
 
-class WinsMode(Enum):
-    REAL = auto()
-    ALL = auto()
+from .classes import WinPolicy
 
 
 @dataclass(frozen=True)
 class MultipleBashoCoreRow:
     position: int
     rikishi_id: RikId
-    real_wins: int
-    all_wins: int
+    fought_wins: int
+    credited_wins: int
     bout_count: int
 
 
@@ -88,7 +85,7 @@ def resolve_window_dates(
 def get_multiple_basho_core(
     history: History,
     selected_dates: tuple[Date, ...],
-    wins_mode: WinsMode = WinsMode.ALL
+    win_policy: WinPolicy = WinPolicy.CREDITED,
 ) -> MultipleBashoCore:
     totals: dict[RikId, dict[str, object]] = {}
 
@@ -99,8 +96,8 @@ def get_multiple_basho_core(
             if rid not in totals:
                 totals[rid] = {
                     "rikishi_id": rid,
-                    "real_wins": 0,
-                    "all_wins": 0,
+                    "fought_wins": 0,
+                    "credited_wins": 0,
                     "bout_count": 0,
                 }
 
@@ -112,15 +109,15 @@ def get_multiple_basho_core(
                 if r1 not in totals:
                     totals[r1] = {
                         "rikishi_id": r1,
-                        "real_wins": 0,
-                        "all_wins": 0,
+                        "fought_wins": 0,
+                        "credited_wins": 0,
                         "bout_count": 0,
                     }
                 if r2 not in totals:
                     totals[r2] = {
                         "rikishi_id": r2,
-                        "real_wins": 0,
-                        "all_wins": 0,
+                        "fought_wins": 0,
+                        "credited_wins": 0,
                         "bout_count": 0,
                     }
 
@@ -128,25 +125,25 @@ def get_multiple_basho_core(
                 totals[r2]["bout_count"] = int(totals[r2]["bout_count"]) + 1
 
                 if bout.outcome1 == Outcome.W:
-                    totals[r1]["real_wins"] = int(totals[r1]["real_wins"]) + 1
-                    totals[r1]["all_wins"] = int(totals[r1]["all_wins"]) + 1
+                    totals[r1]["fought_wins"] = int(totals[r1]["fought_wins"]) + 1
+                    totals[r1]["credited_wins"] = int(totals[r1]["credited_wins"]) + 1
                 elif bout.outcome1 == Outcome.FS:
-                    totals[r1]["all_wins"] = int(totals[r1]["all_wins"]) + 1
+                    totals[r1]["credited_wins"] = int(totals[r1]["credited_wins"]) + 1
 
                 if bout.outcome2 == Outcome.W:
-                    totals[r2]["real_wins"] = int(totals[r2]["real_wins"]) + 1
-                    totals[r2]["all_wins"] = int(totals[r2]["all_wins"]) + 1
+                    totals[r2]["fought_wins"] = int(totals[r2]["fought_wins"]) + 1
+                    totals[r2]["credited_wins"] = int(totals[r2]["credited_wins"]) + 1
                 elif bout.outcome2 == Outcome.FS:
-                    totals[r2]["all_wins"] = int(totals[r2]["all_wins"]) + 1
+                    totals[r2]["credited_wins"] = int(totals[r2]["credited_wins"]) + 1
 
-    if wins_mode == WinsMode.REAL:
-        primary = "real_wins"
-        secondary = "all_wins"
-    elif wins_mode == WinsMode.ALL:
-        primary = "all_wins"
-        secondary = "real_wins"
+    if win_policy == WinPolicy.FOUGHT_ONLY:
+        primary = "fought_wins"
+        secondary = "credited_wins"
+    elif win_policy == WinPolicy.CREDITED:
+        primary = "credited_wins"
+        secondary = "fought_wins"
     else:
-        raise ValueError(f"Unsupported wins mode: {wins_mode}")
+        raise ValueError(f"Unsupported win policy: {win_policy}")
 
     ordered = sorted(
         totals.values(),
@@ -175,8 +172,8 @@ def get_multiple_basho_core(
             MultipleBashoCoreRow(
                 position=position,
                 rikishi_id=row["rikishi_id"],
-                real_wins=int(row["real_wins"]),
-                all_wins=int(row["all_wins"]),
+                fought_wins=int(row["fought_wins"]),
+                credited_wins=int(row["credited_wins"]),
                 bout_count=int(row["bout_count"]),
             )
         )

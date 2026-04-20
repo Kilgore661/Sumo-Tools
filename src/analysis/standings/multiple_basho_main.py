@@ -16,11 +16,12 @@ import sys
 from time import time
 
 from src.analysis.standings.multiple_basho import (
-    WinsMode,
     get_multiple_basho_core,
     resolve_date,
     resolve_window_dates,
 )
+
+
 from src.analysis.standings.multiple_basho_reports import (
     ensure_multiple_basho_run_output_dir,
     ensure_output_dir,
@@ -31,6 +32,7 @@ from src.analysis.standings.multiple_basho_reports import (
     write_multiple_basho_view_csv,
 )
 from src.analysis.standings.multiple_basho_view import get_multiple_basho_view
+from src.analysis.standings.classes import WinPolicy
 from src.infra.live_store.api import get_history
 from .helpers import copy_file, escape_date, make_run_stamp, write_json
 
@@ -78,21 +80,21 @@ def main() -> None:
     )
 
     if args.wins == "real":
-        wins_mode = WinsMode.REAL
+        win_policy = WinPolicy.FOUGHT_ONLY
     elif args.wins == "all":
-        wins_mode = WinsMode.ALL
+        win_policy = WinPolicy.CREDITED
     else:
         raise ValueError(f"Unsupported wins mode: {args.wins}")
 
     core = get_multiple_basho_core(
         history=history,
         selected_dates=selected_dates,
-        wins_mode=wins_mode,
+        win_policy=win_policy,
     )
     view = get_multiple_basho_view(
         history=history,
         core=core,
-        wins_mode=wins_mode,
+        win_policy=win_policy,
     )
 
     ensure_output_dir()
