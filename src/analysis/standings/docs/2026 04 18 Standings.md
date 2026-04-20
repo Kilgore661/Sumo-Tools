@@ -390,13 +390,299 @@ The implementation is structured in layers where practical:
 
 This separation supports maintainability and future extension.
 
+Yes — that is a strong and logical revision.
+
+
+
 ---
 
-## 3.12 Deferred Features
+
+
+## ## 3.12 Presentation Layer (Draft)
+
+### 3.12.1 Position
+
+The standings capability shall support an initial browser-based presentation layer providing human-readable access to current standings.
+
+This presentation layer is not the standings engine itself. It is a downstream consumer of standings outputs generated elsewhere.
+
+Its purpose is to make standings conveniently accessible to ordinary users without requiring direct use of command-line tools, raw data files, or analytical workflows.
+
+The initial presentation layer is intentionally narrower in scope than the full analytical capability of the standings engine.
+
+---
+
+### 3.12.2 Relationship to Standings Capability
+
+The standings engine remains responsible for:
+
+- correctness of calculations
+
+- basho-window aggregation
+
+- ranking logic
+
+- metric definitions
+
+- generation of publishable artefacts
+
+The presentation layer remains responsible for:
+
+- rendering standings in a browser
+
+- allowing limited user interaction
+
+- presenting standings clearly
+
+- exposing only supported views
+
+- communicating notes and caveats
+
+The presentation layer shall not perform standings calculations itself.
+
+---
+
+### 3.12.3 Publication Model
+
+The initial presentation layer shall be implemented as a simple static website.
+
+Standings data shall be generated offline and published as precomputed artefacts.
+
+The hosting environment is assumed to be storage-constrained and operationally simple. Accordingly:
+
+- only a finite set of supported standings datasets shall be published
+
+- no arbitrary historical query capability is initially required
+
+- no server-side standings computation is initially required
+
+- no database is initially required
+
+Browser-side scripting may be used to load and present published datasets.
+
+[Ed.: Design or Implementation? Exact published file formats (CSV / JSON / other) need not be fixed here.]
+
+---
+
+### 3.12.4 Temporal Model
+
+The initial presentation layer shall present standings **as of the latest available data**.
+
+Users shall not initially select arbitrary anchor dates.
+
+The standings period shall therefore be implicitly current and backwards-looking.
+
+Users may select the retrospective depth of the standings calculation using a supported number of previous basho.
+
+Illustrative example:
+
+- standings as of the latest available data over the previous 12 basho
+
+Approximate calendar interpretations may be shown where helpful (for example, roughly two years).
+
+---
+
+### 3.12.5 User Controls
+
+The page shall initially expose only controls necessary for the published-current standings model.
+
+These shall include:
+
+- selection of retrospective basho count
+
+- selection of division
+
+- sortable standings columns
+
+The page shall not initially expose:
+
+- arbitrary start-date selection
+
+- arbitrary end-date selection
+
+- free-form date-range construction
+
+- unsupported basho-window values
+
+The initially supported basho-window values shall be:
+
+- 1
+
+- 2
+
+- 3
+
+- 4
+
+- 5
+
+- 6
+
+- 12
+
+- 18
+
+- 24
+
+- 36
+
+- 60
+
+Initial default value:
+
+- 6
+
+[Ed.: Spec or Design? Exact supported values may be revised operationally.]
+
+---
+
+### 3.12.6 Page Structure
+
+The initial page shall present standings in a clear tabular form.
+
+The page shall ordinarily comprise:
+
+- page title or heading
+
+- control area
+
+- standings table
+
+- notes area
+
+An illustrative title format is:
+
+**Standings (Last 12 Basho: YYYY/MM–YYYY/MM)**
+
+The title or heading shall indicate the effective standings period.
+
+[Ed.: Exact wording and punctuation are presentation details.]
+
+---
+
+### 3.12.7 Table Content
+
+The initial visible table may include columns such as:
+
+- Position
+
+- Shikona
+
+- Chii
+
+- Wins
+
+- Count
+
+- Mean
+
+These columns are intended to present obvious headline standings measures rather than the full analytical outputs available internally.
+
+Additional metrics may remain available in published artefacts or future presentation revisions.
+
+---
+
+### 3.12.8 Metric Semantics
+
+Where columns such as Wins, Count, or Mean are shown, their meanings shall be defined explicitly.
+
+Current meanings are:
+
+- **Wins** = all wins
+
+- **Count** = opportunities to fight
+
+- **Mean** = Wins divided by Count
+
+Any non-obvious definitions shall be stated in the notes area.
+
+---
+
+### 3.12.9 Identity Semantics
+
+Displayed rikishi identity fields such as:
+
+- shikona
+
+- chii
+
+shall be taken from the most recent basho within the effective standings period in which the rikishi appears.
+
+This is intended to reflect the most current identity relevant to the displayed standings period.
+
+---
+
+### 3.12.10 Interaction Model
+
+Browser-side interaction may include:
+
+- changing supported basho-window views
+
+- changing division filters
+
+- sorting visible columns
+
+- updating headings and notes to reflect current selections
+
+The page shall remain usable even where richer interaction is unavailable.
+
+[Ed.: Progressive enhancement / fallback behaviour may belong in Design.]
+
+---
+
+### 3.12.11 Notes and Explanations
+
+The page shall provide a notes area or equivalent explanatory space.
+
+This area may be used to communicate matters such as:
+
+- meanings of Wins / Count / Mean
+
+- data cutoff date
+
+- interpretation caveats
+
+- identity-field policy
+
+- approximate basho-to-year guidance
+
+This is intended to support ordinary users without cluttering the main table.
+
+---
+
+### 3.12.12 Relationship to Future Enhancements
+
+The presentation layer design shall not prevent future support for:
+
+- richer filtering
+
+- additional metrics
+
+- historical archive browsing
+
+- alternative presentation surfaces
+
+- improved styling
+
+- automated publication workflows
+
+Such future enhancements shall remain subordinate to clarity and maintainability.
+
+---
+
+### 3.12.13 Matters Arising
+
+1. Should basho selectors be labelled numerically only, or with approximate year equivalents?
+
+2. Which details belong formally in Specification versus Design versus Implementation?
+
+3. [Ed.: If desired] Should headings also state the metric basis (e.g. all wins)?
+
+---
+
+## ## 3.13 Deferred Features
 
 The following remain recognised as desirable but are not currently required:
-
-- richer presentation layers (HTML, dashboards, interactive tools)
 
 - robustness or sensitivity analysis over window-length choices
 
@@ -409,3 +695,9 @@ The following remain recognised as desirable but are not currently required:
 - persisted optimisation caches if justified by use-cases
 
 The capability should remain focused on delivering clear and trustworthy standings outputs.
+
+
+
+# 4. Design
+
+(Presentaion layer only - this doc has got way behind the code.)

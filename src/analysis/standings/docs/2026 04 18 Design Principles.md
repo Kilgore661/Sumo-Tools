@@ -287,8 +287,9 @@ get_single_basho_standings(basho: BashoState, wins_mode: WinsMode) -> SingleBash
 implemented as:
 
 * one meaningful auxiliary function:
-
+  
   * `get_single_basho_totals(basho) -> SingleBashoTotals`
+
 * then inline ranking logic if it is short and clear
 
 rather than forcing:
@@ -337,4 +338,3 @@ For the single-basho function, I would now aim for:
 * trivial mechanics left inline
 
 That should keep the code honest and compact.
-

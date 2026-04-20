@@ -516,4 +516,3 @@ It has already established that a coherent and low-risk solution exists:
 This direction avoids unnecessary complexity while preserving future growth.
 
 Most importantly, it preserves a real page that can be inspected, edited, published, and understood.
-
