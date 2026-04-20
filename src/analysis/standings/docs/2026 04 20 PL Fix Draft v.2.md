@@ -425,7 +425,7 @@ class WinPolicy(Enum):
 
     def includes(self) -> set[WinKind]:
         ...
-        
+
 
 class BashoBasis(Enum):
     SELECTED = auto()

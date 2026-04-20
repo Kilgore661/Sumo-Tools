@@ -31,6 +31,11 @@ from src.analysis.standings.publisher_reports import (
     write_site_config_json,
 )
 
+from pathlib import Path
+import shutil
+
+WEB_ROOT = Path(r"A:/local/html/standings")
+WEB_DATA = WEB_ROOT / "data"
 
 SUPPORTED_NUM_BASHO = (1, 2, 3, 4, 5, 6, 12, 18, 24, 36, 60)
 DIRECTION = "BACKWARDS"
@@ -87,6 +92,36 @@ def publish_one_window(
     )
 
 
+
+from pathlib import Path
+import shutil
+
+WEB_ROOT = Path(r"A:/local/html/standings")
+WEB_DATA = WEB_ROOT / "data"
+
+
+def deploy_to_local_web(run_dir: Path) -> None:
+    WEB_ROOT.mkdir(parents=True, exist_ok=True)
+    WEB_DATA.mkdir(parents=True, exist_ok=True)
+
+    static_dir = Path(__file__).resolve().parent / "files"
+
+    # Copy fixed web assets to the site root.
+    for name in ["index.html", "standings.css", "standings.js"]:
+        source_file = static_dir / name
+        target_file = WEB_ROOT / name
+        shutil.copy2(source_file, target_file)
+
+    # Remove old published data files so deployed data matches this run exactly.
+    for old_file in WEB_DATA.iterdir():
+        if old_file.is_file():
+            old_file.unlink()
+
+    # Copy all generated publisher artefacts, including site_config.json.
+    for item in run_dir.iterdir():
+        if item.is_file() and item.suffix.lower() in {".csv", ".json"}:
+            shutil.copy2(item, WEB_DATA / item.name)
+
 def main() -> None:
     t0 = time()
 
@@ -94,7 +129,8 @@ def main() -> None:
 
     run_stamp = make_run_stamp()
 
-    publisher_run_output_dir(run_stamp).mkdir(
+    run_dir = publisher_run_output_dir(run_stamp)
+    run_dir.mkdir(
         parents=True,
         exist_ok=True,
     )
@@ -124,12 +160,11 @@ def main() -> None:
             num_basho=num_basho,
         )
 
+    deploy_to_local_web(run_dir)
+
     print(f"Publisher run complete in {time() - t0:.0f}s")
-    print(f"Output: {publisher_run_output_dir(run_stamp)}")
+    print(f"Output: {run_dir}")
+    print(f"Deployed to: {WEB_ROOT}")
 
-
-if __name__ == "__main__":
-    from time import time
-    t0 = time()
+if __name__ == '__main__':
     main()
-    print( f'Run complete in {time() - t0:.0f} seconds.' )

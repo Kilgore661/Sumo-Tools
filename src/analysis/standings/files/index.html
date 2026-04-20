@@ -44,7 +44,7 @@
             <tr>
               <th data-column="position">Pos</th>
               <th data-column="shikona">Shikona</th>
-              <th data-column="chii">Chii</th>
+              <th data-column="chii_ordinal">Chii</th> <!-- sort on ordinal -->
               <th data-column="fought_wins">Wins</th>
               <th data-column="bout_count">Count</th>
               <th data-column="containing_average_fought_wins">Mean</th>
@@ -65,12 +65,18 @@
           </tbody>
         </table>
 
-        <div class="notes" id="notes">
-          <h3>Notes</h3>
-          <ol>
-            <li>The shikona and chii shown are the latest found in the relevant basho.</li>
-          </ol>
-        </div>
+<div class="notes" id="notes">
+  <h3>Notes</h3>
+  <ol>
+    <li>The shikona and chii shown are the latest found in the relevant basho.</li>
+    <li>Wins are credited wins: fought wins plus fusensho.</li>
+    <li>Count is the total expected bout opportunities in the relevant basho set.</li>
+    <li>Expected bouts are 15 for sekitori (makuuchi and juryo) and 7 for lower divisions.</li>
+    <li>Mean is Wins divided by Count.</li>
+    <li>The relevant basho set is currently basho containing the rikishi (that is, basho in which the rikishi appeared on the banzuke).</li>
+    <li>If selected-basho mode is introduced later, Count and Mean will change accordingly.</li>
+  </ol>
+</div>
       </main>
     </div>
   </div>

@@ -6,6 +6,7 @@ Transforms multiple-basho core standings into a derived result set by:
 - computing selected-basho and containing-basho per-basho averages
 - computing standard deviation, SEM, and CI95 half-width for those averages
 - determining, per rikishi, how many selected basho contain the rikishi
+- computing explicit expected and available bout counts on both basho bases
 - sourcing display identity from the most recent selected basho containing the
   rikishi
 
@@ -24,7 +25,8 @@ from src.analysis.standings.multiple_basho import MultipleBashoCore
 from src.analysis.standings.classes import WinPolicy
 from src.sumo_core.BasicPrimitives import RikId, Shikona
 from src.sumo_core.History import Date, History
-from src.sumo_core.BasicEnums import Outcome
+from src.sumo_core.BasicEnums import Outcome, Division, MSD
+from src.sumo_core.Chii import Chii
 
 CI95_Z = 1.96
 
@@ -41,6 +43,12 @@ class MultipleBashoViewRow:
     bout_count: int
     selected_basho_count: int
     containing_basho_count: int
+
+    selected_expected_bout_count: int
+    selected_available_bout_count: int
+    containing_expected_bout_count: int
+    containing_available_bout_count: int
+
     selected_average_fought_wins: float
     selected_average_credited_wins: float
     containing_average_fought_wins: float
@@ -62,6 +70,15 @@ class MultipleBashoViewRow:
 @dataclass(frozen=True)
 class MultipleBashoView:
     rows: tuple[MultipleBashoViewRow, ...]
+
+
+@dataclass(frozen=True)
+class _PerBashoStats:
+    contains_rikishi: bool
+    fought_wins: int
+    credited_wins: int
+    available_bouts: int
+    expected_bouts: int
 
 
 def _mean(values: list[float]) -> float:
@@ -89,33 +106,64 @@ def _ci95_half_width(values: list[float]) -> float:
     return CI95_Z * _sem(values)
 
 
-def _wins_for_basho(
+def _expected_bouts_for_chii(chii: Chii) -> int:
+    level = chii.level
+
+    if isinstance(level, MSD):
+        return 15
+
+    if level == Division.JURYO:
+        return 15
+
+    return 7
+
+
+def _stats_for_basho(
     history: History,
     date: Date,
     rikishi_id: RikId,
-) -> tuple[int, int, bool]:
+) -> _PerBashoStats:
     basho = history(date)
-    present = rikishi_id in basho.banzuke.riks
+    contains_rikishi = rikishi_id in basho.banzuke.riks
 
     fought_wins = 0
     credited_wins = 0
+    available_bouts = 0
+    expected_bouts = 0
+
+    if contains_rikishi:
+        chii = basho.banzuke.get_chii(rikishi_id)
+        if chii is None:
+            raise ValueError(
+                f"Rikishi {int(rikishi_id)} is on banzuke for {date} but has no chii."
+            )
+        expected_bouts = _expected_bouts_for_chii(chii)
 
     for daily_results in basho.summary.values():
         for bout in daily_results.results_lookup.values():
             if bout.rikishi1 == rikishi_id:
+                available_bouts += 1
                 if bout.outcome1 == Outcome.W:
                     fought_wins += 1
                     credited_wins += 1
                 elif bout.outcome1 == Outcome.FS:
                     credited_wins += 1
+
             elif bout.rikishi2 == rikishi_id:
+                available_bouts += 1
                 if bout.outcome2 == Outcome.W:
                     fought_wins += 1
                     credited_wins += 1
                 elif bout.outcome2 == Outcome.FS:
                     credited_wins += 1
 
-    return fought_wins, credited_wins, present
+    return _PerBashoStats(
+        contains_rikishi=contains_rikishi,
+        fought_wins=fought_wins,
+        credited_wins=credited_wins,
+        available_bouts=available_bouts,
+        expected_bouts=expected_bouts,
+    )
 
 
 def _latest_selected_basho_with_rikishi(
@@ -151,14 +199,25 @@ def get_multiple_basho_view(
         containing_fought_wins_by_basho: list[float] = []
         containing_credited_wins_by_basho: list[float] = []
 
-        for date in core.selected_dates:
-            fought_wins, credited_wins, present = _wins_for_basho(history, date, rid)
-            selected_fought_wins_by_basho.append(float(fought_wins))
-            selected_credited_wins_by_basho.append(float(credited_wins))
+        selected_expected_bout_count = 0
+        selected_available_bout_count = 0
+        containing_expected_bout_count = 0
+        containing_available_bout_count = 0
 
-            if present:
-                containing_fought_wins_by_basho.append(float(fought_wins))
-                containing_credited_wins_by_basho.append(float(credited_wins))
+        for date in core.selected_dates:
+            stats = _stats_for_basho(history, date, rid)
+
+            selected_fought_wins_by_basho.append(float(stats.fought_wins))
+            selected_credited_wins_by_basho.append(float(stats.credited_wins))
+
+            selected_expected_bout_count += stats.expected_bouts
+            selected_available_bout_count += stats.available_bouts
+
+            if stats.contains_rikishi:
+                containing_fought_wins_by_basho.append(float(stats.fought_wins))
+                containing_credited_wins_by_basho.append(float(stats.credited_wins))
+                containing_expected_bout_count += stats.expected_bouts
+                containing_available_bout_count += stats.available_bouts
 
         containing_basho_count = len(containing_fought_wins_by_basho)
         chii = display_basho.banzuke.get_chii(rid)
@@ -179,6 +238,10 @@ def get_multiple_basho_view(
                 "bout_count": row.bout_count,
                 "selected_basho_count": selected_basho_count,
                 "containing_basho_count": containing_basho_count,
+                "selected_expected_bout_count": selected_expected_bout_count,
+                "selected_available_bout_count": selected_available_bout_count,
+                "containing_expected_bout_count": containing_expected_bout_count,
+                "containing_available_bout_count": containing_available_bout_count,
                 "selected_average_fought_wins": _mean(selected_fought_wins_by_basho),
                 "selected_average_credited_wins": _mean(selected_credited_wins_by_basho),
                 "containing_average_fought_wins": _mean(containing_fought_wins_by_basho),
@@ -248,6 +311,10 @@ def get_multiple_basho_view(
                 bout_count=row["bout_count"],
                 selected_basho_count=row["selected_basho_count"],
                 containing_basho_count=row["containing_basho_count"],
+                selected_expected_bout_count=row["selected_expected_bout_count"],
+                selected_available_bout_count=row["selected_available_bout_count"],
+                containing_expected_bout_count=row["containing_expected_bout_count"],
+                containing_available_bout_count=row["containing_available_bout_count"],
                 selected_average_fought_wins=row["selected_average_fought_wins"],
                 selected_average_credited_wins=row["selected_average_credited_wins"],
                 containing_average_fought_wins=row["containing_average_fought_wins"],
