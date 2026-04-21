@@ -1,0 +1,155 @@
+You are correct—there is a wealth of specific detail in those documents, particularly regarding the **Three-Axis Model** and **Identity Semantics**. 
+
+Here is a formal Specification for the tool, synthesized from your documentation and the underlying logic in the code. This moves beyond the "what" and defines the exact rules and data contracts that govern the system.
+
+---
+
+# Technical Specification: Osumo Standings Application
+
+## 1. Data Model & Identity Semantics
+The system operates on a `History` object containing chronological records of tournaments (*basho*), participants, and outcomes.
+
+### 1.1 The Anchor Principle
+To ensure standings are relevant to the user's current context, the system uses an **Anchor Basho** (typically the most recent tournament).
+* **Identity Resolution:** For any given rikishi in a results set, their `shikona` (name) and `chii` (rank) are sourced from the **most recent record** found within the selected temporal window.
+* **Consistency:** If a rikishi was absent for the Anchor Basho but present earlier in the window, their last known rank/name within that window is used to prevent "ghosting" or data gaps.
+
+## 2. The Three-Axis Metric Model
+The engine must compute metrics across three independent semantic dimensions. Every "average" or "count" in the system is defined by its position on these axes.
+
+### Axis A: Win Policy (The Numerator)
+Defines what constitutes a "win" in the calculation.
+* **`FOUGHT_ONLY`**: Only wins achieved in a scheduled, completed bout.
+* **`CREDITED`**: Includes `FOUGHT_ONLY` wins plus *fusensho* (wins by default/forfeit).
+
+### Axis B: Basho Basis (The Set)
+Defines which tournaments are included in the observation window.
+* **`SELECTED`**: The entire contiguous calendar window (e.g., the last 6 basho).
+* **`CONTAINING`**: A filtered set consisting only of basho where the rikishi was listed as a participant (effectively ignoring tournaments missed due to injury).
+
+### Axis C: Bout Basis (The Denominator)
+Defines the "opportunity count" used for calculating averages.
+* **`EXPECTED`**: The standard number of bouts for the rikishi’s division (15 for *Sekitori*, 7 for lower divisions).
+* **`AVAILABLE`**: Only the bouts the rikishi actually participated in (excluding absences within a basho).
+
+
+
+## 3. Derived Statistics
+The system calculates standard statistical markers to provide a measure of performance stability over time.
+
+* **Mean ($\bar{x}$):** Calculated as `Wins / Bout Count` based on the chosen axes.
+* **Standard Deviation ($\sigma$):** Measures the variance of win-counts across the basho in the set.
+* **Standard Error of the Mean (SEM):** Calculated as $\sigma / \sqrt{n}$, where $n$ is the basho count.
+* **95% Confidence Interval (CI95):** Defined as $\pm (1.96 \times SEM)$. This provides the "Half-Width" metric used to visualize consistency.
+
+## 4. Ranking & Tie-Breaking
+The engine generates an ordinal ranking based on the following priority:
+1.  **Primary Metric:** The win count defined by the active `WinPolicy`.
+2.  **Secondary Metric:** The win count of the alternative `WinPolicy` (e.g., if ranking by Fought Wins, Credited Wins is the tie-breaker).
+3.  **Stability:** The internal `rikishi_id` serves as the final, deterministic tie-breaker.
+* **Standard Competition Ranking:** If two wrestlers have identical primary metrics, they share the same position (e.g., 1, 2, 2, 4).
+
+## 5. Data Interchange Contract
+The Publication Layer must produce two specific artifacts for every standings view.
+
+### 5.1 The Data Artifact (CSV)
+A flat file containing the calculated metrics. Required columns include:
+* **Identity:** `rikishi_id`, `shikona`, `chii`, `chii_ordinal`.
+* **Raw Totals:** `fought_wins`, `credited_wins`, `bout_count`.
+* **Calculated Metrics:** Averages, StDev, and CI95 half-widths for both `SELECTED` and `CONTAINING` bases.
+
+### 5.2 The Sidecar Metadata (JSON)
+A sidecar file that provides context for the CSV, allowing the UI to render titles and labels without parsing the data file first.
+```json
+{
+  "anchor_date": "YYYY/MM",
+  "direction": "BACKWARDS",
+  "num_basho": 6,
+  "effective_start_date": "YYYY/MM",
+  "effective_end_date": "YYYY/MM"
+}
+```
+
+## 6. Presentation Logic
+The browser-side application is restricted to the following behaviors:
+* **Filtering:** Division-based filtering (Makuuchi, Juryo, etc.) using the `chii_ordinal`.
+* **Sorting:** Ability to sort the table by any column (Rank, Name, Wins, Mean).
+* **State Management:** The UI must reflect the "Site Config" (the default window and latest available data) as defined by the offline publisher.
+
+The **Design** of the Osumo Standings Application translates the Three-Axis Specification into a functional, decoupled system. It is built on the principle of **Static-Site Generation (SSG)**, moving all computational complexity to an "offline" build phase to ensure the end-user experience is fast, reliable, and host-agnostic.
+
+### 1. Tiered Architectural Design
+The system is organized into three distinct layers with strictly defined boundaries:
+
+* **The Calculation Engine (Core):** A set of Python modules responsible for domain logic. It treats the historical database as read-only and produces structured, ranked data objects.
+* **The Publication Layer (Orchestrator):** A bridge that manages the "build" process. It maps user-facing requirements (e.g., "I want a 6-basho view") to engine calls, handles file naming conventions, and manages the deployment of assets to the web server.
+* **The Presentation Layer (UI):** A "dumb" client consisting of standard web technologies (HTML/CSS/JS). It performs no statistical math; its design is centered entirely on data visualization, filtering, and navigation.
+
+
+
+### 2. The Data Transformation Pipeline
+The design follows a linear flow from raw history to a rendered table:
+
+1.  **Aggregation (`Core`):** The engine filters the `History` by date and accumulates wins and bouts per rikishi.
+2.  **Derivation (`View`):** The system applies the **Identity Policy** (resolving names/ranks from the anchor basho) and computes the standard deviation and 95% confidence intervals.
+3.  **Serialization:** The data is "baked" into two specific artifacts: a **CSV** for the tabular data and a **JSON Sidecar** for the metadata.
+
+### 3. The "Sidecar" Pattern
+A central design choice is the use of JSON sidecars. Because CSV files are "headless" (they contain data but no context), the publisher generates a matching JSON file for every CSV. 
+* **The Problem:** The JS client needs to know the date range of a file *before* it downloads and parses 500+ rows of CSV data.
+* **The Design Solution:** The JS client first fetches the small JSON sidecar to update the UI (titles, date labels) and then pulls the CSV to populate the table.
+
+### 4. Interactive "Thin-Client" Design
+The frontend is designed to be highly responsive by offloading UI state management to the browser:
+
+* **Client-Side Filtering:** The "Division" selector does not trigger a new server request. Instead, the JavaScript filters the existing data in memory using the `chii_ordinal` (an integer rank representation), providing an instantaneous update for the user.
+* **Deterministic Sorting:** The table supports multi-column sorting (e.g., by Rank, then by Name) handled entirely within the browser's DOM.
+* **Config-Driven Bootstrapping:** A `site_config.json` acts as the single source of truth for the UI. It tells the browser which tournament is the "latest," which window sizes are supported, and which division to show by default.
+
+
+
+### 5. Deployment & Persistence Design
+The system is designed for **Atomic Publication**. 
+
+* **Run-Based Storage:** Every time the publisher runs, it creates a unique, timestamped directory. This preserves a "point-in-time" snapshot of the entire standings suite, allowing for easy rollbacks or audits.
+* **The "Live" Sync:** Once a run is verified locally, the publisher synchronizes the artifacts to the production directory (`A:/local/html/standings/data`).
+* **Legacy Host Compatibility:** By relying on static files and relative paths, the design ensures the site functions perfectly on anything from a high-end web server to a local file system or a legacy Apache map.
+
+This guide highlights the strategic choices made in the implementation—the "how and why"—rather than providing a dry inventory of the source code.
+
+### 1. Enum-Driven Semantic Logic
+The implementation avoids "magic strings" or boolean flags to handle the complex Three-Axis model. Instead, it uses **Python Enums** (`classes.py`) as the primary control mechanism.
+* **The Benefit:** The core engine doesn't need to know the specific rules of a "Credited Win" policy; it simply asks the `WinPolicy` enum which `WinKind` members (Fought, Fusensho) it includes. 
+* **Significance:** This makes the implementation "policy-agnostic." Adding a new type of win or a new bout basis in the future would require updating the Enum definitions rather than rewriting the nested loops of the engine.
+
+
+
+### 2. The Two-Stage Calculation Pipeline
+The computation is split into two distinct phases to separate "hard facts" from "analytical interpretation":
+* **Phase 1 (Core):** `multiple_basho.py` performs a high-speed aggregation of raw integers (wins and bouts). It produces a `MultipleBashoCore` object which is strictly numerical and rikishi-ID based.
+* **Phase 2 (View):** `multiple_basho_view.py` takes that core data and "decorates" it. This is where the floating-point math (Means, Standard Deviations, Confidence Intervals) happens and where the `RikId` is linked to a human-readable `Shikona`.
+* **Significance:** This separation means you can change how you display a rikishi's name or how you calculate a 95% confidence interval without ever touching the logic that counts the wins.
+
+### 3. Identity "Anchoring" Logic
+A subtle but critical implementation feature is how the code resolves a wrestler's name and rank.
+* **The Mechanism:** As it builds the View, the engine performs a "reverse-lookback" within the selected window. It finds the most recent tournament where the rikishi participated and extracts their identity attributes from that specific record.
+* **Significance:** This ensures that if a wrestler changed their name (*shikona*) or rank (*chii*) during the 60-basho window, the standings show the version of them that is "most current" relative to the data being viewed.
+
+### 4. Artifact Materialization (The Sidecar Pattern)
+The implementation of the Publication Layer handles the problem of "headless data" through a **JSON Sidecar** strategy.
+* **The Implementation:** For every generated CSV file, a matching `.json` file is created with an identical filename. 
+* **Significance:** This allows the browser to perform "Discovery" before "Consumption." The JavaScript reads the small JSON file to determine the date range and labels for the UI, then fetches the larger CSV file only when it's ready to populate the table. This keeps the web interface feeling snappy even as the dataset grows.
+
+
+
+### 5. Defensive Build Orchestration
+The `publisher.py` script is implemented as a **Matrix Generator**. 
+* **The Logic:** It doesn't just "publish the standings"; it iterates through a pre-defined list of window sizes (1, 2, 3... 60) and generates the entire universe of possible views in a single pass.
+* **The Sync:** It uses a "Build-to-Temp-then-Move" pattern. All files are written to a timestamped "run" folder. Only after the entire suite is successfully generated are the files synchronized to the "live" web directory (`A:/local/html/standings/data`).
+* **Significance:** This guarantees that the website is never in a "partial" or broken state during a data update.
+
+### 6. The "Thin" Client Rendering Loop
+The JavaScript (`standings.js`) is implemented as a **State-Driven UI**.
+* **The State Object:** The script maintains a central `state` object (current division, current window, current sort). 
+* **The Render Loop:** Whenever a user clicks a filter or changes a sort, the script doesn't reload the page. It simply updates the `state` and triggers a `renderTable()` function. 
+* **Significance:** By implementing sorting and filtering entirely in the browser using the `chii_ordinal` (an integer rank), the UI provides instantaneous feedback that feels like a desktop application rather than a static website.
