@@ -20,7 +20,7 @@ const state = {
   meta: null,
   currentNumBasho: null,
   currentDivision: null,
-  sortColumn: "containing_average_fought_wins",
+  sortColumn: "selected_average_credited_wins",
   sortDescending: true,
 };
 
@@ -95,7 +95,7 @@ function wireEvents() {
         state.sortDescending = !state.sortDescending;
       } else {
         state.sortColumn = col;
-        state.sortDescending = true;
+        state.sortDescending = (col === "shikona") ? false : true;;
       }
 
       render();

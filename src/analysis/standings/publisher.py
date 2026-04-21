@@ -107,7 +107,7 @@ def deploy_to_local_web(run_dir: Path) -> None:
     static_dir = Path(__file__).resolve().parent / "files"
 
     # Copy fixed web assets to the site root.
-    for name in ["index.html", "standings.css", "standings.js"]:
+    for name in ["index.html", "standings.css", "standings.js.txt"]:
         source_file = static_dir / name
         target_file = WEB_ROOT / name
         shutil.copy2(source_file, target_file)
