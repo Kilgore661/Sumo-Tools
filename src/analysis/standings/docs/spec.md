@@ -1,4 +1,6 @@
-# Specification (some minor adjustments; WIP)
+Here is a revised **Specification** section/doc aligned with the current direction and the files now in the conversation.
+
+# Specification
 
 ## 1. Purpose of the Application
 
@@ -6,7 +8,7 @@ The application publishes rolling sumo standings in a simple browser-based forma
 
 It allows users to inspect recent multi-basho performance through a small set of predefined views without requiring direct access to source data or command-line tooling.
 
-The application is intended to provide clear, current standings rather than a fully general historical analytics platform.
+The application is intended to provide clear, current standings rather than a fully general historical analytics platform. This reflects the current project position that the real product is a published standings application built on top of a standings engine, not merely the engine itself. 
 
 ---
 
@@ -30,6 +32,8 @@ The application shall not initially provide:
 * advanced analytical controls
 * exhaustive historical exploration tools
 
+Standings shall be computed offline and served as static artefacts, with browser-side JavaScript used only for loading, filtering, sorting, and rendering.
+
 ---
 
 ## 3. Supported Basho Windows
@@ -50,32 +54,33 @@ Initial supported values are:
 * 36
 * 60
 
-These values represent the number of basho included in the standings period.
-
-The standings period shall be retrospective from the latest available published basho unless explicitly revised later.
+These values represent the number of basho included in the standings period. The published site configuration currently exposes exactly this set.
 
 ---
 
 ## 4. Default Basho Window
 
-The default selected basho window shall be:
+The default selected basho window shall be the number of basho in the most recent calendar year represented in `History`.
 
-* the number of basho that have occurred in the current calendar year, if one or more have already occurred
-* otherwise 6
+Operationally, this is determined by scanning backward through the ordered history dates until the most recent January basho is found, then counting from that January basho to the end of the history snapshot.
 
-This provides a natural current-year default while retaining a sensible fallback.
+If no January basho exists in `History`, publication shall terminate immediately with a descriptive error rather than guessing a default. Current publisher behaviour implements this rule. 
+
+This default is then written into the published site configuration and consumed by the browser application.
 
 ---
 
 ## 5. Standings Period Semantics
 
-For a selected value `N`, the standings period is the latest contiguous set of `N` available basho.
+For a selected value `N`, the standings period is the latest contiguous set of `N` available basho ending at the published anchor basho.
 
-Example:
+The effective start and end dates of the selected period shall be published in metadata sidecar files and used by the browser page for display. Current sidecars publish:
 
-If the latest available basho is 2026/03 and `N = 5`, the standings period consists of the five most recent available basho ending at 2026/03.
-
-The application shall display the effective start and end dates of the selected period.
+* `anchor_date`
+* `direction`
+* `num_basho`
+* `effective_start_date`
+* `effective_end_date` 
 
 ---
 
@@ -91,9 +96,9 @@ The application shall support the following division filters:
 * Jonidan
 * Jonokuchi
 
-The default visible division shall be Makuuchi.
+The default visible division shall be Makuuchi. Current HTML and site config both reflect this.
 
-Filtering shall be applied to each rikishi using the published display-rank identity associated with that standings row.
+Filtering shall be applied in the browser using the published `chii_ordinal` value associated with each row. Current browser behaviour derives division membership from `Math.floor(chii_ordinal / 100000)`. 
 
 The exact historical semantics of stricter division-membership filtering are deferred.
 
@@ -108,9 +113,7 @@ Displayed identity fields shall include:
 * shikona
 * chii
 
-Displayed identity shall be sourced from the most recent relevant basho within the selected standings period in which the rikishi appears.
-
-This keeps displayed identity contemporary relative to the selected standings window.
+Displayed identity shall be sourced from the most recent selected basho within the standings period in which the rikishi appears. Current derived-view behaviour does this by locating the latest selected basho containing the rikishi and taking both `shikona` and `chii` from that basho. 
 
 ---
 
@@ -127,15 +130,13 @@ Credited wins include:
 * fought wins
 * fusensho or equivalent awarded wins recognised by the source data model
 
-Displayed Wins values are totals across the selected standings period.
+Displayed Wins values are totals across the selected standings period. The current browser displays `credited_wins`.
 
 ### 8.2 Basho Basis
 
 The published application shall use **SELECTED** basho basis.
 
-All basho within the chosen standings period are in scope.
-
-No adjustment is made in the public default view to remove basho simply because a rikishi was absent from some part of the wider historical timeline.
+All basho within the chosen standings period are in scope. This basis is part of the formal internal model, though it is not currently exposed as a user control.
 
 ### 8.3 Bout Basis
 
@@ -143,12 +144,12 @@ The published application shall use **EXPECTED** bout basis.
 
 Expected bout opportunity shall be determined per basho according to the rikishi’s historical division status in that basho.
 
-Initial rules are:
+Current rules are:
 
 * sekitori basho: 15 expected bouts
 * lower-division basho: 7 expected bouts
 
-Expected opportunities are summed across the selected standings period.
+Current Python view logic computes these expected counts explicitly per basho and aggregates `selected_expected_bout_count` for publication. 
 
 ### 8.4 Mean
 
@@ -156,29 +157,28 @@ Mean shall mean the average credited wins per basho across the selected standing
 
 Mean is therefore:
 
-```text id="7kvvdb"
+```text
 total credited wins / selected basho count
 ```
 
-It is not initially a win-rate-per-bout metric.
+It is not initially a win-rate-per-bout metric. Current browser behaviour displays `selected_average_credited_wins`.
 
 ---
 
 ## 9. Ranking and Sorting Semantics
 
-The browser table shall support client-side sorting of sortable visible columns.
+The browser table shall support client-side sorting of sortable visible columns. Current browser behaviour sorts client-side and does not perform standings calculations. 
 
-Initial default sort order shall be:
+Default page-load sort shall be:
 
-* Shikona ascending
+* key: Mean
+* direction: descending
 
-Numeric columns may sort numerically. Text columns may sort lexically.
+This matches current browser state, which initializes sorting on `selected_average_credited_wins` descending. 
 
-The leftmost row-number column shall not be sortable.
+When a user first clicks the **Shikona** column, its initial sort direction shall be ascending. Current browser behaviour implements this special case. 
 
-Where ties occur in metric values, deterministic ordering shall be used.
-
-Exact tie-break implementation details are not part of this specification provided outputs remain stable and intelligible.
+Published row order from the backend is deterministic for developer convenience and stable exports, but shall not be treated as the authoritative semantic ordering of the browser table. Current derived-view code explicitly comments that published row order should not be treated as semantic ranking contract. 
 
 ---
 
@@ -186,57 +186,64 @@ Exact tie-break implementation details are not part of this specification provid
 
 The primary standings table shall initially display:
 
-* Row number (blank heading)
+* `#`
 * Shikona
 * Chii
 * Wins
 * Bouts
 * Mean
 
+Current HTML uses exactly these headings. 
+
 Where:
 
-* Row number = visible row order after filtering and sorting
+* `#` = current published first-column field, presently sourced from backend `position`
 * Wins = total credited wins across selected period
 * Bouts = total expected bout opportunities across selected period
 * Mean = average credited wins per selected basho
 
-The row-number column is presentational and does not imply formal ranking semantics.
+The precise long-term semantics of the first column remain unresolved and are not fixed further by this specification.
 
 ---
 
 ## 11. Page Titles and Labels
 
-The browser page `<title>` and primary heading shall be:
+The page shall have a stable product heading and a dynamic table heading.
 
-```text id="zn4u40"
-Ozumo Standings
+### 11.1 Product Heading
+
+The primary page heading and browser `<title>` should identify the application as the Ozumo standings page and should be aligned with one another. Current implementation has not yet fully converged on the final preferred wording, so exact final text remains provisional. The presently committed HTML still shows older wording. 
+
+### 11.2 Dynamic Table Heading
+
+The table heading shall show the selected retrospective scope and date range in integrated form.
+
+Current preferred form is:
+
+```text
+Standings (Last N basho, MMM YYYY to MMM YYYY)
 ```
 
-The table heading shall be of the form:
+with the earliest date first and the latest date second.
 
-```text id="4p4m1t"
-Standings for Last N basho (MMM YYYY to MMM YYYY)
-```
-
-where:
-
-* `N` is the selected basho count
-* the earliest date is shown first
-* the latest date is shown second
-
-Example:
-
-```text id="4q8oz5"
-Standings for Last 5 basho (Jul 2025 to Mar 2026)
-```
+Current browser behaviour already renders this integrated heading using published sidecar dates converted to abbreviated month-year form.
 
 ---
 
-## 12. Interpretation Notes
+## 12. Notes and Interpretation
 
-The published standings table is intended as one coherent rolling-performance view.
+The page shall provide a notes area or equivalent explanatory space.
 
-It does not claim to equalise:
+This area should explain, at minimum:
+
+* what Wins means
+* what Bouts means
+* what Mean means
+* that the page presents one chosen standings interpretation rather than every possible one
+
+Current HTML includes a Notes section, though its content is not yet finalised. 
+
+The published standings table is intended as one coherent rolling-performance view. It does not claim to equalise:
 
 * strength of schedule
 * division difficulty
@@ -244,7 +251,7 @@ It does not claim to equalise:
 * participation continuity
 * every possible notion of fairness
 
-It provides one stable and intelligible interpretation of recent standings performance.
+It provides one stable and intelligible interpretation of recent standings performance. 
 
 ---
 
@@ -255,9 +262,12 @@ Standings shall be computed offline and published as static artefacts.
 For each supported basho window, publication shall produce:
 
 * a standings dataset
-* corresponding metadata sufficient for browser display
+* a corresponding metadata sidecar
+* bootstrap site configuration for the browser client
 
-The browser application shall consume published artefacts and shall not perform standings calculations.
+Current publisher and reporting modules implement exactly this model.
+
+The browser application shall consume published artefacts and shall not perform standings calculations. 
 
 ---
 
@@ -271,148 +281,36 @@ The browser layer shall support:
 * rendering of standings rows
 * display of standings period metadata
 
-The browser layer shall remain a presentation consumer of precomputed data.
+The browser layer shall remain a presentation consumer of precomputed data. Current JS responsibilities match this description. 
 
 ---
 
-## 15. Non-Goals (Initial Release)
+## 15. Internal Model and Deferred Controls
 
-The following are explicitly deferred:
+The underlying application model recognises richer concepts than the page currently exposes, including:
+
+* alternative win policies
+* BashoBasis (`SELECTED`, `CONTAINING`)
+* BoutBasis (`EXPECTED`, `AVAILABLE`)
+
+These internal model concepts are real and useful, but not every such axis belongs in the public UI. Current class definitions already include `WinKind`, `WinPolicy`, `BashoBasis`, and `BoutBasis`. 
+
+The following are explicitly deferred as user-facing controls:
 
 * selectable win policy
 * selectable basho basis
 * selectable bout basis
 * strict division-membership filters
-* statistical confidence displays
-* arbitrary historical anchor-date browsing
-* custom user-defined standings formulas
+* rate-based metrics
+* strength-adjusted rankings
+* expert or advanced analytical options 
 
 ---
 
 ## 16. Source of Truth
 
-This specification defines intended behaviour.
+This specification defines intended behaviour for the published application.
 
 Where implementation diverges from this document, the implementation should be considered provisional and subject to correction.
 
-----------------------
-Looks good to me. Thinking ahead, where is the specification not correctly implemented?
-----------------------
-Quite a few places, in fact. The new spec is ahead of the current UI.
-
-## Clear mismatches
-
-### 1. Page title / primary heading
-
-The spec says the page title and primary heading should be **“Ozumo Standings”**. The current HTML still uses **“Simple Standings”** in both the `<title>` and the page title element. 
-
-### 2. Table heading text
-
-The spec says the table heading should be of the form:
-
-> Standings for Last N basho (MMM YYYY to MMM YYYY)
-
-The current page only renders a generic **“Standings”** heading, while the date range is shown separately in another element as raw `YYYY/MM` strings.
-
-### 3. Leftmost column semantics
-
-The spec says the first column should be:
-
-* blank heading
-* row number
-* not sortable
-
-The current HTML still labels it **“Pos”**, and the JS renders `row.position`, i.e. competition rank from the dataset, not visible row number after sort/filter. It is also still declared as a sortable header because it has a `data-column` attribute.
-
-### 4. Column heading “Bouts”
-
-The spec now says the heading should be **“Bouts”**. The current HTML still says **“Count”**. 
-
-### 5. Default sort
-
-The spec now says default sort should be **Shikona ascending**. The current JS still initialises sorting with:
-
-* `sortColumn: "containing_average_fought_wins"`
-* `sortDescending: true`
-
-So the actual default sort is still the old mean-style descending basis, not Shikona ascending. 
-
-### 6. Header sort keys no longer match rendered semantics
-
-The rendered data has been partly updated to the new standard:
-
-* Wins = `credited_wins`
-* Bouts value = `selected_expected_bout_count`
-* Mean = `selected_average_credited_wins`
-
-But the HTML headers still advertise old sort columns:
-
-* Wins header: `data-column="fought_wins"`
-* Count header: `data-column="bout_count"`
-* Mean header: `data-column="containing_average_fought_wins"`
-
-So even where the displayed values match the new model, the clickable sort semantics do not.
-
-### 7. Default basho window
-
-The spec now says the default should be:
-
-* number of basho so far in the current calendar year, else 6
-
-The current site config still hard-codes `default_num_basho` to **6**.
-
-### 8. Notes section
-
-The Notes are now badly out of sync with the spec. In particular they still say:
-
-* **Mean is Wins divided by Count**
-* relevant basho set is currently basho **containing** the rikishi
-* selected-basho mode is something for later 
-
-All of that conflicts with the current intended spec, where the public model is already **CREDITED + SELECTED + EXPECTED**, and Mean is per selected basho, not Wins divided by expected bouts.
-
-## Partial matches
-
-Some things are already aligned, at least partly.
-
-### 1. Displayed Wins / Bouts / Mean values
-
-The JS now renders:
-
-* `credited_wins`
-* `selected_expected_bout_count`
-* `selected_average_credited_wins`
-
-which does match the core public metric model in the spec.
-
-### 2. Division list and default division
-
-The available divisions and default `makuuchi` are consistent with the spec.
-
-### 3. Static publication model
-
-The publisher/browser split remains consistent with the spec.
-
-## One possible spec/code tension to watch
-
-The spec says Mean is:
-
-> average credited wins per basho across the selected standings period
-
-That matches `selected_average_credited_wins`, so that is fine. But it no longer has any direct mathematical link to **Bouts**, which users may assume from the table layout. That is not an implementation mismatch, but it is a presentational tension you may want the Notes to explain clearly.
-
-## In short
-
-The main gaps are:
-
-* branding/title
-* heading/range formatting
-* first-column semantics
-* column label “Bouts”
-* default sort
-* sortable header bindings
-* default `num_basho`
-* Notes text
-
-The core metric values are much closer to spec than the surrounding UI chrome is.
-
+Where older exploratory documents conflict with the current implementation and current project-position notes, they should be treated as historical rather than authoritative.
