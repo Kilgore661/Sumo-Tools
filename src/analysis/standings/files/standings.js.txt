@@ -5,14 +5,22 @@ Responsibilities:
 - load site_config.json
 - populate selectors
 - load selected CSV + sidecar JSON
-- render standings table
 - filter by division
 - sort visible columns
+- compute visible competition positions
+- render the current table
 
 No standings calculations are performed here.
 */
 
+/* ================================================== */
+/* 1. Configuration and runtime state                 */
+/* ================================================== */
+
 const DATA_DIR = "./data";
+
+const DEFAULT_SORT_COLUMN = "selected_average_credited_wins";
+const DEFAULT_SORT_DESCENDING = true;
 
 const state = {
   config: null,
@@ -20,10 +28,18 @@ const state = {
   meta: null,
   currentNumBasho: null,
   currentDivision: null,
-  sortColumn: "selected_average_credited_wins",
-  sortDescending: true,
+  sortColumn: DEFAULT_SORT_COLUMN,
+  sortDescending: DEFAULT_SORT_DESCENDING,
 };
 
+/*
+Static DOM hooks.
+
+Note:
+- headers includes only sortable columns, i.e. <th> elements carrying
+  data-column attributes.
+- the row-number header is intentionally excluded because it is not sortable.
+*/
 const el = {
   numBasho: document.getElementById("num-basho-select"),
   division: document.getElementById("division-select"),
@@ -34,9 +50,9 @@ const el = {
   headers: document.querySelectorAll("#standings-table th[data-column]"),
 };
 
-/* -------------------------------------------------- */
-/* startup                                            */
-/* -------------------------------------------------- */
+/* ================================================== */
+/* 2. Startup                                         */
+/* ================================================== */
 
 document.addEventListener("DOMContentLoaded", init);
 
@@ -45,13 +61,8 @@ async function init() {
     state.config = await loadJson(`${DATA_DIR}/site_config.json`);
 
     buildNumBashoOptions();
-
-    state.currentNumBasho = state.config.default_num_basho;
-    state.currentDivision = state.config.default_division;
-
-    el.numBasho.value = String(state.currentNumBasho);
-    el.division.value = state.currentDivision;
-
+    applyConfigDefaultsToState();
+    applyStateToControls();
     wireEvents();
 
     await loadWindow(state.currentNumBasho);
@@ -60,9 +71,21 @@ async function init() {
   }
 }
 
-/* -------------------------------------------------- */
-/* config / controls                                  */
-/* -------------------------------------------------- */
+function applyConfigDefaultsToState() {
+  state.currentNumBasho = state.config.default_num_basho;
+  state.currentDivision = state.config.default_division;
+  state.sortColumn = DEFAULT_SORT_COLUMN;
+  state.sortDescending = DEFAULT_SORT_DESCENDING;
+}
+
+function applyStateToControls() {
+  el.numBasho.value = String(state.currentNumBasho);
+  el.division.value = state.currentDivision;
+}
+
+/* ================================================== */
+/* 3. Controls                                        */
+/* ================================================== */
 
 function buildNumBashoOptions() {
   el.numBasho.innerHTML = "";
@@ -90,24 +113,40 @@ function wireEvents() {
     th.style.cursor = "pointer";
 
     th.addEventListener("click", () => {
-      const col = th.dataset.column;
-
-      if (state.sortColumn === col) {
-        state.sortDescending = !state.sortDescending;
-      } else {
-        state.sortColumn = col;
-        state.sortDescending = (col === "shikona" || col === "chii_ordinal" ||
-col == "position" ) ? false : true;
-      }
-
-      render();
+      handleHeaderClick(th.dataset.column);
     });
   });
 }
 
-/* -------------------------------------------------- */
-/* loading                                            */
-/* -------------------------------------------------- */
+function handleHeaderClick(column) {
+  if (state.sortColumn === column) {
+    state.sortDescending = !state.sortDescending;
+  } else {
+    state.sortColumn = column;
+    state.sortDescending = defaultSortDescendingForColumn(column);
+  }
+
+  render();
+}
+
+function defaultSortDescendingForColumn(column) {
+  /*
+  Textual browse-oriented columns sort ascending on first click.
+  Metric columns sort descending on first click.
+
+  Pos. headers are wired in HTML to their underlying metric columns, so they
+  inherit the metric sort direction automatically.
+  */
+  return !(
+    column === "shikona" ||
+    column === "chii_ordinal" ||
+    column === "position"
+  );
+}
+
+/* ================================================== */
+/* 4. Data loading                                    */
+/* ================================================== */
 
 async function loadWindow(numBasho) {
   const root = fileRoot(numBasho);
@@ -125,18 +164,20 @@ function fileRoot(numBasho) {
   return `${DATA_DIR}/multiple basho standings view (${anchor}, ${direction}, ${numBasho})`;
 }
 
-/* -------------------------------------------------- */
-/* rendering                                          */
-/* -------------------------------------------------- */
+/* ================================================== */
+/* 5. Render orchestration                            */
+/* ================================================== */
 
 function render() {
   const filteredRows = getFilteredRows();
-  const rows = getSortedRows(filteredRows);
+  const sortedRows = getSortedRows(filteredRows);
+
   const meanPositions = computeCompetitionPositions(
     filteredRows,
     "selected_average_credited_wins",
     true
   );
+
   const percentPositions = computeCompetitionPositions(
     filteredRows,
     "win_percent",
@@ -144,18 +185,12 @@ function render() {
   );
 
   renderMeta();
-  renderTable(rows, meanPositions, percentPositions);
+  renderTable(sortedRows, meanPositions, percentPositions);
 }
 
-function formatMonthYear(token) {
-  const [y, m] = token.split("/");
-  const names = [
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-  ];
-
-  return `${names[Number(m) - 1]} ${y}`;
-}
+/* ================================================== */
+/* 6. Heading / metadata rendering                    */
+/* ================================================== */
 
 function renderMeta() {
   const start = formatMonthYear(state.meta.effective_start_date);
@@ -167,19 +202,42 @@ function renderMeta() {
   el.range.textContent = "";
 }
 
+function formatMonthYear(token) {
+  const [y, m] = token.split("/");
+  const monthNames = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+  ];
+
+  return `${monthNames[Number(m) - 1]} ${y}`;
+}
+
+/* ================================================== */
+/* 7. Table body rendering                            */
+/* ================================================== */
+
 function renderTable(rows, meanPositions, percentPositions) {
   el.body.innerHTML = "";
 
   rows.forEach((row, index) => {
     const tr = document.createElement("tr");
 
+    // Presentational row number: 1..N over the currently displayed rows.
     appendCell(tr, index + 1, "row-index");
+
+    // Identity block.
     appendCell(tr, row.shikona);
     appendCell(tr, row.chii);
+
+    // Main standings block.
     appendCell(tr, row.credited_wins);
     appendCell(tr, format2(row.selected_average_credited_wins));
     appendCell(tr, meanPositions.get(String(row.rikishi_id)));
+
+    // Visual separator between standings and rate context.
     appendSeparatorCell(tr);
+
+    // Opportunity / efficiency block.
     appendCell(tr, row.selected_expected_bout_count);
     appendCell(tr, formatPercent(row.win_percent));
     appendCell(tr, percentPositions.get(String(row.rikishi_id)));
@@ -206,8 +264,23 @@ function appendSeparatorCell(tr) {
   tr.appendChild(td);
 }
 
+/* ================================================== */
+/* 8. Derived visible positions                       */
+/* ================================================== */
 
 function computeCompetitionPositions(rows, column, descending) {
+  /*
+  Returns a Map from rikishi_id -> competition rank for the supplied metric.
+
+  Example rank pattern:
+      1
+      2
+      2
+      4
+
+  These positions are computed over the filtered rows, independent of the
+  current display order.
+  */
   const ordered = [...rows].sort((a, b) => {
     const dir = descending ? -1 : 1;
     return compare(a[column], b[column]) * dir;
@@ -235,9 +308,9 @@ function computeCompetitionPositions(rows, column, descending) {
   return positions;
 }
 
-/* -------------------------------------------------- */
-/* filtering                                          */
-/* -------------------------------------------------- */
+/* ================================================== */
+/* 9. Filtering                                       */
+/* ================================================== */
 
 function getFilteredRows() {
   if (state.currentDivision === "all") {
@@ -245,14 +318,14 @@ function getFilteredRows() {
   }
 
   return state.rows.filter((row) =>
-    divisionMatches(
-      Number(row.chii_ordinal),
-      state.currentDivision
-    )
+    divisionMatches(Number(row.chii_ordinal), state.currentDivision)
   );
 }
 
 function divisionMatches(chiiOrdinal, division) {
+  /*
+  Division is derived from chii ordinal by taking the leading level code.
+  */
   const d = Math.floor(chiiOrdinal / 100000);
 
   if (division === "makuuchi") {
@@ -282,9 +355,9 @@ function divisionMatches(chiiOrdinal, division) {
   return true;
 }
 
-/* -------------------------------------------------- */
-/* sorting                                            */
-/* -------------------------------------------------- */
+/* ================================================== */
+/* 10. Sorting                                        */
+/* ================================================== */
 
 function getSortedRows(rows) {
   const out = [...rows];
@@ -297,6 +370,10 @@ function getSortedRows(rows) {
 }
 
 function compare(a, b) {
+  /*
+  Numeric fields are compared numerically.
+  Everything else is compared lexically.
+  */
   const na = Number(a);
   const nb = Number(b);
 
@@ -310,29 +387,28 @@ function compare(a, b) {
   return String(a).localeCompare(String(b));
 }
 
-/* -------------------------------------------------- */
-/* helpers                                            */
-/* -------------------------------------------------- */
+/* ================================================== */
+/* 11. File parsing / formatting helpers              */
+/* ================================================== */
 
 async function loadJson(url) {
-  const r = await fetch(url);
+  const response = await fetch(url);
 
-  if (!r.ok) {
+  if (!response.ok) {
     throw new Error(`Cannot load ${url}`);
   }
 
-  return await r.json();
+  return await response.json();
 }
 
 async function loadCsv(url) {
-  const r = await fetch(url);
+  const response = await fetch(url);
 
-  if (!r.ok) {
+  if (!response.ok) {
     throw new Error(`Cannot load ${url}`);
   }
 
-  const text = await r.text();
-
+  const text = await response.text();
   return parseCsv(text);
 }
 
@@ -354,8 +430,8 @@ function parseCsv(text) {
     const values = splitCsvLine(lines[i]);
     const row = {};
 
-    headers.forEach((h, idx) => {
-      row[h] = values[idx] ?? "";
+    headers.forEach((header, idx) => {
+      row[header] = values[idx] ?? "";
     });
 
     rows.push(row);
@@ -365,6 +441,7 @@ function parseCsv(text) {
 }
 
 function splitCsvLine(line) {
+  // Current published CSV contract is simple and comma-split is sufficient.
   return line.split(",");
 }
 
@@ -376,7 +453,12 @@ function formatPercent(value) {
   return Number(value).toFixed(1);
 }
 
+/* ================================================== */
+/* 12. Failure handling                               */
+/* ================================================== */
+
 function fail(err) {
   console.error(err);
   alert("Unable to load standings data.");
 }
+
