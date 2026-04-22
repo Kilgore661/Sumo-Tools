@@ -65,6 +65,7 @@ class MultipleBashoViewRow:
     selected_ci95_half_width_credited_wins: float
     containing_ci95_half_width_fought_wins: float
     containing_ci95_half_width_credited_wins: float
+    win_percent: float
 
 
 @dataclass(frozen=True)
@@ -248,6 +249,7 @@ def get_multiple_basho_view(
                 "containing_available_bout_count": containing_available_bout_count,
                 "selected_average_fought_wins": _mean(selected_fought_wins_by_basho),
                 "selected_average_credited_wins": _mean(selected_credited_wins_by_basho),
+                "win_percent": (100.0 * row.credited_wins / selected_expected_bout_count) if selected_expected_bout_count > 0 else 0.0,
                 "containing_average_fought_wins": _mean(containing_fought_wins_by_basho),
                 "containing_average_credited_wins": _mean(containing_credited_wins_by_basho),
                 "selected_stdev_fought_wins": _sample_stdev(selected_fought_wins_by_basho),
@@ -321,6 +323,7 @@ def get_multiple_basho_view(
                 containing_available_bout_count=row["containing_available_bout_count"],
                 selected_average_fought_wins=row["selected_average_fought_wins"],
                 selected_average_credited_wins=row["selected_average_credited_wins"],
+                win_percent=row["win_percent"],
                 containing_average_fought_wins=row["containing_average_fought_wins"],
                 containing_average_credited_wins=row["containing_average_credited_wins"],
                 selected_stdev_fought_wins=row["selected_stdev_fought_wins"],

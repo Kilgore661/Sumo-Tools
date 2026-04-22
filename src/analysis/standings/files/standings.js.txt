@@ -1,5 +1,5 @@
 /*
-Simple Standings browser client.
+Ozumo Standings browser client.
 
 Responsibilities:
 - load site_config.json
@@ -96,7 +96,8 @@ function wireEvents() {
         state.sortDescending = !state.sortDescending;
       } else {
         state.sortColumn = col;
-        state.sortDescending = (col === "shikona") ? false : true;;
+        state.sortDescending = (col === "shikona" || col === "chii_ordinal" ||
+col == "position" ) ? false : true;
       }
 
       render();
@@ -129,10 +130,21 @@ function fileRoot(numBasho) {
 /* -------------------------------------------------- */
 
 function render() {
-  const rows = getSortedRows(getFilteredRows());
+  const filteredRows = getFilteredRows();
+  const rows = getSortedRows(filteredRows);
+  const meanPositions = computeCompetitionPositions(
+    filteredRows,
+    "selected_average_credited_wins",
+    true
+  );
+  const percentPositions = computeCompetitionPositions(
+    filteredRows,
+    "win_percent",
+    true
+  );
 
   renderMeta();
-  renderTable(rows);
+  renderTable(rows, meanPositions, percentPositions);
 }
 
 function formatMonthYear(token) {
@@ -155,27 +167,72 @@ function renderMeta() {
   el.range.textContent = "";
 }
 
-function renderTable(rows) {
+function renderTable(rows, meanPositions, percentPositions) {
   el.body.innerHTML = "";
 
-  for (const row of rows) {
+  rows.forEach((row, index) => {
     const tr = document.createElement("tr");
 
-    appendCell(tr, row.position);
+    appendCell(tr, index + 1, "row-index");
     appendCell(tr, row.shikona);
     appendCell(tr, row.chii);
     appendCell(tr, row.credited_wins);
-    appendCell(tr, row.selected_expected_bout_count);
     appendCell(tr, format2(row.selected_average_credited_wins));
+    appendCell(tr, meanPositions.get(String(row.rikishi_id)));
+    appendSeparatorCell(tr);
+    appendCell(tr, row.selected_expected_bout_count);
+    appendCell(tr, formatPercent(row.win_percent));
+    appendCell(tr, percentPositions.get(String(row.rikishi_id)));
 
     el.body.appendChild(tr);
-  }
+  });
 }
 
-function appendCell(tr, value) {
+function appendCell(tr, value, className = "") {
   const td = document.createElement("td");
   td.textContent = value;
+
+  if (className) {
+    td.className = className;
+  }
+
   tr.appendChild(td);
+}
+
+function appendSeparatorCell(tr) {
+  const td = document.createElement("td");
+  td.className = "metric-separator";
+  td.setAttribute("aria-hidden", "true");
+  tr.appendChild(td);
+}
+
+
+function computeCompetitionPositions(rows, column, descending) {
+  const ordered = [...rows].sort((a, b) => {
+    const dir = descending ? -1 : 1;
+    return compare(a[column], b[column]) * dir;
+  });
+
+  const positions = new Map();
+  let previousValue = null;
+  let previousPosition = 0;
+
+  ordered.forEach((row, index) => {
+    const currentValue = row[column];
+    let position;
+
+    if (index > 0 && compare(currentValue, previousValue) === 0) {
+      position = previousPosition;
+    } else {
+      position = index + 1;
+      previousPosition = position;
+      previousValue = currentValue;
+    }
+
+    positions.set(String(row.rikishi_id), position);
+  });
+
+  return positions;
 }
 
 /* -------------------------------------------------- */
@@ -282,13 +339,19 @@ async function loadCsv(url) {
 function parseCsv(text) {
   const lines = text.trim().split(/\r?\n/);
 
-  const headers = splitCsvLine(lines[0]);
+  if (lines.length === 0) {
+    return [];
+  }
 
+  const headers = splitCsvLine(lines[0]);
   const rows = [];
 
   for (let i = 1; i < lines.length; i++) {
-    const values = splitCsvLine(lines[i]);
+    if (!lines[i].trim()) {
+      continue;
+    }
 
+    const values = splitCsvLine(lines[i]);
     const row = {};
 
     headers.forEach((h, idx) => {
@@ -309,21 +372,8 @@ function format2(value) {
   return Number(value).toFixed(2);
 }
 
-function formatBashoLabel(dateText) {
-  const [yearText, monthText] = String(dateText).split("/");
-  const year = Number(yearText);
-  const month = Number(monthText);
-
-  const monthNames = {
-    1: "Jan",
-    3: "Mar",
-    5: "May",
-    7: "Jul",
-    9: "Sep",
-    11: "Nov",
-  };
-
-  return `${monthNames[month] ?? monthText} ${year}`;
+function formatPercent(value) {
+  return Number(value).toFixed(1);
 }
 
 function fail(err) {

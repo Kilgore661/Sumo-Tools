@@ -150,3 +150,26 @@ body {
   margin-bottom: 6px;
   line-height: 1.4;
 }
+
+.metric-separator {
+  width: 2px;
+  min-width: 2px;
+  max-width: 2px;
+  padding: 0 !important;
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  background: transparent;
+}
+
+
+.row-index-head {
+  width: 28px;
+  min-width: 28px;
+  padding: 8px 6px;
+}
+
+.standings-table td.row-index {
+  color: #6f7f96;
+  padding-left: 6px;
+  padding-right: 6px;
+}
