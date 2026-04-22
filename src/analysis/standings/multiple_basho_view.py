@@ -186,6 +186,10 @@ def get_multiple_basho_view(
     core: MultipleBashoCore,
     win_policy: WinPolicy = WinPolicy.FOUGHT_ONLY,
 ) -> MultipleBashoView:
+
+    # Rows are sorted deterministically for developer convenience.
+    # Published row order should not be treated as semantic ranking contract.
+
     selected_basho_count = len(core.selected_dates)
 
     sortable_rows: list[dict[str, object]] = []

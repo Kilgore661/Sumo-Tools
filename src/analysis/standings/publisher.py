@@ -9,6 +9,7 @@ parameters.
 from time import time
 
 from src.infra.live_store.api import get_history
+from src.sumo_core.BasicPrimitives import Month
 
 from src.analysis.standings.helpers import make_run_stamp
 from src.analysis.standings.multiple_basho import (
@@ -40,8 +41,20 @@ WEB_DATA = WEB_ROOT / "data"
 SUPPORTED_NUM_BASHO = (1, 2, 3, 4, 5, 6, 12, 18, 24, 36, 60)
 DIRECTION = "BACKWARDS"
 
-DEFAULT_NUM_BASHO = 6
 DEFAULT_DIVISION = "makuuchi"
+
+
+def determine_default_num_basho(history) -> int:
+    dates = sorted(history.keys())
+
+    for j in range(len(dates) - 1, -1, -1):
+        if dates[j].month == Month(1):
+            return len(dates) - j
+
+    raise ValueError(
+        "Cannot determine default_num_basho: "
+        "the history does not contain records for a January basho."
+    )
 
 
 def publish_one_window(
@@ -148,7 +161,7 @@ def main() -> None:
         anchor_date=anchor_date,
         direction=DIRECTION,
         supported_num_basho=SUPPORTED_NUM_BASHO,
-        default_num_basho=DEFAULT_NUM_BASHO,
+        default_num_basho=determine_default_num_basho(history),
         default_division=DEFAULT_DIVISION,
     )
 
@@ -168,3 +181,4 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+

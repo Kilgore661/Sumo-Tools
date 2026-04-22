@@ -29,6 +29,7 @@ const el = {
   division: document.getElementById("division-select"),
   body: document.getElementById("standings-body"),
   range: document.getElementById("range-label"),
+  pageTitle: document.getElementById("page-title"),
   title: document.getElementById("table-title"),
   headers: document.querySelectorAll("#standings-table th[data-column]"),
 };
@@ -134,12 +135,24 @@ function render() {
   renderTable(rows);
 }
 
-function renderMeta() {
-  el.title.textContent =
-    `Standings (${state.currentNumBasho} basho)`;
+function formatMonthYear(token) {
+  const [y, m] = token.split("/");
+  const names = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+  ];
 
-  el.range.textContent =
-    `${state.meta.effective_start_date} to ${state.meta.effective_end_date}`;
+  return `${names[Number(m) - 1]} ${y}`;
+}
+
+function renderMeta() {
+  const start = formatMonthYear(state.meta.effective_start_date);
+  const end = formatMonthYear(state.meta.effective_end_date);
+
+  el.title.textContent =
+    `Standings (Last ${state.currentNumBasho} basho, ${start} to ${end})`;
+
+  el.range.textContent = "";
 }
 
 function renderTable(rows) {
@@ -294,6 +307,23 @@ function splitCsvLine(line) {
 
 function format2(value) {
   return Number(value).toFixed(2);
+}
+
+function formatBashoLabel(dateText) {
+  const [yearText, monthText] = String(dateText).split("/");
+  const year = Number(yearText);
+  const month = Number(monthText);
+
+  const monthNames = {
+    1: "Jan",
+    3: "Mar",
+    5: "May",
+    7: "Jul",
+    9: "Sep",
+    11: "Nov",
+  };
+
+  return `${monthNames[month] ?? monthText} ${year}`;
 }
 
 function fail(err) {
