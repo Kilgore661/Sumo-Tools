@@ -30,6 +30,7 @@ const state = {
   currentDivision: null,
   sortColumn: DEFAULT_SORT_COLUMN,
   sortDescending: DEFAULT_SORT_DESCENDING,
+  viewMode: "standard",
 };
 
 /*
@@ -64,6 +65,8 @@ async function init() {
     applyConfigDefaultsToState();
     applyStateToControls();
     wireEvents();
+    wireViewModeEvents();
+    applyViewMode();
 
     await loadWindow(state.currentNumBasho);
   } catch (err) {
@@ -219,28 +222,30 @@ function formatMonthYear(token) {
 function renderTable(rows, meanPositions, percentPositions) {
   el.body.innerHTML = "";
 
+  const mode = state.viewMode;
+
   rows.forEach((row, index) => {
     const tr = document.createElement("tr");
 
-    // Presentational row number: 1..N over the currently displayed rows.
     appendCell(tr, index + 1, "row-index");
-
-    // Identity block.
     appendCell(tr, row.shikona);
     appendCell(tr, row.chii);
-
-    // Main standings block.
     appendCell(tr, row.credited_wins);
-    appendCell(tr, format2(row.selected_average_credited_wins));
-    appendCell(tr, meanPositions.get(String(row.rikishi_id)));
 
-    // Visual separator between standings and rate context.
-    appendSeparatorCell(tr);
+    if (mode === "standard" || mode === "full") {
+      appendCell(tr, format2(row.selected_average_credited_wins));
+      appendCell(tr, meanPositions.get(String(row.rikishi_id)));
+    }
 
-    // Opportunity / efficiency block.
-    appendCell(tr, row.selected_expected_bout_count);
-    appendCell(tr, formatPercent(row.win_percent));
-    appendCell(tr, percentPositions.get(String(row.rikishi_id)));
+    if (mode === "full") {
+      appendSeparatorCell(tr);
+    }
+
+    if (mode === "percentages" || mode === "full") {
+      appendCell(tr, row.selected_expected_bout_count);
+      appendCell(tr, formatPercent(row.win_percent));
+      appendCell(tr, percentPositions.get(String(row.rikishi_id)));
+    }
 
     el.body.appendChild(tr);
   });
@@ -462,3 +467,60 @@ function fail(err) {
   alert("Unable to load standings data.");
 }
 
+/* -------------------------------------------------- */
+/* 13. View                                           */
+/* -------------------------------------------------- */
+
+function wireViewModeEvents() {
+  const radios = document.querySelectorAll('input[name="view-mode"]');
+
+  radios.forEach((radio) => {
+    radio.addEventListener("change", () => {
+      if (!radio.checked) {
+        return;
+      }
+
+      state.viewMode = radio.value;
+      applyViewMode();
+      render();
+    });
+  });
+}
+
+function applyViewMode() {
+  applyViewColumns();
+  applyViewNotes();
+}
+
+function applyViewColumns() {
+  const mode = state.viewMode;
+
+  document
+    .querySelectorAll("[data-view]")
+    .forEach((el) => {
+      const modes = el.dataset.view.split(/\s+/);
+      el.style.display = modes.includes(mode) ? "" : "none";
+    });
+
+  document
+    .querySelectorAll("[data-view-separator]")
+    .forEach((el) => {
+      const target = el.dataset.viewSeparator;
+      el.style.display = target === mode ? "" : "none";
+    });
+}
+
+function applyViewNotes() {
+  const mode = state.viewMode;
+
+  document
+    .querySelectorAll("[data-note-for]")
+    .forEach((el) => {
+      const modes = el.dataset.noteFor.split(/\s+/);
+
+      const visible =
+        modes.includes("all") || modes.includes(mode);
+
+      el.style.display = visible ? "" : "none";
+    });
+}

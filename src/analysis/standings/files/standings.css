@@ -6,6 +6,7 @@
   --text: #ffffff;
   --muted: #c9d4ee;
   --menu-bg: #fff6bf;
+  --table-line: rgba(127, 149, 192, 0.55);
 }
 
 html, body {
@@ -83,7 +84,9 @@ body {
 }
 
 .content-inner h2 {
-  margin: 0 0 12px 0;
+  margin: 0 0 20px 0;
+  font-size: 20px;
+  font-weight: bold;
 }
 
 .standings-table {
@@ -94,7 +97,7 @@ body {
 
 .standings-table th,
 .standings-table td {
-  border: 1px solid var(--line);
+  border: 1px solid var(--table-line);
   padding: 7px 10px;
   text-align: center;
   white-space: nowrap;
@@ -102,13 +105,24 @@ body {
 }
 
 .standings-table th {
-  background: #2a4676;
+  background: #314d7c;
   font-weight: bold;
   cursor: pointer;
 }
 
-.standings-table tbody tr:nth-child(even) {
-  background: rgba(255,255,255,0.03);
+.standings-table tbody tr:nth-child(odd) td {
+  background: rgba(255,255,255,0.02);
+}
+
+.standings-table tbody tr:nth-child(even) td {
+  background: rgba(255,255,255,0.06);
+}
+
+.standings-table th:nth-child(2),
+.standings-table td:nth-child(2) {
+  text-align: left;
+  padding-left: 14px;
+  padding-right: 14px;
 }
 
 .row-index-head {
@@ -151,4 +165,59 @@ body {
 
 .notes li {
   margin-bottom: 8px;
+}
+
+#view-mode-group legend {
+  padding: 0;
+  margin: 0 0 6px 0;
+}
+
+#view-mode-group {
+  border: 0;
+  padding: 0;
+  margin: 0 0 14px 0;
+  min-inline-size: 0;
+}
+
+select {
+  background: #d7e0ef;
+  color: #10264f;
+  border: 1px solid #aebddb;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 14px;
+}
+
+select:focus {
+  outline: 1px solid #c9d4ee;
+  outline-offset: 1px;
+}
+
+.radio-option input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+
+  width: 14px;
+  height: 14px;
+  margin: 0;
+
+  border-radius: 50%;
+  border: 1px solid #9cb1d8;
+  background: #d7e0ef;
+
+  position: relative;
+  cursor: pointer;
+}
+
+.radio-option input[type="radio"]:checked::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: #4d73c7;
+}
+
+.radio-option input[type="radio"]:focus {
+  outline: 1px solid rgba(201,212,238,0.45);
+  outline-offset: 1px;
 }

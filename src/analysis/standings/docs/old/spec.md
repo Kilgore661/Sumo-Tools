@@ -353,8 +353,6 @@ Where implementation diverges from this document, the implementation should be c
 
 Where older exploratory documents conflict with the current implementation and current project-position notes, they should be treated as historical rather than authoritative.
 
-
-
 ## ## Specification Patch 1 — View Selector and Mode-Dependent Table Layout
 
 This patch extends the presentation-layer specification by introducing a user-selectable table view mode.
@@ -564,8 +562,6 @@ The introduction of View modes reflects the distinction between at least two use
 The default shall favour simplicity.
 
 The richer views remain available without becoming the initial burden on every user.
-
-
 
 ## Spec patch #2 - don't go there!
 
