@@ -146,4 +146,3 @@ So I would not say “hardly what is required” full stop. I would say:
 **there is already enough here to justify the GSSWD account, but the UI and browser contract now need to be brought into line with it.**
 
 The next useful thing would be for me to turn this into a precise gap list: **implemented / partially implemented / not implemented / implemented but semantically wrong**.
-
