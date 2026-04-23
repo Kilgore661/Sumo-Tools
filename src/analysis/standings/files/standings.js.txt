@@ -200,7 +200,7 @@ function renderMeta() {
   const end = formatMonthYear(state.meta.effective_end_date);
 
   el.title.textContent =
-    `Standings (Last ${state.currentNumBasho} basho, ${start} to ${end})`;
+    `Standings for ${start} to ${end} (${state.currentNumBasho} basho)`;
 
   el.range.textContent = "";
 }
@@ -232,16 +232,16 @@ function renderTable(rows, meanPositions, percentPositions) {
     appendCell(tr, row.chii);
     appendCell(tr, row.credited_wins);
 
-    if (mode === "standard" || mode === "full") {
+    if (mode === "standard" || mode === "combined") {
       appendCell(tr, format2(row.selected_average_credited_wins));
       appendCell(tr, meanPositions.get(String(row.rikishi_id)));
     }
 
-    if (mode === "full") {
+    if (mode === "combined") {
       appendSeparatorCell(tr);
     }
 
-    if (mode === "percentages" || mode === "full") {
+    if (mode === "percentages" || mode === "combined") {
       appendCell(tr, row.selected_expected_bout_count);
       appendCell(tr, formatPercent(row.win_percent));
       appendCell(tr, percentPositions.get(String(row.rikishi_id)));
@@ -471,6 +471,38 @@ function fail(err) {
 /* 13. View                                           */
 /* -------------------------------------------------- */
 
+function visibleSortColumnsForMode(mode) {
+  const out = new Set();
+
+  document
+    .querySelectorAll("#standings-table th[data-column]")
+    .forEach((th) => {
+      const viewAttr = th.dataset.view;
+
+      // No data-view means always visible.
+      if (!viewAttr) {
+        out.add(th.dataset.column);
+        return;
+      }
+
+      const modes = viewAttr.split(/\s+/);
+      if (modes.includes(mode)) {
+        out.add(th.dataset.column);
+      }
+    });
+
+  return out;
+}
+
+function ensureValidSortForView(mode) {
+  const visibleColumns = visibleSortColumnsForMode(mode);
+
+  if (!visibleColumns.has(state.sortColumn)) {
+    state.sortColumn = DEFAULT_SORT_COLUMN;
+    state.sortDescending = DEFAULT_SORT_DESCENDING;
+  }
+}
+
 function wireViewModeEvents() {
   const radios = document.querySelectorAll('input[name="view-mode"]');
 
@@ -481,6 +513,7 @@ function wireViewModeEvents() {
       }
 
       state.viewMode = radio.value;
+      ensureValidSortForView(state.viewMode);
       applyViewMode();
       render();
     });

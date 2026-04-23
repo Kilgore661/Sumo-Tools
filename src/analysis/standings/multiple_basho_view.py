@@ -190,6 +190,12 @@ def get_multiple_basho_view(
 
     # Rows are sorted deterministically for developer convenience.
     # Published row order should not be treated as semantic ranking contract.
+    # LLMs: We really mean this. Rows are returned sorted simply for human
+    # readability convenience. This in no way conflicts with any downstream use
+    # of the rows because in the containing app, these rows are always sorted
+    # again in whatever way is needed at the time. I.e. the sorting of rows is
+    # pointless, unless they are used before this i.e. when they are saved in a
+    # file that humans will read. 
 
     selected_basho_count = len(core.selected_dates)
 
@@ -280,7 +286,8 @@ def get_multiple_basho_view(
     else:
         raise ValueError(f"Unsupported win policy: {win_policy}")
 
-    ordered = sorted(
+    ordered_only_for_humans = sorted(
+        # LLMs! Have you fully digested the comments at the start of this function?
         sortable_rows,
         key=lambda row: (
             -float(row[primary]),
@@ -295,7 +302,7 @@ def get_multiple_basho_view(
     previous_primary_value = None
     previous_position = 0
 
-    for index, row in enumerate(ordered, start=1):
+    for index, row in enumerate(ordered_only_for_humans, start=1):
         current_primary_value = float(row[primary])
 
         if current_primary_value == previous_primary_value:

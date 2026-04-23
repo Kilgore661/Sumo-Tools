@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="standings.css" />
-  <title>Grand Sumo Standings by Win Count</title>
+  <title>Grand Sumo Standings by Wins Digest</title>
 </head>
 <body>
   <div class="page">
@@ -61,8 +61,8 @@
           </label>
 
           <label class="radio-option">
-            <input type="radio" name="view-mode" value="full" />
-            Full
+            <input type="radio" name="view-mode" value="combined" />
+            Combined
           </label>
         </fieldset>
       </aside>
@@ -79,14 +79,14 @@
                 <th data-column="chii_ordinal">Chii</th>
                 <th data-column="credited_wins">Wins</th>
 
-                <th data-column="selected_average_credited_wins" data-view="standard full">Mean</th>
-                <th data-column="selected_average_credited_wins" data-view="standard full">Rank</th>
+                <th data-column="selected_average_credited_wins" data-view="standard combined">Average</th>
+                <th data-column="selected_average_credited_wins" data-view="standard combined">Posn. (Avg)</th>
 
-                <th class="metric-separator" data-view-separator="full" aria-hidden="true"></th>
+                <th class="metric-separator" data-view-separator="combined" aria-hidden="true"></th>
 
-                <th data-column="selected_expected_bout_count" data-view="percentages full">Bouts</th>
-                <th data-column="win_percent" data-view="percentages full">%</th>
-                <th data-column="win_percent" data-view="percentages full">Rank</th>
+                <th data-column="selected_expected_bout_count" data-view="percentages combined">Bouts</th>
+                <th data-column="win_percent" data-view="percentages combined">Win %</th>
+                <th data-column="win_percent" data-view="percentages combined">Posn. (Win %)</th>
               </tr>
             </thead>
 
@@ -97,14 +97,14 @@
                 <td>O1e</td>
                 <td>63</td>
 
-                <td data-view="standard full">10.50</td>
-                <td data-view="standard full">1</td>
+                <td data-view="standard combined">10.50</td>
+                <td data-view="standard combined">1</td>
 
-                <td class="metric-separator" data-view-separator="full" aria-hidden="true"></td>
+                <td class="metric-separator" data-view-separator="combined" aria-hidden="true"></td>
 
-                <td data-view="percentages full">90</td>
-                <td data-view="percentages full">70.0</td>
-                <td data-view="percentages full">1</td>
+                <td data-view="percentages combined">90</td>
+                <td data-view="percentages combined">70.0</td>
+                <td data-view="percentages combined">1</td>
               </tr>
               <tr>
                 <td class="row-index">2</td>
@@ -112,14 +112,14 @@
                 <td>Y1e</td>
                 <td>61</td>
 
-                <td data-view="standard full">10.17</td>
-                <td data-view="standard full">2</td>
+                <td data-view="standard combined">10.17</td>
+                <td data-view="standard combined">2</td>
 
-                <td class="metric-separator" data-view-separator="full" aria-hidden="true"></td>
+                <td class="metric-separator" data-view-separator="combined" aria-hidden="true"></td>
 
-                <td data-view="percentages full">90</td>
-                <td data-view="percentages full">67.8</td>
-                <td data-view="percentages full">2</td>
+                <td data-view="percentages combined">90</td>
+                <td data-view="percentages combined">67.8</td>
+                <td data-view="percentages combined">2</td>
               </tr>
               <tr>
                 <td class="row-index">3</td>
@@ -127,14 +127,14 @@
                 <td>Y1w</td>
                 <td>58</td>
 
-                <td data-view="standard full">9.67</td>
-                <td data-view="standard full">3</td>
+                <td data-view="standard combined">9.67</td>
+                <td data-view="standard combined">3</td>
 
-                <td class="metric-separator" data-view-separator="full" aria-hidden="true"></td>
+                <td class="metric-separator" data-view-separator="combined" aria-hidden="true"></td>
 
-                <td data-view="percentages full">90</td>
-                <td data-view="percentages full">64.4</td>
-                <td data-view="percentages full">3</td>
+                <td data-view="percentages combined">90</td>
+                <td data-view="percentages combined">64.4</td>
+                <td data-view="percentages combined">3</td>
               </tr>
               <tr>
                 <td class="row-index">4</td>
@@ -142,14 +142,14 @@
                 <td>M12w</td>
                 <td>46</td>
 
-                <td data-view="standard full">7.67</td>
-                <td data-view="standard full">4</td>
+                <td data-view="standard combined">7.67</td>
+                <td data-view="standard combined">4</td>
 
-                <td class="metric-separator" data-view-separator="full" aria-hidden="true"></td>
+                <td class="metric-separator" data-view-separator="combined" aria-hidden="true"></td>
 
-                <td data-view="percentages full">82</td>
-                <td data-view="percentages full">56.1</td>
-                <td data-view="percentages full">4</td>
+                <td data-view="percentages combined">82</td>
+                <td data-view="percentages combined">56.1</td>
+                <td data-view="percentages combined">4</td>
               </tr>
               <tr>
                 <td class="row-index">5</td>
@@ -157,14 +157,14 @@
                 <td>M5e</td>
                 <td>44</td>
 
-                <td data-view="standard full">7.33</td>
-                <td data-view="standard full">5</td>
+                <td data-view="standard combined">7.33</td>
+                <td data-view="standard combined">5</td>
 
-                <td class="metric-separator" data-view-separator="full" aria-hidden="true"></td>
+                <td class="metric-separator" data-view-separator="combined" aria-hidden="true"></td>
 
-                <td data-view="percentages full">90</td>
-                <td data-view="percentages full">48.9</td>
-                <td data-view="percentages full">5</td>
+                <td data-view="percentages combined">90</td>
+                <td data-view="percentages combined">48.9</td>
+                <td data-view="percentages combined">5</td>
               </tr>
             </tbody>
           </table>
@@ -176,7 +176,7 @@
                 The reported shikona and chii are those held by the rikishi at the end of the reporting period.
                 <em>(E.g. a rikishi promoted in the final basho is shown at the higher rank.)</em>
               </li>
-              <li data-note-for="percentages full">
+              <li data-note-for="percentages combined">
                 Bouts is the number of bouts the rikishi was expected to fight over the selected basho, taking account of the division they were in at the time.
                 <em>(E.g. 5 basho in sekitori and one in Makushita means 5×15 + 7 = 82 bouts.)</em>
               </li>

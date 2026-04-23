@@ -317,4 +317,3 @@ Not presently required.
 The current implementation is intentionally pragmatic.
 
 Where the specification and existing code diverge, code should evolve toward the specification rather than the reverse.
-
