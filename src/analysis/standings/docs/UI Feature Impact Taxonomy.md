@@ -77,6 +77,64 @@ Could mislead unless clearly explained.
 
 ### C3 — Core value
 
+Yes — that is an important missing axis in the taxonomy.
+
+I’d add a fourth assessment category:
+
+## D. Applicability / Coherence
+
+Ask two questions:
+
+1. **Context applicability**  
+   Does this feature make sense for every supported reporting window, division, view, and future mode?
+
+2. **Configuration coherence**  
+   If this feature is combined with other controls, can the resulting state still be explained as one coherent table?
+
+This is different from upstream/downstream cost. It is about whether the feature is **meaningful in context**.
+
+For example:
+
+- `ActivityBasis.CURRENT` makes sense for all current windows because “current” is defined by the latest basho in the selected period.
+
+- arbitrary anchor-date selection is meaningful to users, but under static publication it explodes the artefact set, so it fails more on upstream feasibility than coherence.
+
+- a feature that only makes sense for 1–6 basho but becomes nonsense at 60 basho would need either hiding, disabling, warning text, or rejection.
+
+- combinations of `WinPolicy`, `BashoBasis`, and `BoutBasis` may be individually intelligible but collectively too hard to explain as a default product; the taxonomy already notes the combinatorial burden of 2×2×2 settings.
+
+I’d define it like this:
+
+```markdown
+## D. Applicability / Coherence
+
+### D0 — Universal
+Makes sense in all supported contexts and combinations.
+
+### D1 — Context-limited but manageable
+Makes sense only in some contexts; can be hidden, disabled, or explained.
+
+### D2 — Combination-sensitive
+Makes sense alone but creates confusing or contradictory meanings when combined with other settings.
+
+### D3 — Incoherent / misleading
+Cannot be made clear enough for the product without disproportionate explanation.
+```
+
+This is especially useful because your product principles prioritise simplicity, trustworthiness, and stable behaviour.
+
+So the taxonomy becomes:
+
+- **A. Upstream impact**
+
+- **B. Downstream impact**
+
+- **C. Product value**
+
+- **D. Applicability / coherence**
+
+That is a real improvement.
+
 ---
 
 # Applying the Taxonomy to the Three Existing Dimensions
@@ -234,8 +292,6 @@ Default users stay at the current point.
 Advanced users may selectively move one dimension when they have a specific question.
 
 That preserves simplicity while leveraging the sophistication already latent in the project.
-
-
 
 # Other Features
 
@@ -444,8 +500,6 @@ Under the current static architecture:
 > elegant user feature, wrong engineering trade.
 
 So defer it without apology.
-
-
 
 # 2 Potential New UI Control: Retired Rikishi Inclusion
 
