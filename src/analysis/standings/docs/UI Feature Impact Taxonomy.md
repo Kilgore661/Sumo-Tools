@@ -1,744 +1,507 @@
-# GSSWD: Movement in Metric Configuration Space via the Feature Impact Taxonomy
+# GSSWD Product Feature Taxonomy and Governance
 
-## Current Fixed Configuration Point
-
-The current browser product is approximately:
-
-* **WinPolicy** = CREDITED
-* **BashoBasis** = SELECTED
-* **BoutBasis** = EXPECTED
-
-This defines the present meanings of:
-
-* Wins
-* Average
-* Bouts
-* Win %
-
-Any new UI control would allow movement away from this fixed point.
+### A Working Framework for Evaluating Controls, Metrics, Modes, and Future Enhancements
 
 ---
 
-# Taxonomy for Movement in Metric Configuration Space
+# 1. Purpose of this Document
 
-When considering exposing a new configuration dimension, assess:
+This document exists to help guide product decisions for **Grand Sumo Standings by Wins Digest (GSSWD)**.
+
+Its aims are simple:
+
+- to think clearly about what features belong in the product
+
+- to avoid adding controls merely because they are possible
+
+- to preserve a coherent user experience as the project grows
+
+- to record the reasoning behind past and future choices
+
+- to remind future us that not every computable number deserves a dropdown
+
+It is not a formal specification, technical design note, or set of binding rules.
+
+It is a practical working paper for making better decisions.
+
+---
+
+# 2. Current Product Position
+
+GSSWD is currently a browser-based standings page built from precomputed published data.
+
+It aims to answer a practical question:
+
+> Who has performed best over a recent rolling period?
+
+The current product is intentionally lightweight:
+
+- static publication model
+
+- fast browser interaction
+
+- no live server computation
+
+- clear table presentation
+
+- modest number of user controls
+
+The present mainstream control set is:
+
+- **Number of basho**
+
+- **Division**
+
+- **View**
+
+- **Active rikishi only**
+
+This is already enough to be useful without becoming exhausting.
+
+That should not be taken for granted.
+
+---
+
+# 3. Product Principles
+
+These are not laws. They are habits of thought.
+
+## 3.1 Usefulness over Completeness
+
+A smaller product that answers real questions well is better than a sprawling one that answers every theoretical question badly.
+
+## 3.2 Simplicity First
+
+The default experience should make sense quickly.
+
+Users should not need a briefing document before seeing who is winning.
+
+## 3.3 Trustworthiness
+
+Displayed metrics should mean what ordinary users reasonably think they mean, or be clearly explained when they do not.
+
+## 3.4 Coherence over Novelty
+
+A feature being interesting is not yet evidence that it belongs.
+
+## 3.5 Progressive Disclosure
+
+Advanced capabilities may exist, but need not dominate the initial experience.
+
+## 3.6 Preserve Optional Depth
+
+The product should remain friendly to casual fans without boring enthusiasts.
+
+## 3.7 Avoid the Museum of Our Cleverness
+
+The interface should not become a shelf displaying every idea we ever had.
+
+---
+
+# 4. Feature Impact Taxonomy
+
+When considering a new feature, control, mode, metric, or widget, assess it across the following dimensions.
+
+---
 
 ## A. Upstream Impact
 
+What must change before the browser can offer the feature?
+
 ### A0 — None
 
-Already published exactly as needed.
+Already supported by current published artefacts.
 
 ### A1 — Publication Contract Change
 
-Existing capability, but new fields / schema / sidecars required.
+Existing capability, but new fields, files, or schemas required.
 
 ### A2 — New Computation
 
-Need new engine logic.
+Additional engine logic required.
 
-### A3 — New External Data
+### A3 — New Architecture or Data Source
 
-Need new data sources.
+Requires new systems, services, or external data.
 
 ---
 
 ## B. Downstream Impact
 
+What changes in the user-facing product?
+
 ### B0 — Cosmetic
 
-Labels / display only.
+Labels, wording, styling only.
 
 ### B1 — Interaction
 
-New control / selector.
+New control, selector, toggle, or mode.
 
 ### B2 — Semantic
 
-Changes meaning of shown metrics.
+Changes the meaning of displayed metrics or rankings.
 
 ### B3 — Cognitive Load
 
-More choices / more complexity.
+Adds complexity, decisions, or explanation burden.
 
 ### B4 — Trust Risk
 
-Could mislead unless clearly explained.
+Likely to mislead unless carefully explained.
 
 ---
 
 ## C. Product Value
 
-### C0 — No real demand
+How useful is it likely to be?
 
-### C1 — Niche but valid
+### C0 — Little Real Demand
 
-### C2 — Broadly useful
+### C1 — Niche but Valid
 
-### C3 — Core value
+### C2 — Broadly Useful
 
-Yes — that is an important missing axis in the taxonomy.
+### C3 — Core Value
 
-I’d add a fourth assessment category:
+---
 
 ## D. Applicability / Coherence
 
-Ask two questions:
+Does it make sense across supported contexts, and alongside other features?
 
-1. **Context applicability**  
-   Does this feature make sense for every supported reporting window, division, view, and future mode?
+### D0 — Universally Coherent
 
-2. **Configuration coherence**  
-   If this feature is combined with other controls, can the resulting state still be explained as one coherent table?
+### D1 — Mostly Coherent with Caveats
 
-This is different from upstream/downstream cost. It is about whether the feature is **meaningful in context**.
+### D2 — Combination-Sensitive
 
-For example:
-
-- `ActivityBasis.CURRENT` makes sense for all current windows because “current” is defined by the latest basho in the selected period.
-
-- arbitrary anchor-date selection is meaningful to users, but under static publication it explodes the artefact set, so it fails more on upstream feasibility than coherence.
-
-- a feature that only makes sense for 1–6 basho but becomes nonsense at 60 basho would need either hiding, disabling, warning text, or rejection.
-
-- combinations of `WinPolicy`, `BashoBasis`, and `BoutBasis` may be individually intelligible but collectively too hard to explain as a default product; the taxonomy already notes the combinatorial burden of 2×2×2 settings.
-
-I’d define it like this:
-
-```markdown
-## D. Applicability / Coherence
-
-### D0 — Universal
-Makes sense in all supported contexts and combinations.
-
-### D1 — Context-limited but manageable
-Makes sense only in some contexts; can be hidden, disabled, or explained.
-
-### D2 — Combination-sensitive
-Makes sense alone but creates confusing or contradictory meanings when combined with other settings.
-
-### D3 — Incoherent / misleading
-Cannot be made clear enough for the product without disproportionate explanation.
-```
-
-This is especially useful because your product principles prioritise simplicity, trustworthiness, and stable behaviour.
-
-So the taxonomy becomes:
-
-- **A. Upstream impact**
-
-- **B. Downstream impact**
-
-- **C. Product value**
-
-- **D. Applicability / coherence**
-
-That is a real improvement.
+### D3 — Hard to Justify Clearly
 
 ---
 
-# Applying the Taxonomy to the Three Existing Dimensions
+## E. Regime Validity
+
+How does it behave at different scales or settings (for example basho window or division)?
+
+### E0 — Stable Across Range
+
+### E1 — Weakens at Extremes
+
+### E2 — Conceptually Drifts Beyond Threshold
+
+### E3 — Only Makes Sense in Narrow Cases
 
 ---
 
-# 1. Move in WinPolicy Dimension
+## F. User-Type Sensitivity
 
-Current:
+Who is it really for?
 
-* CREDITED
+### F0 — Almost Everyone
 
-Alternative:
+### F1 — Segmented but Reasonable
 
-* FOUGHT_ONLY
+### F2 — Enthusiast / Specialist Leaning
 
-## Upstream
-
-* **A1** likely
-  Need additional explicit derived metrics (especially percentages) or browser derivation.
-
-## Downstream
-
-* **B1** add control
-* **B2** Wins / Average / Win % meanings change
-* **B3** moderate complexity
-* **B4** notes must explain fusensho treatment
-
-## Value
-
-* **C1** niche but real
-* maybe **C2** among analytical users
-
-## Verdict
-
-Good advanced option, not urgent.
+### F3 — Expert Only or Mainstream-Hostile
 
 ---
 
-# 2. Move in BashoBasis Dimension
+# 5. Current User Types (Working Model)
 
-Current:
+These are rough thinking tools, not sociological truths.
 
-* SELECTED
+## Type A — Casual / Mainstream Fan
 
-Alternative:
+Wants clear answers quickly.
 
-* CONTAINING
+Likely preferences:
 
-## Upstream
+- recent periods
 
-* **A0** already published
+- Makuuchi
 
-## Downstream
+- obvious metrics
 
-* **B1** add control
-* **B2** Average / Bouts interpretations change
-* **B3** moderate complexity
-* **B4** must explain why absences alter averages
+- minimal controls
 
-## Value
+## Type B — Enthusiast
 
-* **C1** niche but legitimate
+Enjoys exploring rankings, divisions, trends, and comparisons.
 
-## Verdict
+## Type C — Analyst / Specialist
 
-Cheap technically, moderate explanatory burden.
+Interested in assumptions, alternate metrics, methodology, and deeper controls.
 
----
-
-# 3. Move in BoutBasis Dimension
-
-Current:
-
-* EXPECTED
-
-Alternative:
-
-* AVAILABLE
-
-## Upstream
-
-* **A0** already published
-
-## Downstream
-
-* **B1** add control
-* **B2** Bouts / Win % meanings change strongly
-* **B3** moderate complexity
-* **B4** highest trust risk if users miss denominator basis
-
-## Value
-
-* **C1/C2** useful to analytical users
-
-## Verdict
-
-Technically cheap, semantically sensitive.
+A good product can serve all three, but not necessarily with the same interface density.
 
 ---
 
-# Comparing the Three Moves
-
-| Dimension  | Upstream Cost | Semantic Risk | User Value | Recommended Exposure |
-| ---------- | ------------- | ------------- | ---------- | -------------------- |
-| WinPolicy  | Medium        | Medium        | Medium     | Advanced             |
-| BashoBasis | Low           | Medium        | Low-Medium | Advanced             |
-| BoutBasis  | Low           | High          | Medium     | Advanced             |
+# 6. Applying the Framework to Current Controls
 
 ---
 
-# Important Combined Insight
+## 6.1 Number of Basho
 
-A single move is manageable.
+A core control.
 
-Multiple simultaneous moves create combinatorial UX burden:
+- High value (**C3**)
 
-* 2 × 2 × 2 = **8 metric configurations**
+- Broad appeal at smaller values (**F0**)
 
-Even if technically easy, user comprehension may collapse.
+- More specialist at larger values (**F2**)
 
-So movement in metric configuration space should likely be:
+- Meaning weakens at extremes (**E1/E2**)
 
-* one dimension at a time
-* hidden in advanced mode
-* accompanied by clear explanatory text
-* resettable to defaults
+A six-basho view is intuitive recent form.
 
----
+A 406-basho view may be mathematically valid, but it has wandered into archaeology.
 
-# Product Strategy Implication
-
-The current fixed point is probably the right mainstream default because it optimises:
-
-* intuitive standings logic
-* accountability across period
-* recognisable wins totals
-
-So the key product question is not:
-
-> should users roam freely in configuration space?
-
-but:
-
-> which controlled movements are worth permitting?
+This is why upper bounds matter.
 
 ---
 
-# My blunt recommendation
+## 6.2 Division
 
-Treat Metric Configuration Space as an **expert capability reservoir**.
+Strong control with different audience meanings.
 
-Default users stay at the current point.
+- Makuuchi is mainstream (**F0**)
 
-Advanced users may selectively move one dimension when they have a specific question.
+- Juryo is still accessible (**F1**)
 
-That preserves simplicity while leveraging the sophistication already latent in the project.
+- lower divisions trend specialist (**F2**)
 
-# Other Features
-
----
-
-# 1 Feature: User-selectable Anchor Date
-
-Meaning:
-
-Instead of only publishing standings anchored to the current/latest date, allow the user to choose an older basho date and view standings relative to that anchor.
-
-So the user could ask:
-
-- standings as of March 2026
-
-- standings as of September 2024
-
-- six-basho table ending January 2023
-
-That is clearly appealing.
+The current broad selector is reasonable so long as defaults remain sensible.
 
 ---
 
-# Why It Feels Valuable
+## 6.3 View
 
-From a user perspective this enables:
+Current modes:
 
-- historical browsing
+- Standard
 
-- “what did the world look like then?”
+- Percentages
 
-- retrospective comparisons
+- Combined
 
-- checking narratives (“was he already rising?”)
+Standard is the everyday answer view.
 
-- archive exploration
+Combined is more analytical.
 
-So downstream value is real.
-
----
-
-# Taxonomy Assessment
-
-# A. Upstream Impact
-
-## Under current static-file model: very high
-
-Right now the publisher emits one anchor point (latest/current) across supported windows.
-
-To support arbitrary anchors statically, you would need datasets for:
-
-- many dates ×
-
-- many retrospective window sizes ×
-
-- possibly future extra dimensions
-
-That scales quickly.
-
-As you said: sets of files for every possible date.
-
-That is classic **A2/A3-ish operational burden**, even if the calculations themselves are possible.
-
-Not mathematically hard, but deployment-hosting-file-management hard.
-
-## Publication explosion example
-
-If you had:
-
-- 100 historical anchor dates
-
-- 5 supported basho windows
-
-That is already 500 dataset pairs + sidecars + config implications.
-
-And that is before policy variants or archives.
-
-So yes: under the current architecture, unattractive.
+That is acceptable, provided the product remembers which it is most days.
 
 ---
 
-# B. Downstream Impact
+## 6.4 Activity Filter
 
-Actually modest.
+One of the strongest recent additions.
 
-UI-wise it is simple:
+It changes the eligible comparison population without changing underlying metrics.
 
-- add date selector
+Especially valuable at longer windows, where historical ghosts otherwise linger near the top of the table.
 
-- update title
-
-- load matching files
-
-Users would understand it easily.
-
-So downstream:
-
-- B1 interaction change
-
-- low B3 complexity
-
-- high user value for some users
-
-The blocker is upstream, not UX.
+Defaulting to current rikishi only is likely the right mainstream choice.
 
 ---
 
-# Therefore Your Conclusion Is Rational
+# 7. Metric Configuration Space
 
-> nice idea, not going to happen (for now)
+The current product uses an implicit configuration point approximately like:
 
-Exactly.
+- **WinPolicy** = CREDITED
 
-This is the right judgement when:
+- **BashoBasis** = SELECTED
 
-- downstream attractiveness exists
+- **BoutBasis** = EXPECTED
 
-- but upstream architecture makes it disproportionate
+This defines present meanings of:
 
-That is mature scope control.
+- Wins
 
----
+- Average
 
-# Important Nuance: “Not now” ≠ “Bad idea”
-
-This is not a rejected feature.
-
-It is a **deferred feature contingent on architecture**.
-
-Specifically:
-
-> feasible once standings generation happens server-side or via on-demand compute.
-
-That could mean:
-
-## Future architectures
-
-### 1. Remote compute endpoint
-
-User picks anchor date → server generates or retrieves standings.
-
-### 2. Precomputed archive index + lazy fetch
-
-Only popular anchors prebuilt.
-
-### 3. Hybrid
-
-Current anchor static; historical requests dynamic.
-
----
-
-# Strategic Value of Naming This Clearly
-
-I would record it as:
-
-> Historical Anchor Selection is product-valid but incompatible with current static publication economics.
-
-That prevents revisiting the same debate repeatedly.
-
----
-
-# My Taxonomy Classification
-
-## Today
-
-- Upstream: **A3 / operationally prohibitive**
-
-- Downstream: **B1**
-
-- Value: **C2**
-
-Result: defer.
-
-## If server-side later
-
-- Upstream: **A1/A2**
-
-- Downstream: **B1**
-
-- Value: **C2/C3**
-
-Result: strong candidate.
-
----
-
-# One More Observation
-
-This feature is qualitatively different from WinPolicy/BashoBasis/BoutBasis.
-
-Those move within **metric configuration space** while keeping one dataset.
-
-Anchor-date choice moves within **data selection space**.
-
-That often has much larger infrastructure consequences.
-
-That distinction is worth preserving.
-
----
-
-# My blunt summary
-
-You are right.
-
-Under the current static architecture:
-
-> elegant user feature, wrong engineering trade.
-
-So defer it without apology.
-
-# 2 Potential New UI Control: Retired Rikishi Inclusion
-
-## Control Concept
-
-Allow the user to choose whether rikishi who are no longer on the current banzuke are included in standings results.
-
-### Suggested UI Forms
-
-- **Include retired rikishi:** Yes / No
-
-- **Current rikishi only** / **Include retired rikishi**
-
-- Checkbox: **Show retired rikishi**
-
-My preference:
-
-> **Include retired rikishi: No (default)**
-
-because it states clearly what is being varied.
-
----
-
-# Domain Definition
-
-For this product, a practical and robust rule is:
-
-> **Retired = not currently on the banzuke**
-
-Given the historical rarity of reappearance after disappearance, this is operationally strong and easy to explain.
-
-So this is not a vague status judgement; it is a concrete roster-membership test.
-
----
-
-# Why This Control Matters
-
-## Current Behaviour Without Filter
-
-Longer reporting windows can surface historically dominant rikishi whose legacy results remain statistically strong despite retirement.
-
-Examples:
-
-- Hakuhō Shō appearing high in a 60-basho table long after retirement
-
-- Terunofuji Haruo lingering in extended windows after departure
-
-- other former high performers occupying visible positions
-
-Mathematically valid, but often contrary to ordinary user expectation.
-
-## Type A User Expectation
-
-Most users reading a current rolling standings page implicitly expect:
-
-> who is leading among current rikishi?
-
-not:
-
-> which historical residue remains strongest in the selected window?
-
-So default inclusion of retirees can feel surprising or misleading.
-
----
-
-# Feature Impact Taxonomy Assessment
-
-# A. Upstream Impact
-
-## Likely A0 or A1 (Low)
-
-### A0 — None / Trivial
-
-If current-banzuke membership is already inferable from existing published data.
-
-### A1 — Publication Contract Adjustment
-
-Publisher emits a boolean such as:
-
-```text
-is_retired
-```
-
-or
-
-```text
-is_current_banzuke_member
-```
-
-No new analytical computation is required.
-
-## No New Engine Logic Needed
-
-This is a population filter, not a standings-metric redesign.
-
----
-
-# B. Downstream Impact
-
-## B1 — Interaction Change
-
-Adds one simple filter control.
-
-## B2 — Population Semantics Change
-
-Changes who is eligible to appear, not how metrics are calculated.
-
-## B3 — Cognitive Load: Low
-
-Almost everyone understands what retirement means.
-
-## B4 — Trust / Interpretability Improvement
-
-Likely improves user confidence because results feel more current and intuitive.
-
----
-
-# C. Product Value
-
-## C2 / Possibly C3
-
-Especially valuable when using larger windows such as:
-
-- 30 basho
-
-- 60 basho
-
-- any future larger retrospective views
-
-Low importance for very short windows; high importance for long windows.
-
----
-
-# Behavioural Recommendation
-
-## Default Setting
-
-> **Exclude retired rikishi**
-
-This aligns with mainstream user expectation.
-
-## Optional Setting
-
-> **Include retired rikishi**
-
-Allows historians, enthusiasts, and curiosity-driven users to inspect legacy standings.
-
----
-
-# Interaction with Other Controls
-
-## Basho Count
-
-The longer the window, the more valuable this control becomes.
-
-## Metric Configuration Space
-
-This control is **not** part of metric configuration space.
-
-It does **not** change:
-
-- Wins meaning
-
-- Average basis
-
-- Bout denominator
+- Bouts
 
 - Win %
 
-It changes only the **eligible population**.
+These dimensions are real and analytically interesting.
 
-So it belongs in a separate category:
-
-> **Population Filters**
+They are not automatically good mainstream controls.
 
 ---
 
-# UI Placement
+## 7.1 WinPolicy
 
-Best placed near Division and Basho-window controls, not among metric controls.
+Example question:
 
-Suggested control groups:
+Should fusensho count as wins?
 
-### Scope Controls
-
-- Basho count
-
-- Division
-
-- Include retired rikishi
-
-### Metric Controls (future advanced)
-
-- WinPolicy
-
-- BashoBasis
-
-- BoutBasis
-
-That separation would be clean.
+Reasonable topic.  
+Usually specialist topic.
 
 ---
 
-# Risks / Caveats
+## 7.2 BashoBasis
 
-## 1. Tiny Historical Edge Cases
+Should averages divide by selected basho, containing basho, or some other basis?
 
-Rare re-entry cases (e.g. Sokokurai Eikō) may require careful implementation, but do not invalidate the model.
-
-## 2. User Surprise If Hidden Without Explanation
-
-A brief note may help:
-
-> Retired rikishi are excluded by default.
+Valid question.  
+Rarely a first-screen question.
 
 ---
 
-# Why This Is a Strong Candidate Feature
+## 7.3 BoutBasis
 
-Compared with many advanced options, this feature is:
+Should percentages use expected bouts or available bouts?
 
-- cheap to implement
-
-- easy to explain
-
-- high practical value
-
-- low cognitive burden
-
-- improves perceived relevance
-
-- preserves optional historical curiosity
+Important analytically.  
+High explanation burden.
 
 ---
 
-# Final Judgement
+## 7.4 Combined Warning
 
-This is one of the best next substantive UI additions available.
+One advanced toggle may be manageable.
 
-> **Simple upstream, simple downstream, real user value.**
+Several at once can create a product that feels like tax software.
 
-I would rank it above most metric-configuration toggles for mainstream product usefulness.
+---
+
+# 8. Candidate Future Features
+
+These ideas are not commitments.
+
+They are examples of things that should pass through the framework before adoption.
+
+---
+
+## 8.1 Anchor Date Selection
+
+User chooses standings *as of* a past basho.
+
+Strong product value.  
+Currently constrained by static publication economics.
+
+Good idea, wrong architecture (for now).
+
+---
+
+## 8.2 User Modes
+
+Examples:
+
+- Simple
+
+- Explore
+
+- Expert
+
+Potentially powerful, but easy to overcomplicate.
+
+---
+
+## 8.3 Search
+
+Likely useful if dataset size or user demand justifies it.
+
+---
+
+## 8.4 Heya Filter
+
+Potential enthusiast feature.
+
+Worth considering only if real use-cases emerge.
+
+---
+
+## 8.5 Rikishi Body Mass Index Widget
+
+The framework exists partly so we pause before adding this.
+
+---
+
+# 9. How to Consider New Features
+
+When a new idea appears, ask:
+
+## 9.1 What user problem does this solve?
+
+If the answer is “none, but it is neat”, caution is advised.
+
+## 9.2 Who is it for?
+
+Type A, B, C, or only ourselves for ten minutes?
+
+## 9.3 What does it cost?
+
+Code, data, UI space, explanation burden, future maintenance.
+
+## 9.4 Does it preserve trust?
+
+Could a normal user misunderstand the result?
+
+## 9.5 Does it crowd the interface?
+
+Every new widget competes with existing clarity.
+
+## 9.6 Is there a lighter version?
+
+Sometimes a note, default, or sort option beats a new control.
+
+---
+
+# 10. Strategic Direction
+
+The current product shape is promising:
+
+- mainstream-friendly shell
+
+- meaningful depth underneath
+
+- room for enthusiasts
+
+- no need yet for expert façade
+
+That balance is worth protecting.
+
+The likely danger is not lack of sophistication.
+
+It is enthusiastic overgrowth.
+
+---
+
+# 11. Appendix: Historical Evolutions
+
+## 11.1 Retirement Filter -> ActivityBasis
+
+The project first considered explicit retirement filtering.
+
+This was later generalised into the better concept of **ActivityBasis**:
+
+Who belongs in the comparison population?
+
+This handles retirement, inactivity, and similar absences more cleanly.
+
+## 11.2 Why the Basho Range Is Bounded
+
+Not every valid number of basho produces a meaningful standings page.
+
+Limits can be product judgement, not mathematical weakness.
+
+## 11.3 Why Some Good Ideas Wait
+
+A feature may be valid but mistimed.
+
+Sometimes the correct answer is:
+
+> later, under a different architecture.
+
+---
+
+# 12. Final Note
+
+If future us is ever tempted to add six new controls in one weekend:
+
+please read this document first.
