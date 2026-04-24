@@ -6,6 +6,9 @@ browser application, using fixed project policy and no command-line
 parameters.
 """
 
+import csv
+import shutil
+from pathlib import Path
 from time import time
 
 from src.infra.live_store.api import get_history
@@ -19,9 +22,7 @@ from src.analysis.standings.multiple_basho import (
 )
 from src.analysis.standings.multiple_basho_view import (
     get_multiple_basho_view,
-)
-from src.analysis.standings.multiple_basho_reports import (
-    write_multiple_basho_view_csv,
+    MultipleBashoView,
 )
 from src.analysis.standings.publisher_reports import (
     publisher_run_output_dir,
@@ -32,8 +33,6 @@ from src.analysis.standings.publisher_reports import (
     write_site_config_json,
 )
 
-from pathlib import Path
-import shutil
 
 WEB_ROOT = Path(r"A:/local/html/standings")
 WEB_DATA = WEB_ROOT / "data"
@@ -55,6 +54,91 @@ def determine_default_num_basho(history) -> int:
         "Cannot determine default_num_basho: "
         "the history does not contain records for a January basho."
     )
+
+
+def write_published_view_csv(
+    view: MultipleBashoView,
+    output_file: Path,
+    terminal_rikishi,
+) -> None:
+    fieldnames = [
+        "position",
+        "rikishi_id",
+        "shikona",
+        "chii",
+        "chii_ordinal",
+        "is_current",
+        "fought_wins",
+        "credited_wins",
+        "bout_count",
+        "selected_basho_count",
+        "containing_basho_count",
+        "selected_expected_bout_count",
+        "selected_available_bout_count",
+        "containing_expected_bout_count",
+        "containing_available_bout_count",
+        "selected_average_fought_wins",
+        "selected_average_credited_wins",
+        "win_percent",
+        "containing_average_fought_wins",
+        "containing_average_credited_wins",
+        "selected_stdev_fought_wins",
+        "selected_stdev_credited_wins",
+        "containing_stdev_fought_wins",
+        "containing_stdev_credited_wins",
+        "selected_sem_fought_wins",
+        "selected_sem_credited_wins",
+        "containing_sem_fought_wins",
+        "containing_sem_credited_wins",
+        "selected_ci95_half_width_fought_wins",
+        "selected_ci95_half_width_credited_wins",
+        "containing_ci95_half_width_fought_wins",
+        "containing_ci95_half_width_credited_wins",
+    ]
+
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+
+    with output_file.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+
+        for row in view.rows:
+            writer.writerow(
+                {
+                    "position": row.position,
+                    "rikishi_id": int(row.rikishi_id),
+                    "shikona": str(row.shikona),
+                    "chii": row.chii,
+                    "chii_ordinal": row.chii_ordinal,
+                    "is_current": "1" if row.rikishi_id in terminal_rikishi else "0",
+                    "fought_wins": row.fought_wins,
+                    "credited_wins": row.credited_wins,
+                    "bout_count": row.bout_count,
+                    "selected_basho_count": row.selected_basho_count,
+                    "containing_basho_count": row.containing_basho_count,
+                    "selected_expected_bout_count": row.selected_expected_bout_count,
+                    "selected_available_bout_count": row.selected_available_bout_count,
+                    "containing_expected_bout_count": row.containing_expected_bout_count,
+                    "containing_available_bout_count": row.containing_available_bout_count,
+                    "selected_average_fought_wins": row.selected_average_fought_wins,
+                    "selected_average_credited_wins": row.selected_average_credited_wins,
+                    "win_percent": row.win_percent,
+                    "containing_average_fought_wins": row.containing_average_fought_wins,
+                    "containing_average_credited_wins": row.containing_average_credited_wins,
+                    "selected_stdev_fought_wins": row.selected_stdev_fought_wins,
+                    "selected_stdev_credited_wins": row.selected_stdev_credited_wins,
+                    "containing_stdev_fought_wins": row.containing_stdev_fought_wins,
+                    "containing_stdev_credited_wins": row.containing_stdev_credited_wins,
+                    "selected_sem_fought_wins": row.selected_sem_fought_wins,
+                    "selected_sem_credited_wins": row.selected_sem_credited_wins,
+                    "containing_sem_fought_wins": row.containing_sem_fought_wins,
+                    "containing_sem_credited_wins": row.containing_sem_credited_wins,
+                    "selected_ci95_half_width_fought_wins": row.selected_ci95_half_width_fought_wins,
+                    "selected_ci95_half_width_credited_wins": row.selected_ci95_half_width_credited_wins,
+                    "containing_ci95_half_width_fought_wins": row.containing_ci95_half_width_fought_wins,
+                    "containing_ci95_half_width_credited_wins": row.containing_ci95_half_width_credited_wins,
+                }
+            )
 
 
 def publish_one_window(
@@ -80,6 +164,9 @@ def publish_one_window(
         core=core,
     )
 
+    terminal_date = selected_dates[-1]
+    terminal_rikishi = set(history(terminal_date).banzuke.riks)
+
     csv_file = publisher_csv_file(
         run_stamp=run_stamp,
         anchor_date=anchor_date,
@@ -94,7 +181,11 @@ def publish_one_window(
         num_basho=num_basho,
     )
 
-    write_multiple_basho_view_csv(view, csv_file)
+    write_published_view_csv(
+        view=view,
+        output_file=csv_file,
+        terminal_rikishi=terminal_rikishi,
+    )
 
     write_sidecar_json(
         output_file=json_file,
@@ -105,48 +196,34 @@ def publish_one_window(
     )
 
 
-
-from pathlib import Path
-import shutil
-
-WEB_ROOT = Path(r"A:/local/html/standings")
-WEB_DATA = WEB_ROOT / "data"
-
-
 def deploy_to_local_web(run_dir: Path) -> None:
     WEB_ROOT.mkdir(parents=True, exist_ok=True)
     WEB_DATA.mkdir(parents=True, exist_ok=True)
 
     static_dir = Path(__file__).resolve().parent / "files"
 
-    # Copy fixed web assets to the site root.
     for name in ["index.html", "standings.css", "standings.js.txt"]:
         source_file = static_dir / name
         target_file = WEB_ROOT / name
         shutil.copy2(source_file, target_file)
 
-    # Remove old published data files so deployed data matches this run exactly.
     for old_file in WEB_DATA.iterdir():
         if old_file.is_file():
             old_file.unlink()
 
-    # Copy all generated publisher artefacts, including site_config.json.
     for item in run_dir.iterdir():
         if item.is_file() and item.suffix.lower() in {".csv", ".json"}:
             shutil.copy2(item, WEB_DATA / item.name)
+
 
 def main() -> None:
     t0 = time()
 
     history = get_history()
-
     run_stamp = make_run_stamp()
 
     run_dir = publisher_run_output_dir(run_stamp)
-    run_dir.mkdir(
-        parents=True,
-        exist_ok=True,
-    )
+    run_dir.mkdir(parents=True, exist_ok=True)
 
     anchor_date = resolve_date(
         history=history,
@@ -179,6 +256,6 @@ def main() -> None:
     print(f"Output: {run_dir}")
     print(f"Deployed to: {WEB_ROOT}")
 
-if __name__ == '__main__':
-    main()
 
+if __name__ == "__main__":
+    main()

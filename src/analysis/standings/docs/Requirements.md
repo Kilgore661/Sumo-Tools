@@ -100,7 +100,20 @@ At minimum, major professional divisions shall be supported.
 
 ---
 
-## 5.3 Sortable Standings Table
+## 5.3 Activity Filtering
+
+Users shall be able to choose whether displayed standings include:
+
+* only rikishi appearing on the terminal banzuke of the selected reporting period
+* all rikishi represented in the selected standings window
+
+The default behaviour shall favour current rikishi only.
+
+Changing the activity filter shall update the displayed table without requiring regeneration of standings data.
+
+---
+
+## 5.4 Sortable Standings Table
 
 Users shall be able to reorder visible data by meaningful visible columns.
 
@@ -108,7 +121,7 @@ Sorting shall behave predictably.
 
 ---
 
-## 5.4 Clear Period Labelling
+## 5.5 Clear Period Labelling
 
 The page shall clearly state the reporting period represented by the current standings.
 
@@ -116,7 +129,7 @@ No user should need to infer the covered dates.
 
 ---
 
-## 5.5 Interpretable Metrics
+## 5.6 Interpretable Metrics
 
 Displayed metrics shall be comprehensible enough that a reasonable interested fan can understand what they broadly mean.
 
@@ -124,7 +137,7 @@ Where ambiguity exists, explanatory notes shall be available.
 
 ---
 
-## 5.6 Recent Identity Representation
+## 5.7 Recent Identity Representation
 
 Rows shall identify rikishi using recognisable current or near-current names/ranks rather than opaque historical identifiers.
 

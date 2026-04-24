@@ -77,6 +77,17 @@ A selector allowing the user to choose one of three table views:
 
 The default view shall be **Standard**.
 
+## 4.4 Activity Filter
+
+A binary control allowing the user to choose between:
+
+* Current rikishi only
+* All rikishi
+
+The default activity setting shall be **Current rikishi only**.
+
+For this purpose, a current rikishi is one who appears on the terminal banzuke of the selected reporting period.
+
 ---
 
 # 5. Reporting Period
@@ -91,27 +102,68 @@ This shall include:
 
 ---
 
-# 6. Metrics
+# 6. ActivityBasis
 
-## 6.1 Wins
+`ActivityBasis` is a comparison-population dimension. It determines which rikishi are eligible to participate in displayed standings comparisons.
+
+It is distinct from metric-definition dimensions such as `WinPolicy`, `BashoBasis`, and `BoutBasis`. Those dimensions govern metric interpretation after eligibility has been determined.
+
+Initial supported values shall be:
+
+* `CURRENT`
+* `ALL`
+
+## 6.1 `ActivityBasis.CURRENT`
+
+Only rikishi appearing on the terminal banzuke of the selected reporting period are eligible for display.
+
+“Terminal banzuke” means the banzuke of the most recent basho in the selected reporting period.
+
+## 6.2 `ActivityBasis.ALL`
+
+All rikishi represented in the standings result set for the selected reporting window are eligible for display.
+
+This corresponds to unrestricted historical inclusion.
+
+## 6.3 Scope
+
+`ActivityBasis` affects:
+
+* which rows are eligible for display
+* displayed standings positions
+* displayed row numbering
+
+`ActivityBasis` does not affect:
+
+* wins
+* averages
+* bout counts
+* percentages
+* other metric calculations for eligible rikishi
+
+---
+
+# 7. Metrics
+
+## 7.1 Wins
 
 **Wins** shall mean credited wins over the selected reporting period.
 
 Wins include fusensho.
 
-## 6.2 Average
+## 7.2 Average
 
 **Average** shall mean:
 
 > Wins divided by the selected number of basho
 
-## 6.3 Bouts
+## 7.3 Bouts
 
 **Bouts** shall mean expected bouts over the selected reporting period.
 
 Expected bouts depend on the division in which the rikishi was scheduled to compete during each basho of the period.
 
-## 6.4 Win %
+## 7.4 Win %
 
 **Win %** shall mean:
 
@@ -119,7 +171,7 @@ Expected bouts depend on the division in which the rikishi was scheduled to comp
 
 ---
 
-# 7. Display Identity
+# 8. Display Identity
 
 Each row shall identify a rikishi using:
 
@@ -130,7 +182,7 @@ Displayed Shikona and Chii shall be taken from the end of the reporting period.
 
 ---
 
-# 8. Sorting
+# 9. Sorting
 
 All sortable visible metric columns shall support ascending and descending ordering.
 
@@ -143,17 +195,19 @@ If a change of view removes the currently active sort key from visibility, the t
 
 ---
 
-# 9. Position Semantics
+# 10. Position Semantics
 
 A displayed position value shall always be calculated over the rows currently displayed after filtering.
+
+Filtering includes division filtering and activity filtering.
 
 Where ties occur, equal values may share the same position.
 
 ---
 
-# 10. View Specifications
+# 11. View Specifications
 
-## 10.1 Standard View
+## 11.1 Standard View
 
 Purpose:
 
@@ -172,7 +226,7 @@ This shall be the default view.
 
 ---
 
-## 10.2 Percentages View
+## 11.2 Percentages View
 
 Purpose:
 
@@ -189,7 +243,7 @@ Semantics:
 
 ---
 
-## 10.3 Combined View
+## 11.3 Combined View
 
 Purpose:
 
@@ -211,7 +265,7 @@ The Average block and Win % block should be visually separated.
 
 ---
 
-# 11. Notes Section
+# 12. Notes Section
 
 The page shall contain a Notes section.
 
@@ -226,7 +280,7 @@ Notes may vary by selected view where useful.
 
 ---
 
-# 12. Row Number Column
+# 13. Row Number Column
 
 Where present, the row number column:
 
@@ -238,7 +292,7 @@ Where present, the row number column:
 
 ---
 
-# 13. Visual Behaviour
+# 14. Visual Behaviour
 
 The interface shall prioritise clarity and readability.
 
@@ -248,7 +302,7 @@ No styling rule in this specification constrains exact colours, fonts, or CSS te
 
 ---
 
-# 14. Scope Boundaries
+# 15. Scope Boundaries
 
 The current specification does not require:
 
@@ -263,7 +317,7 @@ These may be considered in future revisions.
 
 ---
 
-# 15. Authority
+# 16. Authority
 
 This document defines the intended externally visible behaviour of the application.
 

@@ -65,6 +65,12 @@
             Combined
           </label>
         </fieldset>
+        <div class="control-group">
+          <label class="checkbox-option">
+            <input type="checkbox" id="activity-current-only" checked />
+            Active rikishi only
+          </label>
+        </div>
       </aside>
 
       <main class="content">
@@ -173,14 +179,15 @@
             <h3>Notes</h3>
             <ol>
               <li data-note-for="all">
-                The reported shikona and chii are those held by the rikishi at the end of the reporting period.
+                  The reported <strong>Shikona</strong> and <strong>Chii</strong> are those held by the rikishi at the end of the reporting period.
                 <em>(E.g. a rikishi promoted in the final basho is shown at the higher rank.)</em>
               </li>
+              <li data-note-for="all"><strong>Wins</strong> include fusensho.</li>
+              <li data-note-for="all">An <strong>Active</strong> rikishi is one that is listed on the banzuke for the latest basho.</li>
               <li data-note-for="percentages combined">
-                Bouts is the number of bouts the rikishi was expected to fight over the selected basho, taking account of the division they were in at the time.
+                  <strong>Bouts</strong> is the number of bouts the rikishi was expected to fight over the selected basho, taking account of the division they were in at the time.
                 <em>(E.g. 5 basho in sekitori and one in Makushita means 5×15 + 7 = 82 bouts.)</em>
               </li>
-              <li data-note-for="all">Wins include fusensho.</li>
             </ol>
           </div>
         </div>

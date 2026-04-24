@@ -31,6 +31,7 @@ const state = {
   sortColumn: DEFAULT_SORT_COLUMN,
   sortDescending: DEFAULT_SORT_DESCENDING,
   viewMode: "standard",
+  currentOnly: true,
 };
 
 /*
@@ -49,6 +50,7 @@ const el = {
   pageTitle: document.getElementById("page-title"),
   title: document.getElementById("table-title"),
   headers: document.querySelectorAll("#standings-table th[data-column]"),
+  currentOnly: document.getElementById("activity-current-only"),
 };
 
 /* ================================================== */
@@ -84,6 +86,7 @@ function applyConfigDefaultsToState() {
 function applyStateToControls() {
   el.numBasho.value = String(state.currentNumBasho);
   el.division.value = state.currentDivision;
+  el.currentOnly.checked = state.currentOnly;
 }
 
 /* ================================================== */
@@ -105,6 +108,11 @@ function wireEvents() {
   el.numBasho.addEventListener("change", async () => {
     state.currentNumBasho = Number(el.numBasho.value);
     await loadWindow(state.currentNumBasho);
+  });
+
+  el.currentOnly.addEventListener("change", () => {
+    state.currentOnly = el.currentOnly.checked;
+    render();
   });
 
   el.division.addEventListener("change", () => {
@@ -153,9 +161,10 @@ function defaultSortDescendingForColumn(column) {
 
 async function loadWindow(numBasho) {
   const root = fileRoot(numBasho);
+  const stamp = Date.now();
 
-  state.rows = await loadCsv(`${root}.csv`);
-  state.meta = await loadJson(`${root}.json`);
+  state.rows = await loadCsv(`${root}.csv?v=${stamp}`);
+  state.meta = await loadJson(`${root}.json?v=${stamp}`);
 
   render();
 }
@@ -318,13 +327,19 @@ function computeCompetitionPositions(rows, column, descending) {
 /* ================================================== */
 
 function getFilteredRows() {
-  if (state.currentDivision === "all") {
-    return [...state.rows];
+  let rows = [...state.rows];
+
+  if (state.currentDivision !== "all") {
+    rows = rows.filter((row) =>
+      divisionMatches(Number(row.chii_ordinal), state.currentDivision)
+    );
   }
 
-  return state.rows.filter((row) =>
-    divisionMatches(Number(row.chii_ordinal), state.currentDivision)
-  );
+  if (state.currentOnly) {
+    rows = rows.filter((row) => row.is_current === "1");
+  }
+
+  return rows;
 }
 
 function divisionMatches(chiiOrdinal, division) {
