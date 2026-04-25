@@ -262,3 +262,48 @@ select:focus {
   outline: 1px solid rgba(201,212,238,0.45);
   outline-offset: 1px;
 }
+
+/* Contextual notes popover.
+   JS will position and show one reusable element when hovering over
+   note-enabled table headings. */
+.notes-popover {
+  position: absolute;
+  z-index: 1000;
+
+  max-width: 220px;
+  padding: 6px 9px;
+
+  background: #f7f9ff;
+  color: #10264f;
+  border: 1px solid #9cb1d8;
+  border-radius: 5px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.28);
+
+  font-size: 13px;
+  line-height: 1.35;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.notes-popover[hidden] {
+  display: none;
+}
+
+.notes-popover a {
+  color: #224f9f;
+  text-decoration: underline;
+  font-weight: bold;
+}
+
+.notes-popover a:focus {
+  outline: 1px solid #224f9f;
+  outline-offset: 2px;
+}
+
+.notes li:target {
+  background: rgba(201, 212, 238, 0.14);
+  outline: 1px solid rgba(201, 212, 238, 0.35);
+  outline-offset: 3px;
+}
+
+

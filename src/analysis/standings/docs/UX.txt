@@ -1,0 +1,52 @@
+Scene: a Type A user discovers GSSWD.
+
+Initial Setup:
+Options:
++ just View
++ a widget to display Advanced Options 
+
+Settings:
++ Number of basho = 6 - widget locked/not shown
++ Division = Makuuchi - widget locked/not shown
++ View defaults to Standard. Percentages and Combined both visible/usable
++ Active rikishi = True - widget locked/not shown.
++ Needs indication of sort key and direction. This will hopefully suggest that col headings are clickable.
+
++ Tables are as per spec eg Standard view has cols are Posn (Avg), shikona,
+chii, Average *but* the first column heading is just "#" (for "number"),
+Percentage view - ditto. Combined view has row number.
+
+* Allowing user to see the Combined view is strategic. When they discover it,
+  the idea is that we can leave them to ponder why the format
+  is not identical to the Standard and Percentage views. (No hand-holding
+because that requires instruction and that requires some real estate to
+present.)
+
+! Notes are not visible until/unless you scroll down to the end of a long
+page. Add tooltips to the col headings if there is a pertinent Note saying
+"See Notes at foot of page" or "See Notes" with Notes a link to the Notes?
+
+User: "how can i get a table sorted on Shikona with the first shikona numbered
+1?
+Ans: You can't.
+
+Q2: Can I change the date from now to some point in the past?
+A3. No
+
+Q3. I can't see rikishi R who retired last basho. That's not right!
+A3. Go to Options and deselect active rikishi. 
+! Contextual note? Eg in Advanced mode, you can set the number of basho to much larger numbers; in this case, showing inactive (retired) rikishi will lead to ghost rikishi being displayed.
+
+Advanced Mode - shows number of basho, division, active rikishi switch
+
+New "number of basho Note": It is unlikely that you want to set the number of
+basho to more than 6 and have Active rikishi off because you will see "ghost
+rikishi" i.e. rikishi who have retired and so arguably not relevant. Eg with
+60 basho, Hakuho is still in the top 40 even though he has not competed for 5
+years.
+
+New division Note. The rikishi making up any given division changes from basho
+to basho. The extent of the "churn" varies from division to division,
+generally increasing from Maukkuchi (~10% the division change) to Jonokuchi
+(~50%). Selecting a division below juryo is probably not useful.
+

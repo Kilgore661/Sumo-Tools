@@ -69,6 +69,7 @@ async function init() {
     wireEvents();
     wireViewModeEvents();
     applyViewMode();
+    wireNotePopovers();
 
     await loadWindow(state.currentNumBasho);
   } catch (err) {
@@ -571,4 +572,129 @@ function applyViewNotes() {
 
       el.style.display = visible ? "" : "none";
     });
+}
+
+/* -------------------------------------------------- */
+/* 14. Note popovers                                  */
+/* -------------------------------------------------- */
+
+const NOTE_POPOVER_DELAY_MS = 450;
+
+let notePopoverTimer = null;
+let notePopoverTrigger = null;
+
+function wireNotePopovers() {
+  const headings = document.querySelectorAll(
+    "#standings-table th[data-note-target]"
+  );
+
+  headings.forEach((th) => {
+    th.addEventListener("mouseenter", () => {
+      notePopoverTrigger = th;
+
+      notePopoverTimer = window.setTimeout(() => {
+        showNotePopover(th);
+      }, NOTE_POPOVER_DELAY_MS);
+    });
+
+    th.addEventListener("mouseleave", () => {
+      clearNotePopoverTimer();
+
+      window.setTimeout(() => {
+        const popover = getNotePopover();
+
+        if (!popover.matches(":hover")) {
+          hideNotePopover();
+        }
+      }, 50);
+    });
+
+    th.addEventListener("click", () => {
+      clearNotePopoverTimer();
+      hideNotePopover();
+    });
+  });
+
+  const popover = getNotePopover();
+
+  popover.addEventListener("mouseleave", () => {
+    hideNotePopover();
+  });
+
+  popover.addEventListener("click", (event) => {
+    event.stopPropagation();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      clearNotePopoverTimer();
+      hideNotePopover();
+    }
+  });
+}
+
+function getNotePopover() {
+  let popover = document.getElementById("notes-popover");
+
+  if (!popover) {
+    popover = document.createElement("div");
+    popover.id = "notes-popover";
+    popover.className = "notes-popover";
+    popover.hidden = true;
+
+    document.body.appendChild(popover);
+  }
+
+  return popover;
+}
+
+function showNotePopover(th) {
+  const noteTarget = th.dataset.noteTarget;
+
+  if (!noteTarget) {
+    return;
+  }
+
+  const popover = getNotePopover();
+
+  popover.innerHTML = "";
+
+  const link = document.createElement("a");
+  link.href = `#${noteTarget}`;
+  link.textContent = "See Notes ⓘ";
+
+  popover.appendChild(link);
+
+  const rect = th.getBoundingClientRect();
+
+  popover.hidden = false;
+
+  const popoverRect = popover.getBoundingClientRect();
+
+  const left =
+    window.scrollX +
+    rect.left +
+    rect.width / 2 -
+    popoverRect.width / 2;
+
+  const top =
+    window.scrollY +
+    rect.bottom +
+    6;
+
+  popover.style.left = `${Math.max(8, left)}px`;
+  popover.style.top = `${top}px`;
+}
+
+function hideNotePopover() {
+  const popover = getNotePopover();
+  popover.hidden = true;
+  notePopoverTrigger = null;
+}
+
+function clearNotePopoverTimer() {
+  if (notePopoverTimer !== null) {
+    window.clearTimeout(notePopoverTimer);
+    notePopoverTimer = null;
+  }
 }
