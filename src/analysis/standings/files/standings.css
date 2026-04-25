@@ -114,6 +114,15 @@ body {
   cursor: pointer;
 }
 
+.header-group {
+  cursor: default !important;
+}
+
+.percentage-group,
+.percentage-start {
+  border-left: 2px solid var(--line) !important;
+}
+
 .th-label {
   display: inline-grid;
   grid-template-columns: 0.9em auto 0.9em;
@@ -169,8 +178,17 @@ body {
   cursor: default !important;
 }
 
+.combined-row-head {
+  color: #7f95b8 !important;
+}
+
 .standings-table td.row-index {
   color: #7f95b8;
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+.standings-table td.rank-position {
   padding-left: 6px;
   padding-right: 6px;
 }
@@ -347,3 +365,4 @@ select:focus {
   outline: 1px solid rgba(201, 212, 238, 0.35);
   outline-offset: 3px;
 }
+

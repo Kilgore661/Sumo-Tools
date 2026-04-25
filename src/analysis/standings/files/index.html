@@ -79,20 +79,35 @@
 
           <table class="standings-table" id="standings-table">
             <thead>
-              <tr>
-                <th class="row-index-head" data-note-target="note-row-number"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">#</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
-                <th data-column="shikona" data-note-target="note-identity"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Shikona</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
-                <th data-column="chii_ordinal" data-note-target="note-identity"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Chii</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
-                <th data-column="credited_wins" data-note-target="note-wins"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Wins</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
-
-                <th data-column="selected_average_credited_wins" data-view="standard combined" data-note-target="note-average"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Average</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
-                <th data-view="standard combined" data-note-target="note-position"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Posn. (Avg)</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
-
-                <th class="metric-separator" data-view-separator="combined" aria-hidden="true"></th>
-
-                <th data-column="selected_expected_bout_count" data-view="percentages combined" data-note-target="note-bouts"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Bouts</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
-                <th data-column="win_percent" data-view="percentages combined" data-note-target="note-win-percent"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Win %</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
-                <th data-view="percentages combined" data-note-target="note-position"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Posn. (Win %)</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+              <tr data-header-for="standard">
+                <th data-column="selected_average_credited_wins" data-sort-id="standard-rank" data-note-target="note-position"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">#</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+                <th data-column="shikona" data-sort-id="shikona" data-note-target="note-identity"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Shikona</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+                <th data-column="chii_ordinal" data-sort-id="chii" data-note-target="note-identity"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Chii</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+                <th data-column="credited_wins" data-sort-id="wins" data-note-target="note-wins"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Wins</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+                <th data-column="selected_average_credited_wins" data-sort-id="standard-average" data-note-target="note-average"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Average</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+              </tr>
+              <tr data-header-for="percentages">
+                <th data-column="win_percent" data-sort-id="percentage-rank" data-note-target="note-position"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">#</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+                <th data-column="shikona" data-sort-id="shikona" data-note-target="note-identity"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Shikona</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+                <th data-column="chii_ordinal" data-sort-id="chii" data-note-target="note-identity"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Chii</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+                <th data-column="credited_wins" data-sort-id="wins" data-note-target="note-wins"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Wins</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+                <th data-column="selected_expected_bout_count" data-sort-id="percentage-bouts" data-note-target="note-bouts"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Bouts</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+                <th data-column="win_percent" data-sort-id="percentage-win-percent" data-note-target="note-win-percent"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Win %</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+              </tr>
+              <tr data-header-for="combined">
+                <th class="row-index-head combined-row-head" rowspan="2" data-note-target="note-row-number"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Row</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+                <th rowspan="2" data-column="shikona" data-sort-id="shikona" data-note-target="note-identity"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Shikona</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+                <th rowspan="2" data-column="chii_ordinal" data-sort-id="chii" data-note-target="note-identity"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Chii</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+                <th colspan="3" class="header-group">Standard</th>
+                <th colspan="3" class="header-group percentage-group">Percentages</th>
+              </tr>
+              <tr data-header-for="combined">
+                <th data-column="credited_wins" data-sort-id="wins" data-note-target="note-wins"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Wins</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+                <th data-column="selected_average_credited_wins" data-sort-id="standard-average" data-note-target="note-average"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Average</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+                <th data-column="selected_average_credited_wins" data-sort-id="standard-rank" data-note-target="note-position"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">#</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+                <th class="percentage-start" data-column="selected_expected_bout_count" data-sort-id="percentage-bouts" data-note-target="note-bouts"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Bouts</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+                <th data-column="win_percent" data-sort-id="percentage-win-percent" data-note-target="note-win-percent"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Win %</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+                <th data-column="win_percent" data-sort-id="percentage-rank" data-note-target="note-position"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">#</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
               </tr>
             </thead>
 
@@ -104,13 +119,13 @@
                 <td>63</td>
 
                 <td data-view="standard combined">10.50</td>
-                <td data-view="standard combined">1</td>
+                <td data-view="combined">1</td>
 
                 <td class="metric-separator" data-view-separator="combined" aria-hidden="true"></td>
 
                 <td data-view="percentages combined">90</td>
                 <td data-view="percentages combined">70.0</td>
-                <td data-view="percentages combined">1</td>
+                <td data-view="combined">1</td>
               </tr>
               <tr>
                 <td class="row-index">2</td>
@@ -119,13 +134,13 @@
                 <td>61</td>
 
                 <td data-view="standard combined">10.17</td>
-                <td data-view="standard combined">2</td>
+                <td data-view="combined">2</td>
 
                 <td class="metric-separator" data-view-separator="combined" aria-hidden="true"></td>
 
                 <td data-view="percentages combined">90</td>
                 <td data-view="percentages combined">67.8</td>
-                <td data-view="percentages combined">2</td>
+                <td data-view="combined">2</td>
               </tr>
               <tr>
                 <td class="row-index">3</td>
@@ -134,13 +149,13 @@
                 <td>58</td>
 
                 <td data-view="standard combined">9.67</td>
-                <td data-view="standard combined">3</td>
+                <td data-view="combined">3</td>
 
                 <td class="metric-separator" data-view-separator="combined" aria-hidden="true"></td>
 
                 <td data-view="percentages combined">90</td>
                 <td data-view="percentages combined">64.4</td>
-                <td data-view="percentages combined">3</td>
+                <td data-view="combined">3</td>
               </tr>
               <tr>
                 <td class="row-index">4</td>
@@ -149,13 +164,13 @@
                 <td>46</td>
 
                 <td data-view="standard combined">7.67</td>
-                <td data-view="standard combined">4</td>
+                <td data-view="combined">4</td>
 
                 <td class="metric-separator" data-view-separator="combined" aria-hidden="true"></td>
 
                 <td data-view="percentages combined">82</td>
                 <td data-view="percentages combined">56.1</td>
-                <td data-view="percentages combined">4</td>
+                <td data-view="combined">4</td>
               </tr>
               <tr>
                 <td class="row-index">5</td>
@@ -164,13 +179,13 @@
                 <td>44</td>
 
                 <td data-view="standard combined">7.33</td>
-                <td data-view="standard combined">5</td>
+                <td data-view="combined">5</td>
 
                 <td class="metric-separator" data-view-separator="combined" aria-hidden="true"></td>
 
                 <td data-view="percentages combined">90</td>
                 <td data-view="percentages combined">48.9</td>
-                <td data-view="percentages combined">5</td>
+                <td data-view="combined">5</td>
               </tr>
             </tbody>
           </table>
@@ -178,8 +193,8 @@
           <div class="notes" id="notes">
             <h3>Notes</h3>
             <ol>
-              <li id="note-row-number" data-note-for="all">
-                The <strong>#</strong> column is a displayed row number. It changes when the table is sorted or filtered.
+              <li id="note-row-number" data-note-for="combined">
+                In <strong>Combined</strong> view, <strong>Row</strong> is a displayed row number. It changes when the table is sorted or filtered.
               </li>
               <li id="note-identity" data-note-for="all">
                 The reported <strong>Shikona</strong> and <strong>Chii</strong> are those held by the rikishi at the end of the reporting period.
@@ -190,7 +205,7 @@
                 <strong>Average</strong> is Wins divided by the selected number of basho.
               </li>
               <li id="note-position" data-note-for="all">
-                <strong>Posn.</strong> values are competition positions computed over the currently displayed rows.
+                <strong>#</strong> values are competition ranking positions computed over the currently displayed rows.
               </li>
               <li id="note-active" data-note-for="all">
                 An <strong>Active</strong> rikishi is one that is listed on the banzuke for the latest basho.
@@ -212,3 +227,4 @@
   <script src="standings.js.txt"></script>
 </body>
 </html>
+

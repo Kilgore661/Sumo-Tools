@@ -20,6 +20,7 @@ No standings calculations are performed here.
 const DATA_DIR = "./data";
 
 const DEFAULT_SORT_COLUMN = "selected_average_credited_wins";
+const DEFAULT_SORT_ID = "standard-rank";
 const DEFAULT_SORT_DESCENDING = true;
 
 const state = {
@@ -29,6 +30,7 @@ const state = {
   currentNumBasho: null,
   currentDivision: null,
   sortColumn: DEFAULT_SORT_COLUMN,
+  sortId: DEFAULT_SORT_ID,
   sortDescending: DEFAULT_SORT_DESCENDING,
   viewMode: "standard",
   currentOnly: true,
@@ -81,6 +83,7 @@ function applyConfigDefaultsToState() {
   state.currentNumBasho = state.config.default_num_basho;
   state.currentDivision = state.config.default_division;
   state.sortColumn = DEFAULT_SORT_COLUMN;
+  state.sortId = DEFAULT_SORT_ID;
   state.sortDescending = DEFAULT_SORT_DESCENDING;
 }
 
@@ -125,18 +128,22 @@ function wireEvents() {
     th.style.cursor = "pointer";
 
     th.addEventListener("click", () => {
-      handleHeaderClick(th.dataset.column);
+      handleHeaderClick(th);
     });
   });
 }
 
-function handleHeaderClick(column) {
+function handleHeaderClick(th) {
   hideNotePopover();
 
-  if (state.sortColumn === column) {
+  const column = th.dataset.column;
+  const sortId = th.dataset.sortId || column;
+
+  if (state.sortColumn === column && state.sortId === sortId) {
     state.sortDescending = !state.sortDescending;
   } else {
     state.sortColumn = column;
+    state.sortId = sortId;
     state.sortDescending = defaultSortDescendingForColumn(column);
   }
 
@@ -239,31 +246,40 @@ function renderTable(rows, meanPositions, percentPositions) {
 
   rows.forEach((row, index) => {
     const tr = document.createElement("tr");
+    const rikishiId = String(row.rikishi_id);
 
-    appendCell(tr, index + 1, "row-index");
+    if (mode === "standard") {
+      appendCell(tr, meanPositions.get(rikishiId), "rank-position");
+    } else if (mode === "percentages") {
+      appendCell(tr, percentPositions.get(rikishiId), "rank-position");
+    } else {
+      appendCell(tr, index + 1, "row-index");
+    }
+
     appendShikonaCell(tr, row);
     appendCell(tr, row.chii);
     appendCell(tr, row.credited_wins);
 
     if (mode === "standard" || mode === "combined") {
       appendCell(tr, format2(row.selected_average_credited_wins));
-      appendCell(tr, meanPositions.get(String(row.rikishi_id)));
     }
 
     if (mode === "combined") {
-      appendSeparatorCell(tr);
+      appendCell(tr, meanPositions.get(rikishiId));
     }
 
     if (mode === "percentages" || mode === "combined") {
-      appendCell(tr, row.selected_expected_bout_count);
+      appendCell(tr, row.selected_expected_bout_count, mode === "combined" ? "percentage-start" : "");
       appendCell(tr, formatPercent(row.win_percent));
-      appendCell(tr, percentPositions.get(String(row.rikishi_id)));
+    }
+
+    if (mode === "combined") {
+      appendCell(tr, percentPositions.get(rikishiId));
     }
 
     el.body.appendChild(tr);
   });
 }
-
 function appendCell(tr, value, className = "") {
   const td = document.createElement("td");
   td.textContent = value;
@@ -430,8 +446,10 @@ function renderSortIndicators() {
       return;
     }
 
+    const sortId = th.dataset.sortId || th.dataset.column;
+
     indicator.textContent =
-      th.dataset.column === state.sortColumn
+      th.dataset.column === state.sortColumn && sortId === state.sortId
         ? sortIndicatorForColumn(th.dataset.column, state.sortDescending)
         : "";
   });
@@ -571,8 +589,10 @@ function visibleSortColumnsForMode(mode) {
 function resetSortToViewDefault() {
   if (state.viewMode === "percentages") {
     state.sortColumn = "win_percent";
+    state.sortId = "percentage-rank";
   } else {
     state.sortColumn = DEFAULT_SORT_COLUMN;
+    state.sortId = "standard-rank";
   }
 
   state.sortDescending = DEFAULT_SORT_DESCENDING;
@@ -610,6 +630,13 @@ function applyViewMode() {
 
 function applyViewColumns() {
   const mode = state.viewMode;
+
+  document
+    .querySelectorAll("[data-header-for]")
+    .forEach((el) => {
+      const modes = el.dataset.headerFor.split(/\s+/);
+      el.style.display = modes.includes(mode) ? "" : "none";
+    });
 
   document
     .querySelectorAll("[data-view]")
@@ -758,4 +785,5 @@ function clearNotePopoverTimer() {
     notePopoverTimer = null;
   }
 }
+
 
