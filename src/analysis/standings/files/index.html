@@ -18,36 +18,6 @@
       <aside class="menu">
         <h2>Options</h2>
 
-        <div class="control-group">
-          <label for="num-basho-select">Number of basho</label>
-          <select name="num_basho" id="num-basho-select">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6" selected>6</option>
-            <option value="12">12</option>
-            <option value="18">18</option>
-            <option value="24">24</option>
-            <option value="36">36</option>
-            <option value="60">60</option>
-          </select>
-        </div>
-
-        <div class="control-group">
-          <label for="division-select">Division</label>
-          <select name="division" id="division-select">
-            <option value="all">All</option>
-            <option value="makuuchi" selected>Makuuchi</option>
-            <option value="juryo">Juryo</option>
-            <option value="makushita">Makushita</option>
-            <option value="sandanme">Sandanme</option>
-            <option value="jonidan">Jonidan</option>
-            <option value="jonokuchi">Jonokuchi</option>
-          </select>
-        </div>
-
         <fieldset class="control-group" id="view-mode-group">
           <legend>View</legend>
 
@@ -66,12 +36,43 @@
             Combined
           </label>
         </fieldset>
+        <hr>
+        <div class="control-group">
+          <label for="num-basho-select">Number of basho</label>
+          <select name="num_basho" id="num-basho-select">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6" selected>6</option>
+            <option value="12">12</option>
+            <option value="18">18</option>
+            <option value="24">24</option>
+            <option value="36">36</option>
+            <option value="60">60</option>
+          </select>
+        </div>
         <div class="control-group">
           <label class="checkbox-option">
             <input type="checkbox" id="activity-current-only" checked />
             Active rikishi only
           </label>
         </div>
+        <hr>
+        <div class="control-group">
+          <label for="division-select">Division</label>
+          <select name="division" id="division-select">
+            <option value="all">All</option>
+            <option value="makuuchi" selected>Makuuchi</option>
+            <option value="juryo">Juryo</option>
+            <option value="makushita">Makushita</option>
+            <option value="sandanme">Sandanme</option>
+            <option value="jonidan">Jonidan</option>
+            <option value="jonokuchi">Jonokuchi</option>
+          </select>
+        </div>
+
       </aside>
 
       <main class="content">
