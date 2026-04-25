@@ -20,7 +20,7 @@ No standings calculations are performed here.
 const DATA_DIR = "./data";
 
 const DEFAULT_SORT_COLUMN = "selected_average_credited_wins";
-const DEFAULT_SORT_ID = "standard-rank";
+const DEFAULT_SORT_ID = "standard-average";
 const DEFAULT_SORT_DESCENDING = true;
 
 const state = {
@@ -589,10 +589,13 @@ function visibleSortColumnsForMode(mode) {
 function resetSortToViewDefault() {
   if (state.viewMode === "percentages") {
     state.sortColumn = "win_percent";
-    state.sortId = "percentage-rank";
+    state.sortId = "percentage-win-percent";
+  } else if (state.viewMode === "combined") {
+    state.sortColumn = "win_percent";
+    state.sortId = "percentage-win-percent";
   } else {
     state.sortColumn = DEFAULT_SORT_COLUMN;
-    state.sortId = "standard-rank";
+    state.sortId = DEFAULT_SORT_ID;
   }
 
   state.sortDescending = DEFAULT_SORT_DESCENDING;
