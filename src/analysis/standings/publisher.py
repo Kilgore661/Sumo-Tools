@@ -33,6 +33,7 @@ from src.analysis.standings.publisher_reports import (
     write_site_config_json,
 )
 
+from .config import PUBLISHER_LATEST_DATA
 
 WEB_ROOT = Path(r"A:/local/html/standings")
 WEB_DATA = WEB_ROOT / "data"
@@ -42,6 +43,25 @@ DIRECTION = "BACKWARDS"
 
 DEFAULT_DIVISION = "makuuchi"
 
+def clear_dir_files(path: Path) -> None:
+    path.mkdir(parents=True, exist_ok=True)
+
+    for item in path.iterdir():
+        if item.is_file():
+            item.unlink()
+
+
+def copy_data_files(source_dir: Path, target_dir: Path) -> None:
+    target_dir.mkdir(parents=True, exist_ok=True)
+
+    for item in source_dir.iterdir():
+        if item.is_file() and item.suffix.lower() in {".csv", ".json"}:
+            shutil.copy2(item, target_dir / item.name)
+
+
+def refresh_latest_data(run_dir: Path) -> None:
+    clear_dir_files(PUBLISHER_LATEST_DATA)
+    copy_data_files(run_dir, PUBLISHER_LATEST_DATA)
 
 def determine_default_num_basho(history) -> int:
     dates = sorted(history.keys())
@@ -196,24 +216,17 @@ def publish_one_window(
     )
 
 
-def deploy_to_local_web(run_dir: Path) -> None:
+def deploy_to_local_web() -> None:
     WEB_ROOT.mkdir(parents=True, exist_ok=True)
     WEB_DATA.mkdir(parents=True, exist_ok=True)
 
     static_dir = Path(__file__).resolve().parent / "files"
 
     for name in ["index.html", "standings.css", "standings.js.txt"]:
-        source_file = static_dir / name
-        target_file = WEB_ROOT / name
-        shutil.copy2(source_file, target_file)
+        shutil.copy2(static_dir / name, WEB_ROOT / name)
 
-    for old_file in WEB_DATA.iterdir():
-        if old_file.is_file():
-            old_file.unlink()
-
-    for item in run_dir.iterdir():
-        if item.is_file() and item.suffix.lower() in {".csv", ".json"}:
-            shutil.copy2(item, WEB_DATA / item.name)
+    clear_dir_files(WEB_DATA)
+    copy_data_files(PUBLISHER_LATEST_DATA, WEB_DATA)
 
 
 def main() -> None:
@@ -250,7 +263,8 @@ def main() -> None:
             num_basho=num_basho,
         )
 
-    deploy_to_local_web(run_dir)
+    refresh_latest_data(run_dir)
+    deploy_to_local_web()
 
     print(f"Publisher run complete in {time() - t0:.0f}s")
     print(f"Output: {run_dir}")
@@ -259,3 +273,5 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+    from .deploy import main as upload
+    upload()

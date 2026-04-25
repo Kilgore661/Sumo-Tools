@@ -5,3 +5,5 @@ CACHE_FILE = OUTPUT_DIR / "totals_cache.csv"
 
 LATEST_STANDINGS_FILE = OUTPUT_DIR / "standings.csv"
 LATEST_RUN_FILE = OUTPUT_DIR / "last_run.txt"
+
+PUBLISHER_LATEST_DATA = Path("files/output/standings/publisher/latest_data")
