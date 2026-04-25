@@ -286,16 +286,18 @@ function appendShikonaCell(tr, row) {
   link.title = "Click: SumoDB. Ctrl/Cmd-click: 661 graph.";
 
   link.addEventListener("click", (event) => {
-    if (!(event.ctrlKey || event.metaKey)) {
-      return;
-    }
-
     event.preventDefault();
 
-    const graphUrl =
-      `http://www.661.org.uk/cgi-bin/index.py?graph=any&new_rik=&r_${encodedShikona}=${encodedShikona}&graph_type=by_time`;
+    const targetUrl =
+      (event.ctrlKey || event.metaKey)
+        ? `http://www.661.org.uk/cgi-bin/index.py?graph=any&new_rik=&r_${encodedShikona}=${encodedShikona}&graph_type=by_time`
+        : `https://sumodb.sumogames.de/Rikishi.aspx?r=${encodeURIComponent(row.rikishi_id)}`;
 
-    window.open(graphUrl, "_blank", "noopener");
+    const opened = window.open(targetUrl, "_blank", "noopener");
+
+    if (opened) {
+      opened.focus();
+    }
   });
 
   td.appendChild(link);
@@ -756,3 +758,4 @@ function clearNotePopoverTimer() {
     notePopoverTimer = null;
   }
 }
+
