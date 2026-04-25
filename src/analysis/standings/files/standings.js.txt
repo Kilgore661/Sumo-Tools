@@ -68,7 +68,7 @@ async function init() {
     applyStateToControls();
     wireEvents();
     wireViewModeEvents();
-    applyViewMode();
+    initialiseViewMode();
     wireNotePopovers();
 
     await loadWindow(state.currentNumBasho);
@@ -241,7 +241,7 @@ function renderTable(rows, meanPositions, percentPositions) {
     const tr = document.createElement("tr");
 
     appendCell(tr, index + 1, "row-index");
-    appendCell(tr, row.shikona);
+    appendShikonaCell(tr, row);
     appendCell(tr, row.chii);
     appendCell(tr, row.credited_wins);
 
@@ -272,6 +272,33 @@ function appendCell(tr, value, className = "") {
     td.className = className;
   }
 
+  tr.appendChild(td);
+}
+
+function appendShikonaCell(tr, row) {
+  const td = document.createElement("td");
+  const link = document.createElement("a");
+  const shikona = String(row.shikona);
+  const encodedShikona = encodeURIComponent(shikona);
+
+  link.textContent = shikona;
+  link.href = `https://sumodb.sumogames.de/Rikishi.aspx?r=${encodeURIComponent(row.rikishi_id)}`;
+  link.title = "Click: SumoDB. Ctrl/Cmd-click: 661 graph.";
+
+  link.addEventListener("click", (event) => {
+    if (!(event.ctrlKey || event.metaKey)) {
+      return;
+    }
+
+    event.preventDefault();
+
+    const graphUrl =
+      `http://www.661.org.uk/cgi-bin/index.py?graph=any&new_rik=&r_${encodedShikona}=${encodedShikona}&graph_type=by_time`;
+
+    window.open(graphUrl, "_blank", "noopener");
+  });
+
+  td.appendChild(link);
   tr.appendChild(td);
 }
 
@@ -539,13 +566,22 @@ function visibleSortColumnsForMode(mode) {
   return out;
 }
 
-function ensureValidSortForView(mode) {
-  const visibleColumns = visibleSortColumnsForMode(mode);
-
-  if (!visibleColumns.has(state.sortColumn)) {
+function resetSortToViewDefault() {
+  if (state.viewMode === "percentages") {
+    state.sortColumn = "win_percent";
+  } else {
     state.sortColumn = DEFAULT_SORT_COLUMN;
-    state.sortDescending = DEFAULT_SORT_DESCENDING;
   }
+
+  state.sortDescending = DEFAULT_SORT_DESCENDING;
+}
+
+function initialiseViewMode() {
+  const checked = document.querySelector('input[name="view-mode"]:checked');
+
+  state.viewMode = checked ? checked.value : "standard";
+  resetSortToViewDefault();
+  applyViewMode();
 }
 
 function wireViewModeEvents() {
@@ -558,7 +594,7 @@ function wireViewModeEvents() {
       }
 
       state.viewMode = radio.value;
-      ensureValidSortForView(state.viewMode);
+      resetSortToViewDefault();
       applyViewMode();
       render();
     });

@@ -151,6 +151,19 @@ body {
   padding-right: 14px;
 }
 
+.standings-table a,
+.standings-table a:visited,
+.standings-table a:hover,
+.standings-table a:active {
+  color: inherit;
+  text-decoration: none;
+}
+
+.standings-table a:focus {
+  outline: 1px dotted currentColor;
+  outline-offset: 1px;
+}
+
 .row-index-head {
   width: 28px;
   cursor: default !important;
@@ -315,9 +328,12 @@ select:focus {
   display: none;
 }
 
-.notes-popover a {
+.notes-popover a,
+.notes-popover a:visited,
+.notes-popover a:hover,
+.notes-popover a:active {
   color: #224f9f;
-  text-decoration: underline;
+  text-decoration: none;
   font-weight: bold;
 }
 
