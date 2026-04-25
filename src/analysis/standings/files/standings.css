@@ -107,7 +107,33 @@ body {
 .standings-table th {
   background: #314d7c;
   font-weight: bold;
+  cursor: default;
+}
+
+.standings-table th[data-column] {
   cursor: pointer;
+}
+
+.th-label {
+  display: inline-grid;
+  grid-template-columns: 0.9em auto 0.9em;
+  column-gap: 0.25em;
+  align-items: center;
+  justify-content: center;
+}
+
+.sort-spacer,
+.sort-indicator {
+  display: inline-block;
+  width: 0.9em;
+  min-width: 0.9em;
+  text-align: center;
+}
+
+.sort-indicator {
+  color: var(--muted);
+  font-size: 0.85em;
+  line-height: 1;
 }
 
 .standings-table tbody tr:nth-child(odd) td {
@@ -305,5 +331,3 @@ select:focus {
   outline: 1px solid rgba(201, 212, 238, 0.35);
   outline-offset: 3px;
 }
-
-

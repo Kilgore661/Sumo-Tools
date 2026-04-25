@@ -131,6 +131,8 @@ function wireEvents() {
 }
 
 function handleHeaderClick(column) {
+  hideNotePopover();
+
   if (state.sortColumn === column) {
     state.sortDescending = !state.sortDescending;
   } else {
@@ -146,13 +148,13 @@ function defaultSortDescendingForColumn(column) {
   Textual browse-oriented columns sort ascending on first click.
   Metric columns sort descending on first click.
 
-  Pos. headers are wired in HTML to their underlying metric columns, so they
-  inherit the metric sort direction automatically.
+  Text columns sort alphabetically on first click.
+  Chii sorts best-to-worst on first click, which means ascending ordinal.
+  Metric columns sort descending on first click.
   */
   return !(
     column === "shikona" ||
-    column === "chii_ordinal" ||
-    column === "position"
+    column === "chii_ordinal"
   );
 }
 
@@ -198,6 +200,7 @@ function render() {
   );
 
   renderMeta();
+  renderSortIndicators();
   renderTable(sortedRows, meanPositions, percentPositions);
 }
 
@@ -388,6 +391,32 @@ function getSortedRows(rows) {
   out.sort((a, b) => compare(a[col], b[col]) * dir);
 
   return out;
+}
+
+function renderSortIndicators() {
+  el.headers.forEach((th) => {
+    const indicator = th.querySelector(".sort-indicator");
+
+    if (!indicator) {
+      return;
+    }
+
+    indicator.textContent =
+      th.dataset.column === state.sortColumn
+        ? sortIndicatorForColumn(th.dataset.column, state.sortDescending)
+        : "";
+  });
+}
+
+function sortIndicatorForColumn(column, descending) {
+  // For most columns, descending means larger-to-smaller and is shown as ▼.
+  // Chii is different: better ranks have lower ordinals, so the visual
+  // best-to-worst direction is the inverse of the numeric sort direction.
+  if (column === "chii_ordinal") {
+    return descending ? "▲" : "▼";
+  }
+
+  return descending ? "▼" : "▲";
 }
 
 function compare(a, b) {
@@ -581,7 +610,6 @@ function applyViewNotes() {
 const NOTE_POPOVER_DELAY_MS = 450;
 
 let notePopoverTimer = null;
-let notePopoverTrigger = null;
 
 function wireNotePopovers() {
   const headings = document.querySelectorAll(
@@ -590,7 +618,7 @@ function wireNotePopovers() {
 
   headings.forEach((th) => {
     th.addEventListener("mouseenter", () => {
-      notePopoverTrigger = th;
+      clearNotePopoverTimer();
 
       notePopoverTimer = window.setTimeout(() => {
         showNotePopover(th);
@@ -607,11 +635,6 @@ function wireNotePopovers() {
           hideNotePopover();
         }
       }, 50);
-    });
-
-    th.addEventListener("click", () => {
-      clearNotePopoverTimer();
-      hideNotePopover();
     });
   });
 
@@ -634,11 +657,11 @@ function wireNotePopovers() {
 }
 
 function getNotePopover() {
-  let popover = document.getElementById("notes-popover");
+  let popover = document.getElementById("note-popover");
 
   if (!popover) {
     popover = document.createElement("div");
-    popover.id = "notes-popover";
+    popover.id = "note-popover";
     popover.className = "notes-popover";
     popover.hidden = true;
 
@@ -689,7 +712,6 @@ function showNotePopover(th) {
 function hideNotePopover() {
   const popover = getNotePopover();
   popover.hidden = true;
-  notePopoverTrigger = null;
 }
 
 function clearNotePopoverTimer() {
