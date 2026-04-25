@@ -283,13 +283,13 @@ function appendShikonaCell(tr, row) {
 
   link.textContent = shikona;
   link.href = `https://sumodb.sumogames.de/Rikishi.aspx?r=${encodeURIComponent(row.rikishi_id)}`;
-  link.title = "Click: SumoDB. Ctrl/Cmd-click: 661 graph.";
+  link.title = "Click: SumoDB. Alt-click: Gaspode-san.";
 
   link.addEventListener("click", (event) => {
     event.preventDefault();
 
     const targetUrl =
-      (event.ctrlKey || event.metaKey)
+      event.altKey
         ? `http://www.661.org.uk/cgi-bin/index.py?graph=any&new_rik=&r_${encodedShikona}=${encodedShikona}&graph_type=by_time`
         : `https://sumodb.sumogames.de/Rikishi.aspx?r=${encodeURIComponent(row.rikishi_id)}`;
 
