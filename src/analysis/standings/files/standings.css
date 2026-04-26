@@ -2,6 +2,7 @@
   --bg: #081633;
   --panel: #0d1f47;
   --panel-2: #132b5c;
+  --header-soft: #0f3e68;
   --line: #7f95c0;
   --text: #ffffff;
   --muted: #c9d4ee;
@@ -366,3 +367,43 @@ select:focus {
   outline-offset: 3px;
 }
 
+
+/* Combined-view grouped header refinement. */
+.standings-table tbody td {
+  font-size: 15px;
+}
+
+.standings-table tr.combined-group-row th {
+  background: var(--header-soft);
+  font-size: 15px;
+  padding-top: 2px;
+  padding-bottom: 3px;
+  line-height: 1.05;
+}
+
+.standings-table tr.combined-detail-row th {
+  background: var(--header-soft);
+  font-size: 13px;
+  padding-top: 0;
+  padding-bottom: 5px;
+  line-height: 1.1;
+}
+
+.standings-table th.combined-primary-head,
+.standings-table tr.combined-group-row th.header-group {
+  background: var(--header-soft) !important;
+  color: var(--text) !important;
+  font-size: 15px !important;
+  font-weight: bold !important;
+}
+
+.standings-table th.combined-row-head {
+  background: var(--header-soft) !important;
+}
+
+.by-basho-group,
+.by-bout-group,
+.percentage-group,
+.percentage-start {
+  border-left: 2px solid var(--line) !important;
+}
