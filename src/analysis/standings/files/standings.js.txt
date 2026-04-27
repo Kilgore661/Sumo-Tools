@@ -452,12 +452,6 @@ function urlForDefaultState() {
   return url;
 }
 
-function urlForDefaultState() {
-  const url = new URL(window.location.href);
-  url.search = "";
-  return url;
-}
-
 function stateMatchesDefaults() {
   return (
     state.currentNumBasho === state.config.default_num_basho &&

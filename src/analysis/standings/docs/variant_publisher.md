@@ -4,6 +4,12 @@
 
 Draft technical change proposal.
 
+Not implemented.
+
+The current publisher still emits one public browser-consumable dataset family.
+
+Some supporting concepts already exist in the code and published data shape, including fought-vs-credited wins and expected-vs-available bout counts. Those fields should be understood as groundwork and diagnostic/future-use data, not as evidence that multi-regime publication is currently supported.
+
 This document concerns publication-layer changes only. It does not define product requirements, browser behaviour, or final UI design.
 
 ---
@@ -34,21 +40,30 @@ This architecture has substantial advantages:
 
 These advantages remain desirable.
 
+The present public application exposes one metric regime:
+
+* wins are credited wins, including fusensho
+* bouts are expected bouts
+* the browser loads one dataset family
+* no browser control currently selects win-policy or bout-basis variants
+
+Current published CSV files may contain additional fields that would be useful for future variants, but the browser does not currently treat those fields as selectable regimes.
+
 However, future browser enhancements may require users to switch between alternative metric regimes rather than consuming one fixed regime only.
 
 To preserve the static-publication model, all supported regimes should be precomputed offline.
 
 ---
 
-# 3. Immediate Objective
+# 3. Possible Future Objective
 
-Near-term development is expected to explore two advanced / expert policy dimensions:
+Future development may explore two advanced / expert policy dimensions:
 
 ## 3.1 WinsPolicy
 
 Controls how wins are counted.
 
-Initial supported values:
+Plausible supported values:
 
 * include fusensho
 * exclude fusensho
@@ -57,14 +72,14 @@ Initial supported values:
 
 Controls how bouts are counted.
 
-Initial supported values:
+Plausible supported values:
 
 * expected
 * available
 
 ---
 
-# 4. Required Publication Scope
+# 4. Possible Publication Scope
 
 Supporting both dimensions requires publication of all combinations:
 
@@ -75,7 +90,7 @@ Supporting both dimensions requires publication of all combinations:
 | exclude fusensho | expected  |
 | exclude fusensho | available |
 
-Therefore the publisher should emit:
+If both dimensions are adopted as public or supported variants, the publisher should emit:
 
 > **2 × 2 = 4 dataset families**
 
@@ -131,7 +146,7 @@ site_config.json
 
 ---
 
-# 7. Behaviour of `variant_publisher.py`
+# 7. Possible Behaviour of `variant_publisher.py`
 
 The publisher should conceptually iterate over supported policy values:
 
@@ -167,6 +182,8 @@ Current publisher absorbs variant behaviour but is renamed conceptually.
 
 No decision is required in this document.
 
+The existing `publisher.py` remains the current implementation until one of these migration paths is deliberately chosen.
+
 ---
 
 # 9. Browser Implications (Informational Only)
@@ -176,6 +193,8 @@ Future browser controls may select a desired regime and load the corresponding p
 No runtime standings recomputation need be introduced.
 
 This proposal does not define browser implementation.
+
+It also does not decide whether such controls should exist. That is a product/specification question.
 
 ---
 
@@ -217,13 +236,19 @@ Those belong in requirements/specification work.
 
 # 12. Recommended Next Step
 
-Adopt `variant_publisher.py` as a working publication concept, then separately revise product requirements and specification to determine whether and how WinsPolicy and BoutBasis should be surfaced in the browser product.
+Do not implement `variant_publisher.py` merely because the supporting data concepts exist.
+
+First decide, in product requirements and specification, whether WinsPolicy and BoutBasis variants should be surfaced at all.
+
+If they should be surfaced, then adopt `variant_publisher.py` or an equivalent multi-regime publication design as the implementation approach.
 
 ---
 
 # 13. Final Position
 
-The proposed publisher is a modest structural extension of the current architecture.
+The proposed publisher would be a modest structural extension of the current architecture.
 
-It preserves the operational simplicity of static publication while enabling future multi-regime standings behaviour.
+It would preserve the operational simplicity of static publication while enabling future multi-regime standings behaviour.
+
+For now, it remains a proposal rather than a description of current behaviour.
 
