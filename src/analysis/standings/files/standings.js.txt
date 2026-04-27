@@ -220,7 +220,7 @@ function renderMeta() {
   const end = formatMonthYear(state.meta.effective_end_date);
 
   el.title.textContent =
-    `Standings for ${start} to ${end} (${state.currentNumBasho} basho)`;
+    `Standings for ${start} to ${end} (${state.currentNumBasho} Basho)`;
 
   el.range.textContent = "";
 }

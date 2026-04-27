@@ -106,7 +106,7 @@ body {
 }
 
 .standings-table th {
-  background: #004d7c;
+  background: rgba(255,255,255,0.1);
   font-weight: bold;
   cursor: default;
 }
@@ -406,4 +406,19 @@ select:focus {
 .percentage-group,
 .percentage-start {
   border-left: 2px solid var(--line) !important;
+}
+
+/* Combined-view body/header alignment and tighter metric spacing. */
+#standings-table:has(thead tr.combined-group-row:not([style*="display: none"])) tbody td:nth-child(5) {
+  border-left: 2px solid var(--line) !important;
+}
+
+#standings-table:has(thead tr.combined-group-row:not([style*="display: none"])) tbody td:nth-child(n+5) {
+  padding-left: 7px;
+  padding-right: 7px;
+}
+
+#standings-table tr.combined-detail-row th {
+  padding-left: 7px;
+  padding-right: 7px;
 }
