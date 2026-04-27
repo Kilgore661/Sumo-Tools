@@ -68,7 +68,9 @@ def refresh_latest_data(run_dir: Path) -> None:
     copy_data_files(run_dir, PUBLISHER_LATEST_DATA)
 
 def determine_default_num_basho(history) -> int:
-    return 6 # Violates spec, but I am starting to think spec is not right.
+    return 6 # Product default; current spec does not mandate this.
+    # Old code, may be useful, sets the number of basho to get a "Year to date"
+    # display.
     dates = sorted(history.keys())
 
     for j in range(len(dates) - 1, -1, -1):

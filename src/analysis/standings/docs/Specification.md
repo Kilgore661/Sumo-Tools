@@ -251,9 +251,9 @@ A comparative analytical view showing both ranking systems simultaneously.
 
 Columns shall be:
 
-|   | Shikona | Chii | Wins | Average | Posn. (Average) | Bouts | Win % | Posn. (Win %) |
+| Row | Shikona | Chii | Wins | Average | Posn. (Average) | Bouts | Win % | Posn. (Win %) |
 
-The first blank-heading column shall be a row number over the currently displayed rows.
+The first column shall be a row number over the currently displayed rows.
 
 Semantics:
 

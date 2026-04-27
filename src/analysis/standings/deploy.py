@@ -1,11 +1,11 @@
 # deploy.py
 from pathlib import Path
-import getpass
+#import getpass
 import posixpath
 import stat
 import paramiko
 
-HOST = "68.66.241.105"
+HOST = "www.661.org.uk"
 USER = "root"
 
 REMOTE_ROOT = "/var/www/html/standings"
@@ -57,7 +57,7 @@ def deploy_data_files(sftp) -> None:
 
 
 def main():
-    password = 'lambda661'
+    password = 'lambda661' # Dangerous! But unavoidable for now.
 
     transport = paramiko.Transport((HOST, 22))
     transport.connect(username=USER, password=password)
