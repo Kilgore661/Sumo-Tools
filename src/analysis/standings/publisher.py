@@ -10,6 +10,7 @@ import csv
 import shutil
 from pathlib import Path
 from time import time
+import pickle
 
 from src.infra.live_store.api import get_history
 from src.sumo_core.BasicPrimitives import Month
@@ -33,7 +34,10 @@ from src.analysis.standings.publisher_reports import (
     write_site_config_json,
 )
 
-from .config import PUBLISHER_LATEST_DATA
+from .config import PUBLISHER_LATEST_DATA, LEGACY_QUALIFIED_SHIKONA
+
+with LEGACY_QUALIFIED_SHIKONA.open("rb") as f:
+    QUALIFIED_SHIKONA = pickle.load(f)
 
 WEB_ROOT = Path(r"A:/local/html/standings")
 WEB_DATA = WEB_ROOT / "data"
@@ -128,7 +132,7 @@ def write_published_view_csv(
                 {
                     "position": row.position,
                     "rikishi_id": int(row.rikishi_id),
-                    "shikona": str(row.shikona),
+                    "shikona": QUALIFIED_SHIKONA.get(row.rikishi_id, str(row.rikishi_id) ),
                     "chii": row.chii,
                     "chii_ordinal": row.chii_ordinal,
                     "is_current": "1" if row.rikishi_id in terminal_rikishi else "0",
