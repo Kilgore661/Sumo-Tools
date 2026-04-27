@@ -619,19 +619,42 @@ function appendShikonaCell(tr, row) {
   link.href = `https://sumodb.sumogames.de/Rikishi.aspx?r=${encodeURIComponent(row.rikishi_id)}`;
   link.title = "Click: SumoDB. Alt-click: Gaspode-san.";
 
-  link.addEventListener("click", (event) => {
-    event.preventDefault();
+  let suppressNextClick = false;
 
-    const targetUrl =
-      event.altKey
-        ? `http://www.661.org.uk/cgi-bin/index.py?graph=any&new_rik=&r_${encodedShikona}=${encodedShikona}&graph_type=by_time`
-        : `https://sumodb.sumogames.de/Rikishi.aspx?r=${encodeURIComponent(row.rikishi_id)}`;
-
-    const opened = window.open(targetUrl, "_blank", "noopener");
+  function openShikonaTarget(url) {
+    const opened = window.open(url, "_blank", "noopener");
 
     if (opened) {
       opened.focus();
     }
+  }
+
+  link.addEventListener("mousedown", (event) => {
+    if (!event.altKey || event.button !== 0) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    suppressNextClick = true;
+
+    openShikonaTarget(
+      `http://www.661.org.uk/cgi-bin/index.py?graph=any&new_rik=&r_${encodedShikona}=${encodedShikona}&graph_type=by_time`
+    );
+  });
+
+  link.addEventListener("click", (event) => {
+    event.preventDefault();
+  
+    if (suppressNextClick) {
+      suppressNextClick = false;
+      return;
+    }
+
+    openShikonaTarget(
+      `https://sumodb.sumogames.de/Rikishi.aspx?r=${encodeURIComponent(row.rikishi_id)}`
+    );
   });
 
   td.appendChild(link);
