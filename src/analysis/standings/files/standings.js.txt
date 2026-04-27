@@ -1,4 +1,15 @@
 /*
+standings.js.txt
+
+--------------------------------------------------------------------------------
+Config Note:
+This file has a .txt extension because some LLMs will not read a file with a
+.js extension. This is fine if all you want to so is load the contents into a
+web page. OTOH if you want to have JS files import other JS files, then you
+must use the .js extension. Since I can't do that, the JS has to be in one
+giant file, or I have to write a tool that renames .js files to .txt files :(
+-------------------------------------------------------------------------------- 
+
 Ozumo Standings browser client.
 
 Responsibilities:
@@ -67,10 +78,12 @@ async function init() {
 
     buildNumBashoOptions();
     applyConfigDefaultsToState();
+    applyUrlStateOrDefaults();
     applyStateToControls();
     wireEvents();
     wireViewModeEvents();
-    initialiseViewMode();
+    wireHistoryEvents();
+    applyViewMode();
     wireNotePopovers();
 
     await loadWindow(state.currentNumBasho);
@@ -85,12 +98,22 @@ function applyConfigDefaultsToState() {
   state.sortColumn = DEFAULT_SORT_COLUMN;
   state.sortId = DEFAULT_SORT_ID;
   state.sortDescending = DEFAULT_SORT_DESCENDING;
+  state.viewMode = "standard";
+  state.currentOnly = true;
 }
 
 function applyStateToControls() {
   el.numBasho.value = String(state.currentNumBasho);
   el.division.value = state.currentDivision;
   el.currentOnly.checked = state.currentOnly;
+
+  const checkedView = document.querySelector(
+    `input[name="view-mode"][value="${state.viewMode}"]`
+  );
+
+  if (checkedView) {
+    checkedView.checked = true;
+  }
 }
 
 /* ================================================== */
@@ -111,16 +134,19 @@ function buildNumBashoOptions() {
 function wireEvents() {
   el.numBasho.addEventListener("change", async () => {
     state.currentNumBasho = Number(el.numBasho.value);
+    pushUrlState();
     await loadWindow(state.currentNumBasho);
   });
 
   el.currentOnly.addEventListener("change", () => {
     state.currentOnly = el.currentOnly.checked;
+    pushUrlState();
     render();
   });
 
   el.division.addEventListener("change", () => {
     state.currentDivision = el.division.value;
+    pushUrlState();
     render();
   });
 
@@ -147,6 +173,7 @@ function handleHeaderClick(th) {
     state.sortDescending = defaultSortDescendingForColumn(column);
   }
 
+  pushUrlState();
   render();
 }
 
@@ -165,8 +192,299 @@ function defaultSortDescendingForColumn(column) {
   );
 }
 
+
 /* ================================================== */
-/* 4. Data loading                                    */
+/* 4. CGI-like URL state                              */
+/* ================================================== */
+
+function applyUrlStateOrDefaults() {
+  const result = parseUrlState(window.location.search);
+
+  if (result.ok) {
+    try {
+      applyParsedUrlState(
+        result.statePatch,
+        result.hasExplicitView,
+        result.hasExplicitSort
+      );
+      return;
+    } catch (err) {
+      handleInvalidUrlState(err.message);
+      return;
+    }
+  }
+
+  handleInvalidUrlState(result.message);
+}
+
+function handleInvalidUrlState(message) {
+  alert(`Invalid standings URL: ${message}\n\nThe page will be loaded with the default settings.`);
+  applyConfigDefaultsToState();
+  replaceUrlState();
+}
+
+function parseUrlState(search) {
+  const params = new URLSearchParams(search);
+
+  if ([...params.keys()].length === 0) {
+    return {
+      ok: true,
+      statePatch: {},
+      hasExplicitView: false,
+      hasExplicitSort: false,
+    };
+  }
+
+  const allowedParams = new Set([
+    "currentNumBasho",
+    "currentDivision",
+    "sortColumn",
+    "sortId",
+    "sortDescending",
+    "viewMode",
+    "currentOnly",
+  ]);
+
+  for (const key of params.keys()) {
+    if (!allowedParams.has(key)) {
+      return invalidUrlState(`unknown parameter "${key}"`);
+    }
+  }
+
+  const patch = {};
+
+  if (params.has("currentNumBasho")) {
+    const raw = params.get("currentNumBasho");
+    const value = Number(raw);
+
+    if (!Number.isInteger(value) || !state.config.supported_num_basho.includes(value)) {
+      return invalidUrlState(`unsupported currentNumBasho "${raw}"`);
+    }
+
+    patch.currentNumBasho = value;
+  }
+
+  if (params.has("currentDivision")) {
+    const value = params.get("currentDivision");
+
+    if (!validDivisionValues().has(value)) {
+      return invalidUrlState(`unsupported currentDivision "${value}"`);
+    }
+
+    patch.currentDivision = value;
+  }
+
+  if (params.has("viewMode")) {
+    const value = params.get("viewMode");
+
+    if (!validViewModes().has(value)) {
+      return invalidUrlState(`unsupported viewMode "${value}"`);
+    }
+
+    patch.viewMode = value;
+  }
+
+  if (params.has("currentOnly")) {
+    const parsed = parseBooleanParam(params.get("currentOnly"));
+
+    if (parsed === null) {
+      return invalidUrlState(`unsupported currentOnly "${params.get("currentOnly")}"`);
+    }
+
+    patch.currentOnly = parsed;
+  }
+
+  if (params.has("sortColumn")) {
+    patch.sortColumn = params.get("sortColumn");
+  }
+
+  if (params.has("sortId")) {
+    patch.sortId = params.get("sortId");
+  }
+
+  if (params.has("sortDescending")) {
+    const parsed = parseBooleanParam(params.get("sortDescending"));
+
+    if (parsed === null) {
+      return invalidUrlState(`unsupported sortDescending "${params.get("sortDescending")}"`);
+    }
+
+    patch.sortDescending = parsed;
+  }
+
+  const hasExplicitSort =
+    params.has("sortColumn") ||
+    params.has("sortId") ||
+    params.has("sortDescending");
+
+  if (hasExplicitSort && !(params.has("sortColumn") && params.has("sortId") && params.has("sortDescending"))) {
+    return invalidUrlState(
+      "sortColumn, sortId, and sortDescending must be supplied together"
+    );
+  }
+
+  return {
+    ok: true,
+    statePatch: patch,
+    hasExplicitView: params.has("viewMode"),
+    hasExplicitSort,
+  };
+}
+
+function invalidUrlState(message) {
+  return {
+    ok: false,
+    message,
+  };
+}
+
+function applyParsedUrlState(patch, hasExplicitView, hasExplicitSort) {
+  Object.assign(state, patch);
+
+  if (hasExplicitView && !hasExplicitSort) {
+    resetSortToViewDefault();
+  }
+
+  const sortIsValid = sortChoiceIsValidForMode(
+    state.viewMode,
+    state.sortColumn,
+    state.sortId
+  );
+
+  if (!sortIsValid) {
+    throw new Error(
+      `Invalid URL state: sortColumn "${state.sortColumn}" and sortId "${state.sortId}" are not valid for viewMode "${state.viewMode}".`
+    );
+  }
+}
+
+function parseBooleanParam(value) {
+  if (value === "true") {
+    return true;
+  }
+
+  if (value === "false") {
+    return false;
+  }
+
+  return null;
+}
+
+function validDivisionValues() {
+  return new Set([...el.division.options].map((option) => option.value));
+}
+
+function validViewModes() {
+  return new Set(
+    [...document.querySelectorAll('input[name="view-mode"]')].map(
+      (radio) => radio.value
+    )
+  );
+}
+
+function sortChoiceIsValidForMode(mode, sortColumn, sortId) {
+  return validSortChoicesForMode(mode).some(
+    (choice) => choice.column === sortColumn && choice.sortId === sortId
+  );
+}
+
+function validSortChoicesForMode(mode) {
+  const choices = [];
+
+  document
+    .querySelectorAll("#standings-table th[data-column]")
+    .forEach((th) => {
+      const headerRow = th.closest("[data-header-for]");
+
+      if (!headerRow) {
+        return;
+      }
+
+      const modes = headerRow.dataset.headerFor.split(/\s+/);
+
+      if (!modes.includes(mode)) {
+        return;
+      }
+
+      choices.push({
+        column: th.dataset.column,
+        sortId: th.dataset.sortId || th.dataset.column,
+      });
+    });
+
+  return choices;
+}
+
+function pushUrlState() {
+  history.pushState(null, "", urlForCurrentState());
+}
+
+function replaceUrlState() {
+  history.replaceState(null, "", urlForDefaultState());
+}
+
+function urlForCurrentState() {
+  if (stateMatchesDefaults()) {
+    return urlForDefaultState();
+  }
+
+  const url = new URL(window.location.href);
+  url.search = "";
+
+  const params = new URLSearchParams();
+  params.set("currentNumBasho", String(state.currentNumBasho));
+  params.set("currentDivision", state.currentDivision);
+  params.set("sortColumn", state.sortColumn);
+  params.set("sortId", state.sortId);
+  params.set("sortDescending", String(state.sortDescending));
+  params.set("viewMode", state.viewMode);
+  params.set("currentOnly", String(state.currentOnly));
+
+  url.search = params.toString();
+  return url;
+}
+
+function urlForDefaultState() {
+  const url = new URL(window.location.href);
+  url.search = "";
+  return url;
+}
+
+function stateMatchesDefaults() {
+  return (
+    state.currentNumBasho === state.config.default_num_basho &&
+    state.currentDivision === state.config.default_division &&
+    state.sortColumn === DEFAULT_SORT_COLUMN &&
+    state.sortId === DEFAULT_SORT_ID &&
+    state.sortDescending === DEFAULT_SORT_DESCENDING &&
+    state.viewMode === "standard" &&
+    state.currentOnly === true
+  );
+}
+
+function wireHistoryEvents() {
+  window.addEventListener("popstate", async () => {
+    const previousNumBasho = state.currentNumBasho;
+
+    try {
+      applyConfigDefaultsToState();
+      applyUrlStateOrDefaults();
+      applyStateToControls();
+      applyViewMode();
+
+      if (state.currentNumBasho !== previousNumBasho) {
+        await loadWindow(state.currentNumBasho);
+      } else {
+        render();
+      }
+    } catch (err) {
+      fail(err);
+    }
+  });
+}
+
+/* ================================================== */
+/* 5. Data loading                                    */
 /* ================================================== */
 
 async function loadWindow(numBasho) {
@@ -220,7 +538,7 @@ function renderMeta() {
   const end = formatMonthYear(state.meta.effective_end_date);
 
   el.title.textContent =
-    `Standings for ${start} to ${end} (${state.currentNumBasho} Basho)`;
+    `Standings for ${start} to ${end} (${state.currentNumBasho} basho)`;
 
   el.range.textContent = "";
 }
@@ -621,6 +939,7 @@ function wireViewModeEvents() {
       state.viewMode = radio.value;
       resetSortToViewDefault();
       applyViewMode();
+      pushUrlState();
       render();
     });
   });
@@ -788,5 +1107,6 @@ function clearNotePopoverTimer() {
     notePopoverTimer = null;
   }
 }
+
 
 
