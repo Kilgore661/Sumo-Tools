@@ -1,6 +1,6 @@
 # deploy.py
+import os, sys
 from pathlib import Path
-#import getpass
 import posixpath
 import stat
 import paramiko
@@ -57,7 +57,11 @@ def deploy_data_files(sftp) -> None:
 
 
 def main():
-    password = 'lambda661' # Dangerous! But unavoidable for now.
+    password = os.environ.get('MY_SFTP_PASS')
+    if not password:
+        print("❌ Error: MY_SFTP_PASS environment variable is not set.")
+        print('Try:\n$env:MY_SFTP_PASS = "whatever"' )
+        sys.exit(1)
 
     transport = paramiko.Transport((HOST, 22))
     transport.connect(username=USER, password=password)
