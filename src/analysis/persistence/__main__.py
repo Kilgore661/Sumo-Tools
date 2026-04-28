@@ -30,7 +30,7 @@ def _output_stem(start: int, end: int, num_basho: int) -> str:
 
 
 def _chart_title(start: int, end: int, num_basho: int) -> str:
-    return f"Division Persistence over {num_basho} Basho ({start}-{end})"
+    return f"Division Persistence over Previous {num_basho} Basho ({start}-{end})"
 
 
 def _slice_history_years(history: History, start: int, end: int) -> History:

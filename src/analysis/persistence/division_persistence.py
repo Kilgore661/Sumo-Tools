@@ -92,9 +92,9 @@ def compute_division_persistence(
     dates = tuple(sorted(history.keys()))
     rows: list[DivisionPersistenceRow] = []
 
-    for anchor_index in range(num_basho - 1, len(dates)):
+    for anchor_index in range(num_basho, len(dates)):
         date = dates[anchor_index]
-        window = dates[anchor_index - num_basho + 1 : anchor_index + 1]
+        window = dates[anchor_index - num_basho : anchor_index + 1]
         members = _members_by_division(history, date)
 
         for division in Division:

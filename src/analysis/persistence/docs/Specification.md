@@ -72,12 +72,14 @@ For an anchor basho/date `t` and integer `num_basho`, define:
 W(t, num_basho)
 ```
 
-as the `num_basho` consecutive basho ending at `t`, inclusive.
+as the anchor basho `t` plus the previous `num_basho` basho.
+
+The window therefore contains `num_basho + 1` basho.
 
 The tool shall only compute output rows for anchor dates where the full
 retrospective window exists.
 
-For example, if `num_basho = 6`, the first five dates in the selected history
+For example, if `num_basho = 6`, the first six dates in the selected history
 range shall not produce rows.
 
 ## 5. Anchor Division Membership
@@ -92,8 +94,8 @@ R(D, t) = { r : r is on the banzuke at t and division(r, t) = D }
 
 ## 6. Rikishi-Level Persistence
 
-For rikishi `r`, division `D`, anchor date `t`, and retrospective window length
-`num_basho`, define:
+For rikishi `r`, division `D`, anchor date `t`, and a retrospective lookback of
+`num_basho` previous basho, define:
 
 ```text
 A(r, t, num_basho) =

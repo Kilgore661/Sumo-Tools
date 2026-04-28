@@ -7,11 +7,12 @@ This tool is about **division persistence**, not churn.
 
 ## Purpose
 
-For each basho date, division, and retrospective window length, the tool will
+For each basho date, division, and retrospective lookback value, the tool will
 answer:
 
 > Of the rikishi who currently comprise this division, how consistently have
-> they been in this same division over the last `num_basho` basho?
+> they been in this same division over the previous `num_basho` basho, plus
+> the current anchor basho?
 
 The first version is deliberately narrow:
 
@@ -28,7 +29,7 @@ Let:
 r = rikishi
 D = division
 t = anchor basho/date
-num_basho = retrospective window length
+num_basho = number of previous basho before the anchor
 ```
 
 Supported divisions are:
@@ -51,10 +52,11 @@ R(D, t) = { r : r is on the banzuke at t and division(r, t) = D }
 Retrospective window:
 
 ```text
-W(t, num_basho) = the num_basho basho ending at t, inclusive
+W(t, num_basho) = the anchor basho t plus the previous num_basho basho
 ```
 
-The metric is defined only when the full retrospective window exists.
+The metric is defined only when the full retrospective window exists. The
+window therefore contains `num_basho + 1` basho.
 
 Rikishi-level persistence:
 

@@ -21,7 +21,7 @@ History
 ```
 
 The pipeline is retrospective only. For anchor date `t`, the relevant window is
-the `num_basho` basho ending at `t`.
+the anchor basho plus the previous `num_basho` basho.
 
 ## 2. Module Boundaries
 

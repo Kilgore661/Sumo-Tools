@@ -65,6 +65,7 @@ def write_persistence_chart(
                 "type": "scatter",
                 "mode": "lines",
                 "name": _division_label(division),
+                "visible": True if division == Division.MAKUUCHI else "legendonly",
                 "x": [str(row.date) for row in rows],
                 "y": [row.mean_persistence for row in rows],
                 "customdata": [
@@ -95,11 +96,17 @@ def write_persistence_chart(
   <title>{title}</title>
   <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
   <style>
+    :root {{
+      color-scheme: dark;
+    }}
+
     html, body {{
       margin: 0;
       padding: 0;
       width: 100%;
       height: 100%;
+      background: #111827;
+      color: #e5e7eb;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }}
 
@@ -114,6 +121,7 @@ def write_persistence_chart(
       width: 100%;
       height: calc(100vh - 40px);
       min-height: 560px;
+      background: #111827;
     }}
   </style>
 </head>
@@ -125,15 +133,37 @@ def write_persistence_chart(
     const traces = {traces_json};
     const layout = {{
       title: {title_json},
+      paper_bgcolor: "#111827",
+      plot_bgcolor: "#111827",
+      font: {{
+        color: "#e5e7eb"
+      }},
       xaxis: {{
         title: "Basho",
         type: "category",
+        gridcolor: "#374151",
+        linecolor: "#4b5563",
         automargin: true
       }},
       yaxis: {{
         title: "Mean persistence",
         range: [0, 1],
+        gridcolor: "#374151",
+        linecolor: "#4b5563",
         automargin: true
+      }},
+      legend: {{
+        orientation: "v",
+        yanchor: "top",
+        y: 1,
+        xanchor: "left",
+        x: 1.02
+      }},
+      margin: {{
+        l: 70,
+        r: 150,
+        t: 70,
+        b: 90
       }},
       hovermode: "closest"
     }};
