@@ -27,6 +27,8 @@ from pathlib import Path
 import statistics
 from collections import Counter
 
+import plotly.graph_objects as go
+
 from src.infra.config import EPOCH
 from src.infra.connect import connect
 from src.sumo_core.BasicPrimitives import RikId, Day
@@ -268,6 +270,12 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Optional CSV output path for delta-binned calibration. Defaults to files/output/Equelo/expt3_delta_calibration.csv when --delta-bin-width is set.",
     )
     parser.add_argument(
+        "--predicted-distribution-chart",
+        type=Path,
+        default=None,
+        help="Predicted probability distribution chart HTML output path. Defaults to files/output/Equelo/expt3_predicted_distribution.html",
+    )
+    parser.add_argument(
         "--support-se-threshold",
         type=float,
         default=0.02,
@@ -435,6 +443,11 @@ def _default_output_path() -> Path:
 def _default_delta_output_path() -> Path:
     """Return the default delta-calibration CSV path."""
     return Path("files/output/Equelo/expt3_delta_calibration.csv")
+
+
+def _default_predicted_distribution_chart_path() -> Path:
+    """Return the default predicted-probability distribution chart path."""
+    return Path("files/output/Equelo/expt3_predicted_distribution.html")
 
 
 def write_bout_forecasts_csv(rows: list[BoutForecast], output_path: Path) -> Path:
@@ -620,6 +633,56 @@ def summarise_predicted_distribution(
     summary["histogram"] = histogram
     return summary
 
+def write_predicted_distribution_chart(
+    predicted_dist: dict[str, object],
+    output_path: Path,
+    title: str,
+) -> Path:
+    """Write an interactive HTML histogram of predicted win probabilities."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    histogram = predicted_dist["histogram"]
+
+    xs = [
+        (float(bucket["p_bin_lo"]) + float(bucket["p_bin_hi"])) / 2.0
+        for bucket in histogram
+    ]
+    counts = [int(bucket["n_obs"]) for bucket in histogram]
+    shares = [100.0 * float(bucket["share"]) for bucket in histogram]
+    labels = [
+        f"{float(bucket['p_bin_lo']):.2f} <= p < {float(bucket['p_bin_hi']):.2f}"
+        for bucket in histogram
+    ]
+
+    fig = go.Figure()
+    fig.add_trace(
+        go.Bar(
+            x=xs,
+            y=counts,
+            customdata=list(zip(labels, shares)),
+            marker_color="#4C78A8",
+            hovertemplate=(
+                "%{customdata[0]}<br>"
+                "Bouts=%{y:,}<br>"
+                "Share=%{customdata[1]:.2f}%"
+                "<extra></extra>"
+            ),
+        )
+    )
+
+    fig.update_layout(
+        title=title,
+        xaxis_title="Predicted win probability",
+        yaxis_title="Number of bouts",
+        bargap=0.05,
+        hovermode="closest",
+    )
+    fig.update_xaxes(range=[0, 1], tickformat=".0%")
+
+    fig.write_html(str(output_path), include_plotlyjs="cdn")
+    return output_path
+
+
 def main() -> None:
     """Run Expt3c from the command line."""
     parser = _build_parser()
@@ -666,6 +729,16 @@ def main() -> None:
     written = write_calibration_csv(cal_rows, output_path)
 
     predicted_dist = summarise_predicted_distribution(bout_rows, hist_bin_width=0.05)
+    chart_output = (
+        args.predicted_distribution_chart
+        if args.predicted_distribution_chart
+        else _default_predicted_distribution_chart_path()
+    )
+    chart_written = write_predicted_distribution_chart(
+        predicted_dist=predicted_dist,
+        output_path=chart_output,
+        title=f"Expt3 Predicted Win Probability Distribution ({args.start}-{args.end})",
+    )
 
     cal_rows = build_calibration_rows_from_bouts(bout_rows, bin_width=args.bin_width)
     raw_summary = summarise_brier_raw(bout_rows)
@@ -685,6 +758,7 @@ def main() -> None:
     print(f"Predicted p p95: {predicted_dist['p95_predicted']:.6f}")
     print(f"Predicted p p99: {predicted_dist['p99_predicted']:.6f}")
     print(f"Predicted p max: {predicted_dist['max_predicted']:.6f}")
+    print(f"Predicted probability distribution chart: {chart_written}")
 
     print("Predicted p histogram:")
     for bucket in predicted_dist["histogram"]:

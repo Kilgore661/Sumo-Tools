@@ -1,175 +1,174 @@
-# Expt3
+# Probability
 
-## Overview
+The Probability tool explores whether simple Elo-style rating systems can
+produce useful pre-bout win probabilities for professional sumo.
 
-**Expt3 is a ratings-based probability generator and evaluator.**
+The central question is:
 
-It uses *Equelo* — an Elo-like rating process — to generate pre-bout win probabilities and evaluates those probabilities against observed outcomes.
+> Are the generated probabilities empirically well calibrated?
 
-The purpose of Expt3 is:
+This package is research/analysis code rather than a user-facing web product.
+It generates probabilistic forecasts from historical bouts, evaluates those
+forecasts, and writes CSV/console outputs for inspection.
 
-> **To assess how well a simple Elo-style system produces calibrated probabilities.**
+## Current Focus: Expt3
 
----
+The maintained path is **Expt3**, implemented primarily in `expt3c.py`.
 
-## Core idea
+Expt3 uses the Expt1 simulation engine to process bouts sequentially:
 
-Expt3 operates as a single, self-contained process:
+1. Maintain scalar Elo-like ratings for rikishi.
+2. Before each scored bout, convert the rating difference into a win
+   probability using the Elo logistic link.
+3. Record the pre-bout probability and realised outcome.
+4. Update ratings after the bout.
+5. Evaluate the resulting probability/outcome rows.
 
-1. **Ratings are generated dynamically**
+The default and preferred Expt3 entrant policy is constant initialisation: new
+rikishi enter with the same baseline rating.
 
-   * Ratings evolve over time using an Elo-like update rule
-   * New entrants are assigned a **constant initial rating**
+## What Is Being Evaluated
 
-2. **Probabilities are produced**
+The focus is probability quality, not ranking quality.
 
-   * For each bout, a win probability is computed from the rating difference using a logistic function
+The main evaluation outputs are:
 
-3. **Probabilities are evaluated**
+- calibration rows grouped by probability bin
+- calibration MAE and RMSE
+- raw Brier score
+- baseline Brier score
+- Brier skill score
+- Brier decomposition terms: reliability, resolution, and uncertainty
+- optional raw bout-level forecasts
+- optional delta-binned calibration rows
 
-   * Predictions are compared to actual outcomes
+The usual interpretation is:
 
----
+- **calibration** asks whether predicted probabilities match observed
+  frequencies
+- **Brier score** measures overall probabilistic accuracy
+- **Brier skill** measures improvement over a constant base-rate predictor
 
-## Evaluation
+## Current Findings
 
-The result of Expt3 is an evaluation of the generated probabilities.
+The current documented Expt3 result is that a simple rating-based approach
+produces meaningful calibrated probabilities over the well-supported central
+probability region.
 
-### 1. Calibration
+See `docs/5 Results & Findings.md` for the current recorded result set and its
+limits.
 
-* Predicted probabilities are grouped into bins
-* Observed win rates are compared to predicted probabilities
+## Main Files
 
-Reported as:
+- `expt3c.py` is the maintained Expt3 entry point.
+- `expt3_types.py` contains Expt3 result/data types.
+- `expt3_report.py` builds and renders the bottom-line summary.
+- `classes.py` contains shared calibration-bin and calibration-row logic.
+- `expt3_q_sweep.py` sweeps the logistic scale parameter `q`.
+- `expt3_link_sweep.py` explores probability-link variations.
+- `expt3c_alpha_sweep.py` sweeps shrinkage for the experimental Expt2-derived
+  entrant initialisation path.
+- `builder.py` and `__main__.py` belong to the older Expt2-ratings calibration
+  path.
 
-* Mean Absolute Error (MAE)
-* Root Mean Squared Error (RMSE)
-* Calibration tables (CSV output)
+## Historical Layer: Expt2-Ratings Calibration
 
----
+This folder also contains an older path that evaluates probabilities generated
+from fixed Expt2 rank/chii ratings.
 
-### 2. Brier score
+That path is represented mainly by:
 
-* Measures overall probabilistic accuracy
+- `builder.py`
+- `__main__.py`
 
-Includes:
+It loads Expt2 final rating CSVs, converts rank/chii rating differences into
+probabilities, and builds calibration rows from observed bouts.
 
-* Raw Brier score
-* Baseline Brier score
-* Brier skill score
-
----
-
-## Entry point
-
-### `expt3c.py`
-
-This is the **maintained entry point** for Expt3.
-
-It:
-
-* runs the full rating and prediction process
-* generates bout-level probabilities
-* computes calibration and Brier metrics
-* writes calibration output
-
----
+This is useful historical and comparative code, but it is not the current
+maintained Expt3 experiment. When in doubt, start with `expt3c.py`.
 
 ## Running Expt3
 
-Expt3 is run via the module entry point:
+Run the maintained experiment with:
 
-```bash
-py -m src.analysis.equelo.expt3.expt3c
+```powershell
+python -m src.analysis.probability.expt3c
 ```
 
-Typical arguments include:
+Useful arguments include:
 
-* `--start`, `--end` — date range for historical data
-* `--q` — logistic scale parameter
-* `--k-policy`, `--k-value` — Elo update configuration
-* `--b` — baseline rating for entrant initialisation
+- `--start` and `--end` to choose the year range
+- `--zip` to use zipped input data where supported by the data layer
+- `--open` to run in open mode; default is closed mode
+- `--k-policy` with `constant` or `divisional`
+- `--k-value` for constant K
+- `--k-config` for divisional K
+- `--b` for entrant baseline rating
+- `--q` for the logistic scale parameter
+- `--bin-width` for probability calibration bins
+- `--output` for probability-binned calibration CSV
+- `--bout-output` for raw bout-level forecasts
+- `--delta-bin-width` and `--delta-output` for delta-binned calibration
 
 Example:
 
-```bash
-py -m src.analysis.equelo.expt3.expt3c \
-    --start 1958 \
-    --end 2025 \
-    --q 850
+```powershell
+python -m src.analysis.probability.expt3c --start 1958 --end 2026 --q 850 --k-policy divisional
 ```
 
-The exact parameter set depends on the experiment being run.
+## Entrant Policies
 
----
+Expt3 supports several entrant policies at the experiment boundary:
+
+- `constant`: default and preferred Expt3 policy
+- `expt2_example`: example non-constant initialisation from Expt2 ratings
+- `expt2_scaled`: Expt2-derived initialisation shrunk by `--expt2-alpha`
+
+The non-constant policies are exploratory. They preserve and test the simulator
+boundary for entrant initialisation, but they are not the core Expt3 method.
 
 ## Outputs
 
-Expt3 produces:
+Default outputs are written under:
 
-### Calibration data (CSV)
-
-* probability bins
-* observed win rates
-* per-bin error measures
-
-### Summary metrics (console output)
-
-* calibration MAE and RMSE
-* Brier score and skill
-* base rate and observation counts
-
-Outputs are written under:
-
-```
+```text
 files/output/Equelo/
 ```
 
-These artefacts are intended for:
+Common outputs include:
 
-* calibration plots
-* comparison across runs
-* further analysis
+- `expt3_calibration.csv`
+- `expt3_delta_calibration.csv`
+- sweep CSVs such as `expt3_q_sweep.csv` and `expt3_alpha_sweep.csv`
 
----
+Console output reports summary metrics such as Brier score, calibration MAE,
+RMSE, base rate, observation counts, and bottom-line support/calibration regions.
 
-## Initialisation
+## Documentation Map
 
-Expt3 uses:
+- `docs/0 Requirements.md` defines the objective and constraints.
+- `docs/1 Model & Generation.md` explains how ratings and probabilities are
+  generated.
+- `docs/2 Evaluation & Calibration.md` defines calibration and Brier evaluation.
+- `docs/3 Reporting.md` describes output forms.
+- `docs/4 Data & Behaviour.md` records data-handling and behavioural notes.
+- `docs/5 Results & Findings.md` records the current results.
+- `docs/6 Sensitivity & Variations.md` discusses parameter sensitivity.
+- `docs/7 Using Fixed Point Initialisation.md` discusses Expt2-style
+  initialisation as a variation.
+- dated docs such as `2026 04 17 The Grand Plan(s).md` are exploratory planning
+  notes, not the primary operating spec.
 
-> **constant initialisation of entrant ratings**
+## Interpretation Notes
 
-This is the default and preferred approach.
+Expt3 is intentionally minimal:
 
-An alternative initialisation based on Expt2 outputs is included in the code as an example of how different initialisation strategies could be implemented. This is not part of the core method and is retained only as a reference.
+- ratings are scalar values
+- predictions depend only on rating differences
+- no extra covariates are used
+- bouts are processed sequentially
+- ignored/fusen/blank bouts are not part of the scored forecast set
 
----
-
-## Summary
-
-Expt3 is a focused experiment:
-
-* **Generate** probabilities from an Elo-like rating system
-* **Evaluate** them using calibration and Brier metrics
-
-No external inputs or prior rating systems are required.
-
----
-
-## Further documentation
-
-For more detail, see:
-
-* **0. Requirements.md** — purpose, constraints, and success criteria
-* **1. Model & Generation.md** — how ratings and probabilities are produced
-* **2. Evaluation & Calibration.md** — how predictions are evaluated
-* **3. Reporting.md** — what outputs are produced
-
----
-
-## 🧠 Notes
-
-* The system is intentionally minimal
-* Results should be interpreted in terms of probabilistic calibration, not ranking quality
-* The focus is on behaviour of the model, not completeness of representation
-
+The point is not to claim that this is a complete model of sumo performance.
+The point is to test whether a simple rating process is enough to produce
+probabilities that behave well under calibration and Brier evaluation.

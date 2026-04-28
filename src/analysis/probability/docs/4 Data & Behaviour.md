@@ -53,7 +53,7 @@ Across **633,625 bouts**, predicted probabilities have the following characteris
 * The distribution is **tightly concentrated around 0.5**
 
 * Approximately:
-
+  
   * **60.4%** of observations lie in [0.45, 0.55]
   * **83.3%** lie in [0.40, 0.60]
   * **92.4%** lie in [0.35, 0.65]
@@ -63,7 +63,7 @@ Across **633,625 bouts**, predicted probabilities have the following characteris
 * It exhibits a **single central peak spanning 0.45–0.55**, split across adjacent bins
 
 * Extreme probabilities are rare:
-
+  
   * p < 0.20 accounts for **0.26%**
   * p > 0.80 accounts for **0.37%**
 
