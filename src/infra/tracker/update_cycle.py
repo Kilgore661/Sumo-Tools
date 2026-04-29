@@ -1,5 +1,5 @@
 import os
-from .types import RequestedDateDays, RetrievalResult, UpdateResult
+from .types import RetrievalPlan, RetrievalResult, UpdateResult
 from .scraper.downloader import download
 from ...sumo_core.History import History
 from ..parser.parser2 import parse_history, logger, OUTPUT_DIR
@@ -55,23 +55,27 @@ def _ensure_live_store(live_store: LiveStore) -> bool:
 
 
 def run_update_cycle(
-    requested_date_days: RequestedDateDays,
+    retrieval_plan: RetrievalPlan,
     live_store: LiveStore,
 ) -> UpdateResult:
     """
-    Run one update cycle for the requested BashoDayRefs.
+    Run one update cycle for the requested source artifacts.
 
     Policy:
     - retrieval failure => RETRIEVAL_FAILED
     - source changed => rebuild History, publish canonical zip, refresh live store
     - source unchanged => ensure live store and return NO_NEW_DATA
     """
-    if not requested_date_days:
+    if not retrieval_plan.banzuke_dates and not retrieval_plan.daily_results:
         return UpdateResult.NO_NEW_DATA
 
-    print(f"[update_cycle] checking {len(requested_date_days)} previous results")
+    print(
+        "[update_cycle] checking "
+        f"{len(retrieval_plan.banzuke_dates)} banzuke pages and "
+        f"{len(retrieval_plan.daily_results)} previous results"
+    )
 
-    retrieval_result = download(requested_date_days)
+    retrieval_result = download(retrieval_plan)
 
     match retrieval_result:
         case RetrievalResult.FAILURE:
@@ -82,7 +86,11 @@ def run_update_cycle(
             print("[update_cycle] retrieval changed source dataset")
 
             start_year = EPOCH
-            end_year = int(requested_date_days[-1].date.year)
+            if not retrieval_plan.daily_results:
+                print("[update_cycle] source changed but no daily results were requested")
+                return UpdateResult.NO_NEW_DATA
+
+            end_year = int(retrieval_plan.daily_results[-1].date.year)
 
             history = _rebuild_canonical_history(start_year, end_year)
             if history is None:

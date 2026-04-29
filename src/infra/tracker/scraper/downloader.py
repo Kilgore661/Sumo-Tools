@@ -5,11 +5,11 @@ This module implements the request-driven downloader described in
 `The Downoader.md`.
 
 Contract:
-    download(requested_basho_days) -> RetrievalResult
+    download(retrieval_plan) -> RetrievalResult
 
 It ensures that:
+- current-standings HTML exists for every requested banzuke date
 - daily-results HTML exists for every requested BashoDayRef
-- current-standings HTML exists for every distinct Date represented
 
 The implementation is deliberately simple:
 - postcondition-based
@@ -24,11 +24,10 @@ import stat
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from time import time, sleep
-from typing import Iterable
 from urllib.error import URLError, HTTPError
 from urllib.request import Request, urlopen
 
-from ..types import BashoDayRef, RetrievalResult
+from ..types import BashoDayRef, RetrievalPlan, RetrievalResult
 
 
 BASE_URL = "https://sumodb.sumogames.de"
@@ -55,9 +54,9 @@ _NO_DATA_BASHOS: set[tuple[int, int]] = {
 }
 
 
-def download(requested_basho_days: Iterable[BashoDayRef]) -> RetrievalResult:
+def download(retrieval_plan: RetrievalPlan) -> RetrievalResult:
     """
-    Ensure that all raw artifacts implied by `requested_basho_days` exist.
+    Ensure that all raw artifacts in `retrieval_plan` exist.
 
     Returns:
     - FAILURE if any required artifact is still missing or unusable
@@ -65,12 +64,13 @@ def download(requested_basho_days: Iterable[BashoDayRef]) -> RetrievalResult:
     - SUCCESS_CHANGED if all required artifacts exist and at least one file
       was written during this run
     """
-    requested_list = list(requested_basho_days)
-    if not requested_list:
+    requested_list = list(retrieval_plan.daily_results)
+    requested_dates = [_to_basho_date(date) for date in retrieval_plan.banzuke_dates]
+
+    if not requested_list and not requested_dates:
         return RetrievalResult.SUCCESS_UNCHANGED
 
     changed = False
-    requested_dates = _distinct_dates_in_order(requested_list)
 
     for basho_date in requested_dates:
         if _is_no_data_basho(basho_date):
@@ -104,18 +104,8 @@ def download(requested_basho_days: Iterable[BashoDayRef]) -> RetrievalResult:
     return RetrievalResult.SUCCESS_UNCHANGED
 
 
-def _distinct_dates_in_order(requested_basho_days: Iterable[BashoDayRef]) -> list[BashoDate]:
-    seen: set[tuple[int, int]] = set()
-    ordered: list[BashoDate] = []
-
-    for ref in requested_basho_days:
-        key = (int(ref.date.year), int(ref.date.month))
-        if key in seen:
-            continue
-        seen.add(key)
-        ordered.append(BashoDate(*key))
-
-    return ordered
+def _to_basho_date(date) -> BashoDate:
+    return BashoDate(int(date.year), int(date.month))
 
 
 def _ensure_current_standings(date: BashoDate) -> bool | None:

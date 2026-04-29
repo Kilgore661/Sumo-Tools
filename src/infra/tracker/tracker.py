@@ -56,7 +56,7 @@ from time import sleep
 from .alert import alert_fatal
 from .config import TrackerConfig
 from .ledger import InMemoryLedger
-from .planner import get_requested_date_days
+from .planner import get_retrieval_plan
 from .schedule import (
     get_basho_window,
     next_run_time,
@@ -131,14 +131,14 @@ def _run_one_cycle_now(
     """
     print(f"[tracker] starting update cycle ({reason})")
 
-    requested_basho_days = get_requested_date_days(
+    retrieval_plan = get_retrieval_plan(
         now,
         ledger,
         config,
     )
 
-    if len(requested_basho_days) == 0:
-        print("[tracker] planner returned no required BashoDayRefs")
+    if not retrieval_plan.banzuke_dates and not retrieval_plan.daily_results:
+        print("[tracker] planner returned no required source artifacts")
         handle_update_result(
             runtime,
             UpdateResult.NO_NEW_DATA,
@@ -150,7 +150,7 @@ def _run_one_cycle_now(
     runtime.state = RunState.ACTIVE
     set_tray_state(runtime.state, now)
 
-    result = run_update_cycle(requested_basho_days, live_store)
+    result = run_update_cycle(retrieval_plan, live_store)
 
     handle_update_result(
         runtime,

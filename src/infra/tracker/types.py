@@ -132,6 +132,22 @@ class BashoDayRef:
 
 RequestedDateDays = List[BashoDayRef]
 
+
+@dataclass(frozen=True)
+class RetrievalPlan:
+    """
+    Source artifacts required for one tracker update cycle.
+
+    banzuke_dates:
+        Basho dates for which the current-standings/banzuke page must exist.
+
+    daily_results:
+        Specific basho days for which daily Results pages must exist.
+    """
+
+    banzuke_dates: List[Date]
+    daily_results: RequestedDateDays
+
 from datetime import datetime, timedelta
 import time
 
@@ -174,4 +190,3 @@ class ScaledClock:
         real_elapsed_seconds = time.monotonic() - self._real_start
         simulated_days = real_elapsed_seconds / self._real_seconds_per_simulated_day
         return self._simulated_start + timedelta(days=simulated_days)
-

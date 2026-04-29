@@ -1,14 +1,16 @@
 """
 Tracker planning logic.
 
-This module determines the ordered list of requested BashoDayRefs
-for a tracker update cycle.
+This module determines the source artifacts required for a tracker update
+cycle.
 
 Current policy (deliberately simple):
 
 - ignore ledger coverage information for now
 - determine the latest basho day for which results should have been published
 - request every BashoDayRef from the epoch up to that point
+- request the banzuke/current-standings page for every required basho date
+- during the pre-basho window, also request the upcoming basho's banzuke
 
 This gives a complete, deterministic request list and keeps the contract
 clear while the tracker/parser/downloader boundaries are being established.
@@ -21,11 +23,32 @@ from datetime import datetime, timedelta
 
 from .config import TrackerConfig
 from .ledger import InMemoryLedger
-from .schedule import add_months, second_sunday
+from .schedule import add_months, get_basho_window, second_sunday
 from ...sumo_core.BasicPrimitives import Day, Month, Year
 from ...sumo_core.History import Date
-from .types import BashoDayRef, RequestedDateDays
+from .types import BashoDayRef, RequestedDateDays, RetrievalPlan
 from ..config import EPOCH
+
+
+def get_retrieval_plan(
+    now: datetime,
+    ledger: InMemoryLedger,
+    config: TrackerConfig,
+) -> RetrievalPlan:
+    """
+    Return the source artifacts that should exist as of `now`.
+    """
+    daily_results = get_requested_date_days(now, ledger, config)
+    banzuke_dates = _distinct_dates_in_order(daily_results)
+
+    pre_basho_date = _pre_basho_date(now, config)
+    if pre_basho_date is not None and pre_basho_date not in banzuke_dates:
+        banzuke_dates.append(pre_basho_date)
+
+    return RetrievalPlan(
+        banzuke_dates=banzuke_dates,
+        daily_results=daily_results,
+    )
 
 
 def get_requested_date_days(
@@ -66,6 +89,29 @@ def get_requested_date_days(
     latest_ref = _latest_published_date_day(now, config)
     #from pdb import set_trace; set_trace()
     return _enumerate_from_epoch_to(latest_ref.date, latest_ref.day)
+
+
+def _pre_basho_date(now: datetime, config: TrackerConfig) -> Date | None:
+    """
+    Return the upcoming basho date when `now` is in the pre-basho window.
+    """
+    window = get_basho_window(now, config)
+    if window.pre_basho_start <= now < window.basho_start:
+        return Date(Year(window.basho_start.year), Month(window.basho_start.month))
+    return None
+
+
+def _distinct_dates_in_order(requested_date_days: RequestedDateDays) -> list[Date]:
+    """
+    Return the basho dates represented by `requested_date_days`, in order.
+    """
+    dates: list[Date] = []
+
+    for ref in requested_date_days:
+        if ref.date not in dates:
+            dates.append(ref.date)
+
+    return dates
 
 
 def _latest_published_date_day(
