@@ -31,6 +31,40 @@ from .parser2_body_adapter import _extract_performance
 
 OUTPUT_DIR = 'files/output'
 
+def get_banzuke(date: Date) -> Banzuke | None:
+    """
+    Parse and return only the Banzuke for `date`.
+
+    This function is custom-designed for ../../analysis/changes. Arguably
+    parse_bashostate should be refactored to use it once that caller proves
+    the boundary is right.
+    """
+
+    # --- Stage 1: Load Margin Data ---
+    margin_data, dups, raw_html_text = get_margin_data(date)
+    if not margin_data:
+        return None
+
+    # --- Stage 2: Run the Orchestrator ---
+    validated_data, _, _ = parse_and_validate_body(
+        date,
+        margin_data,
+        dups,
+        raw_html_text,
+    )
+    if not validated_data:
+        return None
+
+    all_riks = Riks(validated_data.keys())
+    rik_chii = RikChii({rid: entry.chii for rid, entry in validated_data.items()})
+    rik_shik = RikShikona({rid: entry.shikona for rid, entry in validated_data.items()})
+
+    return Banzuke(
+        riks=all_riks,
+        rikchii=rik_chii,
+        rikshik=rik_shik,
+    )
+
 def tidy_up(
         d: Date,
         validated_data: Dict[RikId, FinalBanzukeEntry],
@@ -78,6 +112,9 @@ def parse_bashostate(date: Date) -> BashoState:
     """
     The main entry point for parsing a single basho.
     Orchestrates loading, validation, and final assembly.
+
+    NB: This could/should use get_banzuke once that helper has proved its
+    boundary in ../../analysis/changes.
     """
     
     # --- Stage 1: Load Margin Data ---
