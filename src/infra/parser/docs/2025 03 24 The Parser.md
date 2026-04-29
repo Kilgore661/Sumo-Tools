@@ -232,12 +232,15 @@ Consequences:
 The parser guarantees that, on success:
 
 * every rikishi in the output has:
-
+  
   * a valid `RikId`
   * a normalized `Chii`
   * a consistent `Shikona`
+
 * the banzuke is internally consistent
+
 * daily results refer only to known rikishi
+
 * no out-of-domain entities (e.g. `Mz`) appear in the final model
 
 ---
@@ -297,12 +300,12 @@ files/output/current standings/{year} {month:02d}.html
 This file serves **two distinct purposes**:
 
 1. **Margin data source**
-
+   
    * Provides the expected ordered list of `(RikId, Chii)`
    * Used as the reference for FSM reconciliation
 
 2. **Body HTML source**
-
+   
    * Contains the banzuke tables that are parsed into row streams
    * These rows are fed into FSMs
 
@@ -321,9 +324,11 @@ files/output/HTML results/{year} {month:02d}/{day}.html
 ```
 
 * One file per day (1–15)
-* Parsed after the banzuke has been validated
-* Used to construct:
 
+* Parsed after the banzuke has been validated
+
+* Used to construct:
+  
   * `DailyResults`
   * `RikishiPerformance`
 
@@ -343,12 +348,12 @@ dups               : Dict[...]
 ```
 
 * `sorted_margin_data`
-
+  
   * ordered list of expected ranks
   * used as the authoritative reference sequence
 
 * `dups`
-
+  
   * duplicate-rank pool
   * used by FSM to resolve ambiguous rank assignments
 
@@ -428,10 +433,11 @@ Summary = {
 ```
 
 * `daily_results`
-
+  
   * bouts per day
-* `rikishi_performances`
 
+* `rikishi_performances`
+  
   * wins/losses/absences per rikishi
 
 ---
@@ -500,10 +506,11 @@ On successful parsing, the following are guaranteed:
 ### 3.5.3 Model Compliance
 
 * Output conforms to the core model:
-
+  
   * `Banzuke`
   * `Summary`
   * `History`
+
 * No raw HTML artifacts remain
 
 ---
@@ -523,10 +530,12 @@ The following are excluded from final output:
 If parsing fails for a basho:
 
 * the parser may:
-
+  
   * raise an exception, or
   * return an error indicator (implementation-dependent)
+
 * that basho is **not included** in `History`
+
 * no partial or invalid data is persisted
 
 This ensures:
@@ -564,12 +573,14 @@ Aonishiki vs Hokutofuji → Aonishiki wins
 ### Processing
 
 * Margin → sorted `(RikId, Chii)` with sideless `M3`
-* FSM:
 
+* FSM:
+  
   * resolves `M3` → `M3e`, `M3w`
   * assigns correct rikishi to each
-* Daily parser:
 
+* Daily parser:
+  
   * uses `RikId` mapping from FSM output
 
 ---
@@ -594,15 +605,17 @@ Summary:
 The parser:
 
 * consumes:
-
+  
   * current standings HTML
   * daily results HTML
-* produces:
 
+* produces:
+  
   * validated `BashoState`
   * aggregated `History`
-* guarantees:
 
+* guarantees:
+  
   * identity consistency
   * rank correctness
   * model compliance
@@ -637,7 +650,7 @@ This section describes only the parts of the model that are **essential to under
 
 Each rikishi is identified by a unique:
 
-```text id="o3q7px"
+```text
 RikId : int
 ```
 
@@ -645,7 +658,7 @@ This is the **only authoritative identifier**.
 
 All parser operations ultimately reduce to:
 
-```text id="3ljx7s"
+```text
 RikId → (rank, name, results)
 ```
 
@@ -665,14 +678,14 @@ This has several consequences:
 
 Even if HTML contains:
 
-```text id="sb5n0f"
+```text
 "M3e Aonishiki"
 "M3e Aonishiki (alt spelling)"
 ```
 
 Both map to the same:
 
-```text id="r21c0w"
+```text
 RikId = 12345
 ```
 
@@ -684,7 +697,7 @@ The parser never relies on string equality.
 
 Ranks are represented by a structured object:
 
-```text id="z8l3k9"
+```text
 Chii = (level, number, side, annotation)
 ```
 
@@ -699,7 +712,7 @@ Where:
 
 ### Example
 
-```text id="0g5m6c"
+```text
 "M3e"     → (M, 3, e, ∅)
 "M3wHD"   → (M, 3, w, HD)
 "Y1e"     → (Y, 1, e, ∅)
@@ -711,7 +724,7 @@ Where:
 
 Each `Chii` has a total ordering:
 
-```text id="s1v7rc"
+```text
 ordinal : Chii → int
 ```
 
@@ -725,7 +738,7 @@ This defines:
 
 ### Example Ordering
 
-```text id="h9p3kk"
+```text
 Y1e < Y1w < Y2e < ... < O1e < ... < M1e < M1w < M2e < ...
 ```
 
@@ -746,7 +759,7 @@ This avoids ambiguity such as:
 
 The banzuke is represented as:
 
-```text id="3dfw3j"
+```text
 Banzuke:
     RikId → Chii
     RikId → Shikona
@@ -769,7 +782,7 @@ Ordering is derived from `Chii.ordinal()` when needed.
 
 The summary captures tournament outcomes:
 
-```text id="0xq1nl"
+```text
 Summary:
     daily_results
     rikishi_performances
@@ -801,7 +814,7 @@ The parser enforces this separation.
 
 HTML provides rank strings such as:
 
-```text id="hcb9m1"
+```text
 "M3"
 "M3e"
 "M3wHD"
@@ -821,7 +834,7 @@ Therefore:
 
 ### Example: Ambiguous Rank
 
-```text id="s8z8sq"
+```text
 Margin: M3
 Body:   M3e A
         M3w B
@@ -847,7 +860,7 @@ The FSM layer exists to enforce:
 
 It produces:
 
-```text id="y9r9zw"
+```text
 RikId → Chii
 ```
 
@@ -942,7 +955,7 @@ The parser operates as a **multi-stage transformation pipeline**, converting raw
 
 At a high level:
 
-```text id="9t3m2k"
+```text
 Current Standings HTML
         ↓
 Margin Extraction + Body Extraction
@@ -970,7 +983,7 @@ Each stage is deterministic and feeds the next.
 
 At the top level:
 
-```text id="lq2s8u"
+```text
 for date in range:
     basho_state = parse_bashostate(date)
     add to History
@@ -985,7 +998,7 @@ The parser processes one basho at a time, then aggregates.
 
 ### Input
 
-```text id="q3lq7a"
+```text
 files/output/current standings/{year} {month}.html
 ```
 
@@ -1006,7 +1019,7 @@ files/output/current standings/{year} {month}.html
 
 From the current standings HTML:
 
-```text id="g7x2k1"
+```text
 sorted_margin_data : List[(RikId, Chii)]
 dups               : Dict[...]
 ```
@@ -1022,7 +1035,7 @@ dups               : Dict[...]
 
 ### Example
 
-```text id="nqv4y2"
+```text
 Raw margin:
     M3
     M3
@@ -1041,7 +1054,7 @@ dups:
 
 The same HTML is parsed into logical rows:
 
-```text id="z8j1ph"
+```text
 List[BanzukeRow]
 ```
 
@@ -1055,7 +1068,7 @@ Each row represents:
 
 ### Example
 
-```text id="d7m2xt"
+```text
 Row 1: "M3e Aonishiki"
 Row 2: "M3w Hokutofuji"
 Row 3: "TD"
@@ -1067,7 +1080,7 @@ Row 3: "TD"
 
 The body rows are processed by a sequence of FSMs:
 
-```text id="3b3mjk"
+```text
 YokozunaFSM → OSK_FSM → GruntFSM
 ```
 
@@ -1081,7 +1094,7 @@ Each FSM:
 
 ### Key Mechanism
 
-```text id="4fzp3w"
+```text
 while rows remain:
     run FSM
     advance by rows_processed
@@ -1111,7 +1124,7 @@ Each FSM:
 
 ### Output
 
-```text id="2m0d4j"
+```text
 Dict[RikId, FinalBanzukeEntry]
 ```
 
@@ -1119,7 +1132,7 @@ Dict[RikId, FinalBanzukeEntry]
 
 ### Example: Sideless Rank Resolution
 
-```text id="4zjv9r"
+```text
 Margin: M3
 Body:   M3e A
         M3w B
@@ -1133,7 +1146,7 @@ FSM output:
 
 ### Example: Transposition Recovery
 
-```text id="1q8m7c"
+```text
 Margin:
     A → M5e
     B → M5w
@@ -1153,7 +1166,7 @@ FSM corrects:
 
 FSM outputs are merged into:
 
-```text id="7f6lqk"
+```text
 Banzuke:
     RikId → Chii
     RikId → Shikona
@@ -1171,7 +1184,7 @@ At this point:
 
 The validated banzuke is converted into a legacy-compatible structure:
 
-```text id="v0m9pz"
+```text
 banzuke_mz : Dict[RikId, {...}]
 ```
 
@@ -1194,7 +1207,7 @@ This includes:
 
 For each day:
 
-```text id="7h1q2y"
+```text
 _parse_daily_results(day_html, banzuke_mz)
 ```
 
@@ -1212,7 +1225,7 @@ Daily parsing is done **relative to the validated banzuke**.
 
 ### Example
 
-```text id="g1k9xy"
+```text
 Aonishiki vs Hokutofuji
 
 Lookup:
@@ -1226,7 +1239,7 @@ Lookup:
 
 From daily results:
 
-```text id="z7k2ql"
+```text
 Summary:
     daily_results
     rikishi_performances
@@ -1242,7 +1255,7 @@ Includes:
 
 ## 5.12 Stage 10 — Assemble BashoState
 
-```text id="1nq8zr"
+```text
 BashoState = Banzuke × Summary
 ```
 
@@ -1254,7 +1267,7 @@ This is the complete representation of one basho.
 
 Across dates:
 
-```text id="6l2mwd"
+```text
 History[date] = BashoState
 ```
 
@@ -1264,13 +1277,13 @@ History[date] = BashoState
 
 Finally:
 
-```text id="8d1kqs"
+```text
 save_history_with_annotations(history, filename)
 ```
 
 Produces:
 
-```text id="2z4kxp"
+```text
 filename.zip → filename.json
 ```
 
@@ -1405,11 +1418,15 @@ That role is visible directly in `parse_and_save_history(...)`, which computes t
 `parser2_margin.py` owns the extraction of rank-bearing information from the “current standings” HTML. Its main public responsibility is `get_margin_data(date)`, which:
 
 * calls the trusted raw marginalia parser,
-* converts raw `chii` strings into `Chii` objects,
-* filters out non-ranked entries such as `Mz` and `Sj`,
-* sorts the result by `Chii`,
-* and returns:
 
+* converts raw `chii` strings into `Chii` objects,
+
+* filters out non-ranked entries such as `Mz` and `Sj`,
+
+* sorts the result by `Chii`,
+
+* and returns:
+  
   * the sorted `(RikId, Chii)` list,
   * the duplicates structure,
   * and the raw HTML text for the body parser. 
@@ -1678,16 +1695,16 @@ Each FSM is constructed with:
 ### Parameters
 
 * `date`
-
+  
   * used for date-specific logic (e.g. historical anomalies)
 
 * `sorted_margin_data`
-
+  
   * ordered list of expected `(RikId, Chii)`
   * serves as the reconciliation reference
 
 * `dups`
-
+  
   * duplicate-rank pool
   * used by FSM to resolve ambiguity
 
@@ -1750,20 +1767,20 @@ Where each entry contains:
 The parser relies on the FSM to ensure:
 
 1. **Rank completeness**
-
+   
    * every included rikishi has a valid `Chii`
 
 2. **No ambiguity**
-
+   
    * no sideless ranks remain
 
 3. **Consistency with margin**
-
+   
    * output aligns with `sorted_margin_data`
    * modulo allowed recovery (e.g. transpositions)
 
 4. **Identity correctness**
-
+   
    * mapping is keyed by correct `RikId`
 
 ---
@@ -1848,9 +1865,10 @@ The parser assumes:
 ### Implicit Contract
 
 * FSM must:
-
+  
   * align output with margin ordering
   * ensure no missing or extra assignments
+
 * parser does not verify margin exhaustion explicitly
 
 ---
@@ -2016,12 +2034,12 @@ That is:
 ### 8.2.3 Where `Mz` Appears
 
 * may appear in:
-
+  
   * margin data (filtered out)
   * daily results (must be handled)
 
 * does **not** appear in:
-
+  
   * FSM input (rank families)
   * final `Banzuke`
 
@@ -2048,7 +2066,7 @@ That is:
 ```
 
 * used to:
-
+  
   * identify and ignore `Mz vs Mz`
   * handle `Mz vs ranked` correctly
 
@@ -2167,8 +2185,9 @@ This does not match the new model directly.
 `adapt_banzuke_for_daily_parser(...)` performs:
 
 * conversion from `FinalBanzukeEntry` → legacy dict
-* insertion of:
 
+* insertion of:
+  
   * `chii` (either `Chii` or `'Mz'`)
   * `code` (derived from `ordinal()`)
 
@@ -2379,9 +2398,10 @@ Failures can occur at several stages of the pipeline.
 **Handling:**
 
 * FSM raises:
-
+  
   * `ReconciliationError`
   * `UnclassifiableRowError`
+
 * parser treats as fatal
 
 ---
@@ -2504,8 +2524,9 @@ If parsing fails:
 The parser’s failure behaviour is designed to support the Tracker:
 
 * failure signals that new data is not yet reliable
-* Tracker can:
 
+* Tracker can:
+  
   * retry later
   * retain previous valid snapshot
 
@@ -2599,8 +2620,9 @@ The parser guarantees that the `History` object:
 ### 10.2.1 Is Complete
 
 * contains all successfully parsed basho
-* each basho contains:
 
+* each basho contains:
+  
   * a fully validated `Banzuke`
   * a complete `Summary`
 
@@ -2625,7 +2647,7 @@ BashoState = Banzuke × Summary
 ```
 
 * uses:
-
+  
   * `RikId` for identity
   * `Chii` for rank
   * structured data only
@@ -2635,7 +2657,7 @@ BashoState = Banzuke × Summary
 ### 10.2.4 Is Clean
 
 * contains no:
-
+  
   * HTML fragments
   * raw rank strings
   * parser-specific artifacts
@@ -2783,8 +2805,9 @@ The parser does not interact directly with shared memory.
 However:
 
 * the persisted zip is the source for cache loading
-* cache layer assumes:
 
+* cache layer assumes:
+  
   * zip contains valid `History`
   * no partial writes
 
@@ -3012,9 +3035,11 @@ It is explicitly:
 The parser intentionally excludes:
 
 * `Mz` (Mae-zumo)
-* `Bg` (absence markers)
-* informational sections:
 
+* `Bg` (absence markers)
+
+* informational sections:
+  
   * retirements
   * shin-deshi
   * shikona changes
@@ -3324,25 +3349,25 @@ A quick checklist for validating parser correctness:
 When debugging a failure:
 
 1. **Margin stage**
-
+   
    * Is `sorted_margin_data` correct?
    * Any invalid `chii`?
 
 2. **Body extraction**
-
+   
    * Are tables parsed correctly?
 
 3. **Adapter**
-
+   
    * Are `BanzukeRow` objects valid?
 
 4. **FSM**
-
+   
    * Which FSM failed?
    * Is it a reconciliation issue?
 
 5. **Daily parsing**
-
+   
    * Missing `RikId`?
    * Unexpected bout structure?
 
@@ -3379,4 +3404,3 @@ With:
 * **clean output boundary** (`History`)
 
 This appendix ties the conceptual model, pipeline, and code structure into a single reference for practical use.
-
