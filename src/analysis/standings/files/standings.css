@@ -1,57 +1,13 @@
 :root {
-  --bg: #081633;
-  --panel: #0d1f47;
-  --panel-2: #132b5c;
-  --line: #7f95c0;
-  --text: #ffffff;
-  --muted: #c9d4ee;
-  --menu-bg: #fff6bf;
-  --table-line: rgba(127, 149, 192, 0.55);
-}
-
-html, body {
-  margin: 0;
-  padding: 0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: Arial, Helvetica, sans-serif;
+  --line: var(--site-line);
+  --text: var(--site-text);
+  --muted: var(--site-muted);
+  --table-line: var(--site-line-soft);
 }
 
 body {
-  min-height: 100vh;
   padding: 20px;
   overflow-x: auto;
-}
-
-.page {
-  width: max-content;
-  margin: 0 auto;
-  border: 1px solid var(--line);
-  background: var(--panel);
-}
-
-.title-bar {
-  padding: 16px 20px;
-  font-size: 24px;
-  font-weight: bold;
-  border-bottom: 1px solid var(--line);
-}
-
-.main {
-  display: grid;
-  grid-template-columns: max-content max-content;
-  min-height: 420px;
-}
-
-.menu {
-  padding: 14px 16px;
-  border-right: 1px solid var(--line);
-  background: #0a1a3c;
-}
-
-.menu h2 {
-  margin: 0 0 12px 0;
-  font-size: 20px;
 }
 
 .control-group {
@@ -77,18 +33,6 @@ body {
   font-weight: normal;
 }
 
-.content {
-  padding: 14px 16px;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-}
-
-.content-inner {
-  display: inline-block;
-  text-align: center;
-}
-
 .content-inner h2 {
   margin: 0 0 20px 0;
   font-size: 20px;
@@ -111,7 +55,7 @@ body {
 }
 
 .standings-table th {
-  background: rgba(255,255,255,0.1);
+  background: var(--site-table-head-bg);
   font-weight: bold;
   cursor: default;
 }
@@ -152,11 +96,11 @@ body {
 }
 
 .standings-table tbody tr:nth-child(odd) td {
-  background: rgba(255,255,255,0.02);
+  background: var(--site-row-odd);
 }
 
 .standings-table tbody tr:nth-child(even) td {
-  background: rgba(255,255,255,0.06);
+  background: var(--site-row-even);
 }
 
 .standings-table th:nth-child(2),
@@ -378,7 +322,7 @@ select:focus {
 }
 
 .standings-table tr.combined-group-row th {
-  background: rgba(255,255,255,0.1);
+  background: var(--site-table-head-bg);
   font-size: 15px;
   padding-top: 2px;
   padding-bottom: 3px;
@@ -386,7 +330,7 @@ select:focus {
 }
 
 .standings-table tr.combined-detail-row th {
-  background: rgba(255,255,255,0.1);
+  background: var(--site-table-head-bg);
   font-size: 13px;
   padding-top: 0;
   padding-bottom: 5px;
@@ -395,7 +339,7 @@ select:focus {
 
 .standings-table th.combined-primary-head,
 .standings-table tr.combined-group-row th.header-group {
-  background: rgba(255,255,255,0.1);
+  background: var(--site-table-head-bg);
   color: var(--text) !important;
   font-size: 15px !important;
   font-weight: bold !important;

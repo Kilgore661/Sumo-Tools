@@ -41,6 +41,7 @@ with LEGACY_QUALIFIED_SHIKONA.open("rb") as f:
 
 WEB_ROOT = Path(r"A:/local/html/standings")
 WEB_DATA = WEB_ROOT / "data"
+WEB_COMMON = WEB_ROOT.parent / "common" / "files"
 
 SUPPORTED_NUM_BASHO = (1, 2, 3, 4, 5, 6, 12, 18, 24, 36, 60)
 DIRECTION = "BACKWARDS"
@@ -226,11 +227,16 @@ def publish_one_window(
 def deploy_to_local_web() -> None:
     WEB_ROOT.mkdir(parents=True, exist_ok=True)
     WEB_DATA.mkdir(parents=True, exist_ok=True)
+    WEB_COMMON.mkdir(parents=True, exist_ok=True)
 
     static_dir = Path(__file__).resolve().parent / "files"
+    common_static_dir = Path(__file__).resolve().parents[1] / "common" / "files"
 
     for name in ["index.html", "standings.css", "standings.js.txt"]:
         shutil.copy2(static_dir / name, WEB_ROOT / name)
+
+    for name in ["site-wide.css", "tool-layout.css"]:
+        shutil.copy2(common_static_dir / name, WEB_COMMON / name)
 
     clear_dir_files(WEB_DATA)
     copy_data_files(PUBLISHER_LATEST_DATA, WEB_DATA)

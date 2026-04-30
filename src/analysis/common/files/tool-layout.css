@@ -1,0 +1,49 @@
+.tool-shell,
+.page {
+  width: max-content;
+  margin: 0 auto;
+  border: 1px solid var(--site-line);
+  background: var(--site-panel);
+}
+
+.tool-title-bar,
+.title-bar {
+  padding: 16px 20px;
+  font-size: 24px;
+  font-weight: bold;
+  border-bottom: 1px solid var(--site-line);
+}
+
+.tool-layout,
+.main {
+  display: grid;
+  grid-template-columns: max-content max-content;
+  min-height: 420px;
+}
+
+.tool-options,
+.menu {
+  padding: 14px 16px;
+  border-right: 1px solid var(--site-line);
+  background: var(--site-panel-subtle);
+}
+
+.tool-options h2,
+.menu h2 {
+  margin: 0 0 12px 0;
+  font-size: 20px;
+}
+
+.tool-content,
+.content {
+  padding: 14px 16px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.tool-content-inner,
+.content-inner {
+  display: inline-block;
+  text-align: center;
+}

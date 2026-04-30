@@ -10,11 +10,13 @@ USER = "root"
 
 REMOTE_ROOT = "/var/www/html/standings"
 REMOTE_DATA = posixpath.join(REMOTE_ROOT, "data")
+REMOTE_COMMON = "/var/www/html/common/files"
 from .config import PUBLISHER_LATEST_DATA as LOCAL_DATA
 
 # Local project paths
 BASE_DIR = Path(__file__).resolve().parent
 LOCAL_STATIC = BASE_DIR / "files"
+LOCAL_COMMON_STATIC = BASE_DIR.parent / "common" / "files"
 
 
 def ensure_remote_dir(sftp, remote_dir: str) -> None:
@@ -46,6 +48,11 @@ def deploy_static_files(sftp) -> None:
         remote_file = posixpath.join(REMOTE_ROOT, name)
         upload_file(sftp, local_file, remote_file)
 
+    for name in ["site-wide.css", "tool-layout.css"]:
+        local_file = LOCAL_COMMON_STATIC / name
+        remote_file = posixpath.join(REMOTE_COMMON, name)
+        upload_file(sftp, local_file, remote_file)
+
 
 def deploy_data_files(sftp) -> None:
     clear_remote_files(sftp, REMOTE_DATA)
@@ -72,6 +79,8 @@ def main():
         # Ensure remote structure exists
         ensure_remote_dir(sftp, REMOTE_ROOT)
         ensure_remote_dir(sftp, REMOTE_DATA)
+        ensure_remote_dir(sftp, posixpath.dirname(REMOTE_COMMON))
+        ensure_remote_dir(sftp, REMOTE_COMMON)
 
         # Copy static site files
         deploy_static_files(sftp)

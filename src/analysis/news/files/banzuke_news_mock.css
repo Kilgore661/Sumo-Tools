@@ -1,15 +1,13 @@
 :root {
-  color-scheme: dark;
-  --bg: #101318;
-  --panel: #171c23;
-  --panel-strong: #202733;
-  --ink: #eef3f6;
-  --muted: #9aa8b2;
-  --line: #303946;
-  --line-soft: #252d38;
-  --accent: #d8b86a;
-  --row-even: #101722;
-  --row-odd: #0d1016;
+  --panel: var(--site-panel);
+  --panel-strong: var(--site-panel-strong);
+  --ink: var(--site-text);
+  --muted: var(--site-muted);
+  --line: var(--site-line);
+  --line-soft: var(--site-line-soft);
+  --accent: var(--site-accent);
+  --row-even: var(--site-row-even);
+  --row-odd: var(--site-row-odd);
   --up-low-bg: #193d31;
   --up-low-fg: #8fe1bd;
   --up-mid-bg: #12523e;
@@ -26,48 +24,36 @@
   --neutral-fg: #c1c9d0;
 }
 
-* {
-  box-sizing: border-box;
-}
-
 body {
-  margin: 0;
   min-width: 320px;
-  background:
-    linear-gradient(180deg, #131821 0%, var(--bg) 42%),
-    var(--bg);
-  color: var(--ink);
-  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+  padding: 20px;
+  overflow-x: auto;
   line-height: 1.35;
 }
 
 .page-shell {
-  width: min(1180px, calc(100% - 32px));
+  width: min(1180px, 100%);
   margin: 0 auto;
-  padding: 22px 0;
+  border: 1px solid var(--line);
+  background: var(--panel);
 }
 
 .report-header {
-  margin-bottom: 14px;
-}
-
-h1,
-h2 {
-  margin: 0;
-  font-weight: 700;
-  letter-spacing: 0;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
 }
 
 h1 {
-  font-size: 1.75rem;
+  font-size: 24px;
+  font-weight: bold;
 }
 
 h2 {
-  font-size: 1rem;
+  font-size: 20px;
+  font-weight: bold;
 }
 
 .division-band {
-  border: 1px solid var(--line);
   background: var(--panel);
 }
 
@@ -114,7 +100,7 @@ td {
   padding: 2px 7px;
   border-bottom: 1px solid var(--line-soft);
   color: var(--ink);
-  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+  font-family: var(--site-font);
   font-weight: 400;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -128,7 +114,7 @@ thead th {
   color: var(--ink);
   font-size: 1rem;
   font-weight: 700;
-  background: #151a21;
+  background: var(--site-table-head-bg);
 }
 
 thead tr:first-child th {
@@ -145,7 +131,7 @@ tbody tr:nth-child(even) {
 }
 
 tbody tr:hover {
-  background: #17202c;
+  background: var(--site-row-hover);
 }
 
 .rikishi {
@@ -235,17 +221,16 @@ tbody tr:hover {
 }
 
 @media (max-width: 780px) {
-  .page-shell {
-    width: min(100% - 20px, 1180px);
-    padding: 16px 0;
+  body {
+    padding: 10px;
   }
 
-  .report-header {
-    margin-bottom: 12px;
+  .page-shell {
+    width: 100%;
   }
 
   h1 {
-    font-size: 1.55rem;
+    font-size: 22px;
   }
 
   .division-heading {
