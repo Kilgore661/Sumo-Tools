@@ -11,7 +11,7 @@ import sys
 
 import paramiko
 
-from src.analysis.news.classes import PublicationRequest
+from .classes import PublicationRequest
 
 
 HOST = "www.661.org.uk"

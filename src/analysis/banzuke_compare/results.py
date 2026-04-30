@@ -2,7 +2,7 @@
 Previous-result formatting for the Banzuke Change Report.
 """
 
-from src.analysis.news.classes import BanzukeChange
+from .classes import BanzukeChange
 from src.sumo_core.BasicEnums import Outcome, Prize
 from src.sumo_core.BasicPrimitives import RikId
 from src.sumo_core.Chii import Chii

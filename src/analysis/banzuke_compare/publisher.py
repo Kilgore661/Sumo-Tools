@@ -14,14 +14,14 @@ from pathlib import Path
 
 from src.infra.parser.parser2_IntDate import IntDate
 
-from src.analysis.news.classes import (
+from .classes import (
     PublicationRequest,
 )
-from src.analysis.news.banzuke_diff import build_banzuke_diff
-from src.analysis.news.banzuke_source import load_publication_source
-from src.analysis.news.deploy import copy_static_assets
-from src.analysis.news.publisher_reports import write_publication_data
-from src.analysis.news.report_view import build_bcr_report
+from .banzuke_diff import build_banzuke_diff
+from .banzuke_source import load_publication_source
+from .deploy import copy_static_assets
+from .publisher_reports import write_publication_data
+from .report_view import build_bcr_report
 
 
 STATIC_FILE_NAMES = (

@@ -5,7 +5,7 @@ Persistence contract for Banzuke Change Report publisher outputs.
 import csv
 import json
 
-from src.analysis.news.classes import BcrReport, PublishedFiles
+from .classes import BcrReport, PublishedFiles
 
 
 DATA_FILE_NAME = "banzuke_change_report.csv"

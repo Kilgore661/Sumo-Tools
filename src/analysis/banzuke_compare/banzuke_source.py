@@ -5,7 +5,7 @@ Input loading contract for the Banzuke Change Report publisher.
 from src.infra.live_store.api import get_history
 from src.infra.parser.parser2 import get_banzuke
 from src.infra.parser.parser2_IntDate import IntDate
-from src.analysis.news.classes import PublicationRequest, PublicationSource
+from .classes import PublicationRequest, PublicationSource
 from src.sumo_core.Banzuke import Banzuke
 from src.sumo_core.History import Date, History
 

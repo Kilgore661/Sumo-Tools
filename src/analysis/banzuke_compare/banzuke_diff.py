@@ -2,7 +2,7 @@
 Banzuke comparison contract for the Banzuke Change Report.
 """
 
-from src.analysis.news.classes import BanzukeChange, BanzukeDiff, PublicationSource
+from .classes import BanzukeChange, BanzukeDiff, PublicationSource
 from src.sumo_core.BasicEnums import Annotation, Division, MSD
 from src.sumo_core.BasicPrimitives import RikId
 from src.sumo_core.Banzuke import Banzuke

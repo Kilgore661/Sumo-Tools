@@ -2,7 +2,7 @@
 Browser-facing report model contract for the Banzuke Change Report.
 """
 
-from src.analysis.news.classes import (
+from .classes import (
     BanzukeChange,
     BanzukeDiff,
     BcrDivisionReport,
@@ -10,8 +10,8 @@ from src.analysis.news.classes import (
     BcrReportRow,
     BcrReportSide,
 )
-from src.analysis.news.results import format_previous_result
-from src.analysis.news.shikona_links import graph_shikona_for
+from .results import format_previous_result
+from .shikona_links import graph_shikona_for
 from src.sumo_core.BasicEnums import Division, Side
 
 
