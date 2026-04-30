@@ -19,13 +19,14 @@ from src.sumo_core.History import Date, History
 class PublicationRequest:
     """
     Contract:
-        current_date is the banzuke to report.
+        requested_date is the requested banzuke to report, or None to use the
+        latest date supported by the source-loading policy.
         output_root is the directory that will become the static app root.
         static_dir contains the BCR HTML/CSS/JS assets named by the publisher.
         common_static_dir contains shared lab CSS used by the BCR HTML.
     """
 
-    current_date: Date
+    requested_date: Date | None
     output_root: Path
     static_dir: Path
     common_static_dir: Path
@@ -53,6 +54,7 @@ class PublicationSource:
 
     request: PublicationRequest
     history: History
+    current_date: Date
     current_banzuke: Banzuke
     previous_date: Date
     previous_basho: BashoState

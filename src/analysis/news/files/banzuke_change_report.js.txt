@@ -17,9 +17,7 @@ const state = {
 
 const el = {
   pageTitle: document.getElementById("page-title"),
-  range: document.getElementById("range-label"),
   division: document.getElementById("division-select"),
-  divisionTitle: document.getElementById("division-title"),
   body: document.getElementById("banzuke-body"),
 };
 
@@ -127,13 +125,10 @@ function wireEvents() {
 }
 
 function render() {
-  const division = divisionConfig(state.currentDivision);
   const rows = state.rows.filter((row) => row.division_id === state.currentDivision);
 
   el.pageTitle.textContent = state.config.title;
   document.title = state.config.title;
-  el.range.textContent = `Compared with ${state.config.previous_date}`;
-  el.divisionTitle.textContent = division.label;
 
   renderTable(rows);
 }
@@ -144,15 +139,15 @@ function renderTable(rows) {
   rows.forEach((row) => {
     const tr = document.createElement("tr");
 
-    appendTextCell(tr, row.east_old_chii, emptyClass(row.east_rikishi_id));
-    appendScoreCell(tr, row.east_result, emptyClass(row.east_rikishi_id));
+    appendTextCell(tr, row.east_old_chii, contextClass(row.east_rikishi_id));
+    appendScoreCell(tr, row.east_result, contextClass(row.east_rikishi_id));
     appendDeltaCell(tr, row.east_delta, row.east_delta_class, emptyClass(row.east_rikishi_id));
     appendRikishiCell(tr, row.east_shikona, "east", row.east_rikishi_id);
     appendBzChiiCell(tr, row.bz_chii);
     appendRikishiCell(tr, row.west_shikona, "west", row.west_rikishi_id);
     appendDeltaCell(tr, row.west_delta, row.west_delta_class, emptyClass(row.west_rikishi_id));
-    appendScoreCell(tr, row.west_result, emptyClass(row.west_rikishi_id));
-    appendTextCell(tr, row.west_old_chii, emptyClass(row.west_rikishi_id));
+    appendScoreCell(tr, row.west_result, contextClass(row.west_rikishi_id));
+    appendTextCell(tr, row.west_old_chii, contextClass(row.west_rikishi_id));
 
     el.body.appendChild(tr);
   });
@@ -216,6 +211,10 @@ function appendBzChiiCell(tr, value) {
 
 function emptyClass(rikishiId) {
   return rikishiId ? "" : "empty";
+}
+
+function contextClass(rikishiId) {
+  return rikishiId ? "context-cell" : "context-cell empty";
 }
 
 async function loadJson(url) {
@@ -347,10 +346,6 @@ function validateRows(rows) {
 
 function validDivisionIds() {
   return new Set(state.config.divisions.map((division) => division.id));
-}
-
-function divisionConfig(divisionId) {
-  return state.config.divisions.find((division) => division.id === divisionId);
 }
 
 function pushUrlState() {

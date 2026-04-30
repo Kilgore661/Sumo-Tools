@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Banzuke Change Report</title>
+  <link rel="stylesheet" href="../../common/files/site-wide.css">
+  <link rel="stylesheet" href="../../common/files/tool-layout.css">
+  <link rel="stylesheet" href="banzuke_change_report.css">
+</head>
+<body>
+  <main class="tool-shell">
+    <header class="tool-title-bar">
+      <div id="page-title">The November 2026 Banzuke</div>
+    </header>
+
+    <div class="tool-layout">
+      <aside class="tool-options">
+        <h2>Options</h2>
+
+        <div class="control-group">
+          <label for="division-select">Division</label>
+          <select name="division" id="division-select">
+            <option value="makuuchi" selected>Makuuchi</option>
+            <option value="juryo">Juryo</option>
+          </select>
+        </div>
+      </aside>
+
+      <section class="tool-content">
+        <div class="tool-content-inner">
+          <div class="table-wrap">
+            <table class="banzuke-table" id="banzuke-table">
+              <colgroup>
+                <col class="old-col">
+                <col class="score-col">
+                <col class="delta-col">
+                <col class="shikona-col">
+                <col class="bz-col">
+                <col class="shikona-col">
+                <col class="delta-col">
+                <col class="score-col">
+                <col class="old-col">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th scope="colgroup" colspan="4">East</th>
+                  <th scope="col" rowspan="2" class="bz-head">Rank</th>
+                  <th scope="colgroup" colspan="4">West</th>
+                </tr>
+                <tr>
+                  <th scope="col" class="context-head">Old</th>
+                  <th scope="col" class="context-head">Result</th>
+                  <th scope="col">&Delta;</th>
+                  <th scope="col">Shikona</th>
+                  <th scope="col">Shikona</th>
+                  <th scope="col">&Delta;</th>
+                  <th scope="col" class="context-head">Result</th>
+                  <th scope="col" class="context-head">Old</th>
+                </tr>
+              </thead>
+              <tbody id="banzuke-body">
+                <tr>
+                  <td class="context-cell">Y1w</td>
+                  <td class="context-cell"><span class="score">11-4 J</span></td>
+                  <td><span class="delta neutral">0</span></td>
+                  <td class="rikishi east">Hoshoryu</td>
+                  <th scope="row" class="bz-chii">Y1</th>
+                  <td class="rikishi west">Onosato</td>
+                  <td><span class="delta neutral">0</span></td>
+                  <td class="context-cell"><span class="score">9-3-3</span></td>
+                  <td class="context-cell">Y1e</td>
+                </tr>
+                <tr>
+                  <td class="context-cell">O1e</td>
+                  <td class="context-cell"><span class="score">8-7</span></td>
+                  <td><span class="delta up low">+0.5</span></td>
+                  <td class="rikishi east">Kotozakura</td>
+                  <th scope="row" class="bz-chii">O1</th>
+                  <td class="rikishi west">Aonishiki</td>
+                  <td><span class="delta down low">-0.5</span></td>
+                  <td class="context-cell"><span class="score">12-3 K</span></td>
+                  <td class="context-cell">S1w</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="banzuke_change_report.js.txt"></script>
+</body>
+</html>

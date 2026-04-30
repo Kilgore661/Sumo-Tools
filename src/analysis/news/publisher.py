@@ -25,7 +25,7 @@ from src.analysis.news.report_view import build_bcr_report
 
 
 STATIC_FILE_NAMES = (
-    "banzuke_change_report.html",
+    "index.html",
     "banzuke_change_report.css",
     "banzuke_change_report.js.txt",
 )
@@ -42,8 +42,11 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--date",
-        required=True,
-        help="Current banzuke date in YYYY/MM format.",
+        default=None,
+        help=(
+            "Current banzuke date in YYYY/MM format. "
+            "Defaults to the next basho after the latest completed basho."
+        ),
     )
     parser.add_argument(
         "--output-root",
@@ -69,7 +72,7 @@ def build_publication_request(args: argparse.Namespace) -> PublicationRequest:
     package_dir = Path(__file__).resolve().parent
 
     return PublicationRequest(
-        current_date=_parse_date(args.date),
+        requested_date=None if args.date is None else _parse_date(args.date),
         output_root=args.output_root,
         static_dir=package_dir / "files",
         common_static_dir=package_dir.parent / "common" / "files",
@@ -82,8 +85,9 @@ def main() -> None:
         Inputs are the current filesystem/data world and command-line state.
 
         Preconditions:
-            - The requested current banzuke date is available to the project
-              parser/history layer.
+            - The requested current banzuke date, or the next basho after the
+              latest completed basho when no date is requested, is available
+              to the project parser/history layer.
             - The previous banzuke and previous-result context required by BCR
               are available.
             - BCR static assets exist in the news files directory.
@@ -110,7 +114,7 @@ def main() -> None:
     copy_static_assets(request)
 
     print("BCR publisher run complete")
-    print(f"Current banzuke: {request.current_date}")
+    print(f"Current banzuke: {source.current_date}")
     print(f"Output: {request.output_root}")
     print(f"Data: {published_files.csv_file}")
     print(f"Config: {published_files.site_config_file}")
@@ -118,3 +122,5 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+    from .deploy import main as upload
+    upload()

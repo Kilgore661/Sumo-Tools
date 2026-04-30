@@ -1,0 +1,1 @@
+ How about: split the current delta into two cols. In the left col, header "⇅",  there is an up/down indicator eg  "↑"and "↓". In the  right col, header "Δ" there is the number, unsigned. Both data cells use the current colour indicator. Now, if a rikishi is actually a promotee/demotee then the arrow and the number are in bold?

@@ -136,8 +136,8 @@ def write_site_config(report: BcrReport, output_file) -> None:
     ]
 
     payload = {
-        "title": f"The {source.request.current_date} Banzuke",
-        "current_date": str(source.request.current_date),
+        "title": f"The {source.current_date} Banzuke",
+        "current_date": str(source.current_date),
         "previous_date": str(source.previous_date),
         "default_division": default_division_id(report),
         "data_file": f"data/{DATA_FILE_NAME}",
