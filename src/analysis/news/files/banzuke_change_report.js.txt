@@ -1,0 +1,376 @@
+/*
+Banzuke Change Report browser client.
+
+Responsibilities:
+- load site_config.json
+- validate the browser data contract at the static asset boundary
+- load the published CSV
+- populate the division selector
+- render the selected division into the editable HTML shell
+*/
+
+const state = {
+  config: null,
+  rows: [],
+  currentDivision: null,
+};
+
+const el = {
+  pageTitle: document.getElementById("page-title"),
+  range: document.getElementById("range-label"),
+  division: document.getElementById("division-select"),
+  divisionTitle: document.getElementById("division-title"),
+  body: document.getElementById("banzuke-body"),
+};
+
+const REQUIRED_CONFIG_KEYS = new Set([
+  "title",
+  "current_date",
+  "previous_date",
+  "default_division",
+  "data_file",
+  "divisions",
+]);
+
+const REQUIRED_CSV_COLUMNS = [
+  "division_id",
+  "division_label",
+  "bz_chii",
+  "east_rikishi_id",
+  "east_shikona",
+  "east_old_chii",
+  "east_result",
+  "east_delta",
+  "east_delta_class",
+  "west_rikishi_id",
+  "west_shikona",
+  "west_old_chii",
+  "west_result",
+  "west_delta",
+  "west_delta_class",
+];
+
+const VALID_DELTA_CLASSES = new Set([
+  "",
+  "neutral",
+  "up low",
+  "up mid",
+  "up high",
+  "down low",
+  "down mid",
+  "down high",
+]);
+
+document.addEventListener("DOMContentLoaded", init);
+
+async function init() {
+  try {
+    state.config = await loadJson("site_config.json");
+    validateConfig(state.config);
+
+    state.rows = await loadCsv(state.config.data_file);
+    validateRows(state.rows);
+
+    applyConfigDefaultsToState();
+    buildDivisionOptions();
+    applyUrlStateOrDefault();
+    applyStateToControls();
+    wireEvents();
+    render();
+  } catch (err) {
+    fail(err);
+  }
+}
+
+function applyConfigDefaultsToState() {
+  state.currentDivision = state.config.default_division;
+}
+
+function buildDivisionOptions() {
+  el.division.innerHTML = "";
+
+  state.config.divisions.forEach((division) => {
+    const option = document.createElement("option");
+    option.value = division.id;
+    option.textContent = division.label;
+    el.division.appendChild(option);
+  });
+}
+
+function applyUrlStateOrDefault() {
+  const params = new URLSearchParams(window.location.search);
+  const division = params.get("division");
+
+  if (!division) {
+    return;
+  }
+
+  if (!validDivisionIds().has(division)) {
+    alert(`Unknown division "${division}" in URL. The default division will be shown.`);
+    replaceUrlState();
+    return;
+  }
+
+  state.currentDivision = division;
+}
+
+function applyStateToControls() {
+  el.division.value = state.currentDivision;
+}
+
+function wireEvents() {
+  el.division.addEventListener("change", () => {
+    state.currentDivision = el.division.value;
+    pushUrlState();
+    render();
+  });
+}
+
+function render() {
+  const division = divisionConfig(state.currentDivision);
+  const rows = state.rows.filter((row) => row.division_id === state.currentDivision);
+
+  el.pageTitle.textContent = state.config.title;
+  document.title = state.config.title;
+  el.range.textContent = `Compared with ${state.config.previous_date}`;
+  el.divisionTitle.textContent = division.label;
+
+  renderTable(rows);
+}
+
+function renderTable(rows) {
+  el.body.innerHTML = "";
+
+  rows.forEach((row) => {
+    const tr = document.createElement("tr");
+
+    appendTextCell(tr, row.east_old_chii, emptyClass(row.east_rikishi_id));
+    appendScoreCell(tr, row.east_result, emptyClass(row.east_rikishi_id));
+    appendDeltaCell(tr, row.east_delta, row.east_delta_class, emptyClass(row.east_rikishi_id));
+    appendRikishiCell(tr, row.east_shikona, "east", row.east_rikishi_id);
+    appendBzChiiCell(tr, row.bz_chii);
+    appendRikishiCell(tr, row.west_shikona, "west", row.west_rikishi_id);
+    appendDeltaCell(tr, row.west_delta, row.west_delta_class, emptyClass(row.west_rikishi_id));
+    appendScoreCell(tr, row.west_result, emptyClass(row.west_rikishi_id));
+    appendTextCell(tr, row.west_old_chii, emptyClass(row.west_rikishi_id));
+
+    el.body.appendChild(tr);
+  });
+}
+
+function appendTextCell(tr, value, className = "") {
+  const td = document.createElement("td");
+  td.textContent = value;
+
+  if (className) {
+    td.className = className;
+  }
+
+  tr.appendChild(td);
+}
+
+function appendScoreCell(tr, value, className = "") {
+  const td = document.createElement("td");
+  const span = document.createElement("span");
+  span.className = "score";
+  span.textContent = value;
+  td.appendChild(span);
+
+  if (className) {
+    td.className = className;
+  }
+
+  tr.appendChild(td);
+}
+
+function appendDeltaCell(tr, value, deltaClass, emptyClassName = "") {
+  const td = document.createElement("td");
+  const span = document.createElement("span");
+  span.className = deltaClass ? `delta ${deltaClass}` : "delta";
+  span.textContent = value;
+  td.appendChild(span);
+
+  if (emptyClassName) {
+    td.className = emptyClassName;
+  }
+
+  tr.appendChild(td);
+}
+
+function appendRikishiCell(tr, shikona, sideClass, rikishiId) {
+  const td = document.createElement("td");
+  td.className = rikishiId ? `rikishi ${sideClass}` : "empty";
+  td.textContent = shikona;
+  tr.appendChild(td);
+}
+
+function appendBzChiiCell(tr, value) {
+  const th = document.createElement("th");
+  th.scope = "row";
+  th.className = value.includes("HD") || value.includes("TD") || value.includes("OB") || value.includes("YO")
+    ? "bz-chii annotated"
+    : "bz-chii";
+  th.textContent = value;
+  tr.appendChild(th);
+}
+
+function emptyClass(rikishiId) {
+  return rikishiId ? "" : "empty";
+}
+
+async function loadJson(url) {
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(`Cannot load ${url}`);
+  }
+
+  return await response.json();
+}
+
+async function loadCsv(url) {
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(`Cannot load ${url}`);
+  }
+
+  const text = await response.text();
+  return parseCsv(text);
+}
+
+function parseCsv(text) {
+  const lines = text.trim().split(/\r?\n/);
+
+  if (lines.length === 0 || !lines[0]) {
+    return [];
+  }
+
+  const headers = splitCsvLine(lines[0]);
+  const rows = [];
+
+  for (let i = 1; i < lines.length; i++) {
+    if (!lines[i].trim()) {
+      continue;
+    }
+
+    const values = splitCsvLine(lines[i]);
+    const row = {};
+
+    headers.forEach((header, idx) => {
+      row[header] = values[idx] ?? "";
+    });
+
+    rows.push(row);
+  }
+
+  rows.headers = headers;
+  return rows;
+}
+
+function splitCsvLine(line) {
+  const values = [];
+  let current = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    const next = line[i + 1];
+
+    if (ch === '"' && inQuotes && next === '"') {
+      current += '"';
+      i += 1;
+    } else if (ch === '"') {
+      inQuotes = !inQuotes;
+    } else if (ch === "," && !inQuotes) {
+      values.push(current);
+      current = "";
+    } else {
+      current += ch;
+    }
+  }
+
+  values.push(current);
+  return values;
+}
+
+function validateConfig(config) {
+  REQUIRED_CONFIG_KEYS.forEach((key) => {
+    if (!(key in config)) {
+      throw new Error(`BCR config is missing "${key}"`);
+    }
+  });
+
+  if (!Array.isArray(config.divisions) || config.divisions.length === 0) {
+    throw new Error("BCR config divisions must be a non-empty array");
+  }
+
+  config.divisions.forEach((division) => {
+    if (!division.id || !division.label) {
+      throw new Error("BCR config divisions must have id and label");
+    }
+  });
+
+  if (!validDivisionIds().has(config.default_division)) {
+    throw new Error(`BCR default_division "${config.default_division}" is not in divisions`);
+  }
+}
+
+function validateRows(rows) {
+  REQUIRED_CSV_COLUMNS.forEach((column) => {
+    if (!rows.headers.includes(column)) {
+      throw new Error(`BCR CSV is missing "${column}"`);
+    }
+  });
+
+  rows.forEach((row) => {
+    const hasEast = Boolean(row.east_rikishi_id);
+    const hasWest = Boolean(row.west_rikishi_id);
+
+    if (!hasEast && !hasWest) {
+      throw new Error(`BCR row ${row.division_id}/${row.bz_chii} has no east or west rikishi`);
+    }
+
+    if (!validDivisionIds().has(row.division_id)) {
+      throw new Error(`BCR CSV row has unknown division "${row.division_id}"`);
+    }
+
+    if (!VALID_DELTA_CLASSES.has(row.east_delta_class)) {
+      throw new Error(`BCR CSV row has unknown east delta class "${row.east_delta_class}"`);
+    }
+
+    if (!VALID_DELTA_CLASSES.has(row.west_delta_class)) {
+      throw new Error(`BCR CSV row has unknown west delta class "${row.west_delta_class}"`);
+    }
+  });
+}
+
+function validDivisionIds() {
+  return new Set(state.config.divisions.map((division) => division.id));
+}
+
+function divisionConfig(divisionId) {
+  return state.config.divisions.find((division) => division.id === divisionId);
+}
+
+function pushUrlState() {
+  const url = new URL(window.location.href);
+  url.search = "";
+
+  if (state.currentDivision !== state.config.default_division) {
+    url.searchParams.set("division", state.currentDivision);
+  }
+
+  history.pushState(null, "", url);
+}
+
+function replaceUrlState() {
+  const url = new URL(window.location.href);
+  url.search = "";
+  history.replaceState(null, "", url);
+}
+
+function fail(err) {
+  console.error(err);
+  alert(`Unable to load Banzuke Change Report data:\n\n${err.message}`);
+}
