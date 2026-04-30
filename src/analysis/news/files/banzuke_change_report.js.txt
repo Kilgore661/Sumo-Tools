@@ -13,11 +13,17 @@ const state = {
   config: null,
   rows: [],
   currentDivision: null,
+  showContext: true,
+  showDelta: false,
 };
 
 const el = {
   pageTitle: document.getElementById("page-title"),
   division: document.getElementById("division-select"),
+  context: document.getElementById("context-columns"),
+  delta: document.getElementById("delta-columns"),
+  table: document.getElementById("banzuke-table"),
+  sideHeads: document.querySelectorAll("[data-side-head]"),
   body: document.getElementById("banzuke-body"),
 };
 
@@ -36,12 +42,14 @@ const REQUIRED_CSV_COLUMNS = [
   "bz_chii",
   "east_rikishi_id",
   "east_shikona",
+  "east_graph_shikona",
   "east_old_chii",
   "east_result",
   "east_delta",
   "east_delta_class",
   "west_rikishi_id",
   "west_shikona",
+  "west_graph_shikona",
   "west_old_chii",
   "west_result",
   "west_delta",
@@ -99,21 +107,56 @@ function applyUrlStateOrDefault() {
   const params = new URLSearchParams(window.location.search);
   const division = params.get("division");
 
-  if (!division) {
-    return;
-  }
-
-  if (!validDivisionIds().has(division)) {
+  if (division && !validDivisionIds().has(division)) {
     alert(`Unknown division "${division}" in URL. The default division will be shown.`);
     replaceUrlState();
     return;
   }
 
-  state.currentDivision = division;
+  if (division) {
+    state.currentDivision = division;
+  }
+
+  applyContextUrlState(params);
+  applyDeltaUrlState(params);
+}
+
+function applyContextUrlState(params) {
+  const context = params.get("context");
+
+  if (!context) {
+    return;
+  }
+
+  if (context !== "true" && context !== "false") {
+    alert(`Unknown context value "${context}" in URL. Context will be shown.`);
+    replaceUrlState();
+    return;
+  }
+
+  state.showContext = context === "true";
+}
+
+function applyDeltaUrlState(params) {
+  const delta = params.get("delta");
+
+  if (!delta) {
+    return;
+  }
+
+  if (delta !== "true" && delta !== "false") {
+    alert(`Unknown delta value "${delta}" in URL. Delta will be hidden.`);
+    replaceUrlState();
+    return;
+  }
+
+  state.showDelta = delta === "true";
 }
 
 function applyStateToControls() {
   el.division.value = state.currentDivision;
+  el.context.checked = state.showContext;
+  el.delta.checked = state.showDelta;
 }
 
 function wireEvents() {
@@ -121,6 +164,18 @@ function wireEvents() {
     state.currentDivision = el.division.value;
     pushUrlState();
     render();
+  });
+
+  el.context.addEventListener("change", () => {
+    state.showContext = el.context.checked;
+    pushUrlState();
+    renderOptions();
+  });
+
+  el.delta.addEventListener("change", () => {
+    state.showDelta = el.delta.checked;
+    pushUrlState();
+    renderOptions();
   });
 }
 
@@ -130,7 +185,30 @@ function render() {
   el.pageTitle.textContent = state.config.title;
   document.title = state.config.title;
 
+  renderOptions();
   renderTable(rows);
+}
+
+function renderOptions() {
+  el.table.classList.toggle("hide-context", !state.showContext);
+  el.table.classList.toggle("hide-delta", !state.showDelta);
+  el.sideHeads.forEach((head) => {
+    head.colSpan = sideColumnCount();
+  });
+}
+
+function sideColumnCount() {
+  let count = 2;
+
+  if (state.showContext) {
+    count += 2;
+  }
+
+  if (state.showDelta) {
+    count += 1;
+  }
+
+  return count;
 }
 
 function renderTable(rows) {
@@ -141,11 +219,11 @@ function renderTable(rows) {
 
     appendTextCell(tr, row.east_old_chii, contextClass(row.east_rikishi_id));
     appendScoreCell(tr, row.east_result, contextClass(row.east_rikishi_id));
-    appendDeltaCell(tr, row.east_delta, row.east_delta_class, emptyClass(row.east_rikishi_id));
-    appendRikishiCell(tr, row.east_shikona, "east", row.east_rikishi_id);
+    appendDeltaCells(tr, row.east_delta, row.east_delta_class, row.east_rikishi_id);
+    appendRikishiCell(tr, row.east_shikona, row.east_graph_shikona, "east", row.east_rikishi_id);
     appendBzChiiCell(tr, row.bz_chii);
-    appendRikishiCell(tr, row.west_shikona, "west", row.west_rikishi_id);
-    appendDeltaCell(tr, row.west_delta, row.west_delta_class, emptyClass(row.west_rikishi_id));
+    appendRikishiCell(tr, row.west_shikona, row.west_graph_shikona, "west", row.west_rikishi_id);
+    appendDeltaCells(tr, row.west_delta, row.west_delta_class, row.west_rikishi_id);
     appendScoreCell(tr, row.west_result, contextClass(row.west_rikishi_id));
     appendTextCell(tr, row.west_old_chii, contextClass(row.west_rikishi_id));
 
@@ -178,25 +256,88 @@ function appendScoreCell(tr, value, className = "") {
   tr.appendChild(td);
 }
 
-function appendDeltaCell(tr, value, deltaClass, emptyClassName = "") {
-  const td = document.createElement("td");
-  const span = document.createElement("span");
-  span.className = deltaClass ? `delta ${deltaClass}` : "delta";
-  span.textContent = value;
-  td.appendChild(span);
+function appendDeltaCells(tr, value, deltaClass, rikishiId) {
+  const directionTd = document.createElement("td");
+  const valueTd = document.createElement("td");
+  const directionSpan = document.createElement("span");
+  const valueSpan = document.createElement("span");
 
-  if (emptyClassName) {
-    td.className = emptyClassName;
+  directionTd.className = deltaCellClass(deltaClass, rikishiId);
+  valueTd.className = deltaCellClass(deltaClass, rikishiId);
+  valueTd.classList.add("delta-value-cell");
+  directionSpan.className = "delta-direction";
+  valueSpan.className = "delta";
+
+  if (rikishiId) {
+    directionSpan.textContent = deltaDirection(value);
+    valueSpan.textContent = unsignedDelta(value);
+  }
+
+  directionTd.appendChild(directionSpan);
+  valueTd.appendChild(valueSpan);
+  tr.appendChild(directionTd);
+  tr.appendChild(valueTd);
+}
+
+function appendRikishiCell(tr, shikona, graphShikona, sideClass, rikishiId) {
+  const td = document.createElement("td");
+  td.className = rikishiId ? `rikishi ${sideClass}` : "empty";
+
+  if (rikishiId) {
+    td.appendChild(rikishiLink(shikona, graphShikona, rikishiId));
+  } else {
+    td.textContent = shikona;
   }
 
   tr.appendChild(td);
 }
 
-function appendRikishiCell(tr, shikona, sideClass, rikishiId) {
-  const td = document.createElement("td");
-  td.className = rikishiId ? `rikishi ${sideClass}` : "empty";
-  td.textContent = shikona;
-  tr.appendChild(td);
+function rikishiLink(shikona, graphShikona, rikishiId) {
+  const link = document.createElement("a");
+  const encodedGraphShikona = encodeURIComponent(graphShikona);
+  let suppressNextClick = false;
+
+  link.textContent = shikona;
+  link.href = `https://sumodb.sumogames.de/Rikishi.aspx?r=${encodeURIComponent(rikishiId)}`;
+  link.title = "Click: SumoDB. Alt-click: Gaspode-san.";
+
+  link.addEventListener("mousedown", (event) => {
+    if (!event.altKey || event.button !== 0) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    suppressNextClick = true;
+
+    openRikishiTarget(
+      `http://www.661.org.uk/cgi-bin/index.py?graph=any&new_rik=&r_${encodedGraphShikona}=${encodedGraphShikona}&graph_type=by_time`
+    );
+  });
+
+  link.addEventListener("click", (event) => {
+    event.preventDefault();
+
+    if (suppressNextClick) {
+      suppressNextClick = false;
+      return;
+    }
+
+    openRikishiTarget(
+      `https://sumodb.sumogames.de/Rikishi.aspx?r=${encodeURIComponent(rikishiId)}`
+    );
+  });
+
+  return link;
+}
+
+function openRikishiTarget(url) {
+  const opened = window.open(url, "_blank", "noopener");
+
+  if (opened) {
+    opened.focus();
+  }
 }
 
 function appendBzChiiCell(tr, value) {
@@ -209,12 +350,38 @@ function appendBzChiiCell(tr, value) {
   tr.appendChild(th);
 }
 
-function emptyClass(rikishiId) {
-  return rikishiId ? "" : "empty";
-}
-
 function contextClass(rikishiId) {
   return rikishiId ? "context-cell" : "context-cell empty";
+}
+
+function deltaCellClass(deltaClass, rikishiId) {
+  const classes = ["delta-cell"];
+
+  if (deltaClass) {
+    classes.push(deltaClass);
+  }
+
+  if (!rikishiId) {
+    classes.push("empty");
+  }
+
+  return classes.join(" ");
+}
+
+function deltaDirection(value) {
+  if (value.startsWith("+")) {
+    return "↑";
+  }
+
+  if (value.startsWith("-")) {
+    return "↓";
+  }
+
+  return "\u00a0";
+}
+
+function unsignedDelta(value) {
+  return value.replace(/^[+-]/, "");
 }
 
 async function loadJson(url) {
@@ -354,6 +521,14 @@ function pushUrlState() {
 
   if (state.currentDivision !== state.config.default_division) {
     url.searchParams.set("division", state.currentDivision);
+  }
+
+  if (!state.showContext) {
+    url.searchParams.set("context", "false");
+  }
+
+  if (state.showDelta) {
+    url.searchParams.set("delta", "true");
   }
 
   history.pushState(null, "", url);

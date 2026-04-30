@@ -11,6 +11,7 @@ from src.analysis.news.classes import (
     BcrReportSide,
 )
 from src.analysis.news.results import format_previous_result
+from src.analysis.news.shikona_links import graph_shikona_for
 from src.sumo_core.BasicEnums import Division, Side
 
 
@@ -169,11 +170,58 @@ def build_report_side(
     return BcrReportSide(
         rikishi_id=change.rikishi_id,
         shikona=change.current_shikona,
+        graph_shikona=graph_shikona_for(change.rikishi_id, change.current_shikona),
         old_chii="" if change.previous_chii is None else str(change.previous_chii),
-        previous_result=format_previous_result(change, diff.source.previous_summary),
+        previous_result=format_previous_context(change, diff),
         delta=format_delta(change.local_delta),
         delta_class=delta_class(change.local_delta),
     )
+
+
+def format_previous_context(change: BanzukeChange, diff: BanzukeDiff) -> str:
+    """
+    Contract:
+        change is a current-banzuke fact from diff.
+
+        Returns the previous-basho context string shown in the Result column.
+        Division-crossing markers are appended when the rikishi's current
+        division represents a promotion or demotion from the previous banzuke.
+    """
+
+    result = format_previous_result(change, diff.source.previous_summary)
+    marker = division_change_marker(change)
+
+    if result and marker:
+        return f"{result} {marker}"
+
+    if marker:
+        return marker
+
+    return result
+
+
+def division_change_marker(change: BanzukeChange) -> str:
+    """
+    Contract:
+        change is a neutral BCR fact.
+
+        Returns an arrow when the current division differs from the previous
+        division: up for promotion, down for demotion.
+    """
+
+    if change.previous_division is None:
+        return ""
+
+    if change.current_division == change.previous_division:
+        return ""
+
+    previous_index = DIVISION_ORDER.index(change.previous_division)
+    current_index = DIVISION_ORDER.index(change.current_division)
+
+    if current_index < previous_index:
+        return "↑"
+
+    return "↓"
 
 
 def format_delta(delta: float | None) -> str:
