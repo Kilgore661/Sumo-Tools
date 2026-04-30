@@ -100,35 +100,15 @@ select:focus {
   overflow-x: auto;
 }
 
+.tool-content-inner {
+  min-width: 600px;
+}
+
 .banzuke-table {
   width: max-content;
-  min-width: 964px;
+  margin: 0 auto;
   border-collapse: collapse;
   table-layout: auto;
-}
-
-.shikona-col {
-  width: 140px;
-}
-
-.old-col {
-  width: 70px;
-}
-
-.score-col {
-  width: 90px;
-}
-
-.direction-col {
-  width: 32px;
-}
-
-.delta-value-col {
-  width: 54px;
-}
-
-.bz-col {
-  width: 76px;
 }
 
 th,
@@ -194,7 +174,7 @@ tbody tr:hover {
 }
 
 .west {
-  text-align: right;
+  text-align: left;
 }
 
 .bz-head,
@@ -286,6 +266,77 @@ tbody tr:hover {
 
 .empty {
   color: transparent;
+}
+
+.notes {
+  margin-top: 16px;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 14px;
+  color: var(--muted);
+  text-align: left;
+  max-width: 600px;
+}
+
+.notes h3 {
+  margin: 0 0 8px 0;
+  color: var(--ink);
+}
+
+.notes ol {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.notes li {
+  margin-bottom: 8px;
+}
+
+.notes li[hidden] {
+  display: none;
+}
+
+.notes li:target {
+  background: rgba(201, 212, 238, 0.14);
+  outline: 1px solid rgba(201, 212, 238, 0.35);
+  outline-offset: 3px;
+}
+
+.notes-popover {
+  position: absolute;
+  z-index: 1000;
+
+  max-width: 220px;
+  padding: 6px 9px;
+
+  background: #f7f9ff;
+  color: #10264f;
+  border: 1px solid #9cb1d8;
+  border-radius: 5px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.28);
+
+  font-size: 13px;
+  line-height: 1.35;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.notes-popover[hidden] {
+  display: none;
+}
+
+.notes-popover a,
+.notes-popover a:visited,
+.notes-popover a:hover,
+.notes-popover a:active {
+  color: #224f9f;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.notes-popover a:focus {
+  outline: 1px solid #224f9f;
+  outline-offset: 2px;
 }
 
 @media (max-width: 780px) {

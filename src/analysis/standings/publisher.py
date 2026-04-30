@@ -93,6 +93,7 @@ def write_published_view_csv(
         "position",
         "rikishi_id",
         "shikona",
+        "graph_shikona",
         "chii",
         "chii_ordinal",
         "is_current",
@@ -135,7 +136,8 @@ def write_published_view_csv(
                 {
                     "position": row.position,
                     "rikishi_id": int(row.rikishi_id),
-                    "shikona": QUALIFIED_SHIKONA.get(row.rikishi_id, str(row.rikishi_id) ),
+                    "shikona": str(row.shikona),
+                    "graph_shikona": QUALIFIED_SHIKONA.get(row.rikishi_id, str(row.shikona)),
                     "chii": row.chii,
                     "chii_ordinal": row.chii_ordinal,
                     "is_current": "1" if row.rikishi_id in terminal_rikishi else "0",

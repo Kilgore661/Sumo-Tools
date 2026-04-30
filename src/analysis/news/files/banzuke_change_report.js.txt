@@ -82,6 +82,7 @@ async function init() {
     applyUrlStateOrDefault();
     applyStateToControls();
     wireEvents();
+    wireNotePopovers();
     render();
   } catch (err) {
     fail(err);
@@ -195,6 +196,8 @@ function renderOptions() {
   el.sideHeads.forEach((head) => {
     head.colSpan = sideColumnCount();
   });
+  applyNoteVisibility();
+  hideNotePopover();
 }
 
 function sideColumnCount() {
@@ -382,6 +385,144 @@ function deltaDirection(value) {
 
 function unsignedDelta(value) {
   return value.replace(/^[+-]/, "");
+}
+
+const NOTE_POPOVER_DELAY_MS = 450;
+
+let notePopoverTimer = null;
+
+function wireNotePopovers() {
+  const headings = document.querySelectorAll(
+    "#banzuke-table th[data-note-target]"
+  );
+
+  headings.forEach((th) => {
+    th.addEventListener("mouseenter", () => {
+      clearNotePopoverTimer();
+
+      notePopoverTimer = window.setTimeout(() => {
+        showNotePopover(th);
+      }, NOTE_POPOVER_DELAY_MS);
+    });
+
+    th.addEventListener("mouseleave", () => {
+      clearNotePopoverTimer();
+
+      window.setTimeout(() => {
+        const popover = getNotePopover();
+
+        if (!popover.matches(":hover")) {
+          hideNotePopover();
+        }
+      }, 50);
+    });
+  });
+
+  const popover = getNotePopover();
+
+  popover.addEventListener("mouseleave", () => {
+    hideNotePopover();
+  });
+
+  popover.addEventListener("click", (event) => {
+    event.stopPropagation();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      clearNotePopoverTimer();
+      hideNotePopover();
+    }
+  });
+}
+
+function applyNoteVisibility() {
+  document.querySelectorAll("[data-note-for]").forEach((note) => {
+    const noteFor = note.dataset.noteFor;
+
+    note.hidden = !noteIsVisible(noteFor);
+  });
+}
+
+function noteIsVisible(noteFor) {
+  if (noteFor === "all") {
+    return true;
+  }
+
+  if (noteFor === "context") {
+    return state.showContext;
+  }
+
+  if (noteFor === "delta") {
+    return state.showDelta;
+  }
+
+  return false;
+}
+
+function getNotePopover() {
+  let popover = document.getElementById("note-popover");
+
+  if (!popover) {
+    popover = document.createElement("div");
+    popover.id = "note-popover";
+    popover.className = "notes-popover";
+    popover.hidden = true;
+
+    document.body.appendChild(popover);
+  }
+
+  return popover;
+}
+
+function showNotePopover(th) {
+  const noteTarget = th.dataset.noteTarget;
+
+  if (!noteTarget || document.getElementById(noteTarget)?.hidden) {
+    return;
+  }
+
+  const popover = getNotePopover();
+
+  popover.innerHTML = "";
+
+  const link = document.createElement("a");
+  link.href = `#${noteTarget}`;
+  link.textContent = "See Notes ⓘ";
+
+  popover.appendChild(link);
+
+  const rect = th.getBoundingClientRect();
+
+  popover.hidden = false;
+
+  const popoverRect = popover.getBoundingClientRect();
+
+  const left =
+    window.scrollX +
+    rect.left +
+    rect.width / 2 -
+    popoverRect.width / 2;
+
+  const top =
+    window.scrollY +
+    rect.bottom +
+    6;
+
+  popover.style.left = `${Math.max(8, left)}px`;
+  popover.style.top = `${top}px`;
+}
+
+function hideNotePopover() {
+  const popover = getNotePopover();
+  popover.hidden = true;
+}
+
+function clearNotePopoverTimer() {
+  if (notePopoverTimer !== null) {
+    window.clearTimeout(notePopoverTimer);
+    notePopoverTimer = null;
+  }
 }
 
 async function loadJson(url) {

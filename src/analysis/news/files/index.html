@@ -68,16 +68,16 @@
                   <th scope="colgroup" colspan="5" data-side-head>West</th>
                 </tr>
                 <tr>
-                  <th scope="col" class="context-head">Rank</th>
-                  <th scope="col" class="context-head">Result</th>
-                  <th scope="col" class="delta-head">⇅</th>
-                  <th scope="col" class="delta-value-head">Δ</th>
+                  <th scope="col" class="context-head">Chii</th>
+                  <th scope="col" class="context-head" data-note-target="note-result">Result</th>
+                  <th scope="col" class="delta-head" data-note-target="note-direction">⇅</th>
+                  <th scope="col" class="delta-value-head" data-note-target="note-delta">Δ</th>
                   <th scope="col">Shikona</th>
                   <th scope="col">Shikona</th>
-                  <th scope="col" class="delta-head">⇅</th>
-                  <th scope="col" class="delta-value-head">Δ</th>
-                  <th scope="col" class="context-head">Result</th>
-                  <th scope="col" class="context-head">Rank</th>
+                  <th scope="col" class="delta-head" data-note-target="note-direction">⇅</th>
+                  <th scope="col" class="delta-value-head" data-note-target="note-delta">Δ</th>
+                  <th scope="col" class="context-head" data-note-target="note-result">Result</th>
+                  <th scope="col" class="context-head">Chii</th>
                 </tr>
               </thead>
               <tbody id="banzuke-body">
@@ -109,6 +109,21 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+
+          <div class="notes" id="notes">
+            <h3>Notes</h3>
+            <ol>
+              <li id="note-result" data-note-for="context">
+                <strong>Result</strong> Wins, losses and absences followed by prizes (if any). A trailing ↑ indicates the rikishi was promoted into the current division, a trailing ↓ indicates demotion into that division.
+              </li>
+              <li id="note-direction" data-note-for="all">
+                <strong>Direction (⇅)</strong> Indicates a better (↑) or worse (↓) position than in the previous basho.
+              </li>
+              <li id="note-delta" data-note-for="delta">
+                <strong>Delta (Δ)</strong> Indication of size of movement from previous basho's position, measured in banzuke rows. Eg the difference between M3e and M7e is 4 rows and between M3e and M3w it is 0.5 rows.
+              </li>
+            </ol>
           </div>
         </div>
       </section>

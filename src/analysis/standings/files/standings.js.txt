@@ -615,7 +615,8 @@ function appendShikonaCell(tr, row) {
   const td = document.createElement("td");
   const link = document.createElement("a");
   const shikona = String(row.shikona);
-  const encodedShikona = encodeURIComponent(shikona);
+  const graphShikona = String(row.graph_shikona);
+  const encodedGraphShikona = encodeURIComponent(graphShikona);
 
   link.textContent = shikona;
   link.href = `https://sumodb.sumogames.de/Rikishi.aspx?r=${encodeURIComponent(row.rikishi_id)}`;
@@ -642,7 +643,7 @@ function appendShikonaCell(tr, row) {
     suppressNextClick = true;
 
     openShikonaTarget(
-      `http://www.661.org.uk/cgi-bin/index.py?graph=any&new_rik=&r_${encodedShikona}=${encodedShikona}&graph_type=by_time`
+      `http://www.661.org.uk/cgi-bin/index.py?graph=any&new_rik=&r_${encodedGraphShikona}=${encodedGraphShikona}&graph_type=by_time`
     );
   });
 
@@ -1132,6 +1133,5 @@ function clearNotePopoverTimer() {
     notePopoverTimer = null;
   }
 }
-
 
 
