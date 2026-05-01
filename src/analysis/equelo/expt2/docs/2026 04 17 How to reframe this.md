@@ -135,11 +135,13 @@ where:
 ### 5.2 Iterative procedure
 
 1. Initialise μ₀ as a constant function
-2. For each iteration:
 
+2. For each iteration:
+   
    * simulate history using μₜ
    * aggregate entry-point ratings by rank
    * normalise to obtain μₜ₊₁
+
 3. Repeat until convergence
 
 ---
@@ -186,7 +188,7 @@ These provide a check on robustness.
 ### 7.2 Structure of the solution
 
 * The mapping μ is:
-
+  
   * broadly monotonic across ranks
   * smooth at coarse resolution
   * defined over a wide rating range
@@ -196,9 +198,10 @@ These provide a check on robustness.
 ### 7.3 Local irregularities
 
 * Deviations from monotonicity occur in:
-
+  
   * sparsely populated ranks
   * boundary regions between divisions
+
 * These are stable but not fully explained
 
 ---
