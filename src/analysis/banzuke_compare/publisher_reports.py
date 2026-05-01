@@ -17,6 +17,7 @@ CSV_FIELDNAMES = (
     "division_label",
     "bz_chii",
     "east_rikishi_id",
+    "east_chii",
     "east_shikona",
     "east_graph_shikona",
     "east_old_chii",
@@ -24,6 +25,7 @@ CSV_FIELDNAMES = (
     "east_delta",
     "east_delta_class",
     "west_rikishi_id",
+    "west_chii",
     "west_shikona",
     "west_graph_shikona",
     "west_old_chii",
@@ -103,6 +105,7 @@ def side_fields(prefix: str, side) -> dict[str, str]:
     if side is None:
         return {
             f"{prefix}_rikishi_id": "",
+            f"{prefix}_chii": "",
             f"{prefix}_shikona": "",
             f"{prefix}_graph_shikona": "",
             f"{prefix}_old_chii": "",
@@ -113,6 +116,7 @@ def side_fields(prefix: str, side) -> dict[str, str]:
 
     return {
         f"{prefix}_rikishi_id": str(int(side.rikishi_id)),
+        f"{prefix}_chii": side.chii,
         f"{prefix}_shikona": str(side.shikona),
         f"{prefix}_graph_shikona": side.graph_shikona,
         f"{prefix}_old_chii": side.old_chii,

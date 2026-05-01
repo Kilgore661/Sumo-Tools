@@ -169,6 +169,7 @@ def build_report_side(
 
     return BcrReportSide(
         rikishi_id=change.rikishi_id,
+        chii=str(change.current_chii),
         shikona=change.current_shikona,
         graph_shikona=graph_shikona_for(change.rikishi_id, change.current_shikona),
         old_chii="" if change.previous_chii is None else str(change.previous_chii),

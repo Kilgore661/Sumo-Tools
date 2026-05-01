@@ -235,4 +235,3 @@ The main things still undecided are:
 If I compress all of this into one contract statement:
 
 `one_shot` is a new Equelo analysis package that runs the closed-mode single-pass Elo simulator on modern-era data from 1989 onward under varying initial conditions, extracts basho-start chii-linked rating series, and writes timestamped Plotly-based interactive outputs plus run metadata under `files/output/Equelo/one_shot/runs/...` for exploratory convergence analysis.
-

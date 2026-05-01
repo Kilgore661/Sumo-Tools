@@ -15,15 +15,18 @@ const state = {
   currentDivision: null,
   showContext: true,
   showDelta: false,
+  showBanzukeStyle: true,
 };
 
 const el = {
   pageTitle: document.getElementById("page-title"),
   division: document.getElementById("division-select"),
   context: document.getElementById("context-columns"),
+  banzukeStyle: document.getElementById("banzuke-style"),
   delta: document.getElementById("delta-columns"),
+  colgroup: document.querySelector("#banzuke-table colgroup"),
+  head: document.querySelector("#banzuke-table thead"),
   table: document.getElementById("banzuke-table"),
-  sideHeads: document.querySelectorAll("[data-side-head]"),
   body: document.getElementById("banzuke-body"),
 };
 
@@ -41,6 +44,7 @@ const REQUIRED_CSV_COLUMNS = [
   "division_label",
   "bz_chii",
   "east_rikishi_id",
+  "east_chii",
   "east_shikona",
   "east_graph_shikona",
   "east_old_chii",
@@ -48,6 +52,7 @@ const REQUIRED_CSV_COLUMNS = [
   "east_delta",
   "east_delta_class",
   "west_rikishi_id",
+  "west_chii",
   "west_shikona",
   "west_graph_shikona",
   "west_old_chii",
@@ -82,7 +87,6 @@ async function init() {
     applyUrlStateOrDefault();
     applyStateToControls();
     wireEvents();
-    wireNotePopovers();
     render();
   } catch (err) {
     fail(err);
@@ -119,6 +123,7 @@ function applyUrlStateOrDefault() {
   }
 
   applyContextUrlState(params);
+  applyBanzukeStyleUrlState(params);
   applyDeltaUrlState(params);
 }
 
@@ -136,6 +141,22 @@ function applyContextUrlState(params) {
   }
 
   state.showContext = context === "true";
+}
+
+function applyBanzukeStyleUrlState(params) {
+  const banzukeStyle = params.get("banzuke_style");
+
+  if (!banzukeStyle) {
+    return;
+  }
+
+  if (banzukeStyle !== "true" && banzukeStyle !== "false") {
+    alert(`Unknown banzuke_style value "${banzukeStyle}" in URL. Banzuke style will be shown.`);
+    replaceUrlState();
+    return;
+  }
+
+  state.showBanzukeStyle = banzukeStyle === "true";
 }
 
 function applyDeltaUrlState(params) {
@@ -157,6 +178,7 @@ function applyDeltaUrlState(params) {
 function applyStateToControls() {
   el.division.value = state.currentDivision;
   el.context.checked = state.showContext;
+  el.banzukeStyle.checked = state.showBanzukeStyle;
   el.delta.checked = state.showDelta;
 }
 
@@ -171,6 +193,12 @@ function wireEvents() {
     state.showContext = el.context.checked;
     pushUrlState();
     renderOptions();
+  });
+
+  el.banzukeStyle.addEventListener("change", () => {
+    state.showBanzukeStyle = el.banzukeStyle.checked;
+    pushUrlState();
+    render();
   });
 
   el.delta.addEventListener("change", () => {
@@ -191,16 +219,87 @@ function render() {
 }
 
 function renderOptions() {
+  renderTableTemplate();
   el.table.classList.toggle("hide-context", !state.showContext);
   el.table.classList.toggle("hide-delta", !state.showDelta);
-  el.sideHeads.forEach((head) => {
-    head.colSpan = sideColumnCount();
-  });
+  el.table.classList.toggle("one-col-table", !state.showBanzukeStyle);
   applyNoteVisibility();
   hideNotePopover();
 }
 
-function sideColumnCount() {
+function renderTableTemplate() {
+  if (state.showBanzukeStyle) {
+    renderTwoColumnTemplate();
+  } else {
+    renderOneColumnTemplate();
+  }
+}
+
+function renderTwoColumnTemplate() {
+  const sideColumnCount = currentSideColumnCount();
+
+  el.colgroup.innerHTML = `
+    <col class="old-col context-col">
+    <col class="score-col context-col">
+    <col class="direction-col">
+    <col class="delta-value-col delta-value-col-toggle">
+    <col class="shikona-col">
+    <col class="bz-col">
+    <col class="shikona-col">
+    <col class="direction-col">
+    <col class="delta-value-col delta-value-col-toggle">
+    <col class="score-col context-col">
+    <col class="old-col context-col">
+  `;
+
+  el.head.innerHTML = `
+    <tr>
+      <th scope="colgroup" colspan="${sideColumnCount}" data-side-head>East</th>
+      <th scope="col" rowspan="2" class="bz-head">Rank</th>
+      <th scope="colgroup" colspan="${sideColumnCount}" data-side-head>West</th>
+    </tr>
+    <tr>
+      <th scope="col" class="context-head">Chii</th>
+      <th scope="col" class="context-head" data-note-target="note-result">Result</th>
+      <th scope="col" class="delta-head" data-note-target="note-direction">⇅</th>
+      <th scope="col" class="delta-value-head" data-note-target="note-delta">Δ</th>
+      <th scope="col">Shikona</th>
+      <th scope="col">Shikona</th>
+      <th scope="col" class="delta-head" data-note-target="note-direction">⇅</th>
+      <th scope="col" class="delta-value-head" data-note-target="note-delta">Δ</th>
+      <th scope="col" class="context-head" data-note-target="note-result">Result</th>
+      <th scope="col" class="context-head">Chii</th>
+    </tr>
+  `;
+
+  wireNotePopovers();
+}
+
+function renderOneColumnTemplate() {
+  el.colgroup.innerHTML = `
+    <col class="bz-col">
+    <col class="shikona-col">
+    <col class="direction-col">
+    <col class="delta-value-col delta-value-col-toggle">
+    <col class="score-col context-col">
+    <col class="old-col context-col">
+  `;
+
+  el.head.innerHTML = `
+    <tr>
+      <th scope="col" class="bz-head">Chii</th>
+      <th scope="col">Shikona</th>
+      <th scope="col" class="delta-head" data-note-target="note-direction">⇅</th>
+      <th scope="col" class="delta-value-head" data-note-target="note-delta">Δ</th>
+      <th scope="col" class="context-head" data-note-target="note-result">Result</th>
+      <th scope="col" class="context-head">Chii</th>
+    </tr>
+  `;
+
+  wireNotePopovers();
+}
+
+function currentSideColumnCount() {
   let count = 2;
 
   if (state.showContext) {
@@ -217,6 +316,15 @@ function sideColumnCount() {
 function renderTable(rows) {
   el.body.innerHTML = "";
 
+  if (!state.showBanzukeStyle) {
+    renderOneColumnTable(rows);
+    return;
+  }
+
+  renderTwoColumnTable(rows);
+}
+
+function renderTwoColumnTable(rows) {
   rows.forEach((row) => {
     const tr = document.createElement("tr");
 
@@ -232,6 +340,43 @@ function renderTable(rows) {
 
     el.body.appendChild(tr);
   });
+}
+
+function renderOneColumnTable(rows) {
+  rows.forEach((row) => {
+    appendOneColumnSideRow(row, "east");
+    appendOneColumnSideRow(row, "west");
+  });
+}
+
+function appendOneColumnSideRow(row, side) {
+  const rikishiId = row[`${side}_rikishi_id`];
+
+  if (!rikishiId) {
+    return;
+  }
+
+  const tr = document.createElement("tr");
+
+  appendBzChiiCell(tr, row[`${side}_chii`]);
+  appendRikishiCell(
+    tr,
+    row[`${side}_shikona`],
+    row[`${side}_graph_shikona`],
+    // Prototype: reuse the right-side display order/classes for one-col rows.
+    "west",
+    rikishiId
+  );
+  appendDeltaCells(
+    tr,
+    row[`${side}_delta`],
+    row[`${side}_delta_class`],
+    rikishiId
+  );
+  appendScoreCell(tr, row[`${side}_result`], contextClass(rikishiId));
+  appendTextCell(tr, row[`${side}_old_chii`], contextClass(rikishiId));
+
+  el.body.appendChild(tr);
 }
 
 function appendTextCell(tr, value, className = "") {
@@ -390,6 +535,7 @@ function unsignedDelta(value) {
 const NOTE_POPOVER_DELAY_MS = 450;
 
 let notePopoverTimer = null;
+let notePopoverGlobalsWired = false;
 
 function wireNotePopovers() {
   const headings = document.querySelectorAll(
@@ -417,6 +563,12 @@ function wireNotePopovers() {
       }, 50);
     });
   });
+
+  if (notePopoverGlobalsWired) {
+    return;
+  }
+
+  notePopoverGlobalsWired = true;
 
   const popover = getNotePopover();
 
@@ -670,6 +822,10 @@ function pushUrlState() {
 
   if (state.showDelta) {
     url.searchParams.set("delta", "true");
+  }
+
+  if (!state.showBanzukeStyle) {
+    url.searchParams.set("banzuke_style", "false");
   }
 
   history.pushState(null, "", url);

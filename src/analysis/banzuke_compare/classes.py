@@ -162,6 +162,7 @@ class BcrReportSide:
     """
 
     rikishi_id: RikId
+    chii: str
     shikona: Shikona
     graph_shikona: str
     old_chii: str
