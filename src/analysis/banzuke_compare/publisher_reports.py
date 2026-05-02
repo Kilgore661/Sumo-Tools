@@ -24,6 +24,7 @@ CSV_FIELDNAMES = (
     "east_result",
     "east_delta",
     "east_delta_class",
+    "east_equelo",
     "west_rikishi_id",
     "west_chii",
     "west_shikona",
@@ -32,6 +33,7 @@ CSV_FIELDNAMES = (
     "west_result",
     "west_delta",
     "west_delta_class",
+    "west_equelo",
 )
 
 
@@ -112,6 +114,7 @@ def side_fields(prefix: str, side) -> dict[str, str]:
             f"{prefix}_result": "",
             f"{prefix}_delta": "",
             f"{prefix}_delta_class": "",
+            f"{prefix}_equelo": "",
         }
 
     return {
@@ -123,6 +126,7 @@ def side_fields(prefix: str, side) -> dict[str, str]:
         f"{prefix}_result": side.previous_result,
         f"{prefix}_delta": side.delta,
         f"{prefix}_delta_class": side.delta_class,
+        f"{prefix}_equelo": side.equelo_rating,
     }
 
 

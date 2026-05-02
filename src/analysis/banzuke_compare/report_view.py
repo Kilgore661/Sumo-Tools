@@ -10,6 +10,7 @@ from .classes import (
     BcrReportRow,
     BcrReportSide,
 )
+from .equelo_ratings import EqueloSnapshot, load_latest_equelo_snapshot_before
 from .results import format_previous_result
 from .shikona_links import graph_shikona_for
 from src.sumo_core.BasicEnums import Division, Side
@@ -52,8 +53,14 @@ def build_bcr_report(diff: BanzukeDiff) -> BcrReport:
         directly to the CSV/config data contract.
     """
 
+    equelo_snapshot = load_latest_equelo_snapshot_before(diff.source.current_date)
+
     divisions = tuple(
-        build_division_report(diff=diff, division=division)
+        build_division_report(
+            diff=diff,
+            division=division,
+            equelo_snapshot=equelo_snapshot,
+        )
         for division in DIVISION_ORDER
         if any(change.current_division == division for change in diff.changes)
     )
@@ -67,6 +74,7 @@ def build_bcr_report(diff: BanzukeDiff) -> BcrReport:
 def build_division_report(
     diff: BanzukeDiff,
     division: Division,
+    equelo_snapshot: EqueloSnapshot,
 ) -> BcrDivisionReport:
     """
     Contract:
@@ -85,13 +93,18 @@ def build_division_report(
         division=division,
         division_id=DIVISION_IDS[division],
         division_label=DIVISION_LABELS[division],
-        rows=build_division_rows(diff=diff, changes=changes),
+        rows=build_division_rows(
+            diff=diff,
+            changes=changes,
+            equelo_snapshot=equelo_snapshot,
+        ),
     )
 
 
 def build_division_rows(
     diff: BanzukeDiff,
     changes: tuple[BanzukeChange, ...],
+    equelo_snapshot: EqueloSnapshot,
 ) -> tuple[BcrReportRow, ...]:
     """
     Contract:
@@ -116,7 +129,11 @@ def build_division_rows(
             east = None
             west = None
 
-        side = build_report_side(diff=diff, change=change)
+        side = build_report_side(
+            diff=diff,
+            change=change,
+            equelo_snapshot=equelo_snapshot,
+        )
 
         if change.current_side == Side.EAST:
             if east is not None:
@@ -159,6 +176,7 @@ def make_row(
 def build_report_side(
     diff: BanzukeDiff,
     change: BanzukeChange,
+    equelo_snapshot: EqueloSnapshot,
 ) -> BcrReportSide:
     """
     Contract:
@@ -176,7 +194,21 @@ def build_report_side(
         previous_result=format_previous_context(change, diff),
         delta=format_delta(change.local_delta),
         delta_class=delta_class(change.local_delta),
+        equelo_rating=format_equelo(
+            equelo_snapshot.rating_for(change.rikishi_id, change.current_chii)
+        ),
     )
+
+
+def format_equelo(rating: float) -> str:
+    """
+    Contract:
+        rating is a fixed_v1 Equelo rating.
+
+        Returns the browser display value rounded to the nearest integer.
+    """
+
+    return f"{rating:.0f}"
 
 
 def format_previous_context(change: BanzukeChange, diff: BanzukeDiff) -> str:

@@ -202,8 +202,14 @@ tbody tr:hover {
 
 .context-head,
 .context-cell,
-.context-cell .score {
+.context-cell .score,
+.equelo-head,
+.equelo-cell {
   color: #7f95b8;
+}
+
+.equelo-cell {
+  font-variant-numeric: tabular-nums;
 }
 
 .banzuke-table.hide-context .context-col,
@@ -215,6 +221,12 @@ tbody tr:hover {
 .banzuke-table.hide-delta .delta-value-col-toggle,
 .banzuke-table.hide-delta .delta-value-head,
 .banzuke-table.hide-delta .delta-value-cell {
+  display: none;
+}
+
+.banzuke-table.hide-equelo .equelo-col-toggle,
+.banzuke-table.hide-equelo .equelo-head,
+.banzuke-table.hide-equelo .equelo-cell {
   display: none;
 }
 

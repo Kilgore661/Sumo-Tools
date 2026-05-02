@@ -169,6 +169,7 @@ class BcrReportSide:
     previous_result: str
     delta: str
     delta_class: str
+    equelo_rating: str
 
 
 @dataclass(frozen=True)

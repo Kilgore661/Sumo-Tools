@@ -16,6 +16,7 @@ const state = {
   showContext: true,
   showDelta: false,
   showBanzukeStyle: true,
+  showEquelo: false,
 };
 
 const el = {
@@ -24,6 +25,7 @@ const el = {
   context: document.getElementById("context-columns"),
   banzukeStyle: document.getElementById("banzuke-style"),
   delta: document.getElementById("delta-columns"),
+  equelo: document.getElementById("equelo-columns"),
   colgroup: document.querySelector("#banzuke-table colgroup"),
   head: document.querySelector("#banzuke-table thead"),
   table: document.getElementById("banzuke-table"),
@@ -51,6 +53,7 @@ const REQUIRED_CSV_COLUMNS = [
   "east_result",
   "east_delta",
   "east_delta_class",
+  "east_equelo",
   "west_rikishi_id",
   "west_chii",
   "west_shikona",
@@ -59,6 +62,7 @@ const REQUIRED_CSV_COLUMNS = [
   "west_result",
   "west_delta",
   "west_delta_class",
+  "west_equelo",
 ];
 
 const VALID_DELTA_CLASSES = new Set([
@@ -125,6 +129,7 @@ function applyUrlStateOrDefault() {
   applyContextUrlState(params);
   applyBanzukeStyleUrlState(params);
   applyDeltaUrlState(params);
+  applyEqueloUrlState(params);
 }
 
 function applyContextUrlState(params) {
@@ -175,11 +180,28 @@ function applyDeltaUrlState(params) {
   state.showDelta = delta === "true";
 }
 
+function applyEqueloUrlState(params) {
+  const equelo = params.get("equelo");
+
+  if (!equelo) {
+    return;
+  }
+
+  if (equelo !== "true" && equelo !== "false") {
+    alert(`Unknown equelo value "${equelo}" in URL. Equelo ratings will be hidden.`);
+    replaceUrlState();
+    return;
+  }
+
+  state.showEquelo = equelo === "true";
+}
+
 function applyStateToControls() {
   el.division.value = state.currentDivision;
   el.context.checked = state.showContext;
   el.banzukeStyle.checked = state.showBanzukeStyle;
   el.delta.checked = state.showDelta;
+  el.equelo.checked = state.showEquelo;
 }
 
 function wireEvents() {
@@ -206,6 +228,12 @@ function wireEvents() {
     pushUrlState();
     renderOptions();
   });
+
+  el.equelo.addEventListener("change", () => {
+    state.showEquelo = el.equelo.checked;
+    pushUrlState();
+    renderOptions();
+  });
 }
 
 function render() {
@@ -222,6 +250,7 @@ function renderOptions() {
   renderTableTemplate();
   el.table.classList.toggle("hide-context", !state.showContext);
   el.table.classList.toggle("hide-delta", !state.showDelta);
+  el.table.classList.toggle("hide-equelo", !state.showEquelo);
   el.table.classList.toggle("one-col-table", !state.showBanzukeStyle);
   applyNoteVisibility();
   hideNotePopover();
@@ -239,6 +268,7 @@ function renderTwoColumnTemplate() {
   const sideColumnCount = currentSideColumnCount();
 
   el.colgroup.innerHTML = `
+    <col class="equelo-col equelo-col-toggle">
     <col class="old-col context-col">
     <col class="score-col context-col">
     <col class="direction-col">
@@ -250,6 +280,7 @@ function renderTwoColumnTemplate() {
     <col class="delta-value-col delta-value-col-toggle">
     <col class="score-col context-col">
     <col class="old-col context-col">
+    <col class="equelo-col equelo-col-toggle">
   `;
 
   el.head.innerHTML = `
@@ -259,6 +290,7 @@ function renderTwoColumnTemplate() {
       <th scope="colgroup" colspan="${sideColumnCount}" data-side-head>West</th>
     </tr>
     <tr>
+      <th scope="col" class="equelo-head">Equelo</th>
       <th scope="col" class="context-head">Chii</th>
       <th scope="col" class="context-head" data-note-target="note-result">Result</th>
       <th scope="col" class="delta-head" data-note-target="note-direction">⇅</th>
@@ -269,6 +301,7 @@ function renderTwoColumnTemplate() {
       <th scope="col" class="delta-value-head" data-note-target="note-delta">Δ</th>
       <th scope="col" class="context-head" data-note-target="note-result">Result</th>
       <th scope="col" class="context-head">Chii</th>
+      <th scope="col" class="equelo-head">Equelo</th>
     </tr>
   `;
 
@@ -283,6 +316,7 @@ function renderOneColumnTemplate() {
     <col class="delta-value-col delta-value-col-toggle">
     <col class="score-col context-col">
     <col class="old-col context-col">
+    <col class="equelo-col equelo-col-toggle">
   `;
 
   el.head.innerHTML = `
@@ -293,6 +327,7 @@ function renderOneColumnTemplate() {
       <th scope="col" class="delta-value-head" data-note-target="note-delta">Δ</th>
       <th scope="col" class="context-head" data-note-target="note-result">Result</th>
       <th scope="col" class="context-head">Chii</th>
+      <th scope="col" class="equelo-head">Equelo</th>
     </tr>
   `;
 
@@ -307,6 +342,10 @@ function currentSideColumnCount() {
   }
 
   if (state.showDelta) {
+    count += 1;
+  }
+
+  if (state.showEquelo) {
     count += 1;
   }
 
@@ -328,6 +367,7 @@ function renderTwoColumnTable(rows) {
   rows.forEach((row) => {
     const tr = document.createElement("tr");
 
+    appendEqueloCell(tr, row.east_equelo, row.east_rikishi_id);
     appendTextCell(tr, row.east_old_chii, contextClass(row.east_rikishi_id));
     appendScoreCell(tr, row.east_result, contextClass(row.east_rikishi_id));
     appendDeltaCells(tr, row.east_delta, row.east_delta_class, row.east_rikishi_id);
@@ -337,6 +377,7 @@ function renderTwoColumnTable(rows) {
     appendDeltaCells(tr, row.west_delta, row.west_delta_class, row.west_rikishi_id);
     appendScoreCell(tr, row.west_result, contextClass(row.west_rikishi_id));
     appendTextCell(tr, row.west_old_chii, contextClass(row.west_rikishi_id));
+    appendEqueloCell(tr, row.west_equelo, row.west_rikishi_id);
 
     el.body.appendChild(tr);
   });
@@ -375,6 +416,7 @@ function appendOneColumnSideRow(row, side) {
   );
   appendScoreCell(tr, row[`${side}_result`], contextClass(rikishiId));
   appendTextCell(tr, row[`${side}_old_chii`], contextClass(rikishiId));
+  appendEqueloCell(tr, row[`${side}_equelo`], rikishiId);
 
   el.body.appendChild(tr);
 }
@@ -401,6 +443,13 @@ function appendScoreCell(tr, value, className = "") {
     td.className = className;
   }
 
+  tr.appendChild(td);
+}
+
+function appendEqueloCell(tr, value, rikishiId) {
+  const td = document.createElement("td");
+  td.className = rikishiId ? "equelo-cell" : "equelo-cell empty";
+  td.textContent = value;
   tr.appendChild(td);
 }
 
@@ -822,6 +871,10 @@ function pushUrlState() {
 
   if (state.showDelta) {
     url.searchParams.set("delta", "true");
+  }
+
+  if (state.showEquelo) {
+    url.searchParams.set("equelo", "true");
   }
 
   if (!state.showBanzukeStyle) {
