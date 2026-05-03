@@ -186,6 +186,129 @@ That’s usually the fastest way to avoid building something trivial.
 
 ---
 
+Probability distribution: model vs observed
+===========================================
+
+## Current state
+
+There is currently a generated HTML chart:
+
+```text
+files/output/Equelo/expt3_predicted_distribution.html
+```
+
+This is written by:
+
+```text
+src/analysis/probability/expt3c.py
+```
+
+Specifically, `expt3c` simulates the Expt3/Equelo model through historical
+bouts, records each pre-bout model probability, and writes a Plotly histogram
+of those model probabilities.
+
+This chart answers:
+
+> How often does the model assign bouts to each predicted win-probability band?
+
+It does not directly answer:
+
+> What is the observed probability that a rikishi at chii c1 beats a rikishi at
+> chii c2?
+
+The existing HTML may be evidence in the same direction as the observed result:
+actual torikumi appear to produce mostly competitive bouts, and the model mostly
+assigns probabilities near 0.5. But the current HTML is not the key empirical
+fact. It is a model-side distribution, and should be treated as a likely
+confirmation rather than the primary observation.
+
+## Missing observed chart
+
+The more direct public-interest chart would use observed bout outcomes only.
+For each canonical chii pair `(c1, c2)`, it should compute:
+
+```text
+n_obs
+n_wins_c1
+p_c1_beats_c2
+confidence interval
+```
+
+This would allow us to examine the claim:
+
+> Torikumi selection makes observed bouts competitive, even when the nominal
+> chii distance is large.
+
+This is distinct from finish-by-chii. Finish-by-chii shows that basho outcomes
+are not uniform across chii. The observed chii-pair probability distribution
+would show that individual scheduled bouts may nevertheless be close to 50/50
+because high-ranked vs low-ranked bouts are only scheduled in particular
+tournament contexts.
+
+That tension is interesting and publishable. It should not be smoothed away.
+
+## Git history breadcrumb
+
+The code for the observed chii-pair probability table appears to have existed
+in git history, but is not present in the current source tree.
+
+Relevant commit:
+
+```text
+145aa0e About to regularise the three run types.
+```
+
+Useful recovery commands:
+
+```bash
+git -c safe.directory=//BIGBLACK/Stuff/Sumo/Sumo-Tools show 145aa0e:src/analysis/probability/builder.py
+git -c safe.directory=//BIGBLACK/Stuff/Sumo/Sumo-Tools show 145aa0e:src/analysis/probability/__main__.py
+```
+
+In that version, `src/analysis/probability/builder.py` contained:
+
+```text
+ProbabilityRow
+build_probability_rows(history, ratings, q)
+write_probability_csv(rows, output_path)
+```
+
+The old writer produced CSV columns:
+
+```text
+c1,c2,n_obs,n_wins_c1,p_c1_beats_c2,p_ci95_lower,p_ci95_upper,
+r_c1,r_c2,q_c1_beats_c2,abs_error,sq_error
+```
+
+An old generated example still exists at:
+
+```text
+files/output/Equelo (q=400)/combined_final_probabilities.csv
+```
+
+That file joins the observed chii-pair probability with the model-implied
+probability. For the publication question, the observed side
+(`n_obs`, `n_wins_c1`, `p_c1_beats_c2`, confidence interval) is the essential
+piece. The model side is useful as a comparison, but should not be mistaken for
+the observed fact.
+
+## Candidate next step
+
+Restore or reimplement the observed chii-pair probability table as a current,
+supported analysis product. Then add a chart/view over it.
+
+Possible views:
+
+* observed `p_c1_beats_c2` by chii pair
+* observed probability by chii-distance bucket
+* support/uncertainty view showing where there are enough bouts to infer
+* comparison of observed probability vs model-implied probability
+
+This should be considered a stronger publication candidate than the current
+`expt3_predicted_distribution.html`.
+
+---
+
 Grand Plan
 ==========
 
