@@ -55,6 +55,27 @@ The resulting fixed-point ratings are broadly monotone with chii and look
 plausible as prior values.  They encode the common-sense fact that higher ranks
 usually represent stronger rikishi.
 
+The word "broadly" matters.  The Expt2 outcomes show stable local departures
+from monotonicity:
+
+- below roughly Jd100, the rating curve bends upward rather than continuing to
+  fall smoothly;
+- within Makuuchi, there is a small but persistent upward bump around the
+  lower Maegashira ranks, with the M13--M16 region not following the otherwise
+  smooth trajectory.
+
+These features are not numerical noise.  They appear to be properties of the
+fixed-point solution.  A plausible explanation is churn: lower-division ranks,
+and possibly the lower Maegashira promotion/relegation boundary, may contain
+systematically different mixes of entrants, short-career rikishi, and rikishi
+moving through the rank system.  This explanation has not yet been tested.
+
+This limits the claim that fixed-point ratings "follow chii".  They follow the
+main chii ordering strikingly well over most of the populated range, but they
+should not be treated as a clean monotone transformation of chii until the churn
+hypothesis, or some alternative explanation for these bumps, has been
+investigated.
+
 This is not philosophically neutral.  It means rank information enters the
 rating process.  For some research questions, especially questions about the
 relationship between outcome-derived strength and institutional rank, that is a
@@ -211,6 +232,8 @@ It is based on:
 - a practical compromise between purity and usefulness.
 
 It is reasonable to use these ratings as contextual numbers in project tools.
+It is not yet reasonable to use them where a strictly chii-monotone scale is a
+hard requirement.
 
 ## What This Does Not Claim
 
@@ -220,6 +243,8 @@ It is reasonable to use these ratings as contextual numbers in project tools.
 - to be a causal model of rikishi ability;
 - to replace the banzuke;
 - to be independent of rank information;
+- to be strictly monotone in chii;
+- to explain the observed Jd100 and lower-Maegashira non-monotonicities;
 - to settle the philosophical question of what ratings "really mean".
 
 The ratings should be read as model-derived context: meaningful, useful, and

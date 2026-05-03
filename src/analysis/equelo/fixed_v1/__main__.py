@@ -29,6 +29,7 @@ def main() -> None:
     print("Fixed v1 Equelo ratings generated")
     print(f"Metadata: {written['metadata']}")
     print(f"Day-end ratings: {written['day_end_ratings']}")
+    print(f"Entrant initial ratings: {written['entrant_initial_ratings']}")
 
 
 if __name__ == "__main__":

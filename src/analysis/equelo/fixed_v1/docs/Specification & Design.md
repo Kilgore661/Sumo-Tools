@@ -44,6 +44,7 @@ The generator shall write:
 files/output/Equelo/fixed_v1/
   metadata.json
   day_end_ratings.json
+  entrant_initial_ratings.json
 ```
 
 ### 3.1 `metadata.json`
@@ -61,6 +62,7 @@ Required fields:
   "history_basho_count": 0,
   "rating_points": 0,
   "rating_count": 0,
+  "entrant_initial_rating_count": 0,
   "model": {
     "source_history_start": "1958/01",
     "history_cleaning": "Expt1 Oracle",
@@ -114,6 +116,29 @@ Keys:
 The file is sparse by construction.  It contains represented ratings for
 represented rikishi at represented day-end points.  It does not contain a dense
 matrix across all rikishi and all dates.
+
+### 3.3 `entrant_initial_ratings.json`
+
+`entrant_initial_ratings.json` stores the exact scaled fixed-point entrant
+prior used by the fixed v1 simulator.
+
+The authoritative key is the `Chii.ordinal()` value encoded as a JSON object
+key.  Consumers should treat keys as ordinals and convert them to integers when
+needed.
+
+Shape:
+
+```json
+{
+  "100": 2301.25
+}
+```
+
+Keys:
+
+- top level: chii ordinal encoded as a JSON object key;
+- value: entrant initial rating used when an unseen rikishi appears with that
+  chii.
 
 ## 4. History Dependency
 
@@ -224,7 +249,8 @@ The generator shall:
 6. build a chii-based entrant initialiser from the scaled values;
 7. run the existing Expt1 simulator in closed mode with fixed v1 parameters;
 8. serialise `result.day_end_ratings` to `day_end_ratings.json`;
-9. write `metadata.json`.
+9. serialise the scaled entrant prior to `entrant_initial_ratings.json`;
+10. write `metadata.json`.
 
 ### 8.3 Output Ordering
 
@@ -238,6 +264,7 @@ The first loader API should be small:
 
 ```python
 load_day_end_ratings() -> dict[str, dict[str, dict[str, float]]]
+load_entrant_initial_ratings() -> dict[str, float]
 load_metadata() -> dict
 ```
 

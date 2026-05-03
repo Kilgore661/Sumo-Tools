@@ -7,10 +7,12 @@ from datetime import datetime
 from pathlib import Path
 
 from src.analysis.equelo.expt1.simulate import RatingsByDate
+from src.sumo_core.Chii import Chii
 from src.sumo_core.History import History
 
 from .model import (
     DAY_END_RATINGS_FILE_NAME,
+    ENTRANT_INITIAL_RATINGS_FILE_NAME,
     METADATA_FILE_NAME,
     MODEL_VERSION,
     OUTPUT_ROOT,
@@ -22,33 +24,41 @@ def write_outputs(
     *,
     history: History,
     day_end_ratings: RatingsByDate,
+    entrant_initial_ratings: dict[Chii, float],
     output_root: Path = OUTPUT_ROOT,
 ) -> dict[str, Path]:
     """
-    Write fixed v1 day-end ratings and metadata.
+    Write fixed v1 day-end ratings, entrant initial ratings, and metadata.
 
     Contract:
         history is the cleaned history used by the simulator.
         day_end_ratings is the simulator output for that same history.
+        entrant_initial_ratings is the exact chii prior used by the simulator.
     """
 
     output_root.mkdir(parents=True, exist_ok=True)
 
     ratings_path = output_root / DAY_END_RATINGS_FILE_NAME
+    entrant_path = output_root / ENTRANT_INITIAL_RATINGS_FILE_NAME
     metadata_path = output_root / METADATA_FILE_NAME
 
     ratings_payload = serialise_day_end_ratings(day_end_ratings)
     write_json(ratings_path, ratings_payload)
 
+    entrant_payload = serialise_entrant_initial_ratings(entrant_initial_ratings)
+    write_json(entrant_path, entrant_payload)
+
     metadata_payload = build_metadata(
         history=history,
         day_end_ratings=ratings_payload,
+        entrant_initial_ratings=entrant_payload,
     )
     write_json(metadata_path, metadata_payload)
 
     return {
         "metadata": metadata_path,
         "day_end_ratings": ratings_path,
+        "entrant_initial_ratings": entrant_path,
     }
 
 
@@ -74,10 +84,27 @@ def serialise_day_end_ratings(day_end_ratings: RatingsByDate) -> dict[str, dict[
     return payload
 
 
+def serialise_entrant_initial_ratings(
+    entrant_initial_ratings: dict[Chii, float],
+) -> dict[str, float]:
+    """Convert the fixed v1 entrant prior to an ordinal-keyed JSON payload."""
+
+    payload: dict[str, float] = {}
+
+    for chii, rating in sorted(
+        entrant_initial_ratings.items(),
+        key=lambda item: item[0].ordinal(),
+    ):
+        payload[str(chii.ordinal())] = rating
+
+    return payload
+
+
 def build_metadata(
     *,
     history: History,
     day_end_ratings: dict[str, dict[str, dict[str, float]]],
+    entrant_initial_ratings: dict[str, float],
 ) -> dict[str, object]:
     """Build metadata for a fixed v1 output set."""
 
@@ -97,6 +124,7 @@ def build_metadata(
         "history_basho_count": len(dates),
         "rating_points": rating_points,
         "rating_count": rating_count,
+        "entrant_initial_rating_count": len(entrant_initial_ratings),
         "model": model_metadata(),
     }
 
@@ -105,6 +133,6 @@ def write_json(path: Path, payload: object) -> None:
     """Write consistently formatted JSON."""
 
     path.write_text(
-        json.dumps(payload, indent=2, sort_keys=True),
+        json.dumps(payload, indent=2),
         encoding="utf-8",
     )

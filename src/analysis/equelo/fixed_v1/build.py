@@ -29,6 +29,7 @@ from .output import write_outputs
 
 
 EntrantInitialiser = Callable[[Chii], float]
+ChiiRatings = dict[Chii, float]
 
 
 def build_fixed_v1(output_root: Path = OUTPUT_ROOT) -> dict[str, Path]:
@@ -42,15 +43,16 @@ def build_fixed_v1(output_root: Path = OUTPUT_ROOT) -> dict[str, Path]:
     """
 
     raw_history = get_history()
-    result, cleaned_history = compute_fixed_v1(raw_history)
+    result, cleaned_history, entrant_initial_ratings = compute_fixed_v1(raw_history)
     return write_outputs(
         history=cleaned_history,
         day_end_ratings=result.day_end_ratings,
+        entrant_initial_ratings=entrant_initial_ratings,
         output_root=output_root,
     )
 
 
-def compute_fixed_v1(raw_history: History) -> tuple[SimulationResult, History]:
+def compute_fixed_v1(raw_history: History) -> tuple[SimulationResult, History, ChiiRatings]:
     """Compute fixed v1 ratings from a supplied raw History."""
 
     oracle = make_oracle(
@@ -63,14 +65,15 @@ def compute_fixed_v1(raw_history: History) -> tuple[SimulationResult, History]:
         q=Q,
         config_path=K_CONFIG,
     )
+    entrant_initial_ratings = scaled_fixed_point_ratings()
     result = simulate(
         history=oracle.history,
         params=params,
-        entrant_initialiser=scaled_fixed_point_initialiser(),
+        entrant_initialiser=make_chii_initialiser(entrant_initial_ratings),
         mode=SimulationMode.CLOSED,
     )
 
-    return result, oracle.history
+    return result, oracle.history, entrant_initial_ratings
 
 
 def load_bios() -> dict[RikId, dict]:
@@ -82,6 +85,30 @@ def load_bios() -> dict[RikId, dict]:
     return {RikId(int(key)): value for key, value in raw_bios.items()}
 
 
+def scaled_fixed_point_ratings(
+    *,
+    source: Path = FIXED_POINT_SOURCE,
+    alpha: float = ALPHA,
+) -> ChiiRatings:
+    """Return the fixed v1 scaled chii-to-entrant-rating map."""
+
+    fixed_ratings = load_ratings_csv(source)
+    mu = sum(fixed_ratings.values()) / len(fixed_ratings)
+    return {
+        chii: mu + alpha * (rating - mu)
+        for chii, rating in fixed_ratings.items()
+    }
+
+
+def make_chii_initialiser(ratings: ChiiRatings) -> EntrantInitialiser:
+    """Build a chii-based entrant initialiser from an explicit ratings map."""
+
+    def initialise(chii: Chii) -> float:
+        return float(ratings[chii])
+
+    return initialise
+
+
 def scaled_fixed_point_initialiser(
     *,
     source: Path = FIXED_POINT_SOURCE,
@@ -89,17 +116,9 @@ def scaled_fixed_point_initialiser(
 ) -> EntrantInitialiser:
     """Build the fixed v1 chii-based entrant initialiser."""
 
-    fixed_ratings = load_ratings_csv(source)
-    mu = sum(fixed_ratings.values()) / len(fixed_ratings)
-    scaled = {
-        chii: mu + alpha * (rating - mu)
-        for chii, rating in fixed_ratings.items()
-    }
-
-    def initialise(chii: Chii) -> float:
-        return float(scaled[chii])
-
-    return initialise
+    return make_chii_initialiser(
+        scaled_fixed_point_ratings(source=source, alpha=alpha)
+    )
 
 
 def oracle_collapse_mode() -> str:

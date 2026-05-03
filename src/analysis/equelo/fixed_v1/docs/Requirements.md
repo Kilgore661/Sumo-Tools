@@ -27,6 +27,8 @@ At minimum, callers shall be able to obtain:
 - basho-start ratings for all active rikishi on a basho banzuke;
 - day-end ratings for all active rikishi after each represented competition
   day;
+- the chii-indexed entrant initial ratings that define the model's entry
+  prior;
 - the rating for a specified `RikId` at a specified represented point;
 - enough model metadata to know exactly which rating definition produced the
   numbers.
@@ -45,6 +47,7 @@ The persisted data shall include:
 - day or phase;
 - rikishi id;
 - rating;
+- entrant initial ratings keyed by `Chii.ordinal()`;
 - model version metadata, either in a separate metadata file or repeated in a
   controlled way.
 
