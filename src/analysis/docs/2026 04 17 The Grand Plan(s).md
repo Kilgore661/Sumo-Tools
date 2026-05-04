@@ -51,17 +51,19 @@ This implies:
 ### Consequences of this view
 
 * You should not interpret rating levels as meaningful categories
-* You should not expect a fixed mapping like:
 
+* You should not expect a fixed mapping like:
+  
   ```text
   2500 ⇔ yokozuna
   ```
+
 * Any such mapping would be accidental or dataset-specific
 
 Instead:
 
 > The only thing you trust is the mapping:
->
+> 
 > ```text
 > rating difference → probability
 > ```
@@ -153,9 +155,11 @@ Because:
 Expt2 does something very different:
 
 * it uses rank (chii) to initialise ratings
-* it enforces self-consistency via fixed-point iteration
-* it produces a mapping:
 
+* it enforces self-consistency via fixed-point iteration
+
+* it produces a mapping:
+  
   ```text
   μ(chii) → rating
   ```
@@ -171,8 +175,9 @@ So:
 Now:
 
 * ratings already encode a theory of rank
-* the system contains a built-in relationship:
 
+* the system contains a built-in relationship:
+  
   ```text
   chii → rating
   ```
@@ -287,7 +292,7 @@ then yes:
 But:
 
 * this depends on:
-
+  
   * aggregation method
   * normalisation
   * dataset
@@ -370,9 +375,11 @@ The whole project becomes much clearer if you separate roles:
 ## Expt3
 
 * outcome-only
-* minimal assumptions
-* used for:
 
+* minimal assumptions
+
+* used for:
+  
   * comparison
   * discovery
   * epistemology
@@ -382,9 +389,11 @@ The whole project becomes much clearer if you separate roles:
 ## Expt2
 
 * structured
-* rank-informed
-* used for:
 
+* rank-informed
+
+* used for:
+  
   * modelling
   * representation
   * internal consistency
@@ -408,4 +417,3 @@ These two views are not interchangeable. The first supports discovery: it allows
 If the aim is to understand what the institutional ranking represents — what information it captures, what it discards, and how it relates to outcomes — then the first approach is essential. It provides a baseline that is independent of the institution and therefore suitable for comparison.
 
 If, on the other hand, the aim is to construct a stable and interpretable rating system that incorporates known structure, then the second approach is appropriate. But it should be recognised that this comes at the cost of losing the ability to treat the institutional ranking as an external object of study.
-

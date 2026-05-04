@@ -307,12 +307,12 @@ The fixed-point system:
 The project therefore establishes two complementary results:
 
 1. **Prediction**
-
+   
    * A simple Elo-style model yields calibrated probabilities
    * Outcomes contain a small but measurable signal
 
 2. **Representation**
-
+   
    * There exists a drift-free rating assignment that agrees with the full historical record
    * This provides a stable, outcome-based description of performance
 
@@ -350,4 +350,3 @@ If you want to refine further, the next step would be to:
 
 * compress this into a 5–6 sentence “abstract version”
 * or tailor tone depending on whether this is for code, blog, or paper
-
