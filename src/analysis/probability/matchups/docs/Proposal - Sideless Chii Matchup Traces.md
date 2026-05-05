@@ -137,7 +137,12 @@ so that any asymmetric or missing side data remains visible.
 
 The raw fixed-v1 entrant ratings are not the correct source for this chart,
 because they are not strictly monotone by chii. The intended source is the
-curated fixed-v1 v5 monotone curve.
+curated fixed-v1 v5 monotone curve. This curve also defines the presentation
+domain.
+
+Observed chii outside the curated v5 domain should be excluded from these trace
+charts. There is no separate warts-and-all comparison chart for historical or
+rare ranks in this proposal.
 
 ---
 
@@ -224,6 +229,10 @@ side_ratings_used
 The rating should be the arithmetic mean of available side-specific ratings
 from the curated fixed-v1 v5 monotone curve.
 
+Observed-domain chii outside that curve should be filtered out before writing
+the observed and Equelo trace CSVs. The comparison domain is the intersection of
+observed bouts and the curated v5 sideless chii domain.
+
 The metadata should record that the source is the forced-monotone fixed-v1 v5
 curve, and may also record the raw fixed-v1 entrant-ratings artefact from which
 that curve is derived.
@@ -231,12 +240,12 @@ that curve is derived.
 ## 4.3 Equelo trace points CSV
 
 This CSV should contain one row per selected/opponent sideless chii combination
-present in the observed trace-points CSV, where both sideless chii have Equelo
-ratings.
+present in the curated-domain observed trace-points CSV.
 
-The observed data defines the comparison domain. The Equelo trace CSV is the
-model image of that observed domain, not a complete hypothetical round-robin
-surface.
+The curated v5 domain defines which chii are eligible for comparison; the
+observed data then defines which selected/opponent pairs exist inside that
+domain. The Equelo trace CSV is the model image of those observed pairs, not a
+complete hypothetical round-robin surface.
 
 Candidate file:
 
@@ -294,10 +303,21 @@ trace: selected sideless chii
 Requirements:
 
 * include CI95 error bars
+* CI95 error bars should be visually subordinate to the trace line and markers
+* CI95 error bars should be controlled by an on/off checkbox
 * hover should show selected chii, opponent chii, `n_obs`, win count, and
   probability
 * initially show only the `Y1` trace
 * all other traces should be present but initially hidden via Plotly legend
+* the chart should include a division dropdown so the legend can be scoped to
+  Makuuchi, Juryo, Makushita, Sandanme, Jonidan, Jonokuchi, or all divisions
+* legend double-click should isolate the clicked trace within the current
+  division scope
+* the visible x-axis domain should be computed from the currently visible
+  trace or traces, not from all traces in the dataset
+* observed points outside the curated v5 rating domain should be excluded
+* displayed sanyaku chii should be limited to `Y1`, `O1`, `S1`, and `K1` on
+  both axes and in the legend
 
 ## 5.2 Equelo sideless matchup trace chart
 
@@ -319,8 +339,16 @@ Requirements:
 
 * initially show only the `Y1` trace
 * all other traces should be present but initially hidden via Plotly legend
+* the chart should include the same division dropdown policy as the observed
+  chart
+* legend double-click should isolate the clicked trace within the current
+  division scope
 * hover should show selected chii, opponent chii, selected rating, opponent
   rating, and probability
+* for any visible trace, the x-axis domain should match the observed chart's
+  visible domain for the same trace selection
+* displayed sanyaku chii should be limited to `Y1`, `O1`, `S1`, and `K1` on
+  both axes and in the legend
 
 No confidence intervals are shown on the Equelo chart because it is a
 model-implied surface, not an observed frequency estimate.
@@ -344,12 +372,14 @@ The observed chart is:
 ```text
 conditional on actual torikumi
 support-dependent
+restricted to the curated v5 rating domain
 ```
 
 The Equelo chart is:
 
 ```text
 model-implied over the observed trace domain
+after applying the same curated v5 rating domain filter
 smooth by construction
 ```
 

@@ -100,6 +100,18 @@ def build_sideless_ratings(
     return tuple(rows)
 
 
+def filter_observed_points_to_rating_domain(
+    observed_points: tuple[ObservedTracePoint, ...],
+    sideless_ratings: tuple[SidelessRating, ...],
+) -> tuple[ObservedTracePoint, ...]:
+    """Restrict observed trace points to selected/opponent chii in the rating domain."""
+    rated_chii = {row.sideless_chii for row in sideless_ratings}
+    return tuple(
+        point for point in observed_points
+        if point.selected_chii in rated_chii and point.opponent_chii in rated_chii
+    )
+
+
 def build_equelo_trace_points(
     observed_points: tuple[ObservedTracePoint, ...],
     sideless_ratings: tuple[SidelessRating, ...],
@@ -226,7 +238,10 @@ def _write_trace_metadata(
         "fixed_v1_rating_source": "InitialRatingCurve.v5 monotone fit",
         "fixed_v1_raw_rating_source": str(fixed_v1_output_root / fixed_v1_model.ENTRANT_INITIAL_RATINGS_FILE_NAME),
         "q": q,
-        "domain_policy": "Equelo trace points are projected onto the observed sideless trace domain.",
+        "domain_policy": (
+            "Observed and Equelo trace points are restricted to the curated "
+            "InitialRatingCurve.v5 sideless chii domain."
+        ),
     }
     output_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 

@@ -12,6 +12,7 @@ from src.analysis.probability.matchups.traces import (
     build_equelo_trace_points,
     build_observed_trace_points,
     build_sideless_ratings,
+    filter_observed_points_to_rating_domain,
     write_trace_outputs,
 )
 
@@ -35,8 +36,12 @@ def _build_parser() -> argparse.ArgumentParser:
 def main() -> None:
     args = _build_parser().parse_args()
 
-    observed_points = build_observed_trace_points(args.sideless_pair_csv)
+    raw_observed_points = build_observed_trace_points(args.sideless_pair_csv)
     sideless_ratings = build_sideless_ratings(output_root=args.fixed_v1_output_root)
+    observed_points = filter_observed_points_to_rating_domain(
+        raw_observed_points,
+        sideless_ratings,
+    )
     equelo_points = build_equelo_trace_points(
         observed_points=observed_points,
         sideless_ratings=sideless_ratings,
@@ -62,7 +67,9 @@ def main() -> None:
         initially_visible=args.initial_trace,
     )
 
-    print(f"Observed trace points: {len(observed_points)}")
+    print(f"Raw observed trace points: {len(raw_observed_points)}")
+    print(f"Observed trace points in rating domain: {len(observed_points)}")
+    print(f"Observed trace points excluded by rating domain: {len(raw_observed_points) - len(observed_points)}")
     print(f"Equelo trace points: {len(equelo_points)}")
     print(f"Observed trace CSV: {paths['observed_trace_csv']}")
     print(f"Equelo ratings CSV: {paths['equelo_ratings_csv']}")
