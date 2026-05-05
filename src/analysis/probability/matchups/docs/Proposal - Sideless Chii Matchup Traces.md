@@ -275,8 +275,10 @@ P(selected beats opponent)
 
 The value of `q` must be recorded in metadata.
 
-If either side of an observed selected/opponent chii pair lacks a sideless
-Equelo rating, the Equelo trace point should be omitted and counted in metadata.
+After applying the curated v5 domain filter, every observed selected/opponent
+chii pair should have a sideless Equelo rating. Missing Equelo trace points
+should therefore normally be zero; if any remain, they should be counted in
+metadata as an implementation/data-quality issue.
 
 ---
 
@@ -317,7 +319,7 @@ Requirements:
   trace or traces, not from all traces in the dataset
 * observed points outside the curated v5 rating domain should be excluded
 * displayed sanyaku chii should be limited to `Y1`, `O1`, `S1`, and `K1` on
-  both axes and in the legend
+  both axes and in the legend; this is a presentation filter, not a CSV filter
 
 ## 5.2 Equelo sideless matchup trace chart
 
@@ -348,7 +350,7 @@ Requirements:
 * for any visible trace, the x-axis domain should match the observed chart's
   visible domain for the same trace selection
 * displayed sanyaku chii should be limited to `Y1`, `O1`, `S1`, and `K1` on
-  both axes and in the legend
+  both axes and in the legend; this is a presentation filter, not a CSV filter
 
 No confidence intervals are shown on the Equelo chart because it is a
 model-implied surface, not an observed frequency estimate.
@@ -378,7 +380,7 @@ restricted to the curated v5 rating domain
 The Equelo chart is:
 
 ```text
-model-implied over the observed trace domain
+model-implied over the curated-domain observed trace domain
 after applying the same curated v5 rating domain filter
 smooth by construction
 ```
@@ -460,9 +462,9 @@ observed_sideless_matchup_traces.html
 equelo_sideless_matchup_traces.html
 ```
 
-The Equelo trace points should be built from the observed trace domain. A
-complete Equelo round-robin surface is a separate possible artefact and is not
-part of this proposal.
+The Equelo trace points should be built from the curated-domain observed trace
+points. A complete Equelo round-robin surface is a separate possible artefact
+and is not part of this proposal.
 
 Metadata should record:
 
@@ -471,6 +473,8 @@ date range
 oracle collapse policy
 sideless rating source
 raw rating source, where applicable
+curated-domain filtering policy
+missing Equelo trace point count
 q
 output filenames
 ```
