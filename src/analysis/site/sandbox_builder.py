@@ -10,7 +10,10 @@ from __future__ import annotations
 
 import argparse
 import csv
+import getpass
 import json
+import os
+import posixpath
 import shutil
 from dataclasses import dataclass
 from pathlib import Path
@@ -20,11 +23,35 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 ANALYSIS_ROOT = REPO_ROOT / "src" / "analysis"
 DEFAULT_OUTPUT_ROOT = REPO_ROOT / "files" / "output" / "site"
 SHELL_ASSET_VERSION = "20260506-nav-tree"
+HOST = "www.661.org.uk"
+USER = "root"
+LOCAL_ROOT = Path("A:/local/html/site")
+REMOTE_ROOT = "/var/www/html/site"
 
 COMMON_FILES = ANALYSIS_ROOT / "common" / "files"
 STANDINGS_FILES = ANALYSIS_ROOT / "standings" / "files"
 STANDINGS_DATA = REPO_ROOT / "files" / "output" / "standings" / "publisher" / "latest_data"
 BCR_FILES = ANALYSIS_ROOT / "banzuke_compare" / "files"
+FINISH_BY_CHII_SOURCE = REPO_ROOT / "files" / "output" / "misc" / (
+    "finish_by_chii_1958_2026.html"
+)
+BANZUKE_DIVISION_ERA_SOURCE = (
+    REPO_ROOT / "files" / "output" / "banzuke_division_era_chart.html"
+)
+RANK_ERA_SOURCE = REPO_ROOT / "files" / "output" / "rank_era_chart.html"
+DIVISION_STABILITY_SOURCE = REPO_ROOT / "files" / "output" / "persistence" / (
+    "division_persistence (1958-2026, num_basho=10).html"
+)
+OBSERVED_STANDING_WIN_PROBABILITY_SOURCE = (
+    REPO_ROOT / "files" / "output" / "probability" / "matchups" / (
+        "observed_sideless_matchup_traces.html"
+    )
+)
+EQUELO_STANDING_WIN_PROBABILITY_SOURCE = (
+    REPO_ROOT / "files" / "output" / "probability" / "matchups" / (
+        "equelo_sideless_matchup_traces.html"
+    )
+)
 BCR_GENERATED_DATA_CANDIDATES = (
     REPO_ROOT / "files" / "output" / "bcr",
     Path("A:/local/html/bcr"),
@@ -58,6 +85,11 @@ def build_site(output_root: Path) -> None:
     copy_common_files(output_root)
     publish_standings(output_root)
     publish_banzuke_compare(output_root)
+    publish_finish_by_chii(output_root)
+    publish_banzuke_division_era(output_root)
+    publish_rank_era(output_root)
+    publish_division_stability(output_root)
+    publish_standing_win_probability(output_root)
 
 
 def require_inside_repo(path: Path) -> None:
@@ -73,6 +105,104 @@ def reset_output_root(output_root: Path) -> None:
             shutil.rmtree(item)
         else:
             item.unlink()
+
+
+def clear_local_dir(path: Path) -> None:
+    if path.drive and not Path(path.drive + "\\").exists():
+        raise FileNotFoundError(
+            f"Local deployment drive is not available: {path.drive}\\"
+        )
+
+    path.mkdir(parents=True, exist_ok=True)
+
+    for item in path.iterdir():
+        if item.is_dir():
+            shutil.rmtree(item)
+        else:
+            item.unlink()
+
+
+def copy_deploy_tree(source_root: Path, target_root: Path) -> None:
+    if not source_root.is_dir():
+        raise FileNotFoundError(f"Build output does not exist: {source_root}")
+
+    clear_local_dir(target_root)
+
+    for source in source_root.rglob("*"):
+        if not source.is_file():
+            continue
+
+        target = target_root / source.relative_to(source_root)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, target)
+
+
+def ensure_remote_dir(sftp, remote_dir: str) -> None:
+    try:
+        sftp.stat(remote_dir)
+    except FileNotFoundError:
+        sftp.mkdir(remote_dir)
+        print(f"Created: {remote_dir}")
+
+
+def ensure_remote_tree(sftp, remote_dir: str) -> None:
+    parts = [part for part in remote_dir.split("/") if part]
+    current = ""
+
+    for part in parts:
+        current = f"{current}/{part}"
+        ensure_remote_dir(sftp, current)
+
+
+def upload_tree(sftp, local_root: Path, remote_root: str) -> int:
+    ensure_remote_tree(sftp, remote_root)
+    count = 0
+
+    for local_file in local_root.rglob("*"):
+        if not local_file.is_file():
+            continue
+
+        relative = local_file.relative_to(local_root)
+        remote_file = posixpath.join(remote_root, *relative.parts)
+        ensure_remote_tree(sftp, posixpath.dirname(remote_file))
+        sftp.put(str(local_file), remote_file)
+        count += 1
+
+    return count
+
+
+def get_password() -> str:
+    password = os.environ.get("MY_SFTP_PASS")
+    if password:
+        print("Using MY_SFTP_PASS for remote deployment.")
+        return password
+
+    print("MY_SFTP_PASS is not set; prompting for remote deployment password.")
+    password = getpass.getpass("SFTP password: ")
+
+    if not password:
+        raise ValueError("No SFTP password supplied.")
+
+    return password
+
+
+def deploy_remote(local_root: Path, remote_root: str) -> int:
+    import paramiko
+
+    if not local_root.is_dir():
+        raise FileNotFoundError(f"Local deployment tree does not exist: {local_root}")
+
+    password = get_password()
+    transport = paramiko.Transport((HOST, 22))
+    transport.connect(username=USER, password=password)
+
+    try:
+        sftp = paramiko.SFTPClient.from_transport(transport)
+        count = upload_tree(sftp, local_root, remote_root)
+        sftp.stat(posixpath.join(remote_root, "index.html"))
+        return count
+    finally:
+        transport.close()
 
 
 def copy_common_files(output_root: Path) -> None:
@@ -116,6 +246,62 @@ def publish_banzuke_compare(output_root: Path) -> None:
         write_sample_bcr_data(tool.output_dir)
     else:
         copy_bcr_publication_data(generated_source, tool.output_dir)
+
+
+def publish_finish_by_chii(output_root: Path) -> None:
+    if not FINISH_BY_CHII_SOURCE.is_file():
+        return
+
+    target_dir = output_root / "tools" / "finish-by-chii"
+    target_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(FINISH_BY_CHII_SOURCE, target_dir / "index.html")
+
+
+def publish_banzuke_division_era(output_root: Path) -> None:
+    if not BANZUKE_DIVISION_ERA_SOURCE.is_file():
+        return
+
+    target_dir = output_root / "tools" / "banzuke-division-era"
+    target_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(BANZUKE_DIVISION_ERA_SOURCE, target_dir / "index.html")
+
+
+def publish_rank_era(output_root: Path) -> None:
+    if not RANK_ERA_SOURCE.is_file():
+        return
+
+    target_dir = output_root / "tools" / "rank-era"
+    target_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(RANK_ERA_SOURCE, target_dir / "index.html")
+
+
+def publish_division_stability(output_root: Path) -> None:
+    if not DIVISION_STABILITY_SOURCE.is_file():
+        return
+
+    target_dir = output_root / "tools" / "division-stability"
+    target_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(DIVISION_STABILITY_SOURCE, target_dir / "index.html")
+
+
+def publish_standing_win_probability(output_root: Path) -> None:
+    targets = (
+        (
+            OBSERVED_STANDING_WIN_PROBABILITY_SOURCE,
+            output_root / "tools" / "win-probability-by-standing" / "observed",
+        ),
+        (
+            EQUELO_STANDING_WIN_PROBABILITY_SOURCE,
+            output_root / "tools" / "win-probability-by-standing" / "equelo",
+        ),
+    )
+
+    for source, target_dir in targets:
+        if not source.is_file():
+            continue
+
+        target_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, target_dir / "index.html")
 
 
 def copy_tool_static(tool: ToolSpec) -> None:
@@ -372,14 +558,15 @@ def nav_tree_html() -> str:
         </ol>
       </li>
       <li>
-        <button class="nav-item active" data-page="tools/standings/index.html">
-          <span>Current Standings</span>
-          <small>Rolling recent-performance standings</small>
+        <button class="nav-item" data-page="tools/banzuke-compare/index.html">
+          <span>Banzuke Changes</span>
         </button>
         <ol>
-          <li><span>Window selector</span></li>
-          <li><span>Division selector</span></li>
-          <li><span>Combined / separated views</span></li>
+          <li><span>Mechanical changes</span></li>
+          <li><span>Promotions</span></li>
+          <li><span>Demotions</span></li>
+          <li><span>Notable changes / headlines</span></li>
+          <li><span>Detailed filtered report</span></li>
         </ol>
       </li>
       <li>
@@ -401,16 +588,13 @@ def nav_tree_html() -> str:
         </ol>
       </li>
       <li>
-        <button class="nav-item" data-page="tools/banzuke-compare/index.html">
-          <span>Banzuke Changes</span>
-          <small>New-banzuke change report</small>
+        <button class="nav-item active" data-page="tools/standings/index.html">
+          <span>Standings by Wins</span>
         </button>
         <ol>
-          <li><span>Mechanical changes</span></li>
-          <li><span>Promotions</span></li>
-          <li><span>Demotions</span></li>
-          <li><span>Notable changes / headlines</span></li>
-          <li><span>Detailed filtered report</span></li>
+          <li><span>Window selector</span></li>
+          <li><span>Division selector</span></li>
+          <li><span>Combined / separated views</span></li>
         </ol>
       </li>
       <li>
@@ -548,16 +732,24 @@ def nav_tree_html() -> str:
       <li>
         <span>Banzuke Structure Over Time</span>
         <ol>
-          <li><span>Division sizes over time</span></li>
+          <li>
+            <button class="nav-item" data-page="tools/banzuke-division-era/index.html">
+              <span>Banzuke Division by Era</span>
+            </button>
+          </li>
           <li><span>Banzuke population history</span></li>
           <li><span>Changes to sizes of divisions</span></li>
-          <li><span>Banzuke division by era</span></li>
+          <li><span>Division sizes over time</span></li>
         </ol>
       </li>
       <li>
         <span>Makuuchi Structure</span>
         <ol>
-          <li><span>Makuuchi rank population by era</span></li>
+          <li>
+            <button class="nav-item" data-page="tools/rank-era/index.html">
+              <span>Makuuchi Rank by Era</span>
+            </button>
+          </li>
           <li><span>Rank structure changes</span></li>
           <li><span>Sanyaku / maegashira population history</span></li>
         </ol>
@@ -574,7 +766,11 @@ def nav_tree_html() -> str:
       <li>
         <span>Division Movement</span>
         <ol>
-          <li><span>Division churn</span></li>
+          <li>
+            <button class="nav-item" data-page="tools/division-stability/index.html">
+              <span>Division Stability</span>
+            </button>
+          </li>
           <li><span>Promotion / demotion frequency</span></li>
           <li><span>Movement between divisions</span></li>
         </ol>
@@ -596,7 +792,11 @@ def nav_tree_html() -> str:
       <li>
         <span>Rank Outcomes</span>
         <ol>
-          <li><span>Finish by chii</span></li>
+          <li>
+            <button class="nav-item" data-page="tools/finish-by-chii/index.html">
+              <span>Finish by Chii</span>
+            </button>
+          </li>
           <li><span>Average finish by chii</span></li>
           <li><span>Threshold views</span></li>
           <li><span>Top records from a rank</span></li>
@@ -674,8 +874,21 @@ def nav_tree_html() -> str:
       <li>
         <span>Observed vs Modelled</span>
         <ol>
-          <li><span>Observed matchup traces</span></li>
-          <li><span>Model-implied matchup traces</span></li>
+          <li>
+            <span>Win Probability by Standing</span>
+            <ol>
+              <li>
+                <button class="nav-item" data-page="tools/win-probability-by-standing/observed/index.html">
+                  <span>Observed</span>
+                </button>
+              </li>
+              <li>
+                <button class="nav-item" data-page="tools/win-probability-by-standing/equelo/index.html">
+                  <span>Equelo</span>
+                </button>
+              </li>
+            </ol>
+          </li>
           <li><span>Difference / residual chart, later</span></li>
           <li><span>Support-aware comparison</span></li>
           <li><span>Consistency checks</span></li>
@@ -865,7 +1078,7 @@ def nav_tree_html() -> str:
 
 def shell_css() -> str:
     return """:root {
-  --shell-nav-width: 260px;
+  --shell-nav-width: 312px;
 }
 
 body {
@@ -898,7 +1111,6 @@ body {
 }
 
 .lab-status,
-.nav-item small,
 .lab-title-bar p {
   color: var(--site-muted);
 }
@@ -922,6 +1134,8 @@ body {
 }
 
 .nav-tree {
+  counter-reset: nav-level;
+  list-style: none;
   margin: 0;
   padding: 10px 14px 28px 30px;
   font-size: 13px;
@@ -929,12 +1143,25 @@ body {
 }
 
 .nav-tree ol {
+  counter-reset: nav-level;
+  list-style: none;
   margin: 4px 0 6px;
   padding-left: 20px;
 }
 
 .nav-tree li {
+  counter-increment: nav-level;
   margin: 3px 0;
+}
+
+.nav-tree li::before {
+  content: counters(nav-level, ".") ". ";
+  color: var(--site-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.nav-tree li:has(> .nav-item)::before {
+  color: #ff3030;
 }
 
 .nav-tree > li {
@@ -951,46 +1178,32 @@ body {
   color: var(--site-text);
 }
 
-.nav-tree li li li > span {
-  color: var(--site-muted);
-}
-
 .nav-item {
-  display: block;
-  width: 100%;
+  display: inline;
+  width: auto;
   margin: 2px 0 4px;
-  padding: 6px 8px;
+  padding: 0;
   border: 1px solid transparent;
-  border-radius: 6px;
+  border-radius: 0;
   background: transparent;
   color: var(--site-text);
   font: inherit;
-  text-align: left;
   cursor: pointer;
-}
-
-.nav-item span,
-.nav-item small {
-  display: block;
 }
 
 .nav-item span {
   font-weight: 700;
-}
-
-.nav-item small {
-  margin-top: 3px;
-  font-size: 11px;
+  color: #ff3030;
 }
 
 .nav-item:hover,
 .nav-item.active {
-  border-color: var(--site-line-soft);
-  background: var(--site-panel);
+  border-color: transparent;
+  background: transparent;
 }
 
 .nav-item.active {
-  box-shadow: inset 3px 0 0 var(--site-accent);
+  box-shadow: none;
 }
 
 .lab-main {
@@ -1094,6 +1307,30 @@ def shell_js() -> str:
     title: "Banzuke Compare",
     summary: "New-banzuke change report inside the lab shell.",
   },
+  "tools/finish-by-chii/index.html": {
+    title: "Finish by Chii",
+    summary: "Historical finishing outcomes grouped by chii.",
+  },
+  "tools/banzuke-division-era/index.html": {
+    title: "Banzuke Division by Era",
+    summary: "Historical banzuke division structure by era.",
+  },
+  "tools/rank-era/index.html": {
+    title: "Makuuchi Rank by Era",
+    summary: "Historical Makuuchi rank structure by era.",
+  },
+  "tools/division-stability/index.html": {
+    title: "Division Stability",
+    summary: "Historical continuity within divisions.",
+  },
+  "tools/win-probability-by-standing/observed/index.html": {
+    title: "Win Probability by Standing: Observed",
+    summary: "Historical win proportions by standing.",
+  },
+  "tools/win-probability-by-standing/equelo/index.html": {
+    title: "Win Probability by Standing: Equelo",
+    summary: "Equelo-implied win probabilities by standing.",
+  },
   "placeholder-facts": {
     title: "Sumo Facts",
     summary: "Reserved space for stable charts and exhibits.",
@@ -1143,21 +1380,53 @@ function selectPage(page) {
 
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Build the sandbox Sumo Lab static site."
+        description="Build, locally deploy, and remotely deploy the sandbox site."
     )
     parser.add_argument(
         "--output-root",
         type=Path,
         default=DEFAULT_OUTPUT_ROOT,
-        help="Directory to receive the generated static site.",
+        help="Persisted site output directory to build and deploy from.",
+    )
+    parser.add_argument(
+        "--local-root",
+        type=Path,
+        default=LOCAL_ROOT,
+        help="Local web directory to receive the deployable site.",
+    )
+    parser.add_argument(
+        "--remote-root",
+        default=REMOTE_ROOT,
+        help="Remote web root to receive the deployable site.",
+    )
+    parser.add_argument(
+        "--local-only",
+        action="store_true",
+        help="Build and copy to A:, but do not upload remotely.",
     )
     return parser
 
 
 def main() -> None:
     args = _build_parser().parse_args()
-    build_site(args.output_root)
-    print(f"Sandbox site built: {args.output_root.resolve()}")
+    output_root = args.output_root.resolve()
+    local_root = args.local_root.resolve()
+
+    build_site(output_root)
+    copy_deploy_tree(output_root, local_root)
+
+    print(f"Sandbox site built: {output_root}")
+    print(f"Sandbox site locally deployed: {local_root}")
+
+    if args.local_only:
+        return
+
+    remote_count = deploy_remote(local_root, args.remote_root)
+    print(
+        f"Sandbox site remotely deployed: {remote_count} files "
+        f"to {HOST}:{args.remote_root}"
+    )
+    print(f"https://www.661.org.uk{args.remote_root.removeprefix('/var/www/html')}/")
 
 
 if __name__ == "__main__":
