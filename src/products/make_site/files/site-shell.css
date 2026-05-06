@@ -37,8 +37,7 @@ body {
   font-weight: 700;
 }
 
-.site-status,
-.site-title-bar p {
+.site-status {
   color: var(--site-muted);
 }
 
@@ -111,35 +110,7 @@ body {
   min-width: 0;
   height: 100vh;
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-}
-
-.site-title-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  padding: 14px 18px;
-  border-bottom: 1px solid var(--site-line);
-  background: var(--site-panel);
-}
-
-.site-title-bar h1 {
-  font-size: 24px;
-}
-
-.site-title-bar p {
-  margin: 4px 0 0;
-}
-
-.open-page {
-  flex: 0 0 auto;
-  padding: 8px 10px;
-  border: 1px solid var(--site-line-soft);
-  border-radius: 6px;
-  background: var(--site-panel-strong);
-  text-decoration: none;
-  font-weight: 700;
+  grid-template-rows: minmax(0, 1fr);
 }
 
 .welcome-panel {

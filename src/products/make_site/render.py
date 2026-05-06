@@ -10,7 +10,7 @@ from .classes import DataRef, NavigationTree, Page, Site, SiteBuildConfig, ViewR
 from .routes import PageRoute, html_href, route_href
 
 
-SHELL_ASSET_VERSION = "20260506-full-nav-red-links"
+SHELL_ASSET_VERSION = "20260506-no-title-bar-full-height"
 
 
 def write_site_index(
@@ -40,11 +40,6 @@ def write_site_index(
             render_navigation(site.navigation, config.base_route, page_routes),
             "</aside>",
             '<main class="site-main">',
-            '<header class="site-title-bar">',
-            '<div><h1 id="active-title">Hello World!</h1>',
-            '<p id="active-summary">The public site shell is alive.</p></div>',
-            '<a id="open-page" class="open-page" href="#" hidden>Open page</a>',
-            "</header>",
             '<section id="welcome-panel" class="welcome-panel"><p>Hello World!</p></section>',
             '<section id="frame-panel" class="frame-panel" hidden>',
             '<iframe id="content-frame" title="Selected site page"></iframe>',
