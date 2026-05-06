@@ -32,7 +32,7 @@ def asset(
     id: str,
     source_path: Path,
     output_path: str,
-    media_type: str | None = None,
+    media_type: str,
 ) -> AssetRef:
     return AssetRef(
         id=id,
@@ -46,7 +46,7 @@ def data(
     id: str,
     source_path: Path,
     output_path: str,
-    media_type: str | None = None,
+    media_type: str,
 ) -> DataRef:
     return DataRef(
         id=id,
@@ -59,13 +59,11 @@ def data(
 def view(
     id: str,
     source_path: Path,
-    output_path: str | None = None,
-    media_type: str | None = "text/html",
+    media_type: str = "text/html",
 ) -> ViewRef:
     return ViewRef(
         id=id,
         source_path=source_path,
-        output_path=PurePosixPath(output_path) if output_path is not None else None,
         media_type=media_type,
     )
 
@@ -124,6 +122,34 @@ BANZUKE_CHANGES_ASSETS = (
 )
 
 
+WIN_PROBABILITY_BY_STANDING_DATA = (
+    data(
+        id="observed_standing_win_probability",
+        source_path=OUTPUT_ROOT
+        / "probability"
+        / "matchups"
+        / "observed_sideless_trace_points.csv",
+        output_path=(
+            "ratings-models/observed-vs-modelled/"
+            "win-probability-by-standing/data/observed.csv"
+        ),
+        media_type="text/csv",
+    ),
+    data(
+        id="equelo_standing_win_probability",
+        source_path=OUTPUT_ROOT
+        / "probability"
+        / "matchups"
+        / "equelo_sideless_trace_points.csv",
+        output_path=(
+            "ratings-models/observed-vs-modelled/"
+            "win-probability-by-standing/data/equelo.csv"
+        ),
+        media_type="text/csv",
+    ),
+)
+
+
 WIN_PROBABILITY_BY_STANDING_OPTIONS = OptionsModel(
     options=(
         OptionSpec(
@@ -152,9 +178,7 @@ PAGES = PageRegistry(
                 entrypoint=view(
                     id="banzuke_changes_index",
                     source_path=ANALYSIS_ROOT / "banzuke_compare" / "files" / "index.html",
-                    output_path="current-sumo/banzuke-changes/index.html",
-                ),
-                assets=BANZUKE_CHANGES_ASSETS,
+                )
             ),
             assets=BANZUKE_CHANGES_ASSETS,
         ),
@@ -167,9 +191,7 @@ PAGES = PageRegistry(
                 entrypoint=view(
                     id="standings_by_wins_index",
                     source_path=ANALYSIS_ROOT / "standings" / "files" / "index.html",
-                    output_path="current-sumo/standings-by-wins/index.html",
-                ),
-                assets=STANDINGS_ASSETS,
+                )
             ),
             assets=STANDINGS_ASSETS,
         ),
@@ -182,7 +204,6 @@ PAGES = PageRegistry(
                 source=view(
                     id="finish_by_chii_html",
                     source_path=OUTPUT_ROOT / "misc" / "finish_by_chii_1958_2026.html",
-                    output_path="performance/rank-outcomes/finish-by-chii/index.html",
                 )
             ),
         ),
@@ -195,10 +216,6 @@ PAGES = PageRegistry(
                 source=view(
                     id="banzuke_division_by_era_html",
                     source_path=OUTPUT_ROOT / "banzuke_division_era_chart.html",
-                    output_path=(
-                        "banzuke-rank/banzuke-structure-over-time/"
-                        "banzuke-division-by-era/index.html"
-                    ),
                 )
             ),
         ),
@@ -211,7 +228,6 @@ PAGES = PageRegistry(
                 source=view(
                     id="makuuchi_rank_by_era_html",
                     source_path=OUTPUT_ROOT / "rank_era_chart.html",
-                    output_path="banzuke-rank/makuuchi-structure/makuuchi-rank-by-era/index.html",
                 )
             ),
         ),
@@ -226,7 +242,6 @@ PAGES = PageRegistry(
                     source_path=OUTPUT_ROOT
                     / "persistence"
                     / "division_persistence (1958-2026, num_basho=10).html",
-                    output_path="banzuke-rank/division-movement/division-stability/index.html",
                 )
             ),
         ),
@@ -236,61 +251,8 @@ PAGES = PageRegistry(
             slug="win-probability-by-standing",
             summary="Probability of winning as a function of standing.",
             options=WIN_PROBABILITY_BY_STANDING_OPTIONS,
-            view=CustomView(
-                kind="standing_win_probability",
-                data=(
-                    data(
-                        id="observed_standing_win_probability",
-                        source_path=OUTPUT_ROOT
-                        / "probability"
-                        / "matchups"
-                        / "observed_sideless_trace_points.csv",
-                        output_path=(
-                            "ratings-models/observed-vs-modelled/"
-                            "win-probability-by-standing/data/observed.csv"
-                        ),
-                        media_type="text/csv",
-                    ),
-                    data(
-                        id="equelo_standing_win_probability",
-                        source_path=OUTPUT_ROOT
-                        / "probability"
-                        / "matchups"
-                        / "equelo_sideless_trace_points.csv",
-                        output_path=(
-                            "ratings-models/observed-vs-modelled/"
-                            "win-probability-by-standing/data/equelo.csv"
-                        ),
-                        media_type="text/csv",
-                    ),
-                ),
-            ),
-            data=(
-                data(
-                    id="observed_standing_win_probability",
-                    source_path=OUTPUT_ROOT
-                    / "probability"
-                    / "matchups"
-                    / "observed_sideless_trace_points.csv",
-                    output_path=(
-                        "ratings-models/observed-vs-modelled/"
-                        "win-probability-by-standing/data/observed.csv"
-                    ),
-                    media_type="text/csv",
-                ),
-                data(
-                    id="equelo_standing_win_probability",
-                    source_path=OUTPUT_ROOT
-                    / "probability"
-                    / "matchups"
-                    / "equelo_sideless_trace_points.csv",
-                    output_path=(
-                        "ratings-models/observed-vs-modelled/"
-                        "win-probability-by-standing/data/equelo.csv"
-                    ),
-                    media_type="text/csv",
-                ),
-            ),
+            view=CustomView(kind="standing_win_probability"),
+            data=WIN_PROBABILITY_BY_STANDING_DATA,
         ),
     }
 )

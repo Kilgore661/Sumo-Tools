@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import StrEnum
 
-from .file_refs import AssetRef, DataRef, ViewRef
+from .file_refs import DataRef, ViewRef
 
 
 class OptionKind(StrEnum):
@@ -34,7 +34,7 @@ class OptionSpec:
     id: str
     label: str
     kind: OptionKind
-    default: str | int | float | bool | None = None
+    default: str | int | float | bool
     values: tuple[OptionValue, ...] = ()
 
 
@@ -42,7 +42,7 @@ class OptionSpec:
 class OptionsModel:
     """Abstract definition of the states/parameters a page exposes."""
 
-    options: tuple[OptionSpec, ...] = ()
+    options: tuple[OptionSpec, ...]
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -62,7 +62,7 @@ class HtmlFragmentView(ViewSpec):
     """An HTML fragment rendered inside a site/page template."""
 
     source: ViewRef
-    template: str | None = None
+    template: str
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -71,7 +71,7 @@ class PlotlyJsonView(ViewSpec):
 
     data: DataRef
     template: str
-    config: DataRef | None = None
+    config: DataRef
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -79,8 +79,6 @@ class TableAppView(ViewSpec):
     """An interactive table-style browser page."""
 
     entrypoint: ViewRef
-    assets: tuple[AssetRef, ...] = ()
-    data: tuple[DataRef, ...] = ()
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -95,6 +93,3 @@ class CustomView(ViewSpec):
     """Escape hatch for page views not yet covered by a specific view sort."""
 
     kind: str
-    source: ViewRef | None = None
-    assets: tuple[AssetRef, ...] = ()
-    data: tuple[DataRef, ...] = ()

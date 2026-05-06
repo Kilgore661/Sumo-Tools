@@ -18,7 +18,7 @@ class AssetRef:
     id: str
     source_path: Path
     output_path: PurePosixPath
-    media_type: str | None = None
+    media_type: str
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -32,7 +32,7 @@ class DataRef:
     id: str
     source_path: Path
     output_path: PurePosixPath
-    media_type: str | None = None
+    media_type: str
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -45,5 +45,4 @@ class ViewRef:
 
     id: str
     source_path: Path
-    output_path: PurePosixPath | None = None
-    media_type: str | None = "text/html"
+    media_type: str = "text/html"
