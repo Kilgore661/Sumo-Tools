@@ -57,15 +57,15 @@ A page shall have:
 
 * a stable id;
 * a human-facing title;
-* a slug;
-* a route;
 * a summary;
-* an optional parent or subject path;
 * an optional options model;
 * a view or body specification;
 * data dependencies;
 * static asset dependencies;
 * public status/readiness metadata.
+
+The page registry does not define the public route of a page. Public routes
+are derived from the navigation tree.
 
 ## 4. Slugs and Routes
 
@@ -155,11 +155,16 @@ The site builder shall:
 
 1. read the site/navigation definition;
 2. read page bundles or page metadata;
-3. validate referenced pages and files exist;
+3. derive page routes from the navigation tree;
 4. generate the site shell and page routes;
-5. copy or render required static assets;
+5. copy or render required static assets, data files, and page bodies;
 6. write a static output tree;
 7. support deployment of that output tree to local and remote targets.
+
+The builder shall trust the site definition and page metadata as contract
+inputs. It shall not defensively validate page ids or check that files exist
+when those facts are required by contract. A broken contract should fail
+loudly through ordinary Python/file-system errors.
 
 ## 10. Static Output Tree
 

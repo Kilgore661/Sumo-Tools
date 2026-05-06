@@ -70,10 +70,7 @@ NavigationNode
 Page
   id
   title
-  slug
-  route
   summary
-  subject_path
   options_model optional
   view_spec
   assets
@@ -105,15 +102,20 @@ or:
 PageBundle(
     id="finish_by_chii",
     title="Finish by Chii",
-    route="performance/rank-outcomes/finish-by-chii",
     navigation_path=[
         "Performance",
         "Rank Outcomes",
+        "Finish by Chii",
     ],
     view_type="standalone_html",
     source_files=[...],
 )
 ```
+
+In the current Python definition, route-defining information lives in the
+navigation tree rather than in the page object. A future manifest may express
+navigation placement directly, but it should still avoid defining a separate
+page route that can disagree with the navigation tree.
 
 The design should not decide too early whether manifests are Python objects,
 JSON, YAML, or another simple format.

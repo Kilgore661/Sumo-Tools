@@ -35,7 +35,6 @@ class Page:
 
     id: str
     title: str
-    slug: str
     summary: str
     view: ViewSpec
     options: OptionsModel | None = None

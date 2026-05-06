@@ -172,7 +172,6 @@ PAGES = PageRegistry(
         "banzuke_changes": Page(
             id="banzuke_changes",
             title="Banzuke Changes",
-            slug="banzuke-changes",
             summary="New-banzuke change report.",
             view=TableAppView(
                 entrypoint=view(
@@ -185,7 +184,6 @@ PAGES = PageRegistry(
         "standings_by_wins": Page(
             id="standings_by_wins",
             title="Standings by Wins",
-            slug="standings-by-wins",
             summary="Rolling recent-performance standings by wins.",
             view=TableAppView(
                 entrypoint=view(
@@ -198,7 +196,6 @@ PAGES = PageRegistry(
         "finish_by_chii": Page(
             id="finish_by_chii",
             title="Finish by Chii",
-            slug="finish-by-chii",
             summary="Historical finishing outcomes grouped by chii.",
             view=StandaloneHtmlView(
                 source=view(
@@ -210,7 +207,6 @@ PAGES = PageRegistry(
         "banzuke_division_by_era": Page(
             id="banzuke_division_by_era",
             title="Banzuke Division by Era",
-            slug="banzuke-division-by-era",
             summary="Historical banzuke division structure by era.",
             view=StandaloneHtmlView(
                 source=view(
@@ -222,7 +218,6 @@ PAGES = PageRegistry(
         "makuuchi_rank_by_era": Page(
             id="makuuchi_rank_by_era",
             title="Makuuchi Rank by Era",
-            slug="makuuchi-rank-by-era",
             summary="Historical Makuuchi rank structure by era.",
             view=StandaloneHtmlView(
                 source=view(
@@ -234,7 +229,6 @@ PAGES = PageRegistry(
         "division_stability": Page(
             id="division_stability",
             title="Division Stability",
-            slug="division-stability",
             summary="Historical continuity within divisions.",
             view=StandaloneHtmlView(
                 source=view(
@@ -248,7 +242,6 @@ PAGES = PageRegistry(
         "win_probability_by_standing": Page(
             id="win_probability_by_standing",
             title="Win Probability by Standing",
-            slug="win-probability-by-standing",
             summary="Probability of winning as a function of standing.",
             options=WIN_PROBABILITY_BY_STANDING_OPTIONS,
             view=CustomView(kind="standing_win_probability"),
