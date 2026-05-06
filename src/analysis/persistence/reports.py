@@ -94,6 +94,7 @@ def write_persistence_chart(
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{title}</title>
+  <link rel="icon" type="image/x-icon" href="../Sumo/meep.png">
   <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
   <style>
     :root {{

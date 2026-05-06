@@ -3,8 +3,8 @@ Deploy the sandbox Sumo Lab site.
 
 The workflow mirrors the existing analysis deploy scripts:
 
-1. Build/collect the static site files.
-2. Copy the deployable tree to A:/local/html/site.
+1. Build the static site into files/output/site.
+2. Copy that persisted output tree to A:/local/html/site.
 3. Upload that local tree to the remote web root.
 """
 
@@ -35,7 +35,7 @@ def _build_parser() -> argparse.ArgumentParser:
         "--build-root",
         type=Path,
         default=DEFAULT_OUTPUT_ROOT,
-        help="Temporary build directory for collected site files.",
+        help="Persisted site output directory to build and deploy from.",
     )
     parser.add_argument(
         "--local-root",
@@ -53,10 +53,20 @@ def _build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Build and copy to A:, but do not upload remotely.",
     )
+    parser.add_argument(
+        "--remote-only",
+        action="store_true",
+        help="Upload the existing local deployment tree without rebuilding or copying.",
+    )
     return parser
 
 
 def clear_local_dir(path: Path) -> None:
+    if path.drive and not Path(path.drive + "\\").exists():
+        raise FileNotFoundError(
+            f"Local deployment drive is not available: {path.drive}\\"
+        )
+
     path.mkdir(parents=True, exist_ok=True)
 
     for item in path.iterdir():
@@ -67,6 +77,9 @@ def clear_local_dir(path: Path) -> None:
 
 
 def copy_tree(source_root: Path, target_root: Path) -> None:
+    if not source_root.is_dir():
+        raise FileNotFoundError(f"Build output does not exist: {source_root}")
+
     clear_local_dir(target_root)
 
     for source in source_root.rglob("*"):
@@ -134,6 +147,9 @@ def get_password() -> str:
 def deploy_remote(local_root: Path, remote_root: str) -> int:
     import paramiko
 
+    if not local_root.is_dir():
+        raise FileNotFoundError(f"Local deployment tree does not exist: {local_root}")
+
     password = get_password()
     transport = paramiko.Transport((HOST, 22))
     transport.connect(username=USER, password=password)
@@ -149,15 +165,18 @@ def deploy_remote(local_root: Path, remote_root: str) -> int:
 
 def main() -> None:
     args = _build_parser().parse_args()
+    if args.local_only and args.remote_only:
+        raise ValueError("--local-only and --remote-only cannot be used together.")
 
     build_root = args.build_root.resolve()
     local_root = args.local_root.resolve()
 
-    build_site(build_root)
-    copy_tree(build_root, local_root)
+    if not args.remote_only:
+        build_site(build_root)
+        copy_tree(build_root, local_root)
 
-    print(f"Sandbox site built: {build_root}")
-    print(f"Sandbox site locally deployed: {local_root}")
+        print(f"Sandbox site built: {build_root}")
+        print(f"Sandbox site locally deployed: {local_root}")
 
     if args.local_only:
         return

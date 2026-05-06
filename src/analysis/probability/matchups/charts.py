@@ -200,6 +200,7 @@ def _write_plotly_html(
 <head>
   <meta charset="utf-8">
   <title>{title}</title>
+  <link rel="icon" type="image/x-icon" href="../Sumo/meep.png">
   <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
   <style>
     html, body {{

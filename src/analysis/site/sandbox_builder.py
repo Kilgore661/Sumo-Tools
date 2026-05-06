@@ -19,6 +19,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[3]
 ANALYSIS_ROOT = REPO_ROOT / "src" / "analysis"
 DEFAULT_OUTPUT_ROOT = REPO_ROOT / "files" / "output" / "site"
+SHELL_ASSET_VERSION = "20260506-nav-tree"
 
 COMMON_FILES = ANALYSIS_ROOT / "common" / "files"
 STANDINGS_FILES = ANALYSIS_ROOT / "standings" / "files"
@@ -258,14 +259,15 @@ def write_shell(output_root: Path) -> None:
 
 
 def shell_html() -> str:
-    return """<!doctype html>
+    return f"""<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Sumo Lab Prototype</title>
+  <link rel="icon" type="image/x-icon" href="../Sumo/meep.png">
   <link rel="stylesheet" href="common/files/site-wide.css">
-  <link rel="stylesheet" href="site-shell.css">
+  <link rel="stylesheet" href="site-shell.css?v={SHELL_ASSET_VERSION}">
 </head>
 <body>
   <div class="lab-shell">
@@ -276,25 +278,7 @@ def shell_html() -> str:
       </header>
 
       <nav>
-        <section class="nav-section">
-          <h2>Tools</h2>
-          <button class="nav-item active" data-page="tools/standings/index.html">
-            <span>Standings</span>
-            <small>Recent form</small>
-          </button>
-          <button class="nav-item" data-page="tools/banzuke-compare/index.html">
-            <span>Banzuke Compare</span>
-            <small>Rank changes</small>
-          </button>
-        </section>
-
-        <section class="nav-section">
-          <h2>Sumo Facts</h2>
-          <button class="nav-item" data-page="placeholder-facts">
-            <span>Coming Later</span>
-            <small>Charts and exhibits</small>
-          </button>
-        </section>
+        {nav_tree_html()}
       </nav>
     </aside>
 
@@ -325,10 +309,558 @@ def shell_html() -> str:
     </main>
   </div>
 
-  <script src="site-shell.js"></script>
+  <script src="site-shell.js?v={SHELL_ASSET_VERSION}"></script>
 </body>
 </html>
 """
+
+
+def nav_tree_html() -> str:
+    return """<ol class="nav-tree">
+  <li>
+    <span>Home</span>
+    <ol>
+      <li>
+        <span>Welcome / site orientation</span>
+        <ol>
+          <li><span>What this site is</span></li>
+          <li><span>What is new / latest updates</span></li>
+          <li><span>Featured current pages</span></li>
+          <li><span>Known caveats and interpretation warnings</span></li>
+        </ol>
+      </li>
+      <li>
+        <span>Quick entry points</span>
+        <ol>
+          <li><span>Latest standings</span></li>
+          <li><span>Banzuke changes</span></li>
+          <li><span>Rikishi lookup</span></li>
+          <li><span>Rank outcomes</span></li>
+          <li><span>Ratings and models</span></li>
+        </ol>
+      </li>
+    </ol>
+  </li>
+
+  <li>
+    <span>Current Sumo</span>
+    <ol>
+      <li>
+        <span>Latest Tables</span>
+        <ol>
+          <li><span>Current rating / standings table</span></li>
+          <li><span>Date navigation</span></li>
+          <li><span>Division filters</span></li>
+          <li><span>Sortable columns</span></li>
+          <li><span>Shikona click-through to rikishi pages</span></li>
+          <li><span>Table notes / column definitions</span></li>
+          <li>
+            <span>Analyst columns</span>
+            <ol>
+              <li><span>Elo / Equelo</span></li>
+              <li><span>Expected wins</span></li>
+              <li><span>Probability-derived values</span></li>
+              <li><span>Current score</span></li>
+              <li><span>Latest rating</span></li>
+              <li><span>New / projected chii</span></li>
+              <li><span>Delta Elo</span></li>
+              <li><span>Delta banzuke</span></li>
+              <li><span>Delta chii, only if audited</span></li>
+              <li><span>Rank-relative values such as vChii</span></li>
+            </ol>
+          </li>
+        </ol>
+      </li>
+      <li>
+        <button class="nav-item active" data-page="tools/standings/index.html">
+          <span>Current Standings</span>
+          <small>Rolling recent-performance standings</small>
+        </button>
+        <ol>
+          <li><span>Window selector</span></li>
+          <li><span>Division selector</span></li>
+          <li><span>Combined / separated views</span></li>
+        </ol>
+      </li>
+      <li>
+        <span>Current Basho</span>
+        <ol>
+          <li><span>Latest results</span></li>
+          <li><span>Day view</span></li>
+          <li><span>Basho view</span></li>
+          <li><span>Rikishi result links</span></li>
+        </ol>
+      </li>
+      <li>
+        <span>Current Banzuke</span>
+        <ol>
+          <li><span>Current banzuke browser</span></li>
+          <li><span>Division view</span></li>
+          <li><span>Rank slot view</span></li>
+          <li><span>Rikishi links</span></li>
+        </ol>
+      </li>
+      <li>
+        <button class="nav-item" data-page="tools/banzuke-compare/index.html">
+          <span>Banzuke Changes</span>
+          <small>New-banzuke change report</small>
+        </button>
+        <ol>
+          <li><span>Mechanical changes</span></li>
+          <li><span>Promotions</span></li>
+          <li><span>Demotions</span></li>
+          <li><span>Notable changes / headlines</span></li>
+          <li><span>Detailed filtered report</span></li>
+        </ol>
+      </li>
+      <li>
+        <span>Current Leaders</span>
+        <ol>
+          <li><span>Max average wins</span></li>
+          <li><span>Max rating probability</span></li>
+          <li><span>Highest-rated rikishi</span></li>
+          <li><span>Biggest rating movers</span></li>
+          <li><span>Biggest banzuke movers</span></li>
+          <li><span>Unusual current rikishi by expected wins / probability</span></li>
+        </ol>
+      </li>
+    </ol>
+  </li>
+
+  <li>
+    <span>Rikishi</span>
+    <ol>
+      <li>
+        <span>Rikishi Lookup</span>
+        <ol>
+          <li><span>Search by shikona</span></li>
+          <li><span>Current rank / division</span></li>
+          <li><span>Profile link</span></li>
+          <li><span>Shikona history, if available</span></li>
+        </ol>
+      </li>
+      <li>
+        <span>Rikishi Profile</span>
+        <ol>
+          <li>
+            <span>Summary</span>
+            <ol>
+              <li><span>Current chii</span></li>
+              <li><span>Current rating</span></li>
+              <li><span>Career high</span></li>
+              <li><span>Recent record</span></li>
+              <li><span>Current trend</span></li>
+            </ol>
+          </li>
+          <li>
+            <span>Career Timeline</span>
+            <ol>
+              <li><span>Rank / chii over calendar time</span></li>
+              <li><span>Rank / chii by basho count</span></li>
+              <li><span>Division history</span></li>
+              <li><span>Career high markers</span></li>
+            </ol>
+          </li>
+          <li>
+            <span>Rating Timeline</span>
+            <ol>
+              <li><span>Elo / Equelo over calendar time</span></li>
+              <li><span>Daily rating movement</span></li>
+              <li><span>Bout-level rating movement</span></li>
+              <li><span>Rating deltas</span></li>
+            </ol>
+          </li>
+          <li>
+            <span>Combined Career View</span>
+            <ol>
+              <li><span>Chii + rating on dual y-axes</span></li>
+              <li><span>Rank movement and rating movement together</span></li>
+              <li><span>Calendar-time mode</span></li>
+              <li><span>Basho-count mode</span></li>
+            </ol>
+          </li>
+          <li>
+            <span>Performance Context</span>
+            <ol>
+              <li><span>Recent form</span></li>
+              <li><span>Rank trend</span></li>
+              <li><span>Rating trend</span></li>
+              <li><span>Expected wins</span></li>
+              <li><span>Observed outcomes from similar chii</span></li>
+            </ol>
+          </li>
+        </ol>
+      </li>
+      <li>
+        <span>Career Comparisons</span>
+        <ol>
+          <li><span>Comparable careers</span></li>
+          <li><span>Fast-rising prospects</span></li>
+          <li><span>Journeymen</span></li>
+          <li><span>Newcomer context</span></li>
+        </ol>
+      </li>
+      <li>
+        <span>Career Facts</span>
+        <ol>
+          <li><span>Career high table</span></li>
+          <li><span>First appearance / debut context</span></li>
+          <li><span>Rank at retirement</span></li>
+          <li><span>Career length</span></li>
+        </ol>
+      </li>
+    </ol>
+  </li>
+
+  <li>
+    <span>Banzuke &amp; Rank</span>
+    <ol>
+      <li>
+        <span>Chii Explained</span>
+        <ol>
+          <li><span>What M3e means</span></li>
+          <li><span>Division, number, side, annotation</span></li>
+          <li><span>Sideless chii</span></li>
+          <li><span>Chii ordering</span></li>
+          <li><span>Rank movement glossary</span></li>
+          <li><span>Promotion / demotion basics</span></li>
+        </ol>
+      </li>
+      <li>
+        <span>Current Banzuke</span>
+        <ol>
+          <li><span>Official-looking banzuke browser</span></li>
+          <li><span>Division filters</span></li>
+          <li><span>Rank slots</span></li>
+          <li><span>East / west layout</span></li>
+        </ol>
+      </li>
+      <li>
+        <span>Banzuke Changes</span>
+        <ol>
+          <li><span>Current banzuke change report</span></li>
+          <li><span>New banzuke headlines</span></li>
+          <li><span>Promotions and demotions</span></li>
+          <li><span>Mechanical fact view</span></li>
+          <li><span>Editorial / interpretation view</span></li>
+        </ol>
+      </li>
+      <li>
+        <span>Banzuke Structure Over Time</span>
+        <ol>
+          <li><span>Division sizes over time</span></li>
+          <li><span>Banzuke population history</span></li>
+          <li><span>Changes to sizes of divisions</span></li>
+          <li><span>Banzuke division by era</span></li>
+        </ol>
+      </li>
+      <li>
+        <span>Makuuchi Structure</span>
+        <ol>
+          <li><span>Makuuchi rank population by era</span></li>
+          <li><span>Rank structure changes</span></li>
+          <li><span>Sanyaku / maegashira population history</span></li>
+        </ol>
+      </li>
+      <li>
+        <span>Rank Slot History</span>
+        <ol>
+          <li><span>First chii appearance</span></li>
+          <li><span>Y1e history</span></li>
+          <li><span>Historical / rare ranks</span></li>
+          <li><span>Curated-rank explanation</span></li>
+        </ol>
+      </li>
+      <li>
+        <span>Division Movement</span>
+        <ol>
+          <li><span>Division churn</span></li>
+          <li><span>Promotion / demotion frequency</span></li>
+          <li><span>Movement between divisions</span></li>
+        </ol>
+      </li>
+      <li>
+        <span>Retirement and Rank</span>
+        <ol>
+          <li><span>Rank at retirement</span></li>
+          <li><span>Retirement-rank distribution</span></li>
+          <li><span>Bg / intai ambiguity caveats</span></li>
+        </ol>
+      </li>
+    </ol>
+  </li>
+
+  <li>
+    <span>Performance</span>
+    <ol>
+      <li>
+        <span>Rank Outcomes</span>
+        <ol>
+          <li><span>Finish by chii</span></li>
+          <li><span>Average finish by chii</span></li>
+          <li><span>Threshold views</span></li>
+          <li><span>Top records from a rank</span></li>
+          <li><span>Bottom records from a rank</span></li>
+          <li><span>Expected record from rank context</span></li>
+          <li><span>Division filters</span></li>
+          <li><span>Sample-size display</span></li>
+        </ol>
+      </li>
+      <li>
+        <span>Matchups</span>
+        <ol>
+          <li><span>Observed matchup probabilities</span></li>
+          <li><span>Sideless chii matchup traces</span></li>
+          <li><span>Pair support / sample size</span></li>
+          <li><span>Confidence intervals</span></li>
+          <li><span>Curated rank domain</span></li>
+          <li><span>Division filters</span></li>
+        </ol>
+      </li>
+      <li>
+        <span>Observed Expectations</span>
+        <ol>
+          <li><span>What usually happens from this rank?</span></li>
+          <li><span>What usually happens against this opponent rank?</span></li>
+          <li><span>Rank outcome explorer</span></li>
+          <li><span>Support-aware interpretation</span></li>
+        </ol>
+      </li>
+      <li>
+        <span>Performance Patterns</span>
+        <ol>
+          <li><span>Current form versus historical expectation</span></li>
+          <li><span>Rank trend</span></li>
+          <li><span>Overperformance / underperformance, if method is defined</span></li>
+        </ol>
+      </li>
+    </ol>
+  </li>
+
+  <li>
+    <span>Ratings &amp; Models</span>
+    <ol>
+      <li>
+        <span>Rating Overview</span>
+        <ol>
+          <li><span>Why ratings?</span></li>
+          <li><span>What rating is trying to measure</span></li>
+          <li><span>Rating versus banzuke rank</span></li>
+          <li><span>What ratings do not prove</span></li>
+        </ol>
+      </li>
+      <li>
+        <span>Current Ratings</span>
+        <ol>
+          <li><span>Current Elo / Equelo table</span></li>
+          <li><span>Rating leaders</span></li>
+          <li><span>Rating probability leaders</span></li>
+          <li><span>Rating changes</span></li>
+          <li><span>Date navigation</span></li>
+        </ol>
+      </li>
+      <li>
+        <span>Rating and Rank</span>
+        <ol>
+          <li><span>Elo / Equelo vs chii</span></li>
+          <li><span>Rating-vs-rank validation</span></li>
+          <li><span>Mean rating by chii</span></li>
+          <li><span>Mean expected wins by chii</span></li>
+          <li><span>Mean probability-derived value by chii</span></li>
+          <li><span>Normalised probability-derived value by chii</span></li>
+          <li><span>Intro rating table / chart</span></li>
+        </ol>
+      </li>
+      <li>
+        <span>Observed vs Modelled</span>
+        <ol>
+          <li><span>Observed matchup traces</span></li>
+          <li><span>Model-implied matchup traces</span></li>
+          <li><span>Difference / residual chart, later</span></li>
+          <li><span>Support-aware comparison</span></li>
+          <li><span>Consistency checks</span></li>
+        </ol>
+      </li>
+      <li>
+        <span>Model Diagnostics</span>
+        <ol>
+          <li><span>Inflation by rank / chii</span></li>
+          <li><span>Rating spread variants</span></li>
+          <li><span>Rating distribution</span></li>
+          <li><span>Estimators</span></li>
+          <li><span>Mean rating vs banzuke size</span></li>
+          <li><span>Calibration reports</span></li>
+          <li><span>Probability calibration</span></li>
+          <li><span>Drift over time</span></li>
+        </ol>
+      </li>
+      <li>
+        <span>Methodology</span>
+        <ol>
+          <li><span>Elo explanation</span></li>
+          <li><span>Equelo explanation</span></li>
+          <li><span>BKQ / legacy model explanation</span></li>
+          <li><span>Formulae</span></li>
+          <li><span>Parameters</span></li>
+          <li><span>Assumptions</span></li>
+          <li><span>Teleological-risk caveats</span></li>
+          <li><span>Why some outputs are research only</span></li>
+        </ol>
+      </li>
+      <li>
+        <span>Research Archive</span>
+        <ol>
+          <li><span>Fixed-v1 rating curve charts</span></li>
+          <li><span>One-shot simulation charts</span></li>
+          <li><span>Expt3 predicted probability distribution</span></li>
+          <li><span>Calibration experiments</span></li>
+          <li><span>Model failures and dead ends</span></li>
+        </ol>
+      </li>
+    </ol>
+  </li>
+
+  <li>
+    <span>Sumo History</span>
+    <ol>
+      <li>
+        <span>Population History</span>
+        <ol>
+          <li><span>Division sizes over time</span></li>
+          <li><span>Changes to sizes of divisions</span></li>
+          <li><span>Banzuke population</span></li>
+          <li><span>Mean rating vs banzuke size</span></li>
+        </ol>
+      </li>
+      <li>
+        <span>Career Lifecycle</span>
+        <ol>
+          <li><span>Career length count</span></li>
+          <li><span>Career length probability</span></li>
+          <li><span>Cumulative career length probability</span></li>
+          <li><span>Retirement-rank distribution</span></li>
+        </ol>
+      </li>
+      <li>
+        <span>Rank History</span>
+        <ol>
+          <li><span>First chii appearance</span></li>
+          <li><span>Y1e history</span></li>
+          <li><span>Historical rank slots</span></li>
+          <li><span>Makuuchi rank structure over time</span></li>
+        </ol>
+      </li>
+      <li>
+        <span>Recruitment and Retirement</span>
+        <ol>
+          <li><span>Recruitment patterns, future</span></li>
+          <li><span>Retirement patterns</span></li>
+          <li><span>Division entry / exit patterns</span></li>
+        </ol>
+      </li>
+      <li>
+        <span>Historical Exhibits</span>
+        <ol>
+          <li><span>Banzuke division by era</span></li>
+          <li><span>Makuuchi by era</span></li>
+          <li><span>Long-term rank population charts</span></li>
+        </ol>
+      </li>
+    </ol>
+  </li>
+
+  <li>
+    <span>Data &amp; Methods</span>
+    <ol>
+      <li>
+        <span>Data Source</span>
+        <ol>
+          <li><span>Where the data comes from</span></li>
+          <li><span>Update policy</span></li>
+          <li><span>Currentness policy</span></li>
+          <li><span>Parsed history</span></li>
+          <li><span>Known source limitations</span></li>
+        </ol>
+      </li>
+      <li>
+        <span>Glossary</span>
+        <ol>
+          <li><span>Basho</span></li>
+          <li><span>Banzuke</span></li>
+          <li><span>Chii</span></li>
+          <li><span>Rikishi</span></li>
+          <li><span>Shikona</span></li>
+          <li><span>Division</span></li>
+          <li><span>Record</span></li>
+          <li><span>Fusen / non-fought outcomes</span></li>
+          <li><span>East / west</span></li>
+          <li><span>Sideless chii</span></li>
+        </ol>
+      </li>
+      <li>
+        <span>Known Limitations</span>
+        <ol>
+          <li><span>Missing or ambiguous data</span></li>
+          <li><span>Historical rank quirks</span></li>
+          <li><span>Retirement ambiguity</span></li>
+          <li><span>Parser limitations</span></li>
+          <li><span>Model limitations</span></li>
+          <li><span>What not to infer</span></li>
+        </ol>
+      </li>
+      <li>
+        <span>Method Notes</span>
+        <ol>
+          <li><span>How historical data is parsed</span></li>
+          <li><span>How outputs are generated</span></li>
+          <li><span>How confidence intervals are computed</span></li>
+          <li><span>How curated domains are chosen</span></li>
+          <li><span>Difference between observed data and model projections</span></li>
+        </ol>
+      </li>
+      <li>
+        <span>Technical Appendix</span>
+        <ol>
+          <li><span>Parser and validation notes</span></li>
+          <li><span>Warning logs summary, not raw logs</span></li>
+          <li><span>Persistence reports if promoted</span></li>
+          <li><span>Data-quality notes</span></li>
+        </ol>
+      </li>
+    </ol>
+  </li>
+
+  <li>
+    <span>Lab / Archive</span>
+    <ol>
+      <li>
+        <span>Experimental Charts</span>
+        <ol>
+          <li><span>Miscellaneous legacy charts that do not yet have public framing</span></li>
+          <li><span>Old model diagnostics</span></li>
+          <li><span>Prototype charts</span></li>
+        </ol>
+      </li>
+      <li>
+        <span>Internal Diagnostics</span>
+        <ol>
+          <li><span>Parser warning summaries</span></li>
+          <li><span>Weirdness reports, if ever exposed</span></li>
+          <li><span>Raw downloaded HTML should not be public navigation</span></li>
+        </ol>
+      </li>
+      <li>
+        <span>Deprecated / Superseded</span>
+        <ol>
+          <li><span>Broken or unaudited columns</span></li>
+          <li><span>Delta chii, until fixed</span></li>
+          <li><span>Old ranking/index behavior caveats</span></li>
+          <li><span>Research outputs retained for provenance</span></li>
+        </ol>
+      </li>
+    </ol>
+  </li>
+</ol>"""
 
 
 def shell_css() -> str:
@@ -347,7 +879,9 @@ body {
 }
 
 .lab-nav {
+  height: 100vh;
   min-height: 100vh;
+  overflow: auto;
   border-right: 1px solid var(--site-line);
   background: var(--site-panel-subtle);
 }
@@ -387,11 +921,45 @@ body {
   text-transform: uppercase;
 }
 
+.nav-tree {
+  margin: 0;
+  padding: 10px 14px 28px 30px;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.nav-tree ol {
+  margin: 4px 0 6px;
+  padding-left: 20px;
+}
+
+.nav-tree li {
+  margin: 3px 0;
+}
+
+.nav-tree > li {
+  margin-bottom: 12px;
+}
+
+.nav-tree > li > span {
+  font-weight: 700;
+  color: var(--site-accent);
+  text-transform: uppercase;
+}
+
+.nav-tree li li > span {
+  color: var(--site-text);
+}
+
+.nav-tree li li li > span {
+  color: var(--site-muted);
+}
+
 .nav-item {
   display: block;
   width: 100%;
-  margin: 0 0 6px;
-  padding: 10px 12px;
+  margin: 2px 0 4px;
+  padding: 6px 8px;
   border: 1px solid transparent;
   border-radius: 6px;
   background: transparent;
@@ -412,7 +980,7 @@ body {
 
 .nav-item small {
   margin-top: 3px;
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .nav-item:hover,
@@ -502,6 +1070,8 @@ body {
   }
 
   .lab-nav {
+    height: auto;
+    max-height: 42vh;
     min-height: auto;
     border-right: 0;
     border-bottom: 1px solid var(--site-line);
@@ -592,4 +1162,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
