@@ -59,7 +59,6 @@ def write_site_index(
     )
     target_path = config.output_root / "index.html"
     target_path.write_text(html, encoding="utf-8")
-    print(f"wrote {target_path}")
 
 
 def render_navigation(
@@ -111,7 +110,6 @@ def write_html_fragment_page(
     fragment = source.source_path.read_text(encoding="utf-8")
     html = template.format(title=escape(page.title), body=fragment)
     target_path.write_text(html, encoding="utf-8")
-    print(f"wrote {target_path}")
 
 
 def write_plotly_json_page(
@@ -127,7 +125,6 @@ def write_plotly_json_page(
         config_path=config.output_path.as_posix(),
     )
     target_path.write_text(html, encoding="utf-8")
-    print(f"wrote {target_path}")
 
 
 def write_custom_page(page: Page, kind: str, target_path: Path) -> None:
@@ -152,7 +149,6 @@ def write_custom_page(page: Page, kind: str, target_path: Path) -> None:
         )
     )
     target_path.write_text(html, encoding="utf-8")
-    print(f"wrote {target_path}")
 
 
 def render_options(page: Page) -> str:

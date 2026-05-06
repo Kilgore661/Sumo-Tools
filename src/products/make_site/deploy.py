@@ -22,7 +22,7 @@ def deploy_local(output_root: Path, local_root: Path) -> None:
     for source in output_root.rglob("*"):
         if source.is_file():
             target = local_root / source.relative_to(output_root)
-            copy_file(source, target, "deployed")
+            copy_file(source, target)
 
 
 def clear_local_root(local_root: Path) -> None:
@@ -76,7 +76,6 @@ def deploy_remote(local_root: Path, remote_root: str) -> int:
                 remote_file = posixpath.join(remote_root, *relative.parts)
                 ensure_remote_tree(sftp, posixpath.dirname(remote_file))
                 sftp.put(str(source), remote_file)
-                print(f"uploaded {source} -> {remote_file}")
                 count += 1
         return count
     finally:

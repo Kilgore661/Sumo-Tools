@@ -57,7 +57,7 @@ def write_page(page_route: PageRoute, output_root: Path) -> None:
 
 
 def copy_view(view_ref: ViewRef, target_path: Path) -> None:
-    copy_file(view_ref.source_path, target_path, "copied")
+    copy_file(view_ref.source_path, target_path)
 
 
 def copy_file_refs(
@@ -66,4 +66,4 @@ def copy_file_refs(
 ) -> None:
     for file_ref in file_refs:
         target_path = output_root / Path(file_ref.output_path.as_posix())
-        copy_file(file_ref.source_path, target_path, "copied")
+        copy_file(file_ref.source_path, target_path)

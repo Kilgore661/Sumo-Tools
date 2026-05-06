@@ -15,7 +15,6 @@ def clear_dir(path: Path) -> None:
             item.unlink()
 
 
-def copy_file(source: Path, target: Path, verb: str) -> None:
+def copy_file(source: Path, target: Path) -> None:
     target.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(source, target)
-    print(f"{verb} {source} -> {target}")
