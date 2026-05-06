@@ -27,6 +27,8 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 OUTPUT_ROOT = REPO_ROOT / "files" / "output"
 ANALYSIS_ROOT = REPO_ROOT / "src" / "analysis"
 PRODUCT_ROOT = REPO_ROOT / "src" / "products" / "make_site"
+BCR_OUTPUT_ROOT = OUTPUT_ROOT / "bcr"
+STANDINGS_PUBLISHER_DATA = OUTPUT_ROOT / "standings" / "publisher" / "latest_data"
 
 
 def asset(
@@ -54,6 +56,30 @@ def data(
         source_path=source_path,
         output_path=PurePosixPath(output_path),
         media_type=media_type,
+    )
+
+
+def data_media_type(source_path: Path) -> str:
+    return {
+        ".csv": "text/csv",
+        ".json": "application/json",
+    }[source_path.suffix]
+
+
+def published_data_refs(
+    source_dir: Path,
+    output_dir: str,
+    id_prefix: str,
+) -> tuple[DataRef, ...]:
+    return tuple(
+        data(
+            id=f"{id_prefix}_{source_path.stem}",
+            source_path=source_path,
+            output_path=str(PurePosixPath(output_dir) / source_path.name),
+            media_type=data_media_type(source_path),
+        )
+        for source_path in sorted(source_dir.iterdir())
+        if source_path.suffix in {".csv", ".json"}
     )
 
 
@@ -107,9 +133,16 @@ STANDINGS_ASSETS = (
     asset(
         id="standings_js",
         source_path=ANALYSIS_ROOT / "standings" / "files" / "standings.js.txt",
-        output_path="current-sumo/standings-by-wins/standings.js",
+        output_path="current-sumo/standings-by-wins/standings.js.txt",
         media_type="application/javascript",
     ),
+)
+
+
+STANDINGS_DATA = published_data_refs(
+    source_dir=STANDINGS_PUBLISHER_DATA,
+    output_dir="current-sumo/standings-by-wins/data",
+    id_prefix="standings",
 )
 
 
@@ -129,8 +162,24 @@ BANZUKE_CHANGES_ASSETS = (
         / "banzuke_compare"
         / "files"
         / "banzuke_change_report.js.txt",
-        output_path="current-sumo/banzuke-changes/banzuke_change_report.js",
+        output_path="current-sumo/banzuke-changes/banzuke_change_report.js.txt",
         media_type="application/javascript",
+    ),
+)
+
+
+BANZUKE_CHANGES_DATA = (
+    data(
+        id="banzuke_changes_site_config",
+        source_path=BCR_OUTPUT_ROOT / "site_config.json",
+        output_path="current-sumo/banzuke-changes/site_config.json",
+        media_type="application/json",
+    ),
+    data(
+        id="banzuke_change_report",
+        source_path=BCR_OUTPUT_ROOT / "data" / "banzuke_change_report.csv",
+        output_path="current-sumo/banzuke-changes/data/banzuke_change_report.csv",
+        media_type="text/csv",
     ),
 )
 
@@ -193,6 +242,7 @@ PAGES = PageRegistry(
                 )
             ),
             assets=BANZUKE_CHANGES_ASSETS,
+            data=BANZUKE_CHANGES_DATA,
         ),
         "standings_by_wins": Page(
             id="standings_by_wins",
@@ -205,6 +255,7 @@ PAGES = PageRegistry(
                 )
             ),
             assets=STANDINGS_ASSETS,
+            data=STANDINGS_DATA,
         ),
         "finish_by_chii": Page(
             id="finish_by_chii",

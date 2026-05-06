@@ -9,8 +9,6 @@ import shutil
 import stat
 import sys
 
-import paramiko
-
 from .classes import PublicationRequest
 
 
@@ -140,6 +138,8 @@ def main() -> None:
         print("Error: MY_SFTP_PASS environment variable is not set.")
         print('Try:\n$env:MY_SFTP_PASS = "whatever"')
         sys.exit(1)
+
+    import paramiko
 
     transport = paramiko.Transport((HOST, 22))
     transport.connect(username=USER, password=password)
