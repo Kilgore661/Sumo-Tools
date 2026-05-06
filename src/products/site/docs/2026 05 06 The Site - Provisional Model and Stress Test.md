@@ -12,7 +12,7 @@ Those notes describe the desired shape and the broad navigation map. This note
 records what happened when existing HTML artefacts from the current project
 were tested against that map.
 
-The code used for the test lives in `src/analysis/site`, but that package is a
+The code used for the test now lives in `src/products/site/old`, but that package is a
 prototype only. It exists to test the information architecture and page-fitting
 model. It is not intended to become the final site implementation.
 
@@ -248,7 +248,7 @@ Simple copying of existing HTML artefacts into a site output tree was
 sufficient for this prototype.
 
 This is useful information, but it should not be overinterpreted. The
-`src/analysis/site` package is disposable. The important result is not the
+`src/products/site/old` package is disposable. The important result is not the
 copying mechanism itself, but the fact that the current artefacts can be
 assembled into a coherent subject-led navigation without changing their
 producer code.

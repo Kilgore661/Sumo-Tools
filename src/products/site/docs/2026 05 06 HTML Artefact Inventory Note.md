@@ -1,6 +1,19 @@
-Yes. The main enumeration doc is [Project Map.md](<X:\Sumo\Sumo-Tools\docs\Project Map.md:58>). The earlier, simpler list is in [2026 05 03 Presentation Layer.md](<X:\Sumo\Sumo-Tools\src\analysis\docs\2026 05 03 Presentation Layer.md:103>).
+# HTML Artefact Inventory Note
 
-Right now the `site` package only deploys/integrates:
+This note is retained as a rough intermediate inventory from the first site
+stress-test conversation.
+
+It has been superseded by:
+
+* `2026 05 06 The Site - Provisional Model and Stress Test.md`
+* `2026 05 06 Site Definition Handoff Memo.md`
+
+The main enumeration doc is `docs/Project Map.md`. The earlier, simpler list is
+in `2026 05 03 Presentation Layer.md`.
+
+---
+
+At the time of this note, the `site` prototype only deployed/integrated:
 
 - `Standings`
 - `Banzuke Compare`

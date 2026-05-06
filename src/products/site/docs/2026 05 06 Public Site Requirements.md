@@ -140,7 +140,7 @@ For a B1 artefact, the desired path is:
 
 ## 11. Prototype Status
 
-The current `src/analysis/site` package is disposable.
+The current `src/products/site/old` package is disposable.
 
 It is useful as evidence about information architecture and page-fitting, but
 it should not constrain the final implementation.
