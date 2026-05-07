@@ -208,9 +208,10 @@ with identical domain.
 ## 4.3 Guarantees
 
 * Every rikishi has:
-
+  
   * a `Chii`
   * a `Shikona`
+
 * Domains are consistent
 
 ---
@@ -292,7 +293,7 @@ Represents a single bout.
 ### Not enforced
 
 * consistency between:
-
+  
   * outcome
   * symbol
   * decision
@@ -377,9 +378,11 @@ The model follows an **offensive programming** style.
 Consequences:
 
 * absence of validation ≠ absence of constraint
-* upstream construction is trusted
-* invalid states indicate:
 
+* upstream construction is trusted
+
+* invalid states indicate:
+  
   * bad input
   * broken contract
   * implementation compromise
@@ -423,10 +426,11 @@ This is a known invariant not currently enforced.
 ### 13.3 Optional: tighten consistency checks
 
 * `BoutResult`:
-
+  
   * enforce symbol/outcome consistency
-* API consistency:
 
+* API consistency:
+  
   * align docstrings with actual behaviour
 
 ---
@@ -434,7 +438,6 @@ This is a known invariant not currently enforced.
 # One-line summary
 
 > The model represents sumo tournaments as mappings from stable identities (`RikId`) to fully specified rank objects (`Chii`) and outcomes, where rank is atomic, totally ordered via `ordinal()`, and uniquely assigned within each tournament.
-
 
 ## 14 Appenidix: Alphabetical Class Index
 
@@ -539,5 +542,3 @@ This is a known invariant not currently enforced.
 * **Year** — `BasicPrimitives.py` 
 
 ---
-
-
