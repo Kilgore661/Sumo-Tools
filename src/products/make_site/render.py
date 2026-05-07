@@ -123,6 +123,10 @@ def write_plotly_json_page(
 
 
 def write_custom_page(page: Page, kind: str, target_path: Path) -> None:
+    if kind == "standing_win_probability":
+        write_standing_win_probability_page(page, target_path)
+        return
+
     html = "\n".join(
         (
             "<!doctype html>",
@@ -138,6 +142,49 @@ def write_custom_page(page: Page, kind: str, target_path: Path) -> None:
             f"<p>Custom view: {escape(kind)}</p>",
             render_options(page),
             render_data_refs(page.data),
+            "</body>",
+            "</html>",
+            "",
+        )
+    )
+    target_path.write_text(html, encoding="utf-8")
+
+
+def write_standing_win_probability_page(page: Page, target_path: Path) -> None:
+    html = "\n".join(
+        (
+            "<!doctype html>",
+            '<html lang="en">',
+            "<head>",
+            '<meta charset="utf-8">',
+            '<meta name="viewport" content="width=device-width, initial-scale=1">',
+            '<link rel="icon" type="image/x-icon" href="../Sumo/meep.png">',
+            f"<title>{escape(page.title)}</title>",
+            "<style>",
+            "html, body { height: 100%; }",
+            "body { margin: 0; display: grid; grid-template-rows: auto minmax(0, 1fr); background: #081426; color: #f3f7ff; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }",
+            ".toolbar { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.16); background: #0c1c34; }",
+            "h1 { margin: 0 18px 0 0; font-size: 18px; font-weight: 700; }",
+            "label { font-size: 13px; color: #c7d2e6; }",
+            "select { font: inherit; padding: 4px 28px 4px 8px; }",
+            "#chart-frame { display: block; width: 100%; height: 100%; border: 0; background: #ffffff; }",
+            "</style>",
+            "</head>",
+            "<body>",
+            '<div class="toolbar">',
+            f"<h1>{escape(page.title)}</h1>",
+            '<label for="source-select">Source</label>',
+            '<select id="source-select">',
+            '<option value="observed_sideless_matchup_traces.html" selected>Observed</option>',
+            '<option value="equelo_sideless_matchup_traces.html">Equelo</option>',
+            "</select>",
+            "</div>",
+            '<iframe id="chart-frame" title="Win probability by standing chart" src="observed_sideless_matchup_traces.html"></iframe>',
+            "<script>",
+            'const sourceSelect = document.getElementById("source-select");',
+            'const chartFrame = document.getElementById("chart-frame");',
+            'sourceSelect.addEventListener("change", event => { chartFrame.src = event.target.value; });',
+            "</script>",
             "</body>",
             "</html>",
             "",
