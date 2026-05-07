@@ -97,6 +97,18 @@ Iframes work for stress testing and isolate legacy pages, but they complicate
 shared styling, deep-linking, sizing, and communication between the page and
 the shell.
 
+### 2.6 Date and Date-Range Parameters
+
+For charts and tables where it makes sense, consider making the date or range
+of dates a page parameter.
+
+This may apply to more than one public exhibit, so it should not be solved by
+promoting slice-specific HTML files such as `finish_by_chii_1978_1980.html`.
+The intended direction is a page-level option backed by producer-written data
+or a producer contract that supports the selected range.
+
+This is not an immediate implementation task.
+
 ## 3. Browser State and Shareable URLs
 
 ### 3.1 Deep Links for Current Display State
@@ -239,6 +251,16 @@ to participate in URL state, presets, or explanatory page grammar.
 
 This decision may depend on whether the chart is an exploratory analysis tool,
 a public exhibit, or a comparison page with carefully guided defaults.
+
+### 5.7 Long X-Tick Labels
+
+All charts with longish string x-tick labels should rotate those labels by
+45 degrees.
+
+"Longish" includes dates.
+
+This should be treated as a chart readability rule, not as a one-off style
+tweak for a single page.
 
 ## 6. Theme and Page Presentation
 
