@@ -29,6 +29,9 @@ ANALYSIS_ROOT = REPO_ROOT / "src" / "analysis"
 PRODUCT_ROOT = REPO_ROOT / "src" / "products" / "make_site"
 BCR_OUTPUT_ROOT = OUTPUT_ROOT / "bcr"
 STANDINGS_PUBLISHER_DATA = OUTPUT_ROOT / "standings" / "publisher" / "latest_data"
+WIN_PROBABILITY_SITE_BUNDLE = (
+    OUTPUT_ROOT / "probability" / "matchups" / "site" / "win_probability_by_standing"
+)
 
 
 def asset(
@@ -186,56 +189,40 @@ BANZUKE_CHANGES_DATA = (
 
 WIN_PROBABILITY_BY_STANDING_DATA = (
     data(
-        id="observed_standing_win_probability",
-        source_path=OUTPUT_ROOT
-        / "probability"
-        / "matchups"
-        / "observed_sideless_trace_points.csv",
+        id="win_probability_by_standing_page_config",
+        source_path=WIN_PROBABILITY_SITE_BUNDLE / "page.json",
         output_path=(
             "ratings-models/observed-vs-modelled/"
-            "win-probability-by-standing/data/observed.csv"
+            "win-probability-by-standing/data/page.json"
+        ),
+        media_type="application/json",
+    ),
+    data(
+        id="observed_standing_win_probability",
+        source_path=WIN_PROBABILITY_SITE_BUNDLE / "observed_trace_points.csv",
+        output_path=(
+            "ratings-models/observed-vs-modelled/"
+            "win-probability-by-standing/data/observed_trace_points.csv"
         ),
         media_type="text/csv",
     ),
     data(
         id="equelo_standing_win_probability",
-        source_path=OUTPUT_ROOT
-        / "probability"
-        / "matchups"
-        / "equelo_sideless_trace_points.csv",
+        source_path=WIN_PROBABILITY_SITE_BUNDLE / "equelo_trace_points.csv",
         output_path=(
             "ratings-models/observed-vs-modelled/"
-            "win-probability-by-standing/data/equelo.csv"
+            "win-probability-by-standing/data/equelo_trace_points.csv"
         ),
         media_type="text/csv",
     ),
-)
-
-
-WIN_PROBABILITY_BY_STANDING_ASSETS = (
-    asset(
-        id="observed_sideless_matchup_traces_html",
-        source_path=OUTPUT_ROOT
-        / "probability"
-        / "matchups"
-        / "observed_sideless_matchup_traces.html",
+    data(
+        id="win_probability_by_standing_metadata",
+        source_path=WIN_PROBABILITY_SITE_BUNDLE / "metadata.json",
         output_path=(
             "ratings-models/observed-vs-modelled/"
-            "win-probability-by-standing/observed_sideless_matchup_traces.html"
+            "win-probability-by-standing/data/metadata.json"
         ),
-        media_type="text/html",
-    ),
-    asset(
-        id="equelo_sideless_matchup_traces_html",
-        source_path=OUTPUT_ROOT
-        / "probability"
-        / "matchups"
-        / "equelo_sideless_matchup_traces.html",
-        output_path=(
-            "ratings-models/observed-vs-modelled/"
-            "win-probability-by-standing/equelo_sideless_matchup_traces.html"
-        ),
-        media_type="text/html",
+        media_type="application/json",
     ),
 )
 
@@ -337,7 +324,6 @@ PAGES = PageRegistry(
             summary="Probability of winning as a function of standing.",
             options=WIN_PROBABILITY_BY_STANDING_OPTIONS,
             view=CustomView(kind="standing_win_probability"),
-            assets=WIN_PROBABILITY_BY_STANDING_ASSETS,
             data=WIN_PROBABILITY_BY_STANDING_DATA,
         ),
     }

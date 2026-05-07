@@ -213,6 +213,33 @@ Charts such as matchup traces need support-aware interpretation.
 Make sure public charts show sample size, confidence intervals, or equivalent
 warnings where low-support points would otherwise look overprecise.
 
+### 5.5 Clearly Distinct Trace Styles
+
+Investigate algorithms for generating `n` clearly different trace line styles
+when `n > 20`.
+
+This matters for charts with many selectable traces, where colour alone is not
+enough to make traces distinguishable. Candidate dimensions include colour,
+dash pattern, marker shape, line width, opacity, and possibly grouped palettes
+by division or subject.
+
+The aim is not merely prettier charts. It is to preserve readability and
+legend usefulness when many traces are visible or compared.
+
+### 5.6 Legend vs Trace Options
+
+Consider when a multi-trace chart should expose traces through the Plotly
+legend, and when each trace should instead be treated as a page option.
+
+A legend is natural when traces are few enough to scan, or when users are
+expected to toggle visible lines directly in the chart. An explicit option
+control may be better when the trace universe is large, when only one or a
+small number of traces should usually be visible, or when trace selection needs
+to participate in URL state, presets, or explanatory page grammar.
+
+This decision may depend on whether the chart is an exploratory analysis tool,
+a public exhibit, or a comparison page with carefully guided defaults.
+
 ## 6. Theme and Page Presentation
 
 ### 6.1 Shared Public Theme
@@ -381,4 +408,3 @@ Known limitations should be public-facing where they affect interpretation:
 The site needs method notes for parsing, output generation, confidence
 intervals, curated domains, and the distinction between observed data and
 model projections.
-

@@ -8,6 +8,9 @@ from src.analysis.probability.matchups.charts import (
     write_equelo_trace_chart,
     write_observed_trace_chart,
 )
+from src.analysis.probability.matchups.site_writer import (
+    write_win_probability_by_standing_bundle,
+)
 from src.analysis.probability.matchups.traces import (
     build_equelo_trace_points,
     build_observed_trace_points,
@@ -66,6 +69,15 @@ def main() -> None:
         args.output_dir / "equelo_sideless_matchup_traces.html",
         initially_visible=args.initial_trace,
     )
+    site_bundle_paths = write_win_probability_by_standing_bundle(
+        output_dir=args.output_dir,
+        observed_points=observed_points,
+        equelo_points=equelo_points,
+        sideless_ratings=sideless_ratings,
+        fixed_v1_output_root=args.fixed_v1_output_root,
+        q=args.q,
+        default_trace=args.initial_trace,
+    )
 
     print(f"Raw observed trace points: {len(raw_observed_points)}")
     print(f"Observed trace points in rating domain: {len(observed_points)}")
@@ -77,6 +89,10 @@ def main() -> None:
     print(f"Trace metadata: {paths['trace_metadata_json']}")
     print(f"Observed chart: {observed_chart}")
     print(f"Equelo chart: {equelo_chart}")
+    print(f"Site page config: {site_bundle_paths['page_json']}")
+    print(f"Site observed trace CSV: {site_bundle_paths['observed_trace_csv']}")
+    print(f"Site Equelo trace CSV: {site_bundle_paths['equelo_trace_csv']}")
+    print(f"Site metadata: {site_bundle_paths['metadata_json']}")
 
 
 if __name__ == "__main__":
