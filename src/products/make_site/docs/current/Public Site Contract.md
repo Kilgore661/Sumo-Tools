@@ -388,4 +388,3 @@ The first real site does not require:
 * publication of all generated Sumo-Tools artefacts.
 
 Those should be reconsidered only when later requirements justify them.
-

@@ -177,4 +177,3 @@ Open implementation areas remain in the `TBD Register.md`, especially:
 * embedded-page migration;
 * URL/deep-link strategy for page option combinations;
 * Equelo methodology/narrative pages.
-

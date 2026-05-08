@@ -171,4 +171,3 @@ Current working policy:
 * Generated HTML should not become the normal API between analysis packages and
   the public site.
 * Rendering technology is secondary to the producer/site contract.
-

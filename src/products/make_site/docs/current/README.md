@@ -5,13 +5,13 @@ public site.
 
 ## Core Documents
 
-| Document | Role |
-| --- | --- |
-| `Public Site Contract.md` | Consolidated current requirements, system contract, and design guardrails. |
-| `Implementation State.md` | Current implementation notes and known builder/site-definition state. |
-| `Producer Writers and Prototype Embeds.md` | Policy for moving analysis outputs into the public site. |
-| `Equelo Version Naming.md` | Canonical naming for Equelo model versions, diagnostic chart stages, and rating landmarks. |
-| `TBD Register.md` | Live backlog of unresolved site, presentation, data, and documentation work. |
+| Document                                   | Role                                                                                       |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| `Public Site Contract.md`                  | Consolidated current requirements, system contract, and design guardrails.                 |
+| `Implementation State.md`                  | Current implementation notes and known builder/site-definition state.                      |
+| `Producer Writers and Prototype Embeds.md` | Policy for moving analysis outputs into the public site.                                   |
+| `Equelo Version Naming.md`                 | Canonical naming for Equelo model versions, diagnostic chart stages, and rating landmarks. |
+| `TBD Register.md`                          | Live backlog of unresolved site, presentation, data, and documentation work.               |
 
 ## Reference Notes
 
