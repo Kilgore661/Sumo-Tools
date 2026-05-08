@@ -22,7 +22,7 @@ scope.
 This note should be read alongside:
 
 * `2026 05 06 The Site - Provisional Model and Stress Test.md`
-* `2026 05 06 Producer Writers and Prototype Embeds.md`
+* `../current/Producer Writers and Prototype Embeds.md`
 * `docs/Project Map.md`
 
 ## 1. Current Public-Site Artefacts
@@ -311,4 +311,3 @@ make_site renders the public page
 ```
 
 The existing HTML file should not become the permanent API.
-

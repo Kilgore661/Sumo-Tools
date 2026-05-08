@@ -8,8 +8,8 @@ behaviour the site system shall provide.
 
 Related notes:
 
-* `2026 05 06 Public Site Requirements.md`
-* `2026 05 06 Public Site Design.md`
+* `Public Site Requirements.md`
+* `Public Site Design.md`
 
 ## 1. Site
 

@@ -8,9 +8,9 @@ not prescribe the final implementation.
 
 Related notes:
 
-* `2026 05 03 Presentation Layer.md`
-* `2026 05 05 Site Navigation Overview.md`
-* `2026 05 06 The Site - Provisional Model and Stress Test.md`
+* `../archive/2026 05 03 Presentation Layer.md`
+* `../archive/2026 05 05 Site Navigation Overview.md`
+* `../archive/2026 05 06 The Site - Provisional Model and Stress Test.md`
 
 ## 1. Purpose
 

@@ -1,7 +1,7 @@
 # Public Site Design
 
 This note records the provisional design direction for implementing the public
-site specified in `2026 05 06 Public Site Specification.md`.
+site specified in `Public Site Specification.md`.
 
 It is not a commitment to final code. It is the current design hypothesis.
 
