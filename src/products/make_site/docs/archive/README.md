@@ -21,10 +21,8 @@ contract, or navigation idea exists.
 
 Use these current docs first:
 
-* `../current/Public Site Requirements.md`
-* `../current/Public Site Specification.md`
-* `../current/Public Site Design.md`
+* `../current/Public Site Contract.md`
+* `../current/Implementation State.md`
 * `../current/Producer Writers and Prototype Embeds.md`
 * `../current/Equelo Version Naming.md`
 * `../current/TBD Register.md`
-

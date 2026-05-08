@@ -18,17 +18,19 @@ understanding why the current decisions were made.
 
 Read the current docs in this order when trying to understand the public site:
 
-1. `current/Public Site Requirements.md`
-2. `current/Public Site Specification.md`
-3. `current/Public Site Design.md`
-4. `current/Producer Writers and Prototype Embeds.md`
-5. `current/Equelo Version Naming.md`
-6. `current/TBD Register.md`
+1. `current/Public Site Contract.md`
+2. `current/Implementation State.md`
+3. `current/Producer Writers and Prototype Embeds.md`
+4. `current/Equelo Version Naming.md`
+5. `current/TBD Register.md`
 
-For implementation details, also read:
+For retained source notes behind the consolidated docs, also read:
 
-* `current/Make Site Builder Notes.md`
-* `current/Site Definition Handoff Memo.md`
+* `current/reference/Public Site Requirements.md`
+* `current/reference/Public Site Specification.md`
+* `current/reference/Public Site Design.md`
+* `current/reference/Make Site Builder Notes.md`
+* `current/reference/Site Definition Handoff Memo.md`
 
 ## Current Equelo Position
 
@@ -49,6 +51,5 @@ the fixed-v1 audit trail. They are not public model names. See
 Completeness is preferred over lossy tidying.
 
 When a note is still useful but no longer represents current policy, move it to
-`archive/` and point to the current replacement. Do not delete or compress it
-merely because it overlaps with newer notes.
-
+`archive/` or `current/reference/` and point to the current replacement. Do not
+delete or compress it merely because it overlaps with newer notes.
