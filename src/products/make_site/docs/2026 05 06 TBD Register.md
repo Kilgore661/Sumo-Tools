@@ -527,7 +527,20 @@ to show banzuke history may need to display the original annotated or rare chii.
 
 The policy is recorded in `src/analysis/equelo/fixed_v1/docs/V5 Policy.md`.
 
-### 12.4 Embedded Page Migration Assessment
+### 12.4 Chii and ChiiLabel Naming Policy
+
+Put the Chii naming policy front and centre in the main project/site docs.
+
+Use `Chii` for the class/object, `chii` for full human-facing chii values such
+as `M3eHD`, and `ChiiLabel` for project-defined chii-like labels such as `M3`,
+`O`, or `Jd100`.
+
+Avoid using "rank" as a substitute for these concepts in technical docs, page
+contracts, generated metadata, code comments, and policy notes. This matters
+especially for Equelo rating landmarks, where the distinction between a chii,
+a `ChiiLabel`, and a rating must stay explicit.
+
+### 12.5 Embedded Page Migration Assessment
 
 Assess whether currently embedded standalone pages should migrate to native
 non-embedded site pages.
@@ -536,7 +549,7 @@ The assessment should cover styling consistency, note handling, shared controls,
 deep links, shell integration, data contracts, maintenance cost, and whether any
 legacy page should remain embedded as a deliberate exception.
 
-### 12.5 Source Layout vs Site Navigation
+### 12.6 Source Layout vs Site Navigation
 
 Consider rearranging source code so public-site feature modules follow the
 navigation tree.
