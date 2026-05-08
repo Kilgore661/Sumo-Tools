@@ -476,3 +476,12 @@ site as public-ready.
 
 This should cover table headers, sticky behaviour, notes, legends, controls,
 chart colours, axis ranges, spacing, link behaviour, and responsive layout.
+
+### 12.4 Embedded Page Migration Assessment
+
+Assess whether currently embedded standalone pages should migrate to native
+non-embedded site pages.
+
+The assessment should cover styling consistency, note handling, shared controls,
+deep links, shell integration, data contracts, maintenance cost, and whether any
+legacy page should remain embedded as a deliberate exception.
