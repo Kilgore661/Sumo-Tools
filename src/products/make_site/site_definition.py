@@ -21,6 +21,7 @@ from .classes import (
     TableAppView,
     ViewRef,
 )
+from src.analysis.career_length import CareerLengthOutputs
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -32,6 +33,7 @@ STANDINGS_PUBLISHER_DATA = OUTPUT_ROOT / "standings" / "publisher" / "latest_dat
 WIN_PROBABILITY_SITE_BUNDLE = (
     OUTPUT_ROOT / "probability" / "matchups" / "site" / "win_probability_by_standing"
 )
+CAREER_LENGTH_SITE_OUTPUT_DIR = "sumo-history/career-lifecycle/career-length/data"
 
 
 def asset(
@@ -242,6 +244,53 @@ WIN_PROBABILITY_BY_STANDING_OPTIONS = OptionsModel(
         ),
     )
 )
+
+
+def career_length_data_refs(outputs: CareerLengthOutputs) -> tuple[DataRef, ...]:
+    return (
+        data(
+            id="career_length_page_config",
+            source_path=outputs.page_json,
+            output_path=f"{CAREER_LENGTH_SITE_OUTPUT_DIR}/page.json",
+            media_type="application/json",
+        ),
+        data(
+            id="career_length_distribution",
+            source_path=outputs.distribution_csv,
+            output_path=f"{CAREER_LENGTH_SITE_OUTPUT_DIR}/distribution.csv",
+            media_type="text/csv",
+        ),
+        data(
+            id="career_length_pmf",
+            source_path=outputs.pmf_csv,
+            output_path=f"{CAREER_LENGTH_SITE_OUTPUT_DIR}/pmf.csv",
+            media_type="text/csv",
+        ),
+        data(
+            id="career_length_cdf",
+            source_path=outputs.cdf_csv,
+            output_path=f"{CAREER_LENGTH_SITE_OUTPUT_DIR}/cdf.csv",
+            media_type="text/csv",
+        ),
+        data(
+            id="career_length_survival",
+            source_path=outputs.survival_csv,
+            output_path=f"{CAREER_LENGTH_SITE_OUTPUT_DIR}/survival.csv",
+            media_type="text/csv",
+        ),
+        data(
+            id="career_length_longest",
+            source_path=outputs.longest_csv,
+            output_path=f"{CAREER_LENGTH_SITE_OUTPUT_DIR}/longest.csv",
+            media_type="text/csv",
+        ),
+        data(
+            id="career_length_metadata",
+            source_path=outputs.metadata_json,
+            output_path=f"{CAREER_LENGTH_SITE_OUTPUT_DIR}/metadata.json",
+            media_type="application/json",
+        ),
+    )
 
 
 PAGES = PageRegistry(
@@ -594,6 +643,46 @@ SITE = Site(
     pages=PAGES,
     global_assets=GLOBAL_ASSETS,
 )
+
+
+def site_with_career_length(outputs: CareerLengthOutputs) -> Site:
+    pages = dict(PAGES.pages)
+    pages["career_length"] = Page(
+        id="career_length",
+        title="Career Length",
+        summary="Observed rikishi career lengths from banzuke appearances.",
+        view=CustomView(kind="career_length"),
+        data=career_length_data_refs(outputs),
+    )
+    return Site(
+        id=SITE.id,
+        title=SITE.title,
+        navigation=_with_page_id(
+            NAVIGATION,
+            target_id="history_career_length",
+            page_id="career_length",
+        ),
+        pages=PageRegistry(pages=pages),
+        global_assets=SITE.global_assets,
+    )
+
+
+def _with_page_id(
+    node: NavigationTree,
+    *,
+    target_id: str,
+    page_id: str,
+) -> NavigationTree:
+    return NavigationTree(
+        id=node.id,
+        label=node.label,
+        slug=node.slug,
+        children=tuple(
+            _with_page_id(child, target_id=target_id, page_id=page_id)
+            for child in node.children
+        ),
+        page_id=page_id if node.id == target_id else node.page_id,
+    )
 
 
 BUILD_CONFIG = SiteBuildConfig(

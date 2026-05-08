@@ -430,3 +430,49 @@ Known limitations should be public-facing where they affect interpretation:
 The site needs method notes for parsing, output generation, confidence
 intervals, curated domains, and the distinction between observed data and
 model projections.
+
+## 11. Future Public Feature Ideas
+
+### 11.1 Participation Volume Exhibits
+
+Career length naturally suggests related public exhibits based on participation
+volume rather than elapsed time:
+
+* greatest number of bouts;
+* greatest number of wins;
+* highest win proportion;
+* related active/retired breakdowns and leader tables.
+
+Open question: Can you already derive this data from the Standings by Wins
+table?
+
+Do not answer or implement this as part of the Career Length page plumbing.
+
+## 12. Shared Presentation and Link Contracts
+
+### 12.1 Generate Qualified Shikona in Sumo-Tools
+
+Qualified shikona for external graph links currently depend on a brittle legacy
+`full_shiks.pkl` file outside the Sumo-Tools project.
+
+Sumo-Tools should derive or maintain these qualified names itself, using RikId
+and shikona history, so pages with non-unique shikona can link consistently
+without depending on a hardcoded legacy path.
+
+### 12.2 Consolidate Qualified-Shikona Access
+
+`standings.publisher` currently opens the legacy qualified-shikona pickle
+directly, while other code reaches it through the `banzuke_compare`
+`graph_shikona_for` wrapper.
+
+Move all consumers to one shared identity/linking service. That service should
+avoid fragile import-time file I/O and should degrade or fail according to an
+explicit contract.
+
+### 12.3 Styling Consistency Audit
+
+Review all public tables and charts for styling consistency before treating the
+site as public-ready.
+
+This should cover table headers, sticky behaviour, notes, legends, controls,
+chart colours, axis ranges, spacing, link behaviour, and responsive layout.
