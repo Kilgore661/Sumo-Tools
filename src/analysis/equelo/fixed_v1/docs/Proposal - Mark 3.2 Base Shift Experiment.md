@@ -2,7 +2,8 @@
 
 ## Status
 
-Proposal.
+Experiment completed.  The project should use `b = 2000` as the public-facing
+Equelo base.
 
 ## Purpose
 
@@ -26,7 +27,8 @@ level has independent Elo meaning.
 
 The starting point is ordinary Elo-style rating.
 
-All entrants begin at a common rating `b`, practically 1500.  Bout expectation
+All entrants begin at a common rating `b`.  Before this experiment the practical
+project value was 1500.  Bout expectation
 is computed from rating difference, and each bout updates the winner and loser
 according to how surprising the result was.  The update size is controlled by
 `k`, and the expectation curve by `q`.
@@ -114,7 +116,8 @@ files/output/Equelo/expt2_combined_final.csv
 ```
 
 It has the strong representational story.  It is self-consistent with
-basho-start ratings by chii.  With the current base, it tops out around 2500.
+basho-start ratings by chii.  With the pre-experiment base, it topped out
+around 2500.
 
 Problem: the Mark 3.1 chii-rating map is not monotone with respect to chii.
 
@@ -139,7 +142,7 @@ global mean.  The rationale in the existing docs is that raw Expt2 fixed-point
 entry was too dispersed for probability experiments; alpha near 0.55 improved
 binned calibration MAE.
 
-With the current base, Mark 3.2 tops out around 2000.  This is conceptually
+With the pre-experiment base, Mark 3.2 topped out around 2000.  This is conceptually
 fine, because Elo levels are arbitrary up to an additive constant, but it is
 awkward for public presentation next to familiar Elo-ish expectations.
 
@@ -169,6 +172,9 @@ around 2000, without changing rating differences.
 
 However, manually adding 500 is less satisfying than proving and exercising
 the underlying gauge property by rerunning the pipeline with `b + 500`.
+
+After the experiment, this is better understood as `Mark 3.2.1(2000)`, not as
+a separate model with an extra post-processing shift.
 
 ## Hypothesis
 
@@ -222,7 +228,7 @@ Confirm the current pipeline:
 * raw fixed point: `expt2_combined_final.csv`;
 * scaled entrant map: fixed_v1 `entrant_initial_ratings.json`;
 * alpha: `0.55`;
-* base: current configured value, practically 1500;
+* base: pre-experiment configured value, practically 1500;
 * v5-style smoothing/curation.
 
 Record headline values for:
@@ -309,6 +315,93 @@ If successful, this supports the public-scale idea:
 > Mark 3.2.2 is not a different predictive system from Mark 3.2.1.  It is the
 > same rating-difference system on a more familiar additive gauge.
 
+## Outcome
+
+The experiment succeeded.
+
+The practical experiment was deliberately simple:
+
+1. Preserve the existing `b = 1500` output as:
+
+   ```text
+   files/output/Equelo (b=1500)
+   ```
+
+2. Set:
+
+   ```text
+   INITIAL_ELO = 2000.0
+   ```
+
+3. Rerun the Expt2 fixed-point production, producing the new:
+
+   ```text
+   files/output/Equelo
+   ```
+
+The new Mark 3.1 combined fixed-point output was the old output plus 500 within
+floating-point noise.  The maximum absolute shift error in
+`expt2_combined_final.csv` was about:
+
+```text
+8.19e-12
+```
+
+Applying the fixed-v1 alpha scaling also produced the old Mark 3.2 values plus
+500 within floating-point noise.  The maximum absolute scaled shift error was
+about:
+
+```text
+4.55e-12
+```
+
+Selected Mark 3.2 combined headline values moved as follows:
+
+| Chii | b=1500 | b=2000 |
+| --- | ---: | ---: |
+| Y1e | 2054.713363 | 2554.713363 |
+| Y1w | 2017.490514 | 2517.490514 |
+| O1e | 1903.262165 | 2403.262165 |
+| S1e | 1818.270677 | 2318.270677 |
+| K1e | 1782.707248 | 2282.707248 |
+| M1e | 1761.795229 | 2261.795229 |
+| M6e | 1720.950355 | 2220.950355 |
+| J1e | 1688.656224 | 2188.656224 |
+| Ms1e | 1648.866030 | 2148.866030 |
+| Jd1e | 1398.802642 | 1898.802642 |
+| Jd100w | 1349.763811 | 1849.763811 |
+
+Selected rating differences were unchanged to floating-point noise.  For
+example:
+
+| Difference | Value |
+| --- | ---: |
+| Y1e - O1e | 275.365814 |
+| Y1e - M1e | 532.578425 |
+| M1e - M6e | 74.263407 |
+| J1e - Ms1e | 72.345809 |
+| Jd1e - Jd100w | 89.161511 |
+
+This confirms the expected additive-gauge behaviour for the parts of the
+pipeline inspected here.
+
+The project choice is therefore:
+
+```text
+base: b = 2000
+```
+
+This choice is arguably cosmetic.  Like Elo ratings, Equelo ratings do not have
+a fixed absolute zero point.  Rating differences are the meaningful object:
+they determine expectations, updates, and relative interpretation.  The project
+could choose `b = 0`, `b = 1500`, or `b = 2000` without changing those rating
+differences.
+
+The reason to choose `b = 2000` is presentational.  After alpha scaling and
+monotone landmark smoothing, it places the yokozuna headline value near 2500, a
+round Elo-like number reminiscent of a chess grandmaster rating.  This should
+not be read as a claim that 2500 has independent sumo meaning.
+
 ## Success Criteria
 
 The experiment succeeds if:
@@ -337,8 +430,8 @@ pure additive-gauge system in practice.
 
 ## Product Implication
 
-If the experiment succeeds, the public site can honestly present a shifted
-Mark 3.2.1 scale as the public Equelo rank landmark scale.
+Because the experiment succeeded, the public site can honestly present
+`Mark 3.2.1(2000)` as the public Equelo rank landmark scale.
 
 The explanation can be:
 
@@ -346,8 +439,8 @@ The explanation can be:
 > scale uses the calibrated, monotone Equelo curve on a conventional additive
 > scale, so that familiar headline ranks sit in a familiar numerical range.
 
-This avoids saying that the `+500` shift carries new information.  It does not.
-It is a display-scale convention.
+This avoids saying that the higher absolute level carries new information.  It
+does not.  It is a display-scale convention.
 
 The substantive choices remain:
 
@@ -357,3 +450,7 @@ The substantive choices remain:
 
 Those choices must still be documented and defended.
 
+Downstream code and documentation must also make sure they read and describe
+the `b = 2000` artefacts once that choice is promoted.  Mixing `b = 1500` and
+`b = 2000` outputs would not change rating differences, but it would produce
+confusing public numbers and make provenance hard to follow.

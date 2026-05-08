@@ -120,6 +120,38 @@ alpha = 0.55
 This should not be interpreted as a precise constant of nature.  It is a stable
 rounded value near the observed calibration optimum.
 
+## Why Base = 2000?
+
+Equelo inherits an important property from Elo-style ratings: the absolute
+rating level is not fixed by the model.  Rating differences are the meaningful
+object.  They determine expectations, updates, and relative interpretation.
+Adding the same constant to every rating leaves those semantics unchanged.
+
+The project previously used a base near 1500.  A base-shift experiment reran
+the Expt2 fixed-point pipeline with:
+
+```text
+INITIAL_ELO = 2000.0
+```
+
+The resulting Mark 3.1 combined fixed-point output was the previous `b = 1500`
+output plus 500 within floating-point noise.  Applying the fixed-v1 alpha
+scaling preserved the same additive shift.  Selected rating differences were
+unchanged.
+
+For `fixed_v1`, we therefore choose:
+
+```text
+base = 2000
+```
+
+This choice is arguably cosmetic.  The project could choose `b = 0`,
+`b = 1500`, or `b = 2000` without changing the semantics of rating
+differences.  The reason to prefer `b = 2000` is public presentation: after
+alpha scaling and monotone landmark smoothing, the yokozuna landmark sits near
+2500, a round Elo-like number reminiscent of a chess grandmaster rating.  This
+should not be read as a claim that 2500 has independent sumo meaning.
+
 ## Why q = 900?
 
 The logistic scale `q` controls how rating differences map to win
@@ -212,6 +244,7 @@ interpretation: Expt3c-style sequential rating process
 mode: closed
 entrant policy: scaled fixed-point
 fixed-point source: files/output/Equelo/expt2_combined_final.csv
+base: 2000
 alpha: 0.55
 q: 900
 K policy: divisional
@@ -260,6 +293,18 @@ files/output/Equelo/expt2_combined_final.csv
 files/output/Equelo(850 or 900)/expt3_q_sweep.csv
 files/output/Equelo(850 or 900)/expt3_alpha_sweep.csv
 files/output/Equelo(850 or 900)/expt3_link_sweep.csv
+```
+
+During the base-shift experiment, the old `b = 1500` output was retained as:
+
+```text
+files/output/Equelo (b=1500)
+```
+
+and the regenerated `b = 2000` output occupied:
+
+```text
+files/output/Equelo
 ```
 
 The parenthesised output directory names are historical artefacts.  A future

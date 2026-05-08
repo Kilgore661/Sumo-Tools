@@ -75,7 +75,7 @@ Depth is a property of a page or view, not a main navigation category.
 | Performance | Average finish by Chii | What is the average outcome from each rank slot? | Advanced | Prototype | Medium | `src/misc/finish_by_chii.py`, `finish_by_chii_charting.py` | Chart exhibit | Could pair with Finish by Chii under "Rank Outcomes". |
 | Performance | Observed matchup probabilities | What actually happens when ranks meet? | Advanced, Research | Prototype | Medium | `src/analysis/probability/matchups` | Chart exhibit with rank-pair controls | Stronger public candidate than modelled probabilities because it is descriptive. |
 | Performance | Expected outcomes by observed data | What record should we expect from this rank context? | Advanced, Research | Research | Medium | Recent probability charts and matchup work | Research-labelled interactive chart | Should be labelled carefully as empirical expectation, with sample-size visibility. |
-| Ratings & Models | Equelo ratings | Who is currently best according to an Elo-like model? | Advanced, Research | Research | Low | `src/analysis/equelo`, `files/output/Equelo` | Research page with rating table, method notes, caveats | Tempting as Type I, but not yet trustworthy enough as a simple fan-facing ranking. Possible Type II/III page. |
+| Ratings & Models | Equelo ratings | Who is currently best according to an Elo-like model? | Advanced, Research | Research | Low | `src/analysis/equelo`, `files/output/Equelo` | Research page with rating table, method notes, caveats | Tempting as Type I, but not yet trustworthy enough as a simple fan-facing ranking. Possible Type II/III page. Public fixed-v1 work now uses `b = 2000`; the additive scale convention must be explicit. |
 | Ratings & Models | Equelo fixed-v1 charts | What does the current fixed model imply about initial rank strength? | Research | Research | Low | `src/analysis/equelo/fixed_v1` | Lab chart page | Useful research record. Not a main public fact unless narrowed to a clear claim. |
 | Ratings & Models | Observed vs modelled matchup traces | How does the model compare with observed outcomes? | Research | Research | Medium | `src/analysis/probability/matchups/trace_main.py` | Lab chart with paired views | Good Type III page. It should live under research, not the basic public surface. |
 | Ratings & Models | Calibration reports | Are model probabilities calibrated? | Research | Research | Low | `src/analysis/probability`, Equelo run outputs | Technical report page | Important for methodology. Probably not a front-door page. |
@@ -124,6 +124,26 @@ Ratings & Models
   Calibration
   Methodology
 ```
+
+## Equelo Public Scale Note
+
+The project now uses `b = 2000` as the Equelo base for public-facing fixed-v1
+work.
+
+This is arguably cosmetic.  Like Elo ratings, Equelo ratings do not have a
+fixed absolute zero point.  Adding the same constant to every rating leaves
+rating differences, expected outcomes, updates, and ordering unchanged.  The
+project could choose `b = 0`, `b = 1500`, or `b = 2000` without changing the
+semantics of rating differences.
+
+The base-shift experiment found that rerunning Expt2 with `b = 2000` produced
+the old `b = 1500` fixed-point output plus 500 within floating-point noise.
+The fixed-v1 alpha-scaled values behaved the same way.
+
+The reason for `b = 2000` is presentational: after alpha scaling and monotone
+landmark smoothing, it puts the yokozuna landmark near 2500, a round Elo-like
+number reminiscent of a chess grandmaster rating.  It should not be read as a
+claim that 2500 has independent sumo meaning.
 
 ## Page Shape
 
@@ -222,4 +242,3 @@ area until a narrow public claim emerges.
    beginning?
 5. What minimum explanation is required before any Equelo rating appears on a
    public page?
-
