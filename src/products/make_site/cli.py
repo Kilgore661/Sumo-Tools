@@ -5,15 +5,18 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from src.analysis.career_length import (
+from src.analysis.sumo_history.career_lifecycle.career_length import (
     build_career_length_outputs,
     load_history_from_zip,
+)
+from src.analysis.sumo_history.career_lifecycle.rank_at_retirement import (
+    build_rank_at_retirement_outputs,
 )
 from src.infra.live_store.api import get_history
 
 from .builder import build_site
 from .deploy import HOST, LOCAL_ROOT, REMOTE_ROOT, deploy_local, deploy_remote
-from .site_definition import BUILD_CONFIG, site_with_career_length
+from .site_definition import BUILD_CONFIG, site_with_career_lifecycle
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -43,8 +46,16 @@ def build_parser() -> argparse.ArgumentParser:
         "--career-history-zip",
         type=Path,
         help=(
-            "Build Career Length data from a History zip instead of the live store. "
-            "Intended for local/offline testing."
+            "Deprecated alias for --history-zip, retained for local/offline "
+            "testing commands written before Rank at Retirement was added."
+        ),
+    )
+    parser.add_argument(
+        "--history-zip",
+        type=Path,
+        help=(
+            "Build generated site data from a History zip instead of the live "
+            "store. Intended for local/offline testing."
         ),
     )
     return parser
@@ -52,13 +63,15 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main() -> None:
     args = build_parser().parse_args()
+    history_zip = args.history_zip or args.career_history_zip
     history = (
-        load_history_from_zip(args.career_history_zip)
-        if args.career_history_zip
+        load_history_from_zip(history_zip)
+        if history_zip
         else get_history()
     )
     career_outputs = build_career_length_outputs(history, print_summary=False)
-    build_site(site_with_career_length(career_outputs), BUILD_CONFIG)
+    retirement_outputs = build_rank_at_retirement_outputs(history, print_summary=False)
+    build_site(site_with_career_lifecycle(career_outputs, retirement_outputs), BUILD_CONFIG)
     print(f"built {BUILD_CONFIG.output_root}")
     if args.build_only:
         return

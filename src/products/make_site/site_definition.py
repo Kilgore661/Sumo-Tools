@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path, PurePosixPath
+from typing import Mapping
 
 from .classes import (
     AssetRef,
@@ -21,7 +22,12 @@ from .classes import (
     TableAppView,
     ViewRef,
 )
-from src.analysis.career_length import CareerLengthOutputs
+from src.analysis.sumo_history.career_lifecycle.career_length import (
+    CareerLengthOutputs,
+)
+from src.analysis.sumo_history.career_lifecycle.rank_at_retirement import (
+    RankAtRetirementOutputs,
+)
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -34,6 +40,9 @@ WIN_PROBABILITY_SITE_BUNDLE = (
     OUTPUT_ROOT / "probability" / "matchups" / "site" / "win_probability_by_standing"
 )
 CAREER_LENGTH_SITE_OUTPUT_DIR = "sumo-history/career-lifecycle/career-length/data"
+RANK_AT_RETIREMENT_SITE_OUTPUT_DIR = (
+    "sumo-history/career-lifecycle/rank-at-retirement/data"
+)
 
 
 def asset(
@@ -288,6 +297,31 @@ def career_length_data_refs(outputs: CareerLengthOutputs) -> tuple[DataRef, ...]
             id="career_length_metadata",
             source_path=outputs.metadata_json,
             output_path=f"{CAREER_LENGTH_SITE_OUTPUT_DIR}/metadata.json",
+            media_type="application/json",
+        ),
+    )
+
+
+def rank_at_retirement_data_refs(
+    outputs: RankAtRetirementOutputs,
+) -> tuple[DataRef, ...]:
+    return (
+        data(
+            id="rank_at_retirement_page_config",
+            source_path=outputs.page_json,
+            output_path=f"{RANK_AT_RETIREMENT_SITE_OUTPUT_DIR}/page.json",
+            media_type="application/json",
+        ),
+        data(
+            id="rank_at_retirement_distribution",
+            source_path=outputs.distribution_csv,
+            output_path=f"{RANK_AT_RETIREMENT_SITE_OUTPUT_DIR}/distribution.csv",
+            media_type="text/csv",
+        ),
+        data(
+            id="rank_at_retirement_metadata",
+            source_path=outputs.metadata_json,
+            output_path=f"{RANK_AT_RETIREMENT_SITE_OUTPUT_DIR}/metadata.json",
             media_type="application/json",
         ),
     )
@@ -667,6 +701,40 @@ def site_with_career_length(outputs: CareerLengthOutputs) -> Site:
     )
 
 
+def site_with_career_lifecycle(
+    career_outputs: CareerLengthOutputs,
+    retirement_outputs: RankAtRetirementOutputs,
+) -> Site:
+    pages = dict(PAGES.pages)
+    pages["career_length"] = Page(
+        id="career_length",
+        title="Career Length",
+        summary="Observed rikishi career lengths from banzuke appearances.",
+        view=CustomView(kind="career_length"),
+        data=career_length_data_refs(career_outputs),
+    )
+    pages["rank_at_retirement"] = Page(
+        id="rank_at_retirement",
+        title="Rank at Retirement",
+        summary="Final observed rank group for retired rikishi.",
+        view=CustomView(kind="rank_at_retirement"),
+        data=rank_at_retirement_data_refs(retirement_outputs),
+    )
+    return Site(
+        id=SITE.id,
+        title=SITE.title,
+        navigation=_with_page_ids(
+            NAVIGATION,
+            {
+                "history_career_length": "career_length",
+                "rank_at_retirement": "rank_at_retirement",
+            },
+        ),
+        pages=PageRegistry(pages=pages),
+        global_assets=SITE.global_assets,
+    )
+
+
 def _with_page_id(
     node: NavigationTree,
     *,
@@ -682,6 +750,19 @@ def _with_page_id(
             for child in node.children
         ),
         page_id=page_id if node.id == target_id else node.page_id,
+    )
+
+
+def _with_page_ids(
+    node: NavigationTree,
+    page_ids: Mapping[str, str],
+) -> NavigationTree:
+    return NavigationTree(
+        id=node.id,
+        label=node.label,
+        slug=node.slug,
+        children=tuple(_with_page_ids(child, page_ids) for child in node.children),
+        page_id=page_ids.get(node.id, node.page_id),
     )
 
 

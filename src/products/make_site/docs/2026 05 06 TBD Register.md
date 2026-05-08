@@ -477,6 +477,10 @@ site as public-ready.
 This should cover table headers, sticky behaviour, notes, legends, controls,
 chart colours, axis ranges, spacing, link behaviour, and responsive layout.
 
+Also review language and headings across the site. Where possible, public
+labels should read naturally for ordinary visitors rather than assuming
+statistical vocabulary or implementation knowledge.
+
 ### 12.4 Embedded Page Migration Assessment
 
 Assess whether currently embedded standalone pages should migrate to native
@@ -485,3 +489,18 @@ non-embedded site pages.
 The assessment should cover styling consistency, note handling, shared controls,
 deep links, shell integration, data contracts, maintenance cost, and whether any
 legacy page should remain embedded as a deliberate exception.
+
+### 12.5 Source Layout vs Site Navigation
+
+Consider rearranging source code so public-site feature modules follow the
+navigation tree.
+
+For example, `career_length` and `rank_at_retirement` both belong conceptually
+under `sumo_history/career_lifecycle`. Assess whether grouping analysis,
+bundle generation, renderer support, docs, and tests by public-site section
+would make ownership clearer than the current flatter analysis layout.
+
+Initial trial: the `career_length` and `rank_at_retirement` analysis modules
+have been moved under `src/analysis/sumo_history/career_lifecycle`. Revisit
+after more pages exist to decide whether renderer code, tests, and docs should
+follow the same pattern.

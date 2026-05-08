@@ -149,6 +149,22 @@ A page bundle shall identify:
 
 The exact file format for this bundle is a design decision.
 
+## 8A. External Links and Shikona Links
+
+External links inside embedded or custom-rendered page content must not navigate
+the Sumo-Tools content frame. They should open outside the frame in a new tab or
+window according to the visitor's browser configuration.
+
+All shikona links should have consistent appearance and behaviour across public
+tables, charts, and notes:
+
+* normal click opens the rikishi's SumoDB page;
+* Alt-click opens the corresponding Gaspode-san graph page;
+* both targets open outside the Sumo-Tools content frame;
+* link titles/tooltips should advertise the click and Alt-click behaviour;
+* non-unique shikona should use the shared qualified-shikona contract when the
+  Gaspode-san graph token differs from the displayed shikona.
+
 ## 9. Builder Behaviour
 
 The site builder shall:
