@@ -19,7 +19,6 @@ DEFAULT_ENTRANT_CHART_V2_PATH = DEFAULT_CHART_DIR / "entrant_initial_ratings_v2.
 DEFAULT_ENTRANT_CHART_V3_PATH = DEFAULT_CHART_DIR / "entrant_initial_ratings_v3.html"
 DEFAULT_ENTRANT_CHART_V4_PATH = DEFAULT_CHART_DIR / "entrant_initial_ratings_v4.html"
 DEFAULT_ENTRANT_CHART_V5_PATH = DEFAULT_CHART_DIR / "entrant_initial_ratings_v5.html"
-DEFAULT_ENTRANT_CHART_V6_PATH = DEFAULT_CHART_DIR / "entrant_initial_ratings_v6.html"
 V1_MAX_CHII = Chii.from_str("Jd100w").ordinal()
 V2_DELETE_ORDINALS = {
     Chii.from_str(f"J{rank}{side}").ordinal()
@@ -164,16 +163,6 @@ def write_all_entrant_initial_rating_charts(
             title="Fixed v1 Entrant Initial Ratings v5 Monotone Fit",
             include_monotone_fit=True,
         ),
-        "v6_linear_gaps": write_entrant_initial_rating_chart(
-            output_root=output_root,
-            output_path=output_dir / DEFAULT_ENTRANT_CHART_V6_PATH.name,
-            max_ordinal=V1_MAX_CHII,
-            delete_ordinals=V4_DELETE_ORDINALS,
-            mask_ordinals=v5_mask_ordinals(output_root=output_root),
-            title="Fixed v1 Entrant Initial Ratings v6 Linear Masked Gaps",
-            include_monotone_fit=True,
-            fit_mode="linear",
-        ),
     }
 
 
@@ -202,11 +191,6 @@ def monotone_fit_values(
     xs = [index_by_ordinal[int(row["ordinal"])] for row in support_rows]
     ys = strictly_decreasing([float(row["rating"]) for row in support_rows])
 
-    if mode == "linear":
-        return [
-            evaluate_linear(xs, ys, x)
-            for x in range(len(rows))
-        ]
     if mode != "cubic":
         raise ValueError(f"Unknown fit mode: {mode}")
 
@@ -268,31 +252,6 @@ def evaluate_monotone_cubic(xs: list[int], ys: list[float], x: int) -> float:
     h01 = -2 * t**3 + 3 * t**2
     h11 = t**3 - t**2
     return h00 * y0 + h10 * h * m0 + h01 * y1 + h11 * h * m1
-
-
-def evaluate_linear(xs: list[int], ys: list[float], x: int) -> float:
-    """Evaluate a piecewise-linear interpolant."""
-
-    if len(xs) != len(ys):
-        raise ValueError("xs and ys must have the same length")
-    if len(xs) < 2:
-        raise ValueError("At least two support points are required")
-
-    if x <= xs[0]:
-        return ys[0]
-    if x >= xs[-1]:
-        return ys[-1]
-
-    interval = 0
-    while interval < len(xs) - 2 and x > xs[interval + 1]:
-        interval += 1
-
-    x0 = xs[interval]
-    x1 = xs[interval + 1]
-    y0 = ys[interval]
-    y1 = ys[interval + 1]
-    t = (x - x0) / (x1 - x0)
-    return y0 + t * (y1 - y0)
 
 
 def monotone_tangents(xs: list[int], slopes: list[float]) -> list[float]:
