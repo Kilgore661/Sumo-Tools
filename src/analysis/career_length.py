@@ -33,7 +33,7 @@ LENGTH_POLICY = (
     "calculation but emitted as warnings."
 )
 OBSERVED_CAREER_LENGTH_NOTE = (
-    '<strong>Observed Career Length.</strong> This is the difference in years '
+    '<strong>Years.</strong> This is the observed Career Length; i.e. the difference in years '
     "between the first and last basho dates in which the rikishi appeared on "
     'the banzuke according to <a href="https://sumodb.sumogames.de/">SumoDB</a>. '
     "It follows that an observed career length <em>does</em> include periods "
@@ -552,7 +552,7 @@ def _tamawashi_note(spans: list[CareerSpan]) -> dict[str, str] | None:
         "note_for": "longest",
         "notes": (
             '<a href="https://sumodb.sumogames.de/Rikishi.aspx?r=5944">'
-            f"Tamawashi</a>, currently at {duration}, is currently "
+            f"Tamawashi</a>, at {duration}, is currently "
             f"{rank}{_ordinal_suffix(rank)}."
         ),
     }
