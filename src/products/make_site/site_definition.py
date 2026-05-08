@@ -28,6 +28,9 @@ from src.analysis.sumo_history.career_lifecycle.career_length import (
 from src.analysis.sumo_history.career_lifecycle.rank_at_retirement import (
     RankAtRetirementOutputs,
 )
+from src.analysis.equelo.fixed_v1.v5_landmarks import (
+    V5LandmarkOutputs,
+)
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -42,6 +45,9 @@ WIN_PROBABILITY_SITE_BUNDLE = (
 CAREER_LENGTH_SITE_OUTPUT_DIR = "sumo-history/career-lifecycle/career-length/data"
 RANK_AT_RETIREMENT_SITE_OUTPUT_DIR = (
     "sumo-history/career-lifecycle/rank-at-retirement/data"
+)
+TYPICAL_EQUELO_VALUES_SITE_OUTPUT_DIR = (
+    "ratings-models/rating-and-rank/typical-equelo-values/data"
 )
 
 
@@ -327,6 +333,34 @@ def rank_at_retirement_data_refs(
     )
 
 
+def typical_equelo_values_data_refs(
+    outputs: V5LandmarkOutputs,
+) -> tuple[DataRef, ...]:
+    return (
+        data(
+            id="typical_equelo_values_page_config",
+            source_path=outputs.page_json,
+            output_path=f"{TYPICAL_EQUELO_VALUES_SITE_OUTPUT_DIR}/page.json",
+            media_type="application/json",
+        ),
+        data(
+            id="typical_equelo_values_csv",
+            source_path=outputs.site_landmarks_csv,
+            output_path=(
+                f"{TYPICAL_EQUELO_VALUES_SITE_OUTPUT_DIR}/"
+                "typical_equelo_values.csv"
+            ),
+            media_type="text/csv",
+        ),
+        data(
+            id="typical_equelo_values_metadata",
+            source_path=outputs.site_metadata_json,
+            output_path=f"{TYPICAL_EQUELO_VALUES_SITE_OUTPUT_DIR}/metadata.json",
+            media_type="application/json",
+        ),
+    )
+
+
 PAGES = PageRegistry(
     pages={
         "banzuke_changes": Page(
@@ -583,6 +617,7 @@ NAVIGATION = NavigationTree(
                 "rating_and_rank",
                 "Rating and Rank",
                 "rating-and-rank",
+                nav("typical_equelo_values", "Typical Equelo Ratings", "typical-equelo-values"),
                 nav("rating_vs_chii", "Rating vs chii", "rating-vs-chii"),
                 nav("mean_rating_by_chii", "Mean rating by chii", "mean-rating-by-chii"),
                 nav("expected_wins_by_chii", "Expected wins by chii", "expected-wins-by-chii"),
@@ -619,6 +654,12 @@ NAVIGATION = NavigationTree(
                 "equelo_methodology",
                 "Equelo Methodology",
                 "equelo-methodology",
+                nav("v5_landmark_policy", "V5 Landmark Policy", "v5-landmark-policy"),
+                nav(
+                    "lower_rank_rating_stability",
+                    "Lower-Rank Rating Stability",
+                    "lower-rank-rating-stability",
+                ),
                 nav("initial_rating_curve", "Initial rating curve / fixed-v1 entrant ratings", "initial-rating-curve"),
                 nav("monotonicity_story", "Monotonicity story", "monotonicity-story"),
                 nav("experiment_research_narrative", "Experiment / research narrative", "experiment-research-narrative"),
@@ -704,6 +745,7 @@ def site_with_career_length(outputs: CareerLengthOutputs) -> Site:
 def site_with_career_lifecycle(
     career_outputs: CareerLengthOutputs,
     retirement_outputs: RankAtRetirementOutputs,
+    typical_equelo_outputs: V5LandmarkOutputs,
 ) -> Site:
     pages = dict(PAGES.pages)
     pages["career_length"] = Page(
@@ -720,12 +762,34 @@ def site_with_career_lifecycle(
         view=CustomView(kind="rank_at_retirement"),
         data=rank_at_retirement_data_refs(retirement_outputs),
     )
+    pages["typical_equelo_values"] = Page(
+        id="typical_equelo_values",
+        title="Typical Equelo Ratings",
+        summary="Approximate rating landmarks for familiar rank labels.",
+        view=CustomView(kind="typical_equelo_values"),
+        data=typical_equelo_values_data_refs(typical_equelo_outputs),
+    )
+    pages["v5_landmark_policy"] = Page(
+        id="v5_landmark_policy",
+        title="V5 Landmark Policy",
+        summary="Placeholder for the v5 rating landmark policy.",
+        view=CustomView(kind="tbd_page"),
+    )
+    pages["lower_rank_rating_stability"] = Page(
+        id="lower_rank_rating_stability",
+        title="Lower-Rank Rating Stability",
+        summary="Placeholder for lower-rank Equelo stability notes.",
+        view=CustomView(kind="tbd_page"),
+    )
     return Site(
         id=SITE.id,
         title=SITE.title,
         navigation=_with_page_ids(
             NAVIGATION,
             {
+                "typical_equelo_values": "typical_equelo_values",
+                "v5_landmark_policy": "v5_landmark_policy",
+                "lower_rank_rating_stability": "lower_rank_rating_stability",
                 "history_career_length": "career_length",
                 "rank_at_retirement": "rank_at_retirement",
             },

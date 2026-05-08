@@ -12,6 +12,9 @@ from src.analysis.sumo_history.career_lifecycle.career_length import (
 from src.analysis.sumo_history.career_lifecycle.rank_at_retirement import (
     build_rank_at_retirement_outputs,
 )
+from src.analysis.equelo.fixed_v1.v5_landmarks import (
+    write_typical_equelo_outputs,
+)
 from src.infra.live_store.api import get_history
 
 from .builder import build_site
@@ -71,7 +74,15 @@ def main() -> None:
     )
     career_outputs = build_career_length_outputs(history, print_summary=False)
     retirement_outputs = build_rank_at_retirement_outputs(history, print_summary=False)
-    build_site(site_with_career_lifecycle(career_outputs, retirement_outputs), BUILD_CONFIG)
+    typical_equelo_outputs = write_typical_equelo_outputs()
+    build_site(
+        site_with_career_lifecycle(
+            career_outputs,
+            retirement_outputs,
+            typical_equelo_outputs,
+        ),
+        BUILD_CONFIG,
+    )
     print(f"built {BUILD_CONFIG.output_root}")
     if args.build_only:
         return

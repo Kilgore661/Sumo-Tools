@@ -61,6 +61,38 @@ Consequences:
 
 ## 3. Chii (Rank)
 
+## 3.0 The Chii Issue
+
+`Chii` is a domain object, not a string.
+
+The string form of a `Chii` exists for human-facing input and output. It is not
+the semantic representation and must not be used for rank logic.
+
+Rules:
+
+* if code needs to ask a rank question, a `Chii` object must be in scope;
+* use `Chii.level`, `Chii.number`, `Chii.side`, `Chii.ann`, comparison
+  operators, or `ordinal()` for semantic logic;
+* use `str(chii)` only at presentation or parsing boundaries;
+* do not infer semantic facts by inspecting `str(chii)`;
+* if only a chii string is available where semantic logic is needed, that is a
+  design error unless the code is explicitly parsing a boundary input back into
+  a `Chii`.
+
+Examples:
+
+```text
+Given c: Chii, "is this Yokozuna?" must inspect c.level, not str(c).
+Given c: Chii, sort/group by c.ordinal() or Chii comparison, not string order.
+```
+
+Strings such as `Y1`, `M3`, `S`, or `M3HD` are not `Chii` objects. They are
+chii-like labels used in presentation, search, grouping, or public explanation.
+They need their own explicit interpretation policy and must not be mistaken for
+full `Chii`.
+
+---
+
 ## 3.1 Definition
 
 A `Chii` is a **fully specified rank designation**.

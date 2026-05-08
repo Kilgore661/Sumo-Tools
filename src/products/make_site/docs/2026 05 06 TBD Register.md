@@ -157,7 +157,15 @@ legacy v9 pickle.
 Decide whether the Banzuke Changes pipeline should be made fully reproducible
 inside Sumo-Tools before this page is treated as final.
 
-### 4.2 Standings by Wins Data Source
+### 4.2 Banzuke Changes Default Previous Basho
+
+The default Banzuke Changes view should have previous-basho context turned
+off.
+
+Review the page defaults and URL-state handling so this is the initial view
+when the page is opened without explicit options.
+
+### 4.3 Standings by Wins Data Source
 
 The current `make_site` integration consumes standings data from
 `files/output/standings/publisher/latest_data`.
@@ -165,7 +173,7 @@ The current `make_site` integration consumes standings data from
 Confirm that this is the intended producer contract, rather than a convenient
 publisher implementation detail.
 
-### 4.3 `.js.txt` JavaScript Files
+### 4.4 `.js.txt` JavaScript Files
 
 Some JavaScript is intentionally stored as `.js.txt` because plain `.js` files
 are not conveniently readable in the author's current workflow.
@@ -261,6 +269,24 @@ All charts with longish string x-tick labels should rotate those labels by
 
 This should be treated as a chart readability rule, not as a one-off style
 tweak for a single page.
+
+### 5.8 Percentage Chart Defaults
+
+Review all public charts whose y-axis is a percentage, probability, CDF, PMF,
+survival curve, proportion, or other bounded 0--100% quantity.
+
+Such charts should default to showing the full 0--100% y-axis unless there is a
+documented page-specific reason to auto-scale by default.
+
+### 5.9 Plotly Controls Hint
+
+Think about how to alert users in a non-intrusive way that Plotly charts can be
+interacted with through the built-in controls, including zooming, panning,
+autoscaling, and resetting axes.
+
+The hint should not clutter every chart or explain Plotly in a technical way.
+Possible directions include a small reusable icon/hint near charts, a brief
+first-visit affordance, or wording in a shared notes/help area.
 
 ## 6. Theme and Page Presentation
 
@@ -477,9 +503,29 @@ site as public-ready.
 This should cover table headers, sticky behaviour, notes, legends, controls,
 chart colours, axis ranges, spacing, link behaviour, and responsive layout.
 
+As a site-wide table rule, columns should be no wider than their contents
+require, tables should be no wider than their columns require, and tables
+should be horizontally centred within the available content area unless a page
+has a documented reason for full-width tabular layout.
+
 Also review language and headings across the site. Where possible, public
 labels should read naturally for ordinary visitors rather than assuming
 statistical vocabulary or implementation knowledge.
+
+Check how full chii values such as `M3eHD` are displayed across the site. In
+rating or rating-landmark contexts, apply the v5 policy:
+
+* ignore annotations for v5 lookup;
+* canonicalise numbered `Y`, `O`, `S`, and `K` slots to the `1` slot while
+  preserving side where present;
+* use the curated v5 domain, currently bounded below by `Jd100w`;
+* make aggregate labels such as `M3`, `S`, or `J` name their support and
+  averaging policy.
+
+Do not apply this as a global historical-display rule. Pages whose purpose is
+to show banzuke history may need to display the original annotated or rare chii.
+
+The policy is recorded in `src/analysis/equelo/fixed_v1/docs/V5 Policy.md`.
 
 ### 12.4 Embedded Page Migration Assessment
 
