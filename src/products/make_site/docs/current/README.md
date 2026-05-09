@@ -10,6 +10,8 @@ public site.
 | `Public Site Contract.md`                  | Consolidated current requirements, system contract, and design guardrails.                 |
 | `Implementation State.md`                  | Current implementation notes and known builder/site-definition state.                      |
 | `Producer Writers and Prototype Embeds.md` | Policy for moving analysis outputs into the public site.                                   |
+| `Basho Results Browser Design Notes.md`    | Working design notes for the proposed Sumo History > Basho Results page.                   |
+| `Public Table Behaviour Inventory.md`      | Inventory of existing public table behaviours and BRB table precedents.                    |
 | `Equelo Version Naming.md`                 | Canonical naming for Equelo model versions, diagnostic chart stages, and rating landmarks. |
 | `TBD Register.md`                          | Live backlog of unresolved site, presentation, data, and documentation work.               |
 

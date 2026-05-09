@@ -38,6 +38,28 @@ In ordinary public wording, this may later become simply "the Equelo ratings" or
 "the standard Equelo ratings", once the surrounding explanation is stable.  The
 canonical technical name remains useful for provenance and future revisions.
 
+## Rating Series vs Rating Landmarks
+
+`Mark 3.2.1(b)` is a rating-landmark curve, not the canonical source for
+individual rikishi ratings.
+
+The distinction is:
+
+* fixed-v1 process ratings are individual, bout-derived ratings at represented
+  points in the basho timeline;
+* `Mark 3.2.1(b)` / `Typical Equelo Ratings` values are illustrative landmarks
+  associated with chii-like labels.
+
+The landmark curve was made monotone so that the public scale is easier to
+read.  That does not mean individual process ratings must be monotone with
+banzuke order.  A lower-banzuke rikishi may have a higher actual process rating
+than a higher-banzuke rikishi.
+
+Public features that need an individual rikishi's rating after a basho should
+use the fixed-v1 process rating artefacts or a documented successor.  They
+should not derive the rating from the rikishi's current or next chii by looking
+up `Typical Equelo Ratings`.
+
 ## Additive Base
 
 The `(b)` parameter is the additive base convention used by the Equelo run.

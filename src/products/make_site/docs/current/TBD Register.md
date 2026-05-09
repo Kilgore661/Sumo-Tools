@@ -527,7 +527,52 @@ to show banzuke history may need to display the original annotated or rare chii.
 
 The policy is recorded in `src/analysis/equelo/fixed_v1/docs/V5 Policy.md`.
 
-### 12.4 Chii and ChiiLabel Naming Policy
+### 12.4 Sortable Public Tables
+
+All public table columns should be sortable where sorting makes sense.
+
+Use the interaction style from "Grand Sumo Standings by Wins Digest" as the
+reference. Non-data columns such as row numbers should not be sortable.
+
+Chii-like values must sort by their model/order ordinal, not alphabetically.
+This matters for full chii values, sideless chii labels, and any table where
+alphabetical order would put values such as `J10` before `J2`.
+
+### 12.5 Table Scrolling Policy
+
+As part of site review, inspect each public table and decide whether it should
+be constrained to the content panel.
+
+For long tables, make an explicit page-level decision about whether scrolling
+should happen inside the table/content panel with sticky column headers, or in
+the browser window with the whole page moving. Use Career Length -> Longest as
+the reference pattern for the constrained-table option: the table body scrolls
+while column headers remain visible. The right answer may differ between dense
+tools, chart-and-table pages, and legacy embedded artefacts.
+
+### 12.6 Table Header Wording and Wrapping
+
+Review public table column headings for readable display names and compact
+layout.
+
+Do not expose implementation-style headings with underscores, such as
+`after_basho_chii`. Use separate words such as "After Basho Chii". When
+headings are long, prefer centre-justified line breaks inside the header cell
+so the header becomes taller rather than forcing the table wider.
+
+### 12.7 Equelo Landmark vs Process Rating Validation
+
+When BRB has its first rating lookup table, compare actual fixed-v1 process
+ratings against the illustrative `Typical Equelo Ratings` landmarks for the
+corresponding chii.
+
+The goal is not to force the two to agree.  The landmarks are illustrative only.
+The goal is to understand how wide the gap is in real data, especially around
+division boundaries, fast-rising rikishi, absences, protected ranks, and noisy
+lower-support chii areas.  Use the result to decide whether public wording
+needs stronger caveats.
+
+### 12.8 Chii and ChiiLabel Naming Policy
 
 Put the Chii naming policy front and centre in the main project/site docs.
 
@@ -540,7 +585,7 @@ contracts, generated metadata, code comments, and policy notes. This matters
 especially for Equelo rating landmarks, where the distinction between a chii,
 a `ChiiLabel`, and a rating must stay explicit.
 
-### 12.5 Embedded Page Migration Assessment
+### 12.9 Embedded Page Migration Assessment
 
 Assess whether currently embedded standalone pages should migrate to native
 non-embedded site pages.
@@ -549,7 +594,7 @@ The assessment should cover styling consistency, note handling, shared controls,
 deep links, shell integration, data contracts, maintenance cost, and whether any
 legacy page should remain embedded as a deliberate exception.
 
-### 12.6 Source Layout vs Site Navigation
+### 12.10 Source Layout vs Site Navigation
 
 Consider rearranging source code so public-site feature modules follow the
 navigation tree.
