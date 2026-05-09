@@ -40,7 +40,7 @@ class ViewRef:
     """
     Reference to a renderable view file.
 
-    Examples include standalone HTML pages, HTML fragments, and templates.
+    Examples include standalone HTML pages and templates.
     """
 
     id: str

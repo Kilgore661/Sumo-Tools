@@ -58,14 +58,6 @@ class StandaloneHtmlView(ViewSpec):
 
 
 @dataclass(frozen=True, kw_only=True)
-class HtmlFragmentView(ViewSpec):
-    """An HTML fragment rendered inside a site/page template."""
-
-    source: ViewRef
-    template: str
-
-
-@dataclass(frozen=True, kw_only=True)
 class PlotlyJsonView(ViewSpec):
     """A Plotly view rendered from chart data/config files."""
 

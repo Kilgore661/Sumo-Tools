@@ -82,7 +82,7 @@ The exact shape may vary by page type, but a site-facing writer may emit:
 * page metadata;
 * option definitions;
 * chart configuration;
-* explanatory text fragments;
+* explanatory text or structured prose metadata;
 * references to local assets;
 * enough provenance to explain what was computed.
 
@@ -90,8 +90,10 @@ For a chart page, this might be JSON data plus a small metadata/config file.
 
 For a table app, it might be CSV/JSON files plus a site config.
 
-For an essay-like method page, it might be Markdown or an HTML fragment plus
-metadata.
+For an essay-like method page, it might be Markdown or structured metadata
+consumed by a specific `make_site` renderer.  HTML-fragment view support was
+removed on 2026-05-09; producers should not emit semi-rendered HTML snippets as
+the public integration contract.
 
 The producer owns the analysis-specific knowledge. The site builder owns the
 public shell, navigation, theme, route, and common presentation contract.

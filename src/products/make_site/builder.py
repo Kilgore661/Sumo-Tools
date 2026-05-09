@@ -9,7 +9,6 @@ from .classes import (
     CustomView,
     DataRef,
     EssayView,
-    HtmlFragmentView,
     PlotlyJsonView,
     Site,
     SiteBuildConfig,
@@ -20,7 +19,6 @@ from .classes import (
 from .filesystem import clear_dir, copy_file
 from .render import (
     write_custom_page,
-    write_html_fragment_page,
     write_plotly_json_page,
     write_site_index,
 )
@@ -48,8 +46,6 @@ def write_page(page_route: PageRoute, output_root: Path) -> None:
             copy_view(entrypoint, target_path)
         case EssayView(source=source):
             copy_view(source, target_path)
-        case HtmlFragmentView(source=source, template=template):
-            write_html_fragment_page(page_route.page, source, template, target_path)
         case PlotlyJsonView(data=data, template=template, config=config):
             write_plotly_json_page(page_route.page, data, template, config, target_path)
         case CustomView(kind=kind):

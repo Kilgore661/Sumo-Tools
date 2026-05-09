@@ -4,7 +4,6 @@ from .file_refs import AssetRef, DataRef, ViewRef
 from .page_parts import (
     CustomView,
     EssayView,
-    HtmlFragmentView,
     OptionKind,
     OptionSpec,
     OptionValue,
@@ -21,7 +20,6 @@ __all__ = [
     "CustomView",
     "DataRef",
     "EssayView",
-    "HtmlFragmentView",
     "NavigationTree",
     "OptionKind",
     "OptionSpec",

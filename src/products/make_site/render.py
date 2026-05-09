@@ -100,17 +100,6 @@ def render_navigation_node(
     return f"<li>{heading}</li>"
 
 
-def write_html_fragment_page(
-    page: Page,
-    source: ViewRef,
-    template: str,
-    target_path: Path,
-) -> None:
-    fragment = source.source_path.read_text(encoding="utf-8")
-    html = template.format(title=escape(page.title), body=fragment)
-    target_path.write_text(html, encoding="utf-8")
-
-
 def write_plotly_json_page(
     page: Page,
     data: DataRef,

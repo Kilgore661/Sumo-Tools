@@ -162,7 +162,6 @@ The site should support a small set of view types, including:
 * table tools;
 * Plotly charts;
 * explanatory essays;
-* HTML fragments;
 * standalone HTML artefacts where still appropriate;
 * custom interactive pages.
 
@@ -171,6 +170,11 @@ default answer to every awkward page.
 
 Unknown future page types should be represented through explicit metadata and a
 limited custom-rendering escape hatch.
+
+HTML-fragment view support was removed on 2026-05-09 because it had no current
+users and blurred ownership between producer-rendered markup and `make_site`
+rendered pages.  Producers that naturally emit prose should prefer Markdown or
+structured metadata consumed by an explicit `make_site` renderer.
 
 ## 8. Page Bundles and Producers
 
