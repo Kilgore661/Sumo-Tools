@@ -220,7 +220,7 @@ def publish_standings(output_root: Path) -> None:
         description="Rolling recent-performance table.",
         source_static=STANDINGS_FILES,
         output_dir=output_root / "tools" / "standings",
-        static_files=("index.html", "standings.css", "standings.js.txt"),
+        static_files=("index.html", "standings.css", "standings.js"),
     )
     copy_tool_static(tool)
     copy_data_tree(STANDINGS_DATA, tool.output_dir / "data")
@@ -236,7 +236,7 @@ def publish_banzuke_compare(output_root: Path) -> None:
         static_files=(
             "index.html",
             "banzuke_change_report.css",
-            "banzuke_change_report.js.txt",
+            "banzuke_change_report.js",
         ),
     )
     copy_tool_static(tool)

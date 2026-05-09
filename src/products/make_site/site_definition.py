@@ -152,8 +152,8 @@ STANDINGS_ASSETS = (
     ),
     asset(
         id="standings_js",
-        source_path=ANALYSIS_ROOT / "standings" / "files" / "standings.js.txt",
-        output_path="current-sumo/standings-by-wins/standings.js.txt",
+        source_path=ANALYSIS_ROOT / "standings" / "files" / "standings.js",
+        output_path="current-sumo/standings-by-wins/standings.js",
         media_type="application/javascript",
     ),
 )
@@ -181,8 +181,8 @@ BANZUKE_CHANGES_ASSETS = (
         source_path=ANALYSIS_ROOT
         / "banzuke_compare"
         / "files"
-        / "banzuke_change_report.js.txt",
-        output_path="current-sumo/banzuke-changes/banzuke_change_report.js.txt",
+        / "banzuke_change_report.js",
+        output_path="current-sumo/banzuke-changes/banzuke_change_report.js",
         media_type="application/javascript",
     ),
 )

@@ -2,7 +2,7 @@ This proposal outlines the transition from a "volatile" client-side state to a "
 
 ### 1. What exists now
 
-The current implementation in `standings.js.txt` uses a **One-Way, Volatile Flow**:
+The current implementation in `standings.js` uses a **One-Way, Volatile Flow**:
 
 * **Initialization:** The script loads `site_config.json`, sets a hardcoded default state (e.g., 6 basho, Makuuchi division), and renders the view.
 * **Interaction:** When a user interacts with a dropdown or radio button, the script updates a local JavaScript `state` object, fetches new data, and re-renders the table.
@@ -26,7 +26,7 @@ To achieve this without the "flicker" or "slow load" of a traditional CGI script
 
 ### 4. What we actually need to do
 
-To implement this, the following modifications to `standings.js.txt` are required:
+To implement this, the following modifications to `standings.js` are required:
 
 1. **Create a "State-to-URL" Serializer:** A function that takes the current `state` object and produces a query string.
 2. **Create a "URL-to-State" Parser:** A function (using `URLSearchParams`) that reads the query string and updates the `state` variables.

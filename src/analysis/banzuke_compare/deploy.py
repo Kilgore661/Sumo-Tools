@@ -26,7 +26,7 @@ REMOTE_COMMON = "/var/www/html/common/files"
 STATIC_FILE_NAMES = (
     "index.html",
     "banzuke_change_report.css",
-    "banzuke_change_report.js.txt",
+    "banzuke_change_report.js",
 )
 
 REMOTE_ROOT_FILE_NAMES = (

@@ -1,13 +1,10 @@
 /*
-standings.js.txt
+standings.js
 
 --------------------------------------------------------------------------------
 Config Note:
-This file has a .txt extension because some LLMs will not read a file with a
-.js extension. This is fine if all you want to so is load the contents into a
-web page. OTOH if you want to have JS files import other JS files, then you
-must use the .js extension. Since I can't do that, the JS has to be in one
-giant file, or I have to write a tool that renames .js files to .txt files :(
+This file now uses a normal .js extension.  It previously used .js.txt only
+because some older tools struggled to read JavaScript files directly.
 -------------------------------------------------------------------------------- 
 
 Ozumo Standings browser client.
@@ -1133,5 +1130,4 @@ function clearNotePopoverTimer() {
     notePopoverTimer = null;
   }
 }
-
 

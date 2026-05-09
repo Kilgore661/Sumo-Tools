@@ -234,7 +234,7 @@ def deploy_to_local_web() -> None:
     static_dir = Path(__file__).resolve().parent / "files"
     common_static_dir = Path(__file__).resolve().parents[1] / "common" / "files"
 
-    for name in ["index.html", "standings.css", "standings.js.txt"]:
+    for name in ["index.html", "standings.css", "standings.js"]:
         shutil.copy2(static_dir / name, WEB_ROOT / name)
 
     for name in ["site-wide.css", "tool-layout.css"]:

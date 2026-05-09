@@ -98,7 +98,7 @@ data.
 - `deploy.py` copies static files and uploads the published page.
 - `files/index.html` is the editable browser page shell.
 - `files/banzuke_change_report.css` is the browser stylesheet.
-- `files/banzuke_change_report.js.txt` is the browser behaviour layer.
+- `files/banzuke_change_report.js` is the browser behaviour layer.
 
 ## Published Data Contract
 

@@ -88,7 +88,7 @@ precomputed data.
 - `deploy.py` uploads the static site and data to the remote standings root.
 - `files/index.html` is the browser page shell.
 - `files/standings.css` is the browser stylesheet.
-- `files/standings.js.txt` is the browser behaviour layer.
+- `files/standings.js` is the browser behaviour layer.
 - `files/site_config.json` is a checked-in sample/current browser config.
 
 ## Published Data Contract

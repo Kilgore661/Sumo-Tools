@@ -16,7 +16,7 @@ Source:
 
 ```text
 src/analysis/standings/files/index.html
-src/analysis/standings/files/standings.js.txt
+src/analysis/standings/files/standings.js
 src/analysis/standings/files/standings.css
 ```
 
@@ -47,7 +47,7 @@ Source:
 
 ```text
 src/analysis/banzuke_compare/files/index.html
-src/analysis/banzuke_compare/files/banzuke_change_report.js.txt
+src/analysis/banzuke_compare/files/banzuke_change_report.js
 src/analysis/banzuke_compare/files/banzuke_change_report.css
 ```
 

@@ -160,7 +160,7 @@ The static browser shell is currently made from:
 
 * `index.html`
 * `standings.css`
-* `standings.js.txt`
+* `standings.js`
 
 These files are copied alongside the generated data files.
 

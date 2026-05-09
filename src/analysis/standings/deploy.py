@@ -43,7 +43,7 @@ def clear_remote_files(sftp, remote_dir: str) -> None:
 
 
 def deploy_static_files(sftp) -> None:
-    for name in ["index.html", "standings.css", "standings.js.txt"]:
+    for name in ["index.html", "standings.css", "standings.js"]:
         local_file = LOCAL_STATIC / name
         remote_file = posixpath.join(REMOTE_ROOT, name)
         upload_file(sftp, local_file, remote_file)

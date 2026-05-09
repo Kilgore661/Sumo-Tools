@@ -51,12 +51,23 @@ TOML, generated metadata, or some combination.
 The important contract is known: a page bundle must identify its page metadata,
 view, assets, data files, and option model. The storage format is not settled.
 
+> Reviewed 2026-05-09: the current Python dataclass model is the canonical
+> bundle representation for now.  Do not introduce JSON, YAML, TOML, or another
+> manifest format until a producer has a real need for one.  The remaining
+> concern is whether the dataclasses expose all metadata needed by promoted
+> public pages, not which storage syntax should be used.
+
 ### 2.2 Route Ownership
 
 Avoid having two independent ways to specify the same public route.
 
 The current design derives public routes from the navigation tree. Keep this
 unless a stronger requirement appears.
+
+> Reviewed 2026-05-09: this is current policy, not just current direction.
+> Page bundles must not define independent public page routes.  Producers may
+> suggest navigation placement, but `make_site` owns canonical route derivation
+> from the navigation tree.
 
 ### 2.3 View Types
 
@@ -70,6 +81,10 @@ The initial view types are enough for current work:
 * custom escape hatch.
 
 Do not broaden this list until a real page requires it.
+
+> Reviewed 2026-05-09: no immediate change.  The list may later narrow if
+> standalone/iframe-style inclusion is retired, but that is a migration concern,
+> not a blocker for current view types.
 
 ### 2.4 Options Model Semantics
 
@@ -86,6 +101,11 @@ It must distinguish between:
 The renderer may choose dropdowns, radio buttons, checkboxes, sliders, tabs, or
 other controls, but that is downstream of the state contract.
 
+> Reviewed 2026-05-09: no model change.  As a rendering preference, small
+> zero-or-more choice sets should use visible checkbox/toggle-style controls
+> rather than a dropdown where space allows; use dropdowns or menus for longer
+> lists or cramped layouts.  Radio buttons remain for exactly-one choices.
+
 ### 2.5 Direct Rendering vs Iframes
 
 The prototype currently uses iframes for embedded page content.
@@ -96,6 +116,10 @@ standalone iframe pages, or mixed by view type.
 Iframes work for stress testing and isolate legacy pages, but they complicate
 shared styling, deep-linking, sizing, and communication between the page and
 the shell.
+
+> Reviewed 2026-05-09: no further decision for now.  New promoted pages should
+> prefer native/direct rendering where practical; iframe-style inclusion remains
+> acceptable for legacy and prototype artefacts.
 
 ### 2.6 Date and Date-Range Parameters
 
@@ -108,6 +132,10 @@ The intended direction is a page-level option backed by producer-written data
 or a producer contract that supports the selected range.
 
 This is not an immediate implementation task.
+
+> Reviewed 2026-05-09: BRB is the current example.  Its selected basho date
+> should be page state backed by generated data/config, producing a new page
+> rather than adapting or multiplying old one-date HTML artefacts.
 
 ## 3. Browser State and Shareable URLs
 
@@ -173,13 +201,14 @@ The current `make_site` integration consumes standings data from
 Confirm that this is the intended producer contract, rather than a convenient
 publisher implementation detail.
 
-### 4.4 `.js.txt` JavaScript Files
+### 4.4 JavaScript File Extensions
 
-Some JavaScript is intentionally stored as `.js.txt` because plain `.js` files
-are not conveniently readable in the author's current workflow.
+Some JavaScript was intentionally stored as `.js.txt` because plain `.js` files
+were not conveniently readable in the author's earlier workflow.
 
-The site builder should preserve the filenames expected by source HTML files.
-Do not silently normalise them to `.js`.
+> Reviewed 2026-05-09: this convention is no longer needed. Source JavaScript
+> files should use normal `.js` filenames, and source HTML/site asset references
+> should point to those names directly.
 
 ## 5. Plotly and Interactive Charts
 

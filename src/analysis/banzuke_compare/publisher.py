@@ -27,7 +27,7 @@ from .report_view import build_bcr_report
 STATIC_FILE_NAMES = (
     "index.html",
     "banzuke_change_report.css",
-    "banzuke_change_report.js.txt",
+    "banzuke_change_report.js",
 )
 
 DATA_FILE_NAME = "banzuke_change_report.csv"
