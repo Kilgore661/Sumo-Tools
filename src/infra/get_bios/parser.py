@@ -31,15 +31,6 @@ EXPECTED_FIELDS = [
     "Kabu",
 ]
 
-PERSISTED_FIELDS = [
-    "Birth Date",
-    "Shusshin",
-    "Heya",
-    "Shikona",
-    "Hatsu Dohyo",
-    "Intai",
-]
-
 CAREER_RECORD = "Career Record"
 
 RIKISHIDATA_TABLE_START_PAT = re.compile(
@@ -51,6 +42,7 @@ RIKISHI_TABLE_START_PAT = re.compile(
     re.DOTALL | re.IGNORECASE,
 )
 ROW_PAT = re.compile(r"<tr>\s*(.*?)\s*</tr>", re.DOTALL | re.IGNORECASE)
+CELL_PAT = re.compile(r"<td\b[^>]*>\s*(.*?)\s*</td>", re.DOTALL | re.IGNORECASE)
 CAT_VAL_PAT = re.compile(
     r'<td\s+class="cat"[^>]*>\s*(.*?)\s*</td>\s*'
     r'<td\s+class="val"[^>]*>\s*(.*?)\s*</td>',
@@ -64,8 +56,12 @@ BANZUKE_DATE_PAT = re.compile(
     r"<td>\s*<a\s+href='Banzuke\.aspx\?b=(\d{6})",
     re.DOTALL | re.IGNORECASE,
 )
+HEIGHT_WEIGHT_PAT = re.compile(
+    r"^\s*(\d+(?:\.\d+)?)\s+cm\s+(\d+(?:\.\d+)?)\s+kg\s*$",
+    re.IGNORECASE,
+)
 TAG_PAT = re.compile(r"<.*?>", re.DOTALL)
-SHIKONA_SPLIT_PAT = re.compile(r"\s+[-‐-‒–—―]\s+")
+DASH_SPLIT_PAT = re.compile(r"\s+[-‐-‒–—―]\s+")
 
 
 def clean_html_text(text: str) -> str:
@@ -160,13 +156,40 @@ def normalize_date(value: str | None) -> str | None:
         return value
 
 
-def parse_shikona_history(text: str) -> tuple[OrderedDict[str, str], list[str]]:
+def split_dash_list(value: str | None) -> list[str] | None:
+    if not value:
+        return None
+
+    parts = [x.strip() for x in DASH_SPLIT_PAT.split(value) if x.strip()]
+    return parts or None
+
+
+def parse_height_weight(value: str | None) -> tuple[str, str] | None:
+    if not value:
+        return None
+
+    match = HEIGHT_WEIGHT_PAT.fullmatch(value)
+    if not match:
+        return None
+
+    return match.group(1), match.group(2)
+
+
+def parse_career_table(
+    text: str,
+) -> tuple[
+    OrderedDict[str, str],
+    OrderedDict[str, str],
+    OrderedDict[str, str],
+    list[str],
+]:
     table_html = extract_table(text, RIKISHI_TABLE_START_PAT)
 
-    result = OrderedDict()
+    shikona_history = OrderedDict()
+    height_history = OrderedDict()
+    weight_history = OrderedDict()
     diagnostics = []
 
-    current_shikona = None
     awaiting_date_for = None
 
     for row_match in ROW_PAT.finditer(table_html):
@@ -177,33 +200,44 @@ def parse_shikona_history(text: str) -> tuple[OrderedDict[str, str], list[str]]:
             if awaiting_date_for is not None:
                 diagnostics.append(f"no first-use date found for shikona {awaiting_date_for!r}")
 
-            current_shikona = clean_html_text(header_match.group(1))
-            awaiting_date_for = current_shikona
+            awaiting_date_for = clean_html_text(header_match.group(1))
             continue
 
-        if awaiting_date_for is not None:
-            date_match = BANZUKE_DATE_PAT.search(row_html)
-            if date_match:
-                result[yyyy_mm_from_yyyymm(date_match.group(1))] = awaiting_date_for
-                awaiting_date_for = None
+        date_match = BANZUKE_DATE_PAT.search(row_html)
+
+        if awaiting_date_for is not None and date_match:
+            shikona_history[yyyy_mm_from_yyyymm(date_match.group(1))] = awaiting_date_for
+            awaiting_date_for = None
+
+        if date_match:
+            basho_date = yyyy_mm_from_yyyymm(date_match.group(1))
+
+            for cell_match in CELL_PAT.finditer(row_html):
+                cell_text = clean_html_text(cell_match.group(1))
+                parsed = parse_height_weight(cell_text)
+
+                if parsed is not None:
+                    height, weight = parsed
+                    height_history[basho_date] = height
+                    weight_history[basho_date] = weight
+                    break
 
     if awaiting_date_for is not None:
         diagnostics.append(f"no first-use date found for shikona {awaiting_date_for!r}")
 
-    return result, diagnostics
+    return shikona_history, height_history, weight_history, diagnostics
 
 
 def expected_shikona_list(top_shikona: str | None) -> list[str]:
     if not top_shikona:
         return []
-    return [x.strip() for x in SHIKONA_SPLIT_PAT.split(top_shikona) if x.strip()]
+    return [x.strip() for x in DASH_SPLIT_PAT.split(top_shikona) if x.strip()]
 
 
 def check_shikona(rikid: str, shikona_history: OrderedDict[str, str]) -> list[str]:
     diagnostics = []
 
     for first_used, shikona in shikona_history.items():
-
         words = shikona.split()
 
         normalized_words = [
@@ -226,25 +260,104 @@ def check_shikona(rikid: str, shikona_history: OrderedDict[str, str]) -> list[st
     return diagnostics
 
 
-def build_persisted_record(fields: dict[str, str], shikona_history: OrderedDict[str, str]) -> dict:
+def check_shikona_against_top_field(
+    rikid: str,
+    top_shikona: list[str],
+    parsed_shikona: list[str],
+) -> list[str]:
+    diagnostics = []
+
+    if top_shikona and parsed_shikona and top_shikona != parsed_shikona:
+        max_len = max(len(top_shikona), len(parsed_shikona))
+
+        diagnostics.append(
+            f"{rikid}: top Shikona field differs from career table:"
+        )
+
+        for i in range(max_len):
+            top_val = top_shikona[i] if i < len(top_shikona) else ""
+            parsed_val = parsed_shikona[i] if i < len(parsed_shikona) else ""
+
+            marker = "==" if top_val == parsed_val else "!="
+
+            diagnostics.append(
+                f"    {i:02d}: "
+                f"top={top_val!r:<30} "
+                f"{marker} "
+                f"career={parsed_val!r}"
+            )
+
+    return diagnostics
+
+
+def check_height_weight_against_top_field(
+    rikid: str,
+    top_height_weight: str | None,
+    height_history: OrderedDict[str, str],
+    weight_history: OrderedDict[str, str],
+) -> list[str]:
+    diagnostics = []
+
+    top = parse_height_weight(top_height_weight)
+
+    if top is None:
+        if top_height_weight:
+            diagnostics.append(
+                f"{rikid}: could not parse top Height and Weight field: {top_height_weight!r}"
+            )
+        return diagnostics
+
+    #if not height_history or not weight_history:
+    #    diagnostics.append(
+    #        f"{rikid}: top Height and Weight exists but no dated career-table values found: "
+    #        f"top={top!r}"
+    #    )
+    #    return diagnostics
+
+    #last_date = next(reversed(height_history))
+    #career = (height_history[last_date], weight_history[last_date])
+
+    #if top != career:
+    #    diagnostics.append(
+    #        f"{rikid}: top Height and Weight differs from career table: "
+    #        f"top={top!r}, career={career!r} at {last_date}"
+    #    )
+
+    return diagnostics
+
+
+def build_persisted_record(
+    fields: dict[str, str],
+    shikona_history: OrderedDict[str, str],
+    height_history: OrderedDict[str, str],
+    weight_history: OrderedDict[str, str],
+) -> dict:
+
+    top_height_weight = parse_height_weight(fields.get("Height and Weight"))
+
+    if top_height_weight is None:
+        height = None
+        weight = None
+    else:
+        height, weight = top_height_weight
+
     return {
         "Birth Date": normalize_date(fields.get("Birth Date")),
         "Shusshin": fields.get("Shusshin") or None,
         "Heya": split_dash_list(fields.get("Heya")),
-        "Shikona": shikona_history,
+        "Shikona": shikona_history or None,
         "Hatsu Dohyo": normalize_date(fields.get("Hatsu Dohyo")),
         "Intai": normalize_date(fields.get("Intai")),
+        "Height": height,
+        "Weight": weight,
+        "Height_by_Date": height_history or None,
+        "Weight_by_Date": weight_history or None,
     }
 
 
 def rikid_from_path(path: Path) -> str:
     return path.stem
 
-def split_dash_list(value: str | None) -> list[str] | None:
-    if not value:
-        return None
-    parts = [x.strip() for x in SHIKONA_SPLIT_PAT.split(value) if x.strip()]
-    return parts or None
 
 def main() -> None:
     if not BIO_DIR.exists():
@@ -264,41 +377,32 @@ def main() -> None:
         try:
             text = path.read_text(encoding="utf-8")
             fields, unexpected = parse_top_fields(text)
-            shikona_history, shikona_parse_diagnostics = parse_shikona_history(text)
+            shikona_history, height_history, weight_history, career_diagnostics = parse_career_table(text)
 
             top_shikona = expected_shikona_list(fields.get("Shikona"))
             parsed_shikona = list(shikona_history.values())
 
-            if top_shikona and parsed_shikona and top_shikona != parsed_shikona:
-
-                max_len = max(len(top_shikona), len(parsed_shikona))
-
-                diagnostics.append(
-                    f"{rikid}: top Shikona field differs from career table:"
-                )
-
-                for i in range(max_len):
-
-                    top_val = top_shikona[i] if i < len(top_shikona) else ""
-                    parsed_val = parsed_shikona[i] if i < len(parsed_shikona) else ""
-
-                    marker = "==" if top_val == parsed_val else "!="
-
-                    diagnostics.append(
-                        f"    {i:02d}: "
-                        f"top={top_val!r:<30} "
-                        f"{marker} "
-                        f"career={parsed_val!r}"
-                    )
-
-            diagnostics.extend(f"{rikid}: {msg}" for msg in shikona_parse_diagnostics)
+            diagnostics.extend(
+                check_shikona_against_top_field(rikid, top_shikona, parsed_shikona)
+            )
+            diagnostics.extend(f"{rikid}: {msg}" for msg in career_diagnostics)
             diagnostics.extend(check_shikona(rikid, shikona_history))
+            diagnostics.extend(
+                check_height_weight_against_top_field(
+                    rikid,
+                    fields.get("Height and Weight"),
+                    height_history,
+                    weight_history,
+                )
+            )
 
         except Exception as exc:
             print(f"{rikid}: parse error: {exc}")
             fields = {}
             unexpected = {f"PARSE ERROR: {exc}"}
             shikona_history = OrderedDict()
+            height_history = OrderedDict()
+            weight_history = OrderedDict()
             diagnostics.append(f"{rikid}: parse error: {exc}")
 
         if unexpected:
@@ -309,9 +413,14 @@ def main() -> None:
             missing_row[field] = "" if field in fields else "1"
         missing_rows.append(missing_row)
 
-        persisted[rikid] = build_persisted_record(fields, shikona_history)
+        persisted[rikid] = build_persisted_record(
+            fields,
+            shikona_history,
+            height_history,
+            weight_history,
+        )
 
-        print(f"{rikid}: parsed")
+        #print(f"{rikid}: parsed")
 
     OUTPUT_JSON.parent.mkdir(parents=True, exist_ok=True)
 
