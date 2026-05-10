@@ -98,6 +98,7 @@ def _parse_mae_zumo_section( section_content):
             rikishi_match = rikishi_pat.search(rikishi_content)
             if rikishi_match:
                 bio, rik_id, name = rikishi_match.groups()
+                set_trace()
                 
                 # Extract result and check for promotion
                 result = _extract_result(result_content)
