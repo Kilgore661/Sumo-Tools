@@ -182,3 +182,4 @@ class PublishedFiles:
 
     csv_file: Path
     site_config_file: Path
+    page_bundle_file: Path

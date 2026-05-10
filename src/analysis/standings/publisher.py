@@ -29,8 +29,10 @@ from src.analysis.standings.publisher_reports import (
     publisher_run_output_dir,
     publisher_csv_file,
     publisher_json_file,
+    publisher_page_bundle_file,
     publisher_site_config_file,
     write_sidecar_json,
+    write_page_bundle_json,
     write_site_config_json,
 )
 
@@ -263,6 +265,15 @@ def main() -> None:
 
     write_site_config_json(
         output_file=config_file,
+        anchor_date=anchor_date,
+        direction=DIRECTION,
+        supported_num_basho=SUPPORTED_NUM_BASHO,
+        default_num_basho=determine_default_num_basho(history),
+        default_division=DEFAULT_DIVISION,
+    )
+
+    write_page_bundle_json(
+        output_file=publisher_page_bundle_file(run_stamp),
         anchor_date=anchor_date,
         direction=DIRECTION,
         supported_num_basho=SUPPORTED_NUM_BASHO,

@@ -8,5 +8,4 @@ LATEST_RUN_FILE = OUTPUT_DIR / "last_run.txt"
 
 PUBLISHER_LATEST_DATA = Path("files/output/standings/publisher/latest_data")
 
-# Brittle link to legacy code:
-LEGACY_QUALIFIED_SHIKONA = Path("H:/Code/Sumo/Elo/v. 9/files/output/mirror/cgi-bin/files/input/data/full_shiks.pkl")
+LEGACY_QUALIFIED_SHIKONA = Path(__file__).resolve().parent / "files" / "full_shiks.pkl"

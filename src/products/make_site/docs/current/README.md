@@ -8,8 +8,11 @@ public site.
 | Document                                   | Role                                                                                       |
 | ------------------------------------------ | ------------------------------------------------------------------------------------------ |
 | `Public Site Contract.md`                  | Consolidated current requirements, system contract, and design guardrails.                 |
+| `Public UI Grammar.md`                     | Target page grammar: Heading + Options + PA manifest, with explicit URL-state policy.      |
+| `PA Manifest Classes.md`                   | Target class model for PA manifests: TablePA, ChartPA, MultiViewPA, and EssayPA.           |
 | `Implementation State.md`                  | Current implementation notes and known builder/site-definition state.                      |
 | `Producer Writers and Prototype Embeds.md` | Policy for moving analysis outputs into the public site.                                   |
+| `Table App Bundle Migration.md`            | Migration plan for turning current standalone table apps into make_site PA manifest writers. |
 | `Basho Results Browser Design Notes.md`    | Working design notes for the proposed Sumo History > Basho Results page.                   |
 | `Public Table Behaviour Inventory.md`      | Inventory of existing public table behaviours and BRB table precedents.                    |
 | `Equelo Version Naming.md`                 | Canonical naming for Equelo model versions, diagnostic chart stages, and rating landmarks. |
@@ -34,7 +37,7 @@ These documents are allowed to overlap.
 
 The priority order is:
 
-1. explicit current policy notes, especially `Equelo Version Naming.md`;
+1. explicit current policy notes, especially `Public UI Grammar.md`, `PA Manifest Classes.md`, and `Equelo Version Naming.md`;
 2. `Public Site Contract.md`;
 3. `Implementation State.md`;
 4. `TBD Register.md` for open questions and known inconsistencies.

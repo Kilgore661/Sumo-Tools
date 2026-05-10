@@ -130,6 +130,16 @@ selected page body
 This model is useful, but should not be overengineered into a general content
 management system.
 
+The current target grammar is specified in `Public UI Grammar.md` as:
+
+```text
+Heading + Options + Published Artefact
+```
+
+Use that document as the source of truth for the direct-rendering target,
+Published Artefact manifest concept, explicit URL-state policy, and the
+decision that iframes are outside the target architecture.
+
 ## 6. Options and Controls
 
 The options model describes page state.

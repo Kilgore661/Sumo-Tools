@@ -17,6 +17,7 @@ from .classes import (
     ViewRef,
 )
 from .filesystem import clear_dir, copy_file
+from .pa_runtime import write_pa_runtime_skeleton
 from .render import (
     write_custom_page,
     write_plotly_json_page,
@@ -34,6 +35,7 @@ def build_site(site: Site, config: SiteBuildConfig) -> None:
         write_page(page_route, config.output_root)
         copy_file_refs(page_route.page.assets, config.output_root)
         copy_file_refs(page_route.page.data, config.output_root)
+    write_pa_runtime_skeleton(site, config, page_routes)
 
 
 def write_page(page_route: PageRoute, output_root: Path) -> None:

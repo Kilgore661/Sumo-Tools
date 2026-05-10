@@ -1,7 +1,5 @@
 ﻿"""Canonical provisional public-site definition."""
 
-from __future__ import annotations
-
 from pathlib import Path, PurePosixPath
 from typing import Mapping
 
@@ -189,6 +187,12 @@ BANZUKE_CHANGES_ASSETS = (
 
 
 BANZUKE_CHANGES_DATA = (
+    data(
+        id="banzuke_changes_page_bundle",
+        source_path=BCR_OUTPUT_ROOT / "page_bundle.json",
+        output_path="current-sumo/banzuke-changes/page_bundle.json",
+        media_type="application/json",
+    ),
     data(
         id="banzuke_changes_site_config",
         source_path=BCR_OUTPUT_ROOT / "site_config.json",

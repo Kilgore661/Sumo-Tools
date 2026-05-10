@@ -10,6 +10,7 @@ from .classes import BcrReport, PublishedFiles
 
 DATA_FILE_NAME = "banzuke_change_report.csv"
 SITE_CONFIG_FILE_NAME = "site_config.json"
+PAGE_BUNDLE_FILE_NAME = "page_bundle.json"
 DEFAULT_DIVISION_ID = "makuuchi"
 
 CSV_FIELDNAMES = (
@@ -52,13 +53,16 @@ def write_publication_data(report: BcrReport) -> PublishedFiles:
 
     csv_file = request.data_dir / DATA_FILE_NAME
     site_config_file = request.output_root / SITE_CONFIG_FILE_NAME
+    page_bundle_file = request.output_root / PAGE_BUNDLE_FILE_NAME
 
     write_report_csv(report=report, output_file=csv_file)
     write_site_config(report=report, output_file=site_config_file)
+    write_page_bundle(report=report, output_file=page_bundle_file)
 
     return PublishedFiles(
         csv_file=csv_file,
         site_config_file=site_config_file,
+        page_bundle_file=page_bundle_file,
     )
 
 
@@ -154,6 +158,168 @@ def write_site_config(report: BcrReport, output_file) -> None:
         "default_division": default_division_id(report),
         "data_file": f"data/{DATA_FILE_NAME}",
         "divisions": divisions,
+    }
+
+    output_file.write_text(
+        json.dumps(payload, indent=2),
+        encoding="utf-8",
+    )
+
+
+def write_page_bundle(report: BcrReport, output_file) -> None:
+    """
+    Write the first make_site-facing bundle contract for Banzuke Changes.
+
+    The existing standalone browser app remains during migration, but this
+    file records the producer-owned data/config/metadata that a native
+    make_site renderer should consume.
+    """
+
+    source = report.diff.source
+    payload = {
+        "schema": "sumo-tools.table-page-bundle.v0",
+        "page": {
+            "id": "banzuke_changes",
+            "title": "Banzuke Changes",
+            "summary": "New-banzuke change report.",
+            "status": "candidate",
+        },
+        "producer": {
+            "module": "src.analysis.banzuke_compare",
+            "legacy_app_shell": "src/analysis/banzuke_compare/files/index.html",
+            "public_ui_owner": "make_site",
+        },
+        "view": {
+            "kind": "table",
+            "layout": "tool",
+            "default_rendering": "banzuke_style",
+            "supported_renderings": ["banzuke_style", "one_column"],
+        },
+        "data": {
+            "site_config": SITE_CONFIG_FILE_NAME,
+            "rows": f"data/{DATA_FILE_NAME}",
+        },
+        "options": [
+            {
+                "id": "division",
+                "kind": "enum",
+                "default": default_division_id(report),
+                "values": [
+                    {
+                        "value": division.division_id,
+                        "label": division.division_label,
+                    }
+                    for division in report.divisions
+                ],
+            },
+            {
+                "id": "context",
+                "kind": "boolean",
+                "label": "Previous Basho Context",
+                "default": True,
+            },
+            {
+                "id": "banzuke_style",
+                "kind": "boolean",
+                "label": "Banzuke Style",
+                "default": True,
+            },
+            {
+                "id": "delta",
+                "kind": "boolean",
+                "label": "Show Delta",
+                "default": False,
+            },
+            {
+                "id": "equelo",
+                "kind": "boolean",
+                "label": "Equelo Ratings",
+                "default": False,
+            },
+        ],
+        "columns": [
+            {
+                "id": "equelo",
+                "label": "Equelo",
+                "group": "equelo",
+                "visible_when": "equelo",
+            },
+            {
+                "id": "old_chii",
+                "label": "Chii",
+                "group": "context",
+                "visible_when": "context",
+            },
+            {
+                "id": "result",
+                "label": "Result",
+                "group": "context",
+                "visible_when": "context",
+                "note": "note-result",
+            },
+            {
+                "id": "delta_direction",
+                "label": "Direction",
+                "group": "delta",
+                "visible_when": "delta",
+                "note": "note-direction",
+            },
+            {
+                "id": "delta",
+                "label": "Delta",
+                "group": "delta",
+                "visible_when": "delta",
+                "note": "note-delta",
+            },
+            {
+                "id": "shikona",
+                "label": "Shikona",
+                "link": "rikishi",
+                "always_visible": True,
+            },
+            {
+                "id": "bz_chii",
+                "label": "Rank",
+                "always_visible": True,
+            },
+        ],
+        "notes": [
+            {
+                "id": "note-result",
+                "for": "context",
+                "text": (
+                    "Result gives wins, losses and absences followed by prizes "
+                    "if any. A trailing up/down marker indicates promotion or "
+                    "demotion into the current division."
+                ),
+            },
+            {
+                "id": "note-direction",
+                "for": "all",
+                "text": (
+                    "Direction indicates a better or worse position than in "
+                    "the previous basho."
+                ),
+            },
+            {
+                "id": "note-delta",
+                "for": "delta",
+                "text": (
+                    "Delta indicates the size of movement from the previous "
+                    "basho's position, measured in banzuke rows."
+                ),
+            },
+        ],
+        "provenance": {
+            "current_date": str(source.current_date),
+            "previous_date": str(source.previous_date),
+        },
+        "behaviour": {
+            "url_state": True,
+            "rikishi_links": True,
+            "note_popovers": True,
+            "option_sensitive_notes": True,
+        },
     }
 
     output_file.write_text(
