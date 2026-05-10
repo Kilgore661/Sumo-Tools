@@ -18,6 +18,7 @@ def write_site_index(
     site: Site,
     config: SiteBuildConfig,
     page_routes: Mapping[str, PageRoute],
+    build_stamp: str,
 ) -> None:
     html = "\n".join(
         (
@@ -36,7 +37,7 @@ def write_site_index(
             '<aside class="site-nav" aria-label="Site navigation">',
             '<header class="site-brand">',
             f'<div class="site-name">{escape(site.title)}</div>',
-            '<div class="site-status">Provisional map</div>',
+            f'<div class="site-status">{escape(build_stamp)}</div>',
             "</header>",
             render_navigation(site.navigation, config.base_route, page_routes),
             "</aside>",

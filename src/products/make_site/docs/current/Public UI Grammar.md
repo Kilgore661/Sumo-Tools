@@ -15,11 +15,6 @@ The current implementation does not yet fully satisfy this grammar.  The
 purpose of this document is to give the implementation a clear target before
 deep-site URLs, BRB, and native table-page rendering are built.
 
-This document deliberately gives little design weight to existing static HTML
-artefacts.  If static HTML inclusion gets in the way of the target architecture,
-exclude it from the first implementation and restore it later through an
-explicit manifest/renderer path.
-
 ## Core Model
 
 The public UI has:
@@ -76,46 +71,35 @@ The renderer chooses controls from the option model:
   list is short, and menus/dropdowns where the list is long or cramped;
 * numeric values use appropriate numeric controls.
 
-URLs should be explicit.  On arrival, missing option parameters are interpreted
-from the option defaults, but the renderer should normalise the address bar to
-the explicit canonical state.  For example, if `opt` defaults to `off`, these
-inputs are equivalent:
-
-```text
-u/N
-u/N?opt=off
-```
-
-and the canonical address bar should become:
-
-```text
-u/N?opt=off
-```
-
-This makes copied URLs more descriptive and debugging easier.
+Default state should not have to be spelled out in a URL unless doing so
+improves clarity.  Non-default state should be serialisable into the page URL.
 
 ## Published Artefact
 
 A Published Artefact is a renderer contract.  It is not necessarily a physical
 HTML file.
 
-Each Published Artefact should be described by a PA manifest.  A PA manifest is
-an instance of a PA manifest class.  The manifest is the producer/site contract
-that identifies the artefact kind, option model, data files, rendering
-metadata, notes, and provenance needed by `make_site`.
-
-The manifest class model is specified in `PA Manifest Classes.md`.
-
-Supported target PA manifest classes:
+Supported target PA kinds:
 
 ```text
-TablePA
-ChartPA
-MultiViewPA
-EssayPA
+static-html
+data-table
+data-chart
+multi-view
+essay/prose
 ```
 
-### `TablePA`
+### `static-html`
+
+Use for already complete HTML artefacts.
+
+The HTML is fixed for the selected navigation node.  It may contain its own
+internal browser or Plotly interactions, but those are not site-owned options.
+
+This is the legacy/prototype inclusion path, not the preferred promoted-page
+path.
+
+### `data-table`
 
 Use for tables whose rows and metadata are supplied by producer-written data
 and config.
@@ -144,7 +128,7 @@ Examples and candidates:
 * Banzuke Changes after migration;
 * future BRB.
 
-### `ChartPA`
+### `data-chart`
 
 Use for charts rendered from producer-written data and chart config.
 
@@ -165,7 +149,7 @@ The producer owns:
 Current examples are the newer `make_site` chart pages that load CSV/JSON and
 render Plotly in browser code.
 
-### `MultiViewPA`
+### `multi-view`
 
 Use when one page can show one of several related artefact views.  A view may
 be a chart, a table, or another supported renderer type.
@@ -182,7 +166,7 @@ Current examples:
 Future table pages may also become multi-view if a real public question
 requires a choice between multiple tables.
 
-### `EssayPA`
+### `essay/prose`
 
 Use for explanatory pages.  The producer may provide Markdown or structured
 prose metadata, but not semi-rendered HTML snippets as the public integration
@@ -202,15 +186,19 @@ The target grammar does not require:
 
 ## Iframe Policy
 
-Iframes are out of the target UI architecture.
+Iframes are a compatibility mechanism, not the target UI architecture.
 
 The target architecture is direct rendering into generated public pages using
 the grammar above.  A page route should identify the selected page.  Page-local
 options should be encoded as URL state for that page.
 
-If a current Published Artefact needs an iframe, it is not part of the target
-implementation.  Exclude it for now or migrate it into a PA manifest and a
-direct renderer.
+Iframes may remain temporarily for:
+
+* legacy complete HTML artefacts;
+* prototype inclusion during information-architecture experiments;
+* comparison while a standalone table app is being migrated.
+
+New promoted pages should not require an iframe.
 
 ## URL State
 
@@ -218,7 +206,7 @@ Deep-site URLs should follow the page grammar:
 
 ```text
 route path  -> selected navigation page
-query/hash  -> explicit page-local option state
+query/hash  -> page-local non-default option state
 ```
 
 For example:
@@ -231,10 +219,6 @@ The exact query keys are page-owned but must be stable once public.  Shared
 renderers may define common key conventions for common concepts such as
 division, sort column, sort direction, and visible columns.
 
-Canonical URLs should spell out option state, including defaults.  The option
-model remains the source of truth for interpreting missing parameters on
-arrival, but normalisation should make the visible URL explicit.
-
 Back/forward behaviour follows from URL state:
 
 * navigating to another page changes the route;
@@ -245,7 +229,7 @@ Back/forward behaviour follows from URL state:
 
 Producers are responsible for analysis-specific knowledge.
 
-For promoted pages, producers should emit a PA manifest that
+For promoted pages, producers should emit a bundle or equivalent metadata that
 identifies:
 
 * page metadata;
@@ -267,26 +251,23 @@ identifies:
 * URL state;
 * public styling.
 
-The first provisional PA manifest schema for table pages is:
+The first provisional bundle schema for table pages is:
 
 ```text
 sumo-tools.table-page-bundle.v0
 ```
-
-The name still says `bundle` because it predates this terminology decision.
-Future schema names should prefer `manifest`.
 
 This schema is intentionally provisional and should evolve as Standings,
 Banzuke Changes, and BRB expose real renderer needs.
 
 ## Legacy Content
 
-Existing complete HTML pages are not part of the target grammar unless they are
-given a PA manifest and a direct renderer.
+Existing complete HTML pages may continue to be included as `static-html`
+artefacts while they are useful.
 
 They should not define public routes, site styling, page grammar, or option
 state conventions for promoted pages.
 
 When a legacy artefact becomes important enough to behave like a first-class
-page, it should be migrated into the manifest/renderer model rather than
-wrapped more elaborately.
+page, it should be migrated into the bundle/renderer model rather than wrapped
+more elaborately.

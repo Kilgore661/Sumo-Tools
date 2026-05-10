@@ -45,14 +45,14 @@ sharing, or publication becomes important.
 
 ### 2.1 Page Bundle Format
 
-Decide whether page manifests should be declared as Python objects, JSON, YAML,
+Decide whether page bundles should be declared as Python objects, JSON, YAML,
 TOML, generated metadata, or some combination.
 
-The important contract is known: a page manifest must identify its page metadata,
+The important contract is known: a page bundle must identify its page metadata,
 view, assets, data files, and option model. The storage format is not settled.
 
 > Reviewed 2026-05-09: the current Python dataclass model is the canonical
-> manifest representation for now.  Do not introduce JSON, YAML, TOML, or another
+> bundle representation for now.  Do not introduce JSON, YAML, TOML, or another
 > manifest format until a producer has a real need for one.  The remaining
 > concern is whether the dataclasses expose all metadata needed by promoted
 > public pages, not which storage syntax should be used.
@@ -65,7 +65,7 @@ The current design derives public routes from the navigation tree. Keep this
 unless a stronger requirement appears.
 
 > Reviewed 2026-05-09: this is current policy, not just current direction.
-> Page manifests must not define independent public page routes.  Producers may
+> Page bundles must not define independent public page routes.  Producers may
 > suggest navigation placement, but `make_site` owns canonical route derivation
 > from the navigation tree.
 
@@ -74,6 +74,7 @@ unless a stronger requirement appears.
 The initial view types are enough for current work:
 
 * standalone HTML;
+* HTML fragment;
 * Plotly/data-driven chart;
 * table app;
 * essay;
@@ -81,10 +82,9 @@ The initial view types are enough for current work:
 
 Do not broaden this list until a real page requires it.
 
-> Reviewed 2026-05-09: HTML-fragment view support was removed because it had no
-> current users and blurred ownership.  The remaining possible narrowing is
-> whether standalone/iframe-style inclusion is retired; that is a migration
-> concern, not a blocker for current view types.
+> Reviewed 2026-05-09: no immediate change.  The list may later narrow if
+> standalone/iframe-style inclusion is retired, but that is a migration concern,
+> not a blocker for current view types.
 
 ### 2.4 Options Model Semantics
 
@@ -121,14 +121,6 @@ the shell.
 > prefer native/direct rendering where practical; iframe-style inclusion remains
 > acceptable for legacy and prototype artefacts.
 
-> Reviewed 2026-05-09: `Public UI Grammar.md` now records the target direct
-> rendering model as `Heading + Options + Published Artefact`.  Iframes are a
-> compatibility/migration concern only, not part of the target architecture.
-> A current artefact that needs an iframe should be excluded or migrated.
-
-> Reviewed 2026-05-09: `PA Manifest Classes.md` now records the target class
-> model for PA manifests: TablePA, ChartPA, MultiViewPA, and EssayPA.
-
 ### 2.6 Date and Date-Range Parameters
 
 For charts and tables where it makes sense, consider making the date or range
@@ -160,10 +152,6 @@ For example, a URL should be able to identify:
 * equivalent state for other interactive pages.
 
 The URL should be displayed in the browser's address bar.
-
-> Reviewed 2026-05-09: `Public UI Grammar.md` sets the target URL model:
-> route path selects the navigation page; query/hash state records explicit
-> page-local option state, including defaults after normalisation.
 
 ### 3.2 Back and Forward Buttons
 
@@ -197,11 +185,6 @@ legacy v9 pickle.
 Decide whether the Banzuke Changes pipeline should be made fully reproducible
 inside Sumo-Tools before this page is treated as final.
 
-> Reviewed 2026-05-09: Banzuke Changes remains a producer, but the standalone
-> browser app is no longer the target public integration contract.  The
-> publisher now writes `page_bundle.json` beside `site_config.json` and the CSV
-> as the first step toward native `make_site` rendering.
-
 ### 4.2 Banzuke Changes Default Previous Basho
 
 The default Banzuke Changes view should have previous-basho context turned
@@ -218,19 +201,13 @@ The current `make_site` integration consumes standings data from
 Confirm that this is the intended producer contract, rather than a convenient
 publisher implementation detail.
 
-> Reviewed 2026-05-09: Standings remains a producer, but the standalone browser
-> app is no longer the target public integration contract.  The publisher now
-> writes `page_bundle.json` into the latest-data manifest set as the first step
-> toward native `make_site` rendering.
+### 4.4 `.js.txt` JavaScript Files
 
-### 4.4 JavaScript File Extensions
+Some JavaScript is intentionally stored as `.js.txt` because plain `.js` files
+are not conveniently readable in the author's current workflow.
 
-Some JavaScript was intentionally stored as `.js.txt` because plain `.js` files
-were not conveniently readable in the author's earlier workflow.
-
-> Reviewed 2026-05-09: this convention is no longer needed. Source JavaScript
-> files should use normal `.js` filenames, and source HTML/site asset references
-> should point to those names directly.
+The site builder should preserve the filenames expected by source HTML files.
+Do not silently normalise them to `.js`.
 
 ## 5. Plotly and Interactive Charts
 

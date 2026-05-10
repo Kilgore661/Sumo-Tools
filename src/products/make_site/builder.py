@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from pathlib import Path
 
 from .classes import (
@@ -28,14 +29,15 @@ from .routes import PageRoute, derive_page_routes
 
 def build_site(site: Site, config: SiteBuildConfig) -> None:
     page_routes = derive_page_routes(site)
+    build_stamp = datetime.now().strftime("Generated %Y-%m-%d %H:%M")
     clear_dir(config.output_root)
-    write_site_index(site, config, page_routes)
+    write_site_index(site, config, page_routes, build_stamp)
     copy_file_refs(site.global_assets, config.output_root)
     for page_route in page_routes.values():
         write_page(page_route, config.output_root)
         copy_file_refs(page_route.page.assets, config.output_root)
         copy_file_refs(page_route.page.data, config.output_root)
-    write_pa_runtime_skeleton(site, config, page_routes)
+    write_pa_runtime_skeleton(site, config, page_routes, build_stamp)
 
 
 def write_page(page_route: PageRoute, output_root: Path) -> None:

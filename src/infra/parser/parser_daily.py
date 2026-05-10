@@ -120,32 +120,44 @@ def _parse_daily_results( year: int, month: int, day: Day,
                     if cols[7] in Outcome.__members__ and cols[9] in Outcome.__members__:
                         outcome1 = _convert_outcome(cols[7])
                         outcome2 = _convert_outcome(cols[9])
-                        if rid1 not in banzuke_mz:
-                            set_trace()
-                        temp = banzuke_mz[ rid1 ][ 'chii' ]
-                        if isinstance( temp, str ) and temp == 'Mz':
-                            # Mz has snuck into the table because he fought a Jk
-                            # Mz are not in the margin so there are no symbols.
-                            # Mz are allowed in the "banzuke" - the type is
-                            # specifically called BanzukeMz to remind us that
-                            # they are allowed in. Why - I can't remember :(
 
-                            #sym = None # Why do this? It leads to calling None.inconsistent()
-                            sym = outcome1.to_symbol()
-                        else:
-                            # This code doesn't work because the symbols in the
-                            # margin are not always consistent with the
-                            # corresponding days' results.
-                            #
-                            #symbols = banzuke_mz[ rid1 ][ 'symbols' ]
-                            #if day <= len( symbols ):
-                            #    sym = symbols[ day - 1 ]
-                            #else:
-                            #    sym = None
-                            #
-                            # Instead, we'll take the Outcome to be the source
-                            # of truth and make the symbol from rikishi1's Outcome
-                            sym = outcome1.to_symbol()
+                        ####################################################
+                        # The set_trace below was executed when processing
+                        # Omori (13003) in his first appearance in 2026/05. He is
+                        # not in banzuke_mz. This should be correct as he is Ms60TD. 
+                        # There are all sorts of questions here about the
+                        # model, never mind the logic. But the pragmatic thing
+                        # is that we are just trying to decide what "sym"
+                        # should be; and the outcome is the same whether "temp"
+                        # is Mz or not. I think we just say sym =
+                        # outcome1.to_symbol(), period.
+                        #if rid1 not in banzuke_mz:
+                        #    set_trace()
+                        #temp = banzuke_mz[ rid1 ][ 'chii' ]
+                        #if isinstance( temp, str ) and temp == 'Mz':
+                        #    # Mz has snuck into the table because he fought a Jk
+                        #    # Mz are not in the margin so there are no symbols.
+                        #    # Mz are allowed in the "banzuke" - the type is
+                        #    # specifically called BanzukeMz to remind us that
+                        #    # they are allowed in. Why - I can't remember :(
+
+                        #    #sym = None # Why do this? It leads to calling None.inconsistent()
+                        #    sym = outcome1.to_symbol()
+                        #else:
+                        #    # This code doesn't work because the symbols in the
+                        #    # margin are not always consistent with the
+                        #    # corresponding days' results.
+                        #    #
+                        #    #symbols = banzuke_mz[ rid1 ][ 'symbols' ]
+                        #    #if day <= len( symbols ):
+                        #    #    sym = symbols[ day - 1 ]
+                        #    #else:
+                        #    #    sym = None
+                        #    #
+                        #    # Instead, we'll take the Outcome to be the source
+                        #    # of truth and make the symbol from rikishi1's Outcome
+                        #    sym = outcome1.to_symbol()
+                        sym = outcome1.to_symbol()
 
                         # There is a potential problem with sym = None which is
                         # that later it will be used in an expression
