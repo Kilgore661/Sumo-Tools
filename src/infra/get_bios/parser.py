@@ -56,10 +56,20 @@ BANZUKE_DATE_PAT = re.compile(
     r"<td>\s*<a\s+href='Banzuke\.aspx\?b=(\d{6})",
     re.DOTALL | re.IGNORECASE,
 )
+
 HEIGHT_WEIGHT_PAT = re.compile(
     r"^\s*(\d+(?:\.\d+)?)\s+cm\s+(\d+(?:\.\d+)?)\s+kg\s*$",
     re.IGNORECASE,
 )
+HEIGHT_ONLY_PAT = re.compile(
+    r"^\s*(\d+(?:\.\d+)?)\s+cm\s*$",
+    re.IGNORECASE,
+)
+WEIGHT_ONLY_PAT = re.compile(
+    r"^\s*(\d+(?:\.\d+)?)\s+kg\s*$",
+    re.IGNORECASE,
+)
+
 TAG_PAT = re.compile(r"<.*?>", re.DOTALL)
 DASH_SPLIT_PAT = re.compile(r"\s+[-‐-‒–—―]\s+")
 
@@ -175,6 +185,22 @@ def parse_height_weight(value: str | None) -> tuple[str, str] | None:
     return match.group(1), match.group(2)
 
 
+def diagnose_partial_height_weight(value: str | None, context: str) -> list[str]:
+    if not value:
+        return []
+
+    if HEIGHT_WEIGHT_PAT.fullmatch(value):
+        return []
+
+    if HEIGHT_ONLY_PAT.fullmatch(value):
+        return [f"{context}: partial height/weight: height only {value!r}"]
+
+    if WEIGHT_ONLY_PAT.fullmatch(value):
+        return [f"{context}: partial height/weight: weight only {value!r}"]
+
+    return []
+
+
 def parse_career_table(
     text: str,
 ) -> tuple[
@@ -214,13 +240,20 @@ def parse_career_table(
 
             for cell_match in CELL_PAT.finditer(row_html):
                 cell_text = clean_html_text(cell_match.group(1))
-                parsed = parse_height_weight(cell_text)
 
+                parsed = parse_height_weight(cell_text)
                 if parsed is not None:
                     height, weight = parsed
                     height_history[basho_date] = height
                     weight_history[basho_date] = weight
                     break
+
+                diagnostics.extend(
+                    diagnose_partial_height_weight(
+                        cell_text,
+                        f"partial height/weight at {basho_date}",
+                    )
+                )
 
     if awaiting_date_for is not None:
         diagnostics.append(f"no first-use date found for shikona {awaiting_date_for!r}")
@@ -298,33 +331,22 @@ def check_height_weight_against_top_field(
 ) -> list[str]:
     diagnostics = []
 
+    diagnostics.extend(
+        f"{rikid}: {msg}"
+        for msg in diagnose_partial_height_weight(
+            top_height_weight,
+            "top Height and Weight field",
+        )
+    )
+
     top = parse_height_weight(top_height_weight)
 
-    if top is None:
-        if top_height_weight:
-            diagnostics.append(
-                f"{rikid}: could not parse top Height and Weight field: {top_height_weight!r}"
-            )
-        return diagnostics
-
-    #if not height_history or not weight_history:
-    #    diagnostics.append(
-    #        f"{rikid}: top Height and Weight exists but no dated career-table values found: "
-    #        f"top={top!r}"
-    #    )
-    #    return diagnostics
-
-    #last_date = next(reversed(height_history))
-    #career = (height_history[last_date], weight_history[last_date])
-
-    #if top != career:
-    #    diagnostics.append(
-    #        f"{rikid}: top Height and Weight differs from career table: "
-    #        f"top={top!r}, career={career!r} at {last_date}"
-    #    )
+    if top is None and top_height_weight and not diagnostics:
+        diagnostics.append(
+            f"{rikid}: could not parse top Height and Weight field: {top_height_weight!r}"
+        )
 
     return diagnostics
-
 
 def build_persisted_record(
     fields: dict[str, str],
@@ -332,7 +354,6 @@ def build_persisted_record(
     height_history: OrderedDict[str, str],
     weight_history: OrderedDict[str, str],
 ) -> dict:
-
     top_height_weight = parse_height_weight(fields.get("Height and Weight"))
 
     if top_height_weight is None:

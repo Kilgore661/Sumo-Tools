@@ -214,4 +214,3 @@ Therefore:
 * the grammar should be permissive
 * validations should produce diagnostics rather than hard failures
 * original strings should always be preserved losslessly.
-
