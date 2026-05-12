@@ -90,9 +90,9 @@ PAManifest
 ```
 
 Concrete classes add class-specific fields. The target PA classes currently
-identified are `TablePA`, `ChartPA`, `MultiViewPA`, and `EssayPA`. `ExcludedPA`
-is a non-target marker for active navigation items that remain outside the
-direct PA architecture.
+identified are `TablePA`, `IndexedTablePA`, `ChartPA`, `MultiViewPA`, and
+`EssayPA`. `ExcludedPA` is a non-target marker for active navigation items that
+remain outside the direct PA architecture.
 
 ## TablePA
 
@@ -232,6 +232,35 @@ identity.
 
 Different files can also be loaded by a single PA, for example a BRB table that
 loads one file per basho date.
+
+## IndexedTablePA
+
+Use when the public artefact is still a table, but its rows are selected from a
+large or sparse set of payload files via an index.
+
+This is the target shape for Basho Results Browser (BRB):
+
+```text
+IndexedTablePA
+  index_source
+  selector_option
+  payload_path_field
+  columns
+  column_groups
+  sort_policy
+  notes
+  provenance
+```
+
+The index source is loaded first.  The selected option value identifies an
+index entry, and that entry supplies the payload path to load.  The payload is
+then rendered using the same column, grouping, note, and sort ideas as a
+regular table.
+
+The manifest class should stay generic.  Basho-specific behaviour such as
+valid basho dates, missing basho, current-basho state, and previous/next basho
+navigation belongs in the producer-written index/payload metadata and in the
+page control contract, not in the base class itself.
 
 ## EssayPA
 

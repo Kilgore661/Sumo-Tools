@@ -616,6 +616,22 @@ The original policy is recorded in
 `src/analysis/equelo/fixed_v1/docs/V5 Policy.md`; fixed_v2 currently reuses
 the same landmark-cleaning idea on the Brierless rating scale.
 
+### 12.3a Site-Wide CSS Rationalisation
+
+The current renderer code contains repeated inline CSS for tool shells, option
+panels, table panels, notes, links, and dark-theme variables.  Some duplication
+is a transitional result of standalone app/page integration, but promoted
+public pages should not each carry their own private copy of the same site
+chrome.
+
+Extract shared page, tool, table, chart, control, note, and link styling into
+site-wide CSS assets where possible.  Page-specific CSS should describe genuine
+local layout or visualization needs, not restate the public shell grammar.
+
+This should be coordinated with the direct-rendering and PA-runtime work so
+that new pages such as BRB inherit shared styling by default rather than adding
+another bespoke inline stylesheet.
+
 ### 12.4 Sortable Public Tables
 
 All public table columns should be sortable where sorting makes sense.

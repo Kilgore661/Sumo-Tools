@@ -228,6 +228,12 @@ NAVIGATION = NavigationTree(
             "Sumo History",
             "sumo-history",
             nav(
+                "basho_results_browser",
+                "Basho Results",
+                "basho-results",
+                page_id="basho_results_browser",
+            ),
+            nav(
                 "population_history",
                 "Population History",
                 "population-history",

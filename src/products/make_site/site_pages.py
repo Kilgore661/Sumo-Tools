@@ -135,6 +135,12 @@ PAGES = PageRegistry(
             view=CustomView(kind="standing_win_probability"),
             data=WIN_PROBABILITY_BY_STANDING_DATA,
         ),
+        "basho_results_browser": Page(
+            id="basho_results_browser",
+            title="Basho Results",
+            summary="Historical and current basho results by division.",
+            view=CustomView(kind="tbd_page"),
+        ),
     }
 )
 

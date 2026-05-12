@@ -14,14 +14,21 @@ from .chart_instances import (
     win_probability_by_standing,
 )
 from .chart_pa import ChartPA, EssayPA, ExcludedPA, MultiViewPA
-from .table_instances import banzuke_changes, standings_by_wins, typical_equelo_values
+from .table_instances import (
+    banzuke_changes,
+    basho_results_browser,
+    standings_by_wins,
+    typical_equelo_values,
+)
 from .table_pa import TablePA
+from .table_pa import IndexedTablePA
 
-PA_INSTANCE = ChartPA | EssayPA | ExcludedPA | MultiViewPA | TablePA
+PA_INSTANCE = ChartPA | EssayPA | ExcludedPA | MultiViewPA | TablePA | IndexedTablePA
 
 
 ACTIVE_PA_MANIFESTS: dict[str, PA_INSTANCE] = {
     "banzuke_changes": banzuke_changes,
+    "basho_results_browser": basho_results_browser,
     "standings_by_wins": standings_by_wins,
     "finish_by_chii": finish_by_chii,
     "banzuke_division_by_era": banzuke_division_by_era,

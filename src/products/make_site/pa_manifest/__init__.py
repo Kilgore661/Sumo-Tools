@@ -24,6 +24,8 @@ from .table_pa import (
     ColumnGroup,
     DataSource,
     GroupVisibilityPreset,
+    IndexedDataSource,
+    IndexedTablePA,
     Note,
     Option,
     OptionValue,
@@ -32,7 +34,12 @@ from .table_pa import (
     TablePA,
     TableSection,
 )
-from .table_instances import banzuke_changes, standings_by_wins, typical_equelo_values
+from .table_instances import (
+    banzuke_changes,
+    basho_results_browser,
+    standings_by_wins,
+    typical_equelo_values,
+)
 from .active_instances import ACTIVE_PA_MANIFESTS, PA_INSTANCE, validate_active_pa_manifests
 
 __all__ = [
@@ -44,6 +51,8 @@ __all__ = [
     "EssayPA",
     "ExcludedPA",
     "GroupVisibilityPreset",
+    "IndexedDataSource",
+    "IndexedTablePA",
     "MultiViewItem",
     "MultiViewPA",
     "Note",
@@ -56,6 +65,7 @@ __all__ = [
     "TableSection",
     "TraceSpec",
     "banzuke_changes",
+    "basho_results_browser",
     "banzuke_division_by_era",
     "career_length",
     "division_stability",

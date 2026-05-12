@@ -6,6 +6,8 @@ from .table_pa import (
     ColumnGroup,
     DataSource,
     GroupVisibilityPreset,
+    IndexedDataSource,
+    IndexedTablePA,
     Note,
     Option,
     OptionValue,
@@ -634,5 +636,335 @@ standings_by_wins = TablePA(
 )
 
 
-for table_pa in (typical_equelo_values, banzuke_changes, standings_by_wins):
+basho_results_browser = IndexedTablePA(
+    id="basho_results_browser",
+    heading="Basho Results",
+    renderer="basho_results_table",
+    indexed_source=IndexedDataSource(
+        id="basho_results",
+        label="Basho Results",
+        index_path="data/basho_results_index.json",
+        index_media_type="application/json",
+        payload_path_field="payload_path",
+        payload_media_type="text/csv",
+    ),
+    selector_option="basho_date",
+    options=(
+        Option(
+            id="basho_date",
+            label="Basho",
+            kind="enum",
+            control="basho_date_selector",
+            default="latest",
+            url_key="basho",
+            values=(),
+        ),
+        Option(
+            id="division",
+            label="Division",
+            kind="enum",
+            control="select",
+            default="makuuchi",
+            url_key="division",
+            values=(
+                OptionValue(value="makuuchi", label="Makuuchi"),
+                OptionValue(value="juryo", label="Juryo"),
+                OptionValue(value="makushita", label="Makushita"),
+                OptionValue(value="sandanme", label="Sandanme"),
+                OptionValue(value="jonidan", label="Jonidan"),
+                OptionValue(value="jonokuchi", label="Jonokuchi"),
+            ),
+        ),
+        Option(
+            id="previous_context",
+            label="Previous Basho",
+            kind="boolean",
+            control="checkbox",
+            default=False,
+            url_key="previous",
+        ),
+        Option(
+            id="rating_context",
+            label="Equelo Ratings",
+            kind="boolean",
+            control="checkbox",
+            default=False,
+            url_key="ratings",
+        ),
+        Option(
+            id="nu_chii",
+            label="νChii",
+            kind="boolean",
+            control="checkbox",
+            default=False,
+            url_key="nu_chii",
+        ),
+        Option(
+            id="reading_guide",
+            label="Reading Guide",
+            kind="boolean",
+            control="checkbox",
+            default=False,
+            url_key="guide",
+        ),
+    ),
+    column_groups=(
+        ColumnGroup(
+            id="identity",
+            heading="",
+            always_visible=True,
+            columns=("row_number", "shikona", "chii"),
+        ),
+        ColumnGroup(
+            id="previous_basho",
+            heading="Previous Basho",
+            columns=(
+                "previous_delta_direction",
+                "previous_delta",
+                "previous_result",
+                "previous_chii",
+                "previous_equelo",
+            ),
+        ),
+        ColumnGroup(
+            id="result_state",
+            heading="After/During",
+            always_visible=True,
+            columns=("score",),
+        ),
+        ColumnGroup(
+            id="rating_state",
+            heading="After/During",
+            columns=("equelo", "delta_equelo", "nu_chii"),
+        ),
+    ),
+    columns=(
+        TableColumn(
+            id="row_number",
+            heading="Row",
+            group="identity",
+            sortable=False,
+            formatter="row_number",
+            always_visible=True,
+        ),
+        TableColumn(
+            id="shikona",
+            heading="Shikona",
+            source_field="shikona",
+            group="identity",
+            sort_kind="text",
+            formatter="shikona_link",
+            always_visible=True,
+            link="rikishi",
+            note="note_shikona",
+        ),
+        TableColumn(
+            id="chii",
+            heading="Chii",
+            source_field="chii",
+            group="identity",
+            sort_key="chii_ordinal",
+            sort_kind="chii_ordinal",
+            always_visible=True,
+            note="note_chii",
+        ),
+        TableColumn(
+            id="previous_delta_direction",
+            heading="⇅",
+            source_field="previous_delta_direction",
+            group="previous_basho",
+            sort_kind="text",
+            align="center",
+            note="note_previous_direction",
+        ),
+        TableColumn(
+            id="previous_delta",
+            heading="Δ",
+            source_field="previous_delta",
+            group="previous_basho",
+            sort_key="previous_delta",
+            sort_kind="numeric",
+            align="right",
+            note="note_previous_delta",
+        ),
+        TableColumn(
+            id="previous_result",
+            heading="Result",
+            source_field="previous_result",
+            group="previous_basho",
+            sort_kind="record",
+            note="note_previous_result",
+        ),
+        TableColumn(
+            id="previous_chii",
+            heading="Chii",
+            source_field="previous_chii",
+            group="previous_basho",
+            sort_key="previous_chii_ordinal",
+            sort_kind="chii_ordinal",
+        ),
+        TableColumn(
+            id="previous_equelo",
+            heading="Equelo",
+            source_field="previous_equelo",
+            group="previous_basho",
+            sort_kind="numeric",
+            formatter="integer",
+            align="right",
+            note="note_equelo",
+        ),
+        TableColumn(
+            id="score",
+            heading="Score",
+            source_field="score",
+            group="result_state",
+            sort_kind="record",
+            always_visible=True,
+            note="note_score",
+        ),
+        TableColumn(
+            id="equelo",
+            heading="Equelo",
+            source_field="equelo",
+            group="rating_state",
+            sort_kind="numeric",
+            formatter="integer",
+            align="right",
+            note="note_equelo",
+        ),
+        TableColumn(
+            id="delta_equelo",
+            heading="Δ Equelo",
+            source_field="delta_equelo",
+            group="rating_state",
+            sort_kind="numeric",
+            formatter="signed_integer",
+            align="right",
+            note="note_delta_equelo",
+        ),
+        TableColumn(
+            id="nu_chii",
+            heading="νChii",
+            source_field="nu_chii",
+            group="rating_state",
+            sort_key="nu_chii_ordinal",
+            sort_kind="chii_ordinal",
+            note="note_nu_chii",
+        ),
+    ),
+    group_visibility_presets=(
+        GroupVisibilityPreset(
+            id="basic",
+            label="Basic",
+            visible_groups=("identity", "result_state"),
+            default_sort=SortSpec(column="chii", descending=False),
+        ),
+        GroupVisibilityPreset(
+            id="advanced",
+            label="Advanced",
+            visible_groups=("identity", "previous_basho", "result_state"),
+            default_sort=SortSpec(column="chii", descending=False),
+        ),
+        GroupVisibilityPreset(
+            id="full_details",
+            label="Full Details",
+            visible_groups=("identity", "previous_basho", "result_state", "rating_state"),
+            default_sort=SortSpec(column="chii", descending=False),
+        ),
+    ),
+    default_sort=SortSpec(column="chii", descending=False),
+    notes=(
+        Note(
+            id="note_shikona",
+            applies_to=("all",),
+            text=(
+                "Shikona is the name used by the rikishi for the selected "
+                "basho."
+            ),
+        ),
+        Note(
+            id="note_chii",
+            applies_to=("all",),
+            text="Chii is the official rank slot at the start of the selected basho.",
+        ),
+        Note(
+            id="note_previous_direction",
+            applies_to=("previous_basho",),
+            text="Direction indicates a better or worse position than in the previous basho.",
+        ),
+        Note(
+            id="note_previous_delta",
+            applies_to=("previous_basho",),
+            text=(
+                "Delta indicates the size of movement from the previous "
+                "basho's position, measured in occupied banzuke slots."
+            ),
+        ),
+        Note(
+            id="note_previous_result",
+            applies_to=("previous_basho",),
+            text=(
+                "Previous result gives wins, losses and absences in the "
+                "previous basho, with prize markers where available."
+            ),
+        ),
+        Note(
+            id="note_score",
+            applies_to=("all",),
+            text=(
+                "Score gives wins, losses and absences for the selected basho. "
+                "For an in-progress basho it is the score through the latest "
+                "published day."
+            ),
+        ),
+        Note(
+            id="note_equelo",
+            applies_to=("rating_state", "previous_basho"),
+            text="Equelo is the fixed_v2 process rating at the represented point.",
+        ),
+        Note(
+            id="note_delta_equelo",
+            applies_to=("rating_state",),
+            text="Delta Equelo is the rating change from the start of the selected basho.",
+        ),
+        Note(
+            id="note_nu_chii",
+            applies_to=("rating_state",),
+            text=(
+                "νChii is the after/during chii value for the selected state. "
+                "It may be actual, estimated, or unavailable depending on what "
+                "is known when the page data is produced."
+            ),
+        ),
+    ),
+    consumes_options=(
+        "basho_date",
+        "division",
+        "previous_context",
+        "rating_context",
+        "nu_chii",
+        "reading_guide",
+    ),
+    provenance={
+        "status": "design_manifest",
+        "producer": "src.analysis.sumo_history.basho_results",
+        "target_navigation": "Sumo History > Basho Results",
+        "state_model": ("post_basho_pre_banzuke", "post_banzuke_pre_basho", "in_basho"),
+        "runtime_gaps": (
+            "basho_date_selector requires generated date index support",
+            "indexed_table runtime requires index-to-payload lazy loading",
+            "context-sensitive group headings require renderer support",
+            "individual column visibility within groups requires renderer support",
+            "reading guide rendering requires page/runtime support",
+        ),
+    },
+)
+
+
+for table_pa in (
+    typical_equelo_values,
+    banzuke_changes,
+    standings_by_wins,
+    basho_results_browser,
+):
     table_pa.validate()
