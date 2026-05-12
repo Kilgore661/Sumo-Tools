@@ -29,6 +29,15 @@ from .model import (
 ChiiRatings = dict[Chii, float]
 OrdinalRatings = dict[int, float]
 
+M13_TO_J1_START_ORDINAL = Chii.from_str("M13e").ordinal()
+M13_TO_J1_END_ORDINAL = Chii.from_str("J1w").ordinal()
+
+
+def is_m13_to_j1_ordinal(ordinal: int) -> bool:
+    """Return True for the M13e→J1w rank band used as a final report exclusion."""
+
+    return M13_TO_J1_START_ORDINAL <= ordinal <= M13_TO_J1_END_ORDINAL
+
 
 @dataclass(frozen=True)
 class FixedV2ComparisonOutputs:
@@ -185,7 +194,13 @@ def write_fp_sanitisation_report(
     )
     excluded_by_policy = in_cutoff_domain & policy_exclusion_ordinals
 
-    report_population = sorted(in_cutoff_domain - excluded_by_policy)
+    post_policy_population = in_cutoff_domain - excluded_by_policy
+    excluded_m13_to_j1 = {
+        ordinal for ordinal in post_policy_population
+        if is_m13_to_j1_ordinal(ordinal)
+    }
+
+    report_population = sorted(post_policy_population - excluded_m13_to_j1)
 
     changed_rows: list[tuple[int, float]] = []
     unchanged_count = 0
@@ -220,15 +235,16 @@ def write_fp_sanitisation_report(
         f"Number of observed chii: {len(observed_ordinals)}",
         f"Excluded Jd101 and below: {len(below_cutoff)}",
         f"Excluded as per v4/v5: {len(excluded_by_policy)}",
+        f"Excluded M13e→J1w bridge region: {len(excluded_m13_to_j1)}",
         f"Remaining after exclusions: {len(report_population)}",
         f"Excluded because there is no difference: {unchanged_count}",
         f"Missing after sanitisation: {len(missing_after_sanitisation)}",
         f"Analysed changed chii: {len(changed_rows)}",
         "",
         "Absolute difference statistics for analysed changed chii:",
-        f"Mean: {mean_delta}",
-        f"Max: {max_delta}",
-        f"Stdev: {stdev_delta}",
+        f"Mean: {mean_delta:.2f}",
+        f"Max: {max_delta:.2f}",
+        f"Stdev: {stdev_delta:.2f}",
     ]
 
     if max_rows:
@@ -236,7 +252,7 @@ def write_fp_sanitisation_report(
             "",
             "Chii with max absolute difference:",
             *[
-                f"{ordinal} ({Chii.from_ordinal(ordinal)}): {delta}"
+                f"{ordinal} ({Chii.from_ordinal(ordinal)}): {delta:.2f}"
                 for ordinal, delta in max_rows
             ],
         ])

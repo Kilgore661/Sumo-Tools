@@ -5,11 +5,13 @@
 Investigate whether the unexpectedly large gap between:
 
 - current high live Equelo ratings (e.g. Yokozuna near 3000), and
+
 - published “Typical Equelo Ratings” (e.g. Yokozuna ≈ 2555)
 
 is primarily caused by:
 
 1. the Brier compression/scaling step, or
+
 2. the later cleaning/smoothing/sanitisation process.
 
 The experiment is intended to clarify the semantic meaning of the published ratings and determine whether they retain an approximate fixed-point/equilibrium interpretation.
@@ -37,8 +39,11 @@ Published
 Where:
 
 - `FP` is the converged Expt2 fixed-point mapping `Chii → rating`
+
 - `Brier` is the alpha-compressed mapping used operationally by fixed_v1
+
 - `Sanitised` is the cleaned/smoothed interpretive mapping
+
 - `Published` is the subset displayed publicly on the web site
 
 ---
@@ -50,11 +55,13 @@ Where:
 If Elo updates depend only on rating differences, then:
 
 - adding a constant offset to all ratings preserves the simulation dynamics,
+
 - but multiplicative compression of rating differences does not.
 
 Therefore:
 
 - FP is expected to be approximately self-consistent under simulation,
+
 - Brier is not guaranteed to be.
 
 More precisely:
@@ -72,6 +79,7 @@ where aggregation refers to the Expt2 basho-start aggregation operator.
 The primary source of divergence between:
 
 - published “Typical Equelo Ratings”, and
+
 - modern live day-end ratings
 
 may be the Brier compression step rather than the later smoothing/sanitisation step.
@@ -97,6 +105,7 @@ initialiser = Brier
 That is:
 
 - use the raw Expt2 fixed-point mapping directly,
+
 - skip the alpha-compression step.
 
 ---
@@ -128,9 +137,13 @@ FP → Sanitised(FP)
 Questions:
 
 - How much do ratings move?
+
 - Is smoothing mostly local?
+
 - Are changes small for major ranks?
+
 - Are sparse/odd ranks the main source of adjustment?
+
 - Does monotonic enforcement significantly alter the upper ranks?
 
 This stage determines whether sanitisation itself materially changes the meaning of the ratings.
@@ -150,14 +163,19 @@ and run the historical simulation again.
 Then:
 
 - sample the resulting simulated ratings,
+
 - aggregate by Chii/rank group,
+
 - compare the observed values back to `Sanitised(FP)`.
 
 Questions:
 
 - Do simulated Yokozuna ratings remain close to sanitised Yokozuna values?
+
 - Are upper-rank distributions centered near the sanitised ratings?
+
 - Does the sanitised mapping behave approximately like a stable equilibrium?
+
 - Or does simulation drift substantially away from the sanitised interpretation?
 
 ---
@@ -169,7 +187,9 @@ Questions:
 This would suggest:
 
 - smoothing is mostly cosmetic/interpretable,
+
 - the published ratings still retain an equilibrium interpretation,
+
 - the major distortion was introduced by Brier compression.
 
 ---
@@ -179,7 +199,9 @@ This would suggest:
 This would suggest:
 
 - smoothing materially changes the dynamics,
+
 - published ratings are interpretive landmarks rather than equilibrium quantities,
+
 - the public explanatory layer has diverged from the simulation layer.
 
 ---
@@ -188,10 +210,10 @@ This would suggest:
 
 The experiment distinguishes three different optimisation targets:
 
-| Layer | Optimisation Target |
-|---|---|
-| FP | self-consistency |
-| Brier | predictive calibration |
+| Layer     | Optimisation Target    |
+| --------- | ---------------------- |
+| FP        | self-consistency       |
+| Brier     | predictive calibration |
 | Sanitised | human interpretability |
 
 The purpose of the experiment is to determine whether the interpretability layer can still preserve approximate equilibrium semantics without the Brier compression step.
@@ -252,7 +274,9 @@ The application should import configuration from a shared/configurable source.
 The initial requirement is simply:
 
 - locate the FP ratings,
+
 - locate the Brier ratings,
+
 - locate output paths.
 
 At this stage the exact configuration mechanism is intentionally deferred.
@@ -282,9 +306,13 @@ This assumption must be verified first.
 Questions:
 
 - Does the smoothing pipeline assume compressed values?
+
 - Does it assume monotonicity?
+
 - Does it depend on specific rank filtering already performed upstream?
+
 - Does it assume specific rating ranges?
+
 - Does it depend only on the mapping structure itself?
 
 ---
@@ -304,13 +332,17 @@ brier_sanitised_rating
 Purpose:
 
 - inspect the effects of Brier compression,
+
 - inspect the effects of smoothing,
+
 - compare FP-derived and Brier-derived sanitised curves,
+
 - support manual spreadsheet inspection before further automation.
 
 At this stage:
 
 - manual review is preferred,
+
 - statistical analysis can be added later if necessary.
 
 ---
@@ -330,7 +362,9 @@ initialiser = Sanitised(FP)
 Then:
 
 - run the simulator,
+
 - sample resulting ratings,
+
 - compare sampled values back to the sanitised curve.
 
 ---
@@ -350,12 +384,119 @@ Sanitised(FP)
 Current expectation:
 
 - interesting theoretically,
+
 - probably not operationally useful.
 
 The main immediate objective is understanding the relationship between:
 
 - FP,
+
 - Brier,
+
 - sanitisation,
+
 - and modern live ratings.
 
+---
+
+# FP Sanitisation Distortion Results
+
+A first-pass distortion analysis was run comparing:
+
+```text
+FP → Sanitised(FP)
+```
+
+using the existing v4/v5 cleaning and smoothing pipeline.
+
+The analysis intentionally excluded:
+
+- Jd101 and below,
+
+- v4/v5 deleted historical or sparse ranks,
+
+- the M13e→J1w bridge region,
+
+- unchanged values.
+
+The resulting report was:
+
+```text
+FP sanitisation distortion report
+=================================
+
+Number of observed chii: 1005
+Excluded Jd101 and below: 373
+Excluded as per v4/v5: 41
+Excluded M13e→J1w bridge region: 12
+Remaining after exclusions: 579
+Excluded because there is no difference: 170
+Missing after sanitisation: 0
+Analysed changed chii: 409
+
+Absolute difference statistics for analysed changed chii:
+Mean: 9.45
+Max: 47.01
+Stdev: 7.10
+
+Chii with max absolute difference:
+809901 (Jd99w): 47.01
+```
+
+Interpretation:
+
+- outside the deliberately problematic bridge region,
+
+- and outside sparse/historical ranks,
+
+sanitisation changes FP ratings only modestly.
+
+The mean absolute distortion is below 10 Elo points.
+
+This strongly suggests that the major structural features of the FP equilibrium survive the sanitisation process.
+
+In particular, the local minimum around the M13→J1 bridge region does not appear to be an artefact introduced by:
+
+- Brier compression,
+
+- smoothing,
+
+- sanitisation,
+
+- or the public explanatory layer.
+
+Rather, the anomaly already exists in the FP equilibrium itself.
+
+---
+
+# Emerging Interpretation
+
+If Equelo is accepted as a reasonable model of competitive performance, then the M13→J1 anomaly appears to reflect a real structural property of the historical banzuke system.
+
+More carefully:
+
+> In the M13→J1 range, banzuke position ceases to behave like a simple one-dimensional strength ordering.
+
+Equivalently:
+
+> Rikishi occupying the M13→J1 region historically produce equilibrium performance characteristics inconsistent with a simple monotonic interpretation of rank.
+
+This suggests that chii in this region is encoding something other than pure competitive strength.
+
+Possible contributing factors include:
+
+- promotion pressure,
+
+- scheduling asymmetry,
+
+- survivorship effects,
+
+- rank protection,
+
+- division-boundary dynamics,
+
+- or incentive structure.
+
+The key result of the Brierless Pivot experiment so far is therefore:
+
+> the anomaly appears structural rather than cosmetic.
