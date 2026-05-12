@@ -12,7 +12,7 @@ from src.analysis.sumo_history.career_lifecycle.career_length import (
 from src.analysis.sumo_history.career_lifecycle.rank_at_retirement import (
     build_rank_at_retirement_outputs,
 )
-from src.analysis.equelo.fixed_v1.v5_landmarks import (
+from src.analysis.equelo.fixed_v2.v5_landmarks import (
     write_typical_equelo_outputs,
 )
 from src.infra.live_store.api import get_history

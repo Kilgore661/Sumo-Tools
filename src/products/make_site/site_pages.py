@@ -29,7 +29,7 @@ from .site_data_refs import (
 )
 from .site_navigation import NAVIGATION
 from .site_refs import view
-from src.analysis.equelo.fixed_v1.v5_landmarks import V5LandmarkOutputs
+from src.analysis.equelo.fixed_v2.v5_landmarks import V5LandmarkOutputs
 from src.analysis.sumo_history.career_lifecycle.career_length import CareerLengthOutputs
 from src.analysis.sumo_history.career_lifecycle.rank_at_retirement import (
     RankAtRetirementOutputs,
