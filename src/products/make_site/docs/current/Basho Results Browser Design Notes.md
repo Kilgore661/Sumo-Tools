@@ -187,7 +187,7 @@ Required behaviours:
 
 In BRB, legacy "Elo" wording usually means current Equelo.
 
-BRB should use actual fixed-v1 process ratings for individual rikishi.  These
+BRB should use actual fixed_v2 process ratings for individual rikishi.  These
 are historical, bout-derived ratings at a represented point in the basho
 timeline.
 
@@ -209,9 +209,16 @@ monotone `Typical Equelo Ratings` table is a reading aid, not a rule that
 historical individual ratings are expected to obey.
 
 The first implementation should validate this distinction empirically by
-comparing actual fixed-v1 process ratings against the illustrative landmarks
+comparing actual fixed_v2 process ratings against the illustrative landmarks
 for matching/current chii.  The purpose is to understand the spread and decide
 whether the public wording needs stronger caveats.
+
+> Updated 2026-05-12: fixed_v2 supersedes fixed_v1 for BRB planning.  The
+> Brier compression step is now treated as a historical/diagnostic comparison,
+> not as part of the current public/process rating scale.  The current goal is
+> that process ratings and `Typical Equelo Ratings` landmarks live on the same
+> broad scale, while retaining the rule that landmarks are illustrative and not
+> row-level lookup values.
 
 ### `muE`
 
@@ -229,7 +236,7 @@ where the sum ranges over every `s` in `D` except `r`.
 ### `piE`
 
 The old Elo-era explanation of `piE` as a response to drifting rating mass is
-not appropriate for fixed-v1 Equelo.
+not appropriate for fixed_v2 Equelo.
 
 The statistic may still be useful as a relative reading aid:
 
@@ -250,7 +257,7 @@ DeltaBZ = banzuke_position - equelo_position
 ```
 
 The Equelo position is the rikishi's ordinal position within the selected
-division after sorting actual fixed-v1 process ratings, not the position
+division after sorting actual fixed_v2 process ratings, not the position
 obtained by inverting the `Typical Equelo Ratings` landmark curve.
 
 Display examples:
@@ -342,7 +349,7 @@ BRB.
 
 ### Equelo Basho Lookup
 
-The most obvious missing support layer is a lookup table/API for fixed-v1
+The most obvious missing support layer is a lookup table/API for fixed_v2
 Equelo rating at the start and end of a basho:
 
 ```text
@@ -350,15 +357,15 @@ start_rating(date, rikishi_id, chii)
 end_rating(date, rikishi_id)
 ```
 
-The current fixed-v1 persisted artefact is day-end only:
+The current fixed_v2 persisted artefact is day-end only:
 
 ```text
-files/output/Equelo/fixed_v1/day_end_ratings.json
-files/output/Equelo/fixed_v1/entrant_initial_ratings.json
+files/output/Equelo/fixed_v2/day_end_ratings.json
+files/output/Equelo/fixed_v2/entrant_initial_ratings.json
 ```
 
-The simulator produces `basho_start_ratings` in memory, but fixed-v1 does not
-persist those snapshots.  The fixed-v1 specification says the first
+The simulator produces `basho_start_ratings` in memory, but fixed_v2 does not
+persist those snapshots.  The fixed_v2 approach inherits the policy that the first
 implementation should not persist basho-start ratings separately; consumers
 that need before-day values should derive them from the previous represented
 rating point while walking the timeline.
@@ -368,13 +375,13 @@ BRB therefore needs a small rating access layer.  A working policy:
 * `end_rating(date, rikishi_id)` is the selected basho's last day-end rating;
 * `start_rating(date, rikishi_id, chii)` is the previous basho's last day-end
   rating if the rikishi has one;
-* if there is no previous rating for the rikishi, use the fixed-v1 entrant
+* if there is no previous rating for the rikishi, use the fixed_v2 entrant
   initial rating for the selected basho chii;
 * for the earliest represented basho, all start ratings come from entrant
   initial ratings;
 * a later live/current mode can add `current_rating(date, day, rikishi_id)`.
 
-This can start as BRB-local code, but it may deserve promotion to a fixed-v1
+This can start as BRB-local code, but it may deserve promotion to a fixed_v2
 consumer API if another page needs the same lookup.
 
 ### Data Available Directly
@@ -405,7 +412,7 @@ These appear to need modest joining/adaptation rather than a new research
 model:
 
 * start Equelo, via the new Equelo basho lookup;
-* end/current Equelo, via fixed-v1 day-end ratings;
+* end/current Equelo, via fixed_v2 day-end ratings;
 * `DeltaEquelo`, as end/current minus start;
 * `piE`, as Equelo divided by divisional mean Equelo at the chosen rating
   point;

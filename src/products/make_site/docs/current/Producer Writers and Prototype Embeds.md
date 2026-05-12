@@ -112,9 +112,10 @@ Similarly, public routes and final page structure should not be determined by
 legacy filenames unless those names have deliberately been promoted into the
 public contract.
 
-## 6. Test Case: Fixed-v1 Entrant Initial Rating Charts
+## 6. Test Case: Historical Entrant Initial Rating Charts
 
-The Equelo fixed-v1 entrant initial rating charts are a useful test case.
+The old Equelo fixed_v1 entrant initial rating charts are a useful historical
+test case for producer promotion.
 
 The existing files are:
 
@@ -126,17 +127,18 @@ files/output/Equelo/fixed_v1/charts/entrant_initial_ratings_v4.html
 files/output/Equelo/fixed_v1/charts/entrant_initial_ratings_v5.html
 ```
 
-They are interesting because they tell part of the story of how the fixed-v1
-Equelo entrant rating values were chosen.
+They are interesting because they tell part of the story of how the old
+fixed_v1 Equelo entrant rating values were chosen.  They are not the current
+public/process rating source; fixed_v2 now owns that role.
 
 They were not originally designed as public-site pages. They have their own
 styling and standalone Plotly setup.
 
 For a prototype, they could be copied or iframed directly.
 
-For a promoted public page, the better move is to add an Equelo fixed-v1
-site-facing writer. That writer could emit the versioned chart data and
-metadata needed by a single public page with a version selector.
+For a promoted public page about this historical method trail, the better move
+is to add an Equelo site-facing writer.  That writer could emit the versioned
+chart data and metadata needed by a single public page with a version selector.
 
 The fact that these five charts are structurally similar is helpful, but it is
 not the essence of the policy. The same principle applies to one odd chart:
@@ -145,7 +147,7 @@ HTML page as the source of truth.
 
 ## 7. Need for More Examples
 
-The fixed-v1 entrant charts are only one example, even though they form a small
+The fixed_v1 entrant charts are only one example, even though they form a small
 family.
 
 Before making this a rigid policy, inspect other candidate artefacts.

@@ -584,3 +584,35 @@ Readers wanting a deeper explanation of this anomaly are therefore being led tow
 - survivorship effects,
 
 - and the broader equilibrium behaviour of the banzuke system itself.
+
+---
+
+# 2026-05-12 Status Addendum
+
+The Brierless pivot is no longer only an experiment proposal.  The project now
+treats `fixed_v2` as the current Equelo artefact package for public-site
+process ratings and public rating landmarks.
+
+The key decision is:
+
+```text
+current scale: fixed_v2 raw fixed-point entrant ratings + public landmark cleaning
+historical comparison: fixed_v1 Brier-compressed entrant ratings
+```
+
+The reason is not that Brier was an incoherent diagnostic.  Brier remains a
+useful way to ask about predictive calibration.  The problem is that the Brier
+alpha compression scales rating differences, and Elo-style models are driven by
+rating differences.  By contrast, adding a constant to all ratings changes the
+display convention without changing model behaviour.
+
+That distinction matters for public interpretation.  The site should not show
+one scale in `Typical Equelo Ratings` and a visibly different operational scale
+in pages such as Banzuke Changes or the planned Basho Results Browser.  fixed_v2
+therefore removes Brier compression from the current public/process rating
+source.  Brier/fixed_v1 remains valuable as an addendum and comparison layer,
+not as the main story.
+
+One presentational choice remains open: whether the public convention should put
+a typical yokozuna near 2200 or near 2500.  That choice should be handled, if it
+changes, as an additive base convention rather than a multiplicative rescaling.

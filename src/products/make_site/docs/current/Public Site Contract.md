@@ -321,20 +321,29 @@ mapped to a rating landmark but is not itself a rating.
 
 ## 14. Equelo Naming and Rating Landmarks
 
-The current public Equelo rating-landmark curve is:
+The current public Equelo rating series and rating-landmark curve are fixed_v2
+artefacts.
 
 ```text
-Mark 3.2.1(2000)
+fixed_v2 process ratings
+fixed_v2 public landmarks
 ```
 
-The `Typical Equelo Ratings` page uses this curve.
+The `Typical Equelo Ratings` page uses the fixed_v2 public landmark curve.
+Pages that need individual rikishi ratings, including the planned Basho
+Results Browser, should use fixed_v2 process ratings rather than looking up
+landmarks from chii labels.
 
 Names such as `v0`, `v1`, ..., `v5` are local diagnostic chart stages in the
-fixed-v1 audit trail.  They are not model names and should not appear in public
+landmark audit trail.  They are not model names and should not appear in public
 navigation or ordinary page titles.
 
 Use `Equelo Rating Landmark Policy`, not `V5 Landmark Policy`, for public or
 site-level wording.
+
+`fixed_v1` and Brier-compressed ratings are now historical/diagnostic context,
+not the current public-site scale contract.  The Brierless pivot is documented
+as an addendum in `src/analysis/equelo/docs/Brierless Pivot.md`.
 
 The full naming policy lives in `Equelo Version Naming.md`.
 

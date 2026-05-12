@@ -431,6 +431,18 @@ Per-file "wrote this file" output was removed as noise.
 Keep console output high-level unless a verbose/debug mode becomes a real
 requirement.
 
+### 8.4 Script Defaults Should Match Publication Defaults
+
+The top-level `_run.ps1` should not need to override ordinary publication
+parameters merely to produce the standard current-site build.
+
+> Added 2026-05-12: change producer script defaults so the normal publication
+> path is the no-surprises path.  For example, if the current banzuke date and
+> output root are the normal Banzuke Changes publication settings, they should
+> be the command defaults rather than explicit `_run.ps1` arguments.  Keep
+> explicit arguments for genuine alternatives, diagnostics, and one-off local
+> experiments.
+
 ## 9. Content Inclusion Decisions
 
 ### 9.1 Division Stability Parameter
@@ -582,7 +594,9 @@ rating or rating-landmark contexts, apply the v5 policy:
 Do not apply this as a global historical-display rule. Pages whose purpose is
 to show banzuke history may need to display the original annotated or rare chii.
 
-The policy is recorded in `src/analysis/equelo/fixed_v1/docs/V5 Policy.md`.
+The original policy is recorded in
+`src/analysis/equelo/fixed_v1/docs/V5 Policy.md`; fixed_v2 currently reuses
+the same landmark-cleaning idea on the Brierless rating scale.
 
 ### 12.4 Sortable Public Tables
 
@@ -619,7 +633,7 @@ so the header becomes taller rather than forcing the table wider.
 
 ### 12.7 Equelo Landmark vs Process Rating Validation
 
-When BRB has its first rating lookup table, compare actual fixed-v1 process
+When BRB has its first rating lookup table, compare actual fixed_v2 process
 ratings against the illustrative `Typical Equelo Ratings` landmarks for the
 corresponding chii.
 
@@ -628,6 +642,11 @@ The goal is to understand how wide the gap is in real data, especially around
 division boundaries, fast-rising rikishi, absences, protected ranks, and noisy
 lower-support chii areas.  Use the result to decide whether public wording
 needs stronger caveats.
+
+> Updated 2026-05-12: this validation should use fixed_v2 process ratings and
+> fixed_v2 public landmarks.  Brier/fixed_v1 comparisons remain useful as
+> historical diagnostics, but they are no longer the current public-site scale
+> contract.
 
 ### 12.8 Chii and ChiiLabel Naming Policy
 

@@ -101,13 +101,15 @@ was convenient in a disposable prototype.
 It uses the public Equelo rating-landmark curve:
 
 ```text
-Mark 3.2.1(2000)
+fixed_v2 public landmarks
 ```
 
-The fixed-v1 chart files `entrant_initial_ratings_v0.html` through
+The older fixed_v1 chart files `entrant_initial_ratings_v0.html` through
 `entrant_initial_ratings_v5.html` are diagnostic/audit-trail charts.  They are
-not currently public pages.  They may later become exhibits in a narrative
-methodology page if the site gains a suitable essay-with-figures pattern.
+not currently public pages.  fixed_v2 is the current public-site source for
+process ratings and rating landmarks.  The older Brier-compressed fixed_v1
+material may later become an exhibit or addendum in a narrative methodology
+page if the site gains a suitable essay-with-figures pattern.
 
 ## 6. Producer Integration
 
