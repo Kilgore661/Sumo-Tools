@@ -3,14 +3,27 @@
 from __future__ import annotations
 
 import csv
+import statistics
 from dataclasses import dataclass
 from pathlib import Path
 
-from src.analysis.equelo.fixed_v1.initial_rating import InitialRatingCurve
+from src.analysis.equelo.fixed_v1.initial_rating import (
+    InitialRatingCurve,
+    V1_MAX_CHII,
+    V3_MASK_ORDINALS,
+    V4_DELETE_ORDINALS,
+    V5_EXTRA_MASK_ORDINALS,
+)
 from src.analysis.probability.builder import load_ratings_csv
 from src.sumo_core.Chii import Chii
 
-from .model import BRIER_ALPHA, COMPARISON_CSV_FILE_NAME, FP_SOURCE, OUTPUT_ROOT
+from .model import (
+    BRIER_ALPHA,
+    COMPARISON_CSV_FILE_NAME,
+    FP_SOURCE,
+    OUTPUT_ROOT,
+    SANITISATION_REPORT_FILE_NAME,
+)
 
 
 ChiiRatings = dict[Chii, float]
@@ -23,6 +36,7 @@ class FixedV2ComparisonOutputs:
 
     output_root: Path
     comparison_csv: Path
+    sanitisation_report: Path
 
 
 def build_fixed_v2_comparison(
@@ -50,9 +64,17 @@ def build_fixed_v2_comparison(
         brier_curve=brier_curve,
     )
 
+    sanitisation_report = output_root / SANITISATION_REPORT_FILE_NAME
+    write_fp_sanitisation_report(
+        path=sanitisation_report,
+        fp_by_ordinal=fp_by_ordinal,
+        fp_curve=fp_curve,
+    )
+
     return FixedV2ComparisonOutputs(
         output_root=output_root,
         comparison_csv=comparison_csv,
+        sanitisation_report=sanitisation_report,
     )
 
 
@@ -132,3 +154,101 @@ def maybe_curve_rating(curve: InitialRatingCurve, ordinal: int) -> float | str:
     if ordinal not in curve.index_by_ordinal:
         return ""
     return curve.rating_for_ordinal(ordinal)
+
+
+def write_fp_sanitisation_report(
+    *,
+    path: Path,
+    fp_by_ordinal: OrdinalRatings,
+    fp_curve: InitialRatingCurve,
+    epsilon: float = 1e-6,
+) -> None:
+    """Write a short report on FP→Sanitised(FP) distortion."""
+
+    observed_ordinals = set(fp_by_ordinal)
+    below_cutoff = {
+        ordinal for ordinal in observed_ordinals
+        if ordinal > V1_MAX_CHII
+    }
+
+    in_cutoff_domain = observed_ordinals - below_cutoff
+
+    # These are the explicit low-support / historical-rank exclusions used for
+    # this first fixed_v2 distortion report.  The v5 bridge mask is deliberately
+    # not included here: the M12→Ms2 bridge is retained as part of the population
+    # of interest, because its interpolation movement is exactly what the report
+    # is meant to measure.
+    policy_exclusion_ordinals = (
+        set(V4_DELETE_ORDINALS)
+        | set(V3_MASK_ORDINALS)
+        | set(V5_EXTRA_MASK_ORDINALS)
+    )
+    excluded_by_policy = in_cutoff_domain & policy_exclusion_ordinals
+
+    report_population = sorted(in_cutoff_domain - excluded_by_policy)
+
+    changed_rows: list[tuple[int, float]] = []
+    unchanged_count = 0
+    missing_after_sanitisation: list[int] = []
+
+    for ordinal in report_population:
+        if ordinal not in fp_curve.index_by_ordinal:
+            missing_after_sanitisation.append(ordinal)
+            continue
+
+        delta = abs(fp_curve.rating_for_ordinal(ordinal) - fp_by_ordinal[ordinal])
+        if delta <= epsilon:
+            unchanged_count += 1
+        else:
+            changed_rows.append((ordinal, delta))
+
+    deltas = [delta for _, delta in changed_rows]
+    mean_delta = statistics.fmean(deltas) if deltas else 0.0
+    max_delta = max(deltas) if deltas else 0.0
+    stdev_delta = statistics.stdev(deltas) if len(deltas) >= 2 else 0.0
+
+    max_rows = [
+        (ordinal, delta)
+        for ordinal, delta in changed_rows
+        if abs(delta - max_delta) <= epsilon
+    ]
+
+    lines = [
+        "FP sanitisation distortion report",
+        "=================================",
+        "",
+        f"Number of observed chii: {len(observed_ordinals)}",
+        f"Excluded Jd101 and below: {len(below_cutoff)}",
+        f"Excluded as per v4/v5: {len(excluded_by_policy)}",
+        f"Remaining after exclusions: {len(report_population)}",
+        f"Excluded because there is no difference: {unchanged_count}",
+        f"Missing after sanitisation: {len(missing_after_sanitisation)}",
+        f"Analysed changed chii: {len(changed_rows)}",
+        "",
+        "Absolute difference statistics for analysed changed chii:",
+        f"Mean: {mean_delta}",
+        f"Max: {max_delta}",
+        f"Stdev: {stdev_delta}",
+    ]
+
+    if max_rows:
+        lines.extend([
+            "",
+            "Chii with max absolute difference:",
+            *[
+                f"{ordinal} ({Chii.from_ordinal(ordinal)}): {delta}"
+                for ordinal, delta in max_rows
+            ],
+        ])
+
+    if missing_after_sanitisation:
+        lines.extend([
+            "",
+            "Missing after sanitisation:",
+            *[
+                f"{ordinal} ({Chii.from_ordinal(ordinal)})"
+                for ordinal in missing_after_sanitisation
+            ],
+        ])
+
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")

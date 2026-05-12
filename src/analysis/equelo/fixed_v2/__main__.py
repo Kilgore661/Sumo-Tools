@@ -42,6 +42,7 @@ def main() -> None:
         alpha=args.alpha,
     )
     print(f"Wrote comparison CSV: {outputs.comparison_csv}")
+    print(f"Wrote sanitisation report: {outputs.sanitisation_report}")
 
 
 if __name__ == "__main__":
