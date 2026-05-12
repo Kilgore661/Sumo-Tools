@@ -500,3 +500,87 @@ Possible contributing factors include:
 The key result of the Brierless Pivot experiment so far is therefore:
 
 > the anomaly appears structural rather than cosmetic.
+
+---
+
+# Clarifying the Role of Sanitised Ratings
+
+A key conceptual clarification emerged during the Brierless Pivot investigation.
+
+The sanitised ratings are not the operational values used by the simulation itself.
+
+Operationally:
+
+- the simulation uses the raw FP equilibrium values,
+
+- because Elo-style systems fundamentally depend only on rating differences.
+
+In that sense, asking:
+
+> “What does a rating of 2430 mean?”
+
+is not really a mathematically meaningful question.
+
+The meaningful question is:
+
+> “2430 relative to what?”
+
+This means that the public-facing “Typical Equelo Ratings” are not required by the model itself.
+
+Rather, they exist because human readers naturally demand semantic anchors:
+
+- “What rating corresponds to Yokozuna?”
+
+- “What is Makuuchi level?”
+
+- “What does 3000 mean?”
+
+The sanitised ratings therefore serve as:
+
+> an interpretive mapping from Equelo values back onto the banzuke.
+
+The intended understanding is:
+
+```text
+Operational model:
+    uses raw equilibrium values.
+
+Public explanatory layer:
+    uses sanitised approximations.
+```
+
+Crucially, the distortion analysis shows that these are not wildly different objects.
+
+Outside the M13→J1 bridge region:
+
+- sanitised values remain very close to the raw FP equilibrium,
+
+- typically differing by less than ~10 Elo points on average.
+
+Therefore the truthful interpretation becomes:
+
+> The published “Typical Equelo Ratings” are not the exact operational values used internally, but for most ranks they are extremely close approximations to the equilibrium values implied by the model itself.
+
+The major exception is the M13→J1 bridge region.
+
+There:
+
+- the raw equilibrium becomes non-monotonic,
+
+- sanitisation intentionally suppresses the anomaly,
+
+- and the anomaly itself appears structurally real.
+
+This leads to the following interpretation:
+
+> In the M13→J1 range, chii appears to encode something other than pure competitive strength.
+
+Readers wanting a deeper explanation of this anomaly are therefore being led toward:
+
+- promotion/demotion dynamics,
+
+- scheduling structure,
+
+- survivorship effects,
+
+- and the broader equilibrium behaviour of the banzuke system itself.
