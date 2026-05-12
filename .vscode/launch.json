@@ -1,8 +1,0 @@
-{
-  "name": "Run persistence module",
-  "type": "debugpy",
-  "request": "launch",
-  "module": "src.analysis.persistence",
-  "cwd": "${workspaceFolder}",
-  "console": "integratedTerminal"
-}

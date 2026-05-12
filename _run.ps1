@@ -6,5 +6,7 @@ python -m src.analysis.equelo.fixed_v2
 
 python -m src.analysis.banzuke_compare.publisher --date 2026/05 --output-root files/output/bcr
 
+python -m src.analysis.sumo_history.basho_results
+
 python -m src.products.make_site
 
