@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import csv
+import json
 import statistics
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Callable
 
 from src.analysis.equelo.fixed_v1.initial_rating import (
     InitialRatingCurve,
@@ -14,23 +16,112 @@ from src.analysis.equelo.fixed_v1.initial_rating import (
     V4_DELETE_ORDINALS,
     V5_EXTRA_MASK_ORDINALS,
 )
+from src.analysis.equelo.config_main import BIOS_PATH
+from src.analysis.equelo.expt1.Oracle import make_oracle
+from src.analysis.equelo.expt1.params import build_elo_params
+from src.analysis.equelo.expt1.simulate import SimulationMode, SimulationResult, simulate
 from src.analysis.probability.builder import load_ratings_csv
+from src.infra.live_store.api import get_history
+from src.sumo_core.BasicPrimitives import RikId
 from src.sumo_core.Chii import Chii
+from src.sumo_core.History import History
 
 from .model import (
     BRIER_ALPHA,
+    COLLAPSE_MODE,
     COMPARISON_CSV_FILE_NAME,
     FP_SOURCE,
+    K_CONFIG,
+    K_POLICY,
     OUTPUT_ROOT,
+    Q,
     SANITISATION_REPORT_FILE_NAME,
 )
+from .output import write_outputs
 
 
+EntrantInitialiser = Callable[[Chii], float]
 ChiiRatings = dict[Chii, float]
 OrdinalRatings = dict[int, float]
 
 M13_TO_J1_START_ORDINAL = Chii.from_str("M13e").ordinal()
 M13_TO_J1_END_ORDINAL = Chii.from_str("J1w").ordinal()
+
+
+def build_fixed_v2(output_root: Path = OUTPUT_ROOT) -> dict[str, Path]:
+    """Generate and persist the fixed_v2 Equelo rating series."""
+
+    raw_history = get_history()
+    result, cleaned_history, entrant_initial_ratings = compute_fixed_v2(raw_history)
+    return write_outputs(
+        history=cleaned_history,
+        day_end_ratings=result.day_end_ratings,
+        entrant_initial_ratings=entrant_initial_ratings,
+        output_root=output_root,
+    )
+
+
+def compute_fixed_v2(raw_history: History) -> tuple[SimulationResult, History, ChiiRatings]:
+    """Compute fixed_v2 ratings from a supplied raw History."""
+
+    oracle = make_oracle(
+        raw_history,
+        load_bios(),
+        collapse_mode=oracle_collapse_mode(),
+    )
+    params = build_elo_params(
+        k_policy=K_POLICY,
+        q=Q,
+        config_path=K_CONFIG,
+    )
+    entrant_initial_ratings = fixed_point_ratings()
+    result = simulate(
+        history=oracle.history,
+        params=params,
+        entrant_initialiser=make_chii_initialiser(entrant_initial_ratings),
+        mode=SimulationMode.CLOSED,
+    )
+
+    return result, oracle.history, entrant_initial_ratings
+
+
+def load_bios() -> dict[RikId, dict]:
+    """Load bios for Oracle construction."""
+
+    with BIOS_PATH.open("r", encoding="utf-8") as f:
+        raw_bios = json.load(f)
+
+    return {RikId(int(key)): value for key, value in raw_bios.items()}
+
+
+def fixed_point_ratings(*, source: Path = FP_SOURCE) -> ChiiRatings:
+    """Return the fixed_v2 raw fixed-point chii-to-entrant-rating map."""
+
+    return load_ratings_csv(source)
+
+
+def make_chii_initialiser(ratings: ChiiRatings) -> EntrantInitialiser:
+    """Build a chii-based entrant initialiser from an explicit ratings map."""
+
+    def initialise(chii: Chii) -> float:
+        return float(ratings[chii])
+
+    return initialise
+
+
+def fixed_point_initialiser(*, source: Path = FP_SOURCE) -> EntrantInitialiser:
+    """Build the fixed_v2 raw fixed-point chii-based entrant initialiser."""
+
+    return make_chii_initialiser(fixed_point_ratings(source=source))
+
+
+def oracle_collapse_mode() -> str:
+    """Return the Oracle collapse mode token for the fixed_v2 spec value."""
+
+    if COLLAPSE_MODE == "annotation-only":
+        return "annotation_only"
+
+    return COLLAPSE_MODE
 
 
 def is_m13_to_j1_ordinal(ordinal: int) -> bool:

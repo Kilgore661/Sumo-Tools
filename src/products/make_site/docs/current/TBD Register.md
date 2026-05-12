@@ -41,6 +41,35 @@ The current route hierarchy is provisional.
 Decide which routes should become stable public URLs before external linking,
 sharing, or publication becomes important.
 
+### 1.5 Cache Busting
+
+Yes, that points to Firefox cache.
+
+Hard reload may not work because the app is doing **JavaScript `fetch()` calls** for `site_config.json` and `data/banzuke_change_report.csv`. A hard reload often refreshes the document, but cached fetch/XHR responses can still be reused depending on cache headers.
+
+Try this in Firefox:
+
+1. Open DevTools.
+2. Go to **Network**.
+3. Tick **Disable Cache**.
+4. Reload the page while DevTools stays open.
+
+Or directly bust the CSV URL:
+
+```
+http://192.168.0.6/sumo-tools/current-sumo/banzuke-changes/data/banzuke_change_report.csv?v=2
+```
+
+If that shows the right numbers, it is definitely cached data.
+
+Longer-term fix: add cache-busting to the JS fetches, for example:
+
+```
+state.config = await loadJson(`site_config.json?v=${Date.now()}`);state.rows = await loadCsv(`${state.config.data_file}?v=${Date.now()}`);
+```
+
+Better production version: use a build timestamp/hash instead of `Date.now()`, so users do not re-download on every page interaction.
+
 ## 2. Page Contracts and Bundles
 
 ### 2.1 Page Bundle Format

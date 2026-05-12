@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from src.analysis.equelo.fixed_v1.api import load_day_end_ratings
-from src.analysis.equelo.fixed_v1.build import EntrantInitialiser, scaled_fixed_point_initialiser
+from src.analysis.equelo.fixed_v2.api import load_day_end_ratings
+from src.analysis.equelo.fixed_v2.build import EntrantInitialiser, fixed_point_initialiser
 from src.sumo_core.BasicPrimitives import Month, RikId, Year
 from src.sumo_core.Chii import Chii
 from src.sumo_core.History import Date
@@ -17,10 +17,10 @@ from src.sumo_core.History import Date
 class EqueloSnapshot:
     """
     Contract:
-        ratings contains the fixed_v1 day-end Equelo ratings for the latest
+        ratings contains the fixed_v2 day-end Equelo ratings for the latest
         completed basho before the requested banzuke date.  Rikishi absent
         from that snapshot are new entrants for rating purposes and receive
-        the fixed_v1 entry rating for their current chii.
+        the fixed_v2 entry rating for their current chii.
     """
 
     date: Date
@@ -34,7 +34,7 @@ class EqueloSnapshot:
             rikishi_id and chii identify a rikishi on the current banzuke.
 
             Returns the persisted day-end rating when present, otherwise the
-            fixed_v1 entry rating implied by chii.
+            fixed_v2 entry rating implied by chii.
         """
 
         if rikishi_id in self.ratings:
@@ -48,7 +48,7 @@ def load_latest_equelo_snapshot_before(date: Date) -> EqueloSnapshot:
     Contract:
         date is the banzuke date being published.
 
-        Returns the latest fixed_v1 day-end rating snapshot whose basho date is
+        Returns the latest fixed_v2 day-end rating snapshot whose basho date is
         earlier than date. Missing files, missing dates, and uninitialisable
         chii values are contract violations and are allowed to fail noisily.
     """
@@ -68,14 +68,14 @@ def load_latest_equelo_snapshot_before(date: Date) -> EqueloSnapshot:
             RikId(int(rikishi_id)): rating
             for rikishi_id, rating in day_end_ratings[date_text][day_text].items()
         },
-        entrant_initialiser=scaled_fixed_point_initialiser(),
+        entrant_initialiser=fixed_point_initialiser(),
     )
 
 
 def parse_date(value: str) -> Date:
     """
     Contract:
-        value is the fixed_v1 JSON date key, formatted as YYYY/MM.
+        value is the fixed_v2 JSON date key, formatted as YYYY/MM.
     """
 
     year, month = value.split("/")
