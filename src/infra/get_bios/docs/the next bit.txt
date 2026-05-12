@@ -1,0 +1,1 @@
+Instead, I think the right way to proceed is to take the requirement as: reporduce the BC page in non-Banzuke style mode, with a means of contolling the date for the displayed basho and other columns yet to be decided. Does that work for you?
