@@ -14,6 +14,7 @@ public site.
 | `Producer Writers and Prototype Embeds.md` | Policy for moving analysis outputs into the public site.                                   |
 | `Table App Bundle Migration.md`            | Migration plan for turning current standalone table apps into make_site PA manifest writers. |
 | `Basho Results Browser Design Notes.md`    | Working design notes for the proposed Sumo History > Basho Results page.                   |
+| `BRB Implementation Start Brief.md`         | Short handoff note for beginning BRB implementation from a fresh conversation.             |
 | `Public Table Behaviour Inventory.md`      | Inventory of existing public table behaviours and BRB table precedents.                    |
 | `Equelo Version Naming.md`                 | Canonical naming for Equelo model versions, diagnostic chart stages, and rating landmarks. |
 | `TBD Register.md`                          | Live backlog of unresolved site, presentation, data, and documentation work.               |

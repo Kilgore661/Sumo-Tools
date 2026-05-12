@@ -20,6 +20,22 @@ Sumo History
 It should become item `7.1` in that section, with later Sumo History items
 renumbered accordingly.
 
+## Current Rating Source
+
+BRB should use `fixed_v2` as its Equelo source.
+
+In practical terms:
+
+* row-level rikishi ratings come from fixed_v2 process-rating artefacts;
+* start/end basho lookups should be derived from fixed_v2 day-end ratings and
+  fixed_v2 entrant initial ratings;
+* `Typical Equelo Ratings` are public landmarks for reading the scale, not
+  lookup values for individual rikishi rows;
+* fixed_v1/Brier-compressed ratings are historical diagnostic context only.
+
+This post-Brier policy is repeated in the rating-column section where it affects
+specific calculations, but this is the headline rule for implementation.
+
 ## Page Shape
 
 The page uses the standard site tool layout:
