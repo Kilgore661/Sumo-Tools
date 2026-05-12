@@ -216,7 +216,7 @@ def write_page_bundle(report: BcrReport, output_file) -> None:
                 "id": "context",
                 "kind": "boolean",
                 "label": "Previous Basho Context",
-                "default": True,
+                "default": False,
             },
             {
                 "id": "banzuke_style",

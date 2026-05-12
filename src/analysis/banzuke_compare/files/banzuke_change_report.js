@@ -13,7 +13,7 @@ const state = {
   config: null,
   rows: [],
   currentDivision: null,
-  showContext: true,
+  showContext: false,
   showDelta: false,
   showBanzukeStyle: true,
   showEquelo: false,
@@ -140,7 +140,7 @@ function applyContextUrlState(params) {
   }
 
   if (context !== "true" && context !== "false") {
-    alert(`Unknown context value "${context}" in URL. Context will be shown.`);
+    alert(`Unknown context value "${context}" in URL. Context will be hidden.`);
     replaceUrlState();
     return;
   }
@@ -865,8 +865,8 @@ function pushUrlState() {
     url.searchParams.set("division", state.currentDivision);
   }
 
-  if (!state.showContext) {
-    url.searchParams.set("context", "false");
+  if (state.showContext) {
+    url.searchParams.set("context", "true");
   }
 
   if (state.showDelta) {

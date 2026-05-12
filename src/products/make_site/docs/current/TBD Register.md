@@ -222,6 +222,11 @@ off.
 Review the page defaults and URL-state handling so this is the initial view
 when the page is opened without explicit options.
 
+> Addressed 2026-05-12: source defaults were changed so previous-basho context
+> is off by default for the standalone Banzuke Changes app, the producer page
+> bundle, and the native `make_site` table manifest. The broader duplicated
+> defaults issue remains tracked separately below.
+
 ### 4.3 Standings by Wins Data Source
 
 The current `make_site` integration consumes standings data from
@@ -237,6 +242,19 @@ are not conveniently readable in the author's current workflow.
 
 The site builder should preserve the filenames expected by source HTML files.
 Do not silently normalise them to `.js`.
+
+### 4.5 Single Source of Truth for Page Defaults
+
+Banzuke Changes currently has defaults in more than one layer: the legacy
+standalone HTML/JavaScript app, the producer-written page bundle, and the
+native `make_site` PA manifest.
+
+This is probably a transitional artefact from the period when analysis modules
+were also runnable as standalone browser apps. Decide the intended ownership
+model and remove duplicated product defaults. The preferred direction for new
+features such as BRB is that the producer/page contract owns defaults once and
+the browser/runtime consumes them, with hardcoded JavaScript values used only
+as defensive fallbacks.
 
 ## 5. Plotly and Interactive Charts
 

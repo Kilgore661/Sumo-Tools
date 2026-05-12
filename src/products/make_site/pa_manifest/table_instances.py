@@ -124,7 +124,7 @@ banzuke_changes = TablePA(
             label="Previous Basho Context",
             kind="boolean",
             control="checkbox",
-            default=True,
+            default=False,
             url_key="context",
         ),
         Option(
