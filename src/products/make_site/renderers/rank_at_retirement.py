@@ -29,7 +29,7 @@ def write_rank_at_retirement_page(
             ".chart-header { flex: 0 0 auto; padding: 10px 12px 0; }",
             "#view-title { margin: 0; font-size: 1.05rem; font-weight: 700; }",
             "#chart { flex: 1 1 auto; min-width: 0; min-height: 280px; }",
-            ".note-panel { flex: 0 0 auto; padding: 10px 12px 12px; }",
+            ".note-panel { flex: 0 0 auto; }",
             "</style>",
             '<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>',
             "</head>",
@@ -113,9 +113,13 @@ function renderChart(pageConfig, rows) {
 function renderNotes(pageConfig) {
   const notes = (pageConfig.notes || [])
     .filter(note => note.placement === "below_chart")
-    .map(note => note.notes)
-    .join("<p></p>");
-  notePanel.innerHTML = notes ? `<p>${notes}</p>` : "";
+    .map(note => note.notes);
+  notePanel.innerHTML = notes.length ? `
+    <h3>Notes</h3>
+    <ol>
+      ${notes.map(note => `<li>${note}</li>`).join("")}
+    </ol>
+  ` : "";
   notePanel.querySelectorAll("a").forEach(link => {
     if (isExternalLink(link.href)) {
       link.target = "_blank";

@@ -24,8 +24,9 @@ def write_typical_equelo_values_page(
             f'<link rel="stylesheet" href="{asset_prefix}site-page.css">',
             f"<title>{escape(page.title)}</title>",
             "<style>",
-            ".tool-content { display: flex; flex-direction: column; gap: 12px; overflow: hidden; }",
-            ".table-grid { flex: 1 1 auto; min-height: 0; display: flex; justify-content: center; align-items: flex-start; gap: 42px; overflow: auto; }",
+            ".tool-content { display: block; overflow: hidden; }",
+            ".table-pa { height: 100%; }",
+            ".table-grid-inner { display: flex; align-items: flex-start; gap: 42px; }",
             ".table-section { width: max-content; border: 1px solid var(--site-line-soft); background: rgba(255, 255, 255, 0.025); }",
             ".table-section h2 { margin: 0; padding: 9px 10px; border-bottom: 1px solid var(--site-line-soft); background: var(--site-panel-strong); font-size: 1rem; }",
             "table { width: auto; }",
@@ -33,9 +34,7 @@ def write_typical_equelo_values_page(
             "th { background: rgba(19, 43, 92, 0.65); color: var(--site-muted); font-size: 0.82rem; }",
             "th.rating-heading { text-align: center; }",
             "td.rating { text-align: right; font-variant-numeric: tabular-nums; }",
-            ".note-panel { flex: 0 0 auto; }",
-            ".note-panel p { margin: 0 0 6px; }",
-            "@media (max-width: 760px) { body { overflow: auto; } .tool-shell { min-height: 100vh; height: auto; } .table-grid { flex-direction: column; align-items: stretch; overflow: visible; } }",
+            "@media (max-width: 760px) { body { overflow: auto; } .tool-shell { min-height: 100vh; height: auto; } .table-pa { height: auto; } .table-pa-body { overflow: visible; } .table-grid-inner { width: 100%; max-width: none; flex-direction: column; align-items: stretch; } }",
             "</style>",
             "</head>",
             "<body>",
@@ -45,8 +44,10 @@ def write_typical_equelo_values_page(
             f"<p>{escape(page.summary)}</p>",
             "</header>",
             '<main class="tool-content">',
-            '<div id="table-grid" class="table-grid"></div>',
-            '<div id="note-panel" class="note-panel"></div>',
+            '<section class="table-pa">',
+            '<div id="table-grid" class="table-pa-body"></div>',
+            '<div id="note-panel" class="notes-panel"></div>',
+            "</section>",
             "</main>",
             "</div>",
             "<script>",
@@ -87,6 +88,8 @@ async function initialise() {
 
 function renderTables(pageConfig, rows) {
   tableGrid.innerHTML = "";
+  const tableGroup = document.createElement("div");
+  tableGroup.className = "table-group table-grid-inner";
   for (const tableSpec of pageConfig.tables) {
     const sectionRows = rows
       .filter(row => row.table === tableSpec.source_value)
@@ -95,25 +98,28 @@ function renderTables(pageConfig, rows) {
     section.className = "table-section";
     section.innerHTML = `
       <h2>${escapeHtml(tableSpec.label)}</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>${escapeHtml(columnLabel(pageConfig, "label"))}</th>
-            <th class="rating-heading">${escapeHtml(columnLabel(pageConfig, "rating"))}</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${sectionRows.map(row => `
+      <div class="table-wrap">
+        <table>
+          <thead>
             <tr>
-              <td>${escapeHtml(row.label)}</td>
-              <td class="rating">${formatRating(row.rating)}</td>
+              <th>${escapeHtml(columnLabel(pageConfig, "label"))}</th>
+              <th class="rating-heading">${escapeHtml(columnLabel(pageConfig, "rating"))}</th>
             </tr>
-          `).join("")}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            ${sectionRows.map(row => `
+              <tr>
+                <td>${escapeHtml(row.label)}</td>
+                <td class="rating">${formatRating(row.rating)}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
     `;
-    tableGrid.appendChild(section);
+    tableGroup.appendChild(section);
   }
+  tableGrid.appendChild(tableGroup);
 }
 
 function columnLabel(pageConfig, id) {
@@ -128,9 +134,13 @@ function formatRating(value) {
 function renderNotes(pageConfig) {
   const notes = (pageConfig.notes || [])
     .filter(note => note.placement === "below_table")
-    .map(note => note.notes)
-    .join("</p><p>");
-  notePanel.innerHTML = notes ? `<p>${notes}</p>` : "";
+    .map(note => note.notes);
+  notePanel.innerHTML = notes.length ? `
+    <h3>Notes</h3>
+    <ol>
+      ${notes.map(note => `<li>${note}</li>`).join("")}
+    </ol>
+  ` : "";
   notePanel.querySelectorAll("a").forEach(link => {
     if (isExternalLink(link.href)) {
       link.target = "_blank";

@@ -225,12 +225,84 @@ th[data-column] {
   cursor: pointer;
 }
 
+.table-panel {
+  width: 100%;
+  min-width: 0;
+}
+
+.table-pa {
+  width: 100%;
+  min-width: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  align-items: start;
+}
+
+.table-pa-body {
+  width: 100%;
+  min-width: 0;
+  overflow: auto;
+  text-align: center;
+}
+
+.table-group {
+  width: max-content;
+  margin: 0 auto;
+}
+
+.table-title,
+.content-inner > h2 {
+  margin: 0 0 10px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.table-wrap {
+  overflow: auto;
+}
+
+.table-wrap > table,
+.standings-table,
+.banzuke-table {
+  width: max-content;
+  margin: 0 auto;
+}
+
 .notes,
 .note-panel,
-.notes-panel,
+.notes-panel {
+  max-width: 600px;
+  margin: 16px 0 0;
+  color: var(--page-muted);
+  font-size: 0.92rem;
+  text-align: left;
+}
+
 .runtime-note {
   color: var(--page-muted);
   font-size: 0.92rem;
+}
+
+.notes h3,
+.note-panel h3,
+.notes-panel h3 {
+  margin: 0 0 8px;
+  color: var(--page-text);
+  font-size: 1rem;
+}
+
+.notes ol,
+.note-panel ol,
+.notes-panel ol {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.notes li,
+.note-panel li,
+.notes-panel li {
+  margin-bottom: 8px;
 }
 
 .notes a,

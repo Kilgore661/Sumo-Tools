@@ -24,13 +24,14 @@ def write_career_length_page(
             f'<link rel="stylesheet" href="{asset_prefix}site-page.css">',
             f"<title>{escape(page.title)}</title>",
             "<style>",
-            ".tool-content-inner { width: 100%; height: 100%; min-height: 0; display: flex; flex-direction: column; border: 1px solid var(--site-line-soft); background: rgba(255, 255, 255, 0.025); }",
-            ".chart-header { flex: 0 0 auto; padding: 10px 12px 0; }",
-            "#view-title { margin: 0; font-size: 1.05rem; font-weight: 700; }",
+            ".tool-content-inner { width: 100%; height: 100%; min-height: 0; display: flex; flex-direction: column; }",
+            ".chart-header { flex: 0 0 auto; padding: 0; }",
+            "#view-title { margin: 0 0 10px; font-size: 1.05rem; font-weight: 700; text-align: center; }",
             "#chart { flex: 1 1 auto; min-width: 0; min-height: 280px; }",
-            "#table-wrap { flex: 1 1 auto; min-height: 0; overflow: auto; padding: 0 12px 12px; }",
+            "#table-wrap { flex: 1 1 auto; min-height: 0; overflow: auto; padding: 0; }",
+            "#table-wrap table { margin: 0 auto; }",
             "th { position: sticky; top: 0; z-index: 1; }",
-            ".note-panel { flex: 0 0 auto; padding: 10px 12px 12px; }",
+            ".note-panel { flex: 0 0 auto; }",
             "[hidden] { display: none !important; }",
             "</style>",
             '<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>',
@@ -53,7 +54,7 @@ def write_career_length_page(
             '<div class="tool-content-inner">',
             '<div class="chart-header"><h2 id="view-title"></h2></div>',
             '<div id="chart"></div>',
-            '<div id="table-wrap" hidden></div>',
+            '<div id="table-wrap" class="table-wrap" hidden></div>',
             '<div id="note-panel" class="note-panel"></div>',
             "</div>",
             "</main>",
@@ -120,9 +121,13 @@ function showNotes() {
   const notes = (pageConfig.notes || [])
     .filter(note => note.placement === "below_chart")
     .filter(note => noteIsVisibleForView(note, selectedView))
-    .map(note => note.notes)
-    .join("<p></p>");
-  notePanel.innerHTML = notes ? `<p>${notes}</p>` : "";
+    .map(note => note.notes);
+  notePanel.innerHTML = notes.length ? `
+    <h3>Notes</h3>
+    <ol>
+      ${notes.map(note => `<li>${note}</li>`).join("")}
+    </ol>
+  ` : "";
   wireNoteLinks();
 }
 

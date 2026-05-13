@@ -2,15 +2,12 @@
 .runtime-shell { min-height: 100vh; display: grid; grid-template-columns: 310px minmax(0, 1fr); }
 .runtime-nav { border-right: 1px solid var(--page-line); padding: 14px; background: #07142d; overflow: auto; }
 .runtime-main { min-width: 0; display: grid; grid-template-rows: auto minmax(0, 1fr); }
-.table-panel { min-width: 0; }
-.table-title { margin: 0 0 10px; font-size: 1.05rem; }
 .sectioned-table-grid { display: flex; justify-content: center; align-items: flex-start; gap: 36px; overflow: auto; }
 .table-section { width: max-content; min-width: 120px; }
 .table-section h2 { margin: 0; padding: 8px 10px; border: 1px solid var(--page-line); border-bottom: 0; background: var(--page-panel); font-size: 1rem; }
 .table-wrap { max-height: calc(100vh - 150px); overflow: auto; border: 1px solid var(--page-line); }
 table { width: 100%; font-size: 0.9rem; }
 thead th { position: sticky; top: 0; z-index: 1; background: var(--page-panel); }
-.notes-panel { margin-top: 12px; }
 .chart-panel { min-width: 0; }
 .chart-title { margin: 0 0 10px; font-size: 1.05rem; }
 .bar-chart { min-height: 420px; display: grid; grid-template-columns: 70px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; gap: 8px 10px; border: 1px solid var(--page-line); padding: 14px; }

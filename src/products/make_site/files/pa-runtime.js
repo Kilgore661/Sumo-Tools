@@ -856,7 +856,14 @@ function labelForOption(manifest, optionId, value) {
 function renderNotes(manifest, optionState) {
   const notes = (manifest.notes || []).filter(note => noteApplies(note, optionState));
   if (!notes.length) return "";
-  return `<div class="notes-panel">${notes.map(note => `<p>${formatNoteText(note)}</p>`).join("")}</div>`;
+  return `
+    <div class="notes-panel">
+      <h3>Notes</h3>
+      <ol>
+        ${notes.map(note => `<li>${formatNoteText(note)}</li>`).join("")}
+      </ol>
+    </div>
+  `;
 }
 
 function formatNoteText(note) {
