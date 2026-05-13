@@ -16,7 +16,7 @@ from .renderers.typical_equelo_values import write_typical_equelo_values_page
 from .routes import PageRoute, html_href, route_href
 
 
-SHELL_ASSET_VERSION = "20260506-no-title-bar-full-height"
+SHELL_ASSET_VERSION = "20260513-nav-muted-active"
 
 
 
@@ -122,21 +122,26 @@ def write_plotly_json_page(
     target_path.write_text(html, encoding="utf-8")
 
 
-def write_custom_page(page: Page, kind: str, target_path: Path) -> None:
+def write_custom_page(
+    page: Page,
+    kind: str,
+    target_path: Path,
+    asset_prefix: str = "",
+) -> None:
     if kind == "standing_win_probability":
-        write_standing_win_probability_page(page, target_path)
+        write_standing_win_probability_page(page, target_path, asset_prefix)
         return
     if kind == "career_length":
-        write_career_length_page(page, target_path)
+        write_career_length_page(page, target_path, asset_prefix)
         return
     if kind == "rank_at_retirement":
-        write_rank_at_retirement_page(page, target_path)
+        write_rank_at_retirement_page(page, target_path, asset_prefix)
         return
     if kind == "typical_equelo_values":
-        write_typical_equelo_values_page(page, target_path)
+        write_typical_equelo_values_page(page, target_path, asset_prefix)
         return
     if kind == "tbd_page":
-        write_tbd_page(page, target_path)
+        write_tbd_page(page, target_path, asset_prefix)
         return
 
     html = "\n".join(

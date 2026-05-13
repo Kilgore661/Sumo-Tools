@@ -11,6 +11,9 @@ for (const link of navLinks) {
 }
 
 function selectPage(link) {
+  for (const navLink of navLinks) {
+    navLink.classList.toggle("is-active", navLink === link);
+  }
   const frameSrc = link.dataset.frameSrc;
   frame.src = frameSrc;
   welcomePanel.hidden = true;

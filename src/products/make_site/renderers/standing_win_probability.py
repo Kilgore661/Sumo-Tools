@@ -8,7 +8,11 @@ from pathlib import Path
 from ..classes import Page
 
 
-def write_standing_win_probability_page(page: Page, target_path: Path) -> None:
+def write_standing_win_probability_page(
+    page: Page,
+    target_path: Path,
+    asset_prefix: str = "",
+) -> None:
     html = "\n".join(
         (
             "<!doctype html>",
@@ -17,25 +21,11 @@ def write_standing_win_probability_page(page: Page, target_path: Path) -> None:
             '<meta charset="utf-8">',
             '<meta name="viewport" content="width=device-width, initial-scale=1">',
             '<link rel="icon" type="image/x-icon" href="../Sumo/meep.png">',
+            f'<link rel="stylesheet" href="{asset_prefix}site-page.css">',
             f"<title>{escape(page.title)}</title>",
             "<style>",
-            ":root { color-scheme: dark; --site-bg: #07142d; --site-panel: #0d1f47; --site-panel-strong: #132b5c; --site-text: #ffffff; --site-muted: #c9d4ee; --site-line: #7f95c0; --site-line-soft: rgba(127, 149, 192, 0.55); --control-bg: #d7e0ef; --control-text: #10264f; --accent: #8fb5ff; }",
-            "* { box-sizing: border-box; }",
-            "html, body { min-height: 100%; }",
-            "body { min-width: 320px; min-height: 100vh; margin: 0; padding: 20px; overflow: hidden; background: var(--site-bg); color: var(--site-text); font-family: Arial, Helvetica, sans-serif; line-height: 1.35; }",
-            ".tool-shell { height: calc(100vh - 40px); display: flex; flex-direction: column; border: 1px solid var(--site-line); background: var(--site-panel); }",
-            ".tool-title-bar { flex: 0 0 auto; padding: 12px 16px; border-bottom: 1px solid var(--site-line); background: var(--site-panel-strong); font-size: 1.25rem; font-weight: 700; }",
-            ".tool-layout { flex: 1 1 auto; min-height: 0; display: grid; grid-template-columns: 230px minmax(0, 1fr); }",
-            ".tool-options { padding: 14px; border-right: 1px solid var(--site-line); overflow-y: auto; }",
-            ".tool-options h2 { margin: 0 0 14px; font-size: 1rem; }",
-            ".control-group { margin-bottom: 16px; }",
-            ".control-label { display: block; margin-bottom: 6px; font-weight: 700; }",
             ".checkbox-control { display: flex; align-items: center; gap: 7px; cursor: pointer; }",
             ".checkbox-control input { margin: 0; accent-color: var(--accent); }",
-            ".control-disabled { color: var(--site-muted); cursor: default; opacity: 0.65; }",
-            "select { width: 100%; min-height: 28px; border: 1px solid #aebddb; border-radius: 4px; background: var(--control-bg); color: var(--control-text); font: inherit; padding: 2px 4px; }",
-            "select:focus, input:focus { outline: 1px solid var(--site-muted); outline-offset: 1px; }",
-            ".tool-content { min-width: 0; min-height: 0; padding: 12px; overflow: hidden; }",
             ".tool-content-inner { width: 100%; height: 100%; min-height: 0; display: flex; flex-direction: column; border: 1px solid var(--site-line-soft); background: rgba(255, 255, 255, 0.025); }",
             ".chart-header { flex: 0 0 auto; padding: 10px 12px 0; }",
             "#chart-title { margin: 0; font-size: 1.05rem; font-weight: 700; }",
@@ -45,7 +35,10 @@ def write_standing_win_probability_page(page: Page, target_path: Path) -> None:
             "</head>",
             "<body>",
             '<div class="tool-shell">',
-            f'<div class="tool-title-bar">{escape(page.title)}</div>',
+            '<header class="tool-title-bar">',
+            f"<h1>{escape(page.title)}</h1>",
+            f"<p>{escape(page.summary)}</p>",
+            "</header>",
             '<div class="tool-layout">',
             '<aside class="tool-options">',
             "<h2>Options</h2>",

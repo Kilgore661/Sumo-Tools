@@ -1,49 +1,10 @@
-.tool-shell,
-.page {
-  width: max-content;
-  margin: 0 auto;
-  border: 1px solid var(--site-line);
-  background: var(--site-panel);
-}
+/*
+Compatibility stylesheet for legacy table app shells.
 
-.tool-title-bar,
-.title-bar {
-  padding: 16px 20px;
-  font-size: 24px;
-  font-weight: bold;
-  border-bottom: 1px solid var(--site-line);
-}
+Shared public page, option, table, note, and link styling now lives in
+`src/products/make_site/files/site-page.css` and is copied to the generated
+site root as `site-page.css`.
 
-.tool-layout,
-.main {
-  display: grid;
-  grid-template-columns: max-content max-content;
-  min-height: 420px;
-}
-
-.tool-options,
-.menu {
-  padding: 14px 16px;
-  border-right: 1px solid var(--site-line);
-  background: var(--site-panel-subtle);
-}
-
-.tool-options h2,
-.menu h2 {
-  margin: 0 0 12px 0;
-  font-size: 20px;
-}
-
-.tool-content,
-.content {
-  padding: 14px 16px;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-}
-
-.tool-content-inner,
-.content-inner {
-  display: inline-block;
-  text-align: center;
-}
+Legacy pages may keep linking this file while migration is in progress, but it
+should not define independent page-shell styling.
+*/

@@ -50,19 +50,32 @@ BANZUKE_CHANGES_DATA = (
 )
 
 
-BASHO_RESULTS_DATA = (
+BASHO_RESULTS_INDEX_DATA = (
     data(
         id="basho_results_index",
         source_path=BASHO_RESULTS_OUTPUT_ROOT / "basho_results_index.json",
         output_path=f"{BASHO_RESULTS_SITE_OUTPUT_DIR}/basho_results_index.json",
         media_type="application/json",
     ),
+)
+
+
+BASHO_RESULTS_PAYLOAD_DATA = (
     *published_data_refs(
         source_dir=BASHO_RESULTS_OUTPUT_ROOT / "by-basho",
         output_dir=f"{BASHO_RESULTS_SITE_OUTPUT_DIR}/by-basho",
         id_prefix="basho_results",
     ),
 )
+
+
+BASHO_RESULTS_DATA = BASHO_RESULTS_INDEX_DATA + BASHO_RESULTS_PAYLOAD_DATA
+
+
+def basho_results_data_refs(*, include_payloads: bool = True) -> tuple[DataRef, ...]:
+    if include_payloads:
+        return BASHO_RESULTS_DATA
+    return BASHO_RESULTS_INDEX_DATA
 
 
 WIN_PROBABILITY_BY_STANDING_DATA = (

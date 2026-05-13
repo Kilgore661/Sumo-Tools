@@ -89,7 +89,7 @@ function renderPageShell(taggedManifest) {
     return;
   }
   heading.textContent = taggedManifest.manifest.heading;
-  summary.textContent = `${taggedManifest.manifest_class} / ${taggedManifest.manifest.renderer}`;
+  summary.textContent = document.body.dataset.pageSummary || "";
 }
 
 function renderOptionsPanel(taggedManifest, optionState) {
@@ -99,7 +99,10 @@ function renderOptionsPanel(taggedManifest, optionState) {
     return;
   }
   const options = collectOptions(taggedManifest);
-  panel.innerHTML = options.length ? options.map(option => renderOptionControl(option, optionState, taggedManifest)).join("") : `<p class="runtime-note">No options.</p>`;
+  const controls = options.length
+    ? options.map(option => renderOptionControl(option, optionState, taggedManifest)).join("")
+    : `<p class="runtime-note">No options.</p>`;
+  panel.innerHTML = `<h2>Options</h2>${controls}`;
   wireOptionControls(panel, taggedManifest);
 }
 

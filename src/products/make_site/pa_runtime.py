@@ -17,7 +17,7 @@ from .site_config import PRODUCT_ROOT
 
 
 RUNTIME_DIR = "runtime-skeleton"
-RUNTIME_ASSET_VERSION = "20260509-pa-runtime-skeleton"
+RUNTIME_ASSET_VERSION = "20260513-page-heading-options"
 
 
 def write_pa_runtime_skeleton(
@@ -95,6 +95,7 @@ def dataclass_to_plain(value: Any) -> Any:
 
 
 def write_runtime_assets(root: Path) -> None:
+    copy_file(PRODUCT_ROOT / "files" / "site-page.css", root / "site-page.css")
     copy_file(PRODUCT_ROOT / "files" / "pa-runtime.css", root / "pa-runtime.css")
     copy_file(PRODUCT_ROOT / "files" / "pa-runtime.js", root / "pa-runtime.js")
 
@@ -159,11 +160,13 @@ def write_embedded_runtime_page(
             '<meta charset="utf-8">',
             '<meta name="viewport" content="width=device-width, initial-scale=1">',
             f"<title>{escape(page.title)}</title>",
+            f'<link rel="stylesheet" href="{asset_prefix}site-page.css?v={RUNTIME_ASSET_VERSION}">',
             f'<link rel="stylesheet" href="{asset_prefix}pa-runtime.css?v={RUNTIME_ASSET_VERSION}">',
             "</head>",
             (
                 f'<body class="runtime-embedded" data-selected-page-id="{escape(page.id)}" '
-                f'data-runtime-root="{escape(asset_prefix)}">'
+                f'data-runtime-root="{escape(asset_prefix)}" '
+                f'data-page-summary="{escape(page.summary)}">'
             ),
             '<main class="runtime-main">',
             '<header class="runtime-header">',
@@ -195,6 +198,11 @@ def write_runtime_shell_html(
     build_stamp: str,
 ) -> None:
     title = site.pages.pages[selected_page_id].title if selected_page_id else site.title
+    page_summary = (
+        site.pages.pages[selected_page_id].summary
+        if selected_page_id
+        else ""
+    )
     html = "\n".join(
         (
             "<!doctype html>",
@@ -203,11 +211,13 @@ def write_runtime_shell_html(
             '<meta charset="utf-8">',
             '<meta name="viewport" content="width=device-width, initial-scale=1">',
             f"<title>{escape(title)}</title>",
+            f'<link rel="stylesheet" href="{asset_prefix}site-page.css?v={RUNTIME_ASSET_VERSION}">',
             f'<link rel="stylesheet" href="{asset_prefix}pa-runtime.css?v={RUNTIME_ASSET_VERSION}">',
             "</head>",
             (
                 f'<body data-selected-page-id="{escape(selected_page_id)}" '
-                f'data-runtime-root="{escape(asset_prefix)}">'
+                f'data-runtime-root="{escape(asset_prefix)}" '
+                f'data-page-summary="{escape(page_summary)}">'
             ),
             '<div class="runtime-shell">',
             '<aside id="site-nav" class="runtime-nav" aria-label="Site navigation">',

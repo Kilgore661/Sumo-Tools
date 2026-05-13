@@ -419,6 +419,17 @@ The immediate fix was to restore a full-height one-row grid for `.site-main`.
 
 Keep this in mind when changing shell layout, especially on mobile.
 
+### 7.3 Consider Possible Mojibake Issues
+
+Review public UI text and manifest/runtime-generated labels for possible
+character-encoding issues.
+
+This is not currently confirmed as a defect. The prompt for this item was a
+code/read-through observation that some symbols appeared as mojibake-like text
+in one view of the source or command output. Check the actual generated site,
+source file encodings, and browser rendering before making any corrective
+changes.
+
 ## 8. Deployment and Build Behaviour
 
 ### 8.1 Local and Remote Deployment Contract
@@ -545,6 +556,15 @@ intervals, curated domains, and the distinction between observed data and
 model projections.
 
 ## 11. Future Public Feature Ideas
+
+### 11.0 Equelo Records
+
+Consider a public Equelo Records feature family.
+
+#### 11.0.1 Highest Rating
+
+Add a candidate page or exhibit for the highest Equelo ratings observed in the
+data.
 
 ### 11.1 Participation Volume Exhibits
 

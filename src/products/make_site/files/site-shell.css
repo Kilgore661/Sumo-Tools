@@ -81,29 +81,36 @@ body {
 
 .nav-tree > li > span {
   font-weight: 700;
-  color: var(--site-accent);
-  text-transform: uppercase;
-}
-
-.nav-tree li li > span {
   color: var(--site-text);
 }
 
+.nav-tree li li > span {
+  color: var(--site-muted);
+}
+
 .nav-link {
-  color: #ff3030;
-  font-weight: 700;
+  color: var(--site-text);
+  font-weight: 400;
   text-decoration: none;
 }
 
 .nav-link:visited,
 .nav-link:active,
 .nav-link:focus {
-  color: #ff3030;
+  color: var(--site-text);
 }
 
 .nav-link:hover {
-  color: #ff3030;
+  color: var(--site-text);
   text-decoration: underline;
+}
+
+.nav-link.is-active,
+.nav-link.is-active:visited,
+.nav-link.is-active:active,
+.nav-link.is-active:focus,
+.nav-link.is-active:hover {
+  color: var(--site-text);
 }
 
 .nav-link-tbd,
@@ -111,7 +118,7 @@ body {
 .nav-link-tbd:active,
 .nav-link-tbd:focus,
 .nav-link-tbd:hover {
-  color: #ff7ac8;
+  color: var(--site-muted);
 }
 
 .site-main {

@@ -24,6 +24,7 @@ from .site_data_refs import (
     BASHO_RESULTS_DATA,
     STANDINGS_DATA,
     WIN_PROBABILITY_BY_STANDING_DATA,
+    basho_results_data_refs,
     career_length_data_refs,
     rank_at_retirement_data_refs,
     typical_equelo_values_data_refs,
@@ -182,8 +183,19 @@ def site_with_career_lifecycle(
     career_outputs: CareerLengthOutputs,
     retirement_outputs: RankAtRetirementOutputs,
     typical_equelo_outputs: V5LandmarkOutputs,
+    *,
+    include_basho_results_payloads: bool = True,
 ) -> Site:
     pages = dict(PAGES.pages)
+    pages["basho_results_browser"] = Page(
+        id="basho_results_browser",
+        title="Basho Results",
+        summary="Historical and current basho results by division.",
+        view=CustomView(kind="pa_runtime_page"),
+        data=basho_results_data_refs(
+            include_payloads=include_basho_results_payloads,
+        ),
+    )
     pages["career_length"] = Page(
         id="career_length",
         title="Career Length",

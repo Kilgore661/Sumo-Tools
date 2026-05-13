@@ -23,38 +23,9 @@
   --neutral-fg: #c1c9d0;
 }
 
-body {
-  min-width: 320px;
-  padding: 20px;
-  overflow-x: auto;
-  line-height: 1.35;
-}
-
-.control-group {
-  margin-bottom: 14px;
-}
-
-.control-group label {
-  display: inline-block;
-  margin-right: 6px;
-  font-weight: bold;
-}
-
-.checkbox-option {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-weight: normal;
-  cursor: pointer;
-}
-
 .checkbox-option input[type="checkbox"] {
   appearance: none;
   -webkit-appearance: none;
-
-  width: 14px;
-  height: 14px;
-  margin: 0;
 
   border: 1px solid #9cb1d8;
   border-radius: 3px;
@@ -75,25 +46,6 @@ body {
   border-width: 0 2px 2px 0;
   transform: translate(-50%, -58%) rotate(45deg) scale(0.72);
   transform-origin: center;
-}
-
-.checkbox-option input[type="checkbox"]:focus {
-  outline: 1px solid rgba(201, 212, 238, 0.45);
-  outline-offset: 1px;
-}
-
-select {
-  background: #d7e0ef;
-  color: #10264f;
-  border: 1px solid #aebddb;
-  border-radius: 4px;
-  padding: 0;
-  font-size: 14px;
-}
-
-select:focus {
-  outline: 1px solid #c9d4ee;
-  outline-offset: 1px;
 }
 
 .table-wrap {
@@ -349,14 +301,4 @@ tbody tr:hover {
 .notes-popover a:focus {
   outline: 1px solid #224f9f;
   outline-offset: 2px;
-}
-
-@media (max-width: 780px) {
-  body {
-    padding: 10px;
-  }
-
-  .tool-shell {
-    width: 100%;
-  }
 }

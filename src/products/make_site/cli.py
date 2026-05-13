@@ -46,6 +46,14 @@ def build_parser() -> argparse.ArgumentParser:
         help="Build and deploy locally, but do not upload remotely.",
     )
     parser.add_argument(
+        "--no-banzuke",
+        action="store_true",
+        help=(
+            "Do not include the full Basho Results Browser per-basho payload "
+            "data in the built/deployed site."
+        ),
+    )
+    parser.add_argument(
         "--career-history-zip",
         type=Path,
         help=(
@@ -80,6 +88,7 @@ def main() -> None:
             career_outputs,
             retirement_outputs,
             typical_equelo_outputs,
+            include_basho_results_payloads=not args.no_banzuke,
         ),
         BUILD_CONFIG,
     )

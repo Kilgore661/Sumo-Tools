@@ -20,6 +20,12 @@ GLOBAL_ASSETS = (
         media_type="application/javascript",
     ),
     asset(
+        id="site_page_css",
+        source_path=PRODUCT_ROOT / "files" / "site-page.css",
+        output_path="site-page.css",
+        media_type="text/css",
+    ),
+    asset(
         id="site_wide_css",
         source_path=ANALYSIS_ROOT / "common" / "files" / "site-wide.css",
         output_path="common/files/site-wide.css",

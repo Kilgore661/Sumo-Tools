@@ -50,6 +50,7 @@ def build_site(site: Site, config: SiteBuildConfig) -> None:
 def write_page(page_route: PageRoute, output_root: Path, build_stamp: str) -> None:
     target_path = output_root.joinpath(*page_route.parts, "index.html")
     target_path.parent.mkdir(parents=True, exist_ok=True)
+    asset_prefix = "../" * len(page_route.parts)
     match page_route.page.view:
         case StandaloneHtmlView(source=source):
             copy_view(source, target_path)
@@ -62,7 +63,7 @@ def write_page(page_route: PageRoute, output_root: Path, build_stamp: str) -> No
         case CustomView(kind="pa_runtime_page"):
             write_embedded_runtime_page(page_route, output_root, build_stamp)
         case CustomView(kind=kind):
-            write_custom_page(page_route.page, kind, target_path)
+            write_custom_page(page_route.page, kind, target_path, asset_prefix)
 
 
 def copy_view(view_ref: ViewRef, target_path: Path) -> None:

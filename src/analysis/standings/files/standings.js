@@ -539,7 +539,7 @@ function renderMeta() {
   el.title.textContent =
     `Standings for ${start} to ${end} (${state.currentNumBasho} Basho)`;
 
-  el.range.textContent = "";
+  el.range.textContent = "Rolling recent-performance standings by wins.";
 }
 
 function formatMonthYear(token) {
@@ -1130,4 +1130,3 @@ function clearNotePopoverTimer() {
     notePopoverTimer = null;
   }
 }
-
