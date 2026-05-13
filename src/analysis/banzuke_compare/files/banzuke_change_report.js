@@ -21,6 +21,7 @@ const state = {
 
 const el = {
   pageTitle: document.getElementById("page-title"),
+  tableTitle: document.getElementById("table-title"),
   division: document.getElementById("division-select"),
   context: document.getElementById("context-columns"),
   banzukeStyle: document.getElementById("banzuke-style"),
@@ -240,6 +241,7 @@ function render() {
   const rows = state.rows.filter((row) => row.division_id === state.currentDivision);
 
   el.pageTitle.textContent = state.config.title;
+  el.tableTitle.textContent = `${formatBashoMonthYear(state.config.current_date)} Banzuke`;
   document.title = state.config.title;
 
   renderOptions();
@@ -254,6 +256,13 @@ function renderOptions() {
   el.table.classList.toggle("one-col-table", !state.showBanzukeStyle);
   applyNoteVisibility();
   hideNotePopover();
+}
+
+function formatBashoMonthYear(dateToken) {
+  const [year, month] = dateToken.split("/");
+  const monthName = new Date(Number(year), Number(month) - 1, 1)
+    .toLocaleString("en-GB", { month: "long" });
+  return `${monthName} ${year}`;
 }
 
 function renderTableTemplate() {
@@ -369,13 +378,25 @@ function renderTwoColumnTable(rows) {
 
     appendEqueloCell(tr, row.east_equelo, row.east_rikishi_id);
     appendTextCell(tr, row.east_old_chii, contextClass(row.east_rikishi_id));
-    appendScoreCell(tr, row.east_result, contextClass(row.east_rikishi_id));
+    appendScoreCell(
+      tr,
+      row.east_result,
+      contextClass(row.east_rikishi_id),
+      row.east_old_chii,
+      row.east_chii
+    );
     appendDeltaCells(tr, row.east_delta, row.east_delta_class, row.east_rikishi_id);
     appendRikishiCell(tr, row.east_shikona, row.east_graph_shikona, "east", row.east_rikishi_id);
     appendBzChiiCell(tr, row.bz_chii);
     appendRikishiCell(tr, row.west_shikona, row.west_graph_shikona, "west", row.west_rikishi_id);
     appendDeltaCells(tr, row.west_delta, row.west_delta_class, row.west_rikishi_id);
-    appendScoreCell(tr, row.west_result, contextClass(row.west_rikishi_id));
+    appendScoreCell(
+      tr,
+      row.west_result,
+      contextClass(row.west_rikishi_id),
+      row.west_old_chii,
+      row.west_chii
+    );
     appendTextCell(tr, row.west_old_chii, contextClass(row.west_rikishi_id));
     appendEqueloCell(tr, row.west_equelo, row.west_rikishi_id);
 
@@ -414,7 +435,13 @@ function appendOneColumnSideRow(row, side) {
     row[`${side}_delta_class`],
     rikishiId
   );
-  appendScoreCell(tr, row[`${side}_result`], contextClass(rikishiId));
+  appendScoreCell(
+    tr,
+    row[`${side}_result`],
+    contextClass(rikishiId),
+    row[`${side}_old_chii`],
+    row[`${side}_chii`]
+  );
   appendTextCell(tr, row[`${side}_old_chii`], contextClass(rikishiId));
   appendEqueloCell(tr, row[`${side}_equelo`], rikishiId);
 
@@ -432,12 +459,21 @@ function appendTextCell(tr, value, className = "") {
   tr.appendChild(td);
 }
 
-function appendScoreCell(tr, value, className = "") {
+function appendScoreCell(tr, value, className = "", previousChii = "", currentChii = "") {
   const td = document.createElement("td");
   const span = document.createElement("span");
   span.className = "score";
   span.textContent = value;
   td.appendChild(span);
+
+  const movement = divisionMovementMarker(previousChii, currentChii);
+  if (movement) {
+    const movementSpan = document.createElement("span");
+    movementSpan.className = "division-movement";
+    movementSpan.textContent = movement;
+    td.appendChild(document.createTextNode(" "));
+    td.appendChild(movementSpan);
+  }
 
   if (className) {
     td.className = className;
@@ -459,7 +495,7 @@ function appendDeltaCells(tr, value, deltaClass, rikishiId) {
   const directionSpan = document.createElement("span");
   const valueSpan = document.createElement("span");
 
-  directionTd.className = deltaCellClass(deltaClass, rikishiId);
+  directionTd.className = deltaDirectionCellClass(rikishiId);
   valueTd.className = deltaCellClass(deltaClass, rikishiId);
   valueTd.classList.add("delta-value-cell");
   directionSpan.className = "delta-direction";
@@ -565,6 +601,10 @@ function deltaCellClass(deltaClass, rikishiId) {
   return classes.join(" ");
 }
 
+function deltaDirectionCellClass(rikishiId) {
+  return rikishiId ? "delta-cell delta-direction-cell" : "delta-cell delta-direction-cell empty";
+}
+
 function deltaDirection(value) {
   if (value.startsWith("+")) {
     return "↑";
@@ -579,6 +619,33 @@ function deltaDirection(value) {
 
 function unsignedDelta(value) {
   return value.replace(/^[+-]/, "");
+}
+
+function divisionMovementMarker(previousChii, currentChii) {
+  const previous = divisionRank(previousChii);
+  const current = divisionRank(currentChii);
+  if (previous === null || current === null || previous === current) return "";
+  return current < previous ? "↑" : "↓";
+}
+
+function divisionRank(chii) {
+  const text = String(chii || "").trim();
+  if (!text || text === "-") return null;
+  const match = text.match(/^(Ms|Sd|Jd|Jk|Y|O|S|K|M|J)/);
+  if (!match) return null;
+  const order = {
+    Y: 0,
+    O: 0,
+    S: 0,
+    K: 0,
+    M: 0,
+    J: 1,
+    Ms: 2,
+    Sd: 3,
+    Jd: 4,
+    Jk: 5,
+  };
+  return order[match[1]] ?? null;
 }
 
 const NOTE_POPOVER_DELAY_MS = 450;

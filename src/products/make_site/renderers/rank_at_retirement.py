@@ -24,11 +24,11 @@ def write_rank_at_retirement_page(
             f'<link rel="stylesheet" href="{asset_prefix}site-page.css">',
             f"<title>{escape(page.title)}</title>",
             "<style>",
-            ".tool-content { display: flex; flex-direction: column; }",
-            ".chart-panel { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; border: 1px solid var(--site-line-soft); background: rgba(255, 255, 255, 0.025); }",
+            ".tool-content { display: flex; flex-direction: column; align-items: stretch; }",
+            ".chart-panel { width: 100%; flex: 1 1 auto; min-width: 0; min-height: 0; display: flex; flex-direction: column; border: 1px solid var(--site-line-soft); background: rgba(255, 255, 255, 0.025); }",
             ".chart-header { flex: 0 0 auto; padding: 10px 12px 0; }",
             "#view-title { margin: 0; font-size: 1.05rem; font-weight: 700; }",
-            "#chart { flex: 1 1 auto; min-width: 0; min-height: 280px; }",
+            "#chart { width: 100%; flex: 1 1 auto; min-width: 0; min-height: 280px; }",
             ".note-panel { flex: 0 0 auto; }",
             "</style>",
             '<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>',
@@ -107,7 +107,8 @@ function renderChart(pageConfig, rows) {
     yaxis: { title: pageConfig.chart.y_label, rangemode: "tozero" },
     margin: { l: 80, r: 30, t: 40, b: 70 }
   };
-  Plotly.newPlot(chart, [trace], layout, { responsive: true, displaylogo: false });
+  Plotly.newPlot(chart, [trace], layout, { responsive: true, displaylogo: false })
+    .then(() => Plotly.Plots.resize(chart));
 }
 
 function renderNotes(pageConfig) {
@@ -136,6 +137,7 @@ function isExternalLink(href) {
   }
 }
 
+window.addEventListener("resize", () => Plotly.Plots.resize(chart));
 initialise();
 """
 

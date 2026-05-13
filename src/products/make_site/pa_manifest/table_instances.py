@@ -461,10 +461,11 @@ standings_by_wins = TablePA(
     columns=(
         TableColumn(
             id="row_number",
-            heading="Row",
+            heading="#",
             group="identity",
             sortable=False,
             formatter="row_number",
+            align="center",
             always_visible=True,
         ),
         TableColumn(
@@ -699,14 +700,6 @@ basho_results_browser = IndexedTablePA(
             default=False,
             url_key="nu_chii",
         ),
-        Option(
-            id="reading_guide",
-            label="Reading Guide",
-            kind="boolean",
-            control="checkbox",
-            default=False,
-            url_key="guide",
-        ),
     ),
     column_groups=(
         ColumnGroup(
@@ -719,32 +712,26 @@ basho_results_browser = IndexedTablePA(
             id="previous_basho",
             heading="Previous Basho",
             columns=(
-                "previous_delta_direction",
-                "previous_delta",
-                "previous_result",
                 "previous_chii",
-                "previous_equelo",
+                "previous_result",
+                "previous_delta_direction",
             ),
         ),
         ColumnGroup(
             id="result_state",
             heading="After/During",
             always_visible=True,
-            columns=("score",),
-        ),
-        ColumnGroup(
-            id="rating_state",
-            heading="After/During",
-            columns=("equelo", "delta_equelo", "nu_chii"),
+            columns=("score", "equelo", "delta_equelo", "nu_chii"),
         ),
     ),
     columns=(
         TableColumn(
             id="row_number",
-            heading="Row",
+            heading="#",
             group="identity",
             sortable=False,
             formatter="row_number",
+            align="center",
             always_visible=True,
         ),
         TableColumn(
@@ -770,7 +757,7 @@ basho_results_browser = IndexedTablePA(
         ),
         TableColumn(
             id="previous_delta_direction",
-            heading="⇅",
+            heading="\u21c5",
             source_field="previous_delta_direction",
             group="previous_basho",
             sort_kind="text",
@@ -781,11 +768,11 @@ basho_results_browser = IndexedTablePA(
             id="previous_delta",
             heading="Δ",
             source_field="previous_delta",
-            group="previous_basho",
+            group=None,
             sort_key="previous_delta",
             sort_kind="numeric",
             align="right",
-            note="note_previous_delta",
+            note=None,
         ),
         TableColumn(
             id="previous_result",
@@ -793,6 +780,7 @@ basho_results_browser = IndexedTablePA(
             source_field="previous_result",
             group="previous_basho",
             sort_kind="record",
+            align="center",
             note="note_previous_result",
         ),
         TableColumn(
@@ -802,12 +790,13 @@ basho_results_browser = IndexedTablePA(
             group="previous_basho",
             sort_key="previous_chii_ordinal",
             sort_kind="chii_ordinal",
+            align="center",
         ),
         TableColumn(
             id="previous_equelo",
             heading="Equelo",
             source_field="previous_equelo",
-            group="previous_basho",
+            group=None,
             sort_kind="numeric",
             formatter="integer",
             align="right",
@@ -819,6 +808,7 @@ basho_results_browser = IndexedTablePA(
             source_field="score",
             group="result_state",
             sort_kind="record",
+            align="center",
             always_visible=True,
             note="note_score",
         ),
@@ -826,17 +816,17 @@ basho_results_browser = IndexedTablePA(
             id="equelo",
             heading="Equelo",
             source_field="equelo",
-            group="rating_state",
+            group="result_state",
             sort_kind="numeric",
             formatter="integer",
-            align="right",
+            align="center",
             note="note_equelo",
         ),
         TableColumn(
             id="delta_equelo",
             heading="Δ Equelo",
             source_field="delta_equelo",
-            group="rating_state",
+            group="result_state",
             sort_kind="numeric",
             formatter="signed_integer",
             align="right",
@@ -846,7 +836,7 @@ basho_results_browser = IndexedTablePA(
             id="nu_chii",
             heading="νChii",
             source_field="nu_chii",
-            group="rating_state",
+            group="result_state",
             sort_key="nu_chii_ordinal",
             sort_kind="chii_ordinal",
             note="note_nu_chii",
@@ -868,7 +858,7 @@ basho_results_browser = IndexedTablePA(
         GroupVisibilityPreset(
             id="full_details",
             label="Full Details",
-            visible_groups=("identity", "previous_basho", "result_state", "rating_state"),
+            visible_groups=("identity", "previous_basho", "result_state"),
             default_sort=SortSpec(column="chii", descending=False),
         ),
     ),
@@ -893,14 +883,6 @@ basho_results_browser = IndexedTablePA(
             text="Direction indicates a better or worse position than in the previous basho.",
         ),
         Note(
-            id="note_previous_delta",
-            applies_to=("previous_basho",),
-            text=(
-                "Delta indicates the size of movement from the previous "
-                "basho's position, measured in occupied banzuke slots."
-            ),
-        ),
-        Note(
             id="note_previous_result",
             applies_to=("previous_basho",),
             text=(
@@ -919,17 +901,17 @@ basho_results_browser = IndexedTablePA(
         ),
         Note(
             id="note_equelo",
-            applies_to=("rating_state", "previous_basho"),
+            applies_to=("rating_context",),
             text="Equelo is the fixed_v2 process rating at the represented point.",
         ),
         Note(
             id="note_delta_equelo",
-            applies_to=("rating_state",),
+            applies_to=("rating_context",),
             text="Delta Equelo is the rating change from the start of the selected basho.",
         ),
         Note(
             id="note_nu_chii",
-            applies_to=("rating_state",),
+            applies_to=("nu_chii",),
             text=(
                 "νChii is the after/during chii value for the selected state. "
                 "It may be actual, estimated, or unavailable depending on what "
@@ -943,7 +925,6 @@ basho_results_browser = IndexedTablePA(
         "previous_context",
         "rating_context",
         "nu_chii",
-        "reading_guide",
     ),
     provenance={
         "status": "design_manifest",
@@ -955,7 +936,6 @@ basho_results_browser = IndexedTablePA(
             "indexed_table runtime requires index-to-payload lazy loading",
             "context-sensitive group headings require renderer support",
             "individual column visibility within groups requires renderer support",
-            "reading guide rendering requires page/runtime support",
         ),
     },
 )

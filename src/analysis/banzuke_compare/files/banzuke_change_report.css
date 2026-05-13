@@ -155,6 +155,10 @@ tbody tr:hover {
 .context-head,
 .context-cell,
 .context-cell .score,
+.context-cell .division-movement,
+.delta-head,
+.delta-cell .delta-direction,
+.delta-cell .delta,
 .equelo-head,
 .equelo-cell {
   color: #7f95b8;
@@ -193,37 +197,42 @@ tbody tr:hover {
   font-weight: 700;
 }
 
-.delta-cell.up.low {
+.division-movement {
+  display: inline-block;
+  font-weight: 700;
+}
+
+.delta-value-cell.up.low {
   color: var(--up-low-fg);
   background: var(--up-low-bg);
 }
 
-.delta-cell.up.mid {
+.delta-value-cell.up.mid {
   color: var(--up-mid-fg);
   background: var(--up-mid-bg);
 }
 
-.delta-cell.up.high {
+.delta-value-cell.up.high {
   color: var(--up-high-fg);
   background: var(--up-high-bg);
 }
 
-.delta-cell.down.low {
+.delta-value-cell.down.low {
   color: var(--down-low-fg);
   background: var(--down-low-bg);
 }
 
-.delta-cell.down.mid {
+.delta-value-cell.down.mid {
   color: var(--down-mid-fg);
   background: var(--down-mid-bg);
 }
 
-.delta-cell.down.high {
+.delta-value-cell.down.high {
   color: var(--down-high-fg);
   background: var(--down-high-bg);
 }
 
-.delta-cell.neutral {
+.delta-value-cell.neutral {
   color: var(--neutral-fg);
   background: var(--neutral-bg);
 }

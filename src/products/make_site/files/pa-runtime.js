@@ -200,6 +200,7 @@ async function renderIndexedTablePA(manifest, optionState, panel) {
       ${renderNotes(manifest, effectiveState)}
     </div>
   `;
+  wireRikishiLinks(panel);
   renderOptionsPanel(runtimeState.taggedManifest, effectiveState);
   wireTableHeaders(panel, manifest, effectiveState);
 }
@@ -550,6 +551,7 @@ async function renderStandingsTable(manifest, optionState, panel) {
       ${renderNotes(manifest, optionState)}
     </div>
   `;
+  wireRikishiLinks(panel);
   wireTableHeaders(panel, manifest, optionState);
 }
 
@@ -653,7 +655,10 @@ function visibleColumnsForTable(manifest, optionState) {
   const presetId = optionState.metric_group_preset;
   const preset = (manifest.group_visibility_presets || []).find(item => item.id === presetId);
   const visibleGroups = new Set(preset ? preset.visible_groups : (manifest.column_groups || []).map(group => group.id));
-  return (manifest.columns || []).filter(column => column.always_visible || visibleGroups.has(column.group));
+  return orderColumnsByGroups(
+    manifest,
+    (manifest.columns || []).filter(column => column.always_visible || visibleGroups.has(column.group))
+  );
 }
 
 function visibleColumnsForIndexedTable(manifest, optionState) {
@@ -663,13 +668,7 @@ function visibleColumnsForIndexedTable(manifest, optionState) {
   if (optionState.previous_context === true || optionState.previous_context === "true") {
     visibleGroups.add("previous_basho");
   }
-  if (optionState.rating_context === true || optionState.rating_context === "true") {
-    visibleGroups.add("rating_state");
-  }
-  if (optionState.nu_chii === true || optionState.nu_chii === "true") {
-    visibleGroups.add("rating_state");
-  }
-  return (manifest.columns || []).filter(column => {
+  const visibleColumns = (manifest.columns || []).filter(column => {
     if (column.id === "nu_chii" && !(optionState.nu_chii === true || optionState.nu_chii === "true")) {
       return false;
     }
@@ -677,6 +676,22 @@ function visibleColumnsForIndexedTable(manifest, optionState) {
       return false;
     }
     return column.always_visible || visibleGroups.has(column.group);
+  });
+  return orderColumnsByGroups(manifest, visibleColumns);
+}
+
+function orderColumnsByGroups(manifest, columns) {
+  const originalOrder = new Map((manifest.columns || []).map((column, index) => [column.id, index]));
+  const groupColumnOrder = new Map();
+  (manifest.column_groups || []).forEach((group, groupIndex) => {
+    (group.columns || []).forEach((columnId, columnIndex) => {
+      groupColumnOrder.set(columnId, groupIndex * 1000 + columnIndex);
+    });
+  });
+  return [...columns].sort((left, right) => {
+    const leftOrder = groupColumnOrder.get(left.id) ?? (100000 + (originalOrder.get(left.id) ?? 0));
+    const rightOrder = groupColumnOrder.get(right.id) ?? (100000 + (originalOrder.get(right.id) ?? 0));
+    return leftOrder - rightOrder;
   });
 }
 
@@ -713,7 +728,8 @@ function renderTableHead(manifest, visibleColumns) {
       groupColumns.push(visibleColumns[index]);
       index += 1;
     }
-    groupCells.push(`<th colspan="${groupColumns.length}" class="center">${escapeHtml(group?.heading || "")}</th>`);
+    const classes = ["center", columnGroupClass(group?.id)].filter(Boolean).join(" ");
+    groupCells.push(`<th colspan="${groupColumns.length}" class="${escapeHtml(classes)}">${escapeHtml(group?.heading || "")}</th>`);
   }
   return `
     <thead>
@@ -742,7 +758,12 @@ function indexedTableTitle(manifest, optionState, entry) {
 function renderHeaderCell(column) {
   const active = runtimeState.sort?.column === column.id;
   const marker = active ? (runtimeState.sort.descending ? " ▼" : " ▲") : "";
-  const classes = [column.align || "", column.sortable ? "sortable" : ""].filter(Boolean).join(" ");
+  const classes = [
+    column.align || "",
+    column.sortable ? "sortable" : "",
+    column.id === "row_number" ? "row-number" : "",
+    columnGroupClass(column.group),
+  ].filter(Boolean).join(" ");
   return `<th class="${escapeHtml(classes)}" data-column-id="${escapeHtml(column.id)}">${escapeHtml(column.heading)}${marker}</th>`;
 }
 
@@ -751,7 +772,11 @@ function renderTableRow(row, index, visibleColumns) {
 }
 
 function renderTableCell(row, index, column) {
-  const classes = [column.align || ""].filter(Boolean).join(" ");
+  const classes = [
+    column.align || "",
+    column.id === "row_number" ? "row-number" : "",
+    columnGroupClass(column.group),
+  ].filter(Boolean).join(" ");
   return `<td class="${escapeHtml(classes)}">${formatCell(row, index, column)}</td>`;
 }
 
@@ -761,10 +786,86 @@ function formatCell(row, index, column) {
   const raw = column.source_field ? row[column.source_field] : "";
   if (column.formatter === "decimal_2") return formatNumber(raw, 2);
   if (column.formatter === "percent_1") return `${formatNumber(raw, 1)}%`;
+  if (column.id === "previous_delta_direction") {
+    if (raw !== "↑" && raw !== "↓" && raw !== "â†‘" && raw !== "â†“") return "";
+    return `<span class="delta-direction">${escapeHtml(raw)}</span>`;
+  }
+  if (column.id === "previous_result") {
+    return formatResultWithDivisionMovement(raw, row.previous_chii, row.chii);
+  }
   if (column.link === "rikishi" && row.rikishi_id) {
-    return `<a href="https://sumodb.sumogames.de/Rikishi.aspx?r=${encodeURIComponent(row.rikishi_id)}">${escapeHtml(raw)}</a>`;
+    const rikishiId = encodeURIComponent(row.rikishi_id);
+    const graphShikona = encodeURIComponent(row.graph_shikona || raw);
+    return `<a class="rikishi-link" href="https://sumodb.sumogames.de/Rikishi.aspx?r=${rikishiId}" data-rikishi-id="${rikishiId}" data-graph-shikona="${graphShikona}" title="Click: SumoDB. Alt-click: Gaspode-san.">${escapeHtml(raw)}</a>`;
   }
   return escapeHtml(raw);
+}
+
+function columnGroupClass(groupId) {
+  if (!groupId) return "";
+  return `column-group-${String(groupId).replaceAll("_", "-")}`;
+}
+
+function wireRikishiLinks(scope) {
+  scope.querySelectorAll(".rikishi-link").forEach(link => {
+    if (link.dataset.linkWired === "true") return;
+    link.dataset.linkWired = "true";
+    let suppressNextClick = false;
+    link.addEventListener("mousedown", event => {
+      if (!event.altKey || event.button !== 0) return;
+      event.preventDefault();
+      event.stopPropagation();
+      suppressNextClick = true;
+      openRikishiTarget(`http://www.661.org.uk/cgi-bin/index.py?graph=any&new_rik=&r_${link.dataset.graphShikona}=${link.dataset.graphShikona}&graph_type=by_time`);
+    });
+    link.addEventListener("click", event => {
+      event.preventDefault();
+      if (suppressNextClick) {
+        suppressNextClick = false;
+        return;
+      }
+      openRikishiTarget(`https://sumodb.sumogames.de/Rikishi.aspx?r=${link.dataset.rikishiId}`);
+    });
+  });
+}
+
+function openRikishiTarget(url) {
+  const opened = window.open(url, "_blank", "noopener");
+  if (opened) opened.focus();
+}
+
+function formatResultWithDivisionMovement(result, previousChii, currentChii) {
+  const marker = divisionMovementMarker(previousChii, currentChii);
+  const resultText = escapeHtml(result);
+  if (!marker) return resultText;
+  return `${resultText} <span class="division-movement">${escapeHtml(marker)}</span>`;
+}
+
+function divisionMovementMarker(previousChii, currentChii) {
+  const previous = divisionRank(previousChii);
+  const current = divisionRank(currentChii);
+  if (previous === null || current === null || previous === current) return "";
+  return current < previous ? "↑" : "↓";
+}
+
+function divisionRank(chii) {
+  const text = String(chii || "").trim();
+  if (!text || text === "-") return null;
+  const match = text.match(/^(Ms|Sd|Jd|Jk|Y|O|S|K|M|J)/);
+  if (!match) return null;
+  const order = {
+    Y: 0,
+    O: 0,
+    S: 0,
+    K: 0,
+    M: 0,
+    J: 1,
+    Ms: 2,
+    Sd: 3,
+    Jd: 4,
+    Jk: 5,
+  };
+  return order[match[1]] ?? null;
 }
 
 function competitionRank(row, column) {
@@ -882,13 +983,11 @@ function noteApplies(note, optionState) {
   if (applies.includes("previous_basho")) {
     return optionState.previous_context === true || optionState.previous_context === "true";
   }
-  if (applies.includes("rating_state")) {
-    return (
-      optionState.rating_context === true ||
-      optionState.rating_context === "true" ||
-      optionState.nu_chii === true ||
-      optionState.nu_chii === "true"
-    );
+  if (applies.includes("rating_context")) {
+    return optionState.rating_context === true || optionState.rating_context === "true";
+  }
+  if (applies.includes("nu_chii")) {
+    return optionState.nu_chii === true || optionState.nu_chii === "true";
   }
   return false;
 }

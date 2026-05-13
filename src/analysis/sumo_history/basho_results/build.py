@@ -237,5 +237,4 @@ def format_previous_delta_direction(delta: float | None) -> str:
         return "↑"
     if delta < 0:
         return "↓"
-    return "→"
-
+    return ""

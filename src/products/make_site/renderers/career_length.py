@@ -27,9 +27,10 @@ def write_career_length_page(
             ".tool-content-inner { width: 100%; height: 100%; min-height: 0; display: flex; flex-direction: column; }",
             ".chart-header { flex: 0 0 auto; padding: 0; }",
             "#view-title { margin: 0 0 10px; font-size: 1.05rem; font-weight: 700; text-align: center; }",
-            "#chart { flex: 1 1 auto; min-width: 0; min-height: 280px; }",
+            "#chart { flex: 1 1 auto; width: 100%; min-width: 0; min-height: 280px; }",
             "#table-wrap { flex: 1 1 auto; min-height: 0; overflow: auto; padding: 0; }",
             "#table-wrap table { margin: 0 auto; }",
+            "#table-wrap .shikona { text-align: left; }",
             "th { position: sticky; top: 0; z-index: 1; }",
             ".note-panel { flex: 0 0 auto; }",
             "[hidden] { display: none !important; }",
@@ -174,7 +175,8 @@ function renderDistribution(rows) {
   layout.barmode = "stack";
   layout.legend = { orientation: "v", x: 1.02, xanchor: "left", y: 1, yanchor: "top" };
   layout.margin.r = 120;
-  Plotly.newPlot(chart, traces, layout, { responsive: true, displaylogo: false });
+  Plotly.newPlot(chart, traces, layout, { responsive: true, displaylogo: false })
+    .then(() => Plotly.Plots.resize(chart));
 }
 
 function renderLine(rows, yField, yTitle, options = {}) {
@@ -193,11 +195,13 @@ function renderLine(rows, yField, yTitle, options = {}) {
   if (options.yRange) {
     layout.yaxis.range = options.yRange;
   }
-  Plotly.newPlot(chart, [trace], layout, { responsive: true, displaylogo: false });
+  Plotly.newPlot(chart, [trace], layout, { responsive: true, displaylogo: false })
+    .then(() => Plotly.Plots.resize(chart));
 }
 
 function renderLongest(rows) {
   showTable();
+  viewTitle.textContent = "Longest Career";
   const columns = [
     ["shikona", "Shikona", "shikona"],
     ["first_appearance", "First"],
@@ -206,10 +210,10 @@ function renderLongest(rows) {
     ["gap_basho_count", "Bg"],
     ["active", "Active"]
   ];
-  const head = `<tr>${columns.map(([, label]) => `<th>${label}</th>`).join("")}</tr>`;
-  const body = rows.map(row => `<tr>${columns.map(([key]) => {
+  const head = `<tr>${columns.map(([, label, className = ""]) => `<th class="${className}">${label}</th>`).join("")}</tr>`;
+  const body = rows.map(row => `<tr>${columns.map(([key, , className = ""]) => {
     const value = formatTableValue(row, key);
-    return `<td>${value}</td>`;
+    return `<td class="${className}">${value}</td>`;
   }).join("")}</tr>`).join("");
   tableWrap.innerHTML = `<table><thead>${head}</thead><tbody>${body}</tbody></table>`;
   wireRikishiLinks(tableWrap);
@@ -335,6 +339,7 @@ async function initialise() {
   await renderActiveView();
 }
 
+window.addEventListener("resize", () => Plotly.Plots.resize(chart));
 viewOptions.addEventListener("change", renderActiveView);
 initialise();
 """

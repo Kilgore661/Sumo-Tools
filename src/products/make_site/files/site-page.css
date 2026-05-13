@@ -308,9 +308,21 @@ th[data-column] {
 .notes a,
 .note-panel a,
 .notes-panel a,
-.rikishi-link,
 a {
   color: #bcd3ff;
+}
+
+.rikishi-link,
+.rikishi-link:visited,
+.rikishi-link:hover,
+.rikishi-link:active {
+  color: inherit;
+  text-decoration: none;
+}
+
+.rikishi-link:focus {
+  outline: 1px dotted currentColor;
+  outline-offset: 1px;
 }
 
 td.right,

@@ -596,6 +596,24 @@ option for the Longest view only.
 The intent is to reduce default table clutter while still allowing a focused
 active-rikishi list where that question is useful.
 
+### 11.4 Career Length Years Note
+
+Review and rewrite the `Years` note for Career Length.
+
+The current note is too long, but still does not cover an important point: how
+to describe rikishi whose careers began before the canonical history epoch.
+This may be because bio data was not available when the note was written. Now
+that `get_bios` is available, reassess whether the page can use bio/hatsu
+data to explain or qualify pre-epoch careers more clearly.
+
+### 11.5 Career Length Active Display Option
+
+Replace the visible `Active` column in the Longest Career table with an option
+named `Show Active`.
+
+The aim is to keep the default table simpler while preserving the ability to
+inspect active status when that is the user's question.
+
 ## 12. Shared Presentation and Link Contracts
 
 ### 12.1 Generate Qualified Shikona in Sumo-Tools
@@ -753,3 +771,23 @@ Initial trial: the `career_length` and `rank_at_retirement` analysis modules
 have been moved under `src/analysis/sumo_history/career_lifecycle`. Revisit
 after more pages exist to decide whether renderer code, tests, and docs should
 follow the same pattern.
+
+### 12.11 Semantic Table Column Styling
+
+Consider implementing semantic table column styling metadata.
+
+Current table styling is often attached to local column ids or page-specific
+CSS. This lets the same kind of value drift between pages: chii values,
+chii-like Banzuke Changes rank/context strings, Equelo ratings, row numbers,
+records, movement markers, and previous/context columns can each receive
+different alignment, colour, or typography depending on the table that happens
+to render them.
+
+The proposed direction is to add semantic column metadata such as `value_kind`
+and possibly `role`, then emit shared classes like `value-chii`,
+`value-rating`, `value-row-number`, and `role-previous`. Site-wide CSS can then
+define the default presentation of each value kind, while page-specific CSS is
+reserved for documented local exceptions.
+
+The working proposal is recorded in
+`src/products/make_site/docs/current/Semantic Table Column Styling Proposal.md`.
