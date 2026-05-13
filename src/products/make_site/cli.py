@@ -54,6 +54,14 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
+        "--one-banzuke",
+        action="store_true",
+        help=(
+            "Include only the most recent Basho Results Browser per-basho "
+            "payload data in the built/deployed site."
+        ),
+    )
+    parser.add_argument(
         "--career-history-zip",
         type=Path,
         help=(
@@ -74,6 +82,11 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main() -> None:
     args = build_parser().parse_args()
+    if args.no_banzuke and args.one_banzuke:
+        raise SystemExit("--no-banzuke and --one-banzuke cannot be used together")
+    basho_results_payload_mode = "latest" if args.one_banzuke else "all"
+    if args.no_banzuke:
+        basho_results_payload_mode = "none"
     history_zip = args.history_zip or args.career_history_zip
     history = (
         load_history_from_zip(history_zip)
@@ -88,7 +101,7 @@ def main() -> None:
             career_outputs,
             retirement_outputs,
             typical_equelo_outputs,
-            include_basho_results_payloads=not args.no_banzuke,
+            basho_results_payload_mode=basho_results_payload_mode,
         ),
         BUILD_CONFIG,
     )

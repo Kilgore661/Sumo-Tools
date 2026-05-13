@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Mapping
+from typing import Literal, Mapping
 
 from .classes import (
     CustomView,
@@ -184,7 +184,7 @@ def site_with_career_lifecycle(
     retirement_outputs: RankAtRetirementOutputs,
     typical_equelo_outputs: V5LandmarkOutputs,
     *,
-    include_basho_results_payloads: bool = True,
+    basho_results_payload_mode: Literal["all", "latest", "none"] = "all",
 ) -> Site:
     pages = dict(PAGES.pages)
     pages["basho_results_browser"] = Page(
@@ -193,7 +193,7 @@ def site_with_career_lifecycle(
         summary="Historical and current basho results by division.",
         view=CustomView(kind="pa_runtime_page"),
         data=basho_results_data_refs(
-            include_payloads=include_basho_results_payloads,
+            payload_mode=basho_results_payload_mode,
         ),
     )
     pages["career_length"] = Page(

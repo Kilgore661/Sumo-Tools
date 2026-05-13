@@ -505,13 +505,17 @@ function wireOptionControls(panel, taggedManifest) {
   const optionById = new Map(collectOptions(taggedManifest).map(option => [option.id, option]));
   panel.querySelectorAll("[data-option-id]").forEach(control => {
     control.addEventListener("change", async () => {
-      const option = optionById.get(control.dataset.optionId);
-      const value = option.kind === "boolean" ? control.checked : control.value;
-      runtimeState.optionState[option.id] = coerceOptionValue(option, value);
-      runtimeState.sort = defaultSortForManifest(taggedManifest.manifest, runtimeState.optionState);
-      normaliseUrlIfNeeded(resolveInitialPageId(), taggedManifest, runtimeState.optionState);
-      renderOptionsPanel(taggedManifest, runtimeState.optionState);
-      await renderPublishedArtefact(taggedManifest, runtimeState.optionState);
+      try {
+        const option = optionById.get(control.dataset.optionId);
+        const value = option.kind === "boolean" ? control.checked : control.value;
+        runtimeState.optionState[option.id] = coerceOptionValue(option, value);
+        runtimeState.sort = defaultSortForManifest(taggedManifest.manifest, runtimeState.optionState);
+        normaliseUrlIfNeeded(resolveInitialPageId(), taggedManifest, runtimeState.optionState);
+        renderOptionsPanel(taggedManifest, runtimeState.optionState);
+        await renderPublishedArtefact(taggedManifest, runtimeState.optionState);
+      } catch (error) {
+        alert(`No data is available for the selected options.\n\n${error.message || error}`);
+      }
     });
   });
 }

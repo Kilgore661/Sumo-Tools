@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
+from typing import Literal
+
 from .classes import DataRef
 from .site_config import (
     BASHO_RESULTS_OUTPUT_ROOT,
@@ -72,10 +76,41 @@ BASHO_RESULTS_PAYLOAD_DATA = (
 BASHO_RESULTS_DATA = BASHO_RESULTS_INDEX_DATA + BASHO_RESULTS_PAYLOAD_DATA
 
 
-def basho_results_data_refs(*, include_payloads: bool = True) -> tuple[DataRef, ...]:
-    if include_payloads:
+def basho_results_data_refs(
+    *,
+    payload_mode: Literal["all", "latest", "none"] = "all",
+) -> tuple[DataRef, ...]:
+    if payload_mode == "all":
         return BASHO_RESULTS_DATA
+    if payload_mode == "latest":
+        return BASHO_RESULTS_INDEX_DATA + latest_basho_results_payload_data()
+    if payload_mode != "none":
+        raise ValueError(f"Unsupported basho results payload mode: {payload_mode}")
     return BASHO_RESULTS_INDEX_DATA
+
+
+def latest_basho_results_payload_data() -> tuple[DataRef, ...]:
+    index_path = BASHO_RESULTS_OUTPUT_ROOT / "basho_results_index.json"
+    with index_path.open(encoding="utf-8") as handle:
+        index = json.load(handle)
+    default_basho = index.get("default_basho")
+    entries = index.get("entries") or []
+    entry = next(
+        (item for item in entries if item.get("basho") == default_basho),
+        entries[-1] if entries else None,
+    )
+    payload_path = entry.get("payload_path") if entry else None
+    if not payload_path:
+        return ()
+    payload_name = payload_path.replace("\\", "/").rsplit("/", 1)[-1]
+    return (
+        data(
+            id=f"basho_results_{Path(payload_name).stem}",
+            source_path=BASHO_RESULTS_OUTPUT_ROOT / "by-basho" / payload_name,
+            output_path=f"{BASHO_RESULTS_SITE_OUTPUT_DIR}/by-basho/{payload_name}",
+            media_type="text/csv",
+        ),
+    )
 
 
 WIN_PROBABILITY_BY_STANDING_DATA = (
