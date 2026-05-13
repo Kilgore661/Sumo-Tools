@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from .classes import DataRef
 from .site_config import (
+    BASHO_RESULTS_OUTPUT_ROOT,
+    BASHO_RESULTS_SITE_OUTPUT_DIR,
     BCR_OUTPUT_ROOT,
     CAREER_LENGTH_SITE_OUTPUT_DIR,
     RANK_AT_RETIREMENT_SITE_OUTPUT_DIR,
@@ -44,6 +46,21 @@ BANZUKE_CHANGES_DATA = (
         source_path=BCR_OUTPUT_ROOT / "data" / "banzuke_change_report.csv",
         output_path="current-sumo/banzuke-changes/data/banzuke_change_report.csv",
         media_type="text/csv",
+    ),
+)
+
+
+BASHO_RESULTS_DATA = (
+    data(
+        id="basho_results_index",
+        source_path=BASHO_RESULTS_OUTPUT_ROOT / "basho_results_index.json",
+        output_path=f"{BASHO_RESULTS_SITE_OUTPUT_DIR}/basho_results_index.json",
+        media_type="application/json",
+    ),
+    *published_data_refs(
+        source_dir=BASHO_RESULTS_OUTPUT_ROOT / "by-basho",
+        output_dir=f"{BASHO_RESULTS_SITE_OUTPUT_DIR}/by-basho",
+        id_prefix="basho_results",
     ),
 )
 

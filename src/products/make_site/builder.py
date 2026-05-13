@@ -18,7 +18,12 @@ from .classes import (
     ViewRef,
 )
 from .filesystem import clear_dir, copy_file
-from .pa_runtime import write_pa_runtime_skeleton
+from .pa_runtime import (
+    write_embedded_runtime_page,
+    write_manifest_files,
+    write_pa_runtime_skeleton,
+    write_runtime_assets,
+)
 from .render import (
     write_custom_page,
     write_plotly_json_page,
@@ -33,14 +38,16 @@ def build_site(site: Site, config: SiteBuildConfig) -> None:
     clear_dir(config.output_root)
     write_site_index(site, config, page_routes, build_stamp)
     copy_file_refs(site.global_assets, config.output_root)
+    write_manifest_files(config.output_root)
+    write_runtime_assets(config.output_root)
     for page_route in page_routes.values():
-        write_page(page_route, config.output_root)
+        write_page(page_route, config.output_root, build_stamp)
         copy_file_refs(page_route.page.assets, config.output_root)
         copy_file_refs(page_route.page.data, config.output_root)
     write_pa_runtime_skeleton(site, config, page_routes, build_stamp)
 
 
-def write_page(page_route: PageRoute, output_root: Path) -> None:
+def write_page(page_route: PageRoute, output_root: Path, build_stamp: str) -> None:
     target_path = output_root.joinpath(*page_route.parts, "index.html")
     target_path.parent.mkdir(parents=True, exist_ok=True)
     match page_route.page.view:
@@ -52,6 +59,8 @@ def write_page(page_route: PageRoute, output_root: Path) -> None:
             copy_view(source, target_path)
         case PlotlyJsonView(data=data, template=template, config=config):
             write_plotly_json_page(page_route.page, data, template, config, target_path)
+        case CustomView(kind="pa_runtime_page"):
+            write_embedded_runtime_page(page_route, output_root, build_stamp)
         case CustomView(kind=kind):
             write_custom_page(page_route.page, kind, target_path)
 

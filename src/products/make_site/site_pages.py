@@ -21,6 +21,7 @@ from .site_assets import BANZUKE_CHANGES_ASSETS, GLOBAL_ASSETS, STANDINGS_ASSETS
 from .site_config import ANALYSIS_ROOT, OUTPUT_ROOT
 from .site_data_refs import (
     BANZUKE_CHANGES_DATA,
+    BASHO_RESULTS_DATA,
     STANDINGS_DATA,
     WIN_PROBABILITY_BY_STANDING_DATA,
     career_length_data_refs,
@@ -139,7 +140,8 @@ PAGES = PageRegistry(
             id="basho_results_browser",
             title="Basho Results",
             summary="Historical and current basho results by division.",
-            view=CustomView(kind="tbd_page"),
+            view=CustomView(kind="pa_runtime_page"),
+            data=BASHO_RESULTS_DATA,
         ),
     }
 )

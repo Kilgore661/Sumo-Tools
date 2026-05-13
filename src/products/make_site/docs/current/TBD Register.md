@@ -561,6 +561,21 @@ table?
 
 Do not answer or implement this as part of the Career Length page plumbing.
 
+### 11.2 Career Length Row Number
+
+Career Length tables need an initial muted row-number column for orientation.
+
+The row number should be visually quieter than the data columns and should not
+be sortable.
+
+### 11.3 Career Length Active Filter
+
+Consider replacing the visible `Active` column with an `Active Rikishi Only`
+option for the Longest view only.
+
+The intent is to reduce default table clutter while still allowing a focused
+active-rikishi list where that question is useful.
+
 ## 12. Shared Presentation and Link Contracts
 
 ### 12.1 Generate Qualified Shikona in Sumo-Tools
