@@ -1,5 +1,13 @@
 # BRB Implementation Start Brief
 
+## Status
+
+Historical first-start brief.  Parts of this document have been overtaken by
+the current implementation.  Use `Basho Results Browser Design Notes.md`, the
+current producer code under `src/analysis/sumo_history/basho_results/`, and the
+current `make_site` PA runtime as the live sources before relying on this
+handoff note.
+
 ## Purpose
 
 This is the handoff note for starting implementation of the Basho Results

@@ -41,130 +41,62 @@ The current route hierarchy is provisional.
 Decide which routes should become stable public URLs before external linking,
 sharing, or publication becomes important.
 
-### 1.5 Cache Busting
+### 1.5 Production Cache Policy
 
-Yes, that points to Firefox cache.
+Development builds currently add a visible `cb` query parameter to generated
+site URLs and runtime data fetches. Production builds can be created without
+that development cache-busting behaviour.
 
-Hard reload may not work because the app is doing **JavaScript `fetch()` calls** for `site_config.json` and `data/banzuke_change_report.csv`. A hard reload often refreshes the document, but cached fetch/XHR responses can still be reused depending on cache headers.
-
-Try this in Firefox:
-
-1. Open DevTools.
-2. Go to **Network**.
-3. Tick **Disable Cache**.
-4. Reload the page while DevTools stays open.
-
-Or directly bust the CSV URL:
-
-```
-http://192.168.0.6/sumo-tools/current-sumo/banzuke-changes/data/banzuke_change_report.csv?v=2
-```
-
-If that shows the right numbers, it is definitely cached data.
-
-Longer-term fix: add cache-busting to the JS fetches, for example:
-
-```
-state.config = await loadJson(`site_config.json?v=${Date.now()}`);state.rows = await loadCsv(`${state.config.data_file}?v=${Date.now()}`);
-```
-
-Better production version: use a build timestamp/hash instead of `Date.now()`, so users do not re-download on every page interaction.
+Remaining decision: define the final production cache policy for generated
+HTML, shared assets, manifests, and data payloads. The likely direction is to
+cache versioned or content-stamped assets aggressively while keeping entry HTML
+and current data easy to refresh after publication.
 
 ## 2. Page Contracts and Bundles
 
-### 2.1 Page Bundle Format
+### 2.1 PA Manifest Contract Coverage
 
-Decide whether page bundles should be declared as Python objects, JSON, YAML,
-TOML, generated metadata, or some combination.
+The bundle storage question is settled for now: Python dataclasses are the
+canonical in-repo representation until a producer has a real need for another
+format. Route ownership is also settled: `make_site` derives canonical public
+routes from the navigation tree.
 
-The important contract is known: a page bundle must identify its page metadata,
-view, assets, data files, and option model. The storage format is not settled.
+The remaining open question is whether the current PA manifest dataclasses
+expose all metadata needed by promoted public pages as the runtime absorbs more
+tables, charts, multi-view pages, essays, and migrated legacy artefacts.
 
-> Reviewed 2026-05-09: the current Python dataclass model is the canonical
-> bundle representation for now.  Do not introduce JSON, YAML, TOML, or another
-> manifest format until a producer has a real need for one.  The remaining
-> concern is whether the dataclasses expose all metadata needed by promoted
-> public pages, not which storage syntax should be used.
+Current policy is recorded in `Public UI Grammar.md` and
+`PA Manifest Classes.md`.
 
-### 2.2 Route Ownership
+### 2.2 Page Option Coverage
 
-Avoid having two independent ways to specify the same public route.
+The options model is settled as page state rather than widget declarations.
 
-The current design derives public routes from the navigation tree. Keep this
-unless a stronger requirement appears.
+Remaining work: add option kinds, URL-state metadata, validation rules, or
+presentation hints only when a real promoted page exposes a concrete gap in the
+current model.
 
-> Reviewed 2026-05-09: this is current policy, not just current direction.
-> Page bundles must not define independent public page routes.  Producers may
-> suggest navigation placement, but `make_site` owns canonical route derivation
-> from the navigation tree.
+Current policy is recorded in `Public UI Grammar.md`.
 
-### 2.3 View Types
+### 2.3 View and PA Type Rationalisation
 
-The initial view types are enough for current work:
+The old view-type question has narrowed. The target architecture is PA
+manifests rendered by `make_site`, with static HTML and custom renderers kept
+as explicit temporary or exceptional paths.
 
-* standalone HTML;
-* HTML fragment;
-* Plotly/data-driven chart;
-* table app;
-* essay;
-* custom escape hatch.
+Remaining work: remove or narrow legacy view types as pages migrate into the PA
+runtime model. Do not add new view types unless a real page cannot be expressed
+through the existing PA classes or a deliberately local custom renderer.
 
-Do not broaden this list until a real page requires it.
+### 2.4 Direct Rendering and Embedded Artefacts
 
-> Reviewed 2026-05-09: no immediate change.  The list may later narrow if
-> standalone/iframe-style inclusion is retired, but that is a migration concern,
-> not a blocker for current view types.
+The target architecture is direct `make_site` rendering from PA manifests.
+Iframes and copied standalone HTML remain compatibility mechanisms for legacy
+or prototype artefacts, not promoted-page architecture.
 
-### 2.4 Options Model Semantics
+Remaining work is tracked under `3.4 Remove Deep-Link Adapters`.
 
-The options model describes page state, not merely widgets.
-
-It must distinguish between:
-
-* exactly-one choices;
-* zero-or-more choices;
-* boolean choices;
-* numeric/range choices;
-* future state types justified by real pages.
-
-The renderer may choose dropdowns, radio buttons, checkboxes, sliders, tabs, or
-other controls, but that is downstream of the state contract.
-
-> Reviewed 2026-05-09: no model change.  As a rendering preference, small
-> zero-or-more choice sets should use visible checkbox/toggle-style controls
-> rather than a dropdown where space allows; use dropdowns or menus for longer
-> lists or cramped layouts.  Radio buttons remain for exactly-one choices.
-
-### 2.5 Direct Rendering vs Iframes
-
-The prototype currently uses iframes for embedded page content.
-
-Decide whether final pages should be rendered directly into the shell, kept as
-standalone iframe pages, or mixed by view type.
-
-Iframes work for stress testing and isolate legacy pages, but they complicate
-shared styling, deep-linking, sizing, and communication between the page and
-the shell.
-
-> Reviewed 2026-05-09: no further decision for now.  New promoted pages should
-> prefer native/direct rendering where practical; iframe-style inclusion remains
-> acceptable for legacy and prototype artefacts.
-
-> Reviewed 2026-05-14: the important distinction is not old versus new pages,
-> but **view ownership**. `TableAppView` and `StandaloneHtmlView` pages are
-> opaque copied artefacts: they own their own HTML, JavaScript, CSS, URL parser,
-> state model, and validation. `CustomView(kind="pa_runtime_page")` pages are
-> site-runtime-managed: the `make_site` shell/runtime owns or coordinates page
-> state, cache-busting, manifests, and option/sort URL state. This surfaced when
-> the shell added a development `cb` cache-bust parameter to all iframe URLs:
-> the standalone Standings app rejected it as an unknown parameter, while the PA
-> runtime correctly treated it as infrastructure. The short-term guard is an
-> explicit "accepts shell params" distinction. The deeper migration question is
-> whether `TableAppView` pages such as Standings and Banzuke Changes should be
-> moved into the PA/runtime model, given a deliberate adapter contract, or kept
-> isolated as explicit exceptions.
-
-### 2.6 Date and Date-Range Parameters
+### 2.5 Date and Date-Range Parameters
 
 For charts and tables where it makes sense, consider making the date or range
 of dates a page parameter.
@@ -176,54 +108,43 @@ or a producer contract that supports the selected range.
 
 This is not an immediate implementation task.
 
-> Reviewed 2026-05-09: BRB is the current example.  Its selected basho date
-> should be page state backed by generated data/config, producing a new page
-> rather than adapting or multiplying old one-date HTML artefacts.
+BRB is the current example. Its selected basho date should remain page state
+backed by generated data/config rather than multiplying one-date HTML
+artefacts.
 
 ## 3. Browser State and Shareable URLs
 
 ### 3.1 Deep Links for Current Display State
 
-The JavaScript should create a URL that takes someone directly to what is being
-displayed.
+The site now has first-pass deep-link support using a shell-owned `page`
+parameter plus page-owned option parameters.
 
-For example, a URL should be able to identify:
-
-* the selected navigation page;
-* the selected page options;
-* the current standings window/division/sort state, where relevant;
-* equivalent state for other interactive pages.
-
-The URL should be displayed in the browser's address bar.
+Remaining work: complete the move from shell `?page=...` URLs toward the target
+route/query model described in `Public UI Grammar.md`, and ensure every
+promoted page publishes all meaningful display state through the shared
+runtime rather than through page-specific adapters.
 
 ### 3.2 Back and Forward Buttons
 
-The browser back/forward buttons should reflect the sequence of selected pages
-and option states.
+The first-pass shell and participating pages update browser history for page
+selection and option changes.
 
-Selecting a page or changing meaningful options should push or replace browser
-history according to an explicit policy.
+Remaining work: define the final push-vs-replace policy for routine option
+changes, default-state normalisation, and rapid control changes such as table
+sorting or chart toggles.
 
 ### 3.3 Shell-to-Page State Contract
 
 The shell knows which page is selected. Individual pages know their internal
 options and current view state.
 
-Define the contract by which pages tell the shell their current state, and the
-shell tells pages to restore a state from the URL.
+The current contract distinguishes shell-owned state from page-owned state.
+The shell may always own the selected page and development cache-bust token.
+It may only inject page-owned query parameters into pages that declare they
+accept shell/runtime parameters.
 
-This is especially important while pages are embedded in iframes.
-
-> Reviewed 2026-05-14: the contract must distinguish shell-owned state from
-> page-owned state. The shell may always own the selected `page` parameter and
-> development cache-bust token. It may only inject additional query parameters
-> into an embedded page when that page declares that it accepts shell/runtime
-> parameters. Otherwise, copied apps with their own strict URL contract can
-> break on infrastructure parameters such as `cb`. PA-runtime pages should
-> participate by reading shell-provided option/sort parameters and posting their
-> normalized state back to the parent shell. Opaque copied apps should either
-> remain isolated or gain an explicit adapter before participating in deep-link
-> state.
+Remaining work: replace page-specific adapter contracts with the PA runtime
+contract described in `3.4 Remove Deep-Link Adapters`.
 
 ### 3.4 Remove Deep-Link Adapters
 
@@ -252,20 +173,7 @@ legacy v9 pickle.
 Decide whether the Banzuke Changes pipeline should be made fully reproducible
 inside Sumo-Tools before this page is treated as final.
 
-### 4.2 Banzuke Changes Default Previous Basho
-
-The default Banzuke Changes view should have previous-basho context turned
-off.
-
-Review the page defaults and URL-state handling so this is the initial view
-when the page is opened without explicit options.
-
-> Addressed 2026-05-12: source defaults were changed so previous-basho context
-> is off by default for the standalone Banzuke Changes app, the producer page
-> bundle, and the native `make_site` table manifest. The broader duplicated
-> defaults issue remains tracked separately below.
-
-### 4.3 Standings by Wins Data Source
+### 4.2 Standings by Wins Data Source
 
 The current `make_site` integration consumes standings data from
 `files/output/standings/publisher/latest_data`.
@@ -273,7 +181,7 @@ The current `make_site` integration consumes standings data from
 Confirm that this is the intended producer contract, rather than a convenient
 publisher implementation detail.
 
-### 4.4 `.js.txt` JavaScript Files
+### 4.3 `.js.txt` JavaScript Files
 
 Some JavaScript is intentionally stored as `.js.txt` because plain `.js` files
 are not conveniently readable in the author's current workflow.
@@ -281,7 +189,7 @@ are not conveniently readable in the author's current workflow.
 The site builder should preserve the filenames expected by source HTML files.
 Do not silently normalise them to `.js`.
 
-### 4.5 Single Source of Truth for Page Defaults
+### 4.4 Single Source of Truth for Page Defaults
 
 Banzuke Changes currently has defaults in more than one layer: the legacy
 standalone HTML/JavaScript app, the producer-written page bundle, and the
@@ -411,15 +319,7 @@ For the prototype this is acceptable. For the final public site, pages should
 either conform to a shared theme or be clearly framed as legacy/research
 artefacts.
 
-### 6.2 Content Shell Chrome
-
-The outer content title bar has been removed because loaded pages generally
-own their own title area.
-
-Revisit this only if a page type emerges that needs shell-owned context or
-commands.
-
-### 6.3 Page Self-Explanation
+### 6.2 Page Self-Explanation
 
 If the shell no longer shows page summaries, each loaded page must be
 self-explanatory enough to stand on its own.
@@ -427,7 +327,7 @@ self-explanatory enough to stand on its own.
 This does not mean verbose in-page instructions; it means good titles,
 controls, labels, and explanatory affordances where needed.
 
-### 6.4 Public vs Research Presentation
+### 6.3 Public vs Research Presentation
 
 Decide how to mark pages that are public-ready, candidate/research, diagnostic,
 legacy, or superseded.
@@ -448,16 +348,7 @@ Chrome displayed the links correctly.
 Investigate with developer tools by checking computed colour, loaded CSS, and
 possible browser cache or visited-link behaviour.
 
-### 7.2 Iframe Height Regression
-
-Removing the content title bar once caused the embedded page iframe to display
-only the top of a chart.
-
-The immediate fix was to restore a full-height one-row grid for `.site-main`.
-
-Keep this in mind when changing shell layout, especially on mobile.
-
-### 7.3 Consider Possible Mojibake Issues
+### 7.2 Consider Possible Mojibake Issues
 
 Review public UI text and manifest/runtime-generated labels for possible
 character-encoding issues.
@@ -473,16 +364,12 @@ changes.
 ### 8.1 Local and Remote Deployment Contract
 
 The builder currently writes to `files/output/make_site` and can deploy to the
-local web root. Remote deployment exists as part of the intended package
-shape.
+local web root. Remote deployment also exists.
 
-Clarify the final contract for:
-
-* build-only;
-* local-only deployment;
-* remote deployment;
-* combined build and deployment;
-* required environment variables/secrets.
+The CLI already supports build-only, local-only, and combined local/remote
+deployment modes. Remaining work is to document the intended publication
+defaults, required environment variables/secrets, and any operator-facing
+release checklist.
 
 ### 8.2 Deployment Root
 
@@ -491,14 +378,7 @@ The deployed root should be `sumo-tools`, not `site` or `make_site`.
 Keep this distinction explicit: `make_site` is the builder package;
 `sumo-tools` is the public site root.
 
-### 8.3 Console Output Policy
-
-Per-file "wrote this file" output was removed as noise.
-
-Keep console output high-level unless a verbose/debug mode becomes a real
-requirement.
-
-### 8.4 Script Defaults Should Match Publication Defaults
+### 8.3 Script Defaults Should Match Publication Defaults
 
 The top-level `_run.ps1` should not need to override ordinary publication
 parameters merely to produce the standard current-site build.
@@ -626,15 +506,7 @@ Career Length tables need an initial muted row-number column for orientation.
 The row number should be visually quieter than the data columns and should not
 be sortable.
 
-### 11.3 Career Length Active Filter
-
-Consider replacing the visible `Active` column with an `Active Rikishi Only`
-option for the Longest view only.
-
-The intent is to reduce default table clutter while still allowing a focused
-active-rikishi list where that question is useful.
-
-### 11.4 Career Length Years Note
+### 11.3 Career Length Years Note
 
 Review and rewrite the `Years` note for Career Length.
 
@@ -644,7 +516,7 @@ This may be because bio data was not available when the note was written. Now
 that `get_bios` is available, reassess whether the page can use bio/hatsu
 data to explain or qualify pre-epoch careers more clearly.
 
-### 11.5 Career Length Active Display Option
+### 11.4 Career Length Active Display Option
 
 Replace the visible `Active` column in the Longest Career table with an option
 named `Show Active`.
@@ -786,16 +658,7 @@ contracts, generated metadata, code comments, and policy notes. This matters
 especially for Equelo rating landmarks, where the distinction between a chii,
 a `ChiiLabel`, and a rating must stay explicit.
 
-### 12.9 Embedded Page Migration Assessment
-
-Assess whether currently embedded standalone pages should migrate to native
-non-embedded site pages.
-
-The assessment should cover styling consistency, note handling, shared controls,
-deep links, shell integration, data contracts, maintenance cost, and whether any
-legacy page should remain embedded as a deliberate exception.
-
-### 12.10 Source Layout vs Site Navigation
+### 12.9 Source Layout vs Site Navigation
 
 Consider rearranging source code so public-site feature modules follow the
 navigation tree.
@@ -810,7 +673,7 @@ have been moved under `src/analysis/sumo_history/career_lifecycle`. Revisit
 after more pages exist to decide whether renderer code, tests, and docs should
 follow the same pattern.
 
-### 12.11 Semantic Table Column Styling
+### 12.10 Semantic Table Column Styling
 
 Consider implementing semantic table column styling metadata.
 

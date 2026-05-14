@@ -4,6 +4,12 @@
 
 Working migration note, created 2026-05-09.
 
+Updated 2026-05-14: this note remains useful for the two original standalone
+table apps, but the broader target is now recorded in
+`Remove Adapter Layer Proposal.md`.  The long-term aim is to remove the
+distinction between copied/adapted public table apps and PA-runtime-managed
+public pages.
+
 This records the decision to stop treating the current table apps as final
 standalone browser applications.  The analysis modules remain producers.  The
 public UI should move into `make_site`.
