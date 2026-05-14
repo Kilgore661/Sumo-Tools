@@ -16,6 +16,9 @@ class SiteBuildConfig:
 
     base_route: str
     output_root: Path
+    cache_mode: str = "dev"
+    cache_bust_param: str = "cb"
+    deep_link_page_param: str = "page"
 
 
 @dataclass(frozen=True)

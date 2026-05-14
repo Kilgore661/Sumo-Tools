@@ -30,17 +30,18 @@ function resolveInitialPageId() {
 }
 
 async function loadManifestIndex() {
-  return fetch(rootRelativeUrl("manifest-index.json")).then(response => response.json());
+  return fetch(runtimeRootUrl("manifest-index.json")).then(response => response.json());
 }
 
 async function loadTaggedManifest(pageId, manifestIndex) {
   if (!pageId) return null;
   const manifestPath = manifestIndex[pageId];
   if (!manifestPath) throw new Error(`No PA manifest registered for ${pageId}`);
-  return fetch(rootRelativeUrl(manifestPath)).then(response => response.json());
+  return fetch(runtimeRootUrl(manifestPath)).then(response => response.json());
 }
 
 function readUrlState() {
+  if (window.SiteUrl) return SiteUrl.readSearchState();
   return Object.fromEntries(new URLSearchParams(window.location.search).entries());
 }
 
@@ -74,10 +75,25 @@ function normaliseUrlIfNeeded(pageId, taggedManifest, optionState) {
     params.set("sort", runtimeState.sort.column);
     params.set("desc", String(runtimeState.sort.descending));
   }
+  if (window.SiteUrl) {
+    for (const [key, value] of Object.entries(SiteUrl.cacheBustParams())) {
+      params.set(key, value);
+    }
+  }
   const next = `${url.pathname}?${params.toString()}${url.hash}`;
   if (`${url.pathname}${url.search}${url.hash}` !== next) {
     history.replaceState(null, "", next);
   }
+  notifyParentUrlState(pageId, params);
+}
+
+function notifyParentUrlState(pageId, params) {
+  if (window.parent === window) return;
+  window.parent.postMessage({
+    type: "site:url-state",
+    page: pageId,
+    params: Object.fromEntries(params.entries())
+  }, "*");
 }
 
 function renderPageShell(taggedManifest) {
@@ -606,7 +622,7 @@ function dataSourceForOptions(manifest, optionState) {
 }
 
 async function loadCsvRows(path) {
-  const text = await fetch(path).then(response => {
+  const text = await fetch(pageRelativeUrl(path)).then(response => {
     if (!response.ok) throw new Error(`Could not load ${path}: ${response.status}`);
     return response.text();
   });
@@ -614,7 +630,7 @@ async function loadCsvRows(path) {
 }
 
 async function loadJsonFile(path) {
-  return fetch(path).then(response => {
+  return fetch(pageRelativeUrl(path)).then(response => {
     if (!response.ok) throw new Error(`Could not load ${path}: ${response.status}`);
     return response.json();
   });
@@ -984,6 +1000,15 @@ function rootRelativeUrl(path) {
   const tail = current.slice(index + marker.length);
   const depth = Math.max(0, tail.split("/").filter(Boolean).length - 1);
   return "../".repeat(depth) + path;
+}
+
+function runtimeRootUrl(path) {
+  const url = rootRelativeUrl(path);
+  return window.SiteUrl ? SiteUrl.withCacheBust(url) : url;
+}
+
+function pageRelativeUrl(path) {
+  return window.SiteUrl ? SiteUrl.withCacheBust(path) : path;
 }
 
 function escapeHtml(value) {

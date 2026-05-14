@@ -150,6 +150,20 @@ the shell.
 > prefer native/direct rendering where practical; iframe-style inclusion remains
 > acceptable for legacy and prototype artefacts.
 
+> Reviewed 2026-05-14: the important distinction is not old versus new pages,
+> but **view ownership**. `TableAppView` and `StandaloneHtmlView` pages are
+> opaque copied artefacts: they own their own HTML, JavaScript, CSS, URL parser,
+> state model, and validation. `CustomView(kind="pa_runtime_page")` pages are
+> site-runtime-managed: the `make_site` shell/runtime owns or coordinates page
+> state, cache-busting, manifests, and option/sort URL state. This surfaced when
+> the shell added a development `cb` cache-bust parameter to all iframe URLs:
+> the standalone Standings app rejected it as an unknown parameter, while the PA
+> runtime correctly treated it as infrastructure. The short-term guard is an
+> explicit "accepts shell params" distinction. The deeper migration question is
+> whether `TableAppView` pages such as Standings and Banzuke Changes should be
+> moved into the PA/runtime model, given a deliberate adapter contract, or kept
+> isolated as explicit exceptions.
+
 ### 2.6 Date and Date-Range Parameters
 
 For charts and tables where it makes sense, consider making the date or range
@@ -199,6 +213,17 @@ Define the contract by which pages tell the shell their current state, and the
 shell tells pages to restore a state from the URL.
 
 This is especially important while pages are embedded in iframes.
+
+> Reviewed 2026-05-14: the contract must distinguish shell-owned state from
+> page-owned state. The shell may always own the selected `page` parameter and
+> development cache-bust token. It may only inject additional query parameters
+> into an embedded page when that page declares that it accepts shell/runtime
+> parameters. Otherwise, copied apps with their own strict URL contract can
+> break on infrastructure parameters such as `cb`. PA-runtime pages should
+> participate by reading shell-provided option/sort parameters and posting their
+> normalized state back to the parent shell. Opaque copied apps should either
+> remain isolated or gain an explicit adapter before participating in deep-link
+> state.
 
 ## 4. Current App Integration
 

@@ -103,6 +103,46 @@ function activeView() {
   return document.querySelector("input[name='career-view']:checked")?.value || pageConfig.default_view;
 }
 
+function applyUrlState() {
+  const view = new URLSearchParams(window.location.search).get("view");
+  if (!view || !pageConfig.data_sources.some(source => source.id === view)) {
+    return;
+  }
+  const input = document.querySelector(`input[name='career-view'][value="${view}"]`);
+  if (input) {
+    input.checked = true;
+  }
+}
+
+function currentUrlParams() {
+  return { view: activeView() };
+}
+
+function replaceUrlState() {
+  const url = new URL(window.location.href);
+  url.search = new URLSearchParams(currentUrlParams()).toString();
+  url.hash = "";
+  history.replaceState(null, "", url);
+  notifyParentUrlState();
+}
+
+function pushUrlState() {
+  const url = new URL(window.location.href);
+  url.search = new URLSearchParams(currentUrlParams()).toString();
+  url.hash = "";
+  history.pushState(null, "", url);
+  notifyParentUrlState();
+}
+
+function notifyParentUrlState() {
+  if (window.parent === window) return;
+  window.parent.postMessage({
+    type: "site:url-state",
+    page: "career_length",
+    params: currentUrlParams()
+  }, "*");
+}
+
 function baseLayout(yTitle) {
   return {
     title: null,
@@ -336,11 +376,16 @@ async function initialise() {
     label.append(input, text);
     viewOptions.appendChild(label);
   }
+  applyUrlState();
   await renderActiveView();
+  replaceUrlState();
 }
 
 window.addEventListener("resize", () => Plotly.Plots.resize(chart));
-viewOptions.addEventListener("change", renderActiveView);
+viewOptions.addEventListener("change", async () => {
+  await renderActiveView();
+  pushUrlState();
+});
 initialise();
 """
 

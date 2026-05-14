@@ -20,6 +20,12 @@ GLOBAL_ASSETS = (
         media_type="application/javascript",
     ),
     asset(
+        id="site_url_js",
+        source_path=PRODUCT_ROOT / "files" / "site-url.js",
+        output_path="site-url.js",
+        media_type="application/javascript",
+    ),
+    asset(
         id="nav_toggle_js",
         source_path=PRODUCT_ROOT / "files" / "nav-toggle.js",
         output_path="nav-toggle.js",

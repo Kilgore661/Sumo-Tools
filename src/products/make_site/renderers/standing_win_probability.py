@@ -141,6 +141,61 @@ function sourceConfig() {
   return pageConfig.data_sources.find(source => source.id === sourceSelect.value);
 }
 
+function readUrlState() {
+  const params = new URLSearchParams(window.location.search);
+  return {
+    source: params.get("source"),
+    division: params.get("division"),
+    error_bars: params.get("error_bars")
+  };
+}
+
+function applyUrlState() {
+  const state = readUrlState();
+  if (state.source && pageConfig.data_sources.some(source => source.id === state.source)) {
+    sourceSelect.value = state.source;
+  }
+  if (state.division && [...divisionSelect.options].some(option => option.value === state.division)) {
+    divisionSelect.value = state.division;
+  }
+  if (state.error_bars === "true" || state.error_bars === "false") {
+    errorToggle.checked = state.error_bars === "true";
+  }
+}
+
+function currentUrlParams() {
+  return {
+    source: sourceSelect.value,
+    division: divisionSelect.value,
+    error_bars: String(errorToggle.checked)
+  };
+}
+
+function replaceUrlState() {
+  const url = new URL(window.location.href);
+  url.search = new URLSearchParams(currentUrlParams()).toString();
+  url.hash = "";
+  history.replaceState(null, "", url);
+  notifyParentUrlState();
+}
+
+function pushUrlState() {
+  const url = new URL(window.location.href);
+  url.search = new URLSearchParams(currentUrlParams()).toString();
+  url.hash = "";
+  history.pushState(null, "", url);
+  notifyParentUrlState();
+}
+
+function notifyParentUrlState() {
+  if (window.parent === window) return;
+  window.parent.postMessage({
+    type: "site:url-state",
+    page: "win_probability_by_standing",
+    params: currentUrlParams()
+  }, "*");
+}
+
 function traceForRows(selected, rows, source) {
   const trace = {
     x: rows.map(row => row.opponent_chii),
@@ -325,18 +380,27 @@ async function initialise() {
   }
   sourceSelect.value = sourceControl.default;
   divisionSelect.value = divisionControl.default;
+  applyUrlState();
   await loadSource();
+  replaceUrlState();
 }
 
-sourceSelect.addEventListener("change", loadSource);
+sourceSelect.addEventListener("change", async () => {
+  await loadSource();
+  pushUrlState();
+});
 divisionSelect.addEventListener("change", () => {
   Plotly.restyle(chart, {
     visible: visibilityForDivision(divisionSelect.value, Array.from(chart.data))
-  }).then(updateVisibleDomain);
+  }).then(() => {
+    updateVisibleDomain();
+    pushUrlState();
+  });
 });
 errorToggle.addEventListener("change", event => {
   if (!sourceConfig().has_error_bars) return;
-  Plotly.restyle(chart, { "error_y.visible": event.target.checked });
+  Plotly.restyle(chart, { "error_y.visible": event.target.checked })
+    .then(pushUrlState);
 });
 initialise();
 """

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+from dataclasses import replace
 from pathlib import Path
 
 from src.analysis.sumo_history.career_lifecycle.career_length import (
@@ -39,6 +40,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--build-only",
         action="store_true",
         help="Build the persisted output tree without deployment.",
+    )
+    parser.add_argument(
+        "--prod",
+        action="store_true",
+        help="Build without dev cache-busting query parameters.",
     )
     parser.add_argument(
         "--local-only",
@@ -96,6 +102,10 @@ def main() -> None:
     career_outputs = build_career_length_outputs(history, print_summary=False)
     retirement_outputs = build_rank_at_retirement_outputs(history, print_summary=False)
     typical_equelo_outputs = write_typical_equelo_outputs()
+    build_config = replace(
+        BUILD_CONFIG,
+        cache_mode="prod" if args.prod else BUILD_CONFIG.cache_mode,
+    )
     build_site(
         site_with_career_lifecycle(
             career_outputs,
@@ -103,13 +113,13 @@ def main() -> None:
             typical_equelo_outputs,
             basho_results_payload_mode=basho_results_payload_mode,
         ),
-        BUILD_CONFIG,
+        build_config,
     )
-    print(f"built {BUILD_CONFIG.output_root}")
+    print(f"built {build_config.output_root}")
     if args.build_only:
         return
     local_root = args.local_root.resolve()
-    deploy_local(BUILD_CONFIG.output_root, local_root)
+    deploy_local(build_config.output_root, local_root)
     print(f"locally deployed {local_root}")
     if args.local_only:
         return

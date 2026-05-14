@@ -14,9 +14,10 @@ from .renderers.standing_win_probability import write_standing_win_probability_p
 from .renderers.tbd import write_tbd_page
 from .renderers.typical_equelo_values import write_typical_equelo_values_page
 from .routes import PageRoute, html_href, route_href
+from .site_urls import cache_busted_url
 
 
-SHELL_ASSET_VERSION = "20260514-nav-toggle"
+SHELL_ASSET_VERSION = "20260514-dev-cache"
 
 
 
@@ -25,6 +26,7 @@ def write_site_index(
     config: SiteBuildConfig,
     page_routes: Mapping[str, PageRoute],
     build_stamp: str,
+    cache_bust_token: str,
 ) -> None:
     html = "\n".join(
         (
@@ -33,12 +35,26 @@ def write_site_index(
             "<head>",
             '<meta charset="utf-8">',
             '<meta name="viewport" content="width=device-width, initial-scale=1">',
-            '<link rel="icon" type="image/x-icon" href="../Sumo/meep.png">',
-            '<link rel="stylesheet" href="common/files/site-wide.css">',
-            f'<link rel="stylesheet" href="site-shell.css?v={SHELL_ASSET_VERSION}">',
+            (
+                '<link rel="icon" type="image/x-icon" '
+                f'href="{escape(cache_busted_url("../Sumo/meep.png", config, cache_bust_token))}">'
+            ),
+            (
+                '<link rel="stylesheet" '
+                f'href="{escape(cache_busted_url("common/files/site-wide.css", config, cache_bust_token))}">'
+            ),
+            (
+                '<link rel="stylesheet" '
+                f'href="{escape(cache_busted_url(f"site-shell.css?v={SHELL_ASSET_VERSION}", config, cache_bust_token))}">'
+            ),
             f"<title>{escape(site.title)}</title>",
             "</head>",
-            "<body>",
+            (
+                f'<body data-cache-mode="{escape(config.cache_mode)}" '
+                f'data-cache-bust="{escape(cache_bust_token)}" '
+                f'data-cache-bust-param="{escape(config.cache_bust_param)}" '
+                f'data-deep-link-page-param="{escape(config.deep_link_page_param)}">'
+            ),
             '<div class="site-shell" data-nav-shell>',
             (
                 '<button type="button" class="nav-toggle" data-nav-toggle '
@@ -50,7 +66,7 @@ def write_site_index(
             f'<div class="site-name">{escape(site.title)}</div>',
             f'<div class="site-status">{escape(build_stamp)}</div>',
             "</header>",
-            render_navigation(site.navigation, config.base_route, page_routes),
+            render_navigation(site.navigation, config, page_routes, cache_bust_token),
             "</aside>",
             '<main class="site-main">',
             '<section id="welcome-panel" class="welcome-panel"><p>Hello World!</p></section>',
@@ -59,8 +75,9 @@ def write_site_index(
             "</section>",
             "</main>",
             "</div>",
-            f'<script src="nav-toggle.js?v={SHELL_ASSET_VERSION}"></script>',
-            f'<script src="site-shell.js?v={SHELL_ASSET_VERSION}"></script>',
+            f'<script src="{escape(cache_busted_url(f"nav-toggle.js?v={SHELL_ASSET_VERSION}", config, cache_bust_token))}"></script>',
+            f'<script src="{escape(cache_busted_url(f"site-url.js?v={SHELL_ASSET_VERSION}", config, cache_bust_token))}"></script>',
+            f'<script src="{escape(cache_busted_url(f"site-shell.js?v={SHELL_ASSET_VERSION}", config, cache_bust_token))}"></script>',
             "</body>",
             "</html>",
             "",
@@ -72,27 +89,42 @@ def write_site_index(
 
 def render_navigation(
     node: NavigationTree,
-    base_route: str,
+    config: SiteBuildConfig,
     page_routes: Mapping[str, PageRoute],
+    cache_bust_token: str,
 ) -> str:
     children = "".join(
-        render_navigation_node(child, base_route, page_routes) for child in node.children
+        render_navigation_node(child, config, page_routes, cache_bust_token)
+        for child in node.children
     )
     return f'<ol class="nav-tree">{children}</ol>'
 
 
 def render_navigation_node(
     node: NavigationTree,
-    base_route: str,
+    config: SiteBuildConfig,
     page_routes: Mapping[str, PageRoute],
+    cache_bust_token: str,
 ) -> str:
     label = escape(node.label)
     if node.page_id is None:
         heading = f"<span>{label}</span>"
     else:
         route = page_routes[node.page_id]
-        href = html_href(base_route, route.parts)
-        frame_href = route_href(route.parts)
+        shell_param_mode = shell_param_mode_for_page(route.page)
+        accepts_shell_params = shell_param_mode != "none"
+        raw_href = html_href(config.base_route, route.parts)
+        raw_frame_href = route_href(route.parts)
+        href = (
+            cache_busted_url(raw_href, config, cache_bust_token)
+            if shell_param_mode == "pa-runtime"
+            else raw_href
+        )
+        frame_href = (
+            cache_busted_url(raw_frame_href, config, cache_bust_token)
+            if shell_param_mode == "pa-runtime"
+            else raw_frame_href
+        )
         title = escape(route.page.title)
         summary = escape(route.page.summary)
         nav_class = "nav-link"
@@ -100,17 +132,38 @@ def render_navigation_node(
             nav_class = "nav-link nav-link-tbd"
         heading = (
             f'<a class="{nav_class}" href="{escape(href)}" '
+            f'data-page-id="{escape(node.page_id)}" '
             f'data-frame-src="{escape(frame_href)}" '
+            f'data-accepts-shell-params="{str(accepts_shell_params).lower()}" '
+            f'data-shell-param-mode="{escape(shell_param_mode)}" '
             f'data-title="{title}" data-summary="{summary}">{label}</a>'
         )
 
     if node.children:
         children = "".join(
-            render_navigation_node(child, base_route, page_routes)
+            render_navigation_node(child, config, page_routes, cache_bust_token)
             for child in node.children
         )
         return f"<li>{heading}<ol>{children}</ol></li>"
     return f"<li>{heading}</li>"
+
+
+def shell_param_mode_for_page(page: Page) -> str:
+    """Return how the shell may pass URL params into this page."""
+
+    if isinstance(page.view, CustomView) and page.view.kind == "pa_runtime_page":
+        return "pa-runtime"
+    if page.id in {
+        "banzuke_changes",
+        "standings_by_wins",
+    }:
+        return "adapter"
+    if page.id in {
+        "win_probability_by_standing",
+        "career_length",
+    }:
+        return "adapter-cache"
+    return "none"
 
 
 def write_plotly_json_page(

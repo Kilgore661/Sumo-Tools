@@ -413,11 +413,15 @@ function validSortChoicesForMode(mode) {
 }
 
 function pushUrlState() {
-  history.pushState(null, "", urlForCurrentState());
+  const url = urlForCurrentState();
+  history.pushState(null, "", url);
+  notifyParentUrlState();
 }
 
 function replaceUrlState() {
-  history.replaceState(null, "", urlForDefaultState());
+  const url = urlForDefaultState();
+  history.replaceState(null, "", url);
+  notifyParentUrlState();
 }
 
 function urlForCurrentState() {
@@ -447,6 +451,18 @@ function urlForDefaultState() {
   url.search = "";
   url.hash = "";
   return url;
+}
+
+function notifyParentUrlState() {
+  if (window.parent === window) {
+    return;
+  }
+
+  window.parent.postMessage({
+    type: "site:url-state",
+    page: "standings_by_wins",
+    params: Object.fromEntries(new URLSearchParams(window.location.search).entries()),
+  }, "*");
 }
 
 function stateMatchesDefaults() {

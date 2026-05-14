@@ -920,12 +920,26 @@ function pushUrlState() {
   }
 
   history.pushState(null, "", url);
+  notifyParentUrlState();
 }
 
 function replaceUrlState() {
   const url = new URL(window.location.href);
   url.search = "";
   history.replaceState(null, "", url);
+  notifyParentUrlState();
+}
+
+function notifyParentUrlState() {
+  if (window.parent === window) {
+    return;
+  }
+
+  window.parent.postMessage({
+    type: "site:url-state",
+    page: "banzuke_changes",
+    params: Object.fromEntries(new URLSearchParams(window.location.search).entries()),
+  }, "*");
 }
 
 function fail(err) {

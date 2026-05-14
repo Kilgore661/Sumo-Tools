@@ -14,10 +14,11 @@ from .filesystem import copy_file
 from .pa_manifest import ACTIVE_PA_MANIFESTS
 from .routes import PageRoute, html_href
 from .site_config import PRODUCT_ROOT
+from .site_urls import cache_busted_url
 
 
 RUNTIME_DIR = "runtime-skeleton"
-RUNTIME_ASSET_VERSION = "20260514-nav-toggle"
+RUNTIME_ASSET_VERSION = "20260514-dev-cache"
 
 
 def write_pa_runtime_skeleton(
@@ -25,6 +26,7 @@ def write_pa_runtime_skeleton(
     config: SiteBuildConfig,
     page_routes: Mapping[str, PageRoute],
     build_stamp: str,
+    cache_bust_token: str,
 ) -> None:
     """Write a parallel shell showing the intended PA-manifest runtime shape."""
 
@@ -35,7 +37,7 @@ def write_pa_runtime_skeleton(
 
     write_manifest_files(root)
     write_runtime_assets(root)
-    write_runtime_index(site, config, page_routes, root, build_stamp)
+    write_runtime_index(site, config, page_routes, root, build_stamp, cache_bust_token)
     for page_id, page_route in page_routes.items():
         if page_id in ACTIVE_PA_MANIFESTS:
             write_runtime_page(
@@ -46,6 +48,7 @@ def write_pa_runtime_skeleton(
                 page_id,
                 page_route,
                 build_stamp,
+                cache_bust_token,
             )
             copy_runtime_page_data(root, page_route)
 
@@ -97,6 +100,7 @@ def dataclass_to_plain(value: Any) -> Any:
 def write_runtime_assets(root: Path) -> None:
     copy_file(PRODUCT_ROOT / "files" / "site-page.css", root / "site-page.css")
     copy_file(PRODUCT_ROOT / "files" / "pa-runtime.css", root / "pa-runtime.css")
+    copy_file(PRODUCT_ROOT / "files" / "site-url.js", root / "site-url.js")
     copy_file(PRODUCT_ROOT / "files" / "pa-runtime.js", root / "pa-runtime.js")
     copy_file(PRODUCT_ROOT / "files" / "nav-toggle.js", root / "nav-toggle.js")
 
@@ -107,6 +111,7 @@ def write_runtime_index(
     page_routes: Mapping[str, PageRoute],
     root: Path,
     build_stamp: str,
+    cache_bust_token: str,
 ) -> None:
     write_runtime_shell_html(
         site=site,
@@ -116,6 +121,7 @@ def write_runtime_index(
         selected_page_id="",
         asset_prefix="",
         build_stamp=build_stamp,
+        cache_bust_token=cache_bust_token,
     )
 
 
@@ -127,6 +133,7 @@ def write_runtime_page(
     page_id: str,
     page_route: PageRoute,
     build_stamp: str,
+    cache_bust_token: str,
 ) -> None:
     target_path = root.joinpath(*page_route.parts, "index.html")
     target_path.parent.mkdir(parents=True, exist_ok=True)
@@ -139,16 +146,19 @@ def write_runtime_page(
         selected_page_id=page_id,
         asset_prefix=asset_prefix,
         build_stamp=build_stamp,
+        cache_bust_token=cache_bust_token,
     )
 
 
 def write_embedded_runtime_page(
     page_route: PageRoute,
-    output_root: Path,
+    config: SiteBuildConfig,
     build_stamp: str,
+    cache_bust_token: str,
 ) -> None:
     """Write one PA-manifest page for use inside the normal site shell."""
 
+    output_root = config.output_root
     target_path = output_root.joinpath(*page_route.parts, "index.html")
     target_path.parent.mkdir(parents=True, exist_ok=True)
     asset_prefix = "../" * len(page_route.parts)
@@ -161,13 +171,23 @@ def write_embedded_runtime_page(
             '<meta charset="utf-8">',
             '<meta name="viewport" content="width=device-width, initial-scale=1">',
             f"<title>{escape(page.title)}</title>",
-            f'<link rel="stylesheet" href="{asset_prefix}site-page.css?v={RUNTIME_ASSET_VERSION}">',
-            f'<link rel="stylesheet" href="{asset_prefix}pa-runtime.css?v={RUNTIME_ASSET_VERSION}">',
+            (
+                '<link rel="stylesheet" '
+                f'href="{escape(cache_busted_url(f"{asset_prefix}site-page.css?v={RUNTIME_ASSET_VERSION}", config, cache_bust_token))}">'
+            ),
+            (
+                '<link rel="stylesheet" '
+                f'href="{escape(cache_busted_url(f"{asset_prefix}pa-runtime.css?v={RUNTIME_ASSET_VERSION}", config, cache_bust_token))}">'
+            ),
             "</head>",
             (
                 f'<body class="runtime-embedded" data-selected-page-id="{escape(page.id)}" '
                 f'data-runtime-root="{escape(asset_prefix)}" '
-                f'data-page-summary="{escape(page.summary)}">'
+                f'data-page-summary="{escape(page.summary)}" '
+                f'data-cache-mode="{escape(config.cache_mode)}" '
+                f'data-cache-bust="{escape(cache_bust_token)}" '
+                f'data-cache-bust-param="{escape(config.cache_bust_param)}" '
+                f'data-deep-link-page-param="{escape(config.deep_link_page_param)}">'
             ),
             '<main class="runtime-main">',
             '<header class="runtime-header">',
@@ -179,7 +199,8 @@ def write_embedded_runtime_page(
             '<section id="pa-panel" class="runtime-pa"></section>',
             "</section>",
             "</main>",
-            f'<script src="{asset_prefix}pa-runtime.js?v={RUNTIME_ASSET_VERSION}"></script>',
+            f'<script src="{escape(cache_busted_url(f"{asset_prefix}site-url.js?v={RUNTIME_ASSET_VERSION}", config, cache_bust_token))}"></script>',
+            f'<script src="{escape(cache_busted_url(f"{asset_prefix}pa-runtime.js?v={RUNTIME_ASSET_VERSION}", config, cache_bust_token))}"></script>',
             "</body>",
             "</html>",
             "",
@@ -197,6 +218,7 @@ def write_runtime_shell_html(
     selected_page_id: str,
     asset_prefix: str,
     build_stamp: str,
+    cache_bust_token: str,
 ) -> None:
     title = site.pages.pages[selected_page_id].title if selected_page_id else site.title
     page_summary = (
@@ -212,13 +234,23 @@ def write_runtime_shell_html(
             '<meta charset="utf-8">',
             '<meta name="viewport" content="width=device-width, initial-scale=1">',
             f"<title>{escape(title)}</title>",
-            f'<link rel="stylesheet" href="{asset_prefix}site-page.css?v={RUNTIME_ASSET_VERSION}">',
-            f'<link rel="stylesheet" href="{asset_prefix}pa-runtime.css?v={RUNTIME_ASSET_VERSION}">',
+            (
+                '<link rel="stylesheet" '
+                f'href="{escape(cache_busted_url(f"{asset_prefix}site-page.css?v={RUNTIME_ASSET_VERSION}", config, cache_bust_token))}">'
+            ),
+            (
+                '<link rel="stylesheet" '
+                f'href="{escape(cache_busted_url(f"{asset_prefix}pa-runtime.css?v={RUNTIME_ASSET_VERSION}", config, cache_bust_token))}">'
+            ),
             "</head>",
             (
                 f'<body data-selected-page-id="{escape(selected_page_id)}" '
                 f'data-runtime-root="{escape(asset_prefix)}" '
-                f'data-page-summary="{escape(page_summary)}">'
+                f'data-page-summary="{escape(page_summary)}" '
+                f'data-cache-mode="{escape(config.cache_mode)}" '
+                f'data-cache-bust="{escape(cache_bust_token)}" '
+                f'data-cache-bust-param="{escape(config.cache_bust_param)}" '
+                f'data-deep-link-page-param="{escape(config.deep_link_page_param)}">'
             ),
             '<div class="runtime-shell" data-nav-shell>',
             (
@@ -229,7 +261,7 @@ def write_runtime_shell_html(
             '<aside id="site-nav" class="runtime-nav" data-nav-panel aria-label="Site navigation">',
             f"<h2>{escape(site.title)}</h2>",
             f'<p class="runtime-note">{escape(build_stamp)}</p>',
-            render_runtime_navigation(site.navigation, config, page_routes),
+            render_runtime_navigation(site.navigation, config, page_routes, cache_bust_token),
             "</aside>",
             '<main class="runtime-main">',
             '<header class="runtime-header">',
@@ -242,8 +274,9 @@ def write_runtime_shell_html(
             "</section>",
             "</main>",
             "</div>",
-            f'<script src="{asset_prefix}nav-toggle.js?v={RUNTIME_ASSET_VERSION}"></script>',
-            f'<script src="{asset_prefix}pa-runtime.js?v={RUNTIME_ASSET_VERSION}"></script>',
+            f'<script src="{escape(cache_busted_url(f"{asset_prefix}nav-toggle.js?v={RUNTIME_ASSET_VERSION}", config, cache_bust_token))}"></script>',
+            f'<script src="{escape(cache_busted_url(f"{asset_prefix}site-url.js?v={RUNTIME_ASSET_VERSION}", config, cache_bust_token))}"></script>',
+            f'<script src="{escape(cache_busted_url(f"{asset_prefix}pa-runtime.js?v={RUNTIME_ASSET_VERSION}", config, cache_bust_token))}"></script>',
             "</body>",
             "</html>",
             "",
@@ -256,9 +289,10 @@ def render_runtime_navigation(
     node: NavigationTree,
     config: SiteBuildConfig,
     page_routes: Mapping[str, PageRoute],
+    cache_bust_token: str,
 ) -> str:
     children = "".join(
-        render_runtime_navigation_node(child, config, page_routes)
+        render_runtime_navigation_node(child, config, page_routes, cache_bust_token)
         for child in node.children
     )
     return f"<ol>{children}</ol>"
@@ -268,19 +302,24 @@ def render_runtime_navigation_node(
     node: NavigationTree,
     config: SiteBuildConfig,
     page_routes: Mapping[str, PageRoute],
+    cache_bust_token: str,
 ) -> str:
     label = escape(node.label)
     if node.page_id is None or node.page_id not in ACTIVE_PA_MANIFESTS:
         heading = f"<span>{label}</span>"
     else:
         route = page_routes[node.page_id]
-        href = html_href(f"{config.base_route.rstrip('/')}/{RUNTIME_DIR}", route.parts)
+        href = cache_busted_url(
+            html_href(f"{config.base_route.rstrip('/')}/{RUNTIME_DIR}", route.parts),
+            config,
+            cache_bust_token,
+        )
         heading = (
             f'<a href="{escape(href)}" data-page-id="{escape(node.page_id)}">'
             f"{label}</a>"
         )
     children = "".join(
-        render_runtime_navigation_node(child, config, page_routes)
+        render_runtime_navigation_node(child, config, page_routes, cache_bust_token)
         for child in node.children
     )
     if children:
