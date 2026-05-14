@@ -5,7 +5,7 @@ import json
 from dataclasses import asdict
 from pathlib import Path
 
-from src.analysis.equelo.fixed_v1 import model as fixed_v1_model
+from src.analysis.equelo.fixed_v2 import model as fixed_v2_model
 from src.analysis.probability.matchups.traces import (
     EqueloTracePoint,
     ObservedTracePoint,
@@ -26,7 +26,7 @@ def write_win_probability_by_standing_bundle(
     observed_points: tuple[ObservedTracePoint, ...],
     equelo_points: tuple[EqueloTracePoint, ...],
     sideless_ratings: tuple[SidelessRating, ...],
-    fixed_v1_output_root: Path,
+    fixed_v2_output_root: Path,
     q: float,
     default_trace: str,
 ) -> dict[str, Path]:
@@ -46,7 +46,7 @@ def write_win_probability_by_standing_bundle(
         observed_points=observed_points,
         equelo_points=equelo_points,
         sideless_ratings=sideless_ratings,
-        fixed_v1_output_root=fixed_v1_output_root,
+        fixed_v2_output_root=fixed_v2_output_root,
         q=q,
     )
     return paths
@@ -158,7 +158,7 @@ def _write_metadata(
     observed_points: tuple[ObservedTracePoint, ...],
     equelo_points: tuple[EqueloTracePoint, ...],
     sideless_ratings: tuple[SidelessRating, ...],
-    fixed_v1_output_root: Path,
+    fixed_v2_output_root: Path,
     q: float,
 ) -> None:
     observed_keys = {(row.selected_chii, row.opponent_chii) for row in observed_points}
@@ -168,14 +168,16 @@ def _write_metadata(
         "equelo_trace_points": len(equelo_points),
         "missing_equelo_trace_points": len(observed_keys - equelo_keys),
         "sideless_rating_count": len(sideless_ratings),
-        "fixed_v1_rating_source": "InitialRatingCurve.v5 monotone fit",
-        "fixed_v1_raw_rating_source": str(
-            fixed_v1_output_root / fixed_v1_model.ENTRANT_INITIAL_RATINGS_FILE_NAME
+        "rating_source": (
+            "latest fixed_v2 process ratings averaged by current sideless chii"
+        ),
+        "fixed_v2_rating_source": str(
+            fixed_v2_output_root / fixed_v2_model.DAY_END_RATINGS_FILE_NAME
         ),
         "q": q,
         "domain_policy": (
-            "Observed and Equelo trace points are restricted to the curated "
-            "InitialRatingCurve.v5 sideless chii domain."
+            "Observed and Equelo trace points are restricted to sideless chii "
+            "represented in the latest fixed_v2 process-rating snapshot."
         ),
     }
     output_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")

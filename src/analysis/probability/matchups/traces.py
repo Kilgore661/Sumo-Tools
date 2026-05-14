@@ -5,11 +5,14 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
-from src.analysis.equelo.fixed_v1.initial_rating import InitialRatingCurve
-from src.analysis.equelo.fixed_v1 import model as fixed_v1_model
+from src.analysis.equelo.fixed_v2 import model as fixed_v2_model
+from src.analysis.equelo.fixed_v2.api import load_day_end_ratings
 from src.analysis.equelo.expt1.simulate import expect
+from src.infra.live_store.api import get_history
+from src.sumo_core.BasicPrimitives import Month, Year
 from src.sumo_core.BasicEnums import Side
 from src.sumo_core.Chii import Chii
+from src.sumo_core.History import Date, History
 
 
 @dataclass(frozen=True)
@@ -31,8 +34,8 @@ class SidelessRating:
     sideless_chii: str
     sideless_ordinal: int
     rating: float
-    n_side_ratings: int
-    side_ratings_used: str
+    n_process_ratings: int
+    process_ratings_used: str
 
 
 @dataclass(frozen=True)
@@ -67,37 +70,72 @@ def build_observed_trace_points(sideless_pair_csv: Path) -> tuple[ObservedTraceP
 
 def build_sideless_ratings(
     *,
-    output_root: Path = fixed_v1_model.OUTPUT_ROOT,
+    output_root: Path = fixed_v2_model.OUTPUT_ROOT,
+    history: History | None = None,
 ) -> tuple[SidelessRating, ...]:
-    """Average side-bearing fixed-v1 v5 monotone ratings into sideless ratings."""
-    rating_curve = InitialRatingCurve.v5(output_root=output_root)
-    buckets: dict[int, list[tuple[Chii, float]]] = {}
+    """Average latest fixed_v2 process ratings by current sideless chii."""
+    history = get_history() if history is None else history
+    date, day, ratings = latest_rating_snapshot(output_root=output_root, history=history)
+    banzuke = history(date).banzuke
+    buckets: dict[int, list[tuple[int, Chii, float]]] = {}
 
-    for ordinal, rating in zip(rating_curve.ordinals, rating_curve.ratings):
-        chii = Chii.from_ordinal(ordinal)
+    for rikishi_id_text, rating in ratings.items():
+        rikishi_id = int(rikishi_id_text)
+        if rikishi_id not in banzuke.rikchii:
+            continue
+        chii = banzuke.rikchii[rikishi_id]
         sideless_chii = _remove_side(chii)
-        buckets.setdefault(sideless_chii.ordinal(), []).append((chii, float(rating)))
+        buckets.setdefault(sideless_chii.ordinal(), []).append(
+            (rikishi_id, chii, float(rating))
+        )
 
     rows: list[SidelessRating] = []
     for sideless_ordinal in sorted(buckets):
         values = buckets[sideless_ordinal]
-        rating = sum(value for _, value in values) / len(values)
-        sideless_chii = _remove_side(values[0][0])
-        side_ratings_used = ";".join(
-            f"{chii}:{value:.12g}"
-            for chii, value in sorted(values, key=lambda item: item[0].ordinal())
+        rating = sum(value for _, _, value in values) / len(values)
+        sideless_chii = _remove_side(values[0][1])
+        process_ratings_used = ";".join(
+            f"{rikishi_id}:{chii}:{value:.12g}"
+            for rikishi_id, chii, value in sorted(
+                values,
+                key=lambda item: (item[1].ordinal(), item[0]),
+            )
         )
         rows.append(
             SidelessRating(
                 sideless_chii=str(sideless_chii),
                 sideless_ordinal=sideless_ordinal,
                 rating=rating,
-                n_side_ratings=len(values),
-                side_ratings_used=side_ratings_used,
+                n_process_ratings=len(values),
+                process_ratings_used=process_ratings_used,
             )
         )
 
     return tuple(rows)
+
+
+def latest_rating_snapshot(
+    *,
+    output_root: Path = fixed_v2_model.OUTPUT_ROOT,
+    history: History | None = None,
+) -> tuple[Date, int, dict[str, float]]:
+    """Return the latest fixed_v2 day-end snapshot that aligns with History."""
+    history = get_history() if history is None else history
+    day_end_ratings = load_day_end_ratings(output_root=output_root)
+    history_date_by_text = {str(date): date for date in history}
+    available_date_texts = [
+        date_text for date_text in day_end_ratings if date_text in history_date_by_text
+    ]
+    if not available_date_texts:
+        raise ValueError("No fixed_v2 day-end rating snapshot matches the live history")
+
+    date_text = sorted(available_date_texts, key=_date_from_text)[-1]
+    date = history_date_by_text[date_text]
+    date_ratings = day_end_ratings[date_text]
+    day = max((int(day_text) for day_text in date_ratings), default=0)
+    if day == 0:
+        raise ValueError(f"No fixed_v2 day-end ratings found for {date}")
+    return date, day, date_ratings[str(day)]
 
 
 def filter_observed_points_to_rating_domain(
@@ -149,7 +187,7 @@ def write_trace_outputs(
     observed_points: tuple[ObservedTracePoint, ...],
     sideless_ratings: tuple[SidelessRating, ...],
     equelo_points: tuple[EqueloTracePoint, ...],
-    fixed_v1_output_root: Path,
+    fixed_v2_output_root: Path,
     q: float,
 ) -> dict[str, Path]:
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -167,7 +205,7 @@ def write_trace_outputs(
         observed_points=observed_points,
         sideless_ratings=sideless_ratings,
         equelo_points=equelo_points,
-        fixed_v1_output_root=fixed_v1_output_root,
+        fixed_v2_output_root=fixed_v2_output_root,
         q=q,
     )
     return paths
@@ -224,7 +262,7 @@ def _write_trace_metadata(
     observed_points: tuple[ObservedTracePoint, ...],
     sideless_ratings: tuple[SidelessRating, ...],
     equelo_points: tuple[EqueloTracePoint, ...],
-    fixed_v1_output_root: Path,
+    fixed_v2_output_root: Path,
     q: float,
 ) -> None:
     observed_keys = {(row.selected_chii, row.opponent_chii) for row in observed_points}
@@ -234,16 +272,23 @@ def _write_trace_metadata(
         "equelo_trace_points": len(equelo_points),
         "missing_equelo_trace_points": len(observed_keys - equelo_keys),
         "sideless_rating_count": len(sideless_ratings),
-        "fixed_v1_output_root": str(fixed_v1_output_root),
-        "fixed_v1_rating_source": "InitialRatingCurve.v5 monotone fit",
-        "fixed_v1_raw_rating_source": str(fixed_v1_output_root / fixed_v1_model.ENTRANT_INITIAL_RATINGS_FILE_NAME),
+        "fixed_v2_output_root": str(fixed_v2_output_root),
+        "rating_source": "latest fixed_v2 process ratings averaged by current sideless chii",
+        "fixed_v2_raw_rating_source": str(
+            fixed_v2_output_root / fixed_v2_model.DAY_END_RATINGS_FILE_NAME
+        ),
         "q": q,
         "domain_policy": (
-            "Observed and Equelo trace points are restricted to the curated "
-            "InitialRatingCurve.v5 sideless chii domain."
+            "Observed and Equelo trace points are restricted to sideless chii "
+            "represented in the latest fixed_v2 process-rating snapshot."
         ),
     }
     output_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+
+def _date_from_text(value: str) -> Date:
+    year_text, month_text = value.split("/", 1)
+    return Date(Year(int(year_text)), Month(int(month_text)))
 
 
 def _remove_side(chii: Chii) -> Chii:

@@ -232,8 +232,8 @@ function traceForRows(selected, rows, source) {
       array: rows.map(row => numeric(row.ci95_upper) - numeric(row.p_selected_wins)),
       arrayminus: rows.map(row => numeric(row.p_selected_wins) - numeric(row.ci95_lower)),
       visible: errorToggle.checked,
-      color: "rgba(68, 140, 240, 0.34)",
-      thickness: 1,
+      color: "#d7e0ef",
+      thickness: 2,
       width: 4
     };
     trace.hovertemplate =

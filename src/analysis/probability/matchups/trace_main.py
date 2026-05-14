@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from src.analysis.equelo.fixed_v1 import model as fixed_v1_model
+from src.analysis.equelo.fixed_v2 import model as fixed_v2_model
 from src.analysis.probability.matchups.charts import (
     write_equelo_trace_chart,
     write_observed_trace_chart,
@@ -30,8 +30,14 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--sideless-pair-csv", type=Path, default=SIDELESS_PAIR_CSV)
     parser.add_argument("--output-dir", type=Path, default=OUTPUT_DIR)
-    parser.add_argument("--fixed-v1-output-root", type=Path, default=fixed_v1_model.OUTPUT_ROOT)
-    parser.add_argument("--q", type=float, default=fixed_v1_model.Q)
+    parser.add_argument(
+        "--fixed-v2-output-root",
+        "--rating-output-root",
+        type=Path,
+        default=fixed_v2_model.OUTPUT_ROOT,
+        help="Directory containing fixed_v2 day_end_ratings.json.",
+    )
+    parser.add_argument("--q", type=float, default=fixed_v2_model.Q)
     parser.add_argument("--initial-trace", default="Y1")
     return parser
 
@@ -40,7 +46,7 @@ def main() -> None:
     args = _build_parser().parse_args()
 
     raw_observed_points = build_observed_trace_points(args.sideless_pair_csv)
-    sideless_ratings = build_sideless_ratings(output_root=args.fixed_v1_output_root)
+    sideless_ratings = build_sideless_ratings(output_root=args.fixed_v2_output_root)
     observed_points = filter_observed_points_to_rating_domain(
         raw_observed_points,
         sideless_ratings,
@@ -55,7 +61,7 @@ def main() -> None:
         observed_points=observed_points,
         sideless_ratings=sideless_ratings,
         equelo_points=equelo_points,
-        fixed_v1_output_root=args.fixed_v1_output_root,
+        fixed_v2_output_root=args.fixed_v2_output_root,
         q=args.q,
     )
 
@@ -74,7 +80,7 @@ def main() -> None:
         observed_points=observed_points,
         equelo_points=equelo_points,
         sideless_ratings=sideless_ratings,
-        fixed_v1_output_root=args.fixed_v1_output_root,
+        fixed_v2_output_root=args.fixed_v2_output_root,
         q=args.q,
         default_trace=args.initial_trace,
     )

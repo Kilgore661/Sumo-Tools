@@ -33,7 +33,7 @@ thead th { position: sticky; top: 0; z-index: 1; background: var(--page-panel); 
 .grid-line { stroke-dasharray: 4 5; }
 .trace-line { fill: none; stroke-width: 2.2; }
 .trace-point { stroke: #07142d; stroke-width: 1; }
-.error-bar { stroke: rgba(245, 248, 255, 0.35); stroke-width: 1; }
+.error-bar { stroke: #d7e0ef; stroke-width: 2; }
 .axis-label, .tick-label { fill: var(--page-muted); font-size: 12px; }
 .chart-legend { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px 14px; color: var(--page-muted); font-size: 0.85rem; }
 .legend-swatch { display: inline-block; width: 20px; height: 3px; margin-right: 6px; vertical-align: middle; }
