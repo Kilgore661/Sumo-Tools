@@ -23,6 +23,7 @@ CSV_FIELDNAMES = (
     "east_graph_shikona",
     "east_old_chii",
     "east_result",
+    "east_result_movement",
     "east_delta",
     "east_delta_class",
     "east_equelo",
@@ -32,6 +33,7 @@ CSV_FIELDNAMES = (
     "west_graph_shikona",
     "west_old_chii",
     "west_result",
+    "west_result_movement",
     "west_delta",
     "west_delta_class",
     "west_equelo",
@@ -116,6 +118,7 @@ def side_fields(prefix: str, side) -> dict[str, str]:
             f"{prefix}_graph_shikona": "",
             f"{prefix}_old_chii": "",
             f"{prefix}_result": "",
+            f"{prefix}_result_movement": "",
             f"{prefix}_delta": "",
             f"{prefix}_delta_class": "",
             f"{prefix}_equelo": "",
@@ -128,6 +131,7 @@ def side_fields(prefix: str, side) -> dict[str, str]:
         f"{prefix}_graph_shikona": side.graph_shikona,
         f"{prefix}_old_chii": side.old_chii,
         f"{prefix}_result": side.previous_result,
+        f"{prefix}_result_movement": side.result_movement,
         f"{prefix}_delta": side.delta,
         f"{prefix}_delta_class": side.delta_class,
         f"{prefix}_equelo": side.equelo_rating,
@@ -289,7 +293,8 @@ def write_page_bundle(report: BcrReport, output_file) -> None:
                 "for": "context",
                 "text": (
                     "Result gives wins, losses and absences followed by prizes "
-                    "if any. A trailing up/down marker indicates promotion or "
+                    "if any. A trailing up/down marker is rendered from the "
+                    "separate result-movement field and indicates promotion or "
                     "demotion into the current division."
                 ),
             },

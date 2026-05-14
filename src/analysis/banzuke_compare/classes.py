@@ -167,6 +167,7 @@ class BcrReportSide:
     graph_shikona: str
     old_chii: str
     previous_result: str
+    result_movement: str
     delta: str
     delta_class: str
     equelo_rating: str

@@ -191,7 +191,8 @@ def build_report_side(
         shikona=change.current_shikona,
         graph_shikona=graph_shikona_for(change.rikishi_id, change.current_shikona),
         old_chii="" if change.previous_chii is None else str(change.previous_chii),
-        previous_result=format_previous_context(change, diff),
+        previous_result=format_previous_result(change, diff.source.previous_summary),
+        result_movement=division_change_marker(change),
         delta=format_delta(change.local_delta),
         delta_class=delta_class(change.local_delta),
         equelo_rating=format_equelo(
@@ -209,28 +210,6 @@ def format_equelo(rating: float) -> str:
     """
 
     return f"{rating:.0f}"
-
-
-def format_previous_context(change: BanzukeChange, diff: BanzukeDiff) -> str:
-    """
-    Contract:
-        change is a current-banzuke fact from diff.
-
-        Returns the previous-basho context string shown in the Result column.
-        Division-crossing markers are appended when the rikishi's current
-        division represents a promotion or demotion from the previous banzuke.
-    """
-
-    result = format_previous_result(change, diff.source.previous_summary)
-    marker = division_change_marker(change)
-
-    if result and marker:
-        return f"{result} {marker}"
-
-    if marker:
-        return marker
-
-    return result
 
 
 def division_change_marker(change: BanzukeChange) -> str:

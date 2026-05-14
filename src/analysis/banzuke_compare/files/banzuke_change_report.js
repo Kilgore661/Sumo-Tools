@@ -52,6 +52,7 @@ const REQUIRED_CSV_COLUMNS = [
   "east_graph_shikona",
   "east_old_chii",
   "east_result",
+  "east_result_movement",
   "east_delta",
   "east_delta_class",
   "east_equelo",
@@ -61,6 +62,7 @@ const REQUIRED_CSV_COLUMNS = [
   "west_graph_shikona",
   "west_old_chii",
   "west_result",
+  "west_result_movement",
   "west_delta",
   "west_delta_class",
   "west_equelo",
@@ -382,8 +384,7 @@ function renderTwoColumnTable(rows) {
       tr,
       row.east_result,
       contextClass(row.east_rikishi_id),
-      row.east_old_chii,
-      row.east_chii
+      row.east_result_movement
     );
     appendDeltaCells(tr, row.east_delta, row.east_delta_class, row.east_rikishi_id);
     appendRikishiCell(tr, row.east_shikona, row.east_graph_shikona, "east", row.east_rikishi_id);
@@ -394,8 +395,7 @@ function renderTwoColumnTable(rows) {
       tr,
       row.west_result,
       contextClass(row.west_rikishi_id),
-      row.west_old_chii,
-      row.west_chii
+      row.west_result_movement
     );
     appendTextCell(tr, row.west_old_chii, contextClass(row.west_rikishi_id));
     appendEqueloCell(tr, row.west_equelo, row.west_rikishi_id);
@@ -439,8 +439,7 @@ function appendOneColumnSideRow(row, side) {
     tr,
     row[`${side}_result`],
     contextClass(rikishiId),
-    row[`${side}_old_chii`],
-    row[`${side}_chii`]
+    row[`${side}_result_movement`]
   );
   appendTextCell(tr, row[`${side}_old_chii`], contextClass(rikishiId));
   appendEqueloCell(tr, row[`${side}_equelo`], rikishiId);
@@ -459,14 +458,13 @@ function appendTextCell(tr, value, className = "") {
   tr.appendChild(td);
 }
 
-function appendScoreCell(tr, value, className = "", previousChii = "", currentChii = "") {
+function appendScoreCell(tr, value, className = "", movement = "") {
   const td = document.createElement("td");
   const span = document.createElement("span");
   span.className = "score";
   span.textContent = value;
   td.appendChild(span);
 
-  const movement = divisionMovementMarker(previousChii, currentChii);
   if (movement) {
     const movementSpan = document.createElement("span");
     movementSpan.className = "division-movement";
@@ -619,33 +617,6 @@ function deltaDirection(value) {
 
 function unsignedDelta(value) {
   return value.replace(/^[+-]/, "");
-}
-
-function divisionMovementMarker(previousChii, currentChii) {
-  const previous = divisionRank(previousChii);
-  const current = divisionRank(currentChii);
-  if (previous === null || current === null || previous === current) return "";
-  return current < previous ? "↑" : "↓";
-}
-
-function divisionRank(chii) {
-  const text = String(chii || "").trim();
-  if (!text || text === "-") return null;
-  const match = text.match(/^(Ms|Sd|Jd|Jk|Y|O|S|K|M|J)/);
-  if (!match) return null;
-  const order = {
-    Y: 0,
-    O: 0,
-    S: 0,
-    K: 0,
-    M: 0,
-    J: 1,
-    Ms: 2,
-    Sd: 3,
-    Jd: 4,
-    Jk: 5,
-  };
-  return order[match[1]] ?? null;
 }
 
 const NOTE_POPOVER_DELAY_MS = 450;

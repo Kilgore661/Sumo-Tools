@@ -57,6 +57,15 @@ DIVISION_IDS = {
     Division.JONOKUCHI: "jonokuchi",
 }
 
+DIVISION_ORDER = (
+    Division.MAKUUCHI,
+    Division.JURYO,
+    Division.MAKUSHITA,
+    Division.SANDANME,
+    Division.JONIDAN,
+    Division.JONOKUCHI,
+)
+
 
 def build_index(history: History) -> BashoResultsIndex:
     dates = represented_dates(history)
@@ -196,6 +205,7 @@ def build_row(
             previous_chii=previous_chii,
             previous_state=previous_state,
         ),
+        previous_division_movement=format_division_movement(previous_chii, chii),
         previous_chii=format_chii(previous_chii),
         previous_chii_ordinal=format_chii_ordinal(previous_chii),
         previous_equelo=format_rating(previous_equelo),
@@ -210,6 +220,18 @@ def format_previous_result(*, rikishi_id: RikId, previous_chii: Chii | None, pre
     if previous_state is None or previous_chii is None:
         return MISSING
     return format_result_with_prizes(rikishi_id, previous_chii, previous_state.summary)
+
+
+def format_division_movement(previous_chii: Chii | None, current_chii: Chii) -> str:
+    if previous_chii is None:
+        return ""
+    previous_division = division_for_chii(previous_chii)
+    current_division = division_for_chii(current_chii)
+    if previous_division == current_division:
+        return ""
+    previous_index = DIVISION_ORDER.index(previous_division)
+    current_index = DIVISION_ORDER.index(current_division)
+    return "↑" if current_index < previous_index else "↓"
 
 
 def format_chii(chii: Chii | None) -> str:

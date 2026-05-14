@@ -31,6 +31,7 @@ CSV_FIELDNAMES = (
     "previous_delta_direction",
     "previous_delta",
     "previous_result",
+    "previous_division_movement",
     "previous_chii",
     "previous_chii_ordinal",
     "previous_equelo",
@@ -68,4 +69,3 @@ def write_payload(
         for row in rows:
             writer.writerow(asdict(row))
     return path
-

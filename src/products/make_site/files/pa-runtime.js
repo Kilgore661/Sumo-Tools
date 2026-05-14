@@ -791,7 +791,7 @@ function formatCell(row, index, column) {
     return `<span class="delta-direction">${escapeHtml(raw)}</span>`;
   }
   if (column.id === "previous_result") {
-    return formatResultWithDivisionMovement(raw, row.previous_chii, row.chii);
+    return formatResultWithDivisionMovement(raw, row.previous_division_movement);
   }
   if (column.link === "rikishi" && row.rikishi_id) {
     const rikishiId = encodeURIComponent(row.rikishi_id);
@@ -834,38 +834,10 @@ function openRikishiTarget(url) {
   if (opened) opened.focus();
 }
 
-function formatResultWithDivisionMovement(result, previousChii, currentChii) {
-  const marker = divisionMovementMarker(previousChii, currentChii);
+function formatResultWithDivisionMovement(result, marker) {
   const resultText = escapeHtml(result);
   if (!marker) return resultText;
   return `${resultText} <span class="division-movement">${escapeHtml(marker)}</span>`;
-}
-
-function divisionMovementMarker(previousChii, currentChii) {
-  const previous = divisionRank(previousChii);
-  const current = divisionRank(currentChii);
-  if (previous === null || current === null || previous === current) return "";
-  return current < previous ? "↑" : "↓";
-}
-
-function divisionRank(chii) {
-  const text = String(chii || "").trim();
-  if (!text || text === "-") return null;
-  const match = text.match(/^(Ms|Sd|Jd|Jk|Y|O|S|K|M|J)/);
-  if (!match) return null;
-  const order = {
-    Y: 0,
-    O: 0,
-    S: 0,
-    K: 0,
-    M: 0,
-    J: 1,
-    Ms: 2,
-    Sd: 3,
-    Jd: 4,
-    Jk: 5,
-  };
-  return order[match[1]] ?? null;
 }
 
 function competitionRank(row, column) {

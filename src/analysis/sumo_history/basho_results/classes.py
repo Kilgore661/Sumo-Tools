@@ -41,6 +41,7 @@ class BashoResultsRow:
     previous_delta_direction: str
     previous_delta: str
     previous_result: str
+    previous_division_movement: str
     previous_chii: str
     previous_chii_ordinal: str
     previous_equelo: str
@@ -48,4 +49,3 @@ class BashoResultsRow:
     delta_equelo: str
     nu_chii: str
     nu_chii_ordinal: str
-
