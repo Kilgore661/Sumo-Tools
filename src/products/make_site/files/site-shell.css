@@ -13,9 +13,14 @@ body {
 }
 
 .site-shell {
+  position: relative;
   display: grid;
   grid-template-columns: var(--shell-nav-width) minmax(0, 1fr);
   min-height: 100vh;
+}
+
+.site-shell.nav-collapsed {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .site-nav {
@@ -24,6 +29,38 @@ body {
   overflow: auto;
   border-right: 1px solid var(--site-line);
   background: var(--site-panel-subtle);
+}
+
+.nav-toggle {
+  position: fixed;
+  z-index: 20;
+  top: 12px;
+  left: calc(var(--shell-nav-width) - 14px);
+  width: 28px;
+  height: 42px;
+  border: 1px solid var(--site-line);
+  border-radius: 6px;
+  background: var(--site-panel-strong);
+  color: var(--site-text);
+  font: inherit;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.nav-toggle:hover,
+.nav-toggle:focus {
+  background: var(--site-panel);
+}
+
+.nav-toggle:focus {
+  outline: 1px solid var(--site-muted);
+  outline-offset: 2px;
+}
+
+.site-shell.nav-collapsed .nav-toggle {
+  left: 6px;
 }
 
 .site-brand {
@@ -161,12 +198,27 @@ body {
     grid-template-columns: 1fr;
   }
 
+  .site-shell.nav-collapsed {
+    grid-template-columns: 1fr;
+  }
+
+  .nav-toggle {
+    top: 8px;
+    left: 8px;
+    width: 34px;
+    height: 34px;
+  }
+
   .site-nav {
     height: auto;
     min-height: auto;
     max-height: 42vh;
     border-right: 0;
     border-bottom: 1px solid var(--site-line);
+  }
+
+  .site-shell:not(.nav-collapsed) .nav-toggle {
+    left: 8px;
   }
 
   .site-main {

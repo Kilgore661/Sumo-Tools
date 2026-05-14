@@ -1,6 +1,11 @@
 .runtime-embedded { overflow: hidden; }
-.runtime-shell { min-height: 100vh; display: grid; grid-template-columns: 310px minmax(0, 1fr); }
+.runtime-shell { --runtime-nav-width: 310px; position: relative; min-height: 100vh; display: grid; grid-template-columns: var(--runtime-nav-width) minmax(0, 1fr); }
+.runtime-shell.nav-collapsed { grid-template-columns: minmax(0, 1fr); }
 .runtime-nav { border-right: 1px solid var(--page-line); padding: 14px; background: #07142d; overflow: auto; }
+.nav-toggle { position: fixed; z-index: 20; top: 12px; left: calc(var(--runtime-nav-width) - 14px); width: 28px; height: 42px; border: 1px solid var(--page-line); border-radius: 6px; background: var(--page-panel-strong); color: var(--page-text); font: inherit; font-size: 18px; font-weight: 700; line-height: 1; cursor: pointer; }
+.nav-toggle:hover, .nav-toggle:focus { background: var(--page-panel); }
+.nav-toggle:focus { outline: 1px solid var(--page-muted); outline-offset: 2px; }
+.runtime-shell.nav-collapsed .nav-toggle { left: 6px; }
 .runtime-main { min-width: 0; display: grid; grid-template-rows: auto minmax(0, 1fr); }
 .sectioned-table-grid { display: flex; justify-content: center; align-items: flex-start; gap: 36px; overflow: auto; }
 .table-section { width: max-content; min-width: 120px; }

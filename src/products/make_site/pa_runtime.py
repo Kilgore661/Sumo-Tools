@@ -17,7 +17,7 @@ from .site_config import PRODUCT_ROOT
 
 
 RUNTIME_DIR = "runtime-skeleton"
-RUNTIME_ASSET_VERSION = "20260513-page-heading-options"
+RUNTIME_ASSET_VERSION = "20260514-nav-toggle"
 
 
 def write_pa_runtime_skeleton(
@@ -98,6 +98,7 @@ def write_runtime_assets(root: Path) -> None:
     copy_file(PRODUCT_ROOT / "files" / "site-page.css", root / "site-page.css")
     copy_file(PRODUCT_ROOT / "files" / "pa-runtime.css", root / "pa-runtime.css")
     copy_file(PRODUCT_ROOT / "files" / "pa-runtime.js", root / "pa-runtime.js")
+    copy_file(PRODUCT_ROOT / "files" / "nav-toggle.js", root / "nav-toggle.js")
 
 
 def write_runtime_index(
@@ -219,8 +220,13 @@ def write_runtime_shell_html(
                 f'data-runtime-root="{escape(asset_prefix)}" '
                 f'data-page-summary="{escape(page_summary)}">'
             ),
-            '<div class="runtime-shell">',
-            '<aside id="site-nav" class="runtime-nav" aria-label="Site navigation">',
+            '<div class="runtime-shell" data-nav-shell>',
+            (
+                '<button type="button" class="nav-toggle" data-nav-toggle '
+                'aria-controls="site-nav" aria-expanded="true" '
+                'aria-label="Hide navigation" title="Hide navigation">&lt;</button>'
+            ),
+            '<aside id="site-nav" class="runtime-nav" data-nav-panel aria-label="Site navigation">',
             f"<h2>{escape(site.title)}</h2>",
             f'<p class="runtime-note">{escape(build_stamp)}</p>',
             render_runtime_navigation(site.navigation, config, page_routes),
@@ -236,6 +242,7 @@ def write_runtime_shell_html(
             "</section>",
             "</main>",
             "</div>",
+            f'<script src="{asset_prefix}nav-toggle.js?v={RUNTIME_ASSET_VERSION}"></script>',
             f'<script src="{asset_prefix}pa-runtime.js?v={RUNTIME_ASSET_VERSION}"></script>',
             "</body>",
             "</html>",

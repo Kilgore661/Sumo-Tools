@@ -16,7 +16,7 @@ from .renderers.typical_equelo_values import write_typical_equelo_values_page
 from .routes import PageRoute, html_href, route_href
 
 
-SHELL_ASSET_VERSION = "20260513-nav-muted-active"
+SHELL_ASSET_VERSION = "20260514-nav-toggle"
 
 
 
@@ -39,8 +39,13 @@ def write_site_index(
             f"<title>{escape(site.title)}</title>",
             "</head>",
             "<body>",
-            '<div class="site-shell">',
-            '<aside class="site-nav" aria-label="Site navigation">',
+            '<div class="site-shell" data-nav-shell>',
+            (
+                '<button type="button" class="nav-toggle" data-nav-toggle '
+                'aria-controls="site-nav" aria-expanded="true" '
+                'aria-label="Hide navigation" title="Hide navigation">&lt;</button>'
+            ),
+            '<aside id="site-nav" class="site-nav" data-nav-panel aria-label="Site navigation">',
             '<header class="site-brand">',
             f'<div class="site-name">{escape(site.title)}</div>',
             f'<div class="site-status">{escape(build_stamp)}</div>',
@@ -54,6 +59,7 @@ def write_site_index(
             "</section>",
             "</main>",
             "</div>",
+            f'<script src="nav-toggle.js?v={SHELL_ASSET_VERSION}"></script>',
             f'<script src="site-shell.js?v={SHELL_ASSET_VERSION}"></script>',
             "</body>",
             "</html>",
