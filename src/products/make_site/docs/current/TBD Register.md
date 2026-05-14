@@ -52,6 +52,17 @@ HTML, shared assets, manifests, and data payloads. The likely direction is to
 cache versioned or content-stamped assets aggressively while keeping entry HTML
 and current data easy to refresh after publication.
 
+### 1.6 Resolve Positioning of Show/Hide Nav Bar Icon
+
+The generated shell includes a show/hide navigation control for the sidebar.
+Its position should be reviewed across desktop and mobile layouts so it is
+discoverable, does not overlap navigation text, and remains usable when the
+sidebar is collapsed or expanded.
+
+Decide whether this control belongs attached to the nav edge, inside the title
+bar, or in another stable shell location. Apply the same placement policy to the
+PA runtime and normal site shell.
+
 ## 2. Page Contracts and Bundles
 
 ### 2.1 PA Manifest Contract Coverage
