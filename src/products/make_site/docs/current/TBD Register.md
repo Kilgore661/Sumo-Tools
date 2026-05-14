@@ -225,6 +225,19 @@ This is especially important while pages are embedded in iframes.
 > remain isolated or gain an explicit adapter before participating in deep-link
 > state.
 
+### 3.4 Remove Deep-Link Adapters
+
+The current deep-link adapters are temporary scaffolding, not a target
+architecture.
+
+Remove them by migrating promoted public pages into the PA-runtime ownership
+model, where `make_site` owns option rendering, URL state, cache-busting,
+styling, and shared table/chart behaviour from a PA manifest or equivalent
+site-owned page contract.
+
+The working proposal is recorded in
+`src/products/make_site/docs/current/Remove Adapter Layer Proposal.md`.
+
 ## 4. Current App Integration
 
 ### 4.1 Banzuke Changes Data Source

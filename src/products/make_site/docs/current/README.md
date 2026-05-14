@@ -13,6 +13,7 @@ public site.
 | `Implementation State.md`                  | Current implementation notes and known builder/site-definition state.                      |
 | `Producer Writers and Prototype Embeds.md` | Policy for moving analysis outputs into the public site.                                   |
 | `Table App Bundle Migration.md`            | Migration plan for turning current standalone table apps into make_site PA manifest writers. |
+| `Remove Adapter Layer Proposal.md`         | Proposal for retiring deep-link adapters by moving promoted pages into the PA runtime model. |
 | `Basho Results Browser Design Notes.md`    | Working design notes for the proposed Sumo History > Basho Results page.                   |
 | `BRB Implementation Start Brief.md`         | Short handoff note for beginning BRB implementation from a fresh conversation.             |
 | `Public Table Behaviour Inventory.md`      | Inventory of existing public table behaviours and BRB table precedents.                    |
