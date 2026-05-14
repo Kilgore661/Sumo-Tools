@@ -264,7 +264,7 @@ banzuke_changes = TablePA(
             text=(
                 "Result gives wins, losses and absences followed by prizes if "
                 "any. A trailing up/down marker indicates promotion or demotion "
-                "into the current division."
+                "into the current broad rank level."
             ),
         ),
         Note(

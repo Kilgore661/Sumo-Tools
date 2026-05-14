@@ -10,6 +10,7 @@ from .classes import (
     BcrReportRow,
     BcrReportSide,
 )
+from .banzuke_diff import rank_level_movement_marker
 from .equelo_ratings import EqueloSnapshot, load_latest_equelo_snapshot_before
 from .results import format_previous_result
 from .shikona_links import graph_shikona_for
@@ -217,23 +218,12 @@ def division_change_marker(change: BanzukeChange) -> str:
     Contract:
         change is a neutral BCR fact.
 
-        Returns an arrow when the current division differs from the previous
-        division: up for promotion, down for demotion.
+        Returns an arrow when the current broad rank level differs from the
+        previous one: up for promotion, down for demotion. Y, O, S, K, and M
+        count as separate levels.
     """
 
-    if change.previous_division is None:
-        return ""
-
-    if change.current_division == change.previous_division:
-        return ""
-
-    previous_index = DIVISION_ORDER.index(change.previous_division)
-    current_index = DIVISION_ORDER.index(change.current_division)
-
-    if current_index < previous_index:
-        return "↑"
-
-    return "↓"
+    return rank_level_movement_marker(change.previous_chii, change.current_chii)
 
 
 def format_delta(delta: float | None) -> str:

@@ -11,7 +11,7 @@ thead th { position: sticky; top: 0; z-index: 1; background: var(--page-panel); 
 .row-number,
 .column-group-previous-basho { color: var(--page-muted); }
 .delta-direction { display: inline-block; font-weight: 700; }
-.division-movement { display: inline-block; font-weight: 700; }
+.rank-level-movement { display: inline-block; font-weight: 700; }
 .chart-panel { min-width: 0; }
 .chart-title { margin: 0 0 10px; font-size: 1.05rem; }
 .bar-chart { min-height: 420px; display: grid; grid-template-columns: 70px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; gap: 8px 10px; border: 1px solid var(--page-line); padding: 14px; }

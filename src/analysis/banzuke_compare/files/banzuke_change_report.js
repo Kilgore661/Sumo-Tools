@@ -467,7 +467,7 @@ function appendScoreCell(tr, value, className = "", movement = "") {
 
   if (movement) {
     const movementSpan = document.createElement("span");
-    movementSpan.className = "division-movement";
+    movementSpan.className = "rank-level-movement";
     movementSpan.textContent = movement;
     td.appendChild(document.createTextNode(" "));
     td.appendChild(movementSpan);

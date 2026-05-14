@@ -31,7 +31,7 @@ CSV_FIELDNAMES = (
     "previous_delta_direction",
     "previous_delta",
     "previous_result",
-    "previous_division_movement",
+    "previous_rank_level_movement",
     "previous_chii",
     "previous_chii_ordinal",
     "previous_equelo",

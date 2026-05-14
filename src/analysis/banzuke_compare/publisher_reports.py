@@ -295,7 +295,7 @@ def write_page_bundle(report: BcrReport, output_file) -> None:
                     "Result gives wins, losses and absences followed by prizes "
                     "if any. A trailing up/down marker is rendered from the "
                     "separate result-movement field and indicates promotion or "
-                    "demotion into the current division."
+                    "demotion into the current broad rank level."
                 ),
             },
             {

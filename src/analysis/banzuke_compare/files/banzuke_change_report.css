@@ -155,7 +155,7 @@ tbody tr:hover {
 .context-head,
 .context-cell,
 .context-cell .score,
-.context-cell .division-movement,
+.context-cell .rank-level-movement,
 .delta-head,
 .delta-cell .delta-direction,
 .delta-cell .delta,
@@ -197,7 +197,7 @@ tbody tr:hover {
   font-weight: 700;
 }
 
-.division-movement {
+.rank-level-movement {
   display: inline-block;
   font-weight: 700;
 }

@@ -137,6 +137,43 @@ def division_for_chii(chii: Chii) -> Division:
     return chii.level
 
 
+MOVEMENT_LEVEL_ORDER = (
+    MSD.YOKOZUNA,
+    MSD.OZEKI,
+    MSD.SEKIWAKE,
+    MSD.KOMUSUBI,
+    MSD.MAEGASHIRA,
+    Division.JURYO,
+    Division.MAKUSHITA,
+    Division.SANDANME,
+    Division.JONIDAN,
+    Division.JONOKUCHI,
+)
+
+
+def rank_level_movement_marker(previous_chii: Chii | None, current_chii: Chii) -> str:
+    """
+    Contract:
+        previous_chii is either absent or a valid previous rank.
+        current_chii is a valid current rank.
+
+        Returns an arrow when the current broad rank level differs from the
+        previous one. Makuuchi sanyaku levels are distinct for this purpose:
+        Y, O, S, K, and M are separate levels.
+    """
+
+    if previous_chii is None:
+        return ""
+
+    previous_index = MOVEMENT_LEVEL_ORDER.index(previous_chii.level)
+    current_index = MOVEMENT_LEVEL_ORDER.index(current_chii.level)
+
+    if previous_index == current_index:
+        return ""
+
+    return "\u2191" if current_index < previous_index else "\u2193"
+
+
 def bz_chii_for_chii(chii: Chii) -> str:
     """
     Contract:

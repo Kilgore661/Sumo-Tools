@@ -791,7 +791,7 @@ function formatCell(row, index, column) {
     return `<span class="delta-direction">${escapeHtml(raw)}</span>`;
   }
   if (column.id === "previous_result") {
-    return formatResultWithDivisionMovement(raw, row.previous_division_movement);
+    return formatResultWithRankLevelMovement(raw, row.previous_rank_level_movement);
   }
   if (column.link === "rikishi" && row.rikishi_id) {
     const rikishiId = encodeURIComponent(row.rikishi_id);
@@ -834,10 +834,10 @@ function openRikishiTarget(url) {
   if (opened) opened.focus();
 }
 
-function formatResultWithDivisionMovement(result, marker) {
+function formatResultWithRankLevelMovement(result, marker) {
   const resultText = escapeHtml(result);
   if (!marker) return resultText;
-  return `${resultText} <span class="division-movement">${escapeHtml(marker)}</span>`;
+  return `${resultText} <span class="rank-level-movement">${escapeHtml(marker)}</span>`;
 }
 
 function competitionRank(row, column) {
