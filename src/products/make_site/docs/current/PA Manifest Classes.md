@@ -307,6 +307,7 @@ career_length                -> MultiViewPA
 rank_at_retirement           -> ChartPA
 typical_equelo_values        -> TablePA
 division_stability           -> ChartPA
+first_chii_appearance        -> ChartPA
 v5_landmark_policy           -> EssayPA
 lower_rank_rating_stability  -> EssayPA
 finish_by_chii               -> ExcludedPA

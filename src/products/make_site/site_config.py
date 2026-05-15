@@ -21,6 +21,12 @@ DIVISION_STABILITY_SITE_BUNDLE = (
     OUTPUT_ROOT / "persistence" / "site" / "division_stability"
 )
 DIVISION_STABILITY_SITE_OUTPUT_DIR = "banzuke-rank/division-stability/data"
+FIRST_CHII_APPEARANCE_SITE_BUNDLE = (
+    OUTPUT_ROOT / "first_app" / "site" / "first_chii_appearance"
+)
+FIRST_CHII_APPEARANCE_SITE_OUTPUT_DIR = (
+    "banzuke-rank/rank-history/first-chii-appearance/data"
+)
 CAREER_LENGTH_SITE_OUTPUT_DIR = "sumo-history/career-lifecycle/career-length/data"
 RANK_AT_RETIREMENT_SITE_OUTPUT_DIR = (
     "sumo-history/career-lifecycle/rank-at-retirement/data"

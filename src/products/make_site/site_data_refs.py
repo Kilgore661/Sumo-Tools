@@ -14,6 +14,8 @@ from .site_config import (
     CAREER_LENGTH_SITE_OUTPUT_DIR,
     DIVISION_STABILITY_SITE_BUNDLE,
     DIVISION_STABILITY_SITE_OUTPUT_DIR,
+    FIRST_CHII_APPEARANCE_SITE_BUNDLE,
+    FIRST_CHII_APPEARANCE_SITE_OUTPUT_DIR,
     RANK_AT_RETIREMENT_SITE_OUTPUT_DIR,
     STANDINGS_PUBLISHER_DATA,
     TYPICAL_EQUELO_VALUES_SITE_OUTPUT_DIR,
@@ -172,6 +174,28 @@ DIVISION_STABILITY_DATA = (
         id="division_stability_metadata",
         source_path=DIVISION_STABILITY_SITE_BUNDLE / "metadata.json",
         output_path=f"{DIVISION_STABILITY_SITE_OUTPUT_DIR}/metadata.json",
+        media_type="application/json",
+    ),
+)
+
+
+FIRST_CHII_APPEARANCE_DATA = (
+    data(
+        id="first_chii_appearance_page_config",
+        source_path=FIRST_CHII_APPEARANCE_SITE_BUNDLE / "page.json",
+        output_path=f"{FIRST_CHII_APPEARANCE_SITE_OUTPUT_DIR}/page.json",
+        media_type="application/json",
+    ),
+    data(
+        id="first_chii_appearance_appearances",
+        source_path=FIRST_CHII_APPEARANCE_SITE_BUNDLE / "appearances.csv",
+        output_path=f"{FIRST_CHII_APPEARANCE_SITE_OUTPUT_DIR}/appearances.csv",
+        media_type="text/csv",
+    ),
+    data(
+        id="first_chii_appearance_metadata",
+        source_path=FIRST_CHII_APPEARANCE_SITE_BUNDLE / "metadata.json",
+        output_path=f"{FIRST_CHII_APPEARANCE_SITE_OUTPUT_DIR}/metadata.json",
         media_type="application/json",
     ),
 )

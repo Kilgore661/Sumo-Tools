@@ -23,6 +23,7 @@ from .site_data_refs import (
     BANZUKE_CHANGES_DATA,
     BASHO_RESULTS_DATA,
     DIVISION_STABILITY_DATA,
+    FIRST_CHII_APPEARANCE_DATA,
     STANDINGS_DATA,
     WIN_PROBABILITY_BY_STANDING_DATA,
     basho_results_data_refs,
@@ -123,6 +124,13 @@ PAGES = PageRegistry(
             summary="Historical continuity within divisions.",
             view=CustomView(kind="division_stability"),
             data=DIVISION_STABILITY_DATA,
+        ),
+        "first_chii_appearance": Page(
+            id="first_chii_appearance",
+            title="First Chii Appearance",
+            summary="Earliest observed bout appearance for each chii.",
+            view=CustomView(kind="first_chii_appearance"),
+            data=FIRST_CHII_APPEARANCE_DATA,
         ),
         "win_probability_by_standing": Page(
             id="win_probability_by_standing",

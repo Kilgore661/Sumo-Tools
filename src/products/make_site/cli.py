@@ -17,6 +17,7 @@ from src.analysis.equelo.fixed_v2.v5_landmarks import (
     write_typical_equelo_outputs,
 )
 from src.infra.live_store.api import get_history
+from src.misc.first_appearance import build_first_chii_appearance_outputs
 
 from .builder import build_site
 from .deploy import HOST, LOCAL_ROOT, REMOTE_ROOT, deploy_local, deploy_remote
@@ -99,8 +100,19 @@ def main() -> None:
         if history_zip
         else get_history()
     )
+    dates = sorted(history.keys())
+    if not dates:
+        raise SystemExit("No history available for site build")
+    start_year = int(dates[0].year)
+    end_year = int(dates[-1].year)
     career_outputs = build_career_length_outputs(history, print_summary=False)
     retirement_outputs = build_rank_at_retirement_outputs(history, print_summary=False)
+    build_first_chii_appearance_outputs(
+        history,
+        start=start_year,
+        end=end_year,
+        print_summary=False,
+    )
     typical_equelo_outputs = write_typical_equelo_outputs()
     build_config = replace(
         BUILD_CONFIG,

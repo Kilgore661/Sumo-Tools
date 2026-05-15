@@ -21,6 +21,7 @@ except ImportError:  # pragma: no cover - fallback for package-style execution
 
 OUTPUT_CSV_NAME = "first_app.csv"
 OUTPUT_HTML_NAME = "first_app.html"
+SITE_BUNDLE_DIR = "first_app/site/first_chii_appearance"
 
 BASE_YEAR = 1958
 BASE_MONTH = 1
@@ -31,6 +32,16 @@ DTICK_912_DAYS_MS = 912 * 24 * 60 * 60 * 1000
 class FirstAppearance:
     date: Date
     day: Day
+
+
+@dataclass(frozen=True)
+class FirstChiiAppearanceOutputs:
+    output_root: Path
+    bundle_dir: Path
+    diagnostic_csv: Path
+    page_json: Path
+    appearances_csv: Path
+    metadata_json: Path
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -74,6 +85,10 @@ def _default_output_csv() -> Path:
 
 def _default_output_html() -> Path:
     return _repo_root() / "files" / "output" / OUTPUT_HTML_NAME
+
+
+def _default_output_root() -> Path:
+    return _repo_root() / "files" / "output"
 
 
 def first_app(history: History) -> dict[Chii, FirstAppearance]:
@@ -157,6 +172,154 @@ def write_first_app_csv(
             )
 
     return output_path
+
+
+def write_first_chii_appearance_csv(
+    first_seen: dict[Chii, FirstAppearance],
+    output_path: Path,
+) -> Path:
+    rows = _rows_by_ordinal(first_seen)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(output_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow(
+            [
+                "chii",
+                "ordinal",
+                "year",
+                "month",
+                "first_appearance_month_index",
+            ]
+        )
+
+        for chii, first in rows:
+            writer.writerow(
+                [
+                    str(chii),
+                    chii.ordinal(),
+                    int(first.date.year),
+                    int(first.date.month),
+                    _month_index(first.date),
+                ]
+            )
+
+    return output_path
+
+
+def write_first_chii_appearance_bundle(
+    first_seen: dict[Chii, FirstAppearance],
+    bundle_dir: Path,
+    *,
+    start: int,
+    end: int,
+    source_csv: Path,
+) -> FirstChiiAppearanceOutputs:
+    output_root = bundle_dir.parents[2]
+    bundle_dir.mkdir(parents=True, exist_ok=True)
+    outputs = FirstChiiAppearanceOutputs(
+        output_root=output_root,
+        bundle_dir=bundle_dir,
+        diagnostic_csv=source_csv,
+        page_json=bundle_dir / "page.json",
+        appearances_csv=bundle_dir / "appearances.csv",
+        metadata_json=bundle_dir / "metadata.json",
+    )
+    write_first_chii_appearance_csv(first_seen, outputs.appearances_csv)
+    _write_page_json(
+        output_path=outputs.page_json,
+        start=start,
+        end=end,
+    )
+    _write_metadata_json(
+        output_path=outputs.metadata_json,
+        first_seen=first_seen,
+        start=start,
+        end=end,
+        source_csv=source_csv,
+    )
+    return outputs
+
+
+def build_first_chii_appearance_outputs(
+    history: History,
+    *,
+    output_root: Path | None = None,
+    start: int,
+    end: int,
+    print_summary: bool = True,
+) -> FirstChiiAppearanceOutputs:
+    if output_root is None:
+        output_root = _default_output_root()
+    first_seen = first_app(history)
+    diagnostic_csv = output_root / OUTPUT_CSV_NAME
+    write_first_app_csv(first_seen, diagnostic_csv)
+    outputs = write_first_chii_appearance_bundle(
+        first_seen=first_seen,
+        bundle_dir=output_root / SITE_BUNDLE_DIR,
+        start=start,
+        end=end,
+        source_csv=diagnostic_csv,
+    )
+    if print_summary:
+        _print_summary(first_seen)
+        print(f"Wrote CSV to {diagnostic_csv}")
+        print(f"Wrote bundle to {outputs.bundle_dir}")
+    return outputs
+
+
+def _write_page_json(
+    output_path: Path,
+    *,
+    start: int,
+    end: int,
+) -> None:
+    page = {
+        "title": "First Chii Appearance",
+        "summary": "Earliest observed bout appearance for each chii.",
+        "subtitle": f"First observed bout appearance by chii ({start}-{end}).",
+        "data_sources": [
+            {
+                "id": "appearances",
+                "label": "First observed appearance",
+                "data": "appearances.csv",
+                "media_type": "text/csv",
+            }
+        ],
+        "chart": {
+            "x_field": "chii",
+            "x_order_field": "ordinal",
+            "y_field": "first_appearance_month_index",
+            "x_label": "Chii",
+            "x_type": "category",
+            "x_tickangle": -45,
+            "y_label": "First appearance",
+            "base_year": BASE_YEAR,
+            "base_month": BASE_MONTH,
+            "max_x_tick_labels": 40,
+        },
+    }
+    output_path.write_text(json.dumps(page, indent=2) + "\n", encoding="utf-8")
+
+
+def _write_metadata_json(
+    output_path: Path,
+    *,
+    first_seen: dict[Chii, FirstAppearance],
+    start: int,
+    end: int,
+    source_csv: Path,
+) -> None:
+    metadata = {
+        "analysis": "first_chii_appearance",
+        "bundle": "first_chii_appearance",
+        "start": start,
+        "end": end,
+        "row_count": len(first_seen),
+        "source_csv": source_csv.as_posix(),
+        "value_policy": "Each row is the first observed bout appearance for one chii.",
+    }
+    output_path.write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
 
 
 def write_first_app_html(
@@ -386,10 +549,18 @@ def main() -> None:
 
     written_csv = write_first_app_csv(first_seen, output_csv)
     written_html = write_first_app_html(first_seen, output_html)
+    written_bundle = write_first_chii_appearance_bundle(
+        first_seen=first_seen,
+        bundle_dir=_default_output_root() / SITE_BUNDLE_DIR,
+        start=args.start,
+        end=args.end,
+        source_csv=output_csv,
+    )
 
     _print_summary(first_seen)
     print(f"Wrote CSV to {written_csv}")
     print(f"Wrote chart to {written_html}")
+    print(f"Wrote bundle to {written_bundle.bundle_dir}")
 
 
 if __name__ == "__main__":

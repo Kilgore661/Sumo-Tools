@@ -123,7 +123,12 @@ NAVIGATION = NavigationTree(
                 "rank_history",
                 "Rank History",
                 "rank-history",
-                nav("first_chii_appearance", "First chii appearance", "first-chii-appearance"),
+                nav(
+                    "first_chii_appearance",
+                    "First chii appearance",
+                    "first-chii-appearance",
+                    page_id="first_chii_appearance",
+                ),
                 nav("rare_historical_rank_slots", "Rare / historical rank slots", "rare-historical-rank-slots"),
             ),
             nav("retirement_rank", "Retirement Rank", "retirement-rank"),

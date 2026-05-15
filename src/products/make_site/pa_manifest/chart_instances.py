@@ -392,10 +392,53 @@ division_stability = ChartPA(
 )
 
 
+first_chii_appearance = ChartPA(
+    id="first_chii_appearance",
+    heading="First Chii Appearance",
+    renderer="first_chii_appearance_chart",
+    primary_source="appearances",
+    data_sources=(
+        DataSource(
+            id="appearances",
+            label="First observed appearance",
+            path="data/appearances.csv",
+            media_type="text/csv",
+        ),
+    ),
+    traces=(
+        TraceSpec(
+            id="first_appearance",
+            label="First appearance",
+            kind="bar",
+            x="chii",
+            y="first_appearance_month_index",
+        ),
+    ),
+    x_axis=AxisSpec(
+        id="x",
+        source_field="chii",
+        order_field="ordinal",
+        label="Chii",
+    ),
+    y_axis=AxisSpec(
+        id="y",
+        source_field="first_appearance_month_index",
+        label="First appearance",
+    ),
+    default_trace="first_appearance",
+    provenance={
+        "x_tickangle": -45,
+        "max_x_tick_labels": 40,
+        "source_fields": ("year", "month"),
+    },
+)
+
+
 for pa in (
     rank_at_retirement,
     win_probability_by_standing,
     career_length,
+    first_chii_appearance,
     v5_landmark_policy,
     lower_rank_rating_stability,
     finish_by_chii,
