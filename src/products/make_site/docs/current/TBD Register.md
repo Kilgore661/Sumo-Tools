@@ -570,9 +570,27 @@ inspect active status when that is the user's question.
 Qualified shikona for external graph links currently depend on a brittle legacy
 `full_shiks.pkl` file outside the Sumo-Tools project.
 
-Sumo-Tools should derive or maintain these qualified names itself, using RikId
-and shikona history, so pages with non-unique shikona can link consistently
-without depending on a hardcoded legacy path.
+For now, accept this pickle as a legacy graph-module compatibility artefact.
+It should be treated as part of the build input set, not as a well-founded
+project identity source.
+
+The legacy code that produces the pickle is:
+
+```text
+H:/Code/Sumo/Elo/v. 9/parser.py
+```
+
+The underlying mess still needs sorting out. The legacy graph module uses
+shikona tokens rather than RikId, so duplicate shikona have to be
+disambiguated outside the graph module. The legacy pickle appears to encode a
+policy based on each rikishi's final/canonical shikona plus a year qualifier
+when that final shikona is not unique. That policy is not yet validated, may
+not be the right display policy for the current app, and should not be allowed
+to determine how Sumo-Tools models rikishi identity.
+
+The preferred long-term fix is to change the graph module to use RikId. Until
+then, keep the compatibility boundary explicit and revisit whether any
+Sumo-Tools-owned derived mapping is worth implementing.
 
 ### 12.2 Consolidate Qualified-Shikona Access
 
