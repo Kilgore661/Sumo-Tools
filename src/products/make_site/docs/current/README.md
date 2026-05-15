@@ -14,6 +14,7 @@ public site.
 | `Producer Writers and Prototype Embeds.md` | Policy for moving analysis outputs into the public site.                                   |
 | `Table App Bundle Migration.md`            | Migration plan for turning current standalone table apps into make_site PA manifest writers. |
 | `Remove Adapter Layer Proposal.md`         | Proposal for retiring deep-link adapters by moving promoted pages into the PA runtime model. |
+| `Plotly Legend Handler Work Plan.md`       | Work plan for standardising Plotly legend double-click isolation and migrating legend-bearing chart pages. |
 | `Basho Results Browser Design Notes.md`    | Working design notes for the proposed Sumo History > Basho Results page.                   |
 | `BRB Implementation Start Brief.md`         | Historical handoff note for BRB first implementation; check current code before relying on it. |
 | `Public Table Behaviour Inventory.md`      | Inventory of existing public table behaviours and BRB table precedents.                    |

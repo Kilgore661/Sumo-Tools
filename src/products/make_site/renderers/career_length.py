@@ -184,9 +184,16 @@ function showChart() {
   tableWrap.innerHTML = "";
 }
 
+function removeLegendDoubleClickHandler() {
+  if (chart.removeAllListeners) {
+    chart.removeAllListeners("plotly_legenddoubleclick");
+  }
+}
+
 function showTable() {
   chart.hidden = true;
   tableWrap.hidden = false;
+  removeLegendDoubleClickHandler();
   Plotly.purge(chart);
 }
 
@@ -213,14 +220,36 @@ function renderDistribution(rows) {
   ];
   const layout = baseLayout("Rikishi count");
   layout.barmode = "stack";
-  layout.legend = { orientation: "v", x: 1.02, xanchor: "left", y: 1, yanchor: "top" };
+  layout.legend = {
+    orientation: "v",
+    x: 1.02,
+    xanchor: "left",
+    y: 1,
+    yanchor: "top",
+    itemdoubleclick: false
+  };
   layout.margin.r = 120;
   Plotly.newPlot(chart, traces, layout, { responsive: true, displaylogo: false })
-    .then(() => Plotly.Plots.resize(chart));
+    .then(() => {
+      removeLegendDoubleClickHandler();
+      chart.on("plotly_legenddoubleclick", event => {
+        isolateDistributionTrace(event.curveNumber);
+        return false;
+      });
+      Plotly.Plots.resize(chart);
+    });
+}
+
+function isolateDistributionTrace(curveNumber) {
+  const target = chart.data[curveNumber];
+  if (!target) return;
+  const visibility = chart.data.map((trace, index) => index === curveNumber ? true : "legendonly");
+  Plotly.restyle(chart, { visible: visibility });
 }
 
 function renderLine(rows, yField, yTitle, options = {}) {
   showChart();
+  removeLegendDoubleClickHandler();
   const trace = {
     x: rows.map(row => numeric(row.nearest_years)),
     y: rows.map(row => numeric(row[yField])),
