@@ -278,6 +278,10 @@ For public charts, design and site-wide review should consider:
 * confidence intervals or equivalent uncertainty indicators where appropriate;
 * interaction affordances for Plotly controls.
 
+Public charts with categorical, date-like, or otherwise non-numeric x-axis
+labels shall rotate those labels by 45 degrees, unless the chart documents a
+specific reason to keep horizontal labels.
+
 Plotly pages should ideally move toward:
 
 ```text

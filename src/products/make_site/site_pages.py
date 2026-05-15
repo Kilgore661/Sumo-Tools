@@ -22,6 +22,7 @@ from .site_config import ANALYSIS_ROOT, OUTPUT_ROOT
 from .site_data_refs import (
     BANZUKE_CHANGES_DATA,
     BASHO_RESULTS_DATA,
+    DIVISION_STABILITY_DATA,
     STANDINGS_DATA,
     WIN_PROBABILITY_BY_STANDING_DATA,
     basho_results_data_refs,
@@ -120,14 +121,8 @@ PAGES = PageRegistry(
             id="division_stability",
             title="Division Stability",
             summary="Historical continuity within divisions.",
-            view=StandaloneHtmlView(
-                source=view(
-                    id="division_stability_html",
-                    source_path=OUTPUT_ROOT
-                    / "persistence"
-                    / "division_persistence (1958-2026, num_basho=10).html",
-                )
-            ),
+            view=CustomView(kind="division_stability"),
+            data=DIVISION_STABILITY_DATA,
         ),
         "win_probability_by_standing": Page(
             id="win_probability_by_standing",

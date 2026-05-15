@@ -45,7 +45,7 @@ division_persistence.py
     persistence, division-level aggregate rows.
 
 reports.py
-    Output logic: CSV writing and Plotly HTML chart writing.
+    Output logic: CSV writing and site bundle writing.
 
 __main__.py
     CLI parsing, History loading, orchestration.
@@ -58,7 +58,13 @@ compute_division_persistence(history, num_basho) -> PersistenceResults
 
 write_persistence_csv(results, output_path) -> Path
 
-write_persistence_chart(results, output_path, title) -> Path
+write_persistence_site_bundle(
+    results,
+    bundle_dir,
+    start,
+    end,
+    source_csv,
+) -> PersistenceSiteBundle
 ```
 
 The computation function is the domain boundary:
@@ -70,9 +76,9 @@ History + num_basho -> PersistenceResults
 The reporting functions should consume `PersistenceResults` without
 recomputing domain facts.
 
-The chart title is not part of the domain result. It is supplied by the caller
-because the caller knows run context such as CLI start/end years and preferred
-wording.
+The site bundle is not part of the domain result. Its JSON files are written by
+the reporting layer because the caller knows run context such as CLI start/end
+years and source output paths.
 
 The orchestrating module should therefore:
 
@@ -80,8 +86,8 @@ The orchestrating module should therefore:
 parse CLI arguments
 load History
 compute PersistenceResults
-construct output paths and chart title
-write CSV and chart
+construct output paths
+write CSV and site bundle
 ```
 
 ## 3. Result Boundary Object
@@ -204,12 +210,12 @@ Each run writes:
 
 ```text
 one monolithic CSV
-one Plotly HTML chart
+one site-facing Division Stability bundle
 ```
 
 The CSV is the primary data product.
 
-The chart is a convenience view over the CSV-shaped data:
+The site bundle is a convenience view over the CSV-shaped data:
 
 ```text
 x-axis: date

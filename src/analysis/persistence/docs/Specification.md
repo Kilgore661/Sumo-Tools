@@ -169,17 +169,29 @@ stdev_persistence
 
 Rows shall be ordered by date ascending, then by `Division` enum order.
 
-## 9. Chart Output
+## 9. Site Bundle Output
 
-The tool shall write one Plotly HTML chart per run.
+The tool shall write one site-facing bundle per run.
 
-The default filename shall include the run parameters:
+The bundle path shall be:
 
 ```text
-division_persistence (<start>-<end>, num_basho=<num_basho>).html
+files/output/persistence/site/division_stability/
 ```
 
-The chart shall plot `mean_persistence` over time.
+The bundle shall contain:
+
+```text
+page.json
+persistence.csv
+metadata.json
+```
+
+`persistence.csv` shall use the same row and column contract as the diagnostic
+CSV output.  It is written with a stable filename for public-site consumption.
+
+`page.json` shall define the public chart contract.  The public chart shall
+plot `mean_persistence` over time.
 
 Chart requirements:
 
@@ -204,6 +216,9 @@ The chart title shall include `num_basho`.
 
 The chart shall display probabilities in `[0, 1]`, not percentages.
 
+`metadata.json` shall describe provenance, including the analysis id, bundle
+id, start/end years, `num_basho`, row count, source CSV, and value policy.
+
 ## 10. Output Directory
 
 The tool shall write outputs under:
@@ -225,7 +240,7 @@ multiple num_basho values in one run
 directional movement analysis
 promotion or demotion cause modelling
 rikishi-level output files
-browser controls beyond the static Plotly chart
+UI controls or a browser app owned by the persistence producer
 percent-formatted persistence values
 ```
 

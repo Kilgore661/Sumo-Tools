@@ -9,6 +9,7 @@ from typing import Mapping
 from .classes import DataRef, NavigationTree, Page, Site, SiteBuildConfig
 from .classes.page_parts import CustomView
 from .renderers.career_length import write_career_length_page
+from .renderers.division_stability import write_division_stability_page
 from .renderers.rank_at_retirement import write_rank_at_retirement_page
 from .renderers.standing_win_probability import write_standing_win_probability_page
 from .renderers.tbd import write_tbd_page
@@ -192,6 +193,9 @@ def write_custom_page(
         return
     if kind == "career_length":
         write_career_length_page(page, target_path, asset_prefix)
+        return
+    if kind == "division_stability":
+        write_division_stability_page(page, target_path, asset_prefix)
         return
     if kind == "rank_at_retirement":
         write_rank_at_retirement_page(page, target_path, asset_prefix)

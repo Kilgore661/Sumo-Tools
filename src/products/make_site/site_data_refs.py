@@ -12,6 +12,8 @@ from .site_config import (
     BASHO_RESULTS_SITE_OUTPUT_DIR,
     BCR_OUTPUT_ROOT,
     CAREER_LENGTH_SITE_OUTPUT_DIR,
+    DIVISION_STABILITY_SITE_BUNDLE,
+    DIVISION_STABILITY_SITE_OUTPUT_DIR,
     RANK_AT_RETIREMENT_SITE_OUTPUT_DIR,
     STANDINGS_PUBLISHER_DATA,
     TYPICAL_EQUELO_VALUES_SITE_OUTPUT_DIR,
@@ -148,6 +150,28 @@ WIN_PROBABILITY_BY_STANDING_DATA = (
             "ratings-models/observed-vs-modelled/"
             "win-probability-by-standing/data/metadata.json"
         ),
+        media_type="application/json",
+    ),
+)
+
+
+DIVISION_STABILITY_DATA = (
+    data(
+        id="division_stability_page_config",
+        source_path=DIVISION_STABILITY_SITE_BUNDLE / "page.json",
+        output_path=f"{DIVISION_STABILITY_SITE_OUTPUT_DIR}/page.json",
+        media_type="application/json",
+    ),
+    data(
+        id="division_stability_persistence",
+        source_path=DIVISION_STABILITY_SITE_BUNDLE / "persistence.csv",
+        output_path=f"{DIVISION_STABILITY_SITE_OUTPUT_DIR}/persistence.csv",
+        media_type="text/csv",
+    ),
+    data(
+        id="division_stability_metadata",
+        source_path=DIVISION_STABILITY_SITE_BUNDLE / "metadata.json",
+        output_path=f"{DIVISION_STABILITY_SITE_OUTPUT_DIR}/metadata.json",
         media_type="application/json",
     ),
 )

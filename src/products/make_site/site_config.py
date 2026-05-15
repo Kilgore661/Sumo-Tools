@@ -17,6 +17,10 @@ STANDINGS_PUBLISHER_DATA = OUTPUT_ROOT / "standings" / "publisher" / "latest_dat
 WIN_PROBABILITY_SITE_BUNDLE = (
     OUTPUT_ROOT / "probability" / "matchups" / "site" / "win_probability_by_standing"
 )
+DIVISION_STABILITY_SITE_BUNDLE = (
+    OUTPUT_ROOT / "persistence" / "site" / "division_stability"
+)
+DIVISION_STABILITY_SITE_OUTPUT_DIR = "banzuke-rank/division-stability/data"
 CAREER_LENGTH_SITE_OUTPUT_DIR = "sumo-history/career-lifecycle/career-length/data"
 RANK_AT_RETIREMENT_SITE_OUTPUT_DIR = (
     "sumo-history/career-lifecycle/rank-at-retirement/data"

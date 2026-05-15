@@ -4,8 +4,8 @@ from pathlib import Path
 
 from src.analysis.persistence.division_persistence import compute_division_persistence
 from src.analysis.persistence.reports import (
-    write_persistence_chart,
     write_persistence_csv,
+    write_persistence_site_bundle,
 )
 from src.infra.config import EPOCH
 from src.infra.live_store.api import get_history
@@ -27,10 +27,6 @@ def _build_parser() -> argparse.ArgumentParser:
 
 def _output_stem(start: int, end: int, num_basho: int) -> str:
     return f"division_persistence ({start}-{end}, num_basho={num_basho})"
-
-
-def _chart_title(start: int, end: int, num_basho: int) -> str:
-    return f"Division Persistence over Previous {num_basho} Basho ({start}-{end})"
 
 
 def _slice_history_years(history: History, start: int, end: int) -> History:
@@ -61,25 +57,23 @@ def main() -> None:
         num_basho=args.num_basho,
     )
     csv_path = OUTPUT_DIR / f"{stem}.csv"
-    chart_path = OUTPUT_DIR / f"{stem}.html"
+    bundle_dir = OUTPUT_DIR / "site" / "division_stability"
 
     written_csv = write_persistence_csv(
         results=results,
         output_path=csv_path,
     )
-    written_chart = write_persistence_chart(
+    written_bundle = write_persistence_site_bundle(
         results=results,
-        output_path=chart_path,
-        title=_chart_title(
-            start=args.start,
-            end=args.end,
-            num_basho=args.num_basho,
-        ),
+        bundle_dir=bundle_dir,
+        start=args.start,
+        end=args.end,
+        source_csv=csv_path,
     )
 
     print(f"Rows: {len(results.rows)}")
     print(f"CSV: {written_csv}")
-    print(f"Chart: {written_chart}")
+    print(f"Bundle: {written_bundle.bundle_dir}")
 
 
 if __name__ == "__main__":

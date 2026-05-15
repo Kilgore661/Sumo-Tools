@@ -306,16 +306,16 @@ win_probability_by_standing  -> ChartPA
 career_length                -> MultiViewPA
 rank_at_retirement           -> ChartPA
 typical_equelo_values        -> TablePA
+division_stability           -> ChartPA
 v5_landmark_policy           -> EssayPA
 lower_rank_rating_stability  -> EssayPA
 finish_by_chii               -> ExcludedPA
 banzuke_division_by_era      -> ExcludedPA
 makuuchi_rank_by_era         -> ExcludedPA
-division_stability           -> ExcludedPA
 ```
 
 The excluded entries are deliberately total over the active nav tree while
-still making the target architecture honest: the old static HTML pages are not
+still making the target architecture honest: the remaining old static HTML pages are not
 being silently treated as if they satisfied the PA model.
 
 ## URL State

@@ -320,15 +320,15 @@ to participate in URL state, presets, or explanatory page grammar.
 This decision may depend on whether the chart is an exploratory analysis tool,
 a public exhibit, or a comparison page with carefully guided defaults.
 
-### 5.9 Long X-Tick Labels
+### 5.9 Full-Height Chart Policy
 
-All charts with longish string x-tick labels should rotate those labels by
-45 degrees.
+Add a public chart policy stating that charts should fill the available content
+space vertically as well as horizontally.
 
-"Longish" includes dates.
-
-This should be treated as a chart readability rule, not as a one-off style
-tweak for a single page.
+This should be framed as a layout rule for chart-bearing pages, not as a
+Plotly-specific implementation detail.  A chart page should not leave large
+unused vertical space below the chart when the page shell has already allocated
+that space to the content area.
 
 ### 5.10 Percentage Chart Defaults
 
@@ -347,6 +347,17 @@ autoscaling, and resetting axes.
 The hint should not clutter every chart or explain Plotly in a technical way.
 Possible directions include a small reusable icon/hint near charts, a brief
 first-visit affordance, or wording in a shared notes/help area.
+
+### 5.12 Chart Density and Fill Review
+
+Review all public chart pages for consistency with the full-height chart
+policy, once it is added, and for x-tick label density.
+
+The review should check whether categorical, date-like, or otherwise
+non-numeric x-axis labels are both rotated correctly and still too dense to
+read comfortably.  Where labels remain too dense, choose a chart-specific
+display policy such as sparse ticks, shorter labels, zoom defaults, or a
+different x-axis treatment.
 
 ## 6. Theme and Page Presentation
 

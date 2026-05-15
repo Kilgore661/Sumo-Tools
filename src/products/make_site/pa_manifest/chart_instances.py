@@ -346,11 +346,49 @@ makuuchi_rank_by_era = ExcludedPA(
 )
 
 
-division_stability = ExcludedPA(
+division_stability = ChartPA(
     id="division_stability",
     heading="Division Stability",
-    previous_view_kind="StandaloneHtmlView",
-    reason="Static HTML is outside the target PA architecture until migrated.",
+    renderer="division_stability_chart",
+    primary_source="persistence",
+    data_sources=(
+        DataSource(
+            id="persistence",
+            label="Division persistence",
+            path="data/persistence.csv",
+            media_type="text/csv",
+        ),
+    ),
+    traces=(
+        TraceSpec(
+            id="mean_persistence",
+            label="Mean persistence",
+            kind="scatter",
+            x="date",
+            y="mean_persistence",
+            group_by="division",
+        ),
+    ),
+    x_axis=AxisSpec(
+        id="x",
+        source_field="date",
+        label="Basho",
+    ),
+    y_axis=AxisSpec(
+        id="y",
+        source_field="mean_persistence",
+        label="Mean persistence",
+        minimum=0,
+        maximum=1,
+        tickformat=".0%",
+    ),
+    default_trace="mean_persistence",
+    provenance={
+        "default_visible": ("Makuuchi",),
+        "group_field": "division",
+        "hover_fields": ("num_basho", "frequency", "stdev_persistence"),
+        "x_tickangle": -45,
+    },
 )
 
 

@@ -1,9 +1,18 @@
 import csv
 import json
+from dataclasses import dataclass
 from pathlib import Path
 
 from src.analysis.persistence.classes import PersistenceResults
 from src.sumo_core.BasicEnums import Division
+
+
+@dataclass(frozen=True)
+class PersistenceSiteBundle:
+    bundle_dir: Path
+    page_json: Path
+    persistence_csv: Path
+    metadata_json: Path
 
 
 def _division_label(division: Division) -> str:
@@ -44,139 +53,100 @@ def write_persistence_csv(
     return output_path
 
 
-def write_persistence_chart(
+def write_persistence_site_bundle(
     results: PersistenceResults,
+    bundle_dir: Path,
+    *,
+    start: int,
+    end: int,
+    source_csv: Path,
+) -> PersistenceSiteBundle:
+    bundle_dir.mkdir(parents=True, exist_ok=True)
+
+    bundle = PersistenceSiteBundle(
+        bundle_dir=bundle_dir,
+        page_json=bundle_dir / "page.json",
+        persistence_csv=bundle_dir / "persistence.csv",
+        metadata_json=bundle_dir / "metadata.json",
+    )
+
+    write_persistence_csv(results, bundle.persistence_csv)
+    _write_page_json(
+        output_path=bundle.page_json,
+        start=start,
+        end=end,
+        num_basho=results.num_basho,
+    )
+    _write_metadata_json(
+        output_path=bundle.metadata_json,
+        results=results,
+        start=start,
+        end=end,
+        source_csv=source_csv,
+    )
+
+    return bundle
+
+
+def _write_page_json(
     output_path: Path,
-    title: str,
-) -> Path:
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    traces = []
-
-    for division in Division:
-        rows = [
-            row
-            for row in results.rows
-            if row.division == division
-        ]
-
-        traces.append(
+    *,
+    start: int,
+    end: int,
+    num_basho: int,
+) -> None:
+    page = {
+        "title": "Division Stability",
+        "summary": "Historical continuity within divisions.",
+        "subtitle": f"Division persistence over previous {num_basho} basho ({start}-{end}).",
+        "data_sources": [
             {
-                "type": "scatter",
-                "mode": "lines",
-                "name": _division_label(division),
-                "visible": True if division == Division.MAKUUCHI else "legendonly",
-                "x": [str(row.date) for row in rows],
-                "y": [row.mean_persistence for row in rows],
-                "customdata": [
-                    [
-                        row.stdev_persistence,
-                        row.frequency,
-                    ]
-                    for row in rows
-                ],
-                "hovertemplate": (
-                    "Date=%{x}<br>"
-                    "Division=%{fullData.name}<br>"
-                    "Mean persistence=%{y:.6f}<br>"
-                    "Stdev=%{customdata[0]:.6f}<br>"
-                    "Frequency=%{customdata[1]}<extra></extra>"
-                ),
+                "id": "persistence",
+                "label": f"Previous {num_basho} basho",
+                "data": "persistence.csv",
+                "media_type": "text/csv",
             }
-        )
+        ],
+        "division_order": [_division_label(division) for division in Division],
+        "default_visible": ["Makuuchi"],
+        "chart": {
+            "x_field": "date",
+            "y_field": "mean_persistence",
+            "group_field": "division",
+            "x_label": "Basho",
+            "x_type": "category",
+            "x_tickangle": -45,
+            "y_label": "Mean persistence",
+            "y_min": 0,
+            "y_max": 1,
+            "y_tickformat": ".0%",
+            "legend_title": "Division",
+            "hover_fields": [
+                "num_basho",
+                "frequency",
+                "stdev_persistence",
+            ],
+        },
+    }
+    output_path.write_text(json.dumps(page, indent=2) + "\n", encoding="utf-8")
 
-    traces_json = json.dumps(traces)
-    title_json = json.dumps(title)
 
-    html = f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{title}</title>
-  <link rel="icon" type="image/x-icon" href="../Sumo/meep.png">
-  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-  <style>
-    :root {{
-      color-scheme: dark;
-    }}
-
-    html, body {{
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      background: #111827;
-      color: #e5e7eb;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }}
-
-    .page {{
-      box-sizing: border-box;
-      width: 100%;
-      min-height: 100vh;
-      padding: 20px;
-    }}
-
-    #chart {{
-      width: 100%;
-      height: calc(100vh - 40px);
-      min-height: 560px;
-      background: #111827;
-    }}
-  </style>
-</head>
-<body>
-  <div class="page">
-    <div id="chart"></div>
-  </div>
-  <script>
-    const traces = {traces_json};
-    const layout = {{
-      title: {title_json},
-      paper_bgcolor: "#111827",
-      plot_bgcolor: "#111827",
-      font: {{
-        color: "#e5e7eb"
-      }},
-      xaxis: {{
-        title: "Basho",
-        type: "category",
-        gridcolor: "#374151",
-        linecolor: "#4b5563",
-        automargin: true
-      }},
-      yaxis: {{
-        title: "Mean persistence",
-        range: [0, 1],
-        gridcolor: "#374151",
-        linecolor: "#4b5563",
-        automargin: true
-      }},
-      legend: {{
-        orientation: "v",
-        yanchor: "top",
-        y: 1,
-        xanchor: "left",
-        x: 1.02
-      }},
-      margin: {{
-        l: 70,
-        r: 150,
-        t: 70,
-        b: 90
-      }},
-      hovermode: "closest"
-    }};
-    const config = {{
-      responsive: true,
-      displaylogo: false
-    }};
-    Plotly.newPlot("chart", traces, layout, config);
-  </script>
-</body>
-</html>
-"""
-
-    output_path.write_text(html, encoding="utf-8")
-    return output_path
+def _write_metadata_json(
+    output_path: Path,
+    *,
+    results: PersistenceResults,
+    start: int,
+    end: int,
+    source_csv: Path,
+) -> None:
+    metadata = {
+        "analysis": "division_persistence",
+        "bundle": "division_stability",
+        "start": start,
+        "end": end,
+        "num_basho": results.num_basho,
+        "row_count": len(results.rows),
+        "source_csv": source_csv.as_posix(),
+        "value_policy": "Persistence values are probabilities in [0, 1].",
+    }
+    output_path.write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")

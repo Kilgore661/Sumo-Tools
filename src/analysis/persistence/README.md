@@ -19,7 +19,7 @@ The first version is deliberately narrow:
 - input comes from the LiveStore `History`
 - the window is retrospective only
 - all reported persistence values are probabilities in `[0, 1]`
-- output is one CSV plus one Plotly HTML chart per run
+- output is one diagnostic CSV plus one site-facing Division Stability bundle per run
 
 ## Core Definitions
 
@@ -111,7 +111,9 @@ For a run over `1958..2026` with `num_basho=6`, planned output names are:
 
 ```text
 division_persistence (1958-2026, num_basho=6).csv
-division_persistence (1958-2026, num_basho=6).html
+site/division_stability/page.json
+site/division_stability/persistence.csv
+site/division_stability/metadata.json
 ```
 
 The CSV should be monolithic for the run: one row per `(date, division)` for the
@@ -138,11 +140,15 @@ That is, `frequency` is the number of rikishi in that division at that date. It
 is included as a sanity check and context for interpreting the standard
 deviation.
 
-## Chart
+## Site Bundle
 
-The initial chart should be a Plotly HTML file.
+The public chart is rendered by `make_site` from the site bundle.
 
-Chart requirements:
+The bundle CSV is the same row contract as the diagnostic CSV, written with a
+stable filename for site consumption.  The bundle JSON files describe the chart
+contract and provenance.
+
+Chart contract:
 
 - x-axis: basho/date
 - y-axis: `mean_persistence`
@@ -163,7 +169,7 @@ The first version should not include:
 - directional movement analysis
 - promotion/demotion cause modelling
 - rikishi-level output files
-- UI controls or a browser app beyond the static Plotly chart
+- UI controls or a browser app owned by the persistence producer
 
 ## Possible Future Extensions
 
