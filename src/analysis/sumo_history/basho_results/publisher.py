@@ -24,28 +24,31 @@ def main() -> None:
     ratings = RatingLookup.load()
 
     dates = represented_dates(history)
+    payload_dates = dates
     if args.date is not None:
         selected = find_represented_date(dates, args.date)
         if selected not in dates:
             raise ValueError(f"{selected} is not a represented basho date")
-        dates = (selected,)
+        payload_dates = (selected,)
 
     index = build_index(history)
     if args.date is not None:
-        entry_by_basho = {entry.basho: entry for entry in index.entries}
         index = type(index)(
             schema=index.schema,
             generated_at=index.generated_at,
-            default_basho=str(dates[-1]),
-            entries=(entry_by_basho[str(dates[-1])],),
+            default_basho=str(payload_dates[-1]),
+            entries=index.entries,
         )
 
     write_index(index, output_root)
-    for date in dates:
+    for date in payload_dates:
         rows = build_payload_rows(history=history, date=date, ratings=ratings)
         write_payload(date, rows, output_root)
 
-    print(f"wrote BRB data for {len(dates)} basho to {output_root}")
+    print(
+        f"wrote BRB index for {len(dates)} basho and "
+        f"{len(payload_dates)} payload(s) to {output_root}"
+    )
 
 
 def parse_args() -> argparse.Namespace:

@@ -176,7 +176,10 @@ async function renderIndexedTablePA(manifest, optionState, panel) {
   const selected = optionState[selector] && optionState[selector] !== "latest"
     ? optionState[selector]
     : index.default_basho;
-  const entry = entries.find(item => String(item.basho) === String(selected)) || entries.at(-1);
+  const entry = entries.find(item => String(item.basho) === String(selected));
+  if (!entry) {
+    throw new Error(`No Basho Results index entry exists for ${selected}`);
+  }
   runtimeState.indexEntry = entry;
   if (entry?.basho && optionState[selector] !== entry.basho) {
     runtimeState.optionState = { ...runtimeState.optionState, [selector]: entry.basho };
