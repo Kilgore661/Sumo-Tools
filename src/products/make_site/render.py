@@ -9,6 +9,7 @@ from typing import Mapping
 from .classes import DataRef, NavigationTree, Page, Site, SiteBuildConfig
 from .classes.page_parts import CustomView
 from .renderers.career_length import write_career_length_page
+from .renderers.banzuke_division_by_era import write_banzuke_division_by_era_page
 from .renderers.division_stability import write_division_stability_page
 from .renderers.first_chii_appearance import write_first_chii_appearance_page
 from .renderers.makuuchi_rank_by_era import write_makuuchi_rank_by_era_page
@@ -195,6 +196,9 @@ def write_custom_page(
         return
     if kind == "career_length":
         write_career_length_page(page, target_path, asset_prefix)
+        return
+    if kind == "banzuke_division_by_era":
+        write_banzuke_division_by_era_page(page, target_path, asset_prefix)
         return
     if kind == "division_stability":
         write_division_stability_page(page, target_path, asset_prefix)

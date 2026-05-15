@@ -1,6 +1,7 @@
 import argparse
 import datetime
 import json
+from dataclasses import dataclass
 from pathlib import Path
 from statistics import fmean
 from typing import Optional
@@ -19,6 +20,7 @@ except ImportError:  # pragma: no cover - fallback for package-style execution
 
 OUTPUT_HTML_NAME = "banzuke_division_era_chart.html"
 OUTPUT_CSV_NAME = "banzuke_division_era_chart.csv"
+SITE_BUNDLE_DIR = "banzuke_division_era/site/banzuke_division_by_era"
 
 # Display order: top-to-bottom in legend / CSV / console
 DIVISION_LABELS: list[str] = [
@@ -47,6 +49,16 @@ MAKUUCHI_LEVELS = {
     MSD.KOMUSUBI,
     MSD.MAEGASHIRA,
 }
+
+
+@dataclass(frozen=True)
+class BanzukeDivisionByEraOutputs:
+    output_root: Path
+    bundle_dir: Path
+    diagnostic_csv: Path
+    page_json: Path
+    divisions_csv: Path
+    metadata_json: Path
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -99,6 +111,10 @@ def _default_output_html() -> Path:
 
 def _default_output_csv() -> Path:
     return _repo_root() / "files" / "output" / OUTPUT_CSV_NAME
+
+
+def _default_output_root() -> Path:
+    return _repo_root() / "files" / "output"
 
 
 def _build_eras(start_year: int, end_year: int, num_years_per_era: int) -> list[tuple[int, int, str]]:
@@ -215,6 +231,180 @@ def write_matrix_csv(
             writer.writerow([era_label, *rounded_values, total_avg])
 
     return output_path
+
+
+def write_banzuke_division_by_era_csv(
+    era_averages: dict[str, dict[str, float]],
+    eras: list[tuple[int, int, str]],
+    output_path: Path,
+) -> Path:
+    import csv
+
+    era_labels = [label for _, _, label in eras]
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(output_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow(["era", "division", "average_rikishi", "total_average"])
+
+        for era_label in era_labels:
+            raw_values = [era_averages[era_label].get(div, 0.0) for div in DIVISION_LABELS]
+            total_average = round(sum(raw_values), 3)
+            for division in DIVISION_LABELS:
+                writer.writerow(
+                    [
+                        era_label,
+                        division,
+                        round(era_averages[era_label].get(division, 0.0), 3),
+                        total_average,
+                    ]
+                )
+
+    return output_path
+
+
+def write_banzuke_division_by_era_bundle(
+    era_averages: dict[str, dict[str, float]],
+    eras: list[tuple[int, int, str]],
+    bundle_dir: Path,
+    *,
+    start: int,
+    end: int,
+    num_years_per_era: int,
+    source_csv: Path,
+) -> BanzukeDivisionByEraOutputs:
+    output_root = bundle_dir.parents[2]
+    bundle_dir.mkdir(parents=True, exist_ok=True)
+    outputs = BanzukeDivisionByEraOutputs(
+        output_root=output_root,
+        bundle_dir=bundle_dir,
+        diagnostic_csv=source_csv,
+        page_json=bundle_dir / "page.json",
+        divisions_csv=bundle_dir / "divisions.csv",
+        metadata_json=bundle_dir / "metadata.json",
+    )
+    write_banzuke_division_by_era_csv(
+        era_averages,
+        eras,
+        outputs.divisions_csv,
+    )
+    _write_page_json(
+        outputs.page_json,
+        eras=eras,
+        start=start,
+        end=end,
+        num_years_per_era=num_years_per_era,
+    )
+    _write_metadata_json(
+        outputs.metadata_json,
+        era_averages=era_averages,
+        eras=eras,
+        start=start,
+        end=end,
+        num_years_per_era=num_years_per_era,
+        source_csv=source_csv,
+    )
+    return outputs
+
+
+def build_banzuke_division_by_era_outputs(
+    history: History,
+    *,
+    output_root: Path | None = None,
+    start: int,
+    end: int,
+    num_years_per_era: int = 10,
+    print_summary: bool = True,
+) -> BanzukeDivisionByEraOutputs:
+    if output_root is None:
+        output_root = _default_output_root()
+    eras = _build_eras(start, end, num_years_per_era)
+    era_averages = compute_era_average_counts(history, eras)
+    diagnostic_csv = output_root / OUTPUT_CSV_NAME
+    write_matrix_csv(era_averages, eras, diagnostic_csv)
+    outputs = write_banzuke_division_by_era_bundle(
+        era_averages=era_averages,
+        eras=eras,
+        bundle_dir=output_root / SITE_BUNDLE_DIR,
+        start=start,
+        end=end,
+        num_years_per_era=num_years_per_era,
+        source_csv=diagnostic_csv,
+    )
+    if print_summary:
+        _print_summary(era_averages, eras)
+        print(f"Wrote CSV to {diagnostic_csv}")
+        print(f"Wrote bundle to {outputs.bundle_dir}")
+    return outputs
+
+
+def _write_page_json(
+    output_path: Path,
+    *,
+    eras: list[tuple[int, int, str]],
+    start: int,
+    end: int,
+    num_years_per_era: int,
+) -> None:
+    page = {
+        "title": "Banzuke Division by Era",
+        "summary": "Historical banzuke division structure by era.",
+        "subtitle": (
+            f"Average banzuke composition by division ({start}-{end}), "
+            f"{num_years_per_era}-year era buckets except the final bucket."
+        ),
+        "data_sources": [
+            {
+                "id": "divisions",
+                "label": "Average banzuke composition by era",
+                "data": "divisions.csv",
+                "media_type": "text/csv",
+            }
+        ],
+        "chart": {
+            "x_field": "era",
+            "y_field": "average_rikishi",
+            "group_field": "division",
+            "x_label": "Era",
+            "x_type": "category",
+            "x_tickangle": -45,
+            "x_order": [label for _, _, label in eras],
+            "y_label": "Average rikishi per basho",
+            "legend_title": "Division",
+            "division_order": DIVISION_LABELS,
+            "stack_order": list(reversed(DIVISION_LABELS)),
+            "division_colours": DIVISION_COLOURS,
+            "barmode": "stack",
+        },
+    }
+    output_path.write_text(json.dumps(page, indent=2) + "\n", encoding="utf-8")
+
+
+def _write_metadata_json(
+    output_path: Path,
+    *,
+    era_averages: dict[str, dict[str, float]],
+    eras: list[tuple[int, int, str]],
+    start: int,
+    end: int,
+    num_years_per_era: int,
+    source_csv: Path,
+) -> None:
+    metadata = {
+        "analysis": "banzuke_division_by_era",
+        "bundle": "banzuke_division_by_era",
+        "start": start,
+        "end": end,
+        "num_years_per_era": num_years_per_era,
+        "era_count": len(eras),
+        "row_count": len(eras) * len(DIVISION_LABELS),
+        "source_csv": source_csv.as_posix(),
+        "value_policy": (
+            "Each row is one era/division average count of rikishi per basho. "
+            "The diagnostic CSV is retained as a wide matrix."
+        ),
+    }
+    output_path.write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
 
 
 def _plotly_traces(
@@ -485,12 +675,22 @@ def main() -> None:
 
     written_csv = write_matrix_csv(era_averages, eras, output_csv)
     written_html = write_chart_html(era_averages, eras, output_html)
+    written_bundle = write_banzuke_division_by_era_bundle(
+        era_averages=era_averages,
+        eras=eras,
+        bundle_dir=_default_output_root() / SITE_BUNDLE_DIR,
+        start=args.start,
+        end=args.end,
+        num_years_per_era=args.num_years_per_era,
+        source_csv=output_csv,
+    )
 
     _print_summary(era_averages, eras)
     print()
     print(f"Years per era: {args.num_years_per_era}")
     print(f"Wrote CSV to {written_csv}")
     print(f"Wrote chart to {written_html}")
+    print(f"Wrote bundle to {written_bundle.bundle_dir}")
 
 
 if __name__ == "__main__":

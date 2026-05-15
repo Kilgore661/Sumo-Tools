@@ -17,6 +17,7 @@ from src.analysis.equelo.fixed_v2.v5_landmarks import (
     write_typical_equelo_outputs,
 )
 from src.infra.live_store.api import get_history
+from src.misc.banzuke_by_era import build_banzuke_division_by_era_outputs
 from src.misc.first_appearance import build_first_chii_appearance_outputs
 from src.misc.makuuchi_by_era import build_makuuchi_rank_by_era_outputs
 
@@ -112,6 +113,13 @@ def main() -> None:
         history,
         start=start_year,
         end=end_year,
+        print_summary=False,
+    )
+    build_banzuke_division_by_era_outputs(
+        history,
+        start=start_year,
+        end=end_year,
+        num_years_per_era=10,
         print_summary=False,
     )
     build_makuuchi_rank_by_era_outputs(

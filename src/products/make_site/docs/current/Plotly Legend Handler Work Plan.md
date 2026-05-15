@@ -2,7 +2,16 @@
 
 ## Status
 
-Draft work plan.
+Complete for the original chart migration set.
+
+The original legend-handler issue has been fixed for the currently promoted
+legend-bearing charts.  Career Length / Distribution, Division Stability,
+Banzuke Division by Era, and Makuuchi Rank by Era all disable Plotly's built-in
+legend double-click behaviour and install explicit site-owned isolation
+handling.
+
+Banzuke Division by Era, Division Stability, and Makuuchi Rank by Era are now
+PA-backed site pages rather than copied standalone Plotly HTML pages.
 
 ## Problem
 
@@ -20,17 +29,10 @@ reason to use Plotly's default behaviour.
 
 This plan covers public Plotly charts with meaningful legends.
 
-The current native PA chart gap is:
+The following charts have moved into site-owned rendering:
 
-* Career Length / Distribution.
-
-The current standalone HTML chart gap owned by this repo is:
-
-* Division Stability.
-
-The current standalone HTML chart gap that should be migrated into the site
-chart model rather than patched indefinitely is:
-
+* Career Length / Distribution;
+* Division Stability;
 * Banzuke Division by Era;
 * Makuuchi Rank by Era.
 
@@ -55,10 +57,9 @@ division.
 
 Add the custom handler to the Career Length distribution chart.
 
-This chart is already a native PA-backed page and has the only current PA chart
-legend requiring the policy.  The handler should isolate either `Retired` or
-`Active` on double-click and leave ordinary legend click-to-toggle behaviour
-unchanged.
+This chart is already a native PA-backed page.  The handler isolates either
+`Retired` or `Active` on double-click and leaves ordinary legend
+click-to-toggle behaviour unchanged.
 
 The PMF, CDF, Survival, Longest, and Rank at Retirement views do not need the
 handler unless they later gain meaningful multi-trace legends.
@@ -73,8 +74,8 @@ and metadata.  The public site should then expose Division Stability as a PA
 chart, so the shared chart policy, theme, legend behaviour, notes, and URL-state
 model live in `make_site` rather than inside standalone generated HTML.
 
-Avoid adding a one-off custom handler to the generated HTML unless a short-term
-release requires it before the PA conversion is complete.
+Complete.  The persistence producer writes a site bundle and `make_site`
+renders Division Stability as a PA-backed Plotly page.
 
 ### 4. Re-implement Banzuke Division by Era In-House
 
@@ -85,6 +86,9 @@ should render it as a native chart or PA chart bundle.  Once migrated, it should
 use the standard Plotly legend double-click handler rather than bespoke embedded
 HTML behaviour.
 
+Complete.  Banzuke Division by Era now writes a site bundle and `make_site`
+renders it as a PA-backed Plotly page.
+
 ### 5. Re-implement Makuuchi Rank by Era In-House
 
 Move Makuuchi Rank by Era out of standalone HTML incorporation using the same
@@ -94,6 +98,9 @@ This keeps the two era charts aligned and avoids preserving one-off Plotly page
 templates whose interaction policy can drift away from the rest of the public
 site.
 
+Complete.  Makuuchi Rank by Era now writes a site bundle and is rendered by
+`make_site` as a PA-backed chart.
+
 ## Completion Criteria
 
 The work is complete when:
@@ -102,7 +109,7 @@ The work is complete when:
   required for public Plotly charts with visible legends;
 * Career Length / Distribution implements the handler;
 * Division Stability is no longer incorporated as standalone HTML;
-* Banzuke Division by Era is no longer incorporated as standalone HTML;
 * Makuuchi Rank by Era is no longer incorporated as standalone HTML;
+* Banzuke Division by Era is no longer incorporated as standalone HTML;
 * each migrated legend-bearing chart has verified ordinary click-to-toggle and
   double-click-to-isolate behaviour.

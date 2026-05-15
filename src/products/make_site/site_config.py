@@ -27,6 +27,12 @@ FIRST_CHII_APPEARANCE_SITE_BUNDLE = (
 FIRST_CHII_APPEARANCE_SITE_OUTPUT_DIR = (
     "banzuke-rank/rank-history/first-chii-appearance/data"
 )
+BANZUKE_DIVISION_BY_ERA_SITE_BUNDLE = (
+    OUTPUT_ROOT / "banzuke_division_era" / "site" / "banzuke_division_by_era"
+)
+BANZUKE_DIVISION_BY_ERA_SITE_OUTPUT_DIR = (
+    "banzuke-rank/banzuke-structure-over-time/banzuke-division-by-era/data"
+)
 MAKUUCHI_RANK_BY_ERA_SITE_BUNDLE = (
     OUTPUT_ROOT / "rank_era" / "site" / "makuuchi_rank_by_era"
 )

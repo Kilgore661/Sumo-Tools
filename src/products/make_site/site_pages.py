@@ -21,6 +21,7 @@ from .site_assets import BANZUKE_CHANGES_ASSETS, GLOBAL_ASSETS, STANDINGS_ASSETS
 from .site_config import ANALYSIS_ROOT, OUTPUT_ROOT
 from .site_data_refs import (
     BANZUKE_CHANGES_DATA,
+    BANZUKE_DIVISION_BY_ERA_DATA,
     BASHO_RESULTS_DATA,
     DIVISION_STABILITY_DATA,
     FIRST_CHII_APPEARANCE_DATA,
@@ -101,12 +102,8 @@ PAGES = PageRegistry(
             id="banzuke_division_by_era",
             title="Banzuke Division by Era",
             summary="Historical banzuke division structure by era.",
-            view=StandaloneHtmlView(
-                source=view(
-                    id="banzuke_division_by_era_html",
-                    source_path=OUTPUT_ROOT / "banzuke_division_era_chart.html",
-                )
-            ),
+            view=CustomView(kind="banzuke_division_by_era"),
+            data=BANZUKE_DIVISION_BY_ERA_DATA,
         ),
         "makuuchi_rank_by_era": Page(
             id="makuuchi_rank_by_era",

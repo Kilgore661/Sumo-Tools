@@ -277,7 +277,7 @@ def _write_page_json(
     page = {
         "title": "First Chii Appearance",
         "summary": "Earliest observed bout appearance for each chii.",
-        "subtitle": f"First observed bout appearance by chii ({start}-{end}).",
+        "subtitle": f"First observed bout appearance by chii in sumodb bout records ({start}-{end}).",
         "data_sources": [
             {
                 "id": "appearances",

@@ -330,11 +330,54 @@ finish_by_chii = ExcludedPA(
 )
 
 
-banzuke_division_by_era = ExcludedPA(
+banzuke_division_by_era = ChartPA(
     id="banzuke_division_by_era",
     heading="Banzuke Division by Era",
-    previous_view_kind="StandaloneHtmlView",
-    reason="Static HTML is outside the target PA architecture until migrated.",
+    renderer="banzuke_division_by_era_chart",
+    primary_source="divisions",
+    data_sources=(
+        DataSource(
+            id="divisions",
+            label="Average banzuke composition by era",
+            path="data/divisions.csv",
+            media_type="text/csv",
+        ),
+    ),
+    traces=(
+        TraceSpec(
+            id="division_average",
+            label="Division average",
+            kind="stacked_bar",
+            x="era",
+            y="average_rikishi",
+            group_by="division",
+        ),
+    ),
+    x_axis=AxisSpec(
+        id="x",
+        source_field="era",
+        label="Era",
+    ),
+    y_axis=AxisSpec(
+        id="y",
+        source_field="average_rikishi",
+        label="Average rikishi per basho",
+        minimum=0,
+    ),
+    default_trace="division_average",
+    provenance={
+        "division_order": (
+            "Makuuchi",
+            "Juryo",
+            "Makushita",
+            "Sandanme",
+            "Jonidan",
+            "Jonokuchi",
+        ),
+        "x_tickangle": -45,
+        "legend_doubleclick": "custom_isolate_trace",
+        "era_bucket_years": 10,
+    },
 )
 
 

@@ -10,6 +10,8 @@ from .classes import DataRef
 from .site_config import (
     BASHO_RESULTS_OUTPUT_ROOT,
     BASHO_RESULTS_SITE_OUTPUT_DIR,
+    BANZUKE_DIVISION_BY_ERA_SITE_BUNDLE,
+    BANZUKE_DIVISION_BY_ERA_SITE_OUTPUT_DIR,
     BCR_OUTPUT_ROOT,
     CAREER_LENGTH_SITE_OUTPUT_DIR,
     DIVISION_STABILITY_SITE_BUNDLE,
@@ -117,6 +119,28 @@ def latest_basho_results_payload_data() -> tuple[DataRef, ...]:
             media_type="text/csv",
         ),
     )
+
+
+BANZUKE_DIVISION_BY_ERA_DATA = (
+    data(
+        id="banzuke_division_by_era_page_config",
+        source_path=BANZUKE_DIVISION_BY_ERA_SITE_BUNDLE / "page.json",
+        output_path=f"{BANZUKE_DIVISION_BY_ERA_SITE_OUTPUT_DIR}/page.json",
+        media_type="application/json",
+    ),
+    data(
+        id="banzuke_division_by_era_divisions",
+        source_path=BANZUKE_DIVISION_BY_ERA_SITE_BUNDLE / "divisions.csv",
+        output_path=f"{BANZUKE_DIVISION_BY_ERA_SITE_OUTPUT_DIR}/divisions.csv",
+        media_type="text/csv",
+    ),
+    data(
+        id="banzuke_division_by_era_metadata",
+        source_path=BANZUKE_DIVISION_BY_ERA_SITE_BUNDLE / "metadata.json",
+        output_path=f"{BANZUKE_DIVISION_BY_ERA_SITE_OUTPUT_DIR}/metadata.json",
+        media_type="application/json",
+    ),
+)
 
 
 WIN_PROBABILITY_BY_STANDING_DATA = (
