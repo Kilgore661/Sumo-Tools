@@ -2,6 +2,7 @@ import argparse
 import datetime
 import json
 from collections import defaultdict
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
@@ -19,16 +20,17 @@ except ImportError:  # pragma: no cover - fallback for package-style execution
 
 OUTPUT_HTML_NAME = "rank_era_chart.html"
 OUTPUT_CSV_NAME = "rank_era_chart.csv"
+SITE_BUNDLE_DIR = "rank_era/site/makuuchi_rank_by_era"
 
-# Each era is (start_year_inclusive, end_year_exclusive, label)
-ERAS: list[tuple[int, int, str]] = [
-    (1958, 1966, "1958-1966"),
-    (1966, 1976, "1966-1976"),
-    (1976, 1986, "1976-1986"),
-    (1986, 1996, "1986-1996"),
-    (1996, 2006, "1996-2006"),
-    (2006, 2016, "2006-2016"),
-    (2016, 2026, "2016-2026"),
+# Each era is (start_year_inclusive, end_year_exclusive).
+ERAS: list[tuple[int, int]] = [
+    (1958, 1968),
+    (1968, 1978),
+    (1978, 1988),
+    (1988, 1998),
+    (1998, 2008),
+    (2008, 2018),
+    (2018, 2027),
 ]
 
 _SANYAKU_LEVELS = {
@@ -37,6 +39,16 @@ _SANYAKU_LEVELS = {
     MSD.SEKIWAKE,
     MSD.KOMUSUBI,
 }
+
+
+@dataclass(frozen=True)
+class MakuuchiRankByEraOutputs:
+    output_root: Path
+    bundle_dir: Path
+    diagnostic_csv: Path
+    page_json: Path
+    ranks_csv: Path
+    metadata_json: Path
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -82,6 +94,10 @@ def _default_output_csv() -> Path:
     return _repo_root() / "files" / "output" / OUTPUT_CSV_NAME
 
 
+def _default_output_root() -> Path:
+    return _repo_root() / "files" / "output"
+
+
 def _rank_label(chii) -> Optional[str]:
     """
     Map a Chii to the rank bucket used in the chart.
@@ -106,10 +122,18 @@ def _rank_label(chii) -> Optional[str]:
     return None
 
 
+def _format_era_label(start: int, end_exclusive: int) -> str:
+    return f"{start}-{end_exclusive - 1}"
+
+
+def _era_labels() -> list[str]:
+    return [_format_era_label(start, end) for start, end in ERAS]
+
+
 def _era_label(year: int) -> Optional[str]:
-    for start, end, label in ERAS:
+    for start, end in ERAS:
         if start <= year < end:
-            return label
+            return _format_era_label(start, end)
     return None
 
 
@@ -130,7 +154,7 @@ def compute_era_counts(history: History) -> dict[str, dict[str, int]]:
     annotation within each slot.
     """
     counts: dict[str, dict[str, int]] = {
-        era_label: defaultdict(int) for _, _, era_label in ERAS
+        era_label: defaultdict(int) for era_label in _era_labels()
     }
 
     for date, basho in history.items():
@@ -154,7 +178,7 @@ def write_matrix_csv(
     """
     Write a wide CSV of the form:
 
-        rank,1958-1966,1966-1976,...,2016-2026,total
+        rank,1958-1965,1966-1975,...,2016-2025,total
     """
     import csv
 
@@ -163,7 +187,7 @@ def write_matrix_csv(
         all_labels.update(counts.keys())
 
     rank_labels = _ordered_rank_labels(all_labels)
-    era_labels = [label for _, _, label in ERAS]
+    era_labels = _era_labels()
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -179,13 +203,162 @@ def write_matrix_csv(
     return output_path
 
 
+def write_makuuchi_rank_by_era_bundle(
+    era_counts: dict[str, dict[str, int]],
+    bundle_dir: Path,
+    *,
+    start: int,
+    end: int,
+    source_csv: Path,
+) -> MakuuchiRankByEraOutputs:
+    output_root = bundle_dir.parents[2]
+    bundle_dir.mkdir(parents=True, exist_ok=True)
+    outputs = MakuuchiRankByEraOutputs(
+        output_root=output_root,
+        bundle_dir=bundle_dir,
+        diagnostic_csv=source_csv,
+        page_json=bundle_dir / "page.json",
+        ranks_csv=bundle_dir / "ranks.csv",
+        metadata_json=bundle_dir / "metadata.json",
+    )
+    write_makuuchi_rank_by_era_csv(era_counts, outputs.ranks_csv)
+    _write_page_json(outputs.page_json, start=start, end=end)
+    _write_metadata_json(
+        outputs.metadata_json,
+        era_counts=era_counts,
+        start=start,
+        end=end,
+        source_csv=source_csv,
+    )
+    return outputs
+
+
+def write_makuuchi_rank_by_era_csv(
+    era_counts: dict[str, dict[str, int]],
+    output_path: Path,
+) -> Path:
+    import csv
+
+    all_labels: set[str] = set()
+    for counts in era_counts.values():
+        all_labels.update(counts.keys())
+
+    rank_labels = _ordered_rank_labels(all_labels)
+    era_labels = _era_labels()
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(output_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow(["rank", "era", "count", "total"])
+
+        for rank in rank_labels:
+            total = sum(era_counts[era].get(rank, 0) for era in era_labels)
+            for era in era_labels:
+                writer.writerow([rank, era, era_counts[era].get(rank, 0), total])
+
+    return output_path
+
+
+def build_makuuchi_rank_by_era_outputs(
+    history: History,
+    *,
+    output_root: Path | None = None,
+    start: int,
+    end: int,
+    print_summary: bool = True,
+) -> MakuuchiRankByEraOutputs:
+    if output_root is None:
+        output_root = _default_output_root()
+    era_counts = compute_era_counts(history)
+    diagnostic_csv = output_root / OUTPUT_CSV_NAME
+    write_matrix_csv(era_counts, diagnostic_csv)
+    outputs = write_makuuchi_rank_by_era_bundle(
+        era_counts=era_counts,
+        bundle_dir=output_root / SITE_BUNDLE_DIR,
+        start=start,
+        end=end,
+        source_csv=diagnostic_csv,
+    )
+    if print_summary:
+        _print_summary(era_counts)
+        print(f"Wrote CSV to {diagnostic_csv}")
+        print(f"Wrote bundle to {outputs.bundle_dir}")
+    return outputs
+
+
+def _write_page_json(output_path: Path, *, start: int, end: int) -> None:
+    era_labels = _era_labels()
+    page = {
+        "title": "Makuuchi Rank by Era",
+        "summary": "Historical Makuuchi rank structure by era.",
+        "subtitle": (
+            f"Makuuchi rank-slot appearances by era ({start}-{end}). "
+            "Side and annotation are pooled within each rank bucket."
+        ),
+        "data_sources": [
+            {
+                "id": "ranks",
+                "label": "Rank appearances by era",
+                "data": "ranks.csv",
+                "media_type": "text/csv",
+            }
+        ],
+        "chart": {
+            "x_field": "rank",
+            "y_field": "count",
+            "group_field": "era",
+            "group_order": era_labels,
+            "x_label": "Rank",
+            "x_type": "category",
+            "x_tickangle": -45,
+            "y_label": "Appearances",
+            "legend_title": "Era",
+            "barmode": "stack",
+        },
+        "rank_policy": {
+            "scope": "makuuchi",
+            "side": "pooled",
+            "annotation": "pooled_into_base_rank_bucket",
+            "buckets": ["Y", "O", "S", "K", "M<number>"],
+        },
+    }
+    output_path.write_text(json.dumps(page, indent=2) + "\n", encoding="utf-8")
+
+
+def _write_metadata_json(
+    output_path: Path,
+    *,
+    era_counts: dict[str, dict[str, int]],
+    start: int,
+    end: int,
+    source_csv: Path,
+) -> None:
+    all_labels: set[str] = set()
+    for counts in era_counts.values():
+        all_labels.update(counts.keys())
+    metadata = {
+        "analysis": "makuuchi_rank_by_era",
+        "bundle": "makuuchi_rank_by_era",
+        "start": start,
+        "end": end,
+        "row_count": len(all_labels),
+        "source_csv": source_csv.as_posix(),
+        "value_policy": (
+            "Rows are pooled makuuchi rank buckets. Side and annotation are "
+            "counted under the corresponding base rank bucket."
+        ),
+    }
+    output_path.write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
+
+
 def _plotly_traces(
     era_counts: dict[str, dict[str, int]],
     rank_labels: list[str],
 ) -> list[dict[str, object]]:
     traces: list[dict[str, object]] = []
 
-    for _, _, era_label in ERAS:
+    for era_label in _era_labels():
         traces.append(
             {
                 "type": "bar",
@@ -353,13 +526,13 @@ def _print_summary(era_counts: dict[str, dict[str, int]]) -> None:
     print("Rank appearances by era")
     print("=" * 80)
     print(f"{'Rank':<8}", end="")
-    for _, _, era_label in ERAS:
+    for era_label in _era_labels():
         print(f"{era_label:>12}", end="")
     print(f"{'Total':>12}")
     print("-" * 80)
 
     for rank in rank_labels:
-        values = [era_counts[era_label].get(rank, 0) for _, _, era_label in ERAS]
+        values = [era_counts[era_label].get(rank, 0) for era_label in _era_labels()]
         total = sum(values)
 
         print(f"{rank:<8}", end="")
@@ -387,11 +560,19 @@ def main() -> None:
 
     written_csv = write_matrix_csv(era_counts, output_csv)
     written_html = write_chart_html(era_counts, output_html)
+    written_bundle = write_makuuchi_rank_by_era_bundle(
+        era_counts=era_counts,
+        bundle_dir=_default_output_root() / SITE_BUNDLE_DIR,
+        start=args.start,
+        end=args.end,
+        source_csv=output_csv,
+    )
 
     _print_summary(era_counts)
     print()
     print(f"Wrote CSV to {written_csv}")
     print(f"Wrote chart to {written_html}")
+    print(f"Wrote bundle to {written_bundle.bundle_dir}")
 
 
 if __name__ == "__main__":

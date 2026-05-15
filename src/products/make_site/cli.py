@@ -18,6 +18,7 @@ from src.analysis.equelo.fixed_v2.v5_landmarks import (
 )
 from src.infra.live_store.api import get_history
 from src.misc.first_appearance import build_first_chii_appearance_outputs
+from src.misc.makuuchi_by_era import build_makuuchi_rank_by_era_outputs
 
 from .builder import build_site
 from .deploy import HOST, LOCAL_ROOT, REMOTE_ROOT, deploy_local, deploy_remote
@@ -108,6 +109,12 @@ def main() -> None:
     career_outputs = build_career_length_outputs(history, print_summary=False)
     retirement_outputs = build_rank_at_retirement_outputs(history, print_summary=False)
     build_first_chii_appearance_outputs(
+        history,
+        start=start_year,
+        end=end_year,
+        print_summary=False,
+    )
+    build_makuuchi_rank_by_era_outputs(
         history,
         start=start_year,
         end=end_year,

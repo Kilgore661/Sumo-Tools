@@ -338,14 +338,6 @@ banzuke_division_by_era = ExcludedPA(
 )
 
 
-makuuchi_rank_by_era = ExcludedPA(
-    id="makuuchi_rank_by_era",
-    heading="Makuuchi Rank by Era",
-    previous_view_kind="StandaloneHtmlView",
-    reason="Static HTML is outside the target PA architecture until migrated.",
-)
-
-
 division_stability = ChartPA(
     id="division_stability",
     heading="Division Stability",
@@ -388,6 +380,52 @@ division_stability = ChartPA(
         "group_field": "division",
         "hover_fields": ("num_basho", "frequency", "stdev_persistence"),
         "x_tickangle": -45,
+    },
+)
+
+
+makuuchi_rank_by_era = ChartPA(
+    id="makuuchi_rank_by_era",
+    heading="Makuuchi Rank by Era",
+    renderer="makuuchi_rank_by_era_chart",
+    primary_source="ranks",
+    data_sources=(
+        DataSource(
+            id="ranks",
+            label="Rank appearances by era",
+            path="data/ranks.csv",
+            media_type="text/csv",
+        ),
+    ),
+    traces=(
+        TraceSpec(
+            id="era_counts",
+            label="Era counts",
+            kind="stacked_bar",
+            x="rank",
+            y="count",
+            group_by="era",
+        ),
+    ),
+    x_axis=AxisSpec(
+        id="x",
+        source_field="rank",
+        label="Rank",
+    ),
+    y_axis=AxisSpec(
+        id="y",
+        source_field="count",
+        label="Appearances",
+        minimum=0,
+    ),
+    default_trace="era_counts",
+    provenance={
+        "rank_scope": "makuuchi",
+        "side_policy": "pooled",
+        "annotation_policy": "pooled_into_base_rank_bucket",
+        "rank_buckets": ("Y", "O", "S", "K", "M<number>"),
+        "x_tickangle": -45,
+        "legend_doubleclick": "custom_isolate_trace",
     },
 )
 

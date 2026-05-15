@@ -27,6 +27,12 @@ FIRST_CHII_APPEARANCE_SITE_BUNDLE = (
 FIRST_CHII_APPEARANCE_SITE_OUTPUT_DIR = (
     "banzuke-rank/rank-history/first-chii-appearance/data"
 )
+MAKUUCHI_RANK_BY_ERA_SITE_BUNDLE = (
+    OUTPUT_ROOT / "rank_era" / "site" / "makuuchi_rank_by_era"
+)
+MAKUUCHI_RANK_BY_ERA_SITE_OUTPUT_DIR = (
+    "banzuke-rank/banzuke-structure-over-time/makuuchi-rank-by-era/data"
+)
 CAREER_LENGTH_SITE_OUTPUT_DIR = "sumo-history/career-lifecycle/career-length/data"
 RANK_AT_RETIREMENT_SITE_OUTPUT_DIR = (
     "sumo-history/career-lifecycle/rank-at-retirement/data"

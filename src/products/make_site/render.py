@@ -11,6 +11,7 @@ from .classes.page_parts import CustomView
 from .renderers.career_length import write_career_length_page
 from .renderers.division_stability import write_division_stability_page
 from .renderers.first_chii_appearance import write_first_chii_appearance_page
+from .renderers.makuuchi_rank_by_era import write_makuuchi_rank_by_era_page
 from .renderers.rank_at_retirement import write_rank_at_retirement_page
 from .renderers.standing_win_probability import write_standing_win_probability_page
 from .renderers.tbd import write_tbd_page
@@ -200,6 +201,9 @@ def write_custom_page(
         return
     if kind == "first_chii_appearance":
         write_first_chii_appearance_page(page, target_path, asset_prefix)
+        return
+    if kind == "makuuchi_rank_by_era":
+        write_makuuchi_rank_by_era_page(page, target_path, asset_prefix)
         return
     if kind == "rank_at_retirement":
         write_rank_at_retirement_page(page, target_path, asset_prefix)

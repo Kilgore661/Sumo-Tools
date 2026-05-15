@@ -24,6 +24,7 @@ from .site_data_refs import (
     BASHO_RESULTS_DATA,
     DIVISION_STABILITY_DATA,
     FIRST_CHII_APPEARANCE_DATA,
+    MAKUUCHI_RANK_BY_ERA_DATA,
     STANDINGS_DATA,
     WIN_PROBABILITY_BY_STANDING_DATA,
     basho_results_data_refs,
@@ -111,12 +112,8 @@ PAGES = PageRegistry(
             id="makuuchi_rank_by_era",
             title="Makuuchi Rank by Era",
             summary="Historical Makuuchi rank structure by era.",
-            view=StandaloneHtmlView(
-                source=view(
-                    id="makuuchi_rank_by_era_html",
-                    source_path=OUTPUT_ROOT / "rank_era_chart.html",
-                )
-            ),
+            view=CustomView(kind="makuuchi_rank_by_era"),
+            data=MAKUUCHI_RANK_BY_ERA_DATA,
         ),
         "division_stability": Page(
             id="division_stability",

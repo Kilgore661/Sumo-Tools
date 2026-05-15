@@ -308,11 +308,11 @@ rank_at_retirement           -> ChartPA
 typical_equelo_values        -> TablePA
 division_stability           -> ChartPA
 first_chii_appearance        -> ChartPA
+makuuchi_rank_by_era         -> ChartPA
 v5_landmark_policy           -> EssayPA
 lower_rank_rating_stability  -> EssayPA
 finish_by_chii               -> ExcludedPA
 banzuke_division_by_era      -> ExcludedPA
-makuuchi_rank_by_era         -> ExcludedPA
 ```
 
 The excluded entries are deliberately total over the active nav tree while

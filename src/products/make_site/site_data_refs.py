@@ -16,6 +16,8 @@ from .site_config import (
     DIVISION_STABILITY_SITE_OUTPUT_DIR,
     FIRST_CHII_APPEARANCE_SITE_BUNDLE,
     FIRST_CHII_APPEARANCE_SITE_OUTPUT_DIR,
+    MAKUUCHI_RANK_BY_ERA_SITE_BUNDLE,
+    MAKUUCHI_RANK_BY_ERA_SITE_OUTPUT_DIR,
     RANK_AT_RETIREMENT_SITE_OUTPUT_DIR,
     STANDINGS_PUBLISHER_DATA,
     TYPICAL_EQUELO_VALUES_SITE_OUTPUT_DIR,
@@ -196,6 +198,28 @@ FIRST_CHII_APPEARANCE_DATA = (
         id="first_chii_appearance_metadata",
         source_path=FIRST_CHII_APPEARANCE_SITE_BUNDLE / "metadata.json",
         output_path=f"{FIRST_CHII_APPEARANCE_SITE_OUTPUT_DIR}/metadata.json",
+        media_type="application/json",
+    ),
+)
+
+
+MAKUUCHI_RANK_BY_ERA_DATA = (
+    data(
+        id="makuuchi_rank_by_era_page_config",
+        source_path=MAKUUCHI_RANK_BY_ERA_SITE_BUNDLE / "page.json",
+        output_path=f"{MAKUUCHI_RANK_BY_ERA_SITE_OUTPUT_DIR}/page.json",
+        media_type="application/json",
+    ),
+    data(
+        id="makuuchi_rank_by_era_ranks",
+        source_path=MAKUUCHI_RANK_BY_ERA_SITE_BUNDLE / "ranks.csv",
+        output_path=f"{MAKUUCHI_RANK_BY_ERA_SITE_OUTPUT_DIR}/ranks.csv",
+        media_type="text/csv",
+    ),
+    data(
+        id="makuuchi_rank_by_era_metadata",
+        source_path=MAKUUCHI_RANK_BY_ERA_SITE_BUNDLE / "metadata.json",
+        output_path=f"{MAKUUCHI_RANK_BY_ERA_SITE_OUTPUT_DIR}/metadata.json",
         media_type="application/json",
     ),
 )

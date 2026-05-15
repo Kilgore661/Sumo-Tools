@@ -111,10 +111,16 @@ def _build_eras(start_year: int, end_year: int, num_years_per_era: int) -> list[
     eras: list[tuple[int, int, str]] = []
     era_start = start_year
 
-    while era_start < end_year:
-        era_end = min(era_start + num_years_per_era, end_year)
-        eras.append((era_start, era_end, f"{era_start}-{era_end}"))
-        era_start = era_end
+    while era_start <= end_year:
+        era_end_exclusive = min(era_start + num_years_per_era, end_year + 1)
+        eras.append(
+            (
+                era_start,
+                era_end_exclusive,
+                f"{era_start}-{era_end_exclusive - 1}",
+            )
+        )
+        era_start = era_end_exclusive
 
     return eras
 
@@ -350,7 +356,9 @@ def write_chart_html(
         y: 1,
         xanchor: "left",
         x: 1.02,
-        traceorder: "reversed"
+        traceorder: "reversed",
+        itemclick: false,
+        itemdoubleclick: false
       }},
       margin: {{
         l: 80,
@@ -366,7 +374,63 @@ def write_chart_html(
       displaylogo: false
     }};
 
-    Plotly.newPlot("chart", traces, layout, config);
+    const chart = document.getElementById("chart");
+    let legendClickTimer = null;
+    let legendClickCurve = null;
+
+    function isolateTrace(curveNumber) {{
+      const target = chart.data[curveNumber];
+      if (!target) return;
+      const visibility = chart.data.map((trace, index) =>
+        index === curveNumber ? true : "legendonly"
+      );
+      Plotly.restyle(chart, {{ visible: visibility }});
+    }}
+
+    function toggleTrace(curveNumber) {{
+      const target = chart.data[curveNumber];
+      if (!target) return;
+      const nextVisibility = target.visible === true || target.visible === undefined
+        ? "legendonly"
+        : true;
+      Plotly.restyle(chart, {{ visible: nextVisibility }}, [curveNumber]);
+    }}
+
+    function handleLegendClick(event) {{
+      const curveNumber = event.curveNumber;
+      if (legendClickTimer && legendClickCurve === curveNumber) {{
+        window.clearTimeout(legendClickTimer);
+        legendClickTimer = null;
+        legendClickCurve = null;
+        isolateTrace(curveNumber);
+        return false;
+      }}
+
+      if (legendClickTimer) {{
+        window.clearTimeout(legendClickTimer);
+        toggleTrace(legendClickCurve);
+      }}
+
+      legendClickCurve = curveNumber;
+      legendClickTimer = window.setTimeout(() => {{
+        toggleTrace(curveNumber);
+        legendClickTimer = null;
+        legendClickCurve = null;
+      }}, 275);
+      return false;
+    }}
+
+    Plotly.newPlot(chart, traces, layout, config).then(() => {{
+      if (chart.removeAllListeners) {{
+        chart.removeAllListeners("plotly_legendclick");
+        chart.removeAllListeners("plotly_legenddoubleclick");
+      }}
+      chart.on("plotly_legendclick", handleLegendClick);
+      chart.on("plotly_legenddoubleclick", event => {{
+        isolateTrace(event.curveNumber);
+        return false;
+      }});
+    }});
   </script>
 </body>
 </html>
