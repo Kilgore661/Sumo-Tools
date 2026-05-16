@@ -134,11 +134,24 @@ clearly marked as prototype/legacy inclusions.
 The core public UI model is:
 
 ```text
-PublicUI = Navigation × ContentPanel
+PublicUI = Sidebar × ContentPanel
+
+Sidebar = Caption + Navigation + Hider
+
+ContentPanel = Heading + Options + Published Artefact
+
+Published Artefact = PATitle? + Artifact + Notes?
+
+PATitle = PAHead + PASubHead?
+
+Artifact = Chart | Table | Prose
 ```
 
+The `Sidebar` is the persistent site shell structure.  It contains site identity,
+the navigation tree, and a visibility control for hiding or showing the Sidebar.
+
 Clicking a navigation node selects a page. The selected page is rendered in the
-content panel.
+ContentPanel.
 
 Every selected page follows the same conceptual grammar:
 
@@ -151,6 +164,9 @@ Where:
 - `Heading` is page-level identity and immediate framing.
 - `Options` are reader-visible state for the page or artefact.
 - `Published Artefact` is the analytical thing being shown.
+- `PATitle`, when present, is artefact-level framing.
+- `Artifact` is the chart, table, or prose object being displayed.
+- `Notes`, when present, explain or qualify the Artifact.
 
 The options set may be empty. A non-interactive page is still treated as a page
 with:
@@ -161,13 +177,55 @@ Options = empty
 
 This keeps the page grammar uniform.
 
+The title ownership hierarchy is:
+
+```text
+Caption:
+    site identity
+
+Heading:
+    page identity
+
+PATitle:
+    artefact identity
+
+Artifact:
+    owns no caption/title
+```
+
+---
+
+# Sidebar
+
+The Sidebar is the site-shell structure that normally appears alongside the
+ContentPanel.
+
+It is not identical to Navigation.
+
+```text
+Sidebar = Caption + Navigation + Hider
+```
+
+## Caption
+
+The Caption represents site identity, publication identity, or installation
+identity. It does not represent the current page or current artefact.
+
+## Hider
+
+The Hider is a UI-shell visibility control that hides, collapses, or restores
+the Sidebar.
+
+The Hider is not an Option. Options affect how the current PA is viewed. The
+Hider affects how the site shell itself is realized.
+
 ---
 
 # Navigation
 
 Navigation represents the semantic structure of the publication space.
 
-It is not merely a visual sidebar.
+It is a component of the Sidebar, not the whole Sidebar.
 
 Navigation is a rooted labelled tree. A navigation node has:
 
@@ -225,9 +283,10 @@ A page has:
 - static asset dependencies,
 - public status/readiness metadata.
 
-A page owns page-level identity and organization. Charts, tables, embeds, or
+A page owns page-level identity and organization. Charts, tables, prose artefacts, embeds, or
 sections inside the page should not silently assume ownership of page-level
-concerns.
+concerns. Artefact-level framing belongs to PATitle rather than to the Artifact
+itself.
 
 A typical page contains:
 
@@ -252,6 +311,8 @@ It is responsible for organizing:
 - page summary,
 - page-level options,
 - sections,
+- PAs,
+- PATitles,
 - charts,
 - tables,
 - prose,
@@ -297,7 +358,25 @@ be serialisable into the page URL when it affects shareable page meaning.
 
 A Published Artefact, or PA, is the analytical object a public page presents.
 
+The core PA grammar is:
+
+```text
+PA = PATitle? + Artifact + Notes?
+
+PATitle = PAHead + PASubHead?
+
+Artifact = Chart | Table | Prose
+```
+
 A PA is a renderer contract, not necessarily a physical HTML file.
+
+The PA may include optional artefact-level framing through `PATitle`.  This is
+useful when a page heading remains stable but Options change which Artifact is
+shown, or when the selected Artifact needs its own caption distinct from the
+page heading.
+
+The Artifact itself does not own a caption or title. If a chart, table, or prose
+artefact needs framing, that framing is supplied by `PATitle`.
 
 Supported target kinds include:
 
@@ -320,6 +399,7 @@ At minimum, a PA manifest records:
 - data sources,
 - options consumed by the PA,
 - default state relevant to the PA,
+- optional PATitle or artefact framing metadata,
 - notes/caveats,
 - provenance,
 - validation requirements.
@@ -334,6 +414,45 @@ Target PA classes currently include:
 
 `ExcludedPA` may be used as a marker for active navigation items that remain
 outside the direct PA architecture.
+
+---
+
+# PATitle
+
+PATitle provides artefact-level framing for the currently displayed Artifact.
+
+It is distinct from:
+
+- site identity, owned by Caption;
+- page identity, owned by Heading;
+- internal labels owned by the Artifact.
+
+PATitle has the form:
+
+```text
+PATitle = PAHead + PASubHead?
+```
+
+PATitle may be empty. An empty PATitle means that the page Heading supplies all
+needed reader-facing framing for the current PA.
+
+---
+
+# Artifact
+
+An Artifact is the chart, table, or prose object displayed by a PA.
+
+```text
+Artifact = Chart | Table | Prose
+```
+
+Artifacts are opaque to the publication grammar. The grammar does not inspect
+Plotly internals, table implementation details, or rendering-library structures
+in order to discover public-site meaning.
+
+Artifacts do not own captions or titles. Any title-like or caption-like public
+framing inside a chart/table/prose artifact is non-conforming unless it is part
+of the artifact's internal syntax rather than publication framing.
 
 ---
 
@@ -363,6 +482,13 @@ A table manifest may define:
 - provenance,
 - validation requirements.
 
+Tables may internally contain column headings, row labels, group labels, sorting
+indicators, and other structural labels. These are internal table structure, not
+publication framing.
+
+Tables do not own captions or titles. If a table needs artefact-level framing,
+it is supplied by PATitle.
+
 Rendering consistency matters because tables communicate semantic structure.
 
 ---
@@ -376,21 +502,30 @@ A chart is not merely a Plotly object or generated HTML file.
 A chart may have:
 
 - analytical meaning,
-- title,
-- subtitle,
 - traces or series,
 - axes,
+- axis labels,
+- legends,
+- hover text,
+- annotations,
 - options,
 - notes,
 - provenance,
 - supporting data sources,
 - rendering requirements.
 
+Charts do not own captions or titles. If a chart needs artefact-level framing,
+it is supplied by PATitle.
+
+Plotting-library properties such as `layout.title` are implementation features,
+not public-site ownership rules. If a Plotly title is being used as publication
+or artefact framing, it should be removed and represented as Heading or PATitle.
+
 Questions such as:
 
 ```text
 Why does this chart have a box?
-Who owns the title?
+Who owns the caption?
 Where do notes belong?
 What does this control affect?
 ```
@@ -558,8 +693,13 @@ Examples:
 
 ```text
 PublicUI comprises:
-    Navigation
+    Sidebar
     ContentPanel
+
+Sidebar comprises:
+    Caption
+    Navigation
+    Hider
 ```
 
 ```text
@@ -585,12 +725,17 @@ Defines acceptable realization.
 Examples:
 
 ```text
+The standard renderer presents Sidebar
+as a site-shell region containing Caption, Navigation, and Hider.
+
 The standard renderer presents Navigation
-as a nested sidebar or responsive equivalent.
+as a nested tree within that Sidebar or responsive equivalent.
 ```
 
 ```text
-Chart-local notes render inside or immediately below the chart block.
+PATitle renders as artefact-level framing when the PA requires it.
+
+Notes render according to PA ownership and renderer layout policy.
 ```
 
 ```text
@@ -616,7 +761,7 @@ Ownership boundaries are central to the system.
 
 Repeated friction usually indicates implicit or confused ownership:
 
-- who owns the title,
+- who owns the title or caption,
 - who owns controls,
 - who owns notes,
 - who owns legends,
@@ -665,7 +810,8 @@ Useful forms include:
 For example:
 
 ```text
-make_PublicUI : Navigation × ContentPanel -> PublicUI
+make_PublicUI : Sidebar × ContentPanel -> PublicUI
+make_Sidebar : Caption × Navigation × Hider -> Sidebar
 ```
 
 or:

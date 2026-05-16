@@ -86,17 +86,29 @@ Examples:
 
 ```text
 PublicUI comprises:
-    Navigation
+    Sidebar
     ContentPanel
+
+Sidebar comprises:
+    Caption
+    Navigation
+    Hider
 ```
 
 ```text
-A Chart may have:
-    title
-    notes
-    controls
-    figure
-    provenance
+PA comprises:
+    optional PATitle
+    Artifact
+    optional Notes
+
+Artifact is one of:
+    Chart
+    Table
+    Prose
+```
+
+```text
+Navigation is a rooted labelled tree.
 ```
 
 ## Rendering contract
@@ -106,15 +118,23 @@ Defines how those things may be acceptably realized.
 Examples:
 
 ```text
-Navigation is rendered as a nested public structure.
+Sidebar is rendered as a persistent site-shell region.
 ```
 
 ```text
-Chart notes are rendered near the chart when they belong to the chart.
+Navigation is rendered as a nested public structure inside the Sidebar.
 ```
 
 ```text
-Page-level notes are rendered outside individual charts or tables.
+PATitle renders as artefact-level framing when the PA requires it.
+```
+
+```text
+Artifacts do not render their own public captions or titles.
+```
+
+```text
+Notes render according to PA ownership and renderer layout policy.
 ```
 
 The renderer must respect the semantic ownership implied by the model.
@@ -127,23 +147,75 @@ At the highest level, the standard public UI is rendered as:
 
 ```text
 PublicUI
-  Navigation region
-  Content region
+  Sidebar region
+  ContentPanel region
 ```
 
 On desktop-width displays, this is normally realized as:
 
 ```text
-left navigation region
-right content region
+left Sidebar region
+right ContentPanel region
 ```
 
 Responsive layouts may collapse or move regions, but the semantic distinction
 must remain.
 
-The navigation region is responsible for publication structure.
+The Sidebar region is responsible for site identity, publication navigation,
+and Sidebar visibility controls.
 
-The content region is responsible for the active analytical page.
+The ContentPanel region is responsible for the active analytical page.
+
+---
+
+# Sidebar Rendering
+
+The Sidebar realizes:
+
+```text
+Sidebar = Caption + Navigation + Hider
+```
+
+The standard desktop renderer should treat the Sidebar as a fixed-width vertical
+site-shell region.
+
+## Caption
+
+Caption renders site identity.  In the current standard renderer it consists of:
+
+```text
+line 1: "Gaspode-san's"
+line 2: "Sumo Lab"
+line 3: deployment timestamp
+```
+
+The deployment timestamp uses the format:
+
+```text
+YYYY/MM/DD HH:MM:SS
+```
+
+Caption uses Sidebar typography and colour defaults. The first two lines use
+large site-title typography; the timestamp is visually muted.
+
+## Hider
+
+Hider allows the user to hide, collapse, or restore the Sidebar.
+
+Hider is not an Option. It affects the site shell, not the current PA state.
+
+The Hider is still work in progress. The likely realization is a sticky widget
+near the Sidebar/viewport boundary, displaying `<` when the Sidebar is visible
+and `>` when it is hidden.
+
+The Hider must not obscure Caption text, the deployment timestamp, or page
+heading text.
+
+## Sidebar overflow
+
+The Sidebar should scroll independently when its contents exceed available
+vertical space. Scrolling the Sidebar should not scroll the ContentPanel.
+
 
 ---
 
@@ -204,17 +276,28 @@ The ContentPanel is the primary rendered region for analytical content.
 
 It owns page-level presentation structure.
 
+The standard renderer realizes ContentPanel approximately as:
+
+```text
+ContentPanel
+    = Heading band
+    + Body region
+
+Body region
+    = Options region
+    + PA region
+```
+
+These are renderer/layout concepts rather than semantic entities.
+
 The renderer should clearly distinguish:
 
 - page title,
 - page summary or introduction,
 - page-level options,
-- page-level notes,
-- sections,
-- charts,
-- tables,
-- prose,
-- controls,
+- PA framing,
+- artifacts,
+- notes,
 - metadata,
 - provenance,
 - prototype/legacy embeds.
@@ -222,6 +305,47 @@ The renderer should clearly distinguish:
 The ContentPanel should not become an undifferentiated list of visual widgets.
 Its rendered structure should communicate the semantic organization of the
 active page.
+
+## Heading
+
+Heading renders page-level identity and framing.
+
+In the current standard renderer:
+
+```text
+MainHeading: h2 scale
+SubHeading: h3 scale
+```
+
+These are typography scales/tokens rather than HTML heading semantics.
+
+## Body region
+
+The standard renderer positions Options to the left and the PA to the right.
+
+Exact sizing and overflow behaviour remain renderer policy.
+
+## Options rendering
+
+Options are rendered according to their semantic tree.
+
+The current standard renderer presents Options as:
+
+- an indented,
+- hierarchical,
+- non-numbered,
+- non-collapsible list.
+
+The Options region heading is:
+
+```text
+Options
+```
+
+using h3 scale.
+
+Option labels and OptionGroup labels use h4 scale. Nested OptionGroups do not
+reduce typography scale; hierarchy is expressed by indentation and grouping.
 
 ---
 
@@ -301,6 +425,16 @@ Sections should not be confused with arbitrary visual cards.
 A Published Artefact, or PA, is rendered according to its manifest class and
 renderer id.
 
+The current conceptual PA shape is:
+
+```text
+PA = PATitle? + Artifact + Notes?
+
+PATitle = PAHead + PASubHead?
+
+Artifact = Chart | Table | Prose
+```
+
 The renderer should treat PA manifests as intentional site-facing inputs, not as
 HTML blobs to be reverse-engineered.
 
@@ -309,6 +443,7 @@ Common PA rendering responsibilities include:
 - resolving data sources,
 - applying default state,
 - rendering consumed options,
+- rendering PATitle where supplied,
 - rendering notes/caveats,
 - rendering provenance,
 - applying validation rules,
@@ -317,41 +452,87 @@ Common PA rendering responsibilities include:
 Different PA classes may have different visual forms, but they should share
 common ownership and page-integration conventions.
 
+## PATitle rendering
+
+PATitle provides artefact-level framing for the currently displayed Artifact.
+
+It may be empty.
+
+In the current standard renderer:
+
+```text
+PAHead: h4 scale
+PASubHead: h5 scale
+```
+
+PATitle belongs to the PA, not to the Artifact.
+
+## Artifact rendering
+
+The Artifact is rendered within the Artifact viewport allocated by the renderer.
+
+The Artifact must not own or duplicate public captions/titles. If public
+framing is needed, it must be supplied by PATitle.
+
+## Notes rendering
+
+Notes are optional.
+
+Notes are rendered as an ordered list of prose notes.
+
+The Notes heading is:
+
+```text
+Notes
+```
+
+using h5 scale.
+
+Notes may occupy a reserved region at the bottom of the PA realization. When
+that happens, Notes determine the remaining viewport available to PATitle and
+Artifact.
+
+Semantic association does not imply document-flow order: Notes belong to the PA,
+but the renderer decides how to allocate space and scrolling.
+
 ---
 
 # Chart Rendering
 
 Charts are semantic analytical artefacts.
 
-A rendered chart block may include:
-
-```text
-Chart
-  title
-  subtitle
-  controls
-  figure
-  legend
-  notes
-  provenance
-```
+A chart is not merely a Plotly object or generated HTML file.
 
 The renderer should preserve the distinction between:
 
-- the chart as an analytical artefact,
+- the Chart as an analytical Artifact,
 - the plotting-library figure,
+- PATitle framing supplied outside the Chart,
 - surrounding explanatory text,
 - chart-local controls,
 - page-level context,
-- and producer-specific data/config.
+- producer-specific data/config.
 
 ## Chart title ownership
 
-A chart title belongs to the chart only when it identifies the analytical
-meaning of that chart.
+Charts do not own public captions or titles.
 
-A page title or section title should not be duplicated as a chart title unless
-that duplication is intentional and meaningful.
+A Plotly title or title-like annotation should not be used as publication or
+artefact framing. If such framing is needed, it belongs in PATitle.
+
+Charts may still contain internal chart syntax such as axis labels, legend
+labels, trace labels, tick labels, and annotations tied to the visual analysis.
+
+## Chart responsiveness
+
+Charts are responsive.
+
+Charts are fitted to the available Artifact viewport.
+
+Charts scale to occupy the available width and height while preserving usability
+and semantic content.
+
+Chart sizing is determined by the Artifact viewport allocated by the renderer.
 
 ## Chart container
 
@@ -367,21 +548,6 @@ Ask:
 Does this visual boundary clarify the semantic boundary?
 ```
 
-## Chart notes
-
-Chart notes should be rendered near the chart when they belong specifically to
-that chart.
-
-Examples include:
-
-- interpretation notes,
-- caveats,
-- data provenance,
-- methodological comments,
-- legend explanations.
-
-Page-level commentary should not be visually attached to an individual chart.
-
 ## Chart controls
 
 Controls that affect only one chart should be rendered as chart-local controls.
@@ -389,13 +555,18 @@ Controls that affect only one chart should be rendered as chart-local controls.
 Controls that affect multiple artefacts should be rendered at the smallest
 semantic scope that contains all affected artefacts.
 
+Plotly interaction affordances, such as zoom, pan, hover, autoscale, legend
+clicking, and trace visibility, are chart/library affordances. They are not
+capital-O Options unless they represent reader-adjustable semantic state that
+belongs to the page or PA contract.
+
 ## Plotly and generated figures
 
 Plotly or other figure libraries are implementation mechanisms.
 
-Their generated structure should not decide page-level ownership. The renderer
-should wrap or adapt library output so that public-site title, note, control,
-and provenance conventions remain consistent.
+Their generated structure should not decide page-level or PA-level ownership.
+The renderer should wrap or adapt library output so that public-site title,
+note, control, and provenance conventions remain consistent.
 
 ---
 
@@ -403,17 +574,7 @@ and provenance conventions remain consistent.
 
 Tables are semantic analytical presentations of structured information.
 
-A rendered table block may include:
-
-```text
-Table
-  title
-  subtitle
-  controls
-  table body
-  notes
-  provenance
-```
+A table is not merely a dataframe dump or HTML table element.
 
 The renderer should preserve the difference between:
 
@@ -422,6 +583,39 @@ The renderer should preserve the difference between:
 - navigational table,
 - diagnostic table,
 - layout table.
+
+## Table title ownership
+
+Tables do not own public captions or titles.
+
+If a table needs artefact-level framing, that framing belongs in PATitle.
+
+Tables may contain internal structural labels such as column headings, row
+labels, group labels, and sorting indicators. These are not publication
+captions/titles.
+
+## Table typography
+
+In the current standard renderer:
+
+- column headings use h4 scale, bold;
+- cell values use h4 scale, normal weight.
+
+## Table viewport and overflow
+
+A table is rendered into the Artifact viewport.
+
+If there are more rows than the viewport can show, scrolling should be available
+for the row area.
+
+For analytical tables, the preferred behaviour is:
+
+- row data scrolls;
+- column headings remain visible;
+- PATitle, when present, remains visible.
+
+The renderer may realize PATitle and column headings as a sticky header stack.
+This is a rendering technique, not a semantic structure.
 
 ## Column semantics
 
@@ -462,8 +656,8 @@ A large diagnostic or exploratory table may require it.
 
 ## Table notes
 
-Table notes should be rendered near the table when they explain table-specific
-structure, caveats, or interpretation.
+Table-specific notes should be represented as Notes belonging to the PA/table
+context rather than as captions owned by the table element.
 
 They should not be used as a substitute for page-level explanation.
 
@@ -721,7 +915,7 @@ However, the renderer should preserve:
 
 - navigation hierarchy,
 - active page state,
-- title ownership,
+- title/caption ownership,
 - note ownership,
 - control scope,
 - artefact boundaries,
@@ -790,6 +984,8 @@ Examples:
 
 ```text
 navigation-node
+site-caption
+sidebar
 page-title
 page-summary
 page-options
@@ -833,7 +1029,7 @@ Use these questions as a practical checklist:
 ## Artefacts
 
 - Are charts, tables, prose, embeds, and multi-view artefacts visually distinct where needed?
-- Does each artefact preserve its own title, controls, notes, and provenance?
+- Does each PA preserve PATitle, controls, notes, and provenance without letting the Artifact own public captions/titles?
 - Are table column semantics reflected consistently?
 - Are Plotly/generated outputs wrapped so that they follow public-site conventions?
 
@@ -870,7 +1066,7 @@ function happens to emit.
 
 Avoid pages where it is unclear who owns:
 
-- titles,
+- titles/captions,
 - notes,
 - controls,
 - legends,
