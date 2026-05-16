@@ -3,16 +3,7 @@
 This directory records the public-site design, producer contracts, site-builder
 notes, and open work for `src.products.make_site`.
 
-The docs are split into:
 
-* `current/` - live policy, requirements, implementation notes, and open work;
-* `archive/` - preserved design notes and exploratory material that helped get
-  the site to its current shape but should not be treated as the first place to
-  look for current policy.
-
-This reorganisation is intentionally preservation-first. The archived notes
-have not been aggressively summarised or deleted. They remain useful for
-understanding why the current decisions were made.
 
 ## Start Here
 
