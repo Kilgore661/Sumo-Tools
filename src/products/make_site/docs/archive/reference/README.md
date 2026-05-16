@@ -15,11 +15,10 @@ Use:
 
 ## Preserved Notes
 
-| Document | Consolidated into |
-| --- | --- |
-| `Public Site Requirements.md` | `../Public Site Contract.md` |
-| `Public Site Specification.md` | `../Public Site Contract.md` |
-| `Public Site Design.md` | `../Public Site Contract.md` |
-| `Make Site Builder Notes.md` | `../Implementation State.md` |
+| Document                          | Consolidated into            |
+| --------------------------------- | ---------------------------- |
+| `Public Site Requirements.md`     | `../Public Site Contract.md` |
+| `Public Site Specification.md`    | `../Public Site Contract.md` |
+| `Public Site Design.md`           | `../Public Site Contract.md` |
+| `Make Site Builder Notes.md`      | `../Implementation State.md` |
 | `Site Definition Handoff Memo.md` | `../Implementation State.md` |
-

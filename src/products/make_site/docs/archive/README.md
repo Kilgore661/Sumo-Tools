@@ -3,8 +3,6 @@
 This directory records the public-site design, producer contracts, site-builder
 notes, and open work for `src.products.make_site`.
 
-
-
 ## Start Here
 
 Read the current docs in this order when trying to understand the public site:
