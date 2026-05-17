@@ -246,11 +246,15 @@ Minimal chart artifact manifest:
 ChartArtifactManifest = {
     "kind": "chart",
     "renderer": "plotly",
-    "data": list[DataBindingManifest],
-    "layout": dict | None,
-    "traces": list[dict] | None,
+    "dataSources": list[DataBindingManifest],
+    "traces": list[TraceSpecManifest],
+    "xAxis": AxisSpecManifest | None,
+    "yAxis": AxisSpecManifest | None,
+    "provenance": dict,
 }
 ```
+
+For the first implementation slice, the chart artifact should follow the structured PA-manifest steer rather than full Plotly JSON or page-specific JS. The JS renderer may lower this structured chart contract to Plotly traces/layout.
 
 Minimal table artifact manifest:
 
@@ -494,7 +498,7 @@ ContentPanel
 }
 ```
 
-The exact data path and whether the Plotly spec is stored as JSON, traces/layout, or producer-specific data remains to be checked against the existing PA manifest work.
+Prototype encounter result: the deployed/custom renderer does not consume a full Plotly JSON spec. It loads `data/page.json`, `data/divisions.csv`, and `data/metadata.json`, then page-specific JS builds Plotly traces and layout. The existing PA manifest gives a cleaner steer: `ChartPA` declares a CSV data source (`data/divisions.csv`), a `TraceSpec(kind="stacked_bar", x="era", y="average_rikishi", group_by="division")`, x/y axis specs, and provenance such as division order and tick angle. No UI model change is needed; the refinement belongs inside the `ChartArtifact` implementation contract.
 
 ### Expected DOM skeleton
 
@@ -613,4 +617,3 @@ DataSource    -> DataBinding?
 ```
 
 The goal is not to preserve the existing code, but to reuse useful answers where the prototype already found them.
-

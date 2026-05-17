@@ -8,7 +8,6 @@ It complements:
 
 - `01 Public Site Model.md`, which describes the intended semantic model.
 - `02 Rendering Model.md`, which describes the intended rendering contracts.
-- `06 UI Model Implementation Contract.md`, which describes the current model-to-renderer implementation contract.
 
 This document is deliberately more concrete. It describes what the code currently
 does, where the implementation already matches the model, and where it is still
@@ -21,8 +20,6 @@ a static-site builder with an emerging PA-manifest runtime
 ```
 
 rather than as a finished semantic publication runtime.
-
-Recent UI Model case studies clarified that the implementation already contains much of the intended model implicitly.  The main gap is therefore not absence of semantic structure, but that the structure is distributed across PA manifest classes, page-specific renderers, copied applications, JavaScript, and CSS rather than being realized through one explicit rendering contract.
 
 ---
 
@@ -69,17 +66,6 @@ The implementation already contains several important semantic structures:
 However, not all rendered pages are yet driven uniformly by those structures.
 
 The current system is therefore partly canonical model and partly adapter layer.
-
-The case-study mapping is encouraging:
-
-```text
-ChartPA      -> PA with Chart Artifact
-TablePA      -> PA with Table Artifact
-MultiViewPA  -> PASet
-view_option  -> PASelector
-```
-
-This means the existing PA-manifest work is best understood as the most concrete precursor to the new implementation contract, even though some names and field boundaries still need normalisation.
 
 ---
 
@@ -208,14 +194,11 @@ This is a good implementation counterpart to the semantic model in
 
 The important current limitation is that the model is still fairly shallow.
 For example, `Page` has title, summary, view, options, assets, and data, but it
-does not yet directly model `Contents`, PA ownership, notes, provenance, artefact
-ownership, or selected-PA structure.
+does not yet directly model sections, notes, provenance, artefact ownership, or
+page-level semantic structure.
 
 Those richer semantics currently appear mostly in PA manifests or page-specific
-renderers.  This is acceptable as a transitional state: the likely direction is
-not to overload `Page`, but to make the relationship between page identity,
-ContentPanel, Contents, PA, PASet, and Artifact explicit in the renderer and
-manifest contract.
+renderers.
 
 ---
 
@@ -677,29 +660,6 @@ This is already much richer than the top-level `Page` model.
 The PA manifests are therefore currently the most concrete implementation of the
 semantic publication grammar.
 
-The four UI Model case studies confirm that these classes were already close to
-the desired model:
-
-```text
-Banzuke Division by Era       -> ChartPA / PA with Chart Artifact
-Win Probability by Standing   -> optioned ChartPA
-Career Length                 -> MultiViewPA / PASet
-Standings by Wins             -> rich TablePA
-```
-
-The main normalisation work is to align names and boundaries with the explicit
-model:
-
-```text
-MultiViewPA        -> PASet
-view_option        -> PASelector
-ChartPA            -> PA with Chart Artifact
-TablePA            -> PA with Table Artifact
-Note               -> PA Note, possibly with relevance targets
-DataSource         -> DataBinding / dataSources
-provenance bucket  -> split into provenance, parameters, render policy, display policy, and ordering where appropriate
-```
-
 ---
 
 # Data and Assets
@@ -905,32 +865,21 @@ The PA manifest registry defines published artefacts by page id.
 
 This is acceptable for now, but the ownership relation should become clearer.
 
-The current working model resolves the main conceptual shape as:
+Future question:
 
 ```text
-ContentPanel
-  = Heading + Options? + Contents
-
-Contents
-  = PA | PASet
-
-PASet
-  = PASelector + PA+
+Is every Page backed by one PA, many PAs, or a PageBody that contains PAs?
 ```
-
-The implementation still needs to make this relationship explicit in code and
-manifest layout.
 
 ## 5. Top-level `Page` is less expressive than PA manifests
 
 The current `Page` class has title, summary, view, options, assets, and data.
 
-PA manifests contain richer semantics such as notes, provenance, columns,
-column groups, traces, data sources, selected views, and consumed options.
+PA manifests contain richer semantics such as notes, provenance, sections,
+columns, traces, and consumed options.
 
-The likely direction is not to overload `Page`, but to clarify how a page route
-and page identity lead to a ContentPanel whose Contents are either a PA or a
-PASet.
+The likely direction is not to overload `Page`, but to clarify how a page owns or
+contains artefacts.
 
 ## 6. Some navigation nodes are intentional but not implemented
 
@@ -954,16 +903,13 @@ The implementation should move toward:
 
 ```text
 Page
-    owns page-level identity, route, summary, and navigation placement
-
-ContentPanel / Contents
-    own the selected page's rendered publication structure
+    owns page-level identity, route, summary, and page-level structure
 
 Published Artefact
     owns analytical artefact semantics
 
 Renderer
-    realizes ContentPanel, Contents, PA, PASet, and Artifact semantics consistently
+    realizes Page and Published Artefact semantics consistently
 ```
 
 This suggests the following direction:
@@ -973,10 +919,9 @@ This suggests the following direction:
 3. promote stable page renderers into explicit view sorts or PA renderers;
 4. use PA manifests as the canonical form for charts/tables/essays where
    practical;
-5. make ContentPanel, Contents, PA, PASet, and Artifact ownership explicit;
-6. make page-level vs artefact-level ownership explicit;
-7. make shell URL/deep-link capabilities explicit rather than page-id based;
-8. keep copied legacy pages only as migration adapters.
+5. make page-level vs artefact-level ownership explicit;
+6. make shell URL/deep-link capabilities explicit rather than page-id based;
+7. keep copied legacy pages only as migration adapters.
 
 ---
 
@@ -998,21 +943,22 @@ placeholder
 PA runtime
 ```
 
-## Implement the ContentPanel / Contents relationship
+## Clarify PA/page relationship
 
-The working model now treats the rendered page body as:
+Decide whether the common case is:
 
 ```text
-ContentPanel
-  = Heading + Options? + Contents
-
-Contents
-  = PA | PASet
+Page -> PA
 ```
 
-Near-term work is to reflect this explicitly in manifests and renderer code,
-rather than leaving the relationship implicit in `Page.view`, custom renderers,
-or page-specific JavaScript.
+or:
+
+```text
+Page -> PageBody -> one or more PAs
+```
+
+The latter is probably more general, but the former may be sufficient for many
+current pages.
 
 ## Move shell parameter behavior into model
 
@@ -1106,7 +1052,7 @@ The most important completed pieces are:
 - route derivation from navigation;
 - explicit asset/data references;
 - page-specific renderers;
-- PA manifest classes that already encode much of the implicit UI model;
+- PA manifest classes;
 - active PA validation;
 - an experimental PA runtime skeleton;
 - build/deploy CLI support.
@@ -1114,14 +1060,12 @@ The most important completed pieces are:
 The most important remaining issues are:
 
 - reducing `CustomView` string dispatch;
-- making ContentPanel / Contents / PA / PASet ownership explicit;
-- reconciling PA manifest names and fields with the implementation contract;
+- clarifying page vs PA ownership;
 - replacing hard-coded shell parameter modes;
 - deciding whether the iframe shell is transitional or permanent;
 - moving more pages from copied/custom adapters toward semantic manifests;
 - making implemented/planned/placeholder navigation states explicit.
 
 The current code therefore already contains the outline of the desired semantic
-publication system.  The case studies suggest that the old implementation was
-working toward a coherent implicit model; the next implementation pass should
-make that model explicit and render from it deliberately.
+publication system, but the renderer and runtime are still migrating toward that
+model.

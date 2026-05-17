@@ -9,14 +9,11 @@ It complements:
 
 - `01 Public Site Model.md`, which defines the semantic publication model;
 - `02 Rendering Model.md`, which defines renderer responsibilities;
-- `03 Implementation State.md`, which describes the current code reality;
-- `06 UI Model Implementation Contract.md`, which defines the current
-  implementation-facing contract.
+- `03 Implementation State.md`, which describes the current code reality.
 
-This document is deliberately more concrete than the first two. Its role is to
-preserve feature-level decisions that would otherwise be scattered across
-individual design notes, work plans, review CSVs, migration memos, and case
-studies.
+This document is deliberately more concrete than the first two.  Its role is to
+preserve the feature-level decisions that would otherwise be scattered across
+individual design notes, work plans, review CSVs, and migration memos.
 
 In short:
 
@@ -26,22 +23,11 @@ Public Site Model
     -> producing feature-specific contracts and migration decisions
 ```
 
-The recent case-study work reinforces an important interpretation:
-
-```text
-The existing code already contained much of the right implicit model.
-The task is to make that model explicit and render it deliberately.
-```
-
-The case studies therefore do not replace the public-site model. They test it,
-sharpen it, and identify which implementation concerns belong inside charts,
-tables, options, PA sets, notes, or renderer policy.
-
 ---
 
 # Current Feature Families
 
-The current `make_site` feature work falls into these main families:
+The current make_site feature work falls into these main families:
 
 1. Basho Results Browser;
 2. existing public table applications;
@@ -49,40 +35,10 @@ The current `make_site` feature work falls into these main families:
 4. career lifecycle pages;
 5. Equelo public-facing pages and naming;
 6. producer writers and prototype embeds;
-7. shared chart/table behaviour and styling;
-8. UI-model case studies and synthesis.
+7. shared chart/table behaviour and styling.
 
-These feature families are not separate architectural systems. They are test
-cases for the same underlying publication grammar:
-
-```text
-ContentPanel
-  = Heading + Options? + Contents
-
-Contents
-  = PA | PASet
-
-PASet
-  = PASelector + PA+
-
-PA
-  = PATitle? + Artifact + Notes?
-
-Artifact
-  = Chart | Table | Prose
-```
-
-Differences between features should therefore be explained semantically:
-
-```text
-chart vs table artifact
-single PA vs PASet
-content selector vs filter
-static notes vs state-sensitive notes
-public exhibit vs diagnostic/prototype content
-```
-
-They should not be accidental consequences of old renderer history.
+These feature families are not separate architectural systems.  They are test
+cases for the same underlying publication grammar.
 
 ---
 
@@ -118,26 +74,25 @@ BRB is a table-first analytical page.
 The core page shape is:
 
 ```text
-ContentPanel
-    Heading
-    Options
-    Contents = PA
-        Table Artifact
-        Notes / provenance
+Page
+    title
+    date/division/options area
+    results table
+    notes and provenance
 ```
 
-The table is one row per rikishi. It is not a banzuke-style east/west paired
+The table is one row per rikishi.  It is not a banzuke-style east/west paired
 table by default.
 
 The intended standard layout is close to:
 
 ```text
-title / heading area
-options area | table/content area
+title bar
+options panel | table/content panel
 ```
 
-where the options area controls page/table state and the content area owns the
-rendered table PA.
+where the options panel controls page/table state and the content panel owns the
+rendered table.
 
 ## Date State
 
@@ -196,7 +151,7 @@ Expected columns include some combination of:
 
 `Shikona` and `Score` are always-visible core columns.
 
-A row number, if present, is display structure rather than analytical data. It
+A row number, if present, is display structure rather than analytical data.  It
 should not be treated as a normal sortable data column unless there is an
 explicit feature reason.
 
@@ -235,7 +190,7 @@ Required behaviours:
 
 ## Notes and Provenance
 
-BRB needs page/PA provenance because some values depend on selected state.
+BRB needs page-level provenance because some values depend on page state.
 
 Examples:
 
@@ -244,13 +199,9 @@ view_state = final | live
 after_chii_kind = actual_next_banzuke | projected | unavailable
 ```
 
-Such state should not be repeated as if it were row-local data. It belongs to
+Such state should not be repeated as if it were row-local data.  It belongs to
 the page/table contract and should be surfaced in titles, notes, headings, or
 metadata where appropriate.
-
-Under the current UI Model, Notes remain PA-owned. A BRB note may pertain to a
-column, column group, data source, or selected state, but it is rendered as a PA
-note when relevant.
 
 ## Open BRB Questions
 
@@ -298,48 +249,16 @@ runtime rendering.
 
 ## Standings by Wins
 
-Standings by Wins is the canonical rich table case study.
+Standings by Wins is valuable as a precedent for:
 
-It is valuable as a precedent for:
-
-- parameterized table data;
-- data-source selection by option;
-- view modes implemented through column/group visibility;
-- row filters such as active-only and division;
 - sorting;
 - shareable URL state;
 - browser back/forward restoration;
-- column groups and visibility presets;
-- column popovers/help;
-- dynamic PA notes based on visible table components.
+- view modes;
+- table behaviour under changing options.
 
-The case-study conclusion is:
-
-```text
-Standings by Wins = PA with Table Artifact
-```
-
-It does not introduce a new top-level model category and it does not introduce a
-new option kind. Instead, it provides the first substantial TableArtifact
-contract.
-
-Its options fit the candidate distinction:
-
-```text
-ContentSelector:
-  Number of Basho
-    selects the backing CSV / data instance
-
-Filters:
-  View
-    changes visible representation through column/group visibility
-
-  Active Rikishi Only
-    filters rows
-
-  Division
-    filters rows
-```
+It is a strong candidate for piloting shared table-runtime behaviour where the
+main goal is URL state and sort behaviour.
 
 ## Banzuke Changes
 
@@ -362,20 +281,6 @@ Neither existing table app should be treated as the whole template.
 The shared table runtime should extract stable behaviours from both without
 preserving accidental app-shell structure.
 
-The stable direction is:
-
-```text
-TablePA / TableArtifact
-  dataSources
-  columns
-  columnGroups
-  visibilityPresets
-  rowFilters
-  sort behaviour
-  help/popovers
-  notes with relevance targets
-```
-
 ---
 
 # 3. Table Behaviour Contract
@@ -389,9 +294,7 @@ Promoted public tables may need:
 - sortable columns;
 - sort-kind-specific ordering;
 - column groups;
-- visibility presets;
 - column visibility controls;
-- row filters;
 - option-sensitive notes;
 - sticky headers;
 - in-panel scrolling;
@@ -399,63 +302,8 @@ Promoted public tables may need:
 - validation of data/config before rendering;
 - shikona links with standard click semantics.
 
-Not every table needs every behaviour. The behaviour set should be selected by
+Not every table needs every behaviour.  The behaviour set should be selected by
 semantic need, not by copying whichever old application happened to support it.
-
-## TableArtifact Concepts
-
-The Standings by Wins case study identifies a likely table artifact contract:
-
-```text
-TableArtifact
-  dataSources
-  columns
-  columnGroups
-  visibilityPresets
-  rowFilters
-  defaultSort
-  sortKinds
-  column popovers/help
-  note relevance
-  formatting/alignment metadata
-```
-
-These are artifact-level implementation concepts. They do not alter the
-top-level model:
-
-```text
-PA = PATitle? + Artifact + Notes?
-Artifact = Table
-```
-
-## Column Groups and Visibility Presets
-
-Column groups and visibility presets are table semantics, not arbitrary DOM
-tricks.
-
-Example:
-
-```text
-View = standard | percentages | combined
-```
-
-is a public representation choice. It may be implemented by showing/hiding
-column groups, but the manifest should describe the view/preset meaning rather
-than expose only the low-level hiding mechanism.
-
-## Row Filters
-
-Row filters are table-artifact behaviour controlled by Options.
-
-Examples:
-
-```text
-Active Rikishi Only
-Division
-```
-
-These may be implemented by hiding rows, filtering an in-memory row set, or
-re-rendering the table. That is renderer detail.
 
 ## Shikona Links
 
@@ -484,26 +332,12 @@ ownership/layout decision.
 
 ## Notes Behaviour
 
-Notes remain part of the PA.
+Notes should be scoped to their semantic owner:
 
-Table notes may pertain to:
-
-- the table generally;
-- columns;
-- column groups;
-- visibility presets;
-- row filters;
-- data sources.
-
-A note is rendered when its target is visible or relevant in the current table
-state.
-
-This preserves the current model rule:
-
-```text
-Notes belong to PA.
-Options may affect which Notes are relevant by changing visible Artifact state.
-```
+- page-level notes belong outside individual tables;
+- table notes belong with the table;
+- column notes belong near headings or in a clear note area;
+- option-sensitive notes should update with the relevant option state.
 
 ---
 
@@ -536,8 +370,8 @@ text
 This is distinct from the column's analytical role.
 
 For example, a chii-like value may be previous context, current rank, projected
-rank, or comparison value. In all cases it is still a chii-like value and should
-receive the baseline chii treatment unless a page documents an exception.
+rank, or comparison value.  In all cases it is still a chii-like value and
+should receive the baseline chii treatment unless a page documents an exception.
 
 ## Role
 
@@ -574,8 +408,8 @@ Likely site-wide defaults:
 - rating deltas are signed numeric values;
 - previous/context values may be visually muted.
 
-These defaults belong in shared site CSS. Page-specific CSS should override them
-only for a documented local reason.
+These defaults belong in shared site CSS.  Page-specific CSS should override
+them only for a documented local reason.
 
 ## Migration Path
 
@@ -586,7 +420,7 @@ only for a documented local reason.
 5. Update hand-built pages to emit compatible classes during migration.
 6. Remove local CSS rules that duplicate site-wide semantics.
 
-This is not a broad redesign. It is a missing vocabulary layer for table
+This is not a broad redesign.  It is a missing vocabulary layer for table
 presentation.
 
 ---
@@ -613,11 +447,10 @@ A promoted chart page should expose intentional public-site inputs:
 - data sources;
 - trace definitions;
 - axis metadata;
-- options where meaningful;
+- options;
 - notes;
 - provenance;
-- renderer kind;
-- render/display policy where public interpretation depends on it.
+- renderer kind.
 
 The public renderer then owns:
 
@@ -628,121 +461,8 @@ The public renderer then owns:
 - standard Plotly configuration;
 - interaction policy.
 
-The plotting library object is not the semantic chart. It is the realization of
-a ChartArtifact.
-
-## Structured Chart Artifact Lesson
-
-The chart case studies support this direction:
-
-```text
-structured chart artifact manifest
-  -> generic chart renderer
-      -> Plotly traces/layout
-```
-
-rather than:
-
-```text
-full Plotly JSON as the public contract
-```
-
-or:
-
-```text
-page-specific JS as the public contract
-```
-
-The structured chart contract may include:
-
-```text
-dataSources
-traces
-xAxis / yAxis
-renderPolicy
-displayPolicy
-parameters
-ordering
-provenance
-```
-
-Old `provenance` buckets should not be used as catch-alls. When possible,
-separate:
-
-```text
-renderPolicy
-  chart rendering behaviour, such as categorical tick angle or legend interaction
-
-displayPolicy
-  default traces, default visible groups, or display-state conventions
-
-parameters
-  semantic/data parameters, such as era bucket size
-
-ordering
-  explicit category/group orders
-
-provenance
-  source, generation, method, or audit metadata
-```
-
-## Banzuke Division by Era
-
-The `4.3.1` case study establishes the simple chart PA happy path:
-
-```text
-Contents = PA
-Artifact = Chart
-Options = none
-```
-
-It shows that a page can be rendered from structured chart semantics:
-
-```text
-CSV source
-TraceSpec(kind="stacked_bar")
-x/y axis specs
-category ordering
-render policy such as tick angle and legend interaction
-semantic parameters such as era bucket years
-```
-
-No top-level model change is required. The pressure belongs inside the
-ChartArtifact contract.
-
-## Win Probability by Standing
-
-The `6.3.1` case study establishes the optioned chart PA path:
-
-```text
-Contents = PA
-Artifact = Chart
-Options = present
-```
-
-It shows that chart PAs may have public Options.
-
-The important option behaviour is:
-
-```text
-Source
-  selects observed or Equelo data source
-
-Division
-  filters visible traces
-
-Error bars
-  toggles an evidence/uncertainty layer
-```
-
-This supports the provisional cross-case distinction:
-
-```text
-OptionControl
-  = ContentSelector | Filter
-```
-
-but that distinction is not yet adopted as a formal model taxonomy.
+The plotting library object is not the semantic chart.  It is the realization of
+a ChartPA.
 
 ## Plotly Legend Policy
 
@@ -784,88 +504,37 @@ Current or planned pages include:
 - related distribution, PMF, CDF, survival, longest-career, and final-rank
   views.
 
-## PASet / Multi-View Shape
+## Multi-View Shape
 
-Career Length confirms the model-level concept:
+Career Length is a useful example because it combines multiple analytical views
+under one conceptual page family.
 
-```text
-Contents = PASet
-PASet = PASelector + PA+
-```
+Potential views include:
 
-The existing implementation concept:
+- Distribution;
+- PMF;
+- CDF;
+- Survival;
+- Longest;
+- Rank at Retirement or related page links.
 
-```text
-MultiViewPA
-```
-
-maps naturally to:
-
-```text
-PASet
-```
-
-The existing `view_option` maps naturally to:
-
-```text
-PASelector
-```
-
-Career Length combines several analytical views under one conceptual page
-family:
-
-```text
-Distribution  -> Chart PA
-PMF           -> Chart PA
-CDF           -> Chart PA
-Survival      -> Chart PA
-Longest       -> Table PA
-```
-
-Some views are chart-like and some are table-like. The public-site model should
-not force them into one rendering type merely because they are conceptually
-related.
+Some views are chart-like and some are table-like.  The public-site model
+should not force them into one rendering type merely because they are
+conceptually related.
 
 A multi-view analytical page should preserve:
 
 - page-level identity;
-- view-level / selected-PA identity;
-- selected-PA-specific options;
+- view-level identity;
 - view-specific notes;
-- shared provenance where appropriate;
+- shared provenance;
 - consistent option and navigation behaviour.
-
-## Selected-PA-Specific Options
-
-Career Length also confirms that a selected PA may contribute its own options.
-
-Example:
-
-```text
-Longest
-  option: Show active only
-```
-
-This option belongs to the selected `Longest` PA. It does not necessarily belong
-to the distribution, PMF, CDF, or survival chart PAs.
-
-So the available options may depend on the selected PA:
-
-```text
-PASet-level option:
-  View / PASelector
-
-Selected-PA option:
-  Longest -> Show active only
-```
-
-This does not require a top-level model change.
 
 ## Active/Retired Semantics
 
 Career lifecycle pages often distinguish active and retired rikishi.
 
-This distinction is semantic, not merely a trace label. It may affect:
+This distinction is semantic, not merely a trace label.  It may affect:
 
 - chart traces;
 - table filters;
@@ -875,14 +544,6 @@ This distinction is semantic, not merely a trace label. It may affect:
 
 Where active/retired status is used, the page should state the interpretation
 clearly.
-
-## Notes
-
-Notes remain PA-owned.
-
-If an existing MultiViewPA carries parent-level/shared notes, migration should
-project or copy those notes onto the relevant selected PAs unless a later case
-establishes a genuine need for PASet-level notes.
 
 ---
 
@@ -896,11 +557,11 @@ current process ratings.
 
 Use canonical names for rating systems, rating series, and landmark curves.
 
-Avoid using local diagnostic names such as `v0`, `v1`, ..., `v5` as public model
-names.
+Avoid using local diagnostic names such as `v0`, `v1`, ..., `v5` as public
+model names.
 
-Those diagnostic names describe stages in a particular audit trail. They are not
-the same thing as public model names.
+Those diagnostic names describe stages in a particular audit trail.  They are
+not the same thing as public model names.
 
 ## Rating Series vs Rating Landmarks
 
@@ -928,24 +589,11 @@ Technical names may remain in metadata, notes, and provenance, but page titles
 and explanatory text should not expose internal diagnostic stage names unless
 that diagnostic history is the subject of the page.
 
-## Win Probability Equelo Source
-
-The `6.3.1 Win Probability by Standing` case study raised a follow-up question:
-
-```text
-Why are the Equelo chart traces not smooth?
-```
-
-This is recorded as an open issue because it may affect public interpretation of
-observed vs modelled data. The investigation should determine whether the
-jaggedness reflects producer/model data, support/sampling effects, grouping,
-rounding, rendering, or a bug.
-
 ---
 
 # 8. Producer Writers and Prototype Embeds
 
-The project already has many generated artefacts. Not all of them should be
+The project already has many generated artefacts.  Not all of them should be
 rewritten before they can be inspected inside the public-site IA.
 
 The policy is therefore split into prototype inclusion and public promotion.
@@ -995,145 +643,7 @@ explicitly promoted into the public contract.
 
 ---
 
-# 9. Case-Study Method and Synthesis
-
-The case studies are not merely examples. They are a way of discovering the
-right implementation checklist.
-
-The current case-study sequence is:
-
-```text
-4.3.1 Banzuke Division by Era
-  simple chart PA, no options
-
-6.3.1 Win Probability by Standing
-  chart PA with options
-
-7.3.1 Career Length
-  PASet / MultiViewPA
-
-2.2 Standings by Wins
-  rich table PA
-```
-
-For each new case, use two lenses:
-
-```text
-Difference lens
-  What does this case add that earlier cases did not require?
-  Does the new concern appear local or site-wide?
-
-Similarity lens
-  Does the new concern disturb the existing happy path?
-  Or does it simply extend the path already established?
-```
-
-The draft checklist is a deliverable from the case-study process.
-
-After the case studies are complete, the checklist should be tested against PA
-examples that were not used as case studies.
-
-If it works, it becomes a practical tool for adding new PA items. If it fails,
-then either the checklist is incomplete or the new PA exposes a genuinely new
-model or renderer concern.
-
----
-
-# 10. Cross-Cutting Findings from Case Studies
-
-## Options: Content Selectors and Filters
-
-The case studies suggest, but do not yet formally adopt, this distinction:
-
-```text
-OptionControl
-  = ContentSelector | Filter
-```
-
-A ContentSelector determines which content, PA, data source, or data instance is
-displayed.
-
-Examples:
-
-```text
-Win Probability Source
-Career Length View / PASelector
-Standings by Wins Number of Basho
-```
-
-A Filter modifies the visible representation of already-selected content.
-
-Examples:
-
-```text
-Win Probability Division
-Win Probability Error bars
-Standings by Wins View
-Standings by Wins Active Rikishi Only
-Standings by Wins Division
-```
-
-This distinction may affect state ownership, URL state, option grouping,
-manifest structure, and renderer update flow.
-
-It should not become formal model vocabulary until the remaining examples prove
-that it is needed.
-
-## Framing Text
-
-Several features use the same shape:
-
-```text
-Head + SubHead?
-```
-
-but at different ownership levels.
-
-The stable distinction is:
-
-```text
-NavLabel
-  short locator for navigation
-
-Heading
-  page/content-level framing
-
-PATitle
-  copy-pasteable PA-level framing
-
-Artifact-internal labels
-  compact column headings, trace labels, axis labels, legend labels, hover labels
-```
-
-Avoid bare `Title` as a model term because it collides with HTML `<title>`,
-Plotly titles, table captions, navigation labels, page headings, and PA titles.
-
-## Options Layout
-
-The case studies should preserve and test an intended option-layout policy:
-
-```text
-simple / obvious / primary options at the top
-gnarly / expert / advanced options at the bottom
-```
-
-Defaults should normally correspond to the simplest or most expected choices.
-
-This is not yet a settled rendering rule. It may later imply presentation
-metadata such as:
-
-```text
-priority
-complexity
-primary / advanced
-preferred order
-```
-
-Do not add these fields until the case-study review proves they are needed.
-
----
-
-# 11. Feature Review Findings
+# 9. Feature Review Findings
 
 The table/chart review notes reveal repeated UI questions that should be treated
 as semantic/rendering questions rather than isolated bugs.
@@ -1151,12 +661,12 @@ Examples include:
 - Are horizontal/vertical table rules part of the public style?
 
 These questions belong mainly to `02 Rendering Model.md`, but they are
-feature-discovered. They should remain visible here because concrete features
+feature-discovered.  They should remain visible here because concrete features
 are where abstract rendering contracts are tested.
 
 ---
 
-# 12. Application-Level Anti-Patterns
+# 10. Application-Level Anti-Patterns
 
 ## Treating Old HTML as the API
 
@@ -1170,38 +680,22 @@ should not become a disguised copy of any one of them.
 
 ## Confusing Public Landmarks with Process Ratings
 
-Typical Equelo landmark values are for public scale explanation. They are not
+Typical Equelo landmark values are for public scale explanation.  They are not
 individual rikishi ratings.
 
 ## Preserving Plotly Defaults as Public Policy
 
-Plotly defaults are implementation defaults. Public chart behaviour should be
+Plotly defaults are implementation defaults.  Public chart behaviour should be
 site-owned where it affects user interpretation.
 
 ## Styling Columns by Local Names Only
 
-Column ids are not enough. Tables need semantic value kinds and roles to avoid
+Column ids are not enough.  Tables need semantic value kinds and roles to avoid
 page-by-page styling drift.
-
-## Treating Option Widgets as Option Semantics
-
-Radio buttons, dropdowns, checkboxes, tabs, and toggles are rendering choices.
-
-The semantic question is what the option affects:
-
-```text
-selected PA
-data source
-data instance
-visible rows
-visible traces
-visible evidence layer
-table representation
-```
 
 ---
 
-# 13. Relationship to the Implementation State
+# 11. Relationship to the Implementation State
 
 The features in this document are at different migration stages.
 
@@ -1238,7 +732,6 @@ The feature layer should move toward:
 - BRB as the major table-runtime proving ground;
 - shared table behaviour extracted from existing apps;
 - PA-backed charts for promoted chart pages;
-- PASet support as the model-level version of MultiViewPA;
 - consistent Plotly legend behaviour;
 - semantic table column metadata;
 - strict separation between Equelo process ratings and public landmarks;

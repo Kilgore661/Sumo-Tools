@@ -58,14 +58,13 @@ public surface.
 These issues can coexist with a provisional public site, but should be addressed
 before the architecture spreads further.
 
-1. Reconcile PA manifest classes with the `Contents` / `PA` / `PASet` contract.
-2. Shared CSS extraction.
-3. Semantic table column styling metadata.
-4. Shared chart model before site-wide chart styling.
-5. Producer contract normalization for current integrated apps.
-6. Single source of truth for page defaults.
-7. Qualified-shikona/link identity service.
-8. Date type boundary policy.
+1. Shared CSS extraction.
+2. Semantic table column styling metadata.
+3. Shared chart model before site-wide chart styling.
+4. Producer contract normalization for current integrated apps.
+5. Single source of truth for page defaults.
+6. Qualified-shikona/link identity service.
+7. Date type boundary policy.
 
 ## P2 — Feature and Presentation Refinement
 
@@ -161,43 +160,23 @@ site-layer concept?
 
 ## 2.1 PA Manifest Contract Coverage
 
-Status: In progress.
-
 Python dataclasses are currently the canonical in-repo representation for PA
 manifests.  `make_site` owns canonical public routes derived from navigation.
 
-The case studies indicate that the existing manifest classes already contain
-much of the implicit model, but the terms and boundaries need to be reconciled
-with the new implementation contract.
-
-Likely mappings:
-
-```text
-ChartPA         -> PA with ChartArtifact
-TablePA         -> PA with TableArtifact
-IndexedTablePA  -> PA with indexed TableArtifact / table-runtime variant
-MultiViewPA     -> PASet
-view_option     -> PASelector
-EssayPA         -> PA with ProseArtifact
-Option          -> OptionControl
-Note            -> PA Note
-DataSource      -> DataBinding / dataSources
-```
-
 Remaining question: do the current manifest classes expose enough metadata for
-all promoted page types under the `Contents` / `PA` / `PASet` contract?
+all promoted page types?
 
 Check coverage for:
 
 - tables;
 - indexed tables;
 - charts;
-- PASet / multi-view artefacts;
+- multi-view artefacts;
 - essays or narrative pages;
 - runtime-loaded data;
 - provenance;
 - public status;
-- PA notes and note relevance;
+- notes/caveats;
 - option state;
 - validation requirements;
 - legacy/prototype compatibility.
@@ -207,71 +186,22 @@ a concrete gap.
 
 ## 2.2 Page Option Coverage
 
-Status: Open, partly clarified.
-
-The settled policy is that options are page/PA state, not widget declarations.
-
-The case studies suggest a useful distinction:
-
-```text
-OptionControl
-  = ContentSelector | Filter
-```
-
-Current examples:
-
-```text
-ContentSelector:
-  PASelector
-  Source
-  Number of Basho
-
-Filter:
-  Division
-  Error bars
-  Active Rikishi Only
-  View / representation preset
-```
-
-Only `PASelector` is currently a named special option role, because it is
-structurally required by:
-
-```text
-PASet = PASelector + PA+
-```
+The settled policy is that options are page state, not widget declarations.
 
 Remaining work:
 
-- test the `ContentSelector | Filter` distinction against non-case-study PAs
-  before adopting it as model vocabulary;
+- add option kinds only when real pages need them;
 - define URL-state metadata where needed;
 - specify validation rules;
 - decide default-state normalization;
-- keep option scope visible in rendering;
-- decide whether option groups or controls need priority/complexity metadata.
+- keep option scope visible in rendering.
 
 BRB remains the main forcing example for date/division/table options.
 
 ## 2.3 View and PA Type Rationalisation
 
-Status: Decided direction; implementation remains.
-
 Target architecture: promoted public pages are rendered from PA manifests by
 `make_site`.
-
-The case studies support the following direction:
-
-```text
-ContentPanel
-  -> Contents
-      -> PA | PASet
-
-PASet
-  -> PASelector + PA+
-
-PA
-  -> PATitle? + Artifact + Notes?
-```
 
 Static HTML, iframe wrappers, and custom renderers are allowed as temporary or
 exceptional paths, not the default architecture.
@@ -281,8 +211,7 @@ Remaining work:
 - remove or narrow legacy view types as pages migrate;
 - avoid adding new view types unless a real page cannot be expressed through PA
   classes or a deliberately local custom renderer;
-- document any retained exceptional view type as exceptional;
-- migrate stable chart/table/multi-view cases into the shared renderer contract.
+- document any retained exceptional view type as exceptional.
 
 ## 2.4 Remove Deep-Link Adapters
 
@@ -331,29 +260,6 @@ Target policy:
 - browser/runtime consumes those defaults;
 - JavaScript hardcoded defaults are defensive fallbacks only;
 - copied prototype defaults do not become public policy by accident.
-
-## 2.7 Case-Study-Derived Checklist
-
-Status: Open.
-
-The case-study sequence is expected to produce a practical checklist for new PA
-items.
-
-The checklist should be tested against examples that were not used as case
-studies.  If it works on those examples, it can become a tool for adding new
-PAs.  If it fails, the failure should identify either an incomplete checklist or
-a genuinely new model/renderer concern.
-
-Candidate checklist dimensions include:
-
-- `Contents = PA` or `Contents = PASet`;
-- artifact kind: chart, table, or prose;
-- option presence and option effects;
-- data source and data-instance selection;
-- note ownership and note relevance;
-- artifact renderer path;
-- public/shareable state;
-- title/framing ownership.
 
 ---
 
@@ -480,14 +386,9 @@ Policy direction:
 
 ## 5.3 Shared Plotly Page Template
 
-Status: Decided direction; implementation remains.
-
-Promoted chart pages should move away from copied standalone Plotly HTML and
-toward intentional site-facing inputs:
+Decide when to stop copying standalone Plotly HTML and instead emit:
 
 - chart data;
-- trace specifications;
-- axis metadata;
 - chart configuration;
 - PA manifest metadata;
 - shared public rendering template.
@@ -495,20 +396,10 @@ toward intentional site-facing inputs:
 Copying works as a compatibility path.  It should not become the long-term
 contract for promoted chart pages.
 
-The case studies support structured ChartArtifact manifests lowered by the
-shared renderer, not full Plotly JSON as the public contract and not page-specific
-JavaScript as the long-term contract.
-
 ## 5.4 Chart Model Before Site-Wide Chart Styling
-
-Status: In progress.
 
 Do not settle a global chart skin until chart manifests expose the semantic
 information that styling depends on.
-
-The chart case studies have identified useful manifest distinctions such as
-trace specs, axis specs, render policy, display policy, semantic parameters,
-ordering, and provenance.
 
 Needed semantics may include:
 
@@ -532,39 +423,7 @@ Open work:
 - avoid low-support points looking overprecise;
 - decide default support/caveat presentation for public charts.
 
-## 5.6 Win Probability Equelo Trace Provenance
-
-Investigate the provenance of the Equelo source data used by:
-
-```text
-6.3.1 Win Probability by Standing
-```
-
-Observed issue:
-
-```text
-The Equelo traces are not smooth.
-```
-
-Decision needed: determine whether this is expected from the producer/model data,
-a sampling/support artefact, a chart rendering artefact, or a data-contract
-problem.
-
-Questions:
-
-- What producer output creates `equelo_trace_points.csv`?
-- Are the Equelo values computed independently at each standing point?
-- Are the traces expected to be monotone or smooth?
-- Does the apparent jaggedness reflect low support, model discontinuity,
-  grouping/binning, rounding, or a bug?
-- Should the public chart explain this behaviour in notes, provenance, hover
-  text, or support/confidence presentation?
-- Should the renderer treat Equelo and observed traces differently?
-
-This should be resolved before treating the Equelo source in this chart as a
-stable public interpretation.
-
-## 5.7 Large Trace Sets
+## 5.6 Large Trace Sets
 
 Investigate readable styling for charts with many traces, especially when
 `n > 20`.
@@ -580,7 +439,7 @@ Potential dimensions:
 
 This is a readability and interpretability issue, not only a design issue.
 
-## 5.8 Legend vs Page Option
+## 5.7 Legend vs Page Option
 
 Decide when trace visibility belongs to the Plotly legend and when it should be
 a page option.
@@ -597,7 +456,7 @@ Use explicit page options when:
 - only one or a few traces should normally be visible;
 - selection needs URL state, presets, or explanatory grammar.
 
-## 5.9 Full-Height and Percentage Chart Policy
+## 5.8 Full-Height and Percentage Chart Policy
 
 Add chart-level layout policy:
 
@@ -607,51 +466,20 @@ Add chart-level layout policy:
 - dense x-axis labels need explicit review and possibly sparse ticks, shorter
   labels, rotation, zoom defaults, or a different axis treatment.
 
-## 5.10 Plotly Controls Hint
+## 5.9 Plotly Controls Hint
 
 Decide whether public charts need a small, reusable hint that Plotly charts can
 be zoomed, panned, autoscaled, reset, or otherwise interacted with.
 
 The hint should not clutter every chart or describe Plotly technically.
 
+## 5.10 Equlo Chart
+
+Investigate the provenance of 6.3.1's Equelo chart data: why are the traces not smooth?
+
 ---
 
 # 6. Tables and Shared Presentation
-
-## 6.0 TableArtifact Contract from Case Studies
-
-Status: In progress.
-
-`2.2 Standings by Wins` confirms that rich table behaviour belongs inside the
-TableArtifact contract rather than requiring a different top-level page model.
-
-Candidate TableArtifact concepts:
-
-```text
-dataSources
-columns
-columnGroups
-visibilityPresets
-rowFilters
-defaultSort
-sortKinds
-column popovers/help
-note relevance
-formatting/alignment metadata
-```
-
-Important principles:
-
-- column groups and visibility presets are table semantics, not arbitrary DOM
-  tricks;
-- public options such as `View` may be implemented by column/group visibility
-  while still representing a public view/preset;
-- notes remain PA-owned but may pertain to columns, column groups, visibility
-  presets, row filters, or the table generally;
-- dynamic PA notes should be assembled from the visible/relevant table state.
-
-Compare this with BRB and Banzuke Changes before finalizing a shared table
-contract.
 
 ## 6.1 Styling Consistency Audit
 
@@ -796,88 +624,6 @@ This means:
 - no reliance on implementation vocabulary.
 
 It does not mean adding verbose instructions to every page.
-
-## 7.2a Options Layout Policy
-
-Status: Open.
-
-The case-study synthesis preserves an intended option-layout policy:
-
-```text
-simple / obvious / primary options at the top
-gnarly / expert / advanced options at the bottom
-```
-
-The intention is that readers encounter the easiest and most important choices
-first. Defaults should normally correspond to the simplest or most expected
-choices.
-
-Test across optioned pages:
-
-- Which options are simple or primary?
-- Which options are advanced or expert?
-- Are defaults the simplest/most expected choices?
-- Does visual order match that intended interpretation?
-- Does grouping help or obscure the intended order?
-- Does the distinction still work for `ContentSelector` and `Filter` controls?
-- Does the distinction still work for selected-PA-specific options?
-
-Possible future metadata:
-
-```text
-priority
-complexity
-primary / advanced
-default-visible / collapsed
-preferred order
-```
-
-Do not add this metadata until the cross-case review proves it is needed.
-
-## 7.2b Heading, Title, and Label Vocabulary
-
-Status: Decided direction; documentation cleanup remains.
-
-The case studies show that several things have the same internal shape:
-
-```text
-Head + SubHead?
-```
-
-but different owners and jobs.
-
-Use ownership-specific names rather than a generic `Title`:
-
-```text
-NavLabel
-  short locator text for navigation
-
-Heading
-  page/content-level framing
-
-PATitle
-  PA-level framing
-
-Artifact-internal labels
-  column headings, trace labels, axis labels, legend labels, hover labels
-```
-
-Avoid using bare `Title` as a model term because it collides with:
-
-```text
-HTML <title>
-browser title
-site title
-navigation label/title attributes
-content heading
-PA title
-Plotly layout.title
-table caption
-popover title
-```
-
-Documentation cleanup should make this policy consistent across the numbered
-docs and implementation contract.
 
 ## 7.3 Public vs Research vs Diagnostic Status
 
@@ -1104,9 +850,8 @@ Open refinements:
 - account more clearly for careers that began before the canonical history
   epoch;
 - consider using bio/hatsu data where appropriate;
-- add a selected-PA-specific `Show Active Only` option for the `Longest` table;
-- decide whether the visible `Active` column should be removed or retained once
-  the option exists.
+- replace visible `Active` column with a `Show Active` option if that keeps the
+  default table clearer.
 
 ## 10.6 Future Public Feature Ideas
 
@@ -1197,14 +942,8 @@ to:
 
 ## 12.2 Archive Superseded Drafts
 
-Once the numbered docs and implementation contract are accepted, move superseded
-thinking-session docs to `archive/` or delete them under the local archive
-policy.
-
-The former `06 UI Model Discussion` is working source material.  Once its
-durable content has been carried into the implementation contract and the
-canonical docs, it should not remain as a permanent peer of the numbered core
-documents.
+Once `01`--`05` are accepted, move superseded thinking-session docs to
+`archive/` or delete them under the local archive policy.
 
 Do not archive material until durable decisions have been merged into the
 canonical files.
@@ -1231,9 +970,8 @@ file descriptions match the final filenames.
 
 Recommended immediate sequence:
 
-1. Confirm the updated numbered docs and `06 UI Model Implementation Contract`.
-2. Use the four case studies and synthesis findings as source material, not as
-   permanent peers of the core docs.
+1. Confirm `01`--`05` as the canonical current docs.
+2. Update `README.md` to point to the new set.
 3. Archive or delete superseded drafts once their durable content is merged.
 4. Choose P0 issues for the next implementation pass.
 5. Use this file as the working issue register instead of creating new ad-hoc
