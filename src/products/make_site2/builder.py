@@ -19,6 +19,7 @@ from src.products.make_site.pa_manifest.chart_instances import (
     win_probability_by_standing,
 )
 from src.products.make_site.pa_manifest.table_instances import (
+    banzuke_changes,
     basho_results_browser,
     standings_by_wins,
     typical_equelo_values,
@@ -26,6 +27,7 @@ from src.products.make_site.pa_manifest.table_instances import (
 from src.products.make_site.site_config import (
     BASHO_RESULTS_OUTPUT_ROOT,
     BANZUKE_DIVISION_BY_ERA_SITE_BUNDLE,
+    BCR_OUTPUT_ROOT,
     DIVISION_STABILITY_SITE_BUNDLE,
     FIRST_CHII_APPEARANCE_SITE_BUNDLE,
     MAKUUCHI_RANK_BY_ERA_SITE_BUNDLE,
@@ -47,6 +49,7 @@ def build_brb_shell(output_root: Path = DEFAULT_OUTPUT_ROOT) -> None:
     write_index(output_root)
     write_manifests(output_root)
     copy_brb_data(output_root)
+    copy_banzuke_changes_data(output_root)
     copy_banzuke_division_by_era_data(output_root)
     copy_division_stability_data(output_root)
     copy_first_chii_appearance_data(output_root)
@@ -82,6 +85,10 @@ def write_index(output_root: Path) -> None:
             '<ol class="nav-tree">',
             '<li><span>Sumo History</span>',
             "<ol>",
+            (
+                '<li><a href="#page=banzuke_changes" class="nav-link" '
+                'data-page-id="banzuke_changes">2.1 Banzuke Changes</a></li>'
+            ),
             (
                 '<li><a href="#page=basho_results_browser" class="nav-link" '
                 'data-page-id="basho_results_browser">7.1 Basho Results</a></li>'
@@ -157,6 +164,10 @@ def write_manifests(output_root: Path) -> None:
         json.dumps(brb_envelope(), indent=2),
         encoding="utf-8",
     )
+    (manifest_dir / "banzuke_changes.json").write_text(
+        json.dumps(banzuke_changes_envelope(), indent=2),
+        encoding="utf-8",
+    )
     (manifest_dir / "division_stability.json").write_text(
         json.dumps(division_stability_envelope(), indent=2),
         encoding="utf-8",
@@ -201,6 +212,7 @@ def write_manifests(output_root: Path) -> None:
         json.dumps(
             {
                 "basho_results_browser": "manifests/basho_results_browser.json",
+                "banzuke_changes": "manifests/banzuke_changes.json",
                 "banzuke_division_by_era": "manifests/banzuke_division_by_era.json",
                 "makuuchi_rank_by_era": "manifests/makuuchi_rank_by_era.json",
                 "division_stability": "manifests/division_stability.json",
@@ -256,6 +268,50 @@ def brb_envelope() -> dict[str, Any]:
                     }
                 ],
                 "notes": plain(basho_results_browser.notes),
+            },
+        },
+    }
+
+
+def banzuke_changes_envelope() -> dict[str, Any]:
+    artifact = plain(banzuke_changes)
+    data_sources = artifact["data_sources"]
+    data_sources[0]["path"] = "data/banzuke-changes/banzuke_change_report.csv"
+    data_sources[0]["metadata_path"] = "data/banzuke-changes/site_config.json"
+    return {
+        "page": {
+            "id": "banzuke_changes",
+            "title": "Banzuke Changes",
+            "summary": "Current banzuke positions and movement from the previous basho.",
+            "status": "prototype",
+        },
+        "contentPanel": {
+            "heading": {
+                "title": "Banzuke Changes",
+                "summary": "Current banzuke positions and movement from the previous basho.",
+            },
+            "contents": {
+                "grammar": "G1",
+                "filters": manifest_filters_for(banzuke_changes.options),
+                "pas": [
+                    {
+                        "id": "banzuke_changes_table",
+                        "title": "Banzuke Changes table",
+                        "artifact": {
+                            "kind": "table",
+                            "renderer": banzuke_changes.renderer,
+                            "dataSources": data_sources,
+                            "primarySource": banzuke_changes.primary_source,
+                            "columnGroups": artifact["column_groups"],
+                            "columns": artifact["columns"],
+                            "groupVisibilityPresets": artifact[
+                                "group_visibility_presets"
+                            ],
+                            "defaultSort": artifact["default_sort"],
+                        },
+                    }
+                ],
+                "notes": artifact["notes"],
             },
         },
     }
@@ -806,6 +862,16 @@ def copy_brb_data(output_root: Path) -> None:
     target_payloads.mkdir(parents=True, exist_ok=True)
     for source in source_payloads.glob("*.csv"):
         shutil.copy2(source, target_payloads / source.name)
+
+
+def copy_banzuke_changes_data(output_root: Path) -> None:
+    data_root = output_root / "data" / "banzuke-changes"
+    data_root.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(BCR_OUTPUT_ROOT / "site_config.json", data_root / "site_config.json")
+    shutil.copy2(
+        BCR_OUTPUT_ROOT / "data" / "banzuke_change_report.csv",
+        data_root / "banzuke_change_report.csv",
+    )
 
 
 def copy_division_stability_data(output_root: Path) -> None:

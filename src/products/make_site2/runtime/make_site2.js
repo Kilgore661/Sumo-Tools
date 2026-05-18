@@ -314,6 +314,10 @@ async function renderTable(envelope, pa) {
     renderSectionedTable(envelope, pa, rows);
     return;
   }
+  if (artifact.renderer === "banzuke_change_table") {
+    renderBanzukeChangeTable(envelope, pa, rows, metadata);
+    return;
+  }
   throw new Error(`Unsupported table renderer: ${artifact.renderer}`);
 }
 
@@ -376,6 +380,172 @@ function renderTableSection(section, rows, columns) {
       </div>
     </section>
   `;
+}
+
+function renderBanzukeChangeTable(envelope, pa, rows, metadata) {
+  const division = state.filters.division || metadata?.default_division || "makuuchi";
+  const visibleRows = rows.filter(row => row.division_id === division);
+  const title = banzukeChangesTitle(envelope, metadata, division);
+  const table = state.filters.banzuke_style
+    ? renderBanzukeTwoColumnTable(visibleRows)
+    : renderBanzukeOneColumnTable(visibleRows);
+  document.getElementById("pa-section").innerHTML = `
+    <div class="table-panel banzuke-change-panel">
+      <h3 class="table-title">${escapeHtml(title)}</h3>
+      <div class="table-wrap banzuke-table-wrap">
+        ${table}
+      </div>
+    </div>
+  `;
+  renderNotes(envelope);
+}
+
+function banzukeChangesTitle(envelope, metadata, division) {
+  const divisionLabel = labelForFilter(envelope, "division", division) || division;
+  const current = bashoMonthYear(metadata?.current_date || "");
+  const previous = bashoMonthYear(metadata?.previous_date || "");
+  if (current && previous) {
+    return `${divisionLabel} Banzuke Changes: ${previous} to ${current}`;
+  }
+  return `${divisionLabel} Banzuke Changes`;
+}
+
+function renderBanzukeTwoColumnTable(rows) {
+  const sideColumns = banzukeSideColumnCount();
+  return `
+    <table class="banzuke-change-table banzuke-change-table-two">
+      <thead>
+        <tr>
+          <th scope="colgroup" colspan="${sideColumns}" class="center">East</th>
+          <th scope="col" rowspan="2" class="center">Rank</th>
+          <th scope="colgroup" colspan="${sideColumns}" class="center">West</th>
+        </tr>
+        <tr>
+          ${banzukeTwoColumnSideHead("east")}
+          ${banzukeTwoColumnSideHead("west")}
+        </tr>
+      </thead>
+      <tbody>
+        ${rows.map(row => `
+          <tr>
+            ${banzukeTwoColumnSideCells(row, "east")}
+            <th scope="row" class="bcr-rank">${escapeHtml(row.bz_chii)}</th>
+            ${banzukeTwoColumnSideCells(row, "west")}
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>
+  `;
+}
+
+function banzukeTwoColumnSideHead(side) {
+  const cells = [];
+  if (side === "east") {
+    if (state.filters.equelo) cells.push(`<th scope="col" class="right">Equelo</th>`);
+    if (state.filters.context) cells.push(`<th scope="col">Chii</th>`, `<th scope="col">Result</th>`);
+    cells.push(`<th scope="col" class="center">Move</th>`);
+    if (state.filters.delta) cells.push(`<th scope="col" class="right">Delta</th>`);
+    cells.push(`<th scope="col">Shikona</th>`);
+    return cells.join("");
+  }
+  cells.push(`<th scope="col">Shikona</th>`);
+  cells.push(`<th scope="col" class="center">Move</th>`);
+  if (state.filters.delta) cells.push(`<th scope="col" class="right">Delta</th>`);
+  if (state.filters.context) cells.push(`<th scope="col">Result</th>`, `<th scope="col">Chii</th>`);
+  if (state.filters.equelo) cells.push(`<th scope="col" class="right">Equelo</th>`);
+  return cells.join("");
+}
+
+function banzukeTwoColumnSideCells(row, side) {
+  const cells = [];
+  if (side === "east") {
+    if (state.filters.equelo) cells.push(banzukeEqueloCell(row, side));
+    if (state.filters.context) cells.push(banzukeTextCell(row[`${side}_old_chii`]), banzukeResultCell(row, side));
+    cells.push(banzukeDirectionCell(row, side));
+    if (state.filters.delta) cells.push(banzukeDeltaCell(row, side));
+    cells.push(banzukeRikishiCell(row, side));
+    return cells.join("");
+  }
+  cells.push(banzukeRikishiCell(row, side));
+  cells.push(banzukeDirectionCell(row, side));
+  if (state.filters.delta) cells.push(banzukeDeltaCell(row, side));
+  if (state.filters.context) cells.push(banzukeResultCell(row, side), banzukeTextCell(row[`${side}_old_chii`]));
+  if (state.filters.equelo) cells.push(banzukeEqueloCell(row, side));
+  return cells.join("");
+}
+
+function renderBanzukeOneColumnTable(rows) {
+  const oneColumnRows = rows.flatMap(row => ["east", "west"].map(side => ({ row, side })))
+    .filter(item => item.row[`${item.side}_rikishi_id`]);
+  return `
+    <table class="banzuke-change-table banzuke-change-table-one">
+      <thead>
+        <tr>
+          <th scope="col">Chii</th>
+          <th scope="col">Shikona</th>
+          <th scope="col" class="center">Move</th>
+          ${state.filters.delta ? `<th scope="col" class="right">Delta</th>` : ""}
+          ${state.filters.context ? `<th scope="col">Result</th><th scope="col">Previous Chii</th>` : ""}
+          ${state.filters.equelo ? `<th scope="col" class="right">Equelo</th>` : ""}
+        </tr>
+      </thead>
+      <tbody>
+        ${oneColumnRows.map(({ row, side }) => `
+          <tr>
+            <th scope="row" class="bcr-rank">${escapeHtml(row[`${side}_chii`])}</th>
+            ${banzukeRikishiCell(row, side)}
+            ${banzukeDirectionCell(row, side)}
+            ${state.filters.delta ? banzukeDeltaCell(row, side) : ""}
+            ${state.filters.context ? `${banzukeResultCell(row, side)}${banzukeTextCell(row[`${side}_old_chii`])}` : ""}
+            ${state.filters.equelo ? banzukeEqueloCell(row, side) : ""}
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>
+  `;
+}
+
+function banzukeSideColumnCount() {
+  let count = 2;
+  if (state.filters.context) count += 2;
+  if (state.filters.delta) count += 1;
+  if (state.filters.equelo) count += 1;
+  return count;
+}
+
+function banzukeRikishiCell(row, side) {
+  const rikishiId = row[`${side}_rikishi_id`];
+  const shikona = row[`${side}_shikona`] || "";
+  const graphShikona = row[`${side}_graph_shikona`] || shikona;
+  if (!rikishiId) return `<td class="empty"></td>`;
+  const href = `https://sumodb.sumogames.de/Rikishi.aspx?r=${encodeURIComponent(rikishiId)}`;
+  return `<td class="bcr-shikona ${escapeHtml(side)}"><a href="${href}" target="_blank" rel="noopener">${escapeHtml(shikona || graphShikona)}</a></td>`;
+}
+
+function banzukeTextCell(value) {
+  return `<td>${escapeHtml(value || "")}</td>`;
+}
+
+function banzukeResultCell(row, side) {
+  const result = row[`${side}_result`] || "";
+  const movement = row[`${side}_result_movement`] || "";
+  return `<td>${escapeHtml(result)}${movement ? ` <span class="rank-level-movement">${escapeHtml(movement)}</span>` : ""}</td>`;
+}
+
+function banzukeDirectionCell(row, side) {
+  const value = row[`${side}_delta`] || "";
+  const symbol = value.startsWith("+") ? "&#8593;" : value.startsWith("-") ? "&#8595;" : "&nbsp;";
+  return `<td class="bcr-delta-direction center">${symbol}</td>`;
+}
+
+function banzukeDeltaCell(row, side) {
+  const value = row[`${side}_delta`] || "";
+  const deltaClass = (row[`${side}_delta_class`] || "").split(/\s+/).filter(Boolean).map(escapeHtml).join(" ");
+  return `<td class="bcr-delta-value right ${deltaClass}">${escapeHtml(value.replace(/^[+-]/, ""))}</td>`;
+}
+
+function banzukeEqueloCell(row, side) {
+  return `<td class="right">${escapeHtml(row[`${side}_equelo`] || "")}</td>`;
 }
 
 function visibleColumnsForTableArtifact(artifact) {
@@ -1454,6 +1624,9 @@ function noteApplies(note) {
   const applies = note.applies_to || ["all"];
   if (applies.includes("all") || applies.includes(state.filters.metric_group_preset)) return true;
   if (applies.includes(`branch:${state.filters.branch}`)) return true;
+  if (applies.includes("context")) return Boolean(state.filters.context);
+  if (applies.includes("delta")) return Boolean(state.filters.delta);
+  if (applies.includes("equelo")) return Boolean(state.filters.equelo);
   if (applies.includes("previous_basho")) return Boolean(state.filters.previous_context);
   if (applies.includes("rating_context")) return Boolean(state.filters.rating_context);
   if (applies.includes("nu_chii")) return Boolean(state.filters.nu_chii);

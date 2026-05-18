@@ -221,6 +221,92 @@ body {
   font-size: 1rem;
 }
 
+.banzuke-change-panel {
+  max-width: max-content;
+}
+
+.banzuke-table-wrap {
+  max-height: 72vh;
+}
+
+.banzuke-change-table {
+  width: max-content;
+  min-width: 560px;
+  margin: 0 auto;
+}
+
+.banzuke-change-table th,
+.banzuke-change-table td {
+  text-align: center;
+  padding: 5px 8px;
+}
+
+.banzuke-change-table .bcr-shikona {
+  min-width: 9rem;
+  text-align: left;
+}
+
+.banzuke-change-table .bcr-shikona a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.banzuke-change-table .bcr-shikona a:hover {
+  text-decoration: underline;
+}
+
+.banzuke-change-table .bcr-rank {
+  color: var(--ink);
+  border-left: 1px solid var(--line);
+  border-right: 1px solid var(--line);
+  background: #f7f4ed;
+  font-weight: 700;
+}
+
+.bcr-delta-direction,
+.rank-level-movement {
+  font-weight: 700;
+}
+
+.bcr-delta-value {
+  font-variant-numeric: tabular-nums;
+}
+
+.bcr-delta-value.up.low {
+  background: #dbeee3;
+  color: #155b37;
+}
+
+.bcr-delta-value.up.mid {
+  background: #c5e7d3;
+  color: #0d4c2d;
+}
+
+.bcr-delta-value.up.high {
+  background: #a6dcc0;
+  color: #073d22;
+}
+
+.bcr-delta-value.down.low {
+  background: #f2dddd;
+  color: #7a2525;
+}
+
+.bcr-delta-value.down.mid {
+  background: #eec7c7;
+  color: #681818;
+}
+
+.bcr-delta-value.down.high {
+  background: #e8adad;
+  color: #540f0f;
+}
+
+.bcr-delta-value.neutral {
+  background: #e7e2da;
+  color: var(--muted);
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
