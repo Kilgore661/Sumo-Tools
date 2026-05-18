@@ -8,7 +8,7 @@ from dataclasses import asdict, is_dataclass
 from datetime import datetime
 from html import escape
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from src.products.make_site.pa_manifest.chart_instances import (
     banzuke_division_by_era,
@@ -58,13 +58,17 @@ MANIFEST_INDEX = {
 NAVIGATION_PAGE_BINDINGS: dict[str, str] = {}
 
 
-def build_brb_shell(output_root: Path = DEFAULT_OUTPUT_ROOT) -> None:
+def build_brb_shell(
+    output_root: Path = DEFAULT_OUTPUT_ROOT,
+    *,
+    basho_results_payload_mode: Literal["all", "latest", "none"] = "all",
+) -> None:
     """Build the first make_site2 vertical slice: BRB in a direct shell."""
 
     clear_dir(output_root)
     write_index(output_root)
     write_manifests(output_root)
-    copy_brb_data(output_root)
+    copy_brb_data(output_root, payload_mode=basho_results_payload_mode)
     copy_banzuke_changes_data(output_root)
     copy_banzuke_division_by_era_data(output_root)
     copy_division_stability_data(output_root)
@@ -896,18 +900,46 @@ def manifest_filters_for(options: Any) -> list[dict[str, Any]]:
     return filters
 
 
-def copy_brb_data(output_root: Path) -> None:
+def copy_brb_data(
+    output_root: Path,
+    *,
+    payload_mode: Literal["all", "latest", "none"] = "all",
+) -> None:
     data_root = output_root / "data"
     data_root.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(
-        BASHO_RESULTS_OUTPUT_ROOT / "basho_results_index.json",
-        data_root / "basho_results_index.json",
-    )
+    index_path = BASHO_RESULTS_OUTPUT_ROOT / "basho_results_index.json"
+    shutil.copy2(index_path, data_root / "basho_results_index.json")
+    if payload_mode == "none":
+        return
     source_payloads = BASHO_RESULTS_OUTPUT_ROOT / "by-basho"
     target_payloads = data_root / "by-basho"
     target_payloads.mkdir(parents=True, exist_ok=True)
-    for source in source_payloads.glob("*.csv"):
+    for source in brb_payload_sources(source_payloads, index_path, payload_mode):
         shutil.copy2(source, target_payloads / source.name)
+
+
+def brb_payload_sources(
+    source_payloads: Path,
+    index_path: Path,
+    payload_mode: Literal["all", "latest", "none"],
+) -> list[Path]:
+    if payload_mode == "all":
+        return sorted(source_payloads.glob("*.csv"))
+    if payload_mode != "latest":
+        raise ValueError(f"Unsupported Basho Results payload mode: {payload_mode}")
+    with index_path.open(encoding="utf-8") as handle:
+        index = json.load(handle)
+    default_basho = index.get("default_basho")
+    entries = index.get("entries") or []
+    entry = next(
+        (item for item in entries if item.get("basho") == default_basho),
+        entries[-1] if entries else None,
+    )
+    payload_path = entry.get("payload_path") if entry else None
+    if not payload_path:
+        return []
+    payload_name = payload_path.replace("\\", "/").rsplit("/", 1)[-1]
+    return [source_payloads / payload_name]
 
 
 def copy_banzuke_changes_data(output_root: Path) -> None:
