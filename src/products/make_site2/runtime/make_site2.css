@@ -1,6 +1,7 @@
 :root {
   color-scheme: light;
   font-family: "Segoe UI", Arial, sans-serif;
+  --navigation-bar-width: 312px;
   --bg: #f6f3ee;
   --panel: #fffdf8;
   --ink: #201b16;
@@ -22,16 +23,55 @@ body {
 }
 
 .site-shell {
+  position: relative;
   display: grid;
-  grid-template-columns: minmax(240px, 18rem) minmax(0, 1fr);
+  grid-template-columns: var(--navigation-bar-width) minmax(0, 1fr);
   min-height: 100vh;
 }
 
+.site-shell.nav-collapsed {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .site-nav {
+  height: 100vh;
+  min-height: 100vh;
   border-right: 1px solid var(--line);
   background: #ebe5db;
   padding: 20px 18px;
   overflow: auto;
+}
+
+.nav-toggle {
+  position: fixed;
+  z-index: 20;
+  top: 12px;
+  left: calc(var(--navigation-bar-width) - 14px);
+  width: 28px;
+  height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #d8cfc1;
+  color: var(--ink);
+  font: inherit;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.nav-toggle:hover,
+.nav-toggle:focus {
+  background: var(--accent-soft);
+}
+
+.nav-toggle:focus {
+  outline: 1px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.site-shell.nav-collapsed .nav-toggle {
+  left: 6px;
 }
 
 .site-brand h1 {
@@ -49,6 +89,7 @@ body {
 
 .nav-tree,
 .nav-tree ol {
+  counter-reset: nav-level;
   list-style: none;
   margin: 0;
   padding-left: 0;
@@ -59,28 +100,47 @@ body {
 }
 
 .nav-tree ol {
-  margin-top: 8px;
-  padding-left: 14px;
+  margin: 4px 0 6px;
+  padding-left: 20px;
 }
 
-.nav-tree span {
-  display: block;
+.nav-tree li {
+  counter-increment: nav-level;
+  margin: 3px 0;
+}
+
+.nav-tree li::before {
+  content: counters(nav-level, ".") ". ";
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.nav-tree > li {
+  margin-bottom: 12px;
+}
+
+.nav-text {
+  color: var(--muted);
+}
+
+.nav-tree > li > .nav-text {
+  color: var(--ink);
   font-weight: 700;
-  margin: 12px 0 4px;
+}
+
+.nav-text-unavailable {
+  cursor: default;
 }
 
 .nav-link {
-  display: block;
   color: var(--ink);
   text-decoration: none;
-  border-radius: 6px;
-  padding: 8px 10px;
 }
 
 .nav-link:hover,
 .nav-link.active {
-  background: var(--accent-soft);
   color: #063c39;
+  text-decoration: underline;
 }
 
 .content-panel {
@@ -524,7 +584,22 @@ th.sortable {
     grid-template-columns: 1fr;
   }
 
+  .site-shell.nav-collapsed {
+    grid-template-columns: 1fr;
+  }
+
+  .nav-toggle,
+  .site-shell.nav-collapsed .nav-toggle {
+    top: 8px;
+    left: 8px;
+    width: 34px;
+    height: 34px;
+  }
+
   .site-nav {
+    height: auto;
+    min-height: auto;
+    max-height: 42vh;
     border-right: 0;
     border-bottom: 1px solid var(--line);
   }

@@ -24,6 +24,7 @@ from src.products.make_site.pa_manifest.table_instances import (
     standings_by_wins,
     typical_equelo_values,
 )
+from src.products.make_site.site_navigation import NAVIGATION
 from src.products.make_site.site_config import (
     BASHO_RESULTS_OUTPUT_ROOT,
     BANZUKE_DIVISION_BY_ERA_SITE_BUNDLE,
@@ -40,6 +41,21 @@ from src.products.make_site.site_config import (
 DEFAULT_OUTPUT_ROOT = OUTPUT_ROOT / "make_site2"
 PACKAGE_ROOT = Path(__file__).resolve().parent
 RUNTIME_ROOT = PACKAGE_ROOT / "runtime"
+MANIFEST_INDEX = {
+    "basho_results_browser": "manifests/basho_results_browser.json",
+    "banzuke_changes": "manifests/banzuke_changes.json",
+    "banzuke_division_by_era": "manifests/banzuke_division_by_era.json",
+    "makuuchi_rank_by_era": "manifests/makuuchi_rank_by_era.json",
+    "division_stability": "manifests/division_stability.json",
+    "first_chii_appearance": "manifests/first_chii_appearance.json",
+    "rank_at_retirement": "manifests/rank_at_retirement.json",
+    "typical_equelo_values": "manifests/typical_equelo_values.json",
+    "win_probability_by_standing": "manifests/win_probability_by_standing.json",
+    "standings_by_wins": "manifests/standings_by_wins.json",
+    "career_length": "manifests/career_length.json",
+    "finish_by_chii": "manifests/finish_by_chii.json",
+}
+NAVIGATION_PAGE_BINDINGS: dict[str, str] = {}
 
 
 def build_brb_shell(output_root: Path = DEFAULT_OUTPUT_ROOT) -> None:
@@ -63,8 +79,105 @@ def build_brb_shell(output_root: Path = DEFAULT_OUTPUT_ROOT) -> None:
     copy_runtime(output_root)
 
 
+def navigation_bar_model(build_stamp: str) -> dict[str, Any]:
+    return {
+        "model": "NavigationBar",
+        "caption": {
+            "title": "Gaspode-san's Sumo Lab",
+            "status": build_stamp,
+        },
+        "collapse_control": {
+            "enabled": True,
+            "storage_key": "gaspodeSumoLab.makeSite2.navCollapsed",
+        },
+        "navigation_tree": [
+            navigation_tree_entry(child, str(index))
+            for index, child in enumerate(NAVIGATION.children, start=1)
+        ],
+    }
+
+
+def navigation_tree_entry(node: Any, index: str) -> dict[str, Any]:
+    page_id = navigation_page_id(node)
+    return {
+        "id": node.id,
+        "index": index,
+        "label": node.label,
+        "slug": node.slug,
+        "page_id": page_id,
+        "available": page_id in MANIFEST_INDEX if page_id else False,
+        "children": [
+            navigation_tree_entry(child, f"{index}.{child_index}")
+            for child_index, child in enumerate(node.children, start=1)
+        ],
+    }
+
+
+def navigation_page_id(node: Any) -> str | None:
+    candidates = (
+        node.page_id,
+        NAVIGATION_PAGE_BINDINGS.get(node.id),
+        node.id,
+    )
+    for candidate in candidates:
+        if candidate in MANIFEST_INDEX:
+            return candidate
+    return None
+
+
+def render_navigation_bar(navigation_bar: dict[str, Any]) -> str:
+    caption = navigation_bar["caption"]
+    return "\n".join(
+        (
+            '<aside id="site-nav" class="site-nav" data-nav-panel '
+            'aria-label="Site navigation">',
+            '<header class="site-brand">',
+            f'<h1>{escape(caption["title"])}</h1>',
+            f'<p>{escape(caption["status"])}</p>',
+            "</header>",
+            '<ol class="nav-tree">',
+            *[
+                render_navigation_entry(entry)
+                for entry in navigation_bar["navigation_tree"]
+            ],
+            "</ol>",
+            "</aside>",
+        )
+    )
+
+
+def render_navigation_entry(entry: dict[str, Any]) -> str:
+    children = entry["children"]
+    contents = [render_navigation_label(entry)]
+    if children:
+        contents.extend(
+            (
+                "<ol>",
+                *[render_navigation_entry(child) for child in children],
+                "</ol>",
+            )
+        )
+    return "\n".join(("<li>", *contents, "</li>"))
+
+
+def render_navigation_label(entry: dict[str, Any]) -> str:
+    label = escape(entry["label"])
+    if entry["available"]:
+        page_id = escape(entry["page_id"])
+        return (
+            f'<a href="#page={page_id}" class="nav-link" '
+            f'data-page-id="{page_id}">{label}</a>'
+        )
+    return f'<span class="nav-text nav-text-unavailable">{label}</span>'
+
+
 def write_index(output_root: Path) -> None:
     build_stamp = datetime.now().strftime("Generated %Y-%m-%d %H:%M")
+    navigation_bar = navigation_bar_model(build_stamp)
+    (output_root / "navigation_bar.json").write_text(
+        json.dumps(navigation_bar, indent=2),
+        encoding="utf-8",
+    )
     html = "\n".join(
         (
             "<!doctype html>",
@@ -76,67 +189,13 @@ def write_index(output_root: Path) -> None:
             "<title>Gaspode-san's Sumo Lab: make_site2</title>",
             "</head>",
             "<body>",
-            '<div class="site-shell">',
-            '<aside class="site-nav" aria-label="Site navigation">',
-            '<header class="site-brand">',
-            "<h1>Gaspode-san's Sumo Lab</h1>",
-            f'<p>{escape(build_stamp)}</p>',
-            "</header>",
-            '<ol class="nav-tree">',
-            '<li><span>Sumo History</span>',
-            "<ol>",
+            '<div class="site-shell" data-nav-shell>',
             (
-                '<li><a href="#page=banzuke_changes" class="nav-link" '
-                'data-page-id="banzuke_changes">2.1 Banzuke Changes</a></li>'
+                '<button type="button" class="nav-toggle" data-nav-toggle '
+                'aria-controls="site-nav" aria-expanded="true" '
+                'aria-label="Hide navigation" title="Hide navigation">&lt;</button>'
             ),
-            (
-                '<li><a href="#page=basho_results_browser" class="nav-link" '
-                'data-page-id="basho_results_browser">7.1 Basho Results</a></li>'
-            ),
-            (
-                '<li><a href="#page=banzuke_division_by_era" class="nav-link" '
-                'data-page-id="banzuke_division_by_era">Banzuke Division by Era</a></li>'
-            ),
-            (
-                '<li><a href="#page=makuuchi_rank_by_era" class="nav-link" '
-                'data-page-id="makuuchi_rank_by_era">Makuuchi Rank by Era</a></li>'
-            ),
-            (
-                '<li><a href="#page=division_stability" class="nav-link" '
-                'data-page-id="division_stability">Division Stability</a></li>'
-            ),
-            (
-                '<li><a href="#page=first_chii_appearance" class="nav-link" '
-                'data-page-id="first_chii_appearance">First Chii Appearance</a></li>'
-            ),
-            (
-                '<li><a href="#page=rank_at_retirement" class="nav-link" '
-                'data-page-id="rank_at_retirement">Rank at Retirement</a></li>'
-            ),
-            (
-                '<li><a href="#page=typical_equelo_values" class="nav-link" '
-                'data-page-id="typical_equelo_values">Typical Equelo Ratings</a></li>'
-            ),
-            (
-                '<li><a href="#page=win_probability_by_standing" class="nav-link" '
-                'data-page-id="win_probability_by_standing">Win Probability by Standing</a></li>'
-            ),
-            (
-                '<li><a href="#page=standings_by_wins" class="nav-link" '
-                'data-page-id="standings_by_wins">Standings by Wins</a></li>'
-            ),
-            (
-                '<li><a href="#page=career_length" class="nav-link" '
-                'data-page-id="career_length">Career Length</a></li>'
-            ),
-            (
-                '<li><a href="#page=finish_by_chii" class="nav-link" '
-                'data-page-id="finish_by_chii">Finish by Chii</a></li>'
-            ),
-            "</ol>",
-            "</li>",
-            "</ol>",
-            "</aside>",
+            render_navigation_bar(navigation_bar),
             '<main class="content-panel" id="content-panel">',
             '<header class="content-heading">',
             '<p class="eyebrow">make_site2</p>',
@@ -210,20 +269,7 @@ def write_manifests(output_root: Path) -> None:
     )
     (output_root / "manifest-index.json").write_text(
         json.dumps(
-            {
-                "basho_results_browser": "manifests/basho_results_browser.json",
-                "banzuke_changes": "manifests/banzuke_changes.json",
-                "banzuke_division_by_era": "manifests/banzuke_division_by_era.json",
-                "makuuchi_rank_by_era": "manifests/makuuchi_rank_by_era.json",
-                "division_stability": "manifests/division_stability.json",
-                "first_chii_appearance": "manifests/first_chii_appearance.json",
-                "rank_at_retirement": "manifests/rank_at_retirement.json",
-                "typical_equelo_values": "manifests/typical_equelo_values.json",
-                "win_probability_by_standing": "manifests/win_probability_by_standing.json",
-                "standings_by_wins": "manifests/standings_by_wins.json",
-                "career_length": "manifests/career_length.json",
-                "finish_by_chii": "manifests/finish_by_chii.json",
-            },
+            MANIFEST_INDEX,
             indent=2,
         ),
         encoding="utf-8",
