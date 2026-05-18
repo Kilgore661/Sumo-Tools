@@ -1,5 +1,0 @@
-Note sure if there is a TBD for this package already but:
-
-Thr tracker is very slow to start up by default. Is there an option for "get
-the live store up as fast as possible with the data you've got?". If not add
-one.
