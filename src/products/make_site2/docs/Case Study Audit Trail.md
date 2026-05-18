@@ -6,13 +6,19 @@ migration experiments. The original per-case notes are preserved in
 
 ## Working Partition
 
-| Nav item | Page id | Grammar | PA shape | Filter scope | Artifact rendering | Notes | Migration risk |
-| --- | --- | ---: | --- | --- | --- | --- | --- |
-| 7.1 Basho Results | `basho_results_browser` | G1 | One table PA: Basho Results table | Contents-level filters: basho/date, division, previous context, ratings, nu chii | Indexed table from BRB index and selected payload | Table notes only, shown when relevant table columns/groups are visible | First reference slice; must remove iframe and avoid copied page HTML |
-| Division Stability | `division_stability` | G1 | One chart PA: Division Stability chart | No filters in first slice | Grouped line chart over `persistence.csv` | None for initial model | First chart slice; must prove charts do not reintroduce shell behavior |
-| Standings by Wins | `standings_by_wins` | G1 | One table PA: Standings by Wins table | Contents-level filters: view, number of basho, active/current, division | Table over selected standings CSV | Table notes only | First non-indexed table slice; replaces old `TableAppView` path |
-| Career Length | `career_length` | G2b | Branch-selected contents: Chart branch or Table branch | Branch-local filters: chart type for Chart; active/all for Table | One selected branch PA: chart or Longest table | Table notes only when Table branch is selected | Replaces original G2; branch-selected, not simultaneous PAs |
-| Finish by Chii | `finish_by_chii` | G1 | One public chart PA: Finish by Chii threshold chart | Contents-level filters: division, direction, chii | Bar chart over top/bottom threshold CSVs | Scope note only in prototype | Current public item is standalone HTML; producer has extra outputs not automatically public-facing |
+| Nav item           | Page id                 | Grammar | PA shape                                               | Filter scope                                                                     | Artifact rendering                                | Notes                                                                  | Migration risk                                                                                     |
+| ------------------ | ----------------------- | -------:| ------------------------------------------------------ | -------------------------------------------------------------------------------- | ------------------------------------------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| 7.1 Basho Results  | `basho_results_browser` | G1      | One table PA: Basho Results table                      | Contents-level filters: basho/date, division, previous context, ratings, nu chii | Indexed table from BRB index and selected payload | Table notes only, shown when relevant table columns/groups are visible | First reference slice; must remove iframe and avoid copied page HTML                               |
+| Banzuke Division by Era | `banzuke_division_by_era` | G1 | One chart PA: Banzuke Division by Era | No filters in first slice | Stacked bar chart over `divisions.csv` | None for initial model | First stacked-bar chart slice |
+| Makuuchi Rank by Era | `makuuchi_rank_by_era` | G1 | One chart PA: Makuuchi Rank by Era | No filters in first slice | Stacked bar chart over `ranks.csv` | None for initial model | Reuses stacked-bar chart primitive with era groups |
+| Division Stability | `division_stability`    | G1      | One chart PA: Division Stability chart                 | No filters in first slice                                                        | Grouped line chart over `persistence.csv`         | None for initial model                                                 | First chart slice; must prove charts do not reintroduce shell behavior                             |
+| First Chii Appearance | `first_chii_appearance` | G1 | One chart PA: First Chii Appearance | No filters in first slice | Ordinal bar chart over `appearances.csv` | None for initial model | First dense ordered bar chart with date-formatted y-axis |
+| Rank at Retirement | `rank_at_retirement` | G1 | One chart PA: Rank at Retirement | No filters in first slice | Category bar chart over `distribution.csv` | HTML note below chart | First simple ordered category bar chart with notes |
+| Typical Equelo Ratings | `typical_equelo_values` | G1 | One table PA: Typical Equelo Ratings | No filters in first slice | Three sectioned tables over `typical_equelo_values.csv` | Two HTML notes below table | First sectioned-table slice |
+| Win Probability by Standing | `win_probability_by_standing` | G1 | One chart PA: Win Probability by Standing | Contents-level filters: source, division, error bars | One visible trace from observed/equelo CSVs | None for initial model | First filtered scatter/line chart with source-selected data |
+| Standings by Wins  | `standings_by_wins`     | G1      | One table PA: Standings by Wins table                  | Contents-level filters: view, number of basho, active/current, division          | Table over selected standings CSV                 | Table notes only                                                       | First non-indexed table slice; replaces old `TableAppView` path                                    |
+| Career Length      | `career_length`         | G2b     | Branch-selected contents: Chart branch or Table branch | Branch-local filters: chart type for Chart; active/all for Table                 | One selected branch PA: chart or Longest table    | Table notes only when Table branch is selected                         | Replaces original G2; branch-selected, not simultaneous PAs                                        |
+| Finish by Chii     | `finish_by_chii`        | G1      | One public chart PA: Finish by Chii threshold chart    | Contents-level filters: division, direction, chii                                | Bar chart over top/bottom threshold CSVs          | Scope note only in prototype                                           | Current public item is standalone HTML; producer has extra outputs not automatically public-facing |
 
 ## Grammar Summary
 
@@ -119,7 +125,274 @@ Remaining gaps:
 - URL state is adequate but not yet a documented contract;
 - automated tests do not yet cover the shell.
 
-## Case 2: Division Stability Chart Slice
+## Case 2: Banzuke Division by Era Slice
+
+This was the first follow-on chart after the initial five case-study set:
+
+```text
+Page id: banzuke_division_by_era
+Grammar: G1
+Status: prototype
+PA: Banzuke Division by Era
+Artifact: stacked bar chart over divisions.csv
+Notes: none
+```
+
+Build output:
+
+```text
+manifests/banzuke_division_by_era.json
+data/banzuke-division-by-era/divisions.csv
+data/banzuke-division-by-era/metadata.json
+data/banzuke-division-by-era/page.json
+```
+
+What was proven:
+
+- A second ordinary chart page can be added to the same G1 manifest path.
+- The chart renderer now supports a stacked-bar primitive.
+- The page renders from the existing `ChartPA` manifest data and copied CSV bundle.
+- No filter model changes were needed.
+
+Verification:
+
+```text
+build: python -m src.products.make_site2 --output files\output\make_site2
+manifest JSON: valid
+manifest index JSON: valid
+runtime JavaScript syntax: valid
+```
+
+Remaining gaps:
+
+- stacked-bar rendering is simple SVG;
+- subtitle and page metadata are not yet surfaced;
+- legend entries are display-only;
+- browser visual verification still needs to be repeated when the browser tool is available.
+
+## Case 3: Makuuchi Rank by Era Slice
+
+This was the second follow-on stacked-bar chart:
+
+```text
+Page id: makuuchi_rank_by_era
+Grammar: G1
+Status: prototype
+PA: Makuuchi Rank by Era
+Artifact: stacked bar chart over ranks.csv
+Notes: none
+```
+
+Build output:
+
+```text
+manifests/makuuchi_rank_by_era.json
+data/makuuchi-rank-by-era/ranks.csv
+data/makuuchi-rank-by-era/metadata.json
+data/makuuchi-rank-by-era/page.json
+```
+
+What was proven:
+
+- The stacked-bar renderer can be reused for a second chart where the stack
+  groups are eras rather than divisions.
+- The page needs no new grammar or filter model.
+- The builder can migrate another `ChartPA` by using the shared chart-envelope
+  helper.
+
+Verification:
+
+```text
+build: python -m src.products.make_site2 --output files\output\make_site2
+manifest/data output: present
+runtime JavaScript syntax: valid
+```
+
+Remaining gaps:
+
+- stacked-bar rendering remains simple SVG;
+- subtitle and page metadata are not yet surfaced;
+- legend entries are display-only;
+- browser visual verification still needs to be repeated when the browser tool is available.
+
+## Case 4: First Chii Appearance Slice
+
+This was the first dense ordered bar chart:
+
+```text
+Page id: first_chii_appearance
+Grammar: G1
+Status: prototype
+PA: First Chii Appearance
+Artifact: bar chart over appearances.csv
+Notes: none
+```
+
+Build output:
+
+```text
+manifests/first_chii_appearance.json
+data/first-chii-appearance/appearances.csv
+data/first-chii-appearance/metadata.json
+data/first-chii-appearance/page.json
+```
+
+What was proven:
+
+- A simple non-stacked bar chart fits the G1 chart path.
+- `xAxis.order_field` can drive display order without adding a filter or branch.
+- The y-axis can render stored month indices as public-facing date labels.
+
+Verification:
+
+```text
+build: python -m src.products.make_site2 --output files\output\make_site2
+manifest/data output: present
+runtime JavaScript syntax: valid
+```
+
+Remaining gaps:
+
+- bar rendering is simple SVG;
+- subtitle and page metadata are not yet surfaced;
+- hover details are not implemented;
+- browser visual verification still needs to be repeated when the browser tool is available.
+
+## Case 5: Rank at Retirement Slice
+
+This was the first simple ordered category bar chart:
+
+```text
+Page id: rank_at_retirement
+Grammar: G1
+Status: prototype
+PA: Rank at Retirement
+Artifact: bar chart over distribution.csv
+Notes: one HTML note below chart
+```
+
+Build output:
+
+```text
+manifests/rank_at_retirement.json
+data/rank-at-retirement/distribution.csv
+data/rank-at-retirement/metadata.json
+data/rank-at-retirement/page.json
+```
+
+What was proven:
+
+- A small ordered category bar chart fits the G1 chart path.
+- `xAxis.order_values` can drive category order directly.
+- Chart notes from the manifest render below the chart.
+
+Verification:
+
+```text
+build: python -m src.products.make_site2 --output files\output\make_site2
+manifest/data output: present
+runtime JavaScript syntax: valid
+```
+
+Remaining gaps:
+
+- category-bar rendering is simple SVG;
+- page metadata is not yet surfaced;
+- browser visual verification still needs to be repeated when the browser tool is available.
+
+## Case 6: Typical Equelo Ratings Slice
+
+This was the first sectioned-table slice:
+
+```text
+Page id: typical_equelo_values
+Grammar: G1
+Status: prototype
+PA: Typical Equelo Ratings
+Artifact: three sectioned tables over typical_equelo_values.csv
+Notes: two HTML notes below table
+```
+
+Build output:
+
+```text
+manifests/typical_equelo_values.json
+data/typical-equelo-values/typical_equelo_values.csv
+data/typical-equelo-values/metadata.json
+data/typical-equelo-values/page.json
+```
+
+What was proven:
+
+- A sectioned table still fits G1: no filters, one table PA, notes.
+- The table renderer can use manifest sections to split one CSV into multiple
+  ordered tables.
+- Table notes render below sectioned-table content.
+
+Verification:
+
+```text
+build: python -m src.products.make_site2 --output files\output\make_site2
+manifest/data output: present
+runtime JavaScript syntax: valid
+```
+
+Remaining gaps:
+
+- sectioned-table layout is provisional;
+- page metadata is not yet surfaced;
+- cross-links in notes still point at old relative locations and need a final
+  make_site2 URL strategy;
+- browser visual verification still needs to be repeated when the browser tool is available.
+
+## Case 7: Win Probability by Standing Slice
+
+This was the first filtered scatter/line chart:
+
+```text
+Page id: win_probability_by_standing
+Grammar: G1
+Status: prototype
+PA: Win Probability by Standing
+Artifact: line/scatter chart over observed or equelo trace CSV
+Filters: source, division, error_bars
+Notes: none
+```
+
+Build output:
+
+```text
+manifests/win_probability_by_standing.json
+data/win-probability-by-standing/observed_trace_points.csv
+data/win-probability-by-standing/equelo_trace_points.csv
+data/win-probability-by-standing/metadata.json
+data/win-probability-by-standing/page.json
+```
+
+What was proven:
+
+- Source-selected chart data fits the G1 filter model.
+- Division is a contents-level filter, not a branch or PA-local filter.
+- The runtime can render a first selected-standing trace with optional observed
+  CI95 error bars.
+- No new grammar is needed for this case.
+
+Verification:
+
+```text
+build: python -m src.products.make_site2 --output files\output\make_site2
+manifest/data output: present
+runtime JavaScript syntax: valid
+```
+
+Remaining gaps:
+
+- only one selected-standing trace is rendered at a time in this first SVG slice;
+- Plotly legend toggling and double-click isolation are not yet reproduced;
+- error bars are ignored for Equelo source, but the checkbox is not yet disabled;
+- browser visual verification still needs to be repeated when the browser tool is available.
+
+## Case 8: Division Stability Chart Slice
 
 This was the first ordinary chart page:
 
@@ -187,7 +460,7 @@ Remaining gaps:
 - chart axes and tick density are provisional;
 - renderer is still effectively a `division_stability` adapter.
 
-## Case 3: Standings Table Slice
+## Case 9: Standings Table Slice
 
 This was the first ordinary non-indexed table page:
 
@@ -274,7 +547,7 @@ Remaining gaps:
 - URL state works but is not yet documented as a stable contract;
 - no automated browser test covers filter changes or sorting.
 
-## Case 4: Career Length Pressure Case
+## Case 10: Career Length Pressure Case
 
 The original hypothesis was that Career Length was the G2 pressure case:
 
@@ -409,7 +682,7 @@ Remaining gaps:
 - G2b semantics need to be merged into the main migration plan;
 - automated tests should cover one-visible-artefact behavior.
 
-## Case 5: Finish by Chii Manifest Slice
+## Case 11: Finish by Chii Manifest Slice
 
 The old make_site item 5.1 is currently a `StandaloneHtmlView` over:
 

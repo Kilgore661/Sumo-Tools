@@ -10,16 +10,28 @@ from html import escape
 from pathlib import Path
 from typing import Any
 
-from src.products.make_site.pa_manifest.chart_instances import division_stability
+from src.products.make_site.pa_manifest.chart_instances import (
+    banzuke_division_by_era,
+    division_stability,
+    first_chii_appearance,
+    makuuchi_rank_by_era,
+    rank_at_retirement,
+    win_probability_by_standing,
+)
 from src.products.make_site.pa_manifest.table_instances import (
     basho_results_browser,
     standings_by_wins,
+    typical_equelo_values,
 )
 from src.products.make_site.site_config import (
     BASHO_RESULTS_OUTPUT_ROOT,
+    BANZUKE_DIVISION_BY_ERA_SITE_BUNDLE,
     DIVISION_STABILITY_SITE_BUNDLE,
+    FIRST_CHII_APPEARANCE_SITE_BUNDLE,
+    MAKUUCHI_RANK_BY_ERA_SITE_BUNDLE,
     OUTPUT_ROOT,
     STANDINGS_PUBLISHER_DATA,
+    WIN_PROBABILITY_SITE_BUNDLE,
 )
 
 
@@ -35,8 +47,14 @@ def build_brb_shell(output_root: Path = DEFAULT_OUTPUT_ROOT) -> None:
     write_index(output_root)
     write_manifests(output_root)
     copy_brb_data(output_root)
+    copy_banzuke_division_by_era_data(output_root)
     copy_division_stability_data(output_root)
+    copy_first_chii_appearance_data(output_root)
+    copy_makuuchi_rank_by_era_data(output_root)
+    copy_rank_at_retirement_data(output_root)
     copy_standings_data(output_root)
+    copy_typical_equelo_values_data(output_root)
+    copy_win_probability_by_standing_data(output_root)
     copy_career_length_data(output_root)
     copy_finish_by_chii_data(output_root)
     copy_runtime(output_root)
@@ -69,8 +87,32 @@ def write_index(output_root: Path) -> None:
                 'data-page-id="basho_results_browser">7.1 Basho Results</a></li>'
             ),
             (
+                '<li><a href="#page=banzuke_division_by_era" class="nav-link" '
+                'data-page-id="banzuke_division_by_era">Banzuke Division by Era</a></li>'
+            ),
+            (
+                '<li><a href="#page=makuuchi_rank_by_era" class="nav-link" '
+                'data-page-id="makuuchi_rank_by_era">Makuuchi Rank by Era</a></li>'
+            ),
+            (
                 '<li><a href="#page=division_stability" class="nav-link" '
                 'data-page-id="division_stability">Division Stability</a></li>'
+            ),
+            (
+                '<li><a href="#page=first_chii_appearance" class="nav-link" '
+                'data-page-id="first_chii_appearance">First Chii Appearance</a></li>'
+            ),
+            (
+                '<li><a href="#page=rank_at_retirement" class="nav-link" '
+                'data-page-id="rank_at_retirement">Rank at Retirement</a></li>'
+            ),
+            (
+                '<li><a href="#page=typical_equelo_values" class="nav-link" '
+                'data-page-id="typical_equelo_values">Typical Equelo Ratings</a></li>'
+            ),
+            (
+                '<li><a href="#page=win_probability_by_standing" class="nav-link" '
+                'data-page-id="win_probability_by_standing">Win Probability by Standing</a></li>'
             ),
             (
                 '<li><a href="#page=standings_by_wins" class="nav-link" '
@@ -119,6 +161,30 @@ def write_manifests(output_root: Path) -> None:
         json.dumps(division_stability_envelope(), indent=2),
         encoding="utf-8",
     )
+    (manifest_dir / "banzuke_division_by_era.json").write_text(
+        json.dumps(banzuke_division_by_era_envelope(), indent=2),
+        encoding="utf-8",
+    )
+    (manifest_dir / "makuuchi_rank_by_era.json").write_text(
+        json.dumps(makuuchi_rank_by_era_envelope(), indent=2),
+        encoding="utf-8",
+    )
+    (manifest_dir / "first_chii_appearance.json").write_text(
+        json.dumps(first_chii_appearance_envelope(), indent=2),
+        encoding="utf-8",
+    )
+    (manifest_dir / "rank_at_retirement.json").write_text(
+        json.dumps(rank_at_retirement_envelope(), indent=2),
+        encoding="utf-8",
+    )
+    (manifest_dir / "typical_equelo_values.json").write_text(
+        json.dumps(typical_equelo_values_envelope(), indent=2),
+        encoding="utf-8",
+    )
+    (manifest_dir / "win_probability_by_standing.json").write_text(
+        json.dumps(win_probability_by_standing_envelope(), indent=2),
+        encoding="utf-8",
+    )
     (manifest_dir / "standings_by_wins.json").write_text(
         json.dumps(standings_by_wins_envelope(), indent=2),
         encoding="utf-8",
@@ -135,7 +201,13 @@ def write_manifests(output_root: Path) -> None:
         json.dumps(
             {
                 "basho_results_browser": "manifests/basho_results_browser.json",
+                "banzuke_division_by_era": "manifests/banzuke_division_by_era.json",
+                "makuuchi_rank_by_era": "manifests/makuuchi_rank_by_era.json",
                 "division_stability": "manifests/division_stability.json",
+                "first_chii_appearance": "manifests/first_chii_appearance.json",
+                "rank_at_retirement": "manifests/rank_at_retirement.json",
+                "typical_equelo_values": "manifests/typical_equelo_values.json",
+                "win_probability_by_standing": "manifests/win_probability_by_standing.json",
                 "standings_by_wins": "manifests/standings_by_wins.json",
                 "career_length": "manifests/career_length.json",
                 "finish_by_chii": "manifests/finish_by_chii.json",
@@ -233,6 +305,113 @@ def division_stability_envelope() -> dict[str, Any]:
     }
 
 
+def banzuke_division_by_era_envelope() -> dict[str, Any]:
+    return chart_envelope(
+        page_id="banzuke_division_by_era",
+        title="Banzuke Division by Era",
+        summary="Historical banzuke division structure by era.",
+        status="prototype",
+        chart=banzuke_division_by_era,
+        data_dir="banzuke-division-by-era",
+    )
+
+
+def makuuchi_rank_by_era_envelope() -> dict[str, Any]:
+    return chart_envelope(
+        page_id="makuuchi_rank_by_era",
+        title="Makuuchi Rank by Era",
+        summary="Historical Makuuchi rank structure by era.",
+        status="prototype",
+        chart=makuuchi_rank_by_era,
+        data_dir="makuuchi-rank-by-era",
+    )
+
+
+def first_chii_appearance_envelope() -> dict[str, Any]:
+    return chart_envelope(
+        page_id="first_chii_appearance",
+        title="First Chii Appearance",
+        summary="Earliest observed bout appearance for each chii.",
+        status="prototype",
+        chart=first_chii_appearance,
+        data_dir="first-chii-appearance",
+    )
+
+
+def rank_at_retirement_envelope() -> dict[str, Any]:
+    return chart_envelope(
+        page_id="rank_at_retirement",
+        title="Rank at Retirement",
+        summary="Final observed rank group for retired rikishi.",
+        status="prototype",
+        chart=rank_at_retirement,
+        data_dir="rank-at-retirement",
+    )
+
+
+def win_probability_by_standing_envelope() -> dict[str, Any]:
+    return chart_envelope(
+        page_id="win_probability_by_standing",
+        title="Win Probability by Standing",
+        summary="Probability of winning as a function of standing.",
+        status="prototype",
+        chart=win_probability_by_standing,
+        data_dir="win-probability-by-standing",
+    )
+
+
+def chart_envelope(
+    *,
+    page_id: str,
+    title: str,
+    summary: str,
+    status: str,
+    chart: Any,
+    data_dir: str,
+) -> dict[str, Any]:
+    data_sources = []
+    for source in chart.data_sources:
+        item = plain(source)
+        item["path"] = f"data/{data_dir}/{Path(source.path).name}"
+        data_sources.append(item)
+    return {
+        "page": {
+            "id": page_id,
+            "title": title,
+            "summary": summary,
+            "status": status,
+        },
+        "contentPanel": {
+            "heading": {
+                "title": title,
+                "summary": summary,
+            },
+            "contents": {
+                "grammar": "G1",
+                "filters": manifest_filters_for(chart.options),
+                "pas": [
+                    {
+                        "id": chart.id,
+                        "title": chart.heading,
+                        "artifact": {
+                            "kind": "chart",
+                            "renderer": chart.renderer,
+                            "dataSources": data_sources,
+                            "primarySource": chart.primary_source,
+                            "traces": plain(chart.traces),
+                            "xAxis": plain(chart.x_axis),
+                            "yAxis": plain(chart.y_axis),
+                            "defaultTrace": chart.default_trace,
+                            "provenance": plain(chart.provenance),
+                        },
+                    }
+                ],
+                "notes": plain(chart.notes),
+            },
+        },
+    }
+
+
 def standings_by_wins_envelope() -> dict[str, Any]:
     return {
         "page": {
@@ -268,6 +447,48 @@ def standings_by_wins_envelope() -> dict[str, Any]:
                     }
                 ],
                 "notes": plain(standings_by_wins.notes),
+            },
+        },
+    }
+
+
+def typical_equelo_values_envelope() -> dict[str, Any]:
+    return {
+        "page": {
+            "id": "typical_equelo_values",
+            "title": "Typical Equelo Ratings",
+            "summary": "Approximate rating landmarks for familiar rank labels.",
+            "status": "prototype",
+        },
+        "contentPanel": {
+            "heading": {
+                "title": "Typical Equelo Ratings",
+                "summary": "Approximate rating landmarks for familiar rank labels.",
+            },
+            "contents": {
+                "grammar": "G1",
+                "filters": manifest_filters_for(typical_equelo_values.options),
+                "pas": [
+                    {
+                        "id": "typical_equelo_values_table",
+                        "title": "Typical Equelo Ratings",
+                        "artifact": {
+                            "kind": "table",
+                            "renderer": typical_equelo_values.renderer,
+                            "dataSources": [
+                                {
+                                    **plain(typical_equelo_values.data_sources[0]),
+                                    "path": "data/typical-equelo-values/typical_equelo_values.csv",
+                                }
+                            ],
+                            "primarySource": typical_equelo_values.primary_source,
+                            "sections": plain(typical_equelo_values.sections),
+                            "columns": plain(typical_equelo_values.columns),
+                            "defaultSort": plain(typical_equelo_values.default_sort),
+                        },
+                    }
+                ],
+                "notes": plain(typical_equelo_values.notes),
             },
         },
     }
@@ -594,12 +815,61 @@ def copy_division_stability_data(output_root: Path) -> None:
         shutil.copy2(DIVISION_STABILITY_SITE_BUNDLE / name, data_root / name)
 
 
+def copy_banzuke_division_by_era_data(output_root: Path) -> None:
+    data_root = output_root / "data" / "banzuke-division-by-era"
+    data_root.mkdir(parents=True, exist_ok=True)
+    for name in ("divisions.csv", "metadata.json", "page.json"):
+        shutil.copy2(BANZUKE_DIVISION_BY_ERA_SITE_BUNDLE / name, data_root / name)
+
+
+def copy_makuuchi_rank_by_era_data(output_root: Path) -> None:
+    data_root = output_root / "data" / "makuuchi-rank-by-era"
+    data_root.mkdir(parents=True, exist_ok=True)
+    for name in ("ranks.csv", "metadata.json", "page.json"):
+        shutil.copy2(MAKUUCHI_RANK_BY_ERA_SITE_BUNDLE / name, data_root / name)
+
+
+def copy_first_chii_appearance_data(output_root: Path) -> None:
+    data_root = output_root / "data" / "first-chii-appearance"
+    data_root.mkdir(parents=True, exist_ok=True)
+    for name in ("appearances.csv", "metadata.json", "page.json"):
+        shutil.copy2(FIRST_CHII_APPEARANCE_SITE_BUNDLE / name, data_root / name)
+
+
+def copy_rank_at_retirement_data(output_root: Path) -> None:
+    source_root = OUTPUT_ROOT / "rank_at_retirement" / "site" / "rank_at_retirement_1958_01_to_2026_05"
+    data_root = output_root / "data" / "rank-at-retirement"
+    data_root.mkdir(parents=True, exist_ok=True)
+    for name in ("distribution.csv", "metadata.json", "page.json"):
+        shutil.copy2(source_root / name, data_root / name)
+
+
 def copy_standings_data(output_root: Path) -> None:
     data_root = output_root / "data" / "standings"
     data_root.mkdir(parents=True, exist_ok=True)
     for source in STANDINGS_PUBLISHER_DATA.iterdir():
         if source.is_file():
             shutil.copy2(source, data_root / source.name)
+
+
+def copy_typical_equelo_values_data(output_root: Path) -> None:
+    source_root = OUTPUT_ROOT / "Equelo" / "fixed_v2" / "landmarks" / "site" / "typical_equelo_values"
+    data_root = output_root / "data" / "typical-equelo-values"
+    data_root.mkdir(parents=True, exist_ok=True)
+    for name in ("typical_equelo_values.csv", "metadata.json", "page.json"):
+        shutil.copy2(source_root / name, data_root / name)
+
+
+def copy_win_probability_by_standing_data(output_root: Path) -> None:
+    data_root = output_root / "data" / "win-probability-by-standing"
+    data_root.mkdir(parents=True, exist_ok=True)
+    for name in (
+        "observed_trace_points.csv",
+        "equelo_trace_points.csv",
+        "metadata.json",
+        "page.json",
+    ):
+        shutil.copy2(WIN_PROBABILITY_SITE_BUNDLE / name, data_root / name)
 
 
 def copy_career_length_data(output_root: Path) -> None:

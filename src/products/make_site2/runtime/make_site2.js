@@ -310,6 +310,10 @@ async function renderTable(envelope, pa) {
     renderStandingsTable(envelope, pa, rows, metadata);
     return;
   }
+  if (artifact.renderer === "sectioned_table") {
+    renderSectionedTable(envelope, pa, rows);
+    return;
+  }
   throw new Error(`Unsupported table renderer: ${artifact.renderer}`);
 }
 
@@ -344,6 +348,34 @@ function renderStandingsTable(envelope, pa, rows, metadata) {
   `;
   renderNotes(envelope);
   wireTableHeaders(artifact);
+}
+
+function renderSectionedTable(envelope, pa, rows) {
+  const artifact = pa.artifact;
+  const columns = artifact.columns || [];
+  document.getElementById("pa-section").innerHTML = `
+    <div class="sectioned-table-panel">
+      ${(artifact.sections || []).map(section => renderTableSection(section, rows, columns)).join("")}
+    </div>
+  `;
+  renderNotes(envelope);
+}
+
+function renderTableSection(section, rows, columns) {
+  const sectionRows = rows
+    .filter(row => String(row[section.source_field]) === String(section.source_value))
+    .sort((left, right) => comparePrimitive(Number(left[section.order_by]) || 0, Number(right[section.order_by]) || 0));
+  return `
+    <section class="table-panel sectioned-table">
+      <h3 class="table-title">${escapeHtml(section.heading)}</h3>
+      <div class="table-wrap table-wrap-compact">
+        <table>
+          <thead><tr>${columns.map(column => renderHeaderCell(column)).join("")}</tr></thead>
+          <tbody>${sectionRows.map((row, index) => renderTableRow(row, index, columns)).join("")}</tbody>
+        </table>
+      </div>
+    </section>
+  `;
 }
 
 function visibleColumnsForTableArtifact(artifact) {
@@ -441,12 +473,35 @@ function normalizeDivisionFilter(envelope) {
 
 async function renderChart(envelope, pa) {
   const artifact = pa.artifact;
-  const source = primaryDataSource(artifact);
+  if (artifact.renderer === "standing_win_probability_chart") {
+    normalizeStandingWinProbabilityFilters(envelope, artifact);
+  }
+  const source = dataSourceForFilters(artifact) || primaryDataSource(artifact);
   if (!source) throw new Error(`No chart data source is configured for ${pa.id}`);
   const rows = await fetchCsvRows(source.path);
   state.rows = rows;
   if (artifact.renderer === "division_stability_chart") {
     renderGroupedLineChart(envelope, pa, rows);
+    return;
+  }
+  if (artifact.renderer === "banzuke_division_by_era_chart") {
+    renderStackedBarChart(envelope, pa, rows);
+    return;
+  }
+  if (artifact.renderer === "makuuchi_rank_by_era_chart") {
+    renderStackedBarChart(envelope, pa, rows);
+    return;
+  }
+  if (artifact.renderer === "first_chii_appearance_chart") {
+    renderOrdinalBarChart(envelope, pa, rows);
+    return;
+  }
+  if (artifact.renderer === "rank_group_bar_chart") {
+    renderCategoryBarChart(envelope, pa, rows);
+    return;
+  }
+  if (artifact.renderer === "standing_win_probability_chart") {
+    renderStandingWinProbabilityChart(envelope, pa, rows, source);
     return;
   }
   if (artifact.renderer === "finish_by_chii_chart") {
@@ -717,6 +772,464 @@ function renderGroupedLineChart(envelope, pa, rows) {
     </div>
   `;
   renderNotes(envelope);
+}
+
+function renderStackedBarChart(envelope, pa, rows) {
+  const artifact = pa.artifact;
+  const trace = (artifact.traces || [])[0];
+  const chart = stackedBarChartModel(rows, trace, artifact);
+  document.getElementById("pa-section").innerHTML = `
+    <div class="chart-panel">
+      <h3 class="chart-title">${escapeHtml(pa.title)}</h3>
+      <div class="line-chart-wrap">
+        ${renderStackedBarChartSvg(chart)}
+      </div>
+      ${renderStackedBarLegend(chart)}
+    </div>
+  `;
+  renderNotes(envelope);
+}
+
+function stackedBarChartModel(rows, trace, artifact) {
+  const width = 1040;
+  const height = 560;
+  const margin = { top: 24, right: 24, bottom: 88, left: 78 };
+  const plotWidth = width - margin.left - margin.right;
+  const plotHeight = height - margin.top - margin.bottom;
+  const xValues = [...new Set(rows.map(row => row[trace.x]))];
+  const stackOrder = [...(artifact.provenance?.division_order || []), ...new Set(rows.map(row => row[trace.group_by]))]
+    .filter((value, index, values) => value && values.indexOf(value) === index)
+    .reverse();
+  const totals = new Map(xValues.map(xValue => [
+    xValue,
+    rows
+      .filter(row => row[trace.x] === xValue)
+      .reduce((total, row) => total + (Number(row[trace.y]) || 0), 0)
+  ]));
+  const yMax = Math.max(...totals.values(), 1);
+  const baseColours = {
+    Jonokuchi: "#bc6c25",
+    Jonidan: "#8d6a9f",
+    Sandanme: "#2a9d8f",
+    Makushita: "#457b9d",
+    Juryo: "#355c7d",
+    Makuuchi: "#6d597a"
+  };
+  const palette = ["#6d597a", "#355c7d", "#457b9d", "#2a9d8f", "#8d6a9f", "#bc6c25", "#b7791f", "#7a6f46", "#8c4b2f"];
+  const colours = Object.fromEntries(stackOrder.map((group, index) => [
+    group,
+    baseColours[group] || palette[index % palette.length]
+  ]));
+  return {
+    artifact,
+    trace,
+    rows,
+    width,
+    height,
+    margin,
+    plotWidth,
+    plotHeight,
+    xValues,
+    stackOrder,
+    yMax,
+    colours,
+    scaleY: value => margin.top + (1 - value / yMax) * plotHeight
+  };
+}
+
+function renderStackedBarChartSvg(chart) {
+  const yTicks = [0, 0.25, 0.5, 0.75, 1].map(value => value * chart.yMax);
+  const slotWidth = chart.plotWidth / Math.max(1, chart.xValues.length);
+  const barWidth = Math.max(18, slotWidth * 0.64);
+  return `
+    <svg class="line-chart" viewBox="0 0 ${chart.width} ${chart.height}" role="img" aria-label="${escapeHtml(chart.artifact.renderer)}">
+      ${yTicks.map(value => `
+        <line class="grid-line" x1="${chart.margin.left}" x2="${chart.margin.left + chart.plotWidth}" y1="${chart.scaleY(value)}" y2="${chart.scaleY(value)}"></line>
+        <text class="tick-label" x="${chart.margin.left - 10}" y="${chart.scaleY(value) + 4}" text-anchor="end">${Math.round(value)}</text>
+      `).join("")}
+      <line class="axis-line" x1="${chart.margin.left}" x2="${chart.margin.left}" y1="${chart.margin.top}" y2="${chart.margin.top + chart.plotHeight}"></line>
+      <line class="axis-line" x1="${chart.margin.left}" x2="${chart.margin.left + chart.plotWidth}" y1="${chart.margin.top + chart.plotHeight}" y2="${chart.margin.top + chart.plotHeight}"></line>
+      ${chart.xValues.map((xValue, index) => renderStackedBar(chart, xValue, index, slotWidth, barWidth)).join("")}
+      ${chart.xValues.map((xValue, index) => {
+        const x = chart.margin.left + index * slotWidth + slotWidth / 2;
+        return `<text class="tick-label angled-tick" transform="translate(${x} ${chart.margin.top + chart.plotHeight + 24}) rotate(-35)" text-anchor="end">${escapeHtml(xValue)}</text>`;
+      }).join("")}
+      <text class="axis-label" x="${chart.margin.left + chart.plotWidth / 2}" y="${chart.height - 18}" text-anchor="middle">${escapeHtml(chart.artifact.xAxis?.label || chart.trace.x)}</text>
+      <text class="axis-label" transform="translate(20 ${chart.margin.top + chart.plotHeight / 2}) rotate(-90)" text-anchor="middle">${escapeHtml(chart.artifact.yAxis?.label || chart.trace.y)}</text>
+    </svg>
+  `;
+}
+
+function renderStackedBar(chart, xValue, index, slotWidth, barWidth) {
+  const rowsByGroup = new Map(chart.rows
+    .filter(row => row[chart.trace.x] === xValue)
+    .map(row => [row[chart.trace.group_by], row]));
+  const x = chart.margin.left + index * slotWidth + (slotWidth - barWidth) / 2;
+  let cumulative = 0;
+  return chart.stackOrder.map(group => {
+    const value = Number(rowsByGroup.get(group)?.[chart.trace.y]) || 0;
+    const y = chart.scaleY(cumulative + value);
+    const bottom = chart.scaleY(cumulative);
+    cumulative += value;
+    return `<rect class="stack-bar" x="${x}" y="${y}" width="${barWidth}" height="${Math.max(0, bottom - y)}" style="fill:${chart.colours[group] || "#777"}"></rect>`;
+  }).join("");
+}
+
+function renderStackedBarLegend(chart) {
+  const legendOrder = [...chart.stackOrder].reverse();
+  return `
+    <div class="chart-legend">
+      ${legendOrder.map(group => `
+        <span><span class="legend-swatch" style="background:${chart.colours[group] || "#777"}"></span>${escapeHtml(group)}</span>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderOrdinalBarChart(envelope, pa, rows) {
+  const artifact = pa.artifact;
+  const trace = (artifact.traces || [])[0];
+  const orderedRows = [...rows].sort((left, right) => {
+    const orderField = artifact.xAxis?.order_field;
+    if (!orderField) return String(left[trace.x]).localeCompare(String(right[trace.x]));
+    return Number(left[orderField]) - Number(right[orderField]);
+  });
+  const chart = ordinalBarChartModel(orderedRows, trace, artifact);
+  document.getElementById("pa-section").innerHTML = `
+    <div class="chart-panel">
+      <h3 class="chart-title">${escapeHtml(pa.title)}</h3>
+      <div class="line-chart-wrap">
+        ${renderOrdinalBarChartSvg(chart)}
+      </div>
+    </div>
+  `;
+  renderNotes(envelope);
+}
+
+function ordinalBarChartModel(rows, trace, artifact) {
+  const width = 1240;
+  const height = 560;
+  const margin = { top: 24, right: 24, bottom: 92, left: 86 };
+  const plotWidth = width - margin.left - margin.right;
+  const plotHeight = height - margin.top - margin.bottom;
+  const yMax = Math.max(...rows.map(row => Number(row[trace.y]) || 0), 1);
+  const maxLabels = artifact.provenance?.max_x_tick_labels || 40;
+  const tickStep = Math.max(1, Math.ceil(rows.length / maxLabels));
+  return {
+    artifact,
+    trace,
+    rows,
+    width,
+    height,
+    margin,
+    plotWidth,
+    plotHeight,
+    yMax,
+    tickStep,
+    scaleY: value => margin.top + (1 - value / yMax) * plotHeight
+  };
+}
+
+function renderOrdinalBarChartSvg(chart) {
+  const slotWidth = chart.plotWidth / Math.max(1, chart.rows.length);
+  const barWidth = Math.max(1, slotWidth - 1);
+  const yTicks = ordinalDateTicks(chart.yMax);
+  return `
+    <svg class="line-chart" viewBox="0 0 ${chart.width} ${chart.height}" role="img" aria-label="${escapeHtml(chart.artifact.renderer)}">
+      ${yTicks.map(value => `
+        <line class="grid-line" x1="${chart.margin.left}" x2="${chart.margin.left + chart.plotWidth}" y1="${chart.scaleY(value)}" y2="${chart.scaleY(value)}"></line>
+        <text class="tick-label" x="${chart.margin.left - 10}" y="${chart.scaleY(value) + 4}" text-anchor="end">${escapeHtml(monthIndexLabel(value))}</text>
+      `).join("")}
+      <line class="axis-line" x1="${chart.margin.left}" x2="${chart.margin.left}" y1="${chart.margin.top}" y2="${chart.margin.top + chart.plotHeight}"></line>
+      <line class="axis-line" x1="${chart.margin.left}" x2="${chart.margin.left + chart.plotWidth}" y1="${chart.margin.top + chart.plotHeight}" y2="${chart.margin.top + chart.plotHeight}"></line>
+      ${chart.rows.map((row, index) => {
+        const value = Number(row[chart.trace.y]) || 0;
+        const x = chart.margin.left + index * slotWidth;
+        const y = chart.scaleY(value);
+        const height = chart.margin.top + chart.plotHeight - y;
+        return `<rect class="ordinal-bar" x="${x}" y="${y}" width="${barWidth}" height="${height}"></rect>`;
+      }).join("")}
+      ${chart.rows.map((row, index) => {
+        if (index % chart.tickStep !== 0 && index !== chart.rows.length - 1) return "";
+        const x = chart.margin.left + index * slotWidth + slotWidth / 2;
+        return `<text class="tick-label angled-tick" transform="translate(${x} ${chart.margin.top + chart.plotHeight + 24}) rotate(-45)" text-anchor="end">${escapeHtml(row[chart.trace.x])}</text>`;
+      }).join("")}
+      <text class="axis-label" x="${chart.margin.left + chart.plotWidth / 2}" y="${chart.height - 16}" text-anchor="middle">${escapeHtml(chart.artifact.xAxis?.label || chart.trace.x)}</text>
+      <text class="axis-label" transform="translate(18 ${chart.margin.top + chart.plotHeight / 2}) rotate(-90)" text-anchor="middle">${escapeHtml(chart.artifact.yAxis?.label || chart.trace.y)}</text>
+    </svg>
+  `;
+}
+
+function ordinalDateTicks(maxMonthIndex) {
+  const step = 120;
+  const values = [];
+  for (let value = 0; value <= maxMonthIndex; value += step) values.push(value);
+  if (!values.includes(maxMonthIndex)) values.push(maxMonthIndex);
+  return values;
+}
+
+function monthIndexLabel(monthIndex) {
+  const baseYear = 1958;
+  const baseMonth = 1;
+  const totalMonths = baseMonth - 1 + Math.round(monthIndex);
+  const year = baseYear + Math.floor(totalMonths / 12);
+  const month = (totalMonths % 12) + 1;
+  return `${String(year).padStart(4, "0")}/${String(month).padStart(2, "0")}`;
+}
+
+function renderCategoryBarChart(envelope, pa, rows) {
+  const artifact = pa.artifact;
+  const trace = (artifact.traces || [])[0];
+  const orderValues = artifact.xAxis?.order_values || [];
+  const orderedRows = orderValues.length
+    ? orderValues.map(value => rows.find(row => row[trace.x] === value)).filter(Boolean)
+    : [...rows].sort((left, right) => String(left[trace.x]).localeCompare(String(right[trace.x])));
+  const chart = categoryBarChartModel(orderedRows, trace, artifact);
+  document.getElementById("pa-section").innerHTML = `
+    <div class="chart-panel">
+      <h3 class="chart-title">${escapeHtml(pa.title)}</h3>
+      <div class="line-chart-wrap">
+        ${renderCategoryBarChartSvg(chart)}
+      </div>
+    </div>
+  `;
+  renderNotes(envelope);
+}
+
+function categoryBarChartModel(rows, trace, artifact) {
+  const width = 860;
+  const height = 430;
+  const margin = { top: 24, right: 24, bottom: 64, left: 76 };
+  const plotWidth = width - margin.left - margin.right;
+  const plotHeight = height - margin.top - margin.bottom;
+  const yMax = Math.max(...rows.map(row => Number(row[trace.y]) || 0), 1);
+  return {
+    artifact,
+    trace,
+    rows,
+    width,
+    height,
+    margin,
+    plotWidth,
+    plotHeight,
+    yMax,
+    scaleY: value => margin.top + (1 - value / yMax) * plotHeight
+  };
+}
+
+function renderCategoryBarChartSvg(chart) {
+  const slotWidth = chart.plotWidth / Math.max(1, chart.rows.length);
+  const barWidth = Math.max(18, slotWidth * 0.62);
+  const tickStep = Math.max(1, Math.ceil(chart.yMax / 5));
+  const yTicks = Array.from({ length: 6 }, (_, index) => Math.round(index * chart.yMax / 5 / tickStep) * tickStep);
+  return `
+    <svg class="line-chart" viewBox="0 0 ${chart.width} ${chart.height}" role="img" aria-label="${escapeHtml(chart.artifact.renderer)}">
+      ${yTicks.map(value => `
+        <line class="grid-line" x1="${chart.margin.left}" x2="${chart.margin.left + chart.plotWidth}" y1="${chart.scaleY(value)}" y2="${chart.scaleY(value)}"></line>
+        <text class="tick-label" x="${chart.margin.left - 10}" y="${chart.scaleY(value) + 4}" text-anchor="end">${escapeHtml(value)}</text>
+      `).join("")}
+      <line class="axis-line" x1="${chart.margin.left}" x2="${chart.margin.left}" y1="${chart.margin.top}" y2="${chart.margin.top + chart.plotHeight}"></line>
+      <line class="axis-line" x1="${chart.margin.left}" x2="${chart.margin.left + chart.plotWidth}" y1="${chart.margin.top + chart.plotHeight}" y2="${chart.margin.top + chart.plotHeight}"></line>
+      ${chart.rows.map((row, index) => {
+        const value = Number(row[chart.trace.y]) || 0;
+        const x = chart.margin.left + index * slotWidth + (slotWidth - barWidth) / 2;
+        const y = chart.scaleY(value);
+        const height = chart.margin.top + chart.plotHeight - y;
+        return `
+          <rect class="category-bar" x="${x}" y="${y}" width="${barWidth}" height="${height}"></rect>
+          <text class="tick-label" x="${x + barWidth / 2}" y="${chart.margin.top + chart.plotHeight + 24}" text-anchor="middle">${escapeHtml(row[chart.trace.x])}</text>
+        `;
+      }).join("")}
+      <text class="axis-label" x="${chart.margin.left + chart.plotWidth / 2}" y="${chart.height - 14}" text-anchor="middle">${escapeHtml(chart.artifact.xAxis?.label || chart.trace.x)}</text>
+      <text class="axis-label" transform="translate(18 ${chart.margin.top + chart.plotHeight / 2}) rotate(-90)" text-anchor="middle">${escapeHtml(chart.artifact.yAxis?.label || chart.trace.y)}</text>
+    </svg>
+  `;
+}
+
+function renderStandingWinProbabilityChart(envelope, pa, rows, source) {
+  const artifact = pa.artifact;
+  normalizeStandingWinProbabilityFilters(envelope, artifact);
+  const trace = (artifact.traces || [])[0];
+  const groups = standingTraceGroups(rows, trace);
+  const selectedGroup = selectedStandingGroup(groups, artifact);
+  if (!selectedGroup) {
+    document.getElementById("pa-section").innerHTML = `<div class="status-box">No win-probability rows match the selected filters.</div>`;
+    renderNotes(envelope);
+    return;
+  }
+  const chart = standingWinProbabilityModel(selectedGroup, trace, artifact, source);
+  document.getElementById("pa-section").innerHTML = `
+    <div class="chart-panel">
+      <h3 class="chart-title">${escapeHtml(source.label || pa.title)}: ${escapeHtml(selectedGroup.key)}</h3>
+      <p class="runtime-note">Showing ${escapeHtml(selectedGroup.key)} against visible opponent standings for ${escapeHtml(state.filters.division || "All")}.</p>
+      <div class="line-chart-wrap">
+        ${renderStandingWinProbabilitySvg(chart)}
+      </div>
+    </div>
+  `;
+  renderNotes(envelope);
+}
+
+function normalizeStandingWinProbabilityFilters(envelope, artifact) {
+  const contents = envelope.contentPanel.contents || {};
+  const sourceFilter = (contents.filters || []).find(filter => filter.id === "source");
+  const divisionFilter = (contents.filters || []).find(filter => filter.id === "division");
+  const sourceValues = sourceFilter?.values || [];
+  const divisionValues = divisionFilter?.values || [];
+  const matchingSource = sourceValues.find(item => String(item.value).toLocaleLowerCase() === String(state.filters.source).toLocaleLowerCase());
+  const matchingDivision = divisionValues.find(item => String(item.value).toLocaleLowerCase() === String(state.filters.division).toLocaleLowerCase());
+  if (matchingSource && state.filters.source !== matchingSource.value) {
+    state.filters.source = matchingSource.value;
+  }
+  if (!matchingSource && sourceFilter) {
+    state.filters.source = sourceFilter.default;
+  }
+  if (matchingDivision && state.filters.division !== matchingDivision.value) {
+    state.filters.division = matchingDivision.value;
+  }
+  if (!matchingDivision && divisionFilter) {
+    state.filters.division = divisionFilter.default;
+  }
+  const dataSourceIds = new Set((artifact.dataSources || []).map(item => item.id));
+  if (!dataSourceIds.has(state.filters.source) && sourceFilter) {
+    state.filters.source = sourceFilter.default;
+  }
+}
+
+function standingTraceGroups(rows, trace) {
+  const division = state.filters.division || "Makuuchi";
+  const grouped = new Map();
+  for (const row of rows) {
+    if (!displayStandingChii(row.selected_chii) || !displayStandingChii(row.opponent_chii)) continue;
+    if (division !== "All" && displayDivisionForChii(row.selected_chii) !== division) continue;
+    if (!grouped.has(row.selected_chii)) grouped.set(row.selected_chii, []);
+    grouped.get(row.selected_chii).push(row);
+  }
+  return [...grouped.entries()]
+    .map(([key, groupRows]) => ({
+      key,
+      ordinal: Number(groupRows[0]?.selected_ordinal) || 0,
+      rows: groupRows.sort((left, right) => Number(left[trace.x === "opponent_chii" ? "opponent_ordinal" : trace.x]) - Number(right[trace.x === "opponent_chii" ? "opponent_ordinal" : trace.x]))
+    }))
+    .sort((left, right) => left.ordinal - right.ordinal);
+}
+
+function selectedStandingGroup(groups, artifact) {
+  const preferred = artifact.provenance?.default_display_trace || "Y1";
+  return groups.find(group => group.key === preferred) || groups[0] || null;
+}
+
+function standingWinProbabilityModel(group, trace, artifact, source) {
+  const width = 1040;
+  const height = 540;
+  const margin = { top: 24, right: 24, bottom: 90, left: 76 };
+  const plotWidth = width - margin.left - margin.right;
+  const plotHeight = height - margin.top - margin.bottom;
+  const rows = group.rows;
+  const yMin = artifact.yAxis?.minimum ?? 0;
+  const yMax = artifact.yAxis?.maximum ?? 1;
+  const categories = orderedStandingCategories(rows);
+  const categoryIndex = new Map(categories.map((label, index) => [label, index]));
+  return {
+    artifact,
+    trace,
+    source,
+    group,
+    rows,
+    width,
+    height,
+    margin,
+    plotWidth,
+    plotHeight,
+    yMin,
+    yMax,
+    categories,
+    categoryIndex,
+    scaleX: label => margin.left + (categoryIndex.get(label) / Math.max(1, categories.length - 1)) * plotWidth,
+    scaleY: value => margin.top + (1 - ((value - yMin) / Math.max(0.0001, yMax - yMin))) * plotHeight
+  };
+}
+
+function renderStandingWinProbabilitySvg(chart) {
+  const points = chart.rows.map(row => ({
+    row,
+    x: chart.scaleX(row.opponent_chii),
+    y: chart.scaleY(Number(row[chart.trace.y])),
+    value: Number(row[chart.trace.y])
+  })).filter(point => Number.isFinite(point.x) && Number.isFinite(point.y));
+  const yTicks = [0, 0.25, 0.5, 0.75, 1];
+  const xTicks = standingXTicks(points);
+  const showErrorBars = chart.source.id === "observed" && state.filters.error_bars;
+  return `
+    <svg class="line-chart" viewBox="0 0 ${chart.width} ${chart.height}" role="img" aria-label="${escapeHtml(chart.artifact.renderer)}">
+      ${yTicks.map(value => `
+        <line class="grid-line" x1="${chart.margin.left}" x2="${chart.margin.left + chart.plotWidth}" y1="${chart.scaleY(value)}" y2="${chart.scaleY(value)}"></line>
+        <text class="tick-label" x="${chart.margin.left - 10}" y="${chart.scaleY(value) + 4}" text-anchor="end">${Math.round(value * 100)}%</text>
+      `).join("")}
+      <line class="axis-line" x1="${chart.margin.left}" x2="${chart.margin.left}" y1="${chart.margin.top}" y2="${chart.margin.top + chart.plotHeight}"></line>
+      <line class="axis-line" x1="${chart.margin.left}" x2="${chart.margin.left + chart.plotWidth}" y1="${chart.margin.top + chart.plotHeight}" y2="${chart.margin.top + chart.plotHeight}"></line>
+      ${showErrorBars ? points.map(point => renderStandingErrorBar(point, chart)).join("") : ""}
+      <polyline class="trace-line career-line" points="${points.map(point => `${point.x},${point.y}`).join(" ")}"></polyline>
+      ${points.map(point => `<circle class="trace-point" cx="${point.x}" cy="${point.y}" r="2.5"></circle>`).join("")}
+      ${xTicks.map(point => `
+        <text class="tick-label angled-tick" transform="translate(${point.x} ${chart.margin.top + chart.plotHeight + 24}) rotate(-45)" text-anchor="end">${escapeHtml(point.row.opponent_chii)}</text>
+      `).join("")}
+      <text class="axis-label" x="${chart.margin.left + chart.plotWidth / 2}" y="${chart.height - 16}" text-anchor="middle">Opponent sideless chii</text>
+      <text class="axis-label" transform="translate(18 ${chart.margin.top + chart.plotHeight / 2}) rotate(-90)" text-anchor="middle">${escapeHtml(chart.artifact.yAxis?.label || chart.trace.y)}</text>
+    </svg>
+  `;
+}
+
+function renderStandingErrorBar(point, chart) {
+  const low = Number(point.row.ci95_lower);
+  const high = Number(point.row.ci95_upper);
+  if (!Number.isFinite(low) || !Number.isFinite(high)) return "";
+  const yLow = chart.scaleY(low);
+  const yHigh = chart.scaleY(high);
+  return `
+    <line class="error-bar" x1="${point.x}" x2="${point.x}" y1="${yHigh}" y2="${yLow}"></line>
+    <line class="error-bar" x1="${point.x - 4}" x2="${point.x + 4}" y1="${yHigh}" y2="${yHigh}"></line>
+    <line class="error-bar" x1="${point.x - 4}" x2="${point.x + 4}" y1="${yLow}" y2="${yLow}"></line>
+  `;
+}
+
+function standingXTicks(points) {
+  const maxTicks = 34;
+  const step = Math.max(1, Math.ceil(points.length / maxTicks));
+  return points.filter((_, index) => index % step === 0 || index === points.length - 1);
+}
+
+function orderedStandingCategories(rows) {
+  const keyed = new Map();
+  for (const row of rows) {
+    const label = row.opponent_chii;
+    const order = Number(row.opponent_ordinal);
+    if (!label || !Number.isFinite(order)) continue;
+    keyed.set(label, order);
+  }
+  return [...keyed.entries()]
+    .sort((left, right) => left[1] - right[1])
+    .map(([label]) => label);
+}
+
+function displayStandingChii(chii) {
+  const sanyaku = new Set(["Y1", "O1", "S1", "K1"]);
+  if (chii?.startsWith("Y")) return sanyaku.has(chii);
+  if (chii?.startsWith("O")) return sanyaku.has(chii);
+  if (chii?.startsWith("S") && !chii.startsWith("Sd")) return sanyaku.has(chii);
+  if (chii?.startsWith("K")) return sanyaku.has(chii);
+  return Boolean(chii);
+}
+
+function displayDivisionForChii(chii) {
+  if (!chii) return "Other";
+  if (chii.startsWith("Ms")) return "Makushita";
+  if (chii.startsWith("Sd")) return "Sandanme";
+  if (chii.startsWith("Jd")) return "Jonidan";
+  if (chii.startsWith("Jk")) return "Jonokuchi";
+  if (["Y", "O", "S", "K", "M"].some(prefix => chii.startsWith(prefix))) return "Makuuchi";
+  if (chii.startsWith("J")) return "Juryo";
+  return "Other";
 }
 
 function groupRows(rows, groupField) {

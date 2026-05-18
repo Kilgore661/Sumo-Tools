@@ -206,6 +206,21 @@ body {
   max-height: 72vh;
 }
 
+.table-wrap-compact {
+  max-height: none;
+}
+
+.sectioned-table-panel {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+  max-width: 900px;
+}
+
+.sectioned-table .table-title {
+  font-size: 1rem;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -350,6 +365,12 @@ th.sortable {
   fill: var(--accent);
 }
 
+.error-bar {
+  stroke: #7a6f66;
+  stroke-width: 1.2;
+  opacity: 0.72;
+}
+
 .bar-retired {
   fill: #0f6f6a;
 }
@@ -359,6 +380,15 @@ th.sortable {
 }
 
 .finish-bar {
+  fill: var(--accent);
+}
+
+.ordinal-bar {
+  fill: var(--accent);
+  opacity: 0.88;
+}
+
+.category-bar {
   fill: var(--accent);
 }
 
