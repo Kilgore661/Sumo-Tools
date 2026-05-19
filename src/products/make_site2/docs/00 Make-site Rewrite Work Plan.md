@@ -10,7 +10,7 @@ The current working assumption is:
 
 > The top-level architecture of `make_site` is broadly sound, but the design becomes increasingly ad hoc as it approaches concrete HTML/CSS/JS production.
 
-The existing `make_site2` package should be understood as a UI model experiment, not as a production replacement. It tested whether public pages could be represented through a small number of formal page grammars rather than through bespoke page shells and page-specific renderers.
+The former `make_site2` experiment, now separated as `ui_model`, should be understood as a UI model experiment, not as the production replacement. It tested whether public pages could be represented through a small number of formal page grammars rather than through bespoke page shells and page-specific renderers.
 
 ## Core Diagnosis
 
@@ -53,7 +53,7 @@ CLI / build orchestration
 The key seam is:
 
 ```text
-Page + route + artefact/manifest references
+Page + route + artifact/data references
 → Publication UI Model
 → HTML/CSS/JS rendering
 ```
@@ -76,9 +76,11 @@ The shared UI renderer should own page structure. Artefact-specific renderers ma
 
 For example, a Banzuke Changes table may need a custom artefact renderer, but that renderer should not redefine the surrounding page shell, navigation, heading, filter placement, notes, or content panel behavior.
 
-## Role of make_site2
+## Role of ui_model and make_site2
 
-The current `make_site2` package should be treated as evidence from a completed experiment.
+The previous UI-model experiment should be treated as evidence from a completed experiment. Its contents now belong conceptually under `ui_model`.
+
+The `make_site2` package is now the successor public-site builder workspace.
 
 Its value is that it tested a formal model of the UI against representative pages. It should not automatically be promoted wholesale into production.
 
@@ -88,7 +90,7 @@ A better name for it in retrospect would have been something like:
 UI_model_idea
 ```
 
-The useful result is the model, not necessarily the package boundary or implementation details.
+The useful result of `ui_model` is the model, not necessarily the package boundary or implementation details.
 
 The model vocabulary includes concepts such as:
 
@@ -144,7 +146,7 @@ CLI / orchestration
 → static builder
 → page view dispatch
 → rendering
-→ PA runtime/manifests
+→ PA runtime / artifact input machinery
 → static assets
 → deployment
 ```
@@ -153,7 +155,7 @@ The goal is not to criticize every rough edge. The goal is to identify the archi
 
 Expected finding:
 
-> The top-level architecture is broadly sound, but the rendering problem first manifests near the transition from `Page` / `ViewSpec` / manifest / route into concrete HTML/CSS/JS generation.
+> The top-level architecture is broadly sound, but the rendering problem first manifests near the transition from `Page` / `ViewSpec` / artifact input / route into concrete HTML/CSS/JS generation.
 
 ### 2. State the rendering problem precisely
 
@@ -211,7 +213,7 @@ The requirements should cover:
 - routing;
 - producer or artefact preparation;
 - page publication structure;
-- manifest and data handling;
+- site-facing input and data handling;
 - static output generation;
 - runtime assets;
 - build modes;
@@ -259,7 +261,7 @@ The UI Model should be treated as strong evidence, not as unquestionable authori
 The design should introduce a clear publication-model seam:
 
 ```text
-Page + route + manifest/artifact references
+Page + route + artifact/data references
 → Publication Model Adapter
 → PublicationPage / ContentPanel / G1 / G2
 → shared UI renderer
@@ -273,7 +275,7 @@ The design should identify:
 - which parts of `make_site2` become the formal UI model;
 - which renderers are shared structural renderers;
 - which renderers are artefact renderers;
-- how manifests and data files are resolved;
+- how site-facing inputs and data files are resolved;
 - how old pages migrate gradually;
 - how parity with the current site is checked.
 
@@ -315,23 +317,18 @@ The migration may proceed in small slices, but each slice should be based on the
 
 Do not gradually patch the old renderer until it resembles the UI Model. Instead, introduce the UI Model at the correct conceptual seam, migrate pages into it, and retire the old rendering paths as they become unnecessary.
 
-## Open Naming Question
+## Naming Decision
 
-The final package name is deliberately unresolved.
+The successor public-site builder workspace is `make_site2`.
 
-The name `make_site2` is already used for the UI model experiment and may be misleading for the production successor. A later decision should choose whether to:
+The previous UI-model experiment is now treated as `ui_model` evidence.
 
-- replace `make_site` in place;
-- create a new package name temporarily;
-- rename the UI model experiment;
-- or promote selected UI model modules into the production package.
-
-This naming decision should not block the conceptual design.
+This decision separates the production successor package from the completed UI-model experiment while preserving the experiment as design evidence.
 
 ## Summary
 
 The current `make_site` prototype discovered much of the correct public-site architecture, but it lacks a sufficiently formal UI model at the point where pages become HTML/CSS/JS.
 
-The `make_site2` experiment appears to provide the missing model: a small grammar for publication pages, a shared content panel structure, and a disciplined split between shared page rendering and artefact-specific rendering.
+The `ui_model` experiment appears to provide the missing model: a small grammar for publication pages, a shared content panel structure, and a disciplined split between shared page rendering and artefact-specific rendering.
 
 The rewrite should therefore preserve the valid upper-level site architecture, replace the ad hoc rendering layer with the UI Model, and implement the successor package incrementally under a fresh requirements/spec/design process.
