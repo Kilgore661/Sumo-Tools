@@ -1,34 +1,25 @@
 (function () {
   const PAGE_PARAM = "page";
-  const BRB_PAGE_ID = "basho_results_browser";
-  const BRB_ROUTE_BASE = "sumo-history/basho-results/";
-  const BRB_INDEX_PATH = `${BRB_ROUTE_BASE}data/basho_results_index.json`;
-  const VISIBLE_COLUMNS = [
-    ["chii", "Chii"],
-    ["shikona", "Shikona"],
-    ["score", "Score"],
-    ["previous_chii", "Previous Chii"],
-    ["previous_result", "Previous Result"]
-  ];
-
   const contentPanel = document.getElementById("content-panel");
-  const navLinks = [...document.querySelectorAll(".nav-link[data-page-id]")];
-  const linkByPageId = new Map(navLinks.map(link => [link.dataset.pageId, link]));
+  let runtimeManifest = null;
 
   bootNavigationToggle();
-
-  for (const link of navLinks) {
-    link.addEventListener("click", event => {
-      event.preventDefault();
-      selectPage(link.dataset.pageId, { pushUrl: true });
-    });
-  }
-
-  window.addEventListener("popstate", () => {
-    loadStateFromUrl();
+  boot().catch(error => {
+    contentPanel.innerHTML = `<p>${escapeHtml(error.message)}</p>`;
   });
 
-  loadStateFromUrl();
+  async function boot() {
+    runtimeManifest = await fetchJson("runtime/site-manifest.json");
+    const navLinks = [...document.querySelectorAll(".nav-link[data-page-id]")];
+    for (const link of navLinks) {
+      link.addEventListener("click", event => {
+        event.preventDefault();
+        selectPage(link.dataset.pageId, { pushUrl: true });
+      });
+    }
+    window.addEventListener("popstate", () => loadStateFromUrl());
+    loadStateFromUrl();
+  }
 
   function bootNavigationToggle() {
     const shell = document.querySelector("[data-nav-shell]");
@@ -73,17 +64,18 @@
     if (pushUrl || replaceUrl) {
       writePageUrl(pageId, { replace: replaceUrl });
     }
-    if (pageId === BRB_PAGE_ID) {
-      renderBashoResults().catch(error => {
-        contentPanel.innerHTML = `<p>${escapeHtml(error.message)}</p>`;
-      });
-    } else {
+    const panel = runtimeManifest.ui.content_panels.find(candidate => candidate.page_id === pageId);
+    if (!panel) {
       contentPanel.replaceChildren();
+      return;
     }
+    renderContentPanel(panel).catch(error => {
+      contentPanel.innerHTML = `<p>${escapeHtml(error.message)}</p>`;
+    });
   }
 
   function markActivePage(pageId) {
-    for (const link of navLinks) {
+    for (const link of document.querySelectorAll(".nav-link[data-page-id]")) {
       link.classList.toggle("is-active", link.dataset.pageId === pageId);
     }
   }
@@ -105,33 +97,116 @@
     }
   }
 
-  async function renderBashoResults() {
-    contentPanel.innerHTML = "<p>Loading Basho Results...</p>";
-    const index = await fetchJson(BRB_INDEX_PATH);
-    const entry = defaultEntry(index);
-    const rows = await fetchCsv(`${BRB_ROUTE_BASE}${entry.payload_path}`);
-    const divisionRows = rows.filter(row => row.division_id === "makuuchi").slice(0, 20);
+  async function renderContentPanel(panel) {
+    if (panel.grammar !== "G1") throw new Error(`Unsupported content grammar: ${panel.grammar}`);
+    const artifact = runtimeManifest.artifacts[panel.contents.pa.artifact_id];
+    if (!artifact) throw new Error(`Unknown artifact: ${panel.contents.pa.artifact_id}`);
+    if (artifact.kind !== "indexed_table") throw new Error(`Unsupported artifact kind: ${artifact.kind}`);
+
+    const state = defaultFilterState(panel.contents.filter_section.filters);
+    const index = await fetchJson(artifact.indexed_source.index_path);
+    const selectedEntry = selectedIndexEntry(index, state[artifact.selector_filter_id]);
+    const payloadPath = selectedEntry[artifact.indexed_source.payload_path_field];
+    const dataRoot = artifact.indexed_source.index_path.replace(/[^/]+$/, "");
+    const rows = await fetchCsv(`${dataRoot}${payloadPath.replace(/^data\//, "")}`);
+    const filteredRows = rows.filter(row => row.division_id === state.division).slice(0, 20);
+
     contentPanel.innerHTML = [
       '<section class="content-panel" aria-labelledby="content-title">',
       '<header class="content-heading">',
-      '<h2 id="content-title">Basho Results</h2>',
-      '<p>Historical and current basho results by division.</p>',
+      `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
+      `<p>${escapeHtml(panel.heading.summary)}</p>`,
       '</header>',
-      '<form class="filter-section" aria-label="Basho Results filters">',
-      renderBashoSelect(index.entries, entry.basho),
-      renderDivisionSelect(),
-      renderCheckbox("previous_context", "Previous Basho"),
-      renderCheckbox("rating_context", "Equelo Ratings"),
-      renderCheckbox("nu_chii", "nuChii"),
-      '</form>',
-      renderTable(divisionRows),
+      renderFilterSection(panel.contents.filter_section, state, index),
+      renderIndexedTable(artifact, filteredRows, state),
       '</section>'
     ].join("");
   }
 
-  function defaultEntry(index) {
+  function defaultFilterState(filters) {
+    return Object.fromEntries(filters.map(filter => [filter.id, filter.default]));
+  }
+
+  function selectedIndexEntry(index, selected) {
     const entries = index.entries || [];
+    if (selected && selected !== "latest") {
+      const match = entries.find(entry => entry.basho === selected);
+      if (match) return match;
+    }
     return entries.find(entry => entry.basho === index.default_basho) || entries[entries.length - 1];
+  }
+
+  function renderFilterSection(filterSection, state, index) {
+    return [
+      '<form class="filter-section" aria-label="Filters">',
+      ...filterSection.filters.map(filter => renderFilter(filter, state, index)),
+      '</form>'
+    ].join("");
+  }
+
+  function renderFilter(filter, state, index) {
+    if (filter.control === "checkbox") {
+      return [
+        '<label class="checkbox-control">',
+        `<input type="checkbox" name="${escapeHtml(filter.id)}"${state[filter.id] ? " checked" : ""}>`,
+        `<span>${escapeHtml(filter.label)}</span>`,
+        '</label>'
+      ].join("");
+    }
+    const values = filter.control === "basho_date_selector"
+      ? (index.entries || []).map(entry => ({ value: entry.basho, label: entry.label }))
+      : filter.values;
+    const selected = filter.control === "basho_date_selector"
+      ? selectedIndexEntry(index, state[filter.id]).basho
+      : state[filter.id];
+    return [
+      '<label class="filter-control">',
+      `<span>${escapeHtml(filter.label)}</span>`,
+      `<select name="${escapeHtml(filter.id)}">`,
+      ...values.map(value => {
+        const selectedAttr = value.value === selected ? " selected" : "";
+        return `<option value="${escapeHtml(value.value)}"${selectedAttr}>${escapeHtml(value.label)}</option>`;
+      }),
+      '</select>',
+      '</label>'
+    ].join("");
+  }
+
+  function renderIndexedTable(artifact, rows, state) {
+    const groups = new Map(artifact.column_groups.map(group => [group.id, group]));
+    const visibleColumns = artifact.columns.filter(column => isColumnVisible(column, groups, state));
+    return [
+      '<table class="brb-table">',
+      '<thead><tr>',
+      ...visibleColumns.map(column => `<th>${escapeHtml(column.heading)}</th>`),
+      '</tr></thead>',
+      '<tbody>',
+      ...rows.map((row, index) => [
+        '<tr>',
+        ...visibleColumns.map(column => `<td>${escapeHtml(cellValue(column, row, index))}</td>`),
+        '</tr>'
+      ].join("")),
+      '</tbody>',
+      '</table>'
+    ].join("");
+  }
+
+  function isColumnVisible(column, groups, state) {
+    if (column.always_visible) return true;
+    const group = groups.get(column.group);
+    if (!group) return false;
+    if (group.always_visible) {
+      if (column.id === "equelo" || column.id === "delta_equelo") return Boolean(state.rating_context);
+      if (column.id === "nu_chii") return Boolean(state.nu_chii);
+      return true;
+    }
+    if (group.controlling_filter_id) return Boolean(state[group.controlling_filter_id]);
+    return false;
+  }
+
+  function cellValue(column, row, index) {
+    if (column.id === "row_number") return String(index + 1);
+    return row[column.source_field || column.id] || "";
   }
 
   async function fetchJson(path) {
@@ -181,57 +256,6 @@
     row.push(field);
     rows.push(row);
     return rows;
-  }
-
-  function renderBashoSelect(entries, selected) {
-    return [
-      '<label class="filter-control">',
-      '<span>Basho</span>',
-      '<select name="basho">',
-      ...entries.map(entry => {
-        const selectedAttr = entry.basho === selected ? " selected" : "";
-        return `<option value="${escapeHtml(entry.basho)}"${selectedAttr}>${escapeHtml(entry.label)}</option>`;
-      }),
-      '</select>',
-      '</label>'
-    ].join("");
-  }
-
-  function renderDivisionSelect() {
-    return [
-      '<label class="filter-control">',
-      '<span>Division</span>',
-      '<select name="division">',
-      '<option value="makuuchi" selected>Makuuchi</option>',
-      '</select>',
-      '</label>'
-    ].join("");
-  }
-
-  function renderCheckbox(name, label) {
-    return [
-      '<label class="checkbox-control">',
-      `<input type="checkbox" name="${escapeHtml(name)}">`,
-      `<span>${escapeHtml(label)}</span>`,
-      '</label>'
-    ].join("");
-  }
-
-  function renderTable(rows) {
-    return [
-      '<table class="brb-table">',
-      '<thead><tr>',
-      ...VISIBLE_COLUMNS.map(([, label]) => `<th>${escapeHtml(label)}</th>`),
-      '</tr></thead>',
-      '<tbody>',
-      ...rows.map(row => [
-        '<tr>',
-        ...VISIBLE_COLUMNS.map(([field]) => `<td>${escapeHtml(row[field] || "")}</td>`),
-        '</tr>'
-      ].join("")),
-      '</tbody>',
-      '</table>'
-    ].join("");
   }
 
   function escapeHtml(value) {

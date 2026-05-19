@@ -1,26 +1,22 @@
-"""Resolve a SiteDefinition into the first make_site2 publication plan."""
+"""Resolved publication model before UI rendering."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Mapping
 
-from .models import ArtifactRef, NavigationTree, PageDefinition, PageStatus, SiteDefinition
+from .models import NavigationTree, PageDefinition, PageStatus, SiteDefinition
 from .routes import PageRoute, derive_page_routes, route_href
 
 
 @dataclass(frozen=True, kw_only=True)
 class PlannedPage:
-    """A page selected for a particular build."""
-
     page: PageDefinition
     route: PageRoute
 
 
 @dataclass(frozen=True, kw_only=True)
 class NavigationItem:
-    """Navigation entry after route resolution."""
-
     id: str
     label: str
     slug: str
@@ -31,30 +27,11 @@ class NavigationItem:
 
 
 @dataclass(frozen=True, kw_only=True)
-class NavigationBar:
-    """Publication UI Model input for the shared site navigation."""
-
-    title: str
-    collapse_control: "NavigationCollapseControl"
-    items: tuple[NavigationItem, ...]
-
-
-@dataclass(frozen=True, kw_only=True)
-class NavigationCollapseControl:
-    """Configuration for hiding and recovering the navigation panel."""
-
-    enabled: bool
-    storage_key: str
-
-
-@dataclass(frozen=True, kw_only=True)
 class PublicationPlan:
-    """Resolved publication model for a build."""
-
     site: SiteDefinition
     routes: Mapping[str, PageRoute]
     pages: Mapping[str, PlannedPage]
-    navigation_bar: NavigationBar
+    navigation_tree: tuple[NavigationItem, ...]
 
 
 DEFAULT_INCLUDED_STATUSES = frozenset({PageStatus.PROMOTED})
@@ -65,36 +42,25 @@ def build_publication_plan(
     *,
     included_statuses: frozenset[PageStatus] = DEFAULT_INCLUDED_STATUSES,
 ) -> PublicationPlan:
-    """Resolve routes and navigation for the currently included pages."""
-
     routes = derive_page_routes(site)
     planned_pages = {
         page_id: PlannedPage(page=route.page, route=route)
         for page_id, route in routes.items()
         if route.page.status in included_statuses
     }
-    navigation_bar = NavigationBar(
-        title=site.title,
-        collapse_control=NavigationCollapseControl(
-            enabled=True,
-            storage_key="gaspodeSumoLab.makeSite2.navCollapsed",
-        ),
-        items=tuple(
-            _navigation_item(child, routes, planned_pages)
-            for child in site.navigation.children
-        ),
+    navigation_tree = tuple(
+        _navigation_item(child, routes, planned_pages)
+        for child in site.navigation.children
     )
     return PublicationPlan(
         site=site,
         routes=routes,
         pages=planned_pages,
-        navigation_bar=navigation_bar,
+        navigation_tree=navigation_tree,
     )
 
 
-def artifact_refs(plan: PublicationPlan) -> Mapping[str, ArtifactRef]:
-    """Return the artifact/data-reference side of the key seam."""
-
+def artifact_refs(plan: PublicationPlan):
     return {
         page_id: planned_page.page.artifact
         for page_id, planned_page in plan.pages.items()

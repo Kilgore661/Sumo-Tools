@@ -1,15 +1,18 @@
-"""Minimal HTML rendering for the first make_site2 navigation slice."""
+"""HTML rendering for make_site2.
+
+This module renders the site shell from a semantic PublicSiteShell. It should
+not invent page structure or artifact details.
+"""
 
 from __future__ import annotations
 
 from html import escape
 
-from .publication_plan import NavigationBar, NavigationItem, PublicationPlan
+from .publication_model import NavigationItem
+from .ui_model import NavigationBar, PublicSiteShell
 
 
-def render_navigation_page(plan: PublicationPlan, content_html: str = "") -> str:
-    """Render one static page with the left navigation bar and content panel."""
-
+def render_site_shell(shell: PublicSiteShell) -> str:
     return "\n".join(
         (
             "<!doctype html>",
@@ -18,15 +21,14 @@ def render_navigation_page(plan: PublicationPlan, content_html: str = "") -> str
             '<meta charset="utf-8">',
             '<meta name="viewport" content="width=device-width, initial-scale=1">',
             '<link rel="stylesheet" href="runtime/site.css">',
-            f"<title>{escape(plan.site.title)}</title>",
+            f"<title>{escape(shell.navigation_bar.heading)}</title>",
             "</head>",
             "<body>",
             '<div class="site-shell" data-nav-shell>',
-            render_navigation_toggle(plan.navigation_bar),
-            render_navigation_bar(plan.navigation_bar),
+            render_navigation_toggle(shell.navigation_bar),
+            render_navigation_bar(shell.navigation_bar),
             '<main class="site-main" aria-label="Page content">',
             '<div id="content-panel"></div>',
-            content_html,
             "</main>",
             "</div>",
             '<script src="runtime/site.js"></script>',
@@ -41,9 +43,9 @@ def render_navigation_bar(navigation_bar: NavigationBar) -> str:
     return "\n".join(
         (
             '<nav class="site-nav" data-nav-panel aria-label="Site navigation">',
-            f'<h1 class="site-title">{escape(navigation_bar.title)}</h1>',
+            f'<h1 class="site-title">{escape(navigation_bar.heading)}</h1>',
             '<ol class="nav-list">',
-            *[render_navigation_item(item) for item in navigation_bar.items],
+            *[render_navigation_item(item) for item in navigation_bar.navigation_tree],
             "</ol>",
             "</nav>",
         )

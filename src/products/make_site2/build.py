@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import shutil
+import json
 from pathlib import Path
 
 from .data_output import build_basho_results_data_output
-from .publication_plan import build_publication_plan
-from .render import render_navigation_page
+from .publication_model import build_publication_plan
+from .render import render_site_shell
+from .site_manifest import build_public_site_shell, build_runtime_manifest
 from .site_definition import SITE
 
 
@@ -35,7 +37,11 @@ def build_site(
     )
     plan = build_publication_plan(SITE)
     (output_root / "index.html").write_text(
-        render_navigation_page(plan),
+        render_site_shell(build_public_site_shell(plan)),
+        encoding="utf-8",
+    )
+    (output_root / "runtime" / "site-manifest.json").write_text(
+        json.dumps(build_runtime_manifest(plan), indent=2),
         encoding="utf-8",
     )
     (output_root / "runtime").mkdir(parents=True, exist_ok=True)
