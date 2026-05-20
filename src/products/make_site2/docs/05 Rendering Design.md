@@ -673,6 +673,22 @@ The artifact renderer may be generic or custom.
 
 It may not redefine the surrounding page.
 
+An Artifact may render:
+
+```text
+TitleBlock, optional
+Payload
+Notes, optional
+```
+
+The title block belongs to the Artifact, not to the table, chart, or other
+payload kind.
+
+If an Artifact has no title block, the renderer omits it.
+
+In the current G1 grammar, an Artifact title is a peer of `Options` and `Notes`
+inside the content area and renders at the same heading level.
+
 ---
 
 # 17. Notes Rendering

@@ -129,7 +129,7 @@
     const rows = await fetchCsv(`${dataRoot}${payloadPath.replace(/^data\//, "")}`);
     state.division = resolveSelectedDivision(rows, state.division);
     writePanelUrl(panel.page_id, filters, state, { replace: true });
-    const filteredRows = rows.filter(row => row.division_id === state.division).slice(0, 20);
+    const filteredRows = rows.filter(row => row.division_id === state.division);
 
     contentPanel.innerHTML = [
       '<section class="content-panel">',
@@ -138,6 +138,7 @@
       '<div class="content-body">',
       renderFilterSection(panel.contents.filter_section, state, index),
       '<div class="pa-slot">',
+      renderArtifactTitleBlock(artifact, state, selectedEntry, filters),
       renderIndexedTable(artifact, filteredRows, state),
       '</div>',
       '</div>',
@@ -145,6 +146,36 @@
       '</section>'
     ].join("");
     wireFilterSection(panel, state);
+  }
+
+  function renderArtifactTitleBlock(artifact, state, entry, filters) {
+    const title = artifactTitle(artifact, state, entry, filters);
+    if (!title) return "";
+    return [
+      '<div class="artifact-title-block">',
+      `<h4>${escapeHtml(title)}</h4>`,
+      '</div>'
+    ].join("");
+  }
+
+  function artifactTitle(artifact, state, entry, filters) {
+    if (artifact.id !== "basho_results_browser") return "";
+    return bashoResultsTitle(state, entry, filters);
+  }
+
+  function bashoResultsTitle(state, entry, filters) {
+    const division = filterValueLabel(filters, "division", state.division) || state.division || "";
+    const label = entry.label || entry.basho || "";
+    if (entry.latest_day && Number(entry.latest_day) < 15) {
+      return `${division} Results (Day ${entry.latest_day}) for ${label}`;
+    }
+    return `${division} Results for ${label}`;
+  }
+
+  function filterValueLabel(filters, filterId, value) {
+    const filter = filters.find(candidate => candidate.id === filterId);
+    const option = (filter?.values || []).find(candidate => candidate.value === value);
+    return option?.label || "";
   }
 
   function readFilterUrlState(filters) {

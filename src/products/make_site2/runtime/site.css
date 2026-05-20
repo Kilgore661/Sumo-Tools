@@ -85,7 +85,9 @@ select {
 }
 
 .pa-slot {
+  align-items: center;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   min-width: 0;
 }
