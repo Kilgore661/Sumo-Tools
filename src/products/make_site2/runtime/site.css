@@ -92,6 +92,16 @@ select {
   min-width: 0;
 }
 
+.plotly-chart {
+  height: 520px;
+  max-width: 100%;
+  width: 900px;
+}
+
+.artifact-title-block {
+  text-align: center;
+}
+
 .artifact-table th,
 .artifact-table td {
   text-align: center;

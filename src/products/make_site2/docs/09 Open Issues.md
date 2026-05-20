@@ -536,6 +536,119 @@ Exact custom artifact renderer registration
 
 Decision should be driven by actual migrated pages.
 
+## 17.1 Finish by Chii Checkpoint
+
+Status: In progress.
+
+The next planned implementation target is:
+
+```text
+5.1 Finish by Chii
+```
+
+Current decision:
+
+```text
+Do not migrate the legacy standalone HTML page.
+Do not use an iframe.
+Represent Finish by Chii as a normal Artifact in the make_site2 shell.
+```
+
+Target artifact shape:
+
+```text
+Artifact
+  TitleBlock
+    title
+    subtitle
+  Payload
+    Plotly chart
+  Notes, optional
+```
+
+The title and subtitle should follow the existing `make_site` / legacy
+Finish-by-Chii behavior. They belong to the Artifact, not to Plotly and not to
+the chart payload itself.
+
+Options should use the existing page grammar:
+
+```text
+FilterSection
+  FilterControl*
+```
+
+No new options layout rule is currently expected for this page.
+
+The immediate design pressure is data loading.
+
+Existing `make_site` evidence shows these data-loading patterns:
+
+```text
+single CSV
+CSV plus metadata
+option-selected CSV
+indexed CSV family
+view-selected CSV
+```
+
+Finish by Chii exposes another needed pattern:
+
+```text
+csv_set
+  top_thresholds CSV
+  bottom_thresholds CSV
+```
+
+Working definition:
+
+```text
+DataSource
+  one copied resource
+
+DataBinding
+  the artifact-level rule for how one or more DataSources become payload data
+```
+
+For Finish by Chii, the implementation should introduce only the binding needed
+for the page:
+
+```text
+DataBinding(kind=csv_set)
+  source role: top_thresholds
+  source role: bottom_thresholds
+```
+
+Do not hide the two-source requirement inside bespoke chart-loading code.
+
+Deferred pressure:
+
+```text
+7.3.1 Career Length
+```
+
+Career Length may be understood through a more general artifact-view model, but
+that model is not part of the current implementation plan. See:
+
+```text
+A Appendix - Better Models.md
+```
+
+Current executive decision:
+
+```text
+Career Length / Longest will have no local options for now.
+```
+
+Before implementing Finish by Chii, inspect Career Length enough to avoid
+choosing a DataBinding shape that assumes:
+
+```text
+one artifact = one CSV = one payload kind
+```
+
+The Finish by Chii implementation should remain independent of Career Length,
+but the DataBinding vocabulary should not block Career Length later.
+
 ---
 
 # 18. JavaScript Runtime Boundaries

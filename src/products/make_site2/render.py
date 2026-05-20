@@ -37,6 +37,7 @@ def render_site_shell(
                 f'href="{escape(cache_busted_url("runtime/site.css", cache_mode=cache_mode, cache_bust_token=cache_bust_token, cache_bust_param=cache_bust_param))}">'
             ),
             f"<title>{escape(render_document_title(shell.navigation_bar.heading))}</title>",
+            '<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>',
             "</head>",
             f"<body{cache_attrs}>",
             '<div class="site-shell" data-nav-shell>',

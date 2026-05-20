@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from typing import Literal
 
 
-ArtifactKind = Literal["indexed_table"]
+ArtifactKind = Literal["indexed_table", "chart"]
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -16,6 +16,20 @@ class IndexedDataSource:
     index_path: str
     payload_path_field: str
     payload_media_type: str
+
+
+@dataclass(frozen=True, kw_only=True)
+class DataSource:
+    id: str
+    label: str
+    path: str
+    media_type: str
+
+
+@dataclass(frozen=True, kw_only=True)
+class DataBinding:
+    kind: str
+    sources: tuple[str, ...]
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -59,4 +73,15 @@ class IndexedTableArtifact:
     columns: tuple[TableColumn, ...]
     default_sort_column: str
     default_sort_descending: bool = False
+    notes: tuple[Note, ...] = ()
+
+
+@dataclass(frozen=True, kw_only=True)
+class ChartArtifact:
+    id: str
+    heading: str
+    kind: ArtifactKind
+    renderer: str
+    data_binding: DataBinding
+    data_sources: tuple[DataSource, ...]
     notes: tuple[Note, ...] = ()

@@ -6,17 +6,21 @@ from dataclasses import asdict, is_dataclass
 from typing import Any
 
 from .artifact_model import (
+    ChartArtifact,
     ColumnGroup,
+    DataBinding,
+    DataSource,
     IndexedDataSource,
     IndexedTableArtifact,
     Note,
     TableColumn,
 )
-from .publication_model import PublicationPlan
+from .publication_model import NavigationItem, PublicationPlan
 from .ui_model import (
     ContentPanel,
     Filter,
     FilterSection,
+    FilterValuesSource,
     FilterValue,
     G1Contents,
     Heading,
@@ -73,6 +77,48 @@ BRB_FILTERS = (
         control="checkbox",
         default=False,
         url_key="nu_chii",
+    ),
+)
+
+
+FINISH_BY_CHII_FILTERS = (
+    Filter(
+        id="division",
+        label="Division",
+        control="select",
+        default="makuuchi",
+        url_key="division",
+        values=(
+            FilterValue(value="makuuchi", label="Makuuchi"),
+            FilterValue(value="juryo", label="Juryo"),
+        ),
+    ),
+    Filter(
+        id="direction",
+        label="Direction",
+        control="select",
+        default="top",
+        url_key="direction",
+        values=(
+            FilterValue(value="top", label="Top"),
+            FilterValue(value="bottom", label="Bottom"),
+        ),
+    ),
+    Filter(
+        id="chii",
+        label="Chii",
+        control="data_selector",
+        default="Y1e",
+        url_key="chii",
+        values_source=FilterValuesSource(
+            source="top_thresholds",
+            field="chii",
+            label_field="chii",
+            order_field="chii_ordinal",
+            partition_filter="division",
+            partition_field="division",
+            partition_normalizer="division_id",
+        ),
     ),
 )
 
@@ -254,29 +300,99 @@ BASHO_RESULTS_ARTIFACT = IndexedTableArtifact(
 )
 
 
+FINISH_BY_CHII_ARTIFACT = ChartArtifact(
+    id="finish_by_chii",
+    heading="Finish by Chii",
+    kind="chart",
+    renderer="finish_by_chii_chart",
+    data_binding=DataBinding(
+        kind="csv_set",
+        sources=("top_thresholds", "bottom_thresholds"),
+    ),
+    data_sources=(
+        DataSource(
+            id="top_thresholds",
+            label="Top finish thresholds",
+            path="performance/finish-by-chii/data/top_thresholds.csv",
+            media_type="text/csv",
+        ),
+        DataSource(
+            id="bottom_thresholds",
+            label="Bottom finish thresholds",
+            path="performance/finish-by-chii/data/bottom_thresholds.csv",
+            media_type="text/csv",
+        ),
+    ),
+)
+
+
 def build_public_site_shell(plan: PublicationPlan) -> PublicSiteShell:
     brb_page = plan.pages["basho_results_browser"].page
+    finish_by_chii_page = plan.pages["finish_by_chii"].page
+    content_panels = (
+        ContentPanel(
+            page_id=finish_by_chii_page.id,
+            heading=Heading(
+                title=finish_by_chii_page.title,
+                summary=finish_by_chii_page.summary,
+            ),
+            grammar="G1",
+            contents=G1Contents(
+                filter_section=FilterSection(filters=FINISH_BY_CHII_FILTERS),
+                pa=PA(artifact_id=FINISH_BY_CHII_ARTIFACT.id),
+            ),
+        ),
+        ContentPanel(
+            page_id=brb_page.id,
+            heading=Heading(title=brb_page.title, summary=brb_page.summary),
+            grammar="G1",
+            contents=G1Contents(
+                filter_section=FilterSection(filters=BRB_FILTERS),
+                pa=PA(artifact_id=BASHO_RESULTS_ARTIFACT.id),
+                note_ids=tuple(note.id for note in BASHO_RESULTS_ARTIFACT.notes),
+            ),
+        ),
+    )
+    renderable_page_ids = frozenset(panel.page_id for panel in content_panels)
     return PublicSiteShell(
         navigation_bar=NavigationBar(
             heading=plan.site.title,
-            navigation_tree=plan.navigation_tree,
+            navigation_tree=renderable_navigation_tree(
+                plan.navigation_tree,
+                renderable_page_ids,
+            ),
             collapse_control=NavigationCollapseControl(
                 enabled=True,
                 storage_key="gaspodeSumoLab.makeSite2.navCollapsed",
             ),
         ),
-        content_panels=(
-            ContentPanel(
-                page_id=brb_page.id,
-                heading=Heading(title=brb_page.title, summary=brb_page.summary),
-                grammar="G1",
-                contents=G1Contents(
-                    filter_section=FilterSection(filters=BRB_FILTERS),
-                    pa=PA(artifact_id=BASHO_RESULTS_ARTIFACT.id),
-                    note_ids=tuple(note.id for note in BASHO_RESULTS_ARTIFACT.notes),
-                ),
-            ),
-        ),
+        content_panels=content_panels,
+    )
+
+
+def renderable_navigation_tree(
+    items: tuple[NavigationItem, ...],
+    renderable_page_ids: frozenset[str],
+) -> tuple[NavigationItem, ...]:
+    return tuple(
+        renderable_navigation_item(item, renderable_page_ids)
+        for item in items
+    )
+
+
+def renderable_navigation_item(
+    item: NavigationItem,
+    renderable_page_ids: frozenset[str],
+) -> NavigationItem:
+    included = item.page_id in renderable_page_ids if item.page_id is not None else False
+    return NavigationItem(
+        id=item.id,
+        label=item.label,
+        slug=item.slug,
+        page_id=item.page_id,
+        href=item.href if included else None,
+        included=included,
+        children=renderable_navigation_tree(item.children, renderable_page_ids),
     )
 
 
@@ -289,6 +405,7 @@ def build_runtime_manifest(plan: PublicationPlan) -> dict[str, Any]:
         "ui": to_plain(build_public_site_shell(plan)),
         "artifacts": {
             BASHO_RESULTS_ARTIFACT.id: to_plain(BASHO_RESULTS_ARTIFACT),
+            FINISH_BY_CHII_ARTIFACT.id: to_plain(FINISH_BY_CHII_ARTIFACT),
         },
     }
 

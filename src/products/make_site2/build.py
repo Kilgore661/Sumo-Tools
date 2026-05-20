@@ -10,7 +10,11 @@ from pathlib import Path
 from src.infra.live_store.api import get_history
 from src.sumo_core.History import History
 
-from .data_output import build_basho_results_data_output, load_history_from_zip
+from .data_output import (
+    build_basho_results_data_output,
+    copy_finish_by_chii_data_output,
+    load_history_from_zip,
+)
 from .publication_model import build_publication_plan
 from .render import render_site_shell
 from .site_manifest import build_public_site_shell, build_runtime_manifest
@@ -58,6 +62,7 @@ def build_site(
         output_root=output_root,
         payload_mode=basho_results_payload_mode,
     )
+    copy_finish_by_chii_data_output(output_root=output_root)
     plan = build_publication_plan(SITE)
     (output_root / "index.html").write_text(
         render_site_shell(

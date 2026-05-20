@@ -18,12 +18,19 @@ from src.sumo_core.History import History
 
 
 BASHO_RESULTS_ROUTE_DATA_DIR = Path("sumo-history") / "basho-results" / "data"
+FINISH_BY_CHII_ROUTE_DATA_DIR = Path("performance") / "finish-by-chii" / "data"
 
 
 @dataclass(frozen=True, kw_only=True)
 class BashoResultsDataOutput:
     index_path: Path
     payload_paths: tuple[Path, ...]
+
+
+@dataclass(frozen=True, kw_only=True)
+class FinishByChiiDataOutput:
+    top_thresholds_path: Path
+    bottom_thresholds_path: Path
 
 
 def load_history_from_zip(path: Path) -> History:
@@ -76,4 +83,29 @@ def build_basho_results_data_output(
     return BashoResultsDataOutput(
         index_path=index_path,
         payload_paths=payload_paths,
+    )
+
+
+def copy_finish_by_chii_data_output(*, output_root: Path) -> FinishByChiiDataOutput:
+    """Copy the public Finish by Chii CSV set into the make_site2 output tree."""
+
+    source_root = Path("files") / "output" / "misc"
+    route_data_root = output_root / FINISH_BY_CHII_ROUTE_DATA_DIR
+    if route_data_root.exists():
+        shutil.rmtree(route_data_root)
+    route_data_root.mkdir(parents=True, exist_ok=True)
+
+    top_thresholds_path = route_data_root / "top_thresholds.csv"
+    bottom_thresholds_path = route_data_root / "bottom_thresholds.csv"
+    shutil.copy2(
+        source_root / "finish_by_chii_1958_2026_top_thresholds.csv",
+        top_thresholds_path,
+    )
+    shutil.copy2(
+        source_root / "finish_by_chii_1958_2026_bottom_thresholds.csv",
+        bottom_thresholds_path,
+    )
+    return FinishByChiiDataOutput(
+        top_thresholds_path=top_thresholds_path,
+        bottom_thresholds_path=bottom_thresholds_path,
     )

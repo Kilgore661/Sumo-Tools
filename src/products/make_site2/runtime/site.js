@@ -117,8 +117,18 @@
     if (panel.grammar !== "G1") throw new Error(`Unsupported content grammar: ${panel.grammar}`);
     const artifact = runtimeManifest.artifacts[panel.contents.pa.artifact_id];
     if (!artifact) throw new Error(`Unknown artifact: ${panel.contents.pa.artifact_id}`);
-    if (artifact.kind !== "indexed_table") throw new Error(`Unsupported artifact kind: ${artifact.kind}`);
+    if (artifact.kind === "indexed_table") {
+      await renderIndexedTableContentPanel(panel, artifact, overrideState);
+      return;
+    }
+    if (artifact.kind === "chart") {
+      await renderChartContentPanel(panel, artifact, overrideState);
+      return;
+    }
+    throw new Error(`Unsupported artifact kind: ${artifact.kind}`);
+  }
 
+  async function renderIndexedTableContentPanel(panel, artifact, overrideState = null) {
     const filters = panel.contents.filter_section.filters;
     const state = overrideState || resolveFilterState(filters, readFilterUrlState(filters));
     const index = await fetchJson(artifact.indexed_source.index_path);
@@ -146,6 +156,50 @@
       '</section>'
     ].join("");
     wireFilterSection(panel, state);
+  }
+
+  async function renderChartContentPanel(panel, artifact, overrideState = null) {
+    if (artifact.renderer !== "finish_by_chii_chart") {
+      throw new Error(`Unsupported chart renderer: ${artifact.renderer}`);
+    }
+    const filters = panel.contents.filter_section.filters;
+    const state = overrideState || resolveFilterState(filters, readFilterUrlState(filters));
+    const rowsBySource = await fetchArtifactCsvSet(artifact);
+    state.division = resolveSelectedDataValue(
+      rowsBySource[artifact.data_binding.sources[0]] || [],
+      "division",
+      state.division,
+      "division_id",
+    );
+    state.chii = resolveSelectedFilterValueFromSource(
+      filters.find(filter => filter.id === "chii"),
+      state,
+      rowsBySource,
+    );
+    writePanelUrl(panel.page_id, filters, state, { replace: true });
+
+    contentPanel.innerHTML = [
+      '<section class="content-panel">',
+      `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
+      `<h3>${escapeHtml(panel.heading.summary)}</h3>`,
+      '<div class="content-body">',
+      renderFilterSection(panel.contents.filter_section, state, null, rowsBySource),
+      '<div class="pa-slot">',
+      renderFinishByChiiChart(artifact, state, filters, rowsBySource),
+      '</div>',
+      '</div>',
+      renderNotes(artifact, state),
+      '</section>'
+    ].join("");
+    renderFinishByChiiPlot(artifact, state, rowsBySource);
+    wireFilterSection(panel, state);
+  }
+
+  async function fetchArtifactCsvSet(artifact) {
+    const entries = await Promise.all(
+      artifact.data_sources.map(async source => [source.id, await fetchCsv(source.path)])
+    );
+    return Object.fromEntries(entries);
   }
 
   function renderArtifactTitleBlock(artifact, state, entry, filters) {
@@ -242,18 +296,18 @@
       .map(entry => ({ value: entry.basho, label: entry.label || entry.basho }));
   }
 
-  function renderFilterSection(filterSection, state, index) {
+  function renderFilterSection(filterSection, state, index, rowsBySource = {}) {
     return [
       '<form class="filter-section" aria-label="Filters">',
       '<h4>Options</h4>',
       '<ul class="filter-list">',
-      ...filterSection.filters.map(filter => `<li>${renderFilter(filter, state, index)}</li>`),
+      ...filterSection.filters.map(filter => `<li>${renderFilter(filter, state, index, rowsBySource)}</li>`),
       '</ul>',
       '</form>'
     ].join("");
   }
 
-  function renderFilter(filter, state, index) {
+  function renderFilter(filter, state, index, rowsBySource = {}) {
     if (filter.control === "checkbox") {
       return [
         '<label class="checkbox-control">',
@@ -264,6 +318,8 @@
     }
     const values = filter.control === "basho_date_selector"
       ? bashoSelectorValues(index)
+      : filter.values_source
+      ? dataSelectorValues(filter, state, rowsBySource)
       : filter.values;
     const selected = filter.control === "basho_date_selector"
       ? selectedIndexEntry(index, state[filter.id]).basho
@@ -279,6 +335,128 @@
       '</select>',
       '</label>'
     ].join("");
+  }
+
+  function dataSelectorValues(filter, state, rowsBySource) {
+    const source = filter.values_source;
+    const rows = rowsBySource[source.source] || [];
+    const partitionValue = source.partition_filter ? state[source.partition_filter] : null;
+    const entries = new Map();
+    for (const row of rows) {
+      if (source.partition_filter) {
+        const actual = normalizedSourceValue(row[source.partition_field], source.partition_normalizer);
+        if (actual !== partitionValue) continue;
+      }
+      entries.set(row[source.field], {
+        value: row[source.field],
+        label: row[source.label_field],
+        order: Number(row[source.order_field]),
+      });
+    }
+    return [...entries.values()]
+      .sort((left, right) => left.order - right.order)
+      .map(({ value, label }) => ({ value, label }));
+  }
+
+  function resolveSelectedFilterValueFromSource(filter, state, rowsBySource) {
+    const values = filter ? dataSelectorValues(filter, state, rowsBySource) : [];
+    return values.some(value => value.value === state[filter.id])
+      ? state[filter.id]
+      : values[0]?.value || state[filter.id];
+  }
+
+  function resolveSelectedDataValue(rows, field, selectedValue, normalizer = null) {
+    const values = [...new Set(rows.map(row => normalizedSourceValue(row[field], normalizer)))].filter(Boolean);
+    return values.includes(selectedValue) ? selectedValue : values[0] || selectedValue;
+  }
+
+  function normalizedSourceValue(value, normalizer) {
+    if (normalizer === "division_id") return divisionId(value);
+    return value;
+  }
+
+  function divisionId(value) {
+    return String(value || "").toLowerCase().replace(/\s+/g, "_");
+  }
+
+  function renderFinishByChiiChart(artifact, state, filters, rowsBySource) {
+    const rows = finishByChiiRows(artifact, state, rowsBySource);
+    if (!rows.length) {
+      return '<p>No Finish by Chii data matches the selected options.</p>';
+    }
+    const divisionLabel = filterValueLabel(filters, "division", state.division) || rows[0].division;
+    const directionLabel = state.direction === "bottom" ? "Bottom" : "Top";
+    const probabilityLabel = state.direction === "bottom"
+      ? "No better than nth-worst"
+      : "No worse than nth";
+    const sampleSize = rows[0].n || "";
+    return [
+      '<div class="artifact-title-block">',
+      `<h4>${escapeHtml(divisionLabel)} ${escapeHtml(state.chii)}: ${escapeHtml(directionLabel)} finish</h4>`,
+      `<div>${escapeHtml(probabilityLabel)} by wins, sample size ${escapeHtml(sampleSize)}</div>`,
+      '</div>',
+      '<div id="finish-by-chii-chart" class="plotly-chart"></div>'
+    ].join("");
+  }
+
+  function renderFinishByChiiPlot(artifact, state, rowsBySource) {
+    const host = document.getElementById("finish-by-chii-chart");
+    if (!host) return;
+    if (!window.Plotly) {
+      host.innerHTML = "<p>Plotly is not available.</p>";
+      return;
+    }
+    const rows = finishByChiiRows(artifact, state, rowsBySource);
+    const probabilityField = state.direction === "bottom"
+      ? "p_no_better_than_mth_worst"
+      : "p_no_worse_than_n";
+    const trace = {
+      type: "bar",
+      x: rows.map(row => Number(row.threshold)),
+      y: rows.map(row => 100 * (Number(row[probabilityField]) || 0)),
+      marker: {
+        color: "rgba(143, 181, 255, 0.88)",
+        line: {
+          color: "rgba(220, 232, 255, 0.95)",
+          width: 1,
+        },
+      },
+      hovertemplate: "Threshold %{x}<br>Probability %{y:.1f}%<extra></extra>",
+    };
+    const layout = {
+      autosize: true,
+      paper_bgcolor: "rgba(0,0,0,0)",
+      plot_bgcolor: "rgba(0,0,0,0)",
+      margin: { l: 64, r: 26, t: 18, b: 58 },
+      xaxis: {
+        title: state.direction === "top" ? "No worse than n" : "No better than nth-worst",
+        tickmode: "linear",
+        dtick: 1,
+        gridcolor: "rgba(127,149,192,0.22)",
+        zerolinecolor: "rgba(127,149,192,0.35)",
+        color: "#c9d4ee",
+      },
+      yaxis: {
+        title: "Probability",
+        range: [0, 100],
+        ticksuffix: "%",
+        gridcolor: "rgba(127,149,192,0.22)",
+        zerolinecolor: "rgba(127,149,192,0.35)",
+        color: "#c9d4ee",
+      },
+      font: {
+        family: "Arial, Helvetica, sans-serif",
+        color: "#ffffff",
+      },
+    };
+    Plotly.react(host, [trace], layout, { responsive: true, displaylogo: false });
+  }
+
+  function finishByChiiRows(artifact, state, rowsBySource) {
+    const sourceId = state.direction === "bottom" ? "bottom_thresholds" : "top_thresholds";
+    return [...(rowsBySource[sourceId] || [])]
+      .filter(row => divisionId(row.division) === state.division && row.chii === state.chii)
+      .sort((left, right) => Number(left.threshold) - Number(right.threshold));
   }
 
   function renderIndexedTable(artifact, rows, state) {

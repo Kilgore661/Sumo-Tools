@@ -12,7 +12,7 @@ from typing import Literal
 from .publication_model import NavigationItem
 
 
-ControlKind = Literal["select", "checkbox", "basho_date_selector"]
+ControlKind = Literal["select", "checkbox", "basho_date_selector", "data_selector"]
 ContentGrammar = Literal["G1"]
 
 
@@ -36,6 +36,17 @@ class FilterValue:
 
 
 @dataclass(frozen=True, kw_only=True)
+class FilterValuesSource:
+    source: str
+    field: str
+    label_field: str
+    order_field: str
+    partition_filter: str | None = None
+    partition_field: str | None = None
+    partition_normalizer: str | None = None
+
+
+@dataclass(frozen=True, kw_only=True)
 class Filter:
     id: str
     label: str
@@ -43,6 +54,7 @@ class Filter:
     default: str | bool
     url_key: str
     values: tuple[FilterValue, ...] = ()
+    values_source: FilterValuesSource | None = None
 
 
 @dataclass(frozen=True, kw_only=True)

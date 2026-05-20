@@ -41,7 +41,11 @@ PAGES = PageRegistry(
             id="finish_by_chii",
             title="Finish by Chii",
             summary="Historical finishing outcomes grouped by chii.",
-            artifact=artifact("finish_by_chii", "standalone_html"),
+            artifact=artifact(
+                "finish_by_chii",
+                "chart",
+                producer="misc.finish_by_chii",
+            ),
         ),
         "banzuke_division_by_era": PageDefinition(
             id="banzuke_division_by_era",
