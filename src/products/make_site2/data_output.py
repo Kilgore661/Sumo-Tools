@@ -35,7 +35,7 @@ def load_history_from_zip(path: Path) -> History:
 
 def build_basho_results_data_output(
     *,
-    history_zip: Path,
+    history: History,
     output_root: Path,
     payload_mode: str = "all",
 ) -> BashoResultsDataOutput:
@@ -44,10 +44,9 @@ def build_basho_results_data_output(
     if payload_mode not in {"all", "latest", "none"}:
         raise ValueError(f"Unsupported BRB payload mode: {payload_mode!r}")
 
-    history = load_history_from_zip(history_zip)
     dates = represented_dates(history)
     if not dates:
-        raise ValueError(f"No represented basho dates found in {history_zip}")
+        raise ValueError("No represented basho dates found")
 
     route_data_root = output_root / BASHO_RESULTS_ROUTE_DATA_DIR
     if route_data_root.exists():

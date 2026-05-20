@@ -132,13 +132,14 @@
     const filteredRows = rows.filter(row => row.division_id === state.division).slice(0, 20);
 
     contentPanel.innerHTML = [
-      '<section class="content-panel" aria-labelledby="content-title">',
-      '<header class="content-heading">',
-      `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
+      '<section class="content-panel">',
+      `<div id="content-title">${escapeHtml(panel.heading.title)}</div>`,
       `<p>${escapeHtml(panel.heading.summary)}</p>`,
-      '</header>',
+      '<div class="content-body">',
       renderFilterSection(panel.contents.filter_section, state, index),
       renderIndexedTable(artifact, filteredRows, state),
+      '</div>',
+      renderNotes(artifact, state),
       '</section>'
     ].join("");
     wireFilterSection(panel, state);
@@ -195,13 +196,26 @@
       const match = entries.find(entry => entry.basho === selected);
       if (match) return match;
     }
-    return entries.find(entry => entry.basho === index.default_basho) || entries[entries.length - 1];
+    return entries.find(entry => entry.basho === index.default_basho) || latestIndexEntry(entries);
+  }
+
+  function latestIndexEntry(entries) {
+    return [...entries].sort((left, right) => String(right.basho).localeCompare(String(left.basho)))[0];
+  }
+
+  function bashoSelectorValues(index) {
+    return [...(index.entries || [])]
+      .sort((left, right) => String(right.basho).localeCompare(String(left.basho)))
+      .map(entry => ({ value: entry.basho, label: entry.label || entry.basho }));
   }
 
   function renderFilterSection(filterSection, state, index) {
     return [
       '<form class="filter-section" aria-label="Filters">',
-      ...filterSection.filters.map(filter => renderFilter(filter, state, index)),
+      '<div>Options</div>',
+      '<ul class="filter-list">',
+      ...filterSection.filters.map(filter => `<li>${renderFilter(filter, state, index)}</li>`),
+      '</ul>',
       '</form>'
     ].join("");
   }
@@ -216,7 +230,7 @@
       ].join("");
     }
     const values = filter.control === "basho_date_selector"
-      ? (index.entries || []).map(entry => ({ value: entry.basho, label: entry.label }))
+      ? bashoSelectorValues(index)
       : filter.values;
     const selected = filter.control === "basho_date_selector"
       ? selectedIndexEntry(index, state[filter.id]).basho
@@ -253,6 +267,28 @@
     ].join("");
   }
 
+  function renderNotes(artifact, state) {
+    const notes = (artifact.notes || []).filter(note => noteApplies(note, state));
+    if (!notes.length) return "";
+    return [
+      '<aside class="notes-panel">',
+      '<div>Notes</div>',
+      '<ol>',
+      ...notes.map(note => `<li>${escapeHtml(note.text)}</li>`),
+      '</ol>',
+      '</aside>'
+    ].join("");
+  }
+
+  function noteApplies(note, state) {
+    const applies = note.applies_to || ["all"];
+    if (applies.includes("all")) return true;
+    if (applies.includes("previous_basho")) return Boolean(state.previous_context);
+    if (applies.includes("rating_context")) return Boolean(state.rating_context);
+    if (applies.includes("nu_chii")) return Boolean(state.nu_chii);
+    return false;
+  }
+
   function isColumnVisible(column, groups, state) {
     if (column.always_visible) return true;
     const group = groups.get(column.group);
@@ -272,15 +308,24 @@
   }
 
   async function fetchJson(path) {
-    const response = await fetch(path);
+    const response = await fetch(cacheBustedUrl(path));
     if (!response.ok) throw new Error(`Could not load ${path}`);
     return response.json();
   }
 
   async function fetchCsv(path) {
-    const response = await fetch(path);
+    const response = await fetch(cacheBustedUrl(path));
     if (!response.ok) throw new Error(`Could not load ${path}`);
     return parseCsv(await response.text());
+  }
+
+  function cacheBustedUrl(path) {
+    if (document.body.dataset.cacheMode !== "dev" || !document.body.dataset.cacheBust) {
+      return path;
+    }
+    const url = new URL(path, window.location.href);
+    url.searchParams.set(document.body.dataset.cacheBustParam || "cb", document.body.dataset.cacheBust);
+    return url.toString();
   }
 
   function parseCsv(text) {

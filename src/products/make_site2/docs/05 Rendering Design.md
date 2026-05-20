@@ -782,6 +782,42 @@ No Node.js runtime is required by the public site.
 
 # 21. CSS and Styling Policy
 
+CSS must express the UI Model, Artifact Model, and explicitly declared rendering
+grammar.
+
+It must not introduce semantic, structural, or visual distinctions that are not
+present in those models or grammars.
+
+This applies down to the smallest implementation choices:
+
+```text
+wrapper structure
+control grouping
+control layout
+table alignment
+spacing
+muted text
+note placement
+responsive behavior
+link treatment
+form-widget treatment
+```
+
+If the rendered page looks wrong, the first question is not "what local CSS fixes
+this?" The first question is "what model or grammar rule is missing?"
+
+Fix the missing rule at the highest appropriate level:
+
+```text
+site theme
+site layout
+content grammar
+control model
+artifact model
+artifact renderer
+page-specific exception, only if the model really contains one
+```
+
 Shared UI structure gets shared CSS.
 
 Page-specific CSS is exceptional.
@@ -817,6 +853,9 @@ custom artifact internals
 The old failure mode was CSS drift caused by repeated page-specific rendering.
 
 `make_site2` should avoid that by making shared structure share styling and by centralizing theme/layout constants.
+
+Until a theme or layout rule is declared, browser/default rendering is preferred
+over bespoke CSS.
 
 ---
 
@@ -911,6 +950,9 @@ output copying
 If rendering starts making these decisions, the boundary is wrong.
 
 Rendering owns realization of already-modeled structure.
+
+Rendering must not imply a hierarchy, grouping, emphasis, status, alignment, or
+relationship that is absent from the model.
 
 ---
 
@@ -1027,4 +1069,6 @@ The core rendering invariant is:
 
 ```text
 No promoted page is rendered until it has first been represented in the UI Model.
+No rendered structure, styling, or runtime behavior introduces distinctions that
+are absent from the UI Model, Artifact Model, or declared rendering grammar.
 ```

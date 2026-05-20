@@ -52,6 +52,26 @@ def test_site_shell_is_rendered_from_ui_manifest() -> None:
     assert '<table class="brb-table">' not in html
 
 
+def test_site_shell_cache_busts_runtime_assets_in_dev_mode() -> None:
+    shell = build_public_site_shell(build_publication_plan(SITE))
+    html = render_site_shell(shell, cache_mode="dev", cache_bust_token="test-token")
+
+    assert 'data-cache-mode="dev"' in html
+    assert 'data-cache-bust="test-token"' in html
+    assert 'data-cache-bust-param="cb"' in html
+    assert '<link rel="stylesheet" href="runtime/site.css?cb=test-token">' in html
+    assert '<script src="runtime/site.js?cb=test-token"></script>' in html
+
+
+def test_site_shell_uses_stable_runtime_assets_in_prod_mode() -> None:
+    shell = build_public_site_shell(build_publication_plan(SITE))
+    html = render_site_shell(shell, cache_mode="prod", cache_bust_token="test-token")
+
+    assert "data-cache-bust" not in html
+    assert '<link rel="stylesheet" href="runtime/site.css">' in html
+    assert '<script src="runtime/site.js"></script>' in html
+
+
 def test_runtime_manifest_declares_brb_ui_and_artifact_semantics() -> None:
     manifest = build_runtime_manifest(build_publication_plan(SITE))
     brb_panel = manifest["ui"]["content_panels"][0]

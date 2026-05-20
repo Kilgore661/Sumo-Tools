@@ -2,12 +2,17 @@ import pytest
 
 from src.products.make_site2.__main__ import (
     build_parser,
+    resolve_cache_mode,
     resolve_basho_results_payload_mode,
 )
 
 
 def payload_mode_for(*args: str) -> str:
     return resolve_basho_results_payload_mode(build_parser().parse_args(args))
+
+
+def cache_mode_for(*args: str) -> str:
+    return resolve_cache_mode(build_parser().parse_args(args))
 
 
 def test_make_site2_builds_all_basho_payloads_by_default() -> None:
@@ -25,3 +30,11 @@ def test_make_site2_no_basho_disables_payloads() -> None:
 def test_make_site2_rejects_conflicting_basho_payload_flags() -> None:
     with pytest.raises(SystemExit):
         payload_mode_for("--no-basho", "--one-basho")
+
+
+def test_make_site2_uses_development_cache_busting_by_default() -> None:
+    assert cache_mode_for() == "dev"
+
+
+def test_make_site2_prod_disables_development_cache_busting() -> None:
+    assert cache_mode_for("--prod") == "prod"

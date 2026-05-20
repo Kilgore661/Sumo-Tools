@@ -4,9 +4,13 @@ from __future__ import annotations
 
 import shutil
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 
-from .data_output import build_basho_results_data_output
+from src.infra.live_store.api import get_history
+from src.sumo_core.History import History
+
+from .data_output import build_basho_results_data_output, load_history_from_zip
 from .publication_model import build_publication_plan
 from .render import render_site_shell
 from .site_manifest import build_public_site_shell, build_runtime_manifest
@@ -16,28 +20,51 @@ from .site_definition import SITE
 PACKAGE_ROOT = Path(__file__).resolve().parent
 REPO_ROOT = PACKAGE_ROOT.parents[2]
 DEFAULT_OUTPUT_ROOT = REPO_ROOT / "files" / "output" / "make_site2"
-DEFAULT_HISTORY_ZIP = REPO_ROOT / "files" / "output" / "Historys" / "1978_01 to 1980_11.zip"
 
 
 def build_site(
     output_root: Path = DEFAULT_OUTPUT_ROOT,
     *,
-    history_zip: Path = DEFAULT_HISTORY_ZIP,
+    history: History | None = None,
+    history_zip: Path | None = None,
     basho_results_payload_mode: str = "all",
+    cache_mode: str = "dev",
+    cache_bust_token: str | None = None,
 ) -> Path:
     """Write the first make_site2 static output tree."""
+
+    if cache_mode not in {"dev", "prod"}:
+        raise ValueError(f"Unsupported cache mode: {cache_mode!r}")
+    if history is not None and history_zip is not None:
+        raise ValueError("Pass either history or history_zip, not both")
+    resolved_history = (
+        history
+        if history is not None
+        else load_history_from_zip(history_zip)
+        if history_zip is not None
+        else get_history()
+    )
+    resolved_cache_bust_token = (
+        cache_bust_token
+        if cache_bust_token is not None
+        else datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+    )
 
     output_root.mkdir(parents=True, exist_ok=True)
     (output_root / "runtime").mkdir(parents=True, exist_ok=True)
 
     build_basho_results_data_output(
-        history_zip=history_zip,
+        history=resolved_history,
         output_root=output_root,
         payload_mode=basho_results_payload_mode,
     )
     plan = build_publication_plan(SITE)
     (output_root / "index.html").write_text(
-        render_site_shell(build_public_site_shell(plan)),
+        render_site_shell(
+            build_public_site_shell(plan),
+            cache_mode=cache_mode,
+            cache_bust_token=resolved_cache_bust_token,
+        ),
         encoding="utf-8",
     )
     (output_root / "runtime" / "site-manifest.json").write_text(

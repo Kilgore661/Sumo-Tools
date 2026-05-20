@@ -12,6 +12,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
     parser.add_argument("--history-zip", type=Path)
     parser.add_argument(
+        "--prod",
+        action="store_true",
+        help="Build without development cache-busting query parameters.",
+    )
+    parser.add_argument(
         "--no-basho",
         action="store_true",
         help="Do not include Basho Results Browser per-basho payload data.",
@@ -40,9 +45,16 @@ def resolve_basho_results_payload_mode(args: argparse.Namespace) -> str:
     return args.brb_payload_mode
 
 
+def resolve_cache_mode(args: argparse.Namespace) -> str:
+    return "prod" if args.prod else "dev"
+
+
 def main() -> None:
     args = build_parser().parse_args()
-    kwargs = {"basho_results_payload_mode": resolve_basho_results_payload_mode(args)}
+    kwargs = {
+        "basho_results_payload_mode": resolve_basho_results_payload_mode(args),
+        "cache_mode": resolve_cache_mode(args),
+    }
     if args.history_zip is not None:
         kwargs["history_zip"] = args.history_zip
     output_root = build_site(**kwargs)

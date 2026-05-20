@@ -1,57 +1,58 @@
-* {
-  box-sizing: border-box;
+:root {
+  --page-bg: #071733;
+  --page-fg: #ffffff;
 }
 
 body {
-  margin: 0;
+  background: var(--page-bg);
+  color: var(--page-fg);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+select {
+  font: inherit;
 }
 
 .site-shell {
-  position: relative;
   display: grid;
-  grid-template-columns: 20rem minmax(0, 1fr);
-  min-height: 100vh;
+  grid-template-columns: max-content minmax(0, 1fr);
+  height: 100vh;
 }
 
 .site-shell.nav-collapsed {
   grid-template-columns: minmax(0, 1fr);
 }
 
+.site-nav,
+.site-main {
+  min-height: 0;
+  overflow-y: auto;
+}
+
 .site-nav {
-  min-height: 100vh;
-  overflow: auto;
-  padding: 1rem;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
 }
 
 .nav-toggle {
   position: fixed;
-  top: 0.5rem;
-  left: 19rem;
+  top: 0;
+  left: 0;
   z-index: 1;
-}
-
-.site-shell.nav-collapsed .nav-toggle {
-  left: 0.5rem;
-}
-
-.site-title {
-  margin: 0 0 1rem;
 }
 
 .nav-list {
   counter-reset: nav-item;
-  list-style: none;
-  margin: 0;
-  padding-left: 0;
 }
 
 .nav-list .nav-list {
-  padding-left: 1rem;
-}
-
-.nav-link,
-.nav-label {
-  display: block;
+  padding-left: 2em;
 }
 
 .nav-list li {
@@ -63,35 +64,8 @@ body {
   content: counters(nav-item, ".") ". ";
 }
 
-.site-main {
-  min-width: 0;
-  padding: 1rem;
-}
-
-.filter-section {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.filter-control,
-.checkbox-control {
+.content-body {
   display: grid;
-}
-
-.checkbox-control {
-  grid-auto-flow: column;
-  gap: 0.25rem;
-  align-items: center;
-}
-
-.brb-table {
-  border-collapse: collapse;
-  width: 100%;
-}
-
-.brb-table th,
-.brb-table td {
-  padding: 0.25rem;
-  text-align: left;
+  grid-template-columns: auto minmax(0, 1fr);
+  min-width: 0;
 }

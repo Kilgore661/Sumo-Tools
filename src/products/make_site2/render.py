@@ -7,12 +7,24 @@ not invent page structure or artifact details.
 from __future__ import annotations
 
 from html import escape
+from urllib.parse import urlencode
 
 from .publication_model import NavigationItem
 from .ui_model import NavigationBar, PublicSiteShell
 
 
-def render_site_shell(shell: PublicSiteShell) -> str:
+def render_site_shell(
+    shell: PublicSiteShell,
+    *,
+    cache_mode: str = "prod",
+    cache_bust_token: str = "",
+    cache_bust_param: str = "cb",
+) -> str:
+    cache_attrs = render_cache_attrs(
+        cache_mode=cache_mode,
+        cache_bust_token=cache_bust_token,
+        cache_bust_param=cache_bust_param,
+    )
     return "\n".join(
         (
             "<!doctype html>",
@@ -20,10 +32,13 @@ def render_site_shell(shell: PublicSiteShell) -> str:
             "<head>",
             '<meta charset="utf-8">',
             '<meta name="viewport" content="width=device-width, initial-scale=1">',
-            '<link rel="stylesheet" href="runtime/site.css">',
+            (
+                '<link rel="stylesheet" '
+                f'href="{escape(cache_busted_url("runtime/site.css", cache_mode=cache_mode, cache_bust_token=cache_bust_token, cache_bust_param=cache_bust_param))}">'
+            ),
             f"<title>{escape(shell.navigation_bar.heading)}</title>",
             "</head>",
-            "<body>",
+            f"<body{cache_attrs}>",
             '<div class="site-shell" data-nav-shell>',
             render_navigation_toggle(shell.navigation_bar),
             render_navigation_bar(shell.navigation_bar),
@@ -31,7 +46,10 @@ def render_site_shell(shell: PublicSiteShell) -> str:
             '<div id="content-panel"></div>',
             "</main>",
             "</div>",
-            '<script src="runtime/site.js"></script>',
+            (
+                '<script '
+                f'src="{escape(cache_busted_url("runtime/site.js", cache_mode=cache_mode, cache_bust_token=cache_bust_token, cache_bust_param=cache_bust_param))}"></script>'
+            ),
             "</body>",
             "</html>",
             "",
@@ -39,11 +57,39 @@ def render_site_shell(shell: PublicSiteShell) -> str:
     )
 
 
+def render_cache_attrs(
+    *,
+    cache_mode: str,
+    cache_bust_token: str,
+    cache_bust_param: str,
+) -> str:
+    if cache_mode != "dev" or not cache_bust_token:
+        return ""
+    return (
+        f' data-cache-mode="{escape(cache_mode)}"'
+        f' data-cache-bust="{escape(cache_bust_token)}"'
+        f' data-cache-bust-param="{escape(cache_bust_param)}"'
+    )
+
+
+def cache_busted_url(
+    path: str,
+    *,
+    cache_mode: str,
+    cache_bust_token: str,
+    cache_bust_param: str,
+) -> str:
+    if cache_mode != "dev" or not cache_bust_token:
+        return path
+    separator = "&" if "?" in path else "?"
+    return f"{path}{separator}{urlencode({cache_bust_param: cache_bust_token})}"
+
+
 def render_navigation_bar(navigation_bar: NavigationBar) -> str:
     return "\n".join(
         (
             '<nav class="site-nav" data-nav-panel aria-label="Site navigation">',
-            f'<h1 class="site-title">{escape(navigation_bar.heading)}</h1>',
+            f'<div class="site-title">{escape(navigation_bar.heading)}</div>',
             '<ol class="nav-list">',
             *[render_navigation_item(item) for item in navigation_bar.navigation_tree],
             "</ol>",
