@@ -412,6 +412,17 @@ The shell is not page-specific.
 A page may have different content, filters, artifacts, or notes, but it should
 not bring its own unrelated shell.
 
+The shell has two columns:
+
+```text
+NavigationBar
+ContentPanel
+```
+
+Each shell column is independently vertically scrollable.
+
+The NavigationBar width is determined by its widest rendered item.
+
 ---
 
 # 9. Sidebar and Navigation Rendering
@@ -423,6 +434,15 @@ site identity / caption
 navigation tree
 quick links, if present
 sidebar hider
+```
+
+The site title is a heading. If the site title model contains line breaks,
+those line breaks are preserved in the visible title. For the current site this
+means:
+
+```text
+Gaspode-san's
+Sumo Lab
 ```
 
 Navigation rendering distinguishes:
@@ -504,6 +524,12 @@ identity.
 A Filter is not a widget.
 
 The renderer chooses controls to expose Filters.
+
+A rendered FilterControl is the atomic label-control unit for one Filter.
+
+The Filter label and its control travel together as one unbreakable unit in the
+layout. A FilterSection containing peer Filters should therefore render as peer
+FilterControls, not as separate label and widget streams.
 
 Possible controls include:
 

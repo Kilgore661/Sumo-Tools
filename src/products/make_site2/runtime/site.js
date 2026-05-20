@@ -133,11 +133,13 @@
 
     contentPanel.innerHTML = [
       '<section class="content-panel">',
-      `<div id="content-title">${escapeHtml(panel.heading.title)}</div>`,
-      `<p>${escapeHtml(panel.heading.summary)}</p>`,
+      `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
+      `<h3>${escapeHtml(panel.heading.summary)}</h3>`,
       '<div class="content-body">',
       renderFilterSection(panel.contents.filter_section, state, index),
+      '<div class="pa-slot">',
       renderIndexedTable(artifact, filteredRows, state),
+      '</div>',
       '</div>',
       renderNotes(artifact, state),
       '</section>'
@@ -212,7 +214,7 @@
   function renderFilterSection(filterSection, state, index) {
     return [
       '<form class="filter-section" aria-label="Filters">',
-      '<div>Options</div>',
+      '<h4>Options</h4>',
       '<ul class="filter-list">',
       ...filterSection.filters.map(filter => `<li>${renderFilter(filter, state, index)}</li>`),
       '</ul>',
@@ -252,14 +254,14 @@
     const groups = new Map(artifact.column_groups.map(group => [group.id, group]));
     const visibleColumns = artifact.columns.filter(column => isColumnVisible(column, groups, state));
     return [
-      '<table class="brb-table">',
+      '<table class="artifact-table brb-table">',
       '<thead><tr>',
-      ...visibleColumns.map(column => `<th>${escapeHtml(column.heading)}</th>`),
+      ...visibleColumns.map(column => `<th ${tableCellAttributes(column)}>${escapeHtml(column.heading)}</th>`),
       '</tr></thead>',
       '<tbody>',
       ...rows.map((row, index) => [
         '<tr>',
-        ...visibleColumns.map(column => `<td>${escapeHtml(cellValue(column, row, index))}</td>`),
+        ...visibleColumns.map(column => `<td ${tableCellAttributes(column)}>${escapeHtml(cellValue(column, row, index))}</td>`),
         '</tr>'
       ].join("")),
       '</tbody>',
@@ -267,12 +269,16 @@
     ].join("");
   }
 
+  function tableCellAttributes(column) {
+    return `data-column-id="${escapeHtml(column.id)}"`;
+  }
+
   function renderNotes(artifact, state) {
     const notes = (artifact.notes || []).filter(note => noteApplies(note, state));
     if (!notes.length) return "";
     return [
       '<aside class="notes-panel">',
-      '<div>Notes</div>',
+      '<h4>Notes</h4>',
       '<ol>',
       ...notes.map(note => `<li>${escapeHtml(note.text)}</li>`),
       '</ol>',

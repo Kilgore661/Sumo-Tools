@@ -36,7 +36,7 @@ def render_site_shell(
                 '<link rel="stylesheet" '
                 f'href="{escape(cache_busted_url("runtime/site.css", cache_mode=cache_mode, cache_bust_token=cache_bust_token, cache_bust_param=cache_bust_param))}">'
             ),
-            f"<title>{escape(shell.navigation_bar.heading)}</title>",
+            f"<title>{escape(render_document_title(shell.navigation_bar.heading))}</title>",
             "</head>",
             f"<body{cache_attrs}>",
             '<div class="site-shell" data-nav-shell>',
@@ -72,6 +72,15 @@ def render_cache_attrs(
     )
 
 
+def render_document_title(heading: str) -> str:
+    return " ".join(heading.split())
+
+
+def render_visible_title(heading: str) -> str:
+    lines = heading.splitlines() or [heading]
+    return "<br>".join(escape(line) for line in lines)
+
+
 def cache_busted_url(
     path: str,
     *,
@@ -89,7 +98,7 @@ def render_navigation_bar(navigation_bar: NavigationBar) -> str:
     return "\n".join(
         (
             '<nav class="site-nav" data-nav-panel aria-label="Site navigation">',
-            f'<div class="site-title">{escape(navigation_bar.heading)}</div>',
+            f'<h1 class="site-title">{render_visible_title(navigation_bar.heading)}</h1>',
             '<ol class="nav-list">',
             *[render_navigation_item(item) for item in navigation_bar.navigation_tree],
             "</ol>",

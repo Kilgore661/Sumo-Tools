@@ -38,6 +38,7 @@ select {
 .site-nav {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
+  width: max-content;
 }
 
 .nav-toggle {
@@ -49,6 +50,11 @@ select {
 
 .nav-list {
   counter-reset: nav-item;
+  list-style: none;
+}
+
+.site-nav > .nav-list {
+  padding-left: 0;
 }
 
 .nav-list .nav-list {
@@ -68,4 +74,27 @@ select {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   min-width: 0;
+}
+
+.filter-control,
+.checkbox-control {
+  align-items: baseline;
+  column-gap: 0.25em;
+  display: inline-flex;
+  white-space: nowrap;
+}
+
+.pa-slot {
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+}
+
+.artifact-table th,
+.artifact-table td {
+  text-align: center;
+}
+
+.artifact-table [data-column-id="shikona"] {
+  text-align: left;
 }

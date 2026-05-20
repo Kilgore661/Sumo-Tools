@@ -89,7 +89,7 @@ PAGES = PageRegistry(
 
 SITE = SiteDefinition(
     id="sumo_lab",
-    title="Gaspode-san's Sumo Lab",
+    title="Gaspode-san's\nSumo Lab",
     navigation=NAVIGATION,
     pages=PAGES,
 )
