@@ -97,18 +97,38 @@
     }
   }
 
-  async function renderContentPanel(panel) {
+  function writePanelUrl(pageId, filters, state, { replace }) {
+    const params = new URLSearchParams(window.location.search);
+    if (pageId) params.set(PAGE_PARAM, pageId);
+    for (const filter of filters) {
+      params.set(filter.url_key || filter.id, String(state[filter.id]));
+    }
+    const search = params.toString();
+    const next = `${window.location.pathname}${search ? `?${search}` : ""}${window.location.hash}`;
+    if (next === `${window.location.pathname}${window.location.search}${window.location.hash}`) return;
+    if (replace) {
+      history.replaceState(null, "", next);
+    } else {
+      history.pushState(null, "", next);
+    }
+  }
+
+  async function renderContentPanel(panel, overrideState = null) {
     if (panel.grammar !== "G1") throw new Error(`Unsupported content grammar: ${panel.grammar}`);
     const artifact = runtimeManifest.artifacts[panel.contents.pa.artifact_id];
     if (!artifact) throw new Error(`Unknown artifact: ${panel.contents.pa.artifact_id}`);
     if (artifact.kind !== "indexed_table") throw new Error(`Unsupported artifact kind: ${artifact.kind}`);
 
-    const state = defaultFilterState(panel.contents.filter_section.filters);
+    const filters = panel.contents.filter_section.filters;
+    const state = overrideState || resolveFilterState(filters, readFilterUrlState(filters));
     const index = await fetchJson(artifact.indexed_source.index_path);
     const selectedEntry = selectedIndexEntry(index, state[artifact.selector_filter_id]);
+    state[artifact.selector_filter_id] = selectedEntry.basho;
     const payloadPath = selectedEntry[artifact.indexed_source.payload_path_field];
     const dataRoot = artifact.indexed_source.index_path.replace(/[^/]+$/, "");
     const rows = await fetchCsv(`${dataRoot}${payloadPath.replace(/^data\//, "")}`);
+    state.division = resolveSelectedDivision(rows, state.division);
+    writePanelUrl(panel.page_id, filters, state, { replace: true });
     const filteredRows = rows.filter(row => row.division_id === state.division).slice(0, 20);
 
     contentPanel.innerHTML = [
@@ -121,10 +141,52 @@
       renderIndexedTable(artifact, filteredRows, state),
       '</section>'
     ].join("");
+    wireFilterSection(panel, state);
   }
 
-  function defaultFilterState(filters) {
-    return Object.fromEntries(filters.map(filter => [filter.id, filter.default]));
+  function readFilterUrlState(filters) {
+    const params = new URLSearchParams(window.location.search);
+    return Object.fromEntries(filters.map(filter => [
+      filter.id,
+      params.get(filter.url_key || filter.id)
+    ]));
+  }
+
+  function resolveFilterState(filters, urlState) {
+    return Object.fromEntries(filters.map(filter => [
+      filter.id,
+      coerceFilterValue(filter, urlState[filter.id] ?? filter.default)
+    ]));
+  }
+
+  function coerceFilterValue(filter, value) {
+    if (filter.control === "checkbox") return value === true || value === "true";
+    return value === null || value === undefined || value === "" ? filter.default : value;
+  }
+
+  function resolveSelectedDivision(rows, selectedDivision) {
+    const divisions = [...new Set(rows.map(row => row.division_id).filter(Boolean))];
+    return divisions.includes(selectedDivision) ? selectedDivision : divisions[0] || selectedDivision;
+  }
+
+  function wireFilterSection(panel, state) {
+    const form = contentPanel.querySelector(".filter-section");
+    if (!form) return;
+    form.addEventListener("change", event => {
+      const control = event.target;
+      if (!(control instanceof HTMLInputElement || control instanceof HTMLSelectElement)) return;
+      const filters = panel.contents.filter_section.filters;
+      const nextState = { ...state };
+      for (const filter of filters) {
+        const input = form.elements[filter.id];
+        if (!input) continue;
+        nextState[filter.id] = filter.control === "checkbox" ? input.checked : input.value;
+      }
+      writePanelUrl(panel.page_id, filters, nextState, { replace: false });
+      renderContentPanel(panel, nextState).catch(error => {
+        contentPanel.innerHTML = `<p>${escapeHtml(error.message)}</p>`;
+      });
+    });
   }
 
   function selectedIndexEntry(index, selected) {

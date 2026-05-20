@@ -56,10 +56,11 @@ def test_runtime_manifest_declares_brb_ui_and_artifact_semantics() -> None:
     manifest = build_runtime_manifest(build_publication_plan(SITE))
     brb_panel = manifest["ui"]["content_panels"][0]
     brb_artifact = manifest["artifacts"]["basho_results_browser"]
+    filters = brb_panel["contents"]["filter_section"]["filters"]
 
     assert brb_panel["grammar"] == "G1"
     assert brb_panel["contents"]["pa"]["artifact_id"] == BASHO_RESULTS_ARTIFACT.id
-    assert [item["id"] for item in brb_panel["contents"]["filter_section"]["filters"]] == [
+    assert [item["id"] for item in filters] == [
         "basho_date",
         "division",
         "previous_context",
@@ -70,3 +71,34 @@ def test_runtime_manifest_declares_brb_ui_and_artifact_semantics() -> None:
     assert brb_artifact["indexed_source"]["index_path"] == (
         "sumo-history/basho-results/data/basho_results_index.json"
     )
+
+
+def test_brb_filter_defaults_and_url_keys_match_current_public_site() -> None:
+    manifest = build_runtime_manifest(build_publication_plan(SITE))
+    brb_panel = manifest["ui"]["content_panels"][0]
+    filters = {
+        item["id"]: item for item in brb_panel["contents"]["filter_section"]["filters"]
+    }
+
+    assert filters["basho_date"]["default"] == "latest"
+    assert filters["basho_date"]["url_key"] == "basho"
+    assert filters["division"]["default"] == "makuuchi"
+    assert filters["division"]["url_key"] == "division"
+    assert filters["previous_context"]["default"] is False
+    assert filters["previous_context"]["url_key"] == "previous"
+    assert filters["rating_context"]["default"] is False
+    assert filters["rating_context"]["url_key"] == "ratings"
+    assert filters["nu_chii"]["default"] is False
+    assert filters["nu_chii"]["url_key"] == "nu_chii"
+
+
+def test_brb_notes_cover_context_columns() -> None:
+    manifest = build_runtime_manifest(build_publication_plan(SITE))
+    brb_artifact = manifest["artifacts"]["basho_results_browser"]
+
+    assert {item["id"] for item in brb_artifact["notes"]} >= {
+        "note_equelo",
+        "note_delta_equelo",
+        "note_nu_chii",
+        "note_previous_direction",
+    }

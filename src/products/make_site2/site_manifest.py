@@ -222,7 +222,33 @@ BASHO_RESULTS_ARTIFACT = IndexedTableArtifact(
         Note(
             id="note_score",
             applies_to=("all",),
-            text="Score gives wins, losses and absences for the selected basho.",
+            text=(
+                "Score gives wins, losses and absences for the selected basho. "
+                "For an in-progress basho it is the score through the latest "
+                "published day."
+            ),
+        ),
+        Note(
+            id="note_equelo",
+            applies_to=("rating_context",),
+            text="Equelo is the fixed_v2 process rating at the represented point.",
+        ),
+        Note(
+            id="note_delta_equelo",
+            applies_to=("rating_context",),
+            text=(
+                "Delta Equelo is the rating change from the start of the "
+                "selected basho."
+            ),
+        ),
+        Note(
+            id="note_nu_chii",
+            applies_to=("nu_chii",),
+            text=(
+                "nuChii is the after/during chii value for the selected state. "
+                "It may be actual, estimated, or unavailable depending on what "
+                "is known when the page data is produced."
+            ),
         ),
     ),
 )
