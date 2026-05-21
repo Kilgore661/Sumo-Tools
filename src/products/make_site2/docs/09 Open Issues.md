@@ -720,6 +720,48 @@ one artifact = one CSV = one payload kind
 The Finish by Chii implementation should remain independent of Career Length,
 but the DataBinding vocabulary should not block Career Length later.
 
+## 17.2 Mutually Exclusive Filter Widget Choice
+
+Some filters expose a mutually exclusive range of values.
+
+Current examples include:
+
+```text
+dropdown
+radio group
+segmented control
+```
+
+The model currently records the existence of the filter and its values, but it
+does not fully answer who decides which widget should render that choice.
+
+Open questions:
+
+```text
+Should make_site2 infer the widget from the option count and filter role?
+Should the model explicitly say dropdown, radio group, or segmented control?
+If the artifact model should not own this, where should the decision live?
+Should House Style provide defaults that the model may override?
+Should the renderer ever decide, or should it only implement a prior decision?
+```
+
+Related questions:
+
+```text
+When is a checkbox preferable to a two-value exclusive choice?
+When is a segmented control preferable to a radio group?
+When is a long option list too long for visible choices?
+Which widget decisions affect layout strongly enough to be model-owned?
+Which widget decisions are merely chrome?
+```
+
+Current direction:
+
+```text
+The renderer should not make this decision ad hoc.
+The eventual design should distinguish filter meaning from filter presentation.
+```
+
 ---
 
 # 18. JavaScript Runtime Boundaries

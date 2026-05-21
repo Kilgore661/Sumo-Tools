@@ -19,3 +19,11 @@ def test_banzuke_changes_renderer_does_not_emit_selected_division_as_title() -> 
 
     assert "divisionLabel" not in function_body
     assert "state.division" not in function_body
+
+
+def test_standings_renderer_selects_source_from_window_filter() -> None:
+    source = RUNTIME_SOURCE.read_text(encoding="utf-8")
+
+    assert "function selectedStandingsSource(artifact, state)" in source
+    assert "artifact.selector_filter_id" in source
+    assert "String(source.option_value)" in source

@@ -21,6 +21,8 @@ BASHO_RESULTS_ROUTE_DATA_DIR = Path("sumo-history") / "basho-results" / "data"
 FINISH_BY_CHII_ROUTE_DATA_DIR = Path("performance") / "finish-by-chii" / "data"
 BANZUKE_CHANGES_ROUTE_DIR = Path("current-sumo") / "banzuke-changes"
 BANZUKE_CHANGES_SOURCE_ROOT = Path("files") / "output" / "bcr"
+STANDINGS_ROUTE_DATA_DIR = Path("current-sumo") / "standings-by-wins" / "data"
+STANDINGS_SOURCE_ROOT = Path("files") / "output" / "standings" / "publisher" / "latest_data"
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -39,6 +41,12 @@ class FinishByChiiDataOutput:
 class BanzukeChangesDataOutput:
     site_config_path: Path
     report_csv_path: Path
+
+
+@dataclass(frozen=True, kw_only=True)
+class StandingsDataOutput:
+    site_config_path: Path
+    data_paths: tuple[Path, ...]
 
 
 def load_history_from_zip(path: Path) -> History:
@@ -139,3 +147,31 @@ def copy_banzuke_changes_data_output(*, output_root: Path) -> BanzukeChangesData
         site_config_path=site_config_path,
         report_csv_path=report_csv_path,
     )
+
+
+def copy_standings_by_wins_data_output(*, output_root: Path) -> StandingsDataOutput:
+    """Copy Standings publisher output into the make_site2 output tree."""
+
+    route_data_root = output_root / STANDINGS_ROUTE_DATA_DIR
+    if route_data_root.exists():
+        shutil.rmtree(route_data_root)
+    route_data_root.mkdir(parents=True, exist_ok=True)
+
+    site_config_path = route_data_root / "site_config.json"
+    shutil.copy2(STANDINGS_SOURCE_ROOT / "site_config.json", site_config_path)
+    data_paths = tuple(
+        copy_standings_source_file(source_path, route_data_root)
+        for source_path in sorted(STANDINGS_SOURCE_ROOT.iterdir())
+        if source_path.name.startswith("multiple basho standings view ")
+        and source_path.suffix in {".csv", ".json"}
+    )
+    return StandingsDataOutput(
+        site_config_path=site_config_path,
+        data_paths=data_paths,
+    )
+
+
+def copy_standings_source_file(source_path: Path, route_data_root: Path) -> Path:
+    target_path = route_data_root / source_path.name
+    shutil.copy2(source_path, target_path)
+    return target_path

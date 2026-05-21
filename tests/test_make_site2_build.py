@@ -33,6 +33,11 @@ def test_make_site2_build_uses_live_store_when_no_history_zip_is_given(
         "copy_finish_by_chii_data_output",
         lambda **kwargs: None,
     )
+    monkeypatch.setattr(
+        make_site2_build,
+        "copy_standings_by_wins_data_output",
+        lambda **kwargs: None,
+    )
 
     make_site2_build.build_site(output_root=tmp_path)
 
@@ -70,6 +75,11 @@ def test_make_site2_build_uses_history_zip_when_given(
     monkeypatch.setattr(
         make_site2_build,
         "copy_finish_by_chii_data_output",
+        lambda **kwargs: None,
+    )
+    monkeypatch.setattr(
+        make_site2_build,
+        "copy_standings_by_wins_data_output",
         lambda **kwargs: None,
     )
 

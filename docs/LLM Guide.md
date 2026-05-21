@@ -22,6 +22,15 @@ Do you want me to write/update the code/commit?
 
 Then wait for a clear yes before making code changes or committing.
 
+## Filename Convention
+
+The human uses spaces in non-code filenames, especially documentation
+filenames.
+
+When referring to or operating on such files, quote the filename or use
+literal-path forms. Do not assume project filenames are shell-token friendly
+just because code module filenames are.
+
 ## make_site2 Boundary
 
 `make_site2` must not depend on `make_site`.

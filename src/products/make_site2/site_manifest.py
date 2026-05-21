@@ -14,6 +14,8 @@ from .artifact_model import (
     IndexedDataSource,
     IndexedTableArtifact,
     Note,
+    SelectedTableDataSource,
+    StandingsArtifact,
     TableColumn,
 )
 from .publication_model import NavigationItem, PublicationPlan
@@ -39,6 +41,27 @@ DIVISION_FILTER_VALUES = (
     FilterValue(value="sandanme", label="Sandanme"),
     FilterValue(value="jonidan", label="Jonidan"),
     FilterValue(value="jonokuchi", label="Jonokuchi"),
+)
+
+
+STANDINGS_DIVISION_FILTER_VALUES = (
+    FilterValue(value="all", label="All"),
+    *DIVISION_FILTER_VALUES,
+)
+
+
+STANDINGS_WINDOW_VALUES = (
+    FilterValue(value="1", label="1"),
+    FilterValue(value="2", label="2"),
+    FilterValue(value="3", label="3"),
+    FilterValue(value="4", label="4"),
+    FilterValue(value="5", label="5"),
+    FilterValue(value="6", label="6"),
+    FilterValue(value="12", label="12"),
+    FilterValue(value="18", label="18"),
+    FilterValue(value="24", label="24"),
+    FilterValue(value="36", label="36"),
+    FilterValue(value="60", label="60"),
 )
 
 
@@ -78,6 +101,45 @@ BRB_FILTERS = (
         control="checkbox",
         default=False,
         url_key="nu_chii",
+    ),
+)
+
+
+STANDINGS_FILTERS = (
+    Filter(
+        id="metric_group_preset",
+        label="View",
+        control="select",
+        default="standard",
+        url_key="view",
+        values=(
+            FilterValue(value="standard", label="Wins per Basho"),
+            FilterValue(value="percentages", label="Wins per Bout"),
+            FilterValue(value="combined", label="Combined"),
+        ),
+    ),
+    Filter(
+        id="current_num_basho",
+        label="Number of Basho",
+        control="select",
+        default="6",
+        url_key="num_basho",
+        values=STANDINGS_WINDOW_VALUES,
+    ),
+    Filter(
+        id="current_only",
+        label="Active Rikishi Only",
+        control="checkbox",
+        default=True,
+        url_key="current_only",
+    ),
+    Filter(
+        id="division",
+        label="Division",
+        control="select",
+        default="makuuchi",
+        url_key="division",
+        values=STANDINGS_DIVISION_FILTER_VALUES,
     ),
 )
 
@@ -164,6 +226,18 @@ FINISH_BY_CHII_FILTERS = (
 )
 
 
+def standings_source(window: str) -> SelectedTableDataSource:
+    filename = f"multiple basho standings view (2026_03, BACKWARDS, {window})"
+    return SelectedTableDataSource(
+        id=f"window_{window}",
+        label=f"{window} basho",
+        option_value=window,
+        path=f"current-sumo/standings-by-wins/data/{filename}.csv",
+        metadata_path=f"current-sumo/standings-by-wins/data/{filename}.json",
+        media_type="text/csv",
+    )
+
+
 BANZUKE_CHANGES_ARTIFACT = BanzukeChangesArtifact(
     id="banzuke_changes",
     heading="Banzuke Changes",
@@ -197,6 +271,161 @@ BANZUKE_CHANGES_ARTIFACT = BanzukeChangesArtifact(
             text=(
                 "Delta indicates the size of movement from the previous "
                 "basho's position, measured in banzuke rows."
+            ),
+        ),
+    ),
+)
+
+
+STANDINGS_BY_WINS_ARTIFACT = StandingsArtifact(
+    id="standings_by_wins",
+    heading="Standings by Wins",
+    kind="standings",
+    renderer="standings_table",
+    selector_filter_id="current_num_basho",
+    config_source=DataSource(
+        id="site_config",
+        label="Site Config",
+        path="current-sumo/standings-by-wins/data/site_config.json",
+        media_type="application/json",
+    ),
+    data_sources=tuple(
+        standings_source(value.value)
+        for value in STANDINGS_WINDOW_VALUES
+    ),
+    column_groups=(
+        ColumnGroup(
+            id="identity",
+            heading="",
+            always_visible=True,
+            columns=("row_number", "shikona", "chii", "credited_wins"),
+        ),
+        ColumnGroup(
+            id="wins_per_basho",
+            heading="Wins per Basho",
+            columns=("selected_average_credited_wins", "selected_average_rank"),
+        ),
+        ColumnGroup(
+            id="wins_per_bout",
+            heading="Wins per Bout",
+            columns=("selected_expected_bout_count", "win_percent", "win_percent_rank"),
+        ),
+    ),
+    columns=(
+        TableColumn(
+            id="row_number",
+            heading="#",
+            group="identity",
+            always_visible=True,
+            sort_kind="none",
+            align="center",
+        ),
+        TableColumn(
+            id="shikona",
+            heading="Shikona",
+            source_field="shikona",
+            group="identity",
+            always_visible=True,
+            sort_key="shikona",
+            sort_kind="text",
+            note_id="note_identity",
+        ),
+        TableColumn(
+            id="chii",
+            heading="Chii",
+            source_field="chii",
+            group="identity",
+            always_visible=True,
+            sort_key="chii_ordinal",
+            sort_kind="chii_ordinal",
+            note_id="note_identity",
+        ),
+        TableColumn(
+            id="credited_wins",
+            heading="Wins",
+            source_field="credited_wins",
+            group="identity",
+            always_visible=True,
+            sort_key="credited_wins",
+            sort_kind="numeric",
+            align="right",
+            note_id="note_wins",
+        ),
+        TableColumn(
+            id="selected_average_credited_wins",
+            heading="Average",
+            source_field="selected_average_credited_wins",
+            group="wins_per_basho",
+            sort_key="selected_average_credited_wins",
+            sort_kind="numeric",
+            align="right",
+        ),
+        TableColumn(
+            id="selected_average_rank",
+            heading="#",
+            source_field="selected_average_credited_wins",
+            group="wins_per_basho",
+            sort_key="selected_average_credited_wins",
+            sort_kind="numeric",
+            align="right",
+        ),
+        TableColumn(
+            id="selected_expected_bout_count",
+            heading="Bouts",
+            source_field="selected_expected_bout_count",
+            group="wins_per_bout",
+            sort_key="selected_expected_bout_count",
+            sort_kind="numeric",
+            align="right",
+            note_id="note_bouts",
+        ),
+        TableColumn(
+            id="win_percent",
+            heading="Win %",
+            source_field="win_percent",
+            group="wins_per_bout",
+            sort_key="win_percent",
+            sort_kind="numeric",
+            align="right",
+        ),
+        TableColumn(
+            id="win_percent_rank",
+            heading="#",
+            source_field="win_percent",
+            group="wins_per_bout",
+            sort_key="win_percent",
+            sort_kind="numeric",
+            align="right",
+        ),
+    ),
+    notes=(
+        Note(
+            id="note_identity",
+            applies_to=("all",),
+            text=(
+                "The reported Shikona and Chii are those that pertain to the "
+                "rikishi in the latest basho."
+            ),
+        ),
+        Note(
+            id="note_wins",
+            applies_to=("all",),
+            text="Wins include fusensho.",
+        ),
+        Note(
+            id="note_active",
+            applies_to=("all",),
+            text=(
+                "An Active rikishi is one that is listed on the banzuke for "
+                "the latest basho."
+            ),
+        ),
+        Note(
+            id="note_bouts",
+            applies_to=("percentages", "combined"),
+            text=(
+                "Bouts is the expected number of scheduled bouts in the "
+                "selected window."
             ),
         ),
     ),
@@ -410,6 +639,7 @@ def build_public_site_shell(plan: PublicationPlan) -> PublicSiteShell:
     banzuke_changes_page = plan.pages["banzuke_changes"].page
     brb_page = plan.pages["basho_results_browser"].page
     finish_by_chii_page = plan.pages["finish_by_chii"].page
+    standings_page = plan.pages["standings_by_wins"].page
     content_panels = (
         ContentPanel(
             page_id=banzuke_changes_page.id,
@@ -422,6 +652,19 @@ def build_public_site_shell(plan: PublicationPlan) -> PublicSiteShell:
                 filter_section=FilterSection(filters=BANZUKE_CHANGES_FILTERS),
                 pa=PA(artifact_id=BANZUKE_CHANGES_ARTIFACT.id),
                 note_ids=tuple(note.id for note in BANZUKE_CHANGES_ARTIFACT.notes),
+            ),
+        ),
+        ContentPanel(
+            page_id=standings_page.id,
+            heading=Heading(
+                title=standings_page.title,
+                summary=standings_page.summary,
+            ),
+            grammar="G1",
+            contents=G1Contents(
+                filter_section=FilterSection(filters=STANDINGS_FILTERS),
+                pa=PA(artifact_id=STANDINGS_BY_WINS_ARTIFACT.id),
+                note_ids=tuple(note.id for note in STANDINGS_BY_WINS_ARTIFACT.notes),
             ),
         ),
         ContentPanel(
@@ -501,6 +744,7 @@ def build_runtime_manifest(plan: PublicationPlan) -> dict[str, Any]:
             BANZUKE_CHANGES_ARTIFACT.id: to_plain(BANZUKE_CHANGES_ARTIFACT),
             BASHO_RESULTS_ARTIFACT.id: to_plain(BASHO_RESULTS_ARTIFACT),
             FINISH_BY_CHII_ARTIFACT.id: to_plain(FINISH_BY_CHII_ARTIFACT),
+            STANDINGS_BY_WINS_ARTIFACT.id: to_plain(STANDINGS_BY_WINS_ARTIFACT),
         },
     }
 

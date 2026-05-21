@@ -6,6 +6,7 @@ from src.products.make_site2.render import render_site_shell
 from src.products.make_site2.site_manifest import (
     BANZUKE_CHANGES_ARTIFACT,
     BASHO_RESULTS_ARTIFACT,
+    STANDINGS_BY_WINS_ARTIFACT,
     build_public_site_shell,
     build_runtime_manifest,
 )
@@ -32,6 +33,10 @@ def test_publication_plan_resolves_copied_navigation_routes() -> None:
         "current-sumo",
         "banzuke-changes",
     )
+    assert plan.pages["standings_by_wins"].route.parts == (
+        "current-sumo",
+        "standings-by-wins",
+    )
 
 
 def test_navigation_bar_uses_resolved_hrefs_without_rendering_pages() -> None:
@@ -49,11 +54,16 @@ def test_navigation_bar_uses_resolved_hrefs_without_rendering_pages() -> None:
     banzuke_changes = next(
         item for item in current_sumo.children if item.id == "banzuke_changes"
     )
+    standings = next(
+        item for item in current_sumo.children if item.id == "standings_by_wins"
+    )
 
     assert basho_results.included
     assert basho_results.href == "sumo-history/basho-results/index.html"
     assert banzuke_changes.included
     assert banzuke_changes.href == "current-sumo/banzuke-changes/index.html"
+    assert standings.included
+    assert standings.href == "current-sumo/standings-by-wins/index.html"
     assert artifact_refs(plan)["basho_results_browser"].kind == "table"
 
 
@@ -69,6 +79,7 @@ def test_site_shell_is_rendered_from_ui_manifest() -> None:
     assert '<script src="runtime/site.js"></script>' in html
     assert 'data-page-id="basho_results_browser"' in html
     assert 'data-page-id="banzuke_changes"' in html
+    assert 'data-page-id="standings_by_wins"' in html
     assert '<main class="site-main" aria-label="Page content">' in html
     assert "Basho Results" in html
     assert '<table class="brb-table">' not in html
@@ -137,6 +148,33 @@ def test_runtime_manifest_declares_banzuke_changes_ui_and_artifact_semantics() -
     )
     assert artifact["rows_source"]["path"] == (
         "current-sumo/banzuke-changes/data/banzuke_change_report.csv"
+    )
+
+
+def test_runtime_manifest_declares_standings_ui_and_artifact_semantics() -> None:
+    manifest = build_runtime_manifest(build_publication_plan(SITE))
+    panel = content_panel_by_artifact(manifest, STANDINGS_BY_WINS_ARTIFACT.id)
+    artifact = manifest["artifacts"]["standings_by_wins"]
+    filters = panel["contents"]["filter_section"]["filters"]
+
+    assert panel["grammar"] == "G1"
+    assert panel["contents"]["pa"]["artifact_id"] == STANDINGS_BY_WINS_ARTIFACT.id
+    assert [item["id"] for item in filters] == [
+        "metric_group_preset",
+        "current_num_basho",
+        "current_only",
+        "division",
+    ]
+    assert artifact["kind"] == "standings"
+    assert artifact["renderer"] == "standings_table"
+    assert artifact["selector_filter_id"] == "current_num_basho"
+    assert artifact["config_source"]["path"] == (
+        "current-sumo/standings-by-wins/data/site_config.json"
+    )
+    assert artifact["data_sources"][5]["option_value"] == "6"
+    assert artifact["data_sources"][5]["path"] == (
+        "current-sumo/standings-by-wins/data/"
+        "multiple basho standings view (2026_03, BACKWARDS, 6).csv"
     )
 
 
