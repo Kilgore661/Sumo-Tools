@@ -88,6 +88,10 @@ select {
   min-width: 0;
 }
 
+.content-body-no-filters {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .landing-panel {
   align-items: center;
   display: flex;

@@ -27,3 +27,14 @@ def test_standings_renderer_selects_source_from_window_filter() -> None:
     assert "function selectedStandingsSource(artifact, state)" in source
     assert "artifact.selector_filter_id" in source
     assert "String(source.option_value)" in source
+
+
+def test_stacked_bar_chart_renderer_uses_model_trace_fields() -> None:
+    source = RUNTIME_SOURCE.read_text(encoding="utf-8")
+
+    assert "function renderStackedBarChartContentPanel(panel, artifact)" in source
+    assert "function stackedBarTraceSpec(artifact)" in source
+    assert "trace.group_by" in source
+    assert "trace.x" in source
+    assert "trace.y" in source
+    assert "artifact.provenance.stack_order" in source

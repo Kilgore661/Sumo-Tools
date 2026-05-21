@@ -7,7 +7,9 @@ from typing import Any
 
 from .artifact_model import (
     BanzukeChangesArtifact,
+    ChartAxis,
     ChartArtifact,
+    ChartTrace,
     ColumnGroup,
     DataBinding,
     DataSource,
@@ -635,10 +637,142 @@ FINISH_BY_CHII_ARTIFACT = ChartArtifact(
 )
 
 
+BANZUKE_DIVISION_BY_ERA_ARTIFACT = ChartArtifact(
+    id="banzuke_division_by_era",
+    heading="Banzuke Division by Era",
+    kind="chart",
+    renderer="stacked_bar_chart",
+    data_binding=DataBinding(
+        kind="csv",
+        sources=("divisions",),
+    ),
+    data_sources=(
+        DataSource(
+            id="divisions",
+            label="Average banzuke composition by era",
+            path=(
+                "banzuke-rank/banzuke-structure-over-time/"
+                "banzuke-division-by-era/data/divisions.csv"
+            ),
+            media_type="text/csv",
+        ),
+    ),
+    traces=(
+        ChartTrace(
+            id="division_average",
+            label="Division average",
+            kind="stacked_bar",
+            x="era",
+            y="average_rikishi",
+            group_by="division",
+        ),
+    ),
+    x_axis=ChartAxis(
+        id="x",
+        source_field="era",
+        label="Era",
+        order_values=(
+            "1958-1967",
+            "1968-1977",
+            "1978-1987",
+            "1988-1997",
+            "1998-2007",
+            "2008-2017",
+            "2018-2026",
+        ),
+    ),
+    y_axis=ChartAxis(
+        id="y",
+        source_field="average_rikishi",
+        label="Average rikishi per basho",
+        minimum=0,
+    ),
+    provenance={
+        "legend_title": "Division",
+        "stack_order": (
+            "Jonokuchi",
+            "Jonidan",
+            "Sandanme",
+            "Makushita",
+            "Juryo",
+            "Makuuchi",
+        ),
+        "x_tickangle": -45,
+        "group_colours": {
+            "Makuuchi": "#6D597A",
+            "Juryo": "#355C7D",
+            "Makushita": "#457B9D",
+            "Sandanme": "#2A9D8F",
+            "Jonidan": "#8D6A9F",
+            "Jonokuchi": "#BC6C25",
+        },
+    },
+)
+
+
+MAKUUCHI_RANK_BY_ERA_ARTIFACT = ChartArtifact(
+    id="makuuchi_rank_by_era",
+    heading="Makuuchi Rank by Era",
+    kind="chart",
+    renderer="stacked_bar_chart",
+    data_binding=DataBinding(
+        kind="csv",
+        sources=("ranks",),
+    ),
+    data_sources=(
+        DataSource(
+            id="ranks",
+            label="Rank appearances by era",
+            path=(
+                "banzuke-rank/banzuke-structure-over-time/"
+                "makuuchi-rank-by-era/data/ranks.csv"
+            ),
+            media_type="text/csv",
+        ),
+    ),
+    traces=(
+        ChartTrace(
+            id="era_counts",
+            label="Era counts",
+            kind="stacked_bar",
+            x="rank",
+            y="count",
+            group_by="era",
+        ),
+    ),
+    x_axis=ChartAxis(
+        id="x",
+        source_field="rank",
+        label="Rank",
+    ),
+    y_axis=ChartAxis(
+        id="y",
+        source_field="count",
+        label="Appearances",
+        minimum=0,
+    ),
+    provenance={
+        "legend_title": "Era",
+        "group_order": (
+            "1958-1967",
+            "1968-1977",
+            "1978-1987",
+            "1988-1997",
+            "1998-2007",
+            "2008-2017",
+            "2018-2026",
+        ),
+        "x_tickangle": -45,
+    },
+)
+
+
 def build_public_site_shell(plan: PublicationPlan) -> PublicSiteShell:
+    banzuke_division_by_era_page = plan.pages["banzuke_division_by_era"].page
     banzuke_changes_page = plan.pages["banzuke_changes"].page
     brb_page = plan.pages["basho_results_browser"].page
     finish_by_chii_page = plan.pages["finish_by_chii"].page
+    makuuchi_rank_by_era_page = plan.pages["makuuchi_rank_by_era"].page
     standings_page = plan.pages["standings_by_wins"].page
     content_panels = (
         ContentPanel(
@@ -677,6 +811,30 @@ def build_public_site_shell(plan: PublicationPlan) -> PublicSiteShell:
             contents=G1Contents(
                 filter_section=FilterSection(filters=FINISH_BY_CHII_FILTERS),
                 pa=PA(artifact_id=FINISH_BY_CHII_ARTIFACT.id),
+            ),
+        ),
+        ContentPanel(
+            page_id=banzuke_division_by_era_page.id,
+            heading=Heading(
+                title=banzuke_division_by_era_page.title,
+                summary=banzuke_division_by_era_page.summary,
+            ),
+            grammar="G1",
+            contents=G1Contents(
+                filter_section=FilterSection(filters=()),
+                pa=PA(artifact_id=BANZUKE_DIVISION_BY_ERA_ARTIFACT.id),
+            ),
+        ),
+        ContentPanel(
+            page_id=makuuchi_rank_by_era_page.id,
+            heading=Heading(
+                title=makuuchi_rank_by_era_page.title,
+                summary=makuuchi_rank_by_era_page.summary,
+            ),
+            grammar="G1",
+            contents=G1Contents(
+                filter_section=FilterSection(filters=()),
+                pa=PA(artifact_id=MAKUUCHI_RANK_BY_ERA_ARTIFACT.id),
             ),
         ),
         ContentPanel(
@@ -742,8 +900,12 @@ def build_runtime_manifest(plan: PublicationPlan) -> dict[str, Any]:
         "ui": to_plain(build_public_site_shell(plan)),
         "artifacts": {
             BANZUKE_CHANGES_ARTIFACT.id: to_plain(BANZUKE_CHANGES_ARTIFACT),
+            BANZUKE_DIVISION_BY_ERA_ARTIFACT.id: to_plain(
+                BANZUKE_DIVISION_BY_ERA_ARTIFACT
+            ),
             BASHO_RESULTS_ARTIFACT.id: to_plain(BASHO_RESULTS_ARTIFACT),
             FINISH_BY_CHII_ARTIFACT.id: to_plain(FINISH_BY_CHII_ARTIFACT),
+            MAKUUCHI_RANK_BY_ERA_ARTIFACT.id: to_plain(MAKUUCHI_RANK_BY_ERA_ARTIFACT),
             STANDINGS_BY_WINS_ARTIFACT.id: to_plain(STANDINGS_BY_WINS_ARTIFACT),
         },
     }

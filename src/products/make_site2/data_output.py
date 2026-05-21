@@ -19,8 +19,26 @@ from src.sumo_core.History import History
 
 BASHO_RESULTS_ROUTE_DATA_DIR = Path("sumo-history") / "basho-results" / "data"
 FINISH_BY_CHII_ROUTE_DATA_DIR = Path("performance") / "finish-by-chii" / "data"
+BANZUKE_DIVISION_BY_ERA_ROUTE_DATA_DIR = (
+    Path("banzuke-rank")
+    / "banzuke-structure-over-time"
+    / "banzuke-division-by-era"
+    / "data"
+)
+MAKUUCHI_RANK_BY_ERA_ROUTE_DATA_DIR = (
+    Path("banzuke-rank")
+    / "banzuke-structure-over-time"
+    / "makuuchi-rank-by-era"
+    / "data"
+)
 BANZUKE_CHANGES_ROUTE_DIR = Path("current-sumo") / "banzuke-changes"
 BANZUKE_CHANGES_SOURCE_ROOT = Path("files") / "output" / "bcr"
+BANZUKE_DIVISION_BY_ERA_SOURCE_ROOT = (
+    Path("files") / "output" / "banzuke_division_era" / "site" / "banzuke_division_by_era"
+)
+MAKUUCHI_RANK_BY_ERA_SOURCE_ROOT = (
+    Path("files") / "output" / "rank_era" / "site" / "makuuchi_rank_by_era"
+)
 STANDINGS_ROUTE_DATA_DIR = Path("current-sumo") / "standings-by-wins" / "data"
 STANDINGS_SOURCE_ROOT = Path("files") / "output" / "standings" / "publisher" / "latest_data"
 
@@ -35,6 +53,11 @@ class BashoResultsDataOutput:
 class FinishByChiiDataOutput:
     top_thresholds_path: Path
     bottom_thresholds_path: Path
+
+
+@dataclass(frozen=True, kw_only=True)
+class SingleCsvChartDataOutput:
+    csv_path: Path
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -125,6 +148,53 @@ def copy_finish_by_chii_data_output(*, output_root: Path) -> FinishByChiiDataOut
         top_thresholds_path=top_thresholds_path,
         bottom_thresholds_path=bottom_thresholds_path,
     )
+
+
+def copy_banzuke_division_by_era_data_output(
+    *,
+    output_root: Path,
+) -> SingleCsvChartDataOutput:
+    """Copy the Banzuke Division by Era CSV into the make_site2 output tree."""
+
+    csv_path = copy_single_csv_chart_data_output(
+        output_root=output_root,
+        route_data_dir=BANZUKE_DIVISION_BY_ERA_ROUTE_DATA_DIR,
+        source_path=BANZUKE_DIVISION_BY_ERA_SOURCE_ROOT / "divisions.csv",
+        target_name="divisions.csv",
+    )
+    return SingleCsvChartDataOutput(csv_path=csv_path)
+
+
+def copy_makuuchi_rank_by_era_data_output(
+    *,
+    output_root: Path,
+) -> SingleCsvChartDataOutput:
+    """Copy the Makuuchi Rank by Era CSV into the make_site2 output tree."""
+
+    csv_path = copy_single_csv_chart_data_output(
+        output_root=output_root,
+        route_data_dir=MAKUUCHI_RANK_BY_ERA_ROUTE_DATA_DIR,
+        source_path=MAKUUCHI_RANK_BY_ERA_SOURCE_ROOT / "ranks.csv",
+        target_name="ranks.csv",
+    )
+    return SingleCsvChartDataOutput(csv_path=csv_path)
+
+
+def copy_single_csv_chart_data_output(
+    *,
+    output_root: Path,
+    route_data_dir: Path,
+    source_path: Path,
+    target_name: str,
+) -> Path:
+    route_data_root = output_root / route_data_dir
+    if route_data_root.exists():
+        shutil.rmtree(route_data_root)
+    route_data_root.mkdir(parents=True, exist_ok=True)
+
+    target_path = route_data_root / target_name
+    shutil.copy2(source_path, target_path)
+    return target_path
 
 
 def copy_banzuke_changes_data_output(*, output_root: Path) -> BanzukeChangesDataOutput:

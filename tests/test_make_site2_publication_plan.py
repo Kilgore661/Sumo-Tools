@@ -5,7 +5,9 @@ from src.products.make_site2.publication_model import (
 from src.products.make_site2.render import render_site_shell
 from src.products.make_site2.site_manifest import (
     BANZUKE_CHANGES_ARTIFACT,
+    BANZUKE_DIVISION_BY_ERA_ARTIFACT,
     BASHO_RESULTS_ARTIFACT,
+    MAKUUCHI_RANK_BY_ERA_ARTIFACT,
     STANDINGS_BY_WINS_ARTIFACT,
     build_public_site_shell,
     build_runtime_manifest,
@@ -37,6 +39,16 @@ def test_publication_plan_resolves_copied_navigation_routes() -> None:
         "current-sumo",
         "standings-by-wins",
     )
+    assert plan.pages["banzuke_division_by_era"].route.parts == (
+        "banzuke-rank",
+        "banzuke-structure-over-time",
+        "banzuke-division-by-era",
+    )
+    assert plan.pages["makuuchi_rank_by_era"].route.parts == (
+        "banzuke-rank",
+        "banzuke-structure-over-time",
+        "makuuchi-rank-by-era",
+    )
 
 
 def test_navigation_bar_uses_resolved_hrefs_without_rendering_pages() -> None:
@@ -57,6 +69,24 @@ def test_navigation_bar_uses_resolved_hrefs_without_rendering_pages() -> None:
     standings = next(
         item for item in current_sumo.children if item.id == "standings_by_wins"
     )
+    banzuke_rank = next(
+        item for item in shell.navigation_bar.navigation_tree if item.id == "banzuke_rank"
+    )
+    banzuke_structure = next(
+        item
+        for item in banzuke_rank.children
+        if item.id == "banzuke_structure_over_time"
+    )
+    banzuke_division_by_era = next(
+        item
+        for item in banzuke_structure.children
+        if item.id == "banzuke_division_by_era"
+    )
+    makuuchi_rank_by_era = next(
+        item
+        for item in banzuke_structure.children
+        if item.id == "makuuchi_rank_by_era"
+    )
 
     assert basho_results.included
     assert basho_results.href == "sumo-history/basho-results/index.html"
@@ -64,6 +94,16 @@ def test_navigation_bar_uses_resolved_hrefs_without_rendering_pages() -> None:
     assert banzuke_changes.href == "current-sumo/banzuke-changes/index.html"
     assert standings.included
     assert standings.href == "current-sumo/standings-by-wins/index.html"
+    assert banzuke_division_by_era.included
+    assert banzuke_division_by_era.href == (
+        "banzuke-rank/banzuke-structure-over-time/"
+        "banzuke-division-by-era/index.html"
+    )
+    assert makuuchi_rank_by_era.included
+    assert makuuchi_rank_by_era.href == (
+        "banzuke-rank/banzuke-structure-over-time/"
+        "makuuchi-rank-by-era/index.html"
+    )
     assert artifact_refs(plan)["basho_results_browser"].kind == "table"
 
 
@@ -80,6 +120,8 @@ def test_site_shell_is_rendered_from_ui_manifest() -> None:
     assert 'data-page-id="basho_results_browser"' in html
     assert 'data-page-id="banzuke_changes"' in html
     assert 'data-page-id="standings_by_wins"' in html
+    assert 'data-page-id="banzuke_division_by_era"' in html
+    assert 'data-page-id="makuuchi_rank_by_era"' in html
     assert '<main class="site-main" aria-label="Page content">' in html
     assert "Basho Results" in html
     assert '<table class="brb-table">' not in html
@@ -176,6 +218,46 @@ def test_runtime_manifest_declares_standings_ui_and_artifact_semantics() -> None
         "current-sumo/standings-by-wins/data/"
         "multiple basho standings view (2026_03, BACKWARDS, 6).csv"
     )
+
+
+def test_runtime_manifest_declares_banzuke_era_chart_semantics() -> None:
+    manifest = build_runtime_manifest(build_publication_plan(SITE))
+    panel = content_panel_by_artifact(manifest, BANZUKE_DIVISION_BY_ERA_ARTIFACT.id)
+    artifact = manifest["artifacts"]["banzuke_division_by_era"]
+
+    assert panel["grammar"] == "G1"
+    assert panel["contents"]["filter_section"]["filters"] == []
+    assert artifact["kind"] == "chart"
+    assert artifact["renderer"] == "stacked_bar_chart"
+    assert artifact["data_binding"] == {"kind": "csv", "sources": ["divisions"]}
+    assert artifact["data_sources"][0]["path"] == (
+        "banzuke-rank/banzuke-structure-over-time/"
+        "banzuke-division-by-era/data/divisions.csv"
+    )
+    assert artifact["traces"][0]["kind"] == "stacked_bar"
+    assert artifact["traces"][0]["x"] == "era"
+    assert artifact["traces"][0]["y"] == "average_rikishi"
+    assert artifact["traces"][0]["group_by"] == "division"
+
+
+def test_runtime_manifest_declares_makuuchi_rank_era_chart_semantics() -> None:
+    manifest = build_runtime_manifest(build_publication_plan(SITE))
+    panel = content_panel_by_artifact(manifest, MAKUUCHI_RANK_BY_ERA_ARTIFACT.id)
+    artifact = manifest["artifacts"]["makuuchi_rank_by_era"]
+
+    assert panel["grammar"] == "G1"
+    assert panel["contents"]["filter_section"]["filters"] == []
+    assert artifact["kind"] == "chart"
+    assert artifact["renderer"] == "stacked_bar_chart"
+    assert artifact["data_binding"] == {"kind": "csv", "sources": ["ranks"]}
+    assert artifact["data_sources"][0]["path"] == (
+        "banzuke-rank/banzuke-structure-over-time/"
+        "makuuchi-rank-by-era/data/ranks.csv"
+    )
+    assert artifact["traces"][0]["kind"] == "stacked_bar"
+    assert artifact["traces"][0]["x"] == "rank"
+    assert artifact["traces"][0]["y"] == "count"
+    assert artifact["traces"][0]["group_by"] == "era"
 
 
 def test_brb_filter_defaults_and_url_keys_match_current_public_site() -> None:

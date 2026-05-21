@@ -182,7 +182,7 @@
       '<section class="content-panel">',
       `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
       `<h3>${escapeHtml(panel.heading.summary)}</h3>`,
-      '<div class="content-body">',
+      '<div class="content-body content-body-no-filters">',
       renderFilterSection(panel.contents.filter_section, state, index),
       '<div class="pa-slot">',
       renderArtifactTitleBlock(artifact, state, selectedEntry, filters),
@@ -249,9 +249,18 @@
   }
 
   async function renderChartContentPanel(panel, artifact, overrideState = null) {
-    if (artifact.renderer !== "finish_by_chii_chart") {
-      throw new Error(`Unsupported chart renderer: ${artifact.renderer}`);
+    if (artifact.renderer === "stacked_bar_chart") {
+      await renderStackedBarChartContentPanel(panel, artifact);
+      return;
     }
+    if (artifact.renderer === "finish_by_chii_chart") {
+      await renderFinishByChiiContentPanel(panel, artifact, overrideState);
+      return;
+    }
+    throw new Error(`Unsupported chart renderer: ${artifact.renderer}`);
+  }
+
+  async function renderFinishByChiiContentPanel(panel, artifact, overrideState = null) {
     const filters = panel.contents.filter_section.filters;
     const state = overrideState || resolveFilterState(filters, readFilterUrlState(filters));
     const rowsBySource = await fetchArtifactCsvSet(artifact);
@@ -283,6 +292,23 @@
     ].join("");
     renderFinishByChiiPlot(artifact, state, rowsBySource);
     wireFilterSection(panel, state);
+  }
+
+  async function renderStackedBarChartContentPanel(panel, artifact) {
+    const rowsBySource = await fetchArtifactCsvSet(artifact);
+    contentPanel.innerHTML = [
+      '<section class="content-panel">',
+      `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
+      `<h3>${escapeHtml(panel.heading.summary)}</h3>`,
+      '<div class="content-body">',
+      '<div class="pa-slot">',
+      renderStackedBarChart(artifact, rowsBySource),
+      '</div>',
+      '</div>',
+      renderNotes(artifact, {}),
+      '</section>'
+    ].join("");
+    renderStackedBarPlot(artifact, rowsBySource);
   }
 
   async function fetchArtifactCsvSet(artifact) {
@@ -408,6 +434,7 @@
   }
 
   function renderFilterSection(filterSection, state, index, rowsBySource = {}) {
+    if (!filterSection.filters.length) return "";
     return [
       '<form class="filter-section" aria-label="Filters">',
       '<h4>Options</h4>',
@@ -568,6 +595,123 @@
     return [...(rowsBySource[sourceId] || [])]
       .filter(row => divisionId(row.division) === state.division && row.chii === state.chii)
       .sort((left, right) => Number(left.threshold) - Number(right.threshold));
+  }
+
+  function renderStackedBarChart(artifact, rowsBySource) {
+    const rows = stackedBarRows(artifact, rowsBySource);
+    if (!rows.length) {
+      return `<p>No ${escapeHtml(artifact.heading)} data is available.</p>`;
+    }
+    return [
+      '<div class="artifact-title-block">',
+      `<h4>${escapeHtml(artifact.heading)}</h4>`,
+      '</div>',
+      `<div id="${escapeHtml(chartElementId(artifact))}" class="plotly-chart"></div>`,
+    ].join("");
+  }
+
+  function renderStackedBarPlot(artifact, rowsBySource) {
+    const host = document.getElementById(chartElementId(artifact));
+    if (!host) return;
+    if (!window.Plotly) {
+      host.innerHTML = "<p>Plotly is not available.</p>";
+      return;
+    }
+    Plotly.react(
+      host,
+      stackedBarTraces(artifact, rowsBySource),
+      stackedBarLayout(artifact, rowsBySource),
+      { responsive: true, displaylogo: false }
+    );
+  }
+
+  function stackedBarRows(artifact, rowsBySource) {
+    const sourceId = artifact.data_binding.sources[0];
+    return rowsBySource[sourceId] || [];
+  }
+
+  function stackedBarTraceSpec(artifact) {
+    const trace = artifact.traces.find(candidate => candidate.kind === "stacked_bar");
+    if (!trace) throw new Error(`No stacked_bar trace for ${artifact.id}`);
+    return trace;
+  }
+
+  function stackedBarTraces(artifact, rowsBySource) {
+    const rows = stackedBarRows(artifact, rowsBySource);
+    const trace = stackedBarTraceSpec(artifact);
+    const groups = stackedBarGroupOrder(artifact, rows, trace);
+    const colours = artifact.provenance.group_colours || {};
+    return groups.map(group => {
+      const groupRows = rows.filter(row => row[trace.group_by] === group);
+      const plotlyTrace = {
+        type: "bar",
+        name: group,
+        x: groupRows.map(row => row[trace.x]),
+        y: groupRows.map(row => Number(row[trace.y])),
+        hovertemplate: `${escapeHtml(trace.group_by)}=%{fullData.name}<br>${escapeHtml(trace.x)}=%{x}<br>${escapeHtml(trace.y)}=%{y}<extra></extra>`,
+      };
+      if (colours[group]) {
+        plotlyTrace.marker = { color: colours[group] };
+      }
+      return plotlyTrace;
+    });
+  }
+
+  function stackedBarGroupOrder(artifact, rows, trace) {
+    const order = artifact.provenance.stack_order || artifact.provenance.group_order || [];
+    if (order.length) return order;
+    return [...new Set(rows.map(row => row[trace.group_by]))];
+  }
+
+  function stackedBarLayout(artifact, rowsBySource) {
+    const rows = stackedBarRows(artifact, rowsBySource);
+    const trace = stackedBarTraceSpec(artifact);
+    const xValues = artifact.x_axis.order_values.length
+      ? artifact.x_axis.order_values
+      : [...new Set(rows.map(row => row[trace.x]))];
+    return {
+      autosize: true,
+      barmode: "stack",
+      paper_bgcolor: "rgba(0,0,0,0)",
+      plot_bgcolor: "rgba(0,0,0,0)",
+      margin: { l: 76, r: 150, t: 18, b: 90 },
+      xaxis: {
+        title: artifact.x_axis.label,
+        type: "category",
+        categoryorder: "array",
+        categoryarray: xValues,
+        tickangle: artifact.provenance.x_tickangle || 0,
+        automargin: true,
+        gridcolor: "rgba(127,149,192,0.18)",
+        zerolinecolor: "rgba(127,149,192,0.35)",
+        color: "#c9d4ee",
+      },
+      yaxis: {
+        title: artifact.y_axis.label,
+        rangemode: artifact.y_axis.minimum === 0 ? "tozero" : "normal",
+        automargin: true,
+        gridcolor: "rgba(127,149,192,0.22)",
+        zerolinecolor: "rgba(127,149,192,0.35)",
+        color: "#c9d4ee",
+      },
+      hovermode: "closest",
+      legend: {
+        title: { text: artifact.provenance.legend_title || "" },
+        orientation: "v",
+        yanchor: "top",
+        y: 1,
+        xanchor: "left",
+        x: 1.02,
+      },
+      font: {
+        family: "Arial, Helvetica, sans-serif",
+        color: "#ffffff",
+      },
+    };
+  }
+
+  function chartElementId(artifact) {
+    return `${artifact.id}-chart`;
   }
 
   function renderIndexedTable(artifact, rows, state) {

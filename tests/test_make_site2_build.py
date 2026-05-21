@@ -35,6 +35,16 @@ def test_make_site2_build_uses_live_store_when_no_history_zip_is_given(
     )
     monkeypatch.setattr(
         make_site2_build,
+        "copy_banzuke_division_by_era_data_output",
+        lambda **kwargs: None,
+    )
+    monkeypatch.setattr(
+        make_site2_build,
+        "copy_makuuchi_rank_by_era_data_output",
+        lambda **kwargs: None,
+    )
+    monkeypatch.setattr(
+        make_site2_build,
         "copy_standings_by_wins_data_output",
         lambda **kwargs: None,
     )
@@ -75,6 +85,16 @@ def test_make_site2_build_uses_history_zip_when_given(
     monkeypatch.setattr(
         make_site2_build,
         "copy_finish_by_chii_data_output",
+        lambda **kwargs: None,
+    )
+    monkeypatch.setattr(
+        make_site2_build,
+        "copy_banzuke_division_by_era_data_output",
+        lambda **kwargs: None,
+    )
+    monkeypatch.setattr(
+        make_site2_build,
+        "copy_makuuchi_rank_by_era_data_output",
         lambda **kwargs: None,
     )
     monkeypatch.setattr(

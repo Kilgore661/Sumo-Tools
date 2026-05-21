@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import Any
 from typing import Literal
 
 
@@ -30,6 +31,25 @@ class DataSource:
 class DataBinding:
     kind: str
     sources: tuple[str, ...]
+
+
+@dataclass(frozen=True, kw_only=True)
+class ChartTrace:
+    id: str
+    label: str
+    kind: str
+    x: str
+    y: str
+    group_by: str | None = None
+
+
+@dataclass(frozen=True, kw_only=True)
+class ChartAxis:
+    id: str
+    source_field: str
+    label: str
+    order_values: tuple[str, ...] = ()
+    minimum: float | None = None
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -119,4 +139,8 @@ class ChartArtifact:
     renderer: str
     data_binding: DataBinding
     data_sources: tuple[DataSource, ...]
+    traces: tuple[ChartTrace, ...] = ()
+    x_axis: ChartAxis | None = None
+    y_axis: ChartAxis | None = None
+    provenance: dict[str, Any] = field(default_factory=dict)
     notes: tuple[Note, ...] = ()
