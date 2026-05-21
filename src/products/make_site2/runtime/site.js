@@ -261,6 +261,10 @@
       await renderOrderedBarChartContentPanel(panel, artifact);
       return;
     }
+    if (artifact.renderer === "category_bar_chart") {
+      await renderCategoryBarChartContentPanel(panel, artifact);
+      return;
+    }
     if (artifact.renderer === "finish_by_chii_chart") {
       await renderFinishByChiiContentPanel(panel, artifact, overrideState);
       return;
@@ -351,6 +355,23 @@
       '</section>'
     ].join("");
     renderOrderedBarPlot(artifact, rowsBySource);
+  }
+
+  async function renderCategoryBarChartContentPanel(panel, artifact) {
+    const rowsBySource = await fetchArtifactCsvSet(artifact);
+    contentPanel.innerHTML = [
+      '<section class="content-panel">',
+      `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
+      `<h3>${escapeHtml(panel.heading.summary)}</h3>`,
+      '<div class="content-body content-body-no-filters">',
+      '<div class="pa-slot">',
+      renderCategoryBarChart(artifact, rowsBySource),
+      '</div>',
+      '</div>',
+      renderNotes(artifact, {}),
+      '</section>'
+    ].join("");
+    renderCategoryBarPlot(artifact, rowsBySource);
   }
 
   async function fetchArtifactCsvSet(artifact) {
@@ -678,6 +699,35 @@
     ].join("");
   }
 
+  function renderCategoryBarChart(artifact, rowsBySource) {
+    const rows = chartRows(artifact, rowsBySource);
+    if (!rows.length) {
+      return `<p>No ${escapeHtml(artifact.heading)} data is available.</p>`;
+    }
+    return [
+      '<div class="artifact-title-block">',
+      `<h4>${escapeHtml(artifact.heading)}</h4>`,
+      '</div>',
+      `<div id="${escapeHtml(chartElementId(artifact))}" class="plotly-chart"></div>`,
+    ].join("");
+  }
+
+  function renderCategoryBarPlot(artifact, rowsBySource) {
+    const host = document.getElementById(chartElementId(artifact));
+    if (!host) return;
+    if (!window.Plotly) {
+      host.innerHTML = "<p>Plotly is not available.</p>";
+      return;
+    }
+    const trace = categoryBarTrace(artifact, rowsBySource);
+    Plotly.react(
+      host,
+      [trace],
+      categoryBarLayout(artifact, trace),
+      { responsive: true, displaylogo: false }
+    );
+  }
+
   function renderOrderedBarPlot(artifact, rowsBySource) {
     const host = document.getElementById(chartElementId(artifact));
     if (!host) return;
@@ -807,6 +857,22 @@
         ...dateFields.map(field => row[field]),
       ]),
       hovertemplate: orderedBarHoverTemplate(trace, artifact),
+    };
+  }
+
+  function categoryBarTrace(artifact, rowsBySource) {
+    const rows = chartRows(artifact, rowsBySource);
+    const trace = orderedBarTraceSpec(artifact);
+    const rowByCategory = new Map(rows.map(row => [row[trace.x], row]));
+    const categories = artifact.x_axis.order_values.length
+      ? artifact.x_axis.order_values
+      : rows.map(row => row[trace.x]);
+    return {
+      type: "bar",
+      name: trace.label,
+      x: categories,
+      y: categories.map(category => Number(rowByCategory.get(category)?.[trace.y] || 0)),
+      hovertemplate: `${escapeHtml(trace.x)}=%{x}<br>${escapeHtml(trace.y)}=%{y}<extra></extra>`,
     };
   }
 
@@ -981,6 +1047,39 @@
         tickmode: "array",
         tickvals: yTicks.values,
         ticktext: yTicks.labels,
+        automargin: true,
+        gridcolor: "rgba(127,149,192,0.22)",
+        zerolinecolor: "rgba(127,149,192,0.35)",
+        color: "#c9d4ee",
+      },
+      hovermode: "closest",
+      showlegend: false,
+      font: {
+        family: "Arial, Helvetica, sans-serif",
+        color: "#ffffff",
+      },
+    };
+  }
+
+  function categoryBarLayout(artifact, trace) {
+    return {
+      autosize: true,
+      paper_bgcolor: "rgba(0,0,0,0)",
+      plot_bgcolor: "rgba(0,0,0,0)",
+      margin: { l: 80, r: 30, t: 18, b: 70 },
+      xaxis: {
+        title: artifact.x_axis.label,
+        type: "category",
+        categoryorder: "array",
+        categoryarray: trace.x,
+        automargin: true,
+        gridcolor: "rgba(127,149,192,0.18)",
+        zerolinecolor: "rgba(127,149,192,0.35)",
+        color: "#c9d4ee",
+      },
+      yaxis: {
+        title: artifact.y_axis.label,
+        rangemode: artifact.y_axis.minimum === 0 ? "tozero" : "normal",
         automargin: true,
         gridcolor: "rgba(127,149,192,0.22)",
         zerolinecolor: "rgba(127,149,192,0.35)",

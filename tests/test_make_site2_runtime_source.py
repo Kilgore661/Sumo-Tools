@@ -62,3 +62,13 @@ def test_ordered_bar_chart_renderer_uses_model_trace_fields() -> None:
     assert "trace.y" in source
     assert "artifact.provenance.order_field" in source
     assert "artifact.provenance.base_year" in source
+
+
+def test_category_bar_chart_renderer_uses_model_axis_order() -> None:
+    source = RUNTIME_SOURCE.read_text(encoding="utf-8")
+
+    assert "function renderCategoryBarChartContentPanel(panel, artifact)" in source
+    assert "function categoryBarTrace(artifact, rowsBySource)" in source
+    assert "artifact.x_axis.order_values" in source
+    assert "trace.x" in source
+    assert "trace.y" in source

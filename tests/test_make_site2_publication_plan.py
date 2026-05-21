@@ -10,6 +10,7 @@ from src.products.make_site2.site_manifest import (
     DIVISION_STABILITY_ARTIFACT,
     FIRST_CHII_APPEARANCE_ARTIFACT,
     MAKUUCHI_RANK_BY_ERA_ARTIFACT,
+    RANK_AT_RETIREMENT_ARTIFACT,
     STANDINGS_BY_WINS_ARTIFACT,
     build_public_site_shell,
     build_runtime_manifest,
@@ -60,6 +61,11 @@ def test_publication_plan_resolves_copied_navigation_routes() -> None:
         "rank-history",
         "first-chii-appearance",
     )
+    assert plan.pages["rank_at_retirement"].route.parts == (
+        "sumo-history",
+        "career-lifecycle",
+        "rank-at-retirement",
+    )
 
 
 def test_navigation_bar_uses_resolved_hrefs_without_rendering_pages() -> None:
@@ -70,6 +76,12 @@ def test_navigation_bar_uses_resolved_hrefs_without_rendering_pages() -> None:
     )
     basho_results = next(
         item for item in sumo_history.children if item.id == "basho_results_browser"
+    )
+    career_lifecycle = next(
+        item for item in sumo_history.children if item.id == "career_lifecycle"
+    )
+    rank_at_retirement = next(
+        item for item in career_lifecycle.children if item.id == "rank_at_retirement"
     )
     current_sumo = next(
         item for item in shell.navigation_bar.navigation_tree if item.id == "current_sumo"
@@ -110,6 +122,10 @@ def test_navigation_bar_uses_resolved_hrefs_without_rendering_pages() -> None:
 
     assert basho_results.included
     assert basho_results.href == "sumo-history/basho-results/index.html"
+    assert rank_at_retirement.included
+    assert rank_at_retirement.href == (
+        "sumo-history/career-lifecycle/rank-at-retirement/index.html"
+    )
     assert banzuke_changes.included
     assert banzuke_changes.href == "current-sumo/banzuke-changes/index.html"
     assert standings.included
@@ -150,6 +166,7 @@ def test_site_shell_is_rendered_from_ui_manifest() -> None:
     assert 'data-page-id="makuuchi_rank_by_era"' in html
     assert 'data-page-id="division_stability"' in html
     assert 'data-page-id="first_chii_appearance"' in html
+    assert 'data-page-id="rank_at_retirement"' in html
     assert '<main class="site-main" aria-label="Page content">' in html
     assert "Basho Results" in html
     assert '<table class="brb-table">' not in html
@@ -328,6 +345,37 @@ def test_runtime_manifest_declares_first_chii_appearance_chart_semantics() -> No
     assert artifact["provenance"]["order_field"] == "ordinal"
     assert artifact["provenance"]["base_year"] == 1958
     assert artifact["provenance"]["base_month"] == 1
+
+
+def test_runtime_manifest_declares_rank_at_retirement_chart_semantics() -> None:
+    manifest = build_runtime_manifest(build_publication_plan(SITE))
+    panel = content_panel_by_artifact(manifest, RANK_AT_RETIREMENT_ARTIFACT.id)
+    artifact = manifest["artifacts"]["rank_at_retirement"]
+
+    assert panel["grammar"] == "G1"
+    assert panel["contents"]["filter_section"]["filters"] == []
+    assert panel["contents"]["note_ids"] == ["rank_at_retirement"]
+    assert artifact["kind"] == "chart"
+    assert artifact["renderer"] == "category_bar_chart"
+    assert artifact["data_binding"] == {"kind": "csv", "sources": ["distribution"]}
+    assert artifact["data_sources"][0]["path"] == (
+        "sumo-history/career-lifecycle/rank-at-retirement/data/distribution.csv"
+    )
+    assert artifact["traces"][0]["kind"] == "bar"
+    assert artifact["traces"][0]["x"] == "rank_group"
+    assert artifact["traces"][0]["y"] == "count"
+    assert artifact["x_axis"]["order_values"] == [
+        "Y",
+        "O",
+        "S",
+        "K",
+        "M",
+        "J",
+        "Ms",
+        "Sd",
+        "Jd",
+        "Jk",
+    ]
 
 
 def test_brb_filter_defaults_and_url_keys_match_current_public_site() -> None:

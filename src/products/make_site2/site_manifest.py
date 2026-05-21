@@ -871,6 +871,59 @@ FIRST_CHII_APPEARANCE_ARTIFACT = ChartArtifact(
 )
 
 
+RANK_AT_RETIREMENT_ARTIFACT = ChartArtifact(
+    id="rank_at_retirement",
+    heading="Rank at Retirement",
+    kind="chart",
+    renderer="category_bar_chart",
+    data_binding=DataBinding(
+        kind="csv",
+        sources=("distribution",),
+    ),
+    data_sources=(
+        DataSource(
+            id="distribution",
+            label="Distribution",
+            path="sumo-history/career-lifecycle/rank-at-retirement/data/distribution.csv",
+            media_type="text/csv",
+        ),
+    ),
+    traces=(
+        ChartTrace(
+            id="retired_rikishi",
+            label="Retired rikishi",
+            kind="bar",
+            x="rank_group",
+            y="count",
+        ),
+    ),
+    x_axis=ChartAxis(
+        id="x",
+        source_field="rank_group",
+        label="Final observed rank group",
+        order_values=("Y", "O", "S", "K", "M", "J", "Ms", "Sd", "Jd", "Jk"),
+    ),
+    y_axis=ChartAxis(
+        id="y",
+        source_field="count",
+        label="Retired rikishi count",
+        minimum=0,
+    ),
+    notes=(
+        Note(
+            id="rank_at_retirement",
+            applies_to=("all",),
+            text=(
+                "Rank at Retirement. This is the final observed banzuke rank "
+                "group for retired rikishi according to SumoDB-derived banzuke "
+                "history. Rikishi listed on the latest available banzuke are "
+                "treated as active and excluded."
+            ),
+        ),
+    ),
+)
+
+
 def build_public_site_shell(plan: PublicationPlan) -> PublicSiteShell:
     banzuke_division_by_era_page = plan.pages["banzuke_division_by_era"].page
     banzuke_changes_page = plan.pages["banzuke_changes"].page
@@ -879,6 +932,7 @@ def build_public_site_shell(plan: PublicationPlan) -> PublicSiteShell:
     first_chii_appearance_page = plan.pages["first_chii_appearance"].page
     finish_by_chii_page = plan.pages["finish_by_chii"].page
     makuuchi_rank_by_era_page = plan.pages["makuuchi_rank_by_era"].page
+    rank_at_retirement_page = plan.pages["rank_at_retirement"].page
     standings_page = plan.pages["standings_by_wins"].page
     content_panels = (
         ContentPanel(
@@ -977,6 +1031,19 @@ def build_public_site_shell(plan: PublicationPlan) -> PublicSiteShell:
                 note_ids=tuple(note.id for note in BASHO_RESULTS_ARTIFACT.notes),
             ),
         ),
+        ContentPanel(
+            page_id=rank_at_retirement_page.id,
+            heading=Heading(
+                title=rank_at_retirement_page.title,
+                summary=rank_at_retirement_page.summary,
+            ),
+            grammar="G1",
+            contents=G1Contents(
+                filter_section=FilterSection(filters=()),
+                pa=PA(artifact_id=RANK_AT_RETIREMENT_ARTIFACT.id),
+                note_ids=tuple(note.id for note in RANK_AT_RETIREMENT_ARTIFACT.notes),
+            ),
+        ),
     )
     renderable_page_ids = frozenset(panel.page_id for panel in content_panels)
     return PublicSiteShell(
@@ -1038,6 +1105,7 @@ def build_runtime_manifest(plan: PublicationPlan) -> dict[str, Any]:
             DIVISION_STABILITY_ARTIFACT.id: to_plain(DIVISION_STABILITY_ARTIFACT),
             FIRST_CHII_APPEARANCE_ARTIFACT.id: to_plain(FIRST_CHII_APPEARANCE_ARTIFACT),
             MAKUUCHI_RANK_BY_ERA_ARTIFACT.id: to_plain(MAKUUCHI_RANK_BY_ERA_ARTIFACT),
+            RANK_AT_RETIREMENT_ARTIFACT.id: to_plain(RANK_AT_RETIREMENT_ARTIFACT),
             STANDINGS_BY_WINS_ARTIFACT.id: to_plain(STANDINGS_BY_WINS_ARTIFACT),
         },
     }

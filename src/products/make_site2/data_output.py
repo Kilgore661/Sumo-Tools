@@ -28,6 +28,12 @@ FIRST_CHII_APPEARANCE_ROUTE_DATA_DIR = (
     / "first-chii-appearance"
     / "data"
 )
+RANK_AT_RETIREMENT_ROUTE_DATA_DIR = (
+    Path("sumo-history")
+    / "career-lifecycle"
+    / "rank-at-retirement"
+    / "data"
+)
 BANZUKE_DIVISION_BY_ERA_ROUTE_DATA_DIR = (
     Path("banzuke-rank")
     / "banzuke-structure-over-time"
@@ -47,6 +53,13 @@ DIVISION_STABILITY_SOURCE_ROOT = (
 )
 FIRST_CHII_APPEARANCE_SOURCE_ROOT = (
     Path("files") / "output" / "first_app" / "site" / "first_chii_appearance"
+)
+RANK_AT_RETIREMENT_SOURCE_ROOT = (
+    Path("files")
+    / "output"
+    / "rank_at_retirement"
+    / "site"
+    / "rank_at_retirement_1958_01_to_2026_05"
 )
 BANZUKE_DIVISION_BY_ERA_SOURCE_ROOT = (
     Path("files") / "output" / "banzuke_division_era" / "site" / "banzuke_division_by_era"
@@ -191,6 +204,21 @@ def copy_first_chii_appearance_data_output(
         route_data_dir=FIRST_CHII_APPEARANCE_ROUTE_DATA_DIR,
         source_path=FIRST_CHII_APPEARANCE_SOURCE_ROOT / "appearances.csv",
         target_name="appearances.csv",
+    )
+    return SingleCsvChartDataOutput(csv_path=csv_path)
+
+
+def copy_rank_at_retirement_data_output(
+    *,
+    output_root: Path,
+) -> SingleCsvChartDataOutput:
+    """Copy the Rank at Retirement CSV into the make_site2 output tree."""
+
+    csv_path = copy_single_csv_chart_data_output(
+        output_root=output_root,
+        route_data_dir=RANK_AT_RETIREMENT_ROUTE_DATA_DIR,
+        source_path=RANK_AT_RETIREMENT_SOURCE_ROOT / "distribution.csv",
+        target_name="distribution.csv",
     )
     return SingleCsvChartDataOutput(csv_path=csv_path)
 

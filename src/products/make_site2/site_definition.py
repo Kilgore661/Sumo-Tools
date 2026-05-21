@@ -68,7 +68,7 @@ PAGES = PageRegistry(
         "first_chii_appearance": PageDefinition(
             id="first_chii_appearance",
             title="First Chii Appearance",
-            summary="Earliest observed bout appearance for each chii.",
+            summary="Earliest observed bout appearance at <a href=\"sumodb.de\">SumoDB</a>for each chii.",
             artifact=artifact("first_chii_appearance", "chart"),
         ),
         "win_probability_by_standing": PageDefinition(
@@ -85,6 +85,16 @@ PAGES = PageRegistry(
                 "basho_results_browser",
                 "table",
                 producer="sumo_history.basho_results",
+            ),
+        ),
+        "rank_at_retirement": PageDefinition(
+            id="rank_at_retirement",
+            title="Rank at Retirement",
+            summary="Final observed rank group for retired rikishi.",
+            artifact=artifact(
+                "rank_at_retirement",
+                "chart",
+                producer="sumo_history.career_lifecycle.rank_at_retirement",
             ),
         ),
     }
