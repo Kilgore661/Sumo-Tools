@@ -187,7 +187,7 @@ Remote deployment uploads:
 
 The current remote target is `/var/www/html/standings`.
 
-Remote deployment requires the `MY_SFTP_PASS` environment variable to be set.
+Remote deployment requires the `GEOLOCATION` environment variable to be set.
 
 No deployment password should be stored in source.
 

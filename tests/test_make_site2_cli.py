@@ -2,6 +2,7 @@ import pytest
 
 from src.products.make_site2.__main__ import (
     build_parser,
+    reject_conflicting_modes,
     resolve_cache_mode,
     resolve_basho_results_payload_mode,
 )
@@ -38,3 +39,21 @@ def test_make_site2_uses_development_cache_busting_by_default() -> None:
 
 def test_make_site2_prod_disables_development_cache_busting() -> None:
     assert cache_mode_for("--prod") == "prod"
+
+
+def test_make_site2_accepts_no_build_local_only_deployment() -> None:
+    args = build_parser().parse_args(["--no-build", "--local-only"])
+
+    reject_conflicting_modes(args)
+    assert args.no_build
+    assert args.local_only
+
+
+def test_make_site2_rejects_no_build_build_only() -> None:
+    with pytest.raises(SystemExit):
+        reject_conflicting_modes(build_parser().parse_args(["--no-build", "--build-only"]))
+
+
+def test_make_site2_rejects_build_options_with_no_build() -> None:
+    with pytest.raises(SystemExit):
+        reject_conflicting_modes(build_parser().parse_args(["--no-build", "--prod"]))

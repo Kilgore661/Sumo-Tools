@@ -3,10 +3,30 @@
   const contentPanel = document.getElementById("content-panel");
   let runtimeManifest = null;
 
+  bootSiteContext();
   bootNavigationToggle();
   boot().catch(error => {
     contentPanel.innerHTML = `<p>${escapeHtml(error.message)}</p>`;
   });
+
+  function bootSiteContext() {
+    const context = siteContext();
+    document.body.classList.add(`site-context-${context.id}`);
+    if (context.titlePrefix) {
+      document.title = `${context.titlePrefix} ${document.title}`;
+    }
+  }
+
+  function siteContext() {
+    const hostname = window.location.hostname.toLowerCase();
+    if (hostname === "68.66.241.105" || hostname === "www.661.org.uk" || hostname === "661.org.uk") {
+      return { id: "remote", label: "Remote Site", titlePrefix: "REMOTE" };
+    }
+    if (hostname.startsWith("192.168.")) {
+      return { id: "local", label: "Local Site" };
+    }
+    return { id: "preview", label: "Preview Site", titlePrefix: "PREVIEW" };
+  }
 
   async function boot() {
     runtimeManifest = await fetchJson("runtime/site-manifest.json");
@@ -53,10 +73,19 @@
     const pageId = params.get(PAGE_PARAM) || "";
     if (!pageId) {
       markActivePage("");
-      contentPanel.replaceChildren();
+      renderLandingPanel();
       return;
     }
     selectPage(pageId, { replaceUrl: true });
+  }
+
+  function renderLandingPanel() {
+    const context = siteContext();
+    contentPanel.innerHTML = [
+      '<section class="landing-panel">',
+      `<h2>${escapeHtml(context.label)}</h2>`,
+      '</section>'
+    ].join("");
   }
 
   function selectPage(pageId, { pushUrl = false, replaceUrl = false } = {}) {

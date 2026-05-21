@@ -127,16 +127,16 @@ def main() -> None:
     """
     Contract:
         LOCAL_ROOT is the current local BCR publication tree produced by
-        publisher.py.  MY_SFTP_PASS contains the deployment password.
+        publisher.py.  GEOLOCATION contains the deployment password.
 
         Uploads the static BCR app to the remote web root.
     """
 
-    password = os.environ.get("MY_SFTP_PASS")
+    password = os.environ.get("GEOLOCATION")
 
     if not password:
-        print("Error: MY_SFTP_PASS environment variable is not set.")
-        print('Try:\n$env:MY_SFTP_PASS = "whatever"')
+        print("Error: GEOLOCATION environment variable is not set.")
+        print('Try:\n$env:GEOLOCATION = "whatever"')
         sys.exit(1)
 
     import paramiko

@@ -161,7 +161,7 @@ python -m src.analysis.standings.publisher
 
 Be careful with the publisher command: when `publisher.py` is run as a script,
 it performs the publisher run and then invokes remote upload via `deploy.py`.
-Remote deployment requires `MY_SFTP_PASS` to be set.
+Remote deployment requires `GEOLOCATION` to be set.
 
 The publisher currently also copies static files and latest data to the local
 web root configured in `publisher.py`.

@@ -112,7 +112,28 @@ files/output/make_site2
 
 Build-only mode is useful for inspection and for manual deployment.
 
-## 4.2 Preview Server
+## 4.2 No-Build Deployment
+
+No-build deployment skips the build step and deploys the existing output tree.
+
+This mode is useful for UI/runtime testing when the generated output already
+exists and the developer has changed only files that are already part of that
+output tree.
+
+Example command shape:
+
+```powershell
+python -m src.products.make_site2 --no-build --local-only
+```
+
+Build-shaping options such as history selection, cache mode, and payload mode do
+not apply in no-build mode. A command should fail rather than silently ignore
+those options.
+
+No-build deployment is distinct from preview serving. It still copies files to
+the configured server target.
+
+## 4.3 Preview Server
 
 Preview mode serves the build output directory directly.
 
@@ -132,7 +153,7 @@ This is a preview mechanism, not a deployment target.
 
 It is useful when a caller can serve and inspect the generated output directly.
 
-## 4.3 Local / LAN Deployment
+## 4.4 Local / LAN Deployment
 
 Local deployment means copying the generated site to the LAN Apache document
 tree used for local browser testing.
@@ -157,7 +178,7 @@ A:\local\htm\sumo-tools2
 The underlying physical directory on Grond is not important to `make_site2` if
 the mapped drive path works.
 
-## 4.4 Remote Deployment
+## 4.5 Remote Deployment
 
 Remote deployment uploads the generated site to the remote public host.
 
@@ -235,7 +256,7 @@ They should not be source-controlled.
 The current remote deployment approach may use an environment variable such as:
 
 ```text
-MY_SFTP_PASS
+GEOLOCATION
 ```
 
 If the password is not available, remote deployment may prompt the user or fail,
@@ -515,7 +536,6 @@ boundary has been crossed.
 The following questions are deferred:
 
 ```text
-exact command-line flags for build/deploy/preview
 exact default local deploy path
 exact default remote root path
 exact SFTP implementation

@@ -15,6 +15,7 @@ from .data_output import (
     copy_finish_by_chii_data_output,
     load_history_from_zip,
 )
+from .models import BuildOutput
 from .publication_model import build_publication_plan
 from .render import render_site_shell
 from .site_manifest import build_public_site_shell, build_runtime_manifest
@@ -34,7 +35,7 @@ def build_site(
     basho_results_payload_mode: str = "all",
     cache_mode: str = "dev",
     cache_bust_token: str | None = None,
-) -> Path:
+) -> BuildOutput:
     """Write the first make_site2 static output tree."""
 
     if cache_mode not in {"dev", "prod"}:
@@ -85,4 +86,12 @@ def build_site(
         PACKAGE_ROOT / "runtime" / "site.js",
         output_root / "runtime" / "site.js",
     )
-    return output_root
+    return BuildOutput(
+        root=output_root,
+        entrypoint=output_root / "index.html",
+        file_count=count_output_files(output_root),
+    )
+
+
+def count_output_files(output_root: Path) -> int:
+    return sum(1 for path in output_root.rglob("*") if path.is_file())

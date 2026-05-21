@@ -31,11 +31,11 @@ def upload_file(sftp, local_file: Path, remote_file: str) -> None:
 
 
 def main() -> None:
-    password = os.environ.get("MY_SFTP_PASS")
+    password = os.environ.get("GEOLOCATION")
 
     if not password:
-        print("Error: MY_SFTP_PASS environment variable is not set.")
-        print('Try:\n$env:MY_SFTP_PASS = "whatever"')
+        print("Error: GEOLOCATION environment variable is not set.")
+        print('Try:\n$env:GEOLOCATION = "whatever"')
         sys.exit(1)
 
     local_remote_files = (

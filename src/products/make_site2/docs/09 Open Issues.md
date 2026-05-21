@@ -456,6 +456,56 @@ Remote URL:
   http://68.66.241.105/sumo-tools2/
 ```
 
+## 14.1 Best CLI Vocabulary and Options
+
+Status: Open.
+
+The word "build" is ambiguous.
+
+It can mean:
+
+```text
+build the data we need
+build the site
+```
+
+Possible clearer pipeline vocabulary:
+
+```text
+produce
+  run analysis/producers and write site-facing CSV/JSON/etc.
+
+assemble
+  turn site definition + produced artefacts into the static site tree
+
+deploy
+  copy/upload the completed site tree to the server and/or remote server
+
+preview
+  serve an existing site tree with the preview server
+```
+
+Under this vocabulary, the default full workflow is:
+
+```text
+produce -> assemble -> deploy server -> deploy remote server
+```
+
+The current `--no-build` option is useful but may be poorly named because it
+depends on the ambiguous word "build". A possible clearer future name is:
+
+```text
+--deploy-existing
+```
+
+Decision needed:
+
+```text
+What are the best CLI options?
+Should no-build deployment be renamed before the CLI settles?
+Should command names distinguish produce/assemble/deploy/preview explicitly?
+```
+
 ---
 
 # 15. Remote Deployment / Future Sync
@@ -807,4 +857,3 @@ local deployment workflow
 This file should be updated as decisions are made.
 
 Do not let it become a second design notebook.
-

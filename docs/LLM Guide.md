@@ -1,4 +1,26 @@
-# LLM System Prompt Context: Contract-First & Offensive Programming Style
+# LLM System Prompt Context: Contract-First Collaboration and Offensive Programming
+
+## Collaboration Rule
+
+The user wants to write the right code, not code that is merely a plausible
+first implementation.
+
+Most useful work should therefore happen at the requirements, specification,
+and design levels. Implementation should flow from those levels once the model,
+contract, ownership boundaries, and intended behavior are aligned.
+
+If the user seems to imply that they want code written, files updated, or a
+commit made, do not assume that action is correct. In this project, that
+assumption will usually be wrong. The objective is not to deliver code quickly;
+the objective is to deliver alignment.
+
+The normal response should be to ask:
+
+```text
+Do you want me to write/update the code/commit?
+```
+
+Then wait for a clear yes before making code changes or committing.
 
 ## Role and Purpose
 
@@ -89,9 +111,16 @@ Here is what I’ve learned about this working environment.
 
 `X:\Sumo-Tools` is the current usable Codex workspace. I can read/write there and Git works well enough for history, diffs, and normal repo archaeology.
 
-Mapped/cloud drives are not generally usable from this session. `A:` is the LAN/local web-root mapped drive and I cannot see it. `H:` is not visible. `G:` is your Google Drive, but this session gets access denied, even though Codex may be able to work there if launched with `G:` as the workspace.
+The project is firmly back on `X:` after a bad hiatus caused by trying to use
+Git on Google Drive. Any reference to `G:` anywhere in docs, code, comments,
+commands, logs, or remembered context is wrong for current work. If an LLM sees
+or is tempted to use a `G:` path, it must stop and alert the user immediately
+instead of treating it as a fallback, archive, source of truth, or plausible
+workspace.
 
-Your local/LAN deploy target lives on `A:` and is therefore not directly deployable by me in this session. Remote deploy is also not directly available because `MY_SFTP_PASS` is not present in my environment, and you supply the password manually.
+Mapped/cloud drives are not generally usable from this session. `A:` is the LAN/local web-root mapped drive and I cannot see it. `H:` is not visible.
+
+Your local/LAN deploy target lives on `A:` and is therefore not directly deployable by me in this session. Remote deploy is also not directly available because `GEOLOCATION` is not present in my environment, and you supply the password manually.
 
 I can see environment variable names available to the Codex shell, but not your broader interactive shell environment. I should not assume secrets or mapped-drive credentials are available.
 
@@ -108,6 +137,17 @@ python -m http.server <port> --directory <folder>
 ```
 
 but the folder must actually contain `index.html`. The earlier `8787` 404 was because `files/output/make_site2` did not exist from `X:\Sumo-Tools`.
+
+Pytest may have a local capture problem in this environment. A normal focused
+pytest run failed during capture teardown with:
+
+```text
+ValueError: I/O operation on closed file.
+```
+
+Rerunning with `-s` bypassed capture and produced ordinary test results. If an
+LLM sees this pytest/capture failure again, it should flag it explicitly and ask
+the user what, if anything, they want to do about this.
 
 There is a lingering Python server on port `8766`, started earlier, serving a working recent build. I can access it through the Codex in-app browser.
 

@@ -11,6 +11,14 @@ from src.products.make_site2.site_manifest import (
 from src.products.make_site2.site_definition import SITE
 
 
+def content_panel_by_artifact(manifest: dict, artifact_id: str) -> dict:
+    return next(
+        panel
+        for panel in manifest["ui"]["content_panels"]
+        if panel["contents"]["pa"]["artifact_id"] == artifact_id
+    )
+
+
 def test_publication_plan_resolves_copied_navigation_routes() -> None:
     plan = build_publication_plan(SITE)
 
@@ -74,7 +82,7 @@ def test_site_shell_uses_stable_runtime_assets_in_prod_mode() -> None:
 
 def test_runtime_manifest_declares_brb_ui_and_artifact_semantics() -> None:
     manifest = build_runtime_manifest(build_publication_plan(SITE))
-    brb_panel = manifest["ui"]["content_panels"][0]
+    brb_panel = content_panel_by_artifact(manifest, BASHO_RESULTS_ARTIFACT.id)
     brb_artifact = manifest["artifacts"]["basho_results_browser"]
     filters = brb_panel["contents"]["filter_section"]["filters"]
 
@@ -95,7 +103,7 @@ def test_runtime_manifest_declares_brb_ui_and_artifact_semantics() -> None:
 
 def test_brb_filter_defaults_and_url_keys_match_current_public_site() -> None:
     manifest = build_runtime_manifest(build_publication_plan(SITE))
-    brb_panel = manifest["ui"]["content_panels"][0]
+    brb_panel = content_panel_by_artifact(manifest, BASHO_RESULTS_ARTIFACT.id)
     filters = {
         item["id"]: item for item in brb_panel["contents"]["filter_section"]["filters"]
     }

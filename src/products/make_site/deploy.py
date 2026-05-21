@@ -53,9 +53,9 @@ def ensure_remote_tree(sftp, remote_dir: str) -> None:
 
 
 def get_password() -> str:
-    password = os.environ.get("MY_SFTP_PASS")
+    password = os.environ.get("GEOLOCATION")
     if password:
-        print("using MY_SFTP_PASS for remote deployment")
+        print("using GEOLOCATION for remote deployment")
         return password
     return getpass.getpass("SFTP password: ")
 

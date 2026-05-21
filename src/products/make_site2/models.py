@@ -36,6 +36,15 @@ class SiteBuildConfig:
     cache_bust_param: str = "cb"
 
 
+@dataclass(frozen=True, kw_only=True)
+class BuildOutput:
+    """Completed static output tree ready for deployment."""
+
+    root: Path
+    entrypoint: Path
+    file_count: int
+
+
 @dataclass(frozen=True)
 class NavigationTree:
     """Recursive subject-led navigation tree."""
