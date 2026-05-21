@@ -6,6 +6,7 @@ from dataclasses import asdict, is_dataclass
 from typing import Any
 
 from .artifact_model import (
+    BanzukeChangesArtifact,
     ChartArtifact,
     ColumnGroup,
     DataBinding,
@@ -81,6 +82,46 @@ BRB_FILTERS = (
 )
 
 
+BANZUKE_CHANGES_FILTERS = (
+    Filter(
+        id="division",
+        label="Division",
+        control="select",
+        default="makuuchi",
+        url_key="division",
+        values=DIVISION_FILTER_VALUES,
+    ),
+    Filter(
+        id="context",
+        label="Previous Basho",
+        control="checkbox",
+        default=False,
+        url_key="context",
+    ),
+    Filter(
+        id="banzuke_style",
+        label="Banzuke Style",
+        control="checkbox",
+        default=True,
+        url_key="banzuke_style",
+    ),
+    Filter(
+        id="delta",
+        label="Delta",
+        control="checkbox",
+        default=False,
+        url_key="delta",
+    ),
+    Filter(
+        id="equelo",
+        label="Equelo Ratings",
+        control="checkbox",
+        default=False,
+        url_key="equelo",
+    ),
+)
+
+
 FINISH_BY_CHII_FILTERS = (
     Filter(
         id="division",
@@ -118,6 +159,45 @@ FINISH_BY_CHII_FILTERS = (
             partition_filter="division",
             partition_field="division",
             partition_normalizer="division_id",
+        ),
+    ),
+)
+
+
+BANZUKE_CHANGES_ARTIFACT = BanzukeChangesArtifact(
+    id="banzuke_changes",
+    heading="Banzuke Changes",
+    kind="banzuke_changes",
+    renderer="banzuke_changes_table",
+    config_source=DataSource(
+        id="site_config",
+        label="Site Config",
+        path="current-sumo/banzuke-changes/site_config.json",
+        media_type="application/json",
+    ),
+    rows_source=DataSource(
+        id="banzuke_change_report",
+        label="Banzuke Change Report",
+        path="current-sumo/banzuke-changes/data/banzuke_change_report.csv",
+        media_type="text/csv",
+    ),
+    notes=(
+        Note(
+            id="note_result",
+            applies_to=("context",),
+            text=(
+                "Result gives wins, losses and absences followed by prizes if "
+                "any. A trailing up/down marker indicates promotion or demotion "
+                "into the current broad rank level."
+            ),
+        ),
+        Note(
+            id="note_delta",
+            applies_to=("delta",),
+            text=(
+                "Delta indicates the size of movement from the previous "
+                "basho's position, measured in banzuke rows."
+            ),
         ),
     ),
 )
@@ -327,9 +407,23 @@ FINISH_BY_CHII_ARTIFACT = ChartArtifact(
 
 
 def build_public_site_shell(plan: PublicationPlan) -> PublicSiteShell:
+    banzuke_changes_page = plan.pages["banzuke_changes"].page
     brb_page = plan.pages["basho_results_browser"].page
     finish_by_chii_page = plan.pages["finish_by_chii"].page
     content_panels = (
+        ContentPanel(
+            page_id=banzuke_changes_page.id,
+            heading=Heading(
+                title=banzuke_changes_page.title,
+                summary=banzuke_changes_page.summary,
+            ),
+            grammar="G1",
+            contents=G1Contents(
+                filter_section=FilterSection(filters=BANZUKE_CHANGES_FILTERS),
+                pa=PA(artifact_id=BANZUKE_CHANGES_ARTIFACT.id),
+                note_ids=tuple(note.id for note in BANZUKE_CHANGES_ARTIFACT.notes),
+            ),
+        ),
         ContentPanel(
             page_id=finish_by_chii_page.id,
             heading=Heading(
@@ -404,6 +498,7 @@ def build_runtime_manifest(plan: PublicationPlan) -> dict[str, Any]:
         },
         "ui": to_plain(build_public_site_shell(plan)),
         "artifacts": {
+            BANZUKE_CHANGES_ARTIFACT.id: to_plain(BANZUKE_CHANGES_ARTIFACT),
             BASHO_RESULTS_ARTIFACT.id: to_plain(BASHO_RESULTS_ARTIFACT),
             FINISH_BY_CHII_ARTIFACT.id: to_plain(FINISH_BY_CHII_ARTIFACT),
         },

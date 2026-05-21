@@ -22,6 +22,20 @@ Do you want me to write/update the code/commit?
 
 Then wait for a clear yes before making code changes or committing.
 
+## make_site2 Boundary
+
+`make_site2` must not depend on `make_site`.
+
+Treat `make_site` as deleted when designing or implementing `make_site2`.
+References to `make_site` are acceptable in historical documentation and in
+explicit design archaeology, but `make_site2` code, runtime assets, tests, and
+active contracts must not import from, call into, wrap, or depend on
+`src/products/make_site`.
+
+Old `make_site` behavior may be read as evidence for requirements. Once a
+requirement is accepted, express it natively in the `make_site2` model,
+producer-facing contracts, renderers, tests, and docs.
+
 ## Role and Purpose
 
 This document defines a strict, non-negotiable engineering house style for this project. It deliberately rejects defensive programming, polite fallbacks, and internal error handling.

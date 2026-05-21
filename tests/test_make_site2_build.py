@@ -23,6 +23,16 @@ def test_make_site2_build_uses_live_store_when_no_history_zip_is_given(
         "build_basho_results_data_output",
         lambda **kwargs: captured.update(kwargs),
     )
+    monkeypatch.setattr(
+        make_site2_build,
+        "copy_banzuke_changes_data_output",
+        lambda **kwargs: None,
+    )
+    monkeypatch.setattr(
+        make_site2_build,
+        "copy_finish_by_chii_data_output",
+        lambda **kwargs: None,
+    )
 
     make_site2_build.build_site(output_root=tmp_path)
 
@@ -51,6 +61,16 @@ def test_make_site2_build_uses_history_zip_when_given(
         make_site2_build,
         "build_basho_results_data_output",
         lambda **kwargs: captured.update(kwargs),
+    )
+    monkeypatch.setattr(
+        make_site2_build,
+        "copy_banzuke_changes_data_output",
+        lambda **kwargs: None,
+    )
+    monkeypatch.setattr(
+        make_site2_build,
+        "copy_finish_by_chii_data_output",
+        lambda **kwargs: None,
     )
 
     make_site2_build.build_site(output_root=tmp_path, history_zip=history_zip)

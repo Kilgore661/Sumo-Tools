@@ -13,7 +13,8 @@ site from curated Sumo-Tools analytical material.
 
 # Core Requirement
 
-`make_site2` builds the public Sumo-Tools website.
+`make_site2` assembles the public Sumo-Tools website as one stage in the
+publication pipeline.
 
 It consumes curated page definitions, navigation definitions, producer-generated
 site-facing artefacts, data files, artifact inputs, and shared runtime assets. It
@@ -29,6 +30,24 @@ deployment shape. Producers own analysis-specific computation and site-facing
 artefact data. Legacy/prototype HTML may be used as evidence or temporary
 compatibility material, but promoted public pages must move toward intentional
 site-facing inputs and the shared publication model.
+
+`make_site2` is not a from-scratch analysis producer. It does not own the
+calculation of standings, banzuke comparisons, probability traces, Equelo
+ratings, or historical summaries. Those outputs are prepared earlier by analysis
+and miscellaneous producer modules. `make_site2` consumes their site-facing
+CSV/JSON/artifact outputs, stages them under public routes, renders the shared
+site shell and runtime model, and hands the completed static output to
+deployment.
+
+The older `make_site` product has the same pipeline position: it consumes
+previously prepared producer outputs rather than manufacturing the whole public
+site data world from scratch.
+
+`make_site2` must stand on its own. It must remain valid if the old
+`src/products/make_site` package has been deleted. The old `make_site` product
+may be used as historical evidence while discovering requirements, but
+`make_site2` code, runtime assets, tests, and active contracts must not import
+from, call into, wrap, or depend on `make_site`.
 
 ---
 
@@ -91,6 +110,8 @@ It is responsible for:
 9. Writing the static output tree.
 10. Supporting local and remote deployment workflows.
 11. Keeping prototype and legacy inclusion paths explicit and temporary.
+12. Failing clearly when required producer outputs are missing or stale enough
+    to violate the selected build contract.
 
 ---
 

@@ -12,6 +12,7 @@ from src.sumo_core.History import History
 
 from .data_output import (
     build_basho_results_data_output,
+    copy_banzuke_changes_data_output,
     copy_finish_by_chii_data_output,
     load_history_from_zip,
 )
@@ -63,6 +64,7 @@ def build_site(
         output_root=output_root,
         payload_mode=basho_results_payload_mode,
     )
+    copy_banzuke_changes_data_output(output_root=output_root)
     copy_finish_by_chii_data_output(output_root=output_root)
     plan = build_publication_plan(SITE)
     (output_root / "index.html").write_text(

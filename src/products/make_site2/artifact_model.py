@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from typing import Literal
 
 
-ArtifactKind = Literal["indexed_table", "chart"]
+ArtifactKind = Literal["indexed_table", "chart", "banzuke_changes"]
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -73,6 +73,17 @@ class IndexedTableArtifact:
     columns: tuple[TableColumn, ...]
     default_sort_column: str
     default_sort_descending: bool = False
+    notes: tuple[Note, ...] = ()
+
+
+@dataclass(frozen=True, kw_only=True)
+class BanzukeChangesArtifact:
+    id: str
+    heading: str
+    kind: ArtifactKind
+    renderer: str
+    config_source: DataSource
+    rows_source: DataSource
     notes: tuple[Note, ...] = ()
 
 

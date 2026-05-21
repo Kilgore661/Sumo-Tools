@@ -44,10 +44,26 @@ The output directory should be directly inspectable and suitable for deployment.
 
 # 2. Position in the Pipeline
 
-Build/output writing is downstream of rendering and upstream of deployment.
+Build/output writing is downstream of producer output preparation, publication
+planning, UI-model resolution, and rendering. It is upstream of deployment.
+
+At the top level, the public-site pipeline is:
 
 ```text
-SiteDefinition
+producer computation
+  -> site-facing producer outputs
+  -> site assembly
+  -> static output tree
+  -> deployment
+```
+
+`make_site2` owns the site assembly and static output stages. It may coordinate
+or call producer steps when a later contract says so, but producer computation
+is not the core responsibility of the build/output layer.
+
+```text
+PreparedProducerOutputs
+  -> SiteDefinition
   -> PublicationPlan
   -> UIModel
   -> RenderedSite
@@ -59,9 +75,13 @@ The build/output stage consumes rendered material.
 
 It writes files.
 
+It stages required producer outputs into the make_site2 output tree.
+
 It does not invent page structure.
 
 It does not decide which pages are included.
+
+It does not compute analysis results merely because a page needs them.
 
 It does not deploy.
 
@@ -392,9 +412,10 @@ Deployment should not have to reconstruct the output tree by guessing.
 
 # 16. Build Orchestration
 
-A full build command may orchestrate earlier stages:
+A full site-assembly command may orchestrate earlier stages:
 
 ```text
+verify or obtain prepared producer outputs
 load or construct SiteDefinition
 make PublicationPlan
 make UIModel
@@ -403,7 +424,19 @@ write output
 ```
 
 This document focuses on the final output-writing stage, but the package build
-command naturally coordinates the whole pipeline.
+command naturally coordinates the site-assembly pipeline.
+
+The word "build" is ambiguous in this project. It can mean:
+
+```text
+produce analysis data
+assemble the static site
+deploy completed output
+```
+
+For make_site2, build/output design is about assembling the static site from
+prepared site-facing inputs. It is not a promise to regenerate every upstream
+analysis artifact from raw source data.
 
 The output stage itself consumes `RenderedSite`.
 

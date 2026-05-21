@@ -19,6 +19,8 @@ from src.sumo_core.History import History
 
 BASHO_RESULTS_ROUTE_DATA_DIR = Path("sumo-history") / "basho-results" / "data"
 FINISH_BY_CHII_ROUTE_DATA_DIR = Path("performance") / "finish-by-chii" / "data"
+BANZUKE_CHANGES_ROUTE_DIR = Path("current-sumo") / "banzuke-changes"
+BANZUKE_CHANGES_SOURCE_ROOT = Path("files") / "output" / "bcr"
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -31,6 +33,12 @@ class BashoResultsDataOutput:
 class FinishByChiiDataOutput:
     top_thresholds_path: Path
     bottom_thresholds_path: Path
+
+
+@dataclass(frozen=True, kw_only=True)
+class BanzukeChangesDataOutput:
+    site_config_path: Path
+    report_csv_path: Path
 
 
 def load_history_from_zip(path: Path) -> History:
@@ -108,4 +116,26 @@ def copy_finish_by_chii_data_output(*, output_root: Path) -> FinishByChiiDataOut
     return FinishByChiiDataOutput(
         top_thresholds_path=top_thresholds_path,
         bottom_thresholds_path=bottom_thresholds_path,
+    )
+
+
+def copy_banzuke_changes_data_output(*, output_root: Path) -> BanzukeChangesDataOutput:
+    """Copy Banzuke Compare producer output into the make_site2 output tree."""
+
+    route_root = output_root / BANZUKE_CHANGES_ROUTE_DIR
+    route_data_root = route_root / "data"
+    if route_root.exists():
+        shutil.rmtree(route_root)
+    route_data_root.mkdir(parents=True, exist_ok=True)
+
+    site_config_path = route_root / "site_config.json"
+    report_csv_path = route_data_root / "banzuke_change_report.csv"
+    shutil.copy2(BANZUKE_CHANGES_SOURCE_ROOT / "site_config.json", site_config_path)
+    shutil.copy2(
+        BANZUKE_CHANGES_SOURCE_ROOT / "data" / "banzuke_change_report.csv",
+        report_csv_path,
+    )
+    return BanzukeChangesDataOutput(
+        site_config_path=site_config_path,
+        report_csv_path=report_csv_path,
     )

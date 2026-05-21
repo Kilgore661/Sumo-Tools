@@ -465,13 +465,27 @@ The word "build" is ambiguous.
 It can mean:
 
 ```text
+build everything from scratch
+  rebuild the whole project data world from raw/source inputs
+
 build the data we need
+  run selected producers and write site-facing CSV/JSON/etc.
+
 build the site
+  assemble the static public site from prepared site-facing inputs
 ```
+
+The first meaning exists at the wider project/pipeline level but is not a
+`make_site2` responsibility. `make_site2` should not present its ordinary CLI as
+if it can rebuild the whole analytical world from scratch.
 
 Possible clearer pipeline vocabulary:
 
 ```text
+rebuild-world
+  run the full upstream project pipeline from raw/source inputs; outside
+  make_site2's normal scope
+
 produce
   run analysis/producers and write site-facing CSV/JSON/etc.
 
@@ -489,6 +503,13 @@ Under this vocabulary, the default full workflow is:
 
 ```text
 produce -> assemble -> deploy server -> deploy remote server
+```
+
+The wider project workflow, outside make_site2's normal CLI scope, would have an
+earlier stage:
+
+```text
+rebuild-world -> produce -> assemble -> deploy server -> deploy remote server
 ```
 
 The current `--no-build` option is useful but may be poorly named because it

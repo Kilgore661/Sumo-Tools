@@ -4,6 +4,7 @@ from src.products.make_site2.publication_model import (
 )
 from src.products.make_site2.render import render_site_shell
 from src.products.make_site2.site_manifest import (
+    BANZUKE_CHANGES_ARTIFACT,
     BASHO_RESULTS_ARTIFACT,
     build_public_site_shell,
     build_runtime_manifest,
@@ -27,6 +28,10 @@ def test_publication_plan_resolves_copied_navigation_routes() -> None:
         "sumo-history",
         "basho-results",
     )
+    assert plan.pages["banzuke_changes"].route.parts == (
+        "current-sumo",
+        "banzuke-changes",
+    )
 
 
 def test_navigation_bar_uses_resolved_hrefs_without_rendering_pages() -> None:
@@ -38,9 +43,17 @@ def test_navigation_bar_uses_resolved_hrefs_without_rendering_pages() -> None:
     basho_results = next(
         item for item in sumo_history.children if item.id == "basho_results_browser"
     )
+    current_sumo = next(
+        item for item in shell.navigation_bar.navigation_tree if item.id == "current_sumo"
+    )
+    banzuke_changes = next(
+        item for item in current_sumo.children if item.id == "banzuke_changes"
+    )
 
     assert basho_results.included
     assert basho_results.href == "sumo-history/basho-results/index.html"
+    assert banzuke_changes.included
+    assert banzuke_changes.href == "current-sumo/banzuke-changes/index.html"
     assert artifact_refs(plan)["basho_results_browser"].kind == "table"
 
 
@@ -55,6 +68,7 @@ def test_site_shell_is_rendered_from_ui_manifest() -> None:
     assert '<nav class="site-nav" data-nav-panel aria-label="Site navigation">' in html
     assert '<script src="runtime/site.js"></script>' in html
     assert 'data-page-id="basho_results_browser"' in html
+    assert 'data-page-id="banzuke_changes"' in html
     assert '<main class="site-main" aria-label="Page content">' in html
     assert "Basho Results" in html
     assert '<table class="brb-table">' not in html
@@ -98,6 +112,31 @@ def test_runtime_manifest_declares_brb_ui_and_artifact_semantics() -> None:
     assert brb_artifact["kind"] == "indexed_table"
     assert brb_artifact["indexed_source"]["index_path"] == (
         "sumo-history/basho-results/data/basho_results_index.json"
+    )
+
+
+def test_runtime_manifest_declares_banzuke_changes_ui_and_artifact_semantics() -> None:
+    manifest = build_runtime_manifest(build_publication_plan(SITE))
+    panel = content_panel_by_artifact(manifest, BANZUKE_CHANGES_ARTIFACT.id)
+    artifact = manifest["artifacts"]["banzuke_changes"]
+    filters = panel["contents"]["filter_section"]["filters"]
+
+    assert panel["grammar"] == "G1"
+    assert panel["contents"]["pa"]["artifact_id"] == BANZUKE_CHANGES_ARTIFACT.id
+    assert [item["id"] for item in filters] == [
+        "division",
+        "context",
+        "banzuke_style",
+        "delta",
+        "equelo",
+    ]
+    assert artifact["kind"] == "banzuke_changes"
+    assert artifact["renderer"] == "banzuke_changes_table"
+    assert artifact["config_source"]["path"] == (
+        "current-sumo/banzuke-changes/site_config.json"
+    )
+    assert artifact["rows_source"]["path"] == (
+        "current-sumo/banzuke-changes/data/banzuke_change_report.csv"
     )
 
 
