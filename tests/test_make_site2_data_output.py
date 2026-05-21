@@ -3,6 +3,7 @@ from pathlib import Path
 from src.products.make_site2.data_output import (
     copy_banzuke_changes_data_output,
     copy_banzuke_division_by_era_data_output,
+    copy_career_length_data_output,
     copy_division_stability_data_output,
     copy_first_chii_appearance_data_output,
     copy_makuuchi_rank_by_era_data_output,
@@ -236,5 +237,48 @@ def test_copy_rank_at_retirement_data_output_stages_only_csv(
     )
     assert output.csv_path == route_data_root / "distribution.csv"
     assert output.csv_path.read_text(encoding="utf-8") == "csv"
+    assert not (route_data_root / "page.json").exists()
+    assert not (route_data_root / "metadata.json").exists()
+
+
+def test_copy_career_length_data_output_stages_csv_set(
+    monkeypatch,
+    tmp_path: Path,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    source_root = (
+        tmp_path
+        / "files"
+        / "output"
+        / "career_length"
+        / "site"
+        / "career_length_1958_01_to_2026_05"
+    )
+    source_root.mkdir(parents=True)
+    for name in ("distribution.csv", "pmf.csv", "cdf.csv", "survival.csv", "longest.csv"):
+        (source_root / name).write_text(name, encoding="utf-8")
+    (source_root / "page.json").write_text("page", encoding="utf-8")
+    (source_root / "metadata.json").write_text("metadata", encoding="utf-8")
+
+    output = copy_career_length_data_output(output_root=tmp_path / "site")
+
+    route_data_root = (
+        tmp_path
+        / "site"
+        / "sumo-history"
+        / "career-lifecycle"
+        / "career-length"
+        / "data"
+    )
+    assert sorted(path.name for path in output.data_paths) == [
+        "cdf.csv",
+        "distribution.csv",
+        "longest.csv",
+        "pmf.csv",
+        "survival.csv",
+    ]
+    for path in output.data_paths:
+        assert path.parent == route_data_root
+        assert path.read_text(encoding="utf-8") == path.name
     assert not (route_data_root / "page.json").exists()
     assert not (route_data_root / "metadata.json").exists()

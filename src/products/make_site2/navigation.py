@@ -253,7 +253,12 @@ NAVIGATION = NavigationTree(
                 "career_lifecycle",
                 "Career Lifecycle",
                 "career-lifecycle",
-                nav("history_career_length", "Career length", "career-length"),
+                nav(
+                    "history_career_length",
+                    "Career length",
+                    "career-length",
+                    page_id="career_length",
+                ),
                 nav(
                     "rank_at_retirement",
                     "Rank at retirement",

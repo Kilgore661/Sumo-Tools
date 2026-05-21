@@ -72,3 +72,13 @@ def test_category_bar_chart_renderer_uses_model_axis_order() -> None:
     assert "artifact.x_axis.order_values" in source
     assert "trace.x" in source
     assert "trace.y" in source
+
+
+def test_career_length_renderer_uses_flat_view_filter() -> None:
+    source = RUNTIME_SOURCE.read_text(encoding="utf-8")
+
+    assert "function renderCareerLengthContentPanel(panel, artifact" in source
+    assert "function renderCareerLengthArtifact(artifact, state, rowsBySource)" in source
+    assert "function careerLengthView(artifact, selectedView)" in source
+    assert "rowsBySource[state.view]" in source
+    assert "view.kind === \"table\"" in source

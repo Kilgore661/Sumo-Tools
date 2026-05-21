@@ -228,6 +228,24 @@ FINISH_BY_CHII_FILTERS = (
 )
 
 
+CAREER_LENGTH_FILTERS = (
+    Filter(
+        id="view",
+        label="View",
+        control="select",
+        default="distribution",
+        url_key="view",
+        values=(
+            FilterValue(value="distribution", label="Distribution"),
+            FilterValue(value="pmf", label="PMF"),
+            FilterValue(value="cdf", label="CDF"),
+            FilterValue(value="survival", label="Survival"),
+            FilterValue(value="longest", label="Longest"),
+        ),
+    ),
+)
+
+
 def standings_source(window: str) -> SelectedTableDataSource:
     filename = f"multiple basho standings view (2026_03, BACKWARDS, {window})"
     return SelectedTableDataSource(
@@ -924,10 +942,160 @@ RANK_AT_RETIREMENT_ARTIFACT = ChartArtifact(
 )
 
 
+CAREER_LENGTH_ARTIFACT = ChartArtifact(
+    id="career_length",
+    heading="Career Length",
+    kind="chart",
+    renderer="career_length",
+    data_binding=DataBinding(
+        kind="csv_set",
+        sources=("distribution", "pmf", "cdf", "survival", "longest"),
+    ),
+    data_sources=(
+        DataSource(
+            id="distribution",
+            label="Distribution",
+            path="sumo-history/career-lifecycle/career-length/data/distribution.csv",
+            media_type="text/csv",
+        ),
+        DataSource(
+            id="pmf",
+            label="PMF",
+            path="sumo-history/career-lifecycle/career-length/data/pmf.csv",
+            media_type="text/csv",
+        ),
+        DataSource(
+            id="cdf",
+            label="CDF",
+            path="sumo-history/career-lifecycle/career-length/data/cdf.csv",
+            media_type="text/csv",
+        ),
+        DataSource(
+            id="survival",
+            label="Survival",
+            path="sumo-history/career-lifecycle/career-length/data/survival.csv",
+            media_type="text/csv",
+        ),
+        DataSource(
+            id="longest",
+            label="Longest",
+            path="sumo-history/career-lifecycle/career-length/data/longest.csv",
+            media_type="text/csv",
+        ),
+    ),
+    provenance={
+        "views": {
+            "distribution": {
+                "kind": "stacked_bar",
+                "label": "Distribution",
+                "x": "nearest_years",
+                "y": ("retired_count", "active_count"),
+                "series_labels": ("Retired", "Active"),
+                "x_label": "Nearest integer years",
+                "y_label": "Rikishi count",
+            },
+            "pmf": {
+                "kind": "line",
+                "label": "PMF",
+                "x": "nearest_years",
+                "y": "probability",
+                "x_label": "Nearest integer years",
+                "y_label": "Probability",
+                "tickformat": ".0%",
+            },
+            "cdf": {
+                "kind": "line",
+                "label": "CDF",
+                "x": "nearest_years",
+                "y": "cumulative_probability",
+                "x_label": "Nearest integer years",
+                "y_label": "Cumulative probability",
+                "tickformat": ".0%",
+            },
+            "survival": {
+                "kind": "line",
+                "label": "Survival",
+                "x": "nearest_years",
+                "y": "survival_probability",
+                "x_label": "Nearest integer years",
+                "y_label": "Survival probability",
+                "tickformat": ".0%",
+            },
+            "longest": {
+                "kind": "table",
+                "label": "Longest Careers",
+                "columns": (
+                    {
+                        "id": "rank",
+                        "heading": "#",
+                        "source_field": "rank",
+                        "align": "right",
+                    },
+                    {
+                        "id": "shikona",
+                        "heading": "Shikona",
+                        "source_field": "shikona",
+                        "align": "left",
+                        "link": "rikishi",
+                    },
+                    {
+                        "id": "first_appearance",
+                        "heading": "First",
+                        "source_field": "first_appearance",
+                        "align": "left",
+                    },
+                    {
+                        "id": "last_appearance",
+                        "heading": "Last",
+                        "source_field": "last_appearance",
+                        "align": "left",
+                    },
+                    {
+                        "id": "participation_years",
+                        "heading": "Years",
+                        "source_field": "participation_years",
+                        "align": "right",
+                        "formatter": "decimal_2",
+                    },
+                    {
+                        "id": "gap_basho_count",
+                        "heading": "Bg",
+                        "source_field": "gap_basho_count",
+                        "align": "right",
+                    },
+                    {
+                        "id": "active",
+                        "heading": "Active",
+                        "source_field": "active",
+                        "align": "center",
+                    },
+                ),
+            },
+        },
+    },
+    notes=(
+        Note(
+            id="observed_career_length",
+            applies_to=("all",),
+            text=(
+                "Years is the observed career length: the elapsed time between "
+                "the first and last banzuke appearances in the prepared history."
+            ),
+        ),
+        Note(
+            id="bg_count",
+            applies_to=("longest",),
+            text="Bg is the number of basho for which the rikishi was absent.",
+        ),
+    ),
+)
+
+
 def build_public_site_shell(plan: PublicationPlan) -> PublicSiteShell:
     banzuke_division_by_era_page = plan.pages["banzuke_division_by_era"].page
     banzuke_changes_page = plan.pages["banzuke_changes"].page
     brb_page = plan.pages["basho_results_browser"].page
+    career_length_page = plan.pages["career_length"].page
     division_stability_page = plan.pages["division_stability"].page
     first_chii_appearance_page = plan.pages["first_chii_appearance"].page
     finish_by_chii_page = plan.pages["finish_by_chii"].page
@@ -1044,6 +1212,19 @@ def build_public_site_shell(plan: PublicationPlan) -> PublicSiteShell:
                 note_ids=tuple(note.id for note in RANK_AT_RETIREMENT_ARTIFACT.notes),
             ),
         ),
+        ContentPanel(
+            page_id=career_length_page.id,
+            heading=Heading(
+                title=career_length_page.title,
+                summary=career_length_page.summary,
+            ),
+            grammar="G1",
+            contents=G1Contents(
+                filter_section=FilterSection(filters=CAREER_LENGTH_FILTERS),
+                pa=PA(artifact_id=CAREER_LENGTH_ARTIFACT.id),
+                note_ids=tuple(note.id for note in CAREER_LENGTH_ARTIFACT.notes),
+            ),
+        ),
     )
     renderable_page_ids = frozenset(panel.page_id for panel in content_panels)
     return PublicSiteShell(
@@ -1101,6 +1282,7 @@ def build_runtime_manifest(plan: PublicationPlan) -> dict[str, Any]:
                 BANZUKE_DIVISION_BY_ERA_ARTIFACT
             ),
             BASHO_RESULTS_ARTIFACT.id: to_plain(BASHO_RESULTS_ARTIFACT),
+            CAREER_LENGTH_ARTIFACT.id: to_plain(CAREER_LENGTH_ARTIFACT),
             FINISH_BY_CHII_ARTIFACT.id: to_plain(FINISH_BY_CHII_ARTIFACT),
             DIVISION_STABILITY_ARTIFACT.id: to_plain(DIVISION_STABILITY_ARTIFACT),
             FIRST_CHII_APPEARANCE_ARTIFACT.id: to_plain(FIRST_CHII_APPEARANCE_ARTIFACT),

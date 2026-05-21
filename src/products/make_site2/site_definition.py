@@ -97,6 +97,16 @@ PAGES = PageRegistry(
                 producer="sumo_history.career_lifecycle.rank_at_retirement",
             ),
         ),
+        "career_length": PageDefinition(
+            id="career_length",
+            title="Career Length",
+            summary="Observed rikishi career lengths from banzuke appearances.",
+            artifact=artifact(
+                "career_length",
+                "chart",
+                producer="sumo_history.career_lifecycle.career_length",
+            ),
+        ),
     }
 )
 

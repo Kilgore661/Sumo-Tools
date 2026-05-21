@@ -7,6 +7,7 @@ from src.products.make_site2.site_manifest import (
     BANZUKE_CHANGES_ARTIFACT,
     BANZUKE_DIVISION_BY_ERA_ARTIFACT,
     BASHO_RESULTS_ARTIFACT,
+    CAREER_LENGTH_ARTIFACT,
     DIVISION_STABILITY_ARTIFACT,
     FIRST_CHII_APPEARANCE_ARTIFACT,
     MAKUUCHI_RANK_BY_ERA_ARTIFACT,
@@ -66,6 +67,11 @@ def test_publication_plan_resolves_copied_navigation_routes() -> None:
         "career-lifecycle",
         "rank-at-retirement",
     )
+    assert plan.pages["career_length"].route.parts == (
+        "sumo-history",
+        "career-lifecycle",
+        "career-length",
+    )
 
 
 def test_navigation_bar_uses_resolved_hrefs_without_rendering_pages() -> None:
@@ -82,6 +88,9 @@ def test_navigation_bar_uses_resolved_hrefs_without_rendering_pages() -> None:
     )
     rank_at_retirement = next(
         item for item in career_lifecycle.children if item.id == "rank_at_retirement"
+    )
+    career_length = next(
+        item for item in career_lifecycle.children if item.id == "history_career_length"
     )
     current_sumo = next(
         item for item in shell.navigation_bar.navigation_tree if item.id == "current_sumo"
@@ -126,6 +135,10 @@ def test_navigation_bar_uses_resolved_hrefs_without_rendering_pages() -> None:
     assert rank_at_retirement.href == (
         "sumo-history/career-lifecycle/rank-at-retirement/index.html"
     )
+    assert career_length.included
+    assert career_length.href == (
+        "sumo-history/career-lifecycle/career-length/index.html"
+    )
     assert banzuke_changes.included
     assert banzuke_changes.href == "current-sumo/banzuke-changes/index.html"
     assert standings.included
@@ -167,6 +180,7 @@ def test_site_shell_is_rendered_from_ui_manifest() -> None:
     assert 'data-page-id="division_stability"' in html
     assert 'data-page-id="first_chii_appearance"' in html
     assert 'data-page-id="rank_at_retirement"' in html
+    assert 'data-page-id="career_length"' in html
     assert '<main class="site-main" aria-label="Page content">' in html
     assert "Basho Results" in html
     assert '<table class="brb-table">' not in html
@@ -376,6 +390,38 @@ def test_runtime_manifest_declares_rank_at_retirement_chart_semantics() -> None:
         "Jd",
         "Jk",
     ]
+
+
+def test_runtime_manifest_declares_career_length_as_flat_g1_view_selector() -> None:
+    manifest = build_runtime_manifest(build_publication_plan(SITE))
+    panel = content_panel_by_artifact(manifest, CAREER_LENGTH_ARTIFACT.id)
+    artifact = manifest["artifacts"]["career_length"]
+    filters = panel["contents"]["filter_section"]["filters"]
+
+    assert panel["grammar"] == "G1"
+    assert [item["id"] for item in filters] == ["view"]
+    assert [item["value"] for item in filters[0]["values"]] == [
+        "distribution",
+        "pmf",
+        "cdf",
+        "survival",
+        "longest",
+    ]
+    assert artifact["kind"] == "chart"
+    assert artifact["renderer"] == "career_length"
+    assert artifact["data_binding"] == {
+        "kind": "csv_set",
+        "sources": ["distribution", "pmf", "cdf", "survival", "longest"],
+    }
+    assert artifact["data_sources"][0]["path"] == (
+        "sumo-history/career-lifecycle/career-length/data/distribution.csv"
+    )
+    assert artifact["data_sources"][4]["path"] == (
+        "sumo-history/career-lifecycle/career-length/data/longest.csv"
+    )
+    assert artifact["provenance"]["views"]["distribution"]["kind"] == "stacked_bar"
+    assert artifact["provenance"]["views"]["longest"]["kind"] == "table"
+    assert artifact["provenance"]["views"]["longest"]["columns"][1]["id"] == "shikona"
 
 
 def test_brb_filter_defaults_and_url_keys_match_current_public_site() -> None:
