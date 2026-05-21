@@ -60,7 +60,9 @@ RawPageDefinition -> PlannedPageWithRoute (carrying Route, not Optional[Route])
 ## 5. Naming and Vocabulary Code of Conduct
 
 * **Domain over Implementation:** Names must reflect the domain model, not physical representation or incidental details (e.g., **AVOID:** `html_blob`, `thing`, `misc`, `data2`, `new_handler`).
+
 * **Case Conventions:** * Use **PascalCase** for user-defined types and classes (e.g., `SiteDefinition`, `PublicationPlan`).
+
 * Use **snake_case** and verbs/verb phrases for functions and variable (e.g., `derive_routes`, `render_site, x`).
 
 * **Controlled Vocabulary:** Once a term is rejected from the formal model, do not use it in the code or design documents. Use acronyms only when they are genuine domain terms, never to arbitrarily shorten names.
@@ -78,3 +80,37 @@ RawPageDefinition -> PlannedPageWithRoute (carrying Route, not Optional[Route])
 ## Summary Directive for Code Generation
 
 > Design top-down by contract. Trust your inputs. Eliminate defensive noise, let the language crash natively on internal logic errors, and handle only the explicit uncertainties admitted by the project requirements.
+
+
+
+# Results of conversation about LLM's environment
+
+Here is what I’ve learned about this working environment.
+
+`X:\Sumo-Tools` is the current usable Codex workspace. I can read/write there and Git works well enough for history, diffs, and normal repo archaeology.
+
+Mapped/cloud drives are not generally usable from this session. `A:` is the LAN/local web-root mapped drive and I cannot see it. `H:` is not visible. `G:` is your Google Drive, but this session gets access denied, even though Codex may be able to work there if launched with `G:` as the workspace.
+
+Your local/LAN deploy target lives on `A:` and is therefore not directly deployable by me in this session. Remote deploy is also not directly available because `MY_SFTP_PASS` is not present in my environment, and you supply the password manually.
+
+I can see environment variable names available to the Codex shell, but not your broader interactive shell environment. I should not assume secrets or mapped-drive credentials are available.
+
+The `node` on `PATH` is blocked with access denied, but bundled runtime Node works at:
+
+```text
+C:\Users\kilgo\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe
+```
+
+Python works from the workspace. For local static preview, the command is:
+
+```powershell
+python -m http.server <port> --directory <folder>
+```
+
+but the folder must actually contain `index.html`. The earlier `8787` 404 was because `files/output/make_site2` did not exist from `X:\Sumo-Tools`.
+
+There is a lingering Python server on port `8766`, started earlier, serving a working recent build. I can access it through the Codex in-app browser.
+
+For data/builds, sometimes the live store is not available; why is not clear because the user says it is running. The reliable Codex path is to build from a history zip, ideally the small one kept for speed.
+
+Also: binary files need care. `.gitattributes` currently normalizes `* text eol=lf`, and without binary exceptions it can corrupt files like `.pkl`. That explained the `full_shiks.pkl` weirdness.
