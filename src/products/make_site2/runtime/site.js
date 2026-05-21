@@ -257,6 +257,10 @@
       await renderGroupedLineChartContentPanel(panel, artifact);
       return;
     }
+    if (artifact.renderer === "ordered_bar_chart") {
+      await renderOrderedBarChartContentPanel(panel, artifact);
+      return;
+    }
     if (artifact.renderer === "finish_by_chii_chart") {
       await renderFinishByChiiContentPanel(panel, artifact, overrideState);
       return;
@@ -330,6 +334,23 @@
       '</section>'
     ].join("");
     renderGroupedLinePlot(artifact, rowsBySource);
+  }
+
+  async function renderOrderedBarChartContentPanel(panel, artifact) {
+    const rowsBySource = await fetchArtifactCsvSet(artifact);
+    contentPanel.innerHTML = [
+      '<section class="content-panel">',
+      `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
+      `<h3>${escapeHtml(panel.heading.summary)}</h3>`,
+      '<div class="content-body content-body-no-filters">',
+      '<div class="pa-slot">',
+      renderOrderedBarChart(artifact, rowsBySource),
+      '</div>',
+      '</div>',
+      renderNotes(artifact, {}),
+      '</section>'
+    ].join("");
+    renderOrderedBarPlot(artifact, rowsBySource);
   }
 
   async function fetchArtifactCsvSet(artifact) {
@@ -644,6 +665,35 @@
     ].join("");
   }
 
+  function renderOrderedBarChart(artifact, rowsBySource) {
+    const rows = chartRows(artifact, rowsBySource);
+    if (!rows.length) {
+      return `<p>No ${escapeHtml(artifact.heading)} data is available.</p>`;
+    }
+    return [
+      '<div class="artifact-title-block">',
+      `<h4>${escapeHtml(artifact.heading)}</h4>`,
+      '</div>',
+      `<div id="${escapeHtml(chartElementId(artifact))}" class="plotly-chart"></div>`,
+    ].join("");
+  }
+
+  function renderOrderedBarPlot(artifact, rowsBySource) {
+    const host = document.getElementById(chartElementId(artifact));
+    if (!host) return;
+    if (!window.Plotly) {
+      host.innerHTML = "<p>Plotly is not available.</p>";
+      return;
+    }
+    const trace = orderedBarTrace(artifact, rowsBySource);
+    Plotly.react(
+      host,
+      [trace],
+      orderedBarLayout(artifact, trace),
+      { responsive: true, displaylogo: false }
+    );
+  }
+
   function renderGroupedLinePlot(artifact, rowsBySource) {
     const host = document.getElementById(chartElementId(artifact));
     if (!host) return;
@@ -695,6 +745,12 @@
     return trace;
   }
 
+  function orderedBarTraceSpec(artifact) {
+    const trace = artifact.traces.find(candidate => candidate.kind === "bar");
+    if (!trace) throw new Error(`No bar trace for ${artifact.id}`);
+    return trace;
+  }
+
   function stackedBarTraces(artifact, rowsBySource) {
     const rows = stackedBarRows(artifact, rowsBySource);
     const trace = stackedBarTraceSpec(artifact);
@@ -736,6 +792,47 @@
         ),
       };
     });
+  }
+
+  function orderedBarTrace(artifact, rowsBySource) {
+    const rows = orderedRows(artifact, rowsBySource);
+    const trace = orderedBarTraceSpec(artifact);
+    const dateFields = artifact.provenance.date_fields || [];
+    return {
+      type: "bar",
+      x: rows.map(row => row[trace.x]),
+      y: rows.map(row => Number(row[trace.y])),
+      customdata: rows.map(row => [
+        row[artifact.provenance.order_field],
+        ...dateFields.map(field => row[field]),
+      ]),
+      hovertemplate: orderedBarHoverTemplate(trace, artifact),
+    };
+  }
+
+  function orderedRows(artifact, rowsBySource) {
+    const rows = chartRows(artifact, rowsBySource);
+    const orderField = artifact.provenance.order_field;
+    if (!orderField) return rows;
+    return [...rows].sort((left, right) => Number(left[orderField]) - Number(right[orderField]));
+  }
+
+  function orderedBarHoverTemplate(trace, artifact) {
+    const orderField = artifact.provenance.order_field;
+    const dateFields = artifact.provenance.date_fields || [];
+    const lines = [
+      `${escapeHtml(trace.x)}=%{x}`,
+    ];
+    if (orderField) {
+      lines.push(`${escapeHtml(orderField)}=%{customdata[0]}`);
+    }
+    if (dateFields.length === 2) {
+      lines.push(`${escapeHtml(trace.y)}=%{customdata[1]}/%{customdata[2]}`);
+    } else {
+      lines.push(`${escapeHtml(trace.y)}=%{y}`);
+    }
+    lines.push("<extra></extra>");
+    return lines.join("<br>");
   }
 
   function groupedLineHoverTemplate(trace, hoverFields) {
@@ -855,6 +952,74 @@
         color: "#ffffff",
       },
     };
+  }
+
+  function orderedBarLayout(artifact, trace) {
+    const maxY = Math.max(...trace.y, 0);
+    const yTicks = monthIndexTicks(maxY, artifact);
+    return {
+      autosize: true,
+      paper_bgcolor: "rgba(0,0,0,0)",
+      plot_bgcolor: "rgba(0,0,0,0)",
+      margin: { l: 90, r: 30, t: 18, b: 120 },
+      xaxis: {
+        title: artifact.x_axis.label,
+        type: "category",
+        categoryorder: "array",
+        categoryarray: trace.x,
+        tickvals: trace.x,
+        ticktext: sparseTickText(trace.x, artifact.provenance.max_x_tick_labels || trace.x.length),
+        tickangle: artifact.provenance.x_tickangle || 0,
+        automargin: true,
+        gridcolor: "rgba(127,149,192,0.18)",
+        zerolinecolor: "rgba(127,149,192,0.35)",
+        color: "#c9d4ee",
+      },
+      yaxis: {
+        title: artifact.y_axis.label,
+        range: [0, maxY],
+        tickmode: "array",
+        tickvals: yTicks.values,
+        ticktext: yTicks.labels,
+        automargin: true,
+        gridcolor: "rgba(127,149,192,0.22)",
+        zerolinecolor: "rgba(127,149,192,0.35)",
+        color: "#c9d4ee",
+      },
+      hovermode: "closest",
+      showlegend: false,
+      font: {
+        family: "Arial, Helvetica, sans-serif",
+        color: "#ffffff",
+      },
+    };
+  }
+
+  function sparseTickText(labels, maxLabels) {
+    const step = Math.max(1, Math.ceil(labels.length / maxLabels));
+    return labels.map((label, index) => index % step === 0 ? label : "");
+  }
+
+  function monthIndexTicks(maxMonthIndex, artifact) {
+    const tickVals = [];
+    const step = 24;
+    for (let value = 0; value <= maxMonthIndex; value += step) {
+      tickVals.push(value);
+    }
+    if (!tickVals.includes(maxMonthIndex)) {
+      tickVals.push(maxMonthIndex);
+    }
+    return {
+      values: tickVals,
+      labels: tickVals.map(value => monthIndexLabel(value, artifact)),
+    };
+  }
+
+  function monthIndexLabel(monthIndex, artifact) {
+    const totalMonths = artifact.provenance.base_month - 1 + monthIndex;
+    const year = artifact.provenance.base_year + Math.floor(totalMonths / 12);
+    const month = (totalMonths % 12) + 1;
+    return `${String(year).padStart(4, "0")}/${String(month).padStart(2, "0")}`;
   }
 
   function axisRange(axis) {

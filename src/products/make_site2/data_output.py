@@ -22,6 +22,12 @@ FINISH_BY_CHII_ROUTE_DATA_DIR = Path("performance") / "finish-by-chii" / "data"
 DIVISION_STABILITY_ROUTE_DATA_DIR = (
     Path("banzuke-rank") / "division-stability" / "data"
 )
+FIRST_CHII_APPEARANCE_ROUTE_DATA_DIR = (
+    Path("banzuke-rank")
+    / "rank-history"
+    / "first-chii-appearance"
+    / "data"
+)
 BANZUKE_DIVISION_BY_ERA_ROUTE_DATA_DIR = (
     Path("banzuke-rank")
     / "banzuke-structure-over-time"
@@ -38,6 +44,9 @@ BANZUKE_CHANGES_ROUTE_DIR = Path("current-sumo") / "banzuke-changes"
 BANZUKE_CHANGES_SOURCE_ROOT = Path("files") / "output" / "bcr"
 DIVISION_STABILITY_SOURCE_ROOT = (
     Path("files") / "output" / "persistence" / "site" / "division_stability"
+)
+FIRST_CHII_APPEARANCE_SOURCE_ROOT = (
+    Path("files") / "output" / "first_app" / "site" / "first_chii_appearance"
 )
 BANZUKE_DIVISION_BY_ERA_SOURCE_ROOT = (
     Path("files") / "output" / "banzuke_division_era" / "site" / "banzuke_division_by_era"
@@ -167,6 +176,21 @@ def copy_division_stability_data_output(
         route_data_dir=DIVISION_STABILITY_ROUTE_DATA_DIR,
         source_path=DIVISION_STABILITY_SOURCE_ROOT / "persistence.csv",
         target_name="persistence.csv",
+    )
+    return SingleCsvChartDataOutput(csv_path=csv_path)
+
+
+def copy_first_chii_appearance_data_output(
+    *,
+    output_root: Path,
+) -> SingleCsvChartDataOutput:
+    """Copy the First Chii Appearance CSV into the make_site2 output tree."""
+
+    csv_path = copy_single_csv_chart_data_output(
+        output_root=output_root,
+        route_data_dir=FIRST_CHII_APPEARANCE_ROUTE_DATA_DIR,
+        source_path=FIRST_CHII_APPEARANCE_SOURCE_ROOT / "appearances.csv",
+        target_name="appearances.csv",
     )
     return SingleCsvChartDataOutput(csv_path=csv_path)
 

@@ -824,11 +824,59 @@ DIVISION_STABILITY_ARTIFACT = ChartArtifact(
 )
 
 
+FIRST_CHII_APPEARANCE_ARTIFACT = ChartArtifact(
+    id="first_chii_appearance",
+    heading="First Chii Appearance",
+    kind="chart",
+    renderer="ordered_bar_chart",
+    data_binding=DataBinding(
+        kind="csv",
+        sources=("appearances",),
+    ),
+    data_sources=(
+        DataSource(
+            id="appearances",
+            label="First observed appearance",
+            path="banzuke-rank/rank-history/first-chii-appearance/data/appearances.csv",
+            media_type="text/csv",
+        ),
+    ),
+    traces=(
+        ChartTrace(
+            id="first_appearance",
+            label="First appearance",
+            kind="bar",
+            x="chii",
+            y="first_appearance_month_index",
+        ),
+    ),
+    x_axis=ChartAxis(
+        id="x",
+        source_field="chii",
+        label="Chii",
+    ),
+    y_axis=ChartAxis(
+        id="y",
+        source_field="first_appearance_month_index",
+        label="First appearance",
+    ),
+    provenance={
+        "order_field": "ordinal",
+        "x_tickangle": -45,
+        "max_x_tick_labels": 40,
+        "base_year": 1958,
+        "base_month": 1,
+        "date_fields": ("year", "month"),
+    },
+)
+
+
 def build_public_site_shell(plan: PublicationPlan) -> PublicSiteShell:
     banzuke_division_by_era_page = plan.pages["banzuke_division_by_era"].page
     banzuke_changes_page = plan.pages["banzuke_changes"].page
     brb_page = plan.pages["basho_results_browser"].page
     division_stability_page = plan.pages["division_stability"].page
+    first_chii_appearance_page = plan.pages["first_chii_appearance"].page
     finish_by_chii_page = plan.pages["finish_by_chii"].page
     makuuchi_rank_by_era_page = plan.pages["makuuchi_rank_by_era"].page
     standings_page = plan.pages["standings_by_wins"].page
@@ -908,6 +956,18 @@ def build_public_site_shell(plan: PublicationPlan) -> PublicSiteShell:
             ),
         ),
         ContentPanel(
+            page_id=first_chii_appearance_page.id,
+            heading=Heading(
+                title=first_chii_appearance_page.title,
+                summary=first_chii_appearance_page.summary,
+            ),
+            grammar="G1",
+            contents=G1Contents(
+                filter_section=FilterSection(filters=()),
+                pa=PA(artifact_id=FIRST_CHII_APPEARANCE_ARTIFACT.id),
+            ),
+        ),
+        ContentPanel(
             page_id=brb_page.id,
             heading=Heading(title=brb_page.title, summary=brb_page.summary),
             grammar="G1",
@@ -976,6 +1036,7 @@ def build_runtime_manifest(plan: PublicationPlan) -> dict[str, Any]:
             BASHO_RESULTS_ARTIFACT.id: to_plain(BASHO_RESULTS_ARTIFACT),
             FINISH_BY_CHII_ARTIFACT.id: to_plain(FINISH_BY_CHII_ARTIFACT),
             DIVISION_STABILITY_ARTIFACT.id: to_plain(DIVISION_STABILITY_ARTIFACT),
+            FIRST_CHII_APPEARANCE_ARTIFACT.id: to_plain(FIRST_CHII_APPEARANCE_ARTIFACT),
             MAKUUCHI_RANK_BY_ERA_ARTIFACT.id: to_plain(MAKUUCHI_RANK_BY_ERA_ARTIFACT),
             STANDINGS_BY_WINS_ARTIFACT.id: to_plain(STANDINGS_BY_WINS_ARTIFACT),
         },

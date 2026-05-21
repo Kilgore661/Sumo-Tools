@@ -8,6 +8,7 @@ from src.products.make_site2.site_manifest import (
     BANZUKE_DIVISION_BY_ERA_ARTIFACT,
     BASHO_RESULTS_ARTIFACT,
     DIVISION_STABILITY_ARTIFACT,
+    FIRST_CHII_APPEARANCE_ARTIFACT,
     MAKUUCHI_RANK_BY_ERA_ARTIFACT,
     STANDINGS_BY_WINS_ARTIFACT,
     build_public_site_shell,
@@ -54,6 +55,11 @@ def test_publication_plan_resolves_copied_navigation_routes() -> None:
         "banzuke-rank",
         "division-stability",
     )
+    assert plan.pages["first_chii_appearance"].route.parts == (
+        "banzuke-rank",
+        "rank-history",
+        "first-chii-appearance",
+    )
 
 
 def test_navigation_bar_uses_resolved_hrefs_without_rendering_pages() -> None:
@@ -95,6 +101,12 @@ def test_navigation_bar_uses_resolved_hrefs_without_rendering_pages() -> None:
     division_stability = next(
         item for item in banzuke_rank.children if item.id == "division_stability"
     )
+    rank_history = next(
+        item for item in banzuke_rank.children if item.id == "rank_history"
+    )
+    first_chii_appearance = next(
+        item for item in rank_history.children if item.id == "first_chii_appearance"
+    )
 
     assert basho_results.included
     assert basho_results.href == "sumo-history/basho-results/index.html"
@@ -114,6 +126,10 @@ def test_navigation_bar_uses_resolved_hrefs_without_rendering_pages() -> None:
     )
     assert division_stability.included
     assert division_stability.href == "banzuke-rank/division-stability/index.html"
+    assert first_chii_appearance.included
+    assert first_chii_appearance.href == (
+        "banzuke-rank/rank-history/first-chii-appearance/index.html"
+    )
     assert artifact_refs(plan)["basho_results_browser"].kind == "table"
 
 
@@ -133,6 +149,7 @@ def test_site_shell_is_rendered_from_ui_manifest() -> None:
     assert 'data-page-id="banzuke_division_by_era"' in html
     assert 'data-page-id="makuuchi_rank_by_era"' in html
     assert 'data-page-id="division_stability"' in html
+    assert 'data-page-id="first_chii_appearance"' in html
     assert '<main class="site-main" aria-label="Page content">' in html
     assert "Basho Results" in html
     assert '<table class="brb-table">' not in html
@@ -290,6 +307,27 @@ def test_runtime_manifest_declares_division_stability_chart_semantics() -> None:
     assert artifact["traces"][0]["group_by"] == "division"
     assert artifact["y_axis"]["maximum"] == 1
     assert artifact["y_axis"]["tickformat"] == ".0%"
+
+
+def test_runtime_manifest_declares_first_chii_appearance_chart_semantics() -> None:
+    manifest = build_runtime_manifest(build_publication_plan(SITE))
+    panel = content_panel_by_artifact(manifest, FIRST_CHII_APPEARANCE_ARTIFACT.id)
+    artifact = manifest["artifacts"]["first_chii_appearance"]
+
+    assert panel["grammar"] == "G1"
+    assert panel["contents"]["filter_section"]["filters"] == []
+    assert artifact["kind"] == "chart"
+    assert artifact["renderer"] == "ordered_bar_chart"
+    assert artifact["data_binding"] == {"kind": "csv", "sources": ["appearances"]}
+    assert artifact["data_sources"][0]["path"] == (
+        "banzuke-rank/rank-history/first-chii-appearance/data/appearances.csv"
+    )
+    assert artifact["traces"][0]["kind"] == "bar"
+    assert artifact["traces"][0]["x"] == "chii"
+    assert artifact["traces"][0]["y"] == "first_appearance_month_index"
+    assert artifact["provenance"]["order_field"] == "ordinal"
+    assert artifact["provenance"]["base_year"] == 1958
+    assert artifact["provenance"]["base_month"] == 1
 
 
 def test_brb_filter_defaults_and_url_keys_match_current_public_site() -> None:

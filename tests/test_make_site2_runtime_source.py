@@ -50,3 +50,15 @@ def test_grouped_line_chart_renderer_uses_model_trace_fields() -> None:
     assert "trace.x" in source
     assert "trace.y" in source
     assert "artifact.provenance.default_visible" in source
+
+
+def test_ordered_bar_chart_renderer_uses_model_trace_fields() -> None:
+    source = RUNTIME_SOURCE.read_text(encoding="utf-8")
+
+    assert "function renderOrderedBarChartContentPanel(panel, artifact)" in source
+    assert "function orderedBarTraceSpec(artifact)" in source
+    assert "candidate.kind === \"bar\"" in source
+    assert "trace.x" in source
+    assert "trace.y" in source
+    assert "artifact.provenance.order_field" in source
+    assert "artifact.provenance.base_year" in source

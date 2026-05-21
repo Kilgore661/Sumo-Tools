@@ -15,6 +15,7 @@ from .data_output import (
     copy_banzuke_changes_data_output,
     copy_banzuke_division_by_era_data_output,
     copy_division_stability_data_output,
+    copy_first_chii_appearance_data_output,
     copy_finish_by_chii_data_output,
     copy_makuuchi_rank_by_era_data_output,
     copy_standings_by_wins_data_output,
@@ -74,6 +75,7 @@ def build_site(
     copy_banzuke_division_by_era_data_output(output_root=output_root)
     copy_makuuchi_rank_by_era_data_output(output_root=output_root)
     copy_division_stability_data_output(output_root=output_root)
+    copy_first_chii_appearance_data_output(output_root=output_root)
     plan = build_publication_plan(SITE)
     (output_root / "index.html").write_text(
         render_site_shell(
