@@ -519,6 +519,32 @@ introduce core model skeleton
 add first G1 page slice
 ```
 
+Git enforces some commit message shape and encourages a short first line. That
+is fine.
+
+A normal commit message should also explain the work in this order:
+
+```text
+Short imperative-ish subject
+
+Purpose: ...
+
+What changed: ...
+
+Verification: ...
+
+Next: ...
+```
+
+The exact amount of detail may vary with the size of the change, but the
+message should usually record why the change exists, what changed, how it was
+checked, and what the next intended step is.
+
+It is easy for the human to forget the `Next:` section. When an LLM is helping
+and the human says or implies that a commit should be made, it is the LLM's
+responsibility to make sure the next step is known and included in the commit
+message.
+
 Before a risky change, make a branch.
 
 Before moving many files, commit the clean state or branch first.
