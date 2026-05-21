@@ -7,6 +7,7 @@ from src.products.make_site2.site_manifest import (
     BANZUKE_CHANGES_ARTIFACT,
     BANZUKE_DIVISION_BY_ERA_ARTIFACT,
     BASHO_RESULTS_ARTIFACT,
+    DIVISION_STABILITY_ARTIFACT,
     MAKUUCHI_RANK_BY_ERA_ARTIFACT,
     STANDINGS_BY_WINS_ARTIFACT,
     build_public_site_shell,
@@ -49,6 +50,10 @@ def test_publication_plan_resolves_copied_navigation_routes() -> None:
         "banzuke-structure-over-time",
         "makuuchi-rank-by-era",
     )
+    assert plan.pages["division_stability"].route.parts == (
+        "banzuke-rank",
+        "division-stability",
+    )
 
 
 def test_navigation_bar_uses_resolved_hrefs_without_rendering_pages() -> None:
@@ -87,6 +92,9 @@ def test_navigation_bar_uses_resolved_hrefs_without_rendering_pages() -> None:
         for item in banzuke_structure.children
         if item.id == "makuuchi_rank_by_era"
     )
+    division_stability = next(
+        item for item in banzuke_rank.children if item.id == "division_stability"
+    )
 
     assert basho_results.included
     assert basho_results.href == "sumo-history/basho-results/index.html"
@@ -104,6 +112,8 @@ def test_navigation_bar_uses_resolved_hrefs_without_rendering_pages() -> None:
         "banzuke-rank/banzuke-structure-over-time/"
         "makuuchi-rank-by-era/index.html"
     )
+    assert division_stability.included
+    assert division_stability.href == "banzuke-rank/division-stability/index.html"
     assert artifact_refs(plan)["basho_results_browser"].kind == "table"
 
 
@@ -122,6 +132,7 @@ def test_site_shell_is_rendered_from_ui_manifest() -> None:
     assert 'data-page-id="standings_by_wins"' in html
     assert 'data-page-id="banzuke_division_by_era"' in html
     assert 'data-page-id="makuuchi_rank_by_era"' in html
+    assert 'data-page-id="division_stability"' in html
     assert '<main class="site-main" aria-label="Page content">' in html
     assert "Basho Results" in html
     assert '<table class="brb-table">' not in html
@@ -258,6 +269,27 @@ def test_runtime_manifest_declares_makuuchi_rank_era_chart_semantics() -> None:
     assert artifact["traces"][0]["x"] == "rank"
     assert artifact["traces"][0]["y"] == "count"
     assert artifact["traces"][0]["group_by"] == "era"
+
+
+def test_runtime_manifest_declares_division_stability_chart_semantics() -> None:
+    manifest = build_runtime_manifest(build_publication_plan(SITE))
+    panel = content_panel_by_artifact(manifest, DIVISION_STABILITY_ARTIFACT.id)
+    artifact = manifest["artifacts"]["division_stability"]
+
+    assert panel["grammar"] == "G1"
+    assert panel["contents"]["filter_section"]["filters"] == []
+    assert artifact["kind"] == "chart"
+    assert artifact["renderer"] == "grouped_line_chart"
+    assert artifact["data_binding"] == {"kind": "csv", "sources": ["persistence"]}
+    assert artifact["data_sources"][0]["path"] == (
+        "banzuke-rank/division-stability/data/persistence.csv"
+    )
+    assert artifact["traces"][0]["kind"] == "scatter"
+    assert artifact["traces"][0]["x"] == "date"
+    assert artifact["traces"][0]["y"] == "mean_persistence"
+    assert artifact["traces"][0]["group_by"] == "division"
+    assert artifact["y_axis"]["maximum"] == 1
+    assert artifact["y_axis"]["tickformat"] == ".0%"
 
 
 def test_brb_filter_defaults_and_url_keys_match_current_public_site() -> None:

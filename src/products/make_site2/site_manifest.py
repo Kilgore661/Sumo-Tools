@@ -767,10 +767,68 @@ MAKUUCHI_RANK_BY_ERA_ARTIFACT = ChartArtifact(
 )
 
 
+DIVISION_STABILITY_ARTIFACT = ChartArtifact(
+    id="division_stability",
+    heading="Division Stability",
+    kind="chart",
+    renderer="grouped_line_chart",
+    data_binding=DataBinding(
+        kind="csv",
+        sources=("persistence",),
+    ),
+    data_sources=(
+        DataSource(
+            id="persistence",
+            label="Division persistence",
+            path="banzuke-rank/division-stability/data/persistence.csv",
+            media_type="text/csv",
+        ),
+    ),
+    traces=(
+        ChartTrace(
+            id="mean_persistence",
+            label="Mean persistence",
+            kind="scatter",
+            x="date",
+            y="mean_persistence",
+            group_by="division",
+        ),
+    ),
+    x_axis=ChartAxis(
+        id="x",
+        source_field="date",
+        label="Basho",
+    ),
+    y_axis=ChartAxis(
+        id="y",
+        source_field="mean_persistence",
+        label="Mean persistence",
+        minimum=0,
+        maximum=1,
+        tickformat=".0%",
+    ),
+    provenance={
+        "legend_title": "Division",
+        "default_visible": ("Makuuchi",),
+        "group_order": (
+            "Makuuchi",
+            "Juryo",
+            "Makushita",
+            "Sandanme",
+            "Jonidan",
+            "Jonokuchi",
+        ),
+        "hover_fields": ("num_basho", "frequency", "stdev_persistence"),
+        "x_tickangle": -45,
+    },
+)
+
+
 def build_public_site_shell(plan: PublicationPlan) -> PublicSiteShell:
     banzuke_division_by_era_page = plan.pages["banzuke_division_by_era"].page
     banzuke_changes_page = plan.pages["banzuke_changes"].page
     brb_page = plan.pages["basho_results_browser"].page
+    division_stability_page = plan.pages["division_stability"].page
     finish_by_chii_page = plan.pages["finish_by_chii"].page
     makuuchi_rank_by_era_page = plan.pages["makuuchi_rank_by_era"].page
     standings_page = plan.pages["standings_by_wins"].page
@@ -835,6 +893,18 @@ def build_public_site_shell(plan: PublicationPlan) -> PublicSiteShell:
             contents=G1Contents(
                 filter_section=FilterSection(filters=()),
                 pa=PA(artifact_id=MAKUUCHI_RANK_BY_ERA_ARTIFACT.id),
+            ),
+        ),
+        ContentPanel(
+            page_id=division_stability_page.id,
+            heading=Heading(
+                title=division_stability_page.title,
+                summary=division_stability_page.summary,
+            ),
+            grammar="G1",
+            contents=G1Contents(
+                filter_section=FilterSection(filters=()),
+                pa=PA(artifact_id=DIVISION_STABILITY_ARTIFACT.id),
             ),
         ),
         ContentPanel(
@@ -905,6 +975,7 @@ def build_runtime_manifest(plan: PublicationPlan) -> dict[str, Any]:
             ),
             BASHO_RESULTS_ARTIFACT.id: to_plain(BASHO_RESULTS_ARTIFACT),
             FINISH_BY_CHII_ARTIFACT.id: to_plain(FINISH_BY_CHII_ARTIFACT),
+            DIVISION_STABILITY_ARTIFACT.id: to_plain(DIVISION_STABILITY_ARTIFACT),
             MAKUUCHI_RANK_BY_ERA_ARTIFACT.id: to_plain(MAKUUCHI_RANK_BY_ERA_ARTIFACT),
             STANDINGS_BY_WINS_ARTIFACT.id: to_plain(STANDINGS_BY_WINS_ARTIFACT),
         },

@@ -38,3 +38,15 @@ def test_stacked_bar_chart_renderer_uses_model_trace_fields() -> None:
     assert "trace.x" in source
     assert "trace.y" in source
     assert "artifact.provenance.stack_order" in source
+
+
+def test_grouped_line_chart_renderer_uses_model_trace_fields() -> None:
+    source = RUNTIME_SOURCE.read_text(encoding="utf-8")
+
+    assert "function renderGroupedLineChartContentPanel(panel, artifact)" in source
+    assert "function groupedLineTraceSpec(artifact)" in source
+    assert "candidate.kind === \"scatter\"" in source
+    assert "trace.group_by" in source
+    assert "trace.x" in source
+    assert "trace.y" in source
+    assert "artifact.provenance.default_visible" in source

@@ -50,6 +50,8 @@ class ChartAxis:
     label: str
     order_values: tuple[str, ...] = ()
     minimum: float | None = None
+    maximum: float | None = None
+    tickformat: str | None = None
 
 
 @dataclass(frozen=True, kw_only=True)

@@ -19,6 +19,9 @@ from src.sumo_core.History import History
 
 BASHO_RESULTS_ROUTE_DATA_DIR = Path("sumo-history") / "basho-results" / "data"
 FINISH_BY_CHII_ROUTE_DATA_DIR = Path("performance") / "finish-by-chii" / "data"
+DIVISION_STABILITY_ROUTE_DATA_DIR = (
+    Path("banzuke-rank") / "division-stability" / "data"
+)
 BANZUKE_DIVISION_BY_ERA_ROUTE_DATA_DIR = (
     Path("banzuke-rank")
     / "banzuke-structure-over-time"
@@ -33,6 +36,9 @@ MAKUUCHI_RANK_BY_ERA_ROUTE_DATA_DIR = (
 )
 BANZUKE_CHANGES_ROUTE_DIR = Path("current-sumo") / "banzuke-changes"
 BANZUKE_CHANGES_SOURCE_ROOT = Path("files") / "output" / "bcr"
+DIVISION_STABILITY_SOURCE_ROOT = (
+    Path("files") / "output" / "persistence" / "site" / "division_stability"
+)
 BANZUKE_DIVISION_BY_ERA_SOURCE_ROOT = (
     Path("files") / "output" / "banzuke_division_era" / "site" / "banzuke_division_by_era"
 )
@@ -148,6 +154,21 @@ def copy_finish_by_chii_data_output(*, output_root: Path) -> FinishByChiiDataOut
         top_thresholds_path=top_thresholds_path,
         bottom_thresholds_path=bottom_thresholds_path,
     )
+
+
+def copy_division_stability_data_output(
+    *,
+    output_root: Path,
+) -> SingleCsvChartDataOutput:
+    """Copy the Division Stability CSV into the make_site2 output tree."""
+
+    csv_path = copy_single_csv_chart_data_output(
+        output_root=output_root,
+        route_data_dir=DIVISION_STABILITY_ROUTE_DATA_DIR,
+        source_path=DIVISION_STABILITY_SOURCE_ROOT / "persistence.csv",
+        target_name="persistence.csv",
+    )
+    return SingleCsvChartDataOutput(csv_path=csv_path)
 
 
 def copy_banzuke_division_by_era_data_output(

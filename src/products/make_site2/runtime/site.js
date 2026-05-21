@@ -253,6 +253,10 @@
       await renderStackedBarChartContentPanel(panel, artifact);
       return;
     }
+    if (artifact.renderer === "grouped_line_chart") {
+      await renderGroupedLineChartContentPanel(panel, artifact);
+      return;
+    }
     if (artifact.renderer === "finish_by_chii_chart") {
       await renderFinishByChiiContentPanel(panel, artifact, overrideState);
       return;
@@ -300,7 +304,7 @@
       '<section class="content-panel">',
       `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
       `<h3>${escapeHtml(panel.heading.summary)}</h3>`,
-      '<div class="content-body">',
+      '<div class="content-body content-body-no-filters">',
       '<div class="pa-slot">',
       renderStackedBarChart(artifact, rowsBySource),
       '</div>',
@@ -309,6 +313,23 @@
       '</section>'
     ].join("");
     renderStackedBarPlot(artifact, rowsBySource);
+  }
+
+  async function renderGroupedLineChartContentPanel(panel, artifact) {
+    const rowsBySource = await fetchArtifactCsvSet(artifact);
+    contentPanel.innerHTML = [
+      '<section class="content-panel">',
+      `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
+      `<h3>${escapeHtml(panel.heading.summary)}</h3>`,
+      '<div class="content-body content-body-no-filters">',
+      '<div class="pa-slot">',
+      renderGroupedLineChart(artifact, rowsBySource),
+      '</div>',
+      '</div>',
+      renderNotes(artifact, {}),
+      '</section>'
+    ].join("");
+    renderGroupedLinePlot(artifact, rowsBySource);
   }
 
   async function fetchArtifactCsvSet(artifact) {
@@ -610,6 +631,34 @@
     ].join("");
   }
 
+  function renderGroupedLineChart(artifact, rowsBySource) {
+    const rows = chartRows(artifact, rowsBySource);
+    if (!rows.length) {
+      return `<p>No ${escapeHtml(artifact.heading)} data is available.</p>`;
+    }
+    return [
+      '<div class="artifact-title-block">',
+      `<h4>${escapeHtml(artifact.heading)}</h4>`,
+      '</div>',
+      `<div id="${escapeHtml(chartElementId(artifact))}" class="plotly-chart"></div>`,
+    ].join("");
+  }
+
+  function renderGroupedLinePlot(artifact, rowsBySource) {
+    const host = document.getElementById(chartElementId(artifact));
+    if (!host) return;
+    if (!window.Plotly) {
+      host.innerHTML = "<p>Plotly is not available.</p>";
+      return;
+    }
+    Plotly.react(
+      host,
+      groupedLineTraces(artifact, rowsBySource),
+      groupedChartLayout(artifact, rowsBySource),
+      { responsive: true, displaylogo: false }
+    );
+  }
+
   function renderStackedBarPlot(artifact, rowsBySource) {
     const host = document.getElementById(chartElementId(artifact));
     if (!host) return;
@@ -626,6 +675,10 @@
   }
 
   function stackedBarRows(artifact, rowsBySource) {
+    return chartRows(artifact, rowsBySource);
+  }
+
+  function chartRows(artifact, rowsBySource) {
     const sourceId = artifact.data_binding.sources[0];
     return rowsBySource[sourceId] || [];
   }
@@ -633,6 +686,12 @@
   function stackedBarTraceSpec(artifact) {
     const trace = artifact.traces.find(candidate => candidate.kind === "stacked_bar");
     if (!trace) throw new Error(`No stacked_bar trace for ${artifact.id}`);
+    return trace;
+  }
+
+  function groupedLineTraceSpec(artifact) {
+    const trace = artifact.traces.find(candidate => candidate.kind === "scatter");
+    if (!trace) throw new Error(`No scatter trace for ${artifact.id}`);
     return trace;
   }
 
@@ -657,8 +716,46 @@
     });
   }
 
+  function groupedLineTraces(artifact, rowsBySource) {
+    const rows = chartRows(artifact, rowsBySource);
+    const trace = groupedLineTraceSpec(artifact);
+    const groups = chartGroupOrder(artifact, rows, trace);
+    const defaultVisible = artifact.provenance.default_visible || [];
+    return groups.map(group => {
+      const groupRows = rows.filter(row => row[trace.group_by] === group);
+      return {
+        type: "scatter",
+        mode: "lines",
+        name: group,
+        x: groupRows.map(row => row[trace.x]),
+        y: groupRows.map(row => Number(row[trace.y])),
+        visible: defaultVisible.length && !defaultVisible.includes(group) ? "legendonly" : true,
+        hovertemplate: groupedLineHoverTemplate(trace, artifact.provenance.hover_fields || []),
+        customdata: groupRows.map(row =>
+          (artifact.provenance.hover_fields || []).map(field => row[field])
+        ),
+      };
+    });
+  }
+
+  function groupedLineHoverTemplate(trace, hoverFields) {
+    return [
+      `${escapeHtml(trace.group_by)}=%{fullData.name}`,
+      `${escapeHtml(trace.x)}=%{x}`,
+      `${escapeHtml(trace.y)}=%{y:.3f}`,
+      ...hoverFields.map((field, index) => `${escapeHtml(field)}=%{customdata[${index}]}`),
+      "<extra></extra>",
+    ].join("<br>");
+  }
+
   function stackedBarGroupOrder(artifact, rows, trace) {
     const order = artifact.provenance.stack_order || artifact.provenance.group_order || [];
+    if (order.length) return order;
+    return [...new Set(rows.map(row => row[trace.group_by]))];
+  }
+
+  function chartGroupOrder(artifact, rows, trace) {
+    const order = artifact.provenance.group_order || [];
     if (order.length) return order;
     return [...new Set(rows.map(row => row[trace.group_by]))];
   }
@@ -689,6 +786,8 @@
       yaxis: {
         title: artifact.y_axis.label,
         rangemode: artifact.y_axis.minimum === 0 ? "tozero" : "normal",
+        range: axisRange(artifact.y_axis),
+        tickformat: artifact.y_axis.tickformat || undefined,
         automargin: true,
         gridcolor: "rgba(127,149,192,0.22)",
         zerolinecolor: "rgba(127,149,192,0.35)",
@@ -708,6 +807,59 @@
         color: "#ffffff",
       },
     };
+  }
+
+  function groupedChartLayout(artifact, rowsBySource) {
+    const rows = chartRows(artifact, rowsBySource);
+    const trace = groupedLineTraceSpec(artifact);
+    const xValues = artifact.x_axis.order_values.length
+      ? artifact.x_axis.order_values
+      : [...new Set(rows.map(row => row[trace.x]))];
+    return {
+      autosize: true,
+      paper_bgcolor: "rgba(0,0,0,0)",
+      plot_bgcolor: "rgba(0,0,0,0)",
+      margin: { l: 76, r: 150, t: 18, b: 90 },
+      xaxis: {
+        title: artifact.x_axis.label,
+        type: "category",
+        categoryorder: "array",
+        categoryarray: xValues,
+        tickangle: artifact.provenance.x_tickangle || 0,
+        automargin: true,
+        gridcolor: "rgba(127,149,192,0.18)",
+        zerolinecolor: "rgba(127,149,192,0.35)",
+        color: "#c9d4ee",
+      },
+      yaxis: {
+        title: artifact.y_axis.label,
+        rangemode: artifact.y_axis.minimum === 0 ? "tozero" : "normal",
+        range: axisRange(artifact.y_axis),
+        tickformat: artifact.y_axis.tickformat || undefined,
+        automargin: true,
+        gridcolor: "rgba(127,149,192,0.22)",
+        zerolinecolor: "rgba(127,149,192,0.35)",
+        color: "#c9d4ee",
+      },
+      hovermode: "closest",
+      legend: {
+        title: { text: artifact.provenance.legend_title || "" },
+        orientation: "v",
+        yanchor: "top",
+        y: 1,
+        xanchor: "left",
+        x: 1.02,
+      },
+      font: {
+        family: "Arial, Helvetica, sans-serif",
+        color: "#ffffff",
+      },
+    };
+  }
+
+  function axisRange(axis) {
+    if (axis.minimum === null || axis.maximum === null) return undefined;
+    return [axis.minimum, axis.maximum];
   }
 
   function chartElementId(artifact) {
