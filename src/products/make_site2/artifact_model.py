@@ -7,7 +7,13 @@ from typing import Any
 from typing import Literal
 
 
-ArtifactKind = Literal["indexed_table", "chart", "banzuke_changes", "standings"]
+ArtifactKind = Literal[
+    "indexed_table",
+    "sectioned_table",
+    "chart",
+    "banzuke_changes",
+    "standings",
+]
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -77,6 +83,15 @@ class TableColumn:
 
 
 @dataclass(frozen=True, kw_only=True)
+class TableSection:
+    id: str
+    heading: str
+    source_field: str
+    source_value: str
+    order_by: str
+
+
+@dataclass(frozen=True, kw_only=True)
 class Note:
     id: str
     applies_to: tuple[str, ...]
@@ -95,6 +110,19 @@ class IndexedTableArtifact:
     columns: tuple[TableColumn, ...]
     default_sort_column: str
     default_sort_descending: bool = False
+    notes: tuple[Note, ...] = ()
+
+
+@dataclass(frozen=True, kw_only=True)
+class SectionedTableArtifact:
+    id: str
+    heading: str
+    kind: ArtifactKind
+    renderer: str
+    primary_source: str
+    data_sources: tuple[DataSource, ...]
+    sections: tuple[TableSection, ...]
+    columns: tuple[TableColumn, ...]
     notes: tuple[Note, ...] = ()
 
 

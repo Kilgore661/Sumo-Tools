@@ -184,7 +184,12 @@ NAVIGATION = NavigationTree(
                 "rating_and_rank",
                 "Rating and Rank",
                 "rating-and-rank",
-                nav("typical_equelo_values", "Typical Equelo Ratings", "typical-equelo-values"),
+                nav(
+                    "typical_equelo_values",
+                    "Typical Equelo Ratings",
+                    "typical-equelo-values",
+                    page_id="typical_equelo_values",
+                ),
                 nav("rating_vs_chii", "Rating vs chii", "rating-vs-chii"),
                 nav("mean_rating_by_chii", "Mean rating by chii", "mean-rating-by-chii"),
                 nav("expected_wins_by_chii", "Expected wins by chii", "expected-wins-by-chii"),

@@ -82,3 +82,13 @@ def test_career_length_renderer_uses_flat_view_filter() -> None:
     assert "function careerLengthView(artifact, selectedView)" in source
     assert "rowsBySource[state.view]" in source
     assert "view.kind === \"table\"" in source
+
+
+def test_sectioned_table_renderer_uses_model_sections() -> None:
+    source = RUNTIME_SOURCE.read_text(encoding="utf-8")
+
+    assert "function renderSectionedTableContentPanel(panel, artifact)" in source
+    assert "function renderSectionedTable(artifact, rows)" in source
+    assert "function renderTableSection(section, rows, columns)" in source
+    assert "section.source_field" in source
+    assert "section.order_by" in source

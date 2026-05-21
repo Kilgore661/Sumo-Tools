@@ -17,8 +17,10 @@ from .artifact_model import (
     IndexedTableArtifact,
     Note,
     SelectedTableDataSource,
+    SectionedTableArtifact,
     StandingsArtifact,
     TableColumn,
+    TableSection,
 )
 from .publication_model import NavigationItem, PublicationPlan
 from .ui_model import (
@@ -1091,6 +1093,85 @@ CAREER_LENGTH_ARTIFACT = ChartArtifact(
 )
 
 
+TYPICAL_EQUELO_VALUES_ARTIFACT = SectionedTableArtifact(
+    id="typical_equelo_values",
+    heading="Typical Equelo Ratings",
+    kind="sectioned_table",
+    renderer="sectioned_table",
+    primary_source="typical_equelo_values",
+    data_sources=(
+        DataSource(
+            id="typical_equelo_values",
+            label="Typical Equelo Ratings",
+            path=(
+                "ratings-models/rating-and-rank/"
+                "typical-equelo-values/data/typical_equelo_values.csv"
+            ),
+            media_type="text/csv",
+        ),
+    ),
+    sections=(
+        TableSection(
+            id="sanyaku",
+            heading="Sanyaku",
+            source_field="table",
+            source_value="Sanyaku",
+            order_by="row_order",
+        ),
+        TableSection(
+            id="maegashira",
+            heading="Maegashira",
+            source_field="table",
+            source_value="Maegashira",
+            order_by="row_order",
+        ),
+        TableSection(
+            id="other",
+            heading="Other",
+            source_field="table",
+            source_value="Other",
+            order_by="row_order",
+        ),
+    ),
+    columns=(
+        TableColumn(
+            id="label",
+            heading="Rank",
+            source_field="label",
+            sort_kind="none",
+            align="left",
+        ),
+        TableColumn(
+            id="rating",
+            heading="Equelo",
+            source_field="rating",
+            sort_kind="numeric",
+            align="right",
+        ),
+    ),
+    notes=(
+        Note(
+            id="typical_equelo_values",
+            applies_to=("all",),
+            text=(
+                "Equelo Ratings are typical rating landmarks, not promises "
+                "about every rikishi at a rank. Sideless labels such as M3 use "
+                "the average of the east and west rank slots."
+            ),
+        ),
+        Note(
+            id="jd100",
+            applies_to=("all",),
+            text=(
+                "Below Jd100 the support is low and Jonokuchi has too much "
+                "churn for Elo-like ratings such as Equelo to produce stable "
+                "public landmarks."
+            ),
+        ),
+    ),
+)
+
+
 def build_public_site_shell(plan: PublicationPlan) -> PublicSiteShell:
     banzuke_division_by_era_page = plan.pages["banzuke_division_by_era"].page
     banzuke_changes_page = plan.pages["banzuke_changes"].page
@@ -1102,6 +1183,7 @@ def build_public_site_shell(plan: PublicationPlan) -> PublicSiteShell:
     makuuchi_rank_by_era_page = plan.pages["makuuchi_rank_by_era"].page
     rank_at_retirement_page = plan.pages["rank_at_retirement"].page
     standings_page = plan.pages["standings_by_wins"].page
+    typical_equelo_values_page = plan.pages["typical_equelo_values"].page
     content_panels = (
         ContentPanel(
             page_id=banzuke_changes_page.id,
@@ -1225,6 +1307,19 @@ def build_public_site_shell(plan: PublicationPlan) -> PublicSiteShell:
                 note_ids=tuple(note.id for note in CAREER_LENGTH_ARTIFACT.notes),
             ),
         ),
+        ContentPanel(
+            page_id=typical_equelo_values_page.id,
+            heading=Heading(
+                title=typical_equelo_values_page.title,
+                summary=typical_equelo_values_page.summary,
+            ),
+            grammar="G1",
+            contents=G1Contents(
+                filter_section=FilterSection(filters=()),
+                pa=PA(artifact_id=TYPICAL_EQUELO_VALUES_ARTIFACT.id),
+                note_ids=tuple(note.id for note in TYPICAL_EQUELO_VALUES_ARTIFACT.notes),
+            ),
+        ),
     )
     renderable_page_ids = frozenset(panel.page_id for panel in content_panels)
     return PublicSiteShell(
@@ -1289,6 +1384,9 @@ def build_runtime_manifest(plan: PublicationPlan) -> dict[str, Any]:
             MAKUUCHI_RANK_BY_ERA_ARTIFACT.id: to_plain(MAKUUCHI_RANK_BY_ERA_ARTIFACT),
             RANK_AT_RETIREMENT_ARTIFACT.id: to_plain(RANK_AT_RETIREMENT_ARTIFACT),
             STANDINGS_BY_WINS_ARTIFACT.id: to_plain(STANDINGS_BY_WINS_ARTIFACT),
+            TYPICAL_EQUELO_VALUES_ARTIFACT.id: to_plain(
+                TYPICAL_EQUELO_VALUES_ARTIFACT
+            ),
         },
     }
 

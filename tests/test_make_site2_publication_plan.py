@@ -13,6 +13,7 @@ from src.products.make_site2.site_manifest import (
     MAKUUCHI_RANK_BY_ERA_ARTIFACT,
     RANK_AT_RETIREMENT_ARTIFACT,
     STANDINGS_BY_WINS_ARTIFACT,
+    TYPICAL_EQUELO_VALUES_ARTIFACT,
     build_public_site_shell,
     build_runtime_manifest,
 )
@@ -72,6 +73,11 @@ def test_publication_plan_resolves_copied_navigation_routes() -> None:
         "career-lifecycle",
         "career-length",
     )
+    assert plan.pages["typical_equelo_values"].route.parts == (
+        "ratings-models",
+        "rating-and-rank",
+        "typical-equelo-values",
+    )
 
 
 def test_navigation_bar_uses_resolved_hrefs_without_rendering_pages() -> None:
@@ -128,6 +134,15 @@ def test_navigation_bar_uses_resolved_hrefs_without_rendering_pages() -> None:
     first_chii_appearance = next(
         item for item in rank_history.children if item.id == "first_chii_appearance"
     )
+    ratings_models = next(
+        item for item in shell.navigation_bar.navigation_tree if item.id == "ratings_models"
+    )
+    rating_and_rank = next(
+        item for item in ratings_models.children if item.id == "rating_and_rank"
+    )
+    typical_equelo_values = next(
+        item for item in rating_and_rank.children if item.id == "typical_equelo_values"
+    )
 
     assert basho_results.included
     assert basho_results.href == "sumo-history/basho-results/index.html"
@@ -159,6 +174,10 @@ def test_navigation_bar_uses_resolved_hrefs_without_rendering_pages() -> None:
     assert first_chii_appearance.href == (
         "banzuke-rank/rank-history/first-chii-appearance/index.html"
     )
+    assert typical_equelo_values.included
+    assert typical_equelo_values.href == (
+        "ratings-models/rating-and-rank/typical-equelo-values/index.html"
+    )
     assert artifact_refs(plan)["basho_results_browser"].kind == "table"
 
 
@@ -181,6 +200,7 @@ def test_site_shell_is_rendered_from_ui_manifest() -> None:
     assert 'data-page-id="first_chii_appearance"' in html
     assert 'data-page-id="rank_at_retirement"' in html
     assert 'data-page-id="career_length"' in html
+    assert 'data-page-id="typical_equelo_values"' in html
     assert '<main class="site-main" aria-label="Page content">' in html
     assert "Basho Results" in html
     assert '<table class="brb-table">' not in html
@@ -422,6 +442,29 @@ def test_runtime_manifest_declares_career_length_as_flat_g1_view_selector() -> N
     assert artifact["provenance"]["views"]["distribution"]["kind"] == "stacked_bar"
     assert artifact["provenance"]["views"]["longest"]["kind"] == "table"
     assert artifact["provenance"]["views"]["longest"]["columns"][1]["id"] == "shikona"
+
+
+def test_runtime_manifest_declares_typical_equelo_values_sectioned_table() -> None:
+    manifest = build_runtime_manifest(build_publication_plan(SITE))
+    panel = content_panel_by_artifact(manifest, TYPICAL_EQUELO_VALUES_ARTIFACT.id)
+    artifact = manifest["artifacts"]["typical_equelo_values"]
+
+    assert panel["grammar"] == "G1"
+    assert panel["contents"]["filter_section"]["filters"] == []
+    assert panel["contents"]["note_ids"] == ["typical_equelo_values", "jd100"]
+    assert artifact["kind"] == "sectioned_table"
+    assert artifact["renderer"] == "sectioned_table"
+    assert artifact["primary_source"] == "typical_equelo_values"
+    assert artifact["data_sources"][0]["path"] == (
+        "ratings-models/rating-and-rank/"
+        "typical-equelo-values/data/typical_equelo_values.csv"
+    )
+    assert [section["id"] for section in artifact["sections"]] == [
+        "sanyaku",
+        "maegashira",
+        "other",
+    ]
+    assert [column["id"] for column in artifact["columns"]] == ["label", "rating"]
 
 
 def test_brb_filter_defaults_and_url_keys_match_current_public_site() -> None:

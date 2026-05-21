@@ -21,6 +21,7 @@ from .data_output import (
     copy_makuuchi_rank_by_era_data_output,
     copy_rank_at_retirement_data_output,
     copy_standings_by_wins_data_output,
+    copy_typical_equelo_values_data_output,
     load_history_from_zip,
 )
 from .models import BuildOutput
@@ -80,6 +81,7 @@ def build_site(
     copy_first_chii_appearance_data_output(output_root=output_root)
     copy_rank_at_retirement_data_output(output_root=output_root)
     copy_career_length_data_output(output_root=output_root)
+    copy_typical_equelo_values_data_output(output_root=output_root)
     plan = build_publication_plan(SITE)
     (output_root / "index.html").write_text(
         render_site_shell(

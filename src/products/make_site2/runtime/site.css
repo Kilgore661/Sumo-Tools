@@ -138,3 +138,25 @@ select {
 .artifact-table [data-column-id="shikona"] {
   text-align: left;
 }
+
+.sectioned-table-grid {
+  align-items: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: center;
+  max-width: 100%;
+}
+
+.table-section h5 {
+  margin: 0.5rem 0;
+  text-align: center;
+}
+
+.sectioned-table [data-column-id="label"] {
+  text-align: left;
+}
+
+.sectioned-table [data-column-id="rating"] {
+  text-align: right;
+}

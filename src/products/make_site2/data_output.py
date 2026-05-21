@@ -40,6 +40,12 @@ CAREER_LENGTH_ROUTE_DATA_DIR = (
     / "career-length"
     / "data"
 )
+TYPICAL_EQUELO_VALUES_ROUTE_DATA_DIR = (
+    Path("ratings-models")
+    / "rating-and-rank"
+    / "typical-equelo-values"
+    / "data"
+)
 BANZUKE_DIVISION_BY_ERA_ROUTE_DATA_DIR = (
     Path("banzuke-rank")
     / "banzuke-structure-over-time"
@@ -74,6 +80,15 @@ CAREER_LENGTH_SOURCE_ROOT = (
     / "site"
     / "career_length_1958_01_to_2026_05"
 )
+TYPICAL_EQUELO_VALUES_SOURCE_ROOT = (
+    Path("files")
+    / "output"
+    / "Equelo"
+    / "fixed_v2"
+    / "landmarks"
+    / "site"
+    / "typical_equelo_values"
+)
 BANZUKE_DIVISION_BY_ERA_SOURCE_ROOT = (
     Path("files") / "output" / "banzuke_division_era" / "site" / "banzuke_division_by_era"
 )
@@ -104,6 +119,11 @@ class SingleCsvChartDataOutput:
 @dataclass(frozen=True, kw_only=True)
 class CareerLengthDataOutput:
     data_paths: tuple[Path, ...]
+
+
+@dataclass(frozen=True, kw_only=True)
+class TypicalEqueloValuesDataOutput:
+    csv_path: Path
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -257,6 +277,21 @@ def copy_career_length_data_output(
     for name, target_path in zip(names, data_paths, strict=True):
         shutil.copy2(CAREER_LENGTH_SOURCE_ROOT / name, target_path)
     return CareerLengthDataOutput(data_paths=data_paths)
+
+
+def copy_typical_equelo_values_data_output(
+    *,
+    output_root: Path,
+) -> TypicalEqueloValuesDataOutput:
+    """Copy the Typical Equelo Ratings CSV into the make_site2 output tree."""
+
+    csv_path = copy_single_csv_chart_data_output(
+        output_root=output_root,
+        route_data_dir=TYPICAL_EQUELO_VALUES_ROUTE_DATA_DIR,
+        source_path=TYPICAL_EQUELO_VALUES_SOURCE_ROOT / "typical_equelo_values.csv",
+        target_name="typical_equelo_values.csv",
+    )
+    return TypicalEqueloValuesDataOutput(csv_path=csv_path)
 
 
 def copy_banzuke_division_by_era_data_output(

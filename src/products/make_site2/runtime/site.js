@@ -150,6 +150,10 @@
       await renderIndexedTableContentPanel(panel, artifact, overrideState);
       return;
     }
+    if (artifact.kind === "sectioned_table") {
+      await renderSectionedTableContentPanel(panel, artifact);
+      return;
+    }
     if (artifact.kind === "banzuke_changes") {
       await renderBanzukeChangesContentPanel(panel, artifact, overrideState);
       return;
@@ -218,6 +222,24 @@
       '</section>'
     ].join("");
     wireFilterSection(panel, state);
+  }
+
+  async function renderSectionedTableContentPanel(panel, artifact) {
+    const rowsBySource = await fetchArtifactCsvSet(artifact);
+    const rows = rowsBySource[artifact.primary_source] || [];
+
+    contentPanel.innerHTML = [
+      '<section class="content-panel">',
+      `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
+      `<h3>${escapeHtml(panel.heading.summary)}</h3>`,
+      '<div class="content-body content-body-no-filters">',
+      '<div class="pa-slot">',
+      renderSectionedTable(artifact, rows),
+      '</div>',
+      '</div>',
+      renderNotes(artifact, {}),
+      '</section>'
+    ].join("");
   }
 
   async function renderStandingsContentPanel(panel, artifact, overrideState = null) {
@@ -777,6 +799,46 @@
       ].join("")),
       '</tbody>',
       '</table>',
+    ].join("");
+  }
+
+  function renderSectionedTable(artifact, rows) {
+    return [
+      '<div class="artifact-title-block">',
+      `<h4>${escapeHtml(artifact.heading)}</h4>`,
+      '</div>',
+      '<div class="sectioned-table-grid">',
+      ...artifact.sections.map(section =>
+        renderTableSection(section, rows, artifact.columns || [])
+      ),
+      '</div>',
+    ].join("");
+  }
+
+  function renderTableSection(section, rows, columns) {
+    const sectionRows = [...rows]
+      .filter(row => String(row[section.source_field]) === String(section.source_value))
+      .sort((left, right) =>
+        compareValues(Number(left[section.order_by]) || 0, Number(right[section.order_by]) || 0)
+      );
+    return [
+      '<section class="table-section">',
+      `<h5>${escapeHtml(section.heading)}</h5>`,
+      '<table class="artifact-table sectioned-table">',
+      '<thead><tr>',
+      ...columns.map(column => `<th ${tableCellAttributes(column)}>${escapeHtml(column.heading)}</th>`),
+      '</tr></thead>',
+      '<tbody>',
+      ...sectionRows.map((row, index) => [
+        '<tr>',
+        ...columns.map(column =>
+          `<td ${tableCellAttributes(column)}>${escapeHtml(cellValue(column, row, index))}</td>`
+        ),
+        '</tr>'
+      ].join("")),
+      '</tbody>',
+      '</table>',
+      '</section>',
     ].join("");
   }
 
