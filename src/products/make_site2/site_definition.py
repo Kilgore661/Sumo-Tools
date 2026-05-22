@@ -75,7 +75,11 @@ PAGES = PageRegistry(
             id="win_probability_by_standing",
             title="Win Probability by Standing",
             summary="Probability of winning as a function of standing.",
-            artifact=artifact("win_probability_by_standing", "chart"),
+            artifact=artifact(
+                "win_probability_by_standing",
+                "chart",
+                producer="probability.matchups",
+            ),
         ),
         "basho_results_browser": PageDefinition(
             id="basho_results_browser",

@@ -55,6 +55,11 @@ def test_make_site2_build_uses_live_store_when_no_history_zip_is_given(
     )
     monkeypatch.setattr(
         make_site2_build,
+        "copy_win_probability_by_standing_data_output",
+        lambda **kwargs: None,
+    )
+    monkeypatch.setattr(
+        make_site2_build,
         "copy_banzuke_division_by_era_data_output",
         lambda **kwargs: None,
     )
@@ -130,6 +135,11 @@ def test_make_site2_build_uses_history_zip_when_given(
     monkeypatch.setattr(
         make_site2_build,
         "copy_typical_equelo_values_data_output",
+        lambda **kwargs: None,
+    )
+    monkeypatch.setattr(
+        make_site2_build,
+        "copy_win_probability_by_standing_data_output",
         lambda **kwargs: None,
     )
     monkeypatch.setattr(

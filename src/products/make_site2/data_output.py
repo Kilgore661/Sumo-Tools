@@ -46,6 +46,12 @@ TYPICAL_EQUELO_VALUES_ROUTE_DATA_DIR = (
     / "typical-equelo-values"
     / "data"
 )
+WIN_PROBABILITY_BY_STANDING_ROUTE_DATA_DIR = (
+    Path("ratings-models")
+    / "observed-vs-modelled"
+    / "win-probability-by-standing"
+    / "data"
+)
 BANZUKE_DIVISION_BY_ERA_ROUTE_DATA_DIR = (
     Path("banzuke-rank")
     / "banzuke-structure-over-time"
@@ -89,6 +95,14 @@ TYPICAL_EQUELO_VALUES_SOURCE_ROOT = (
     / "site"
     / "typical_equelo_values"
 )
+WIN_PROBABILITY_BY_STANDING_SOURCE_ROOT = (
+    Path("files")
+    / "output"
+    / "probability"
+    / "matchups"
+    / "site"
+    / "win_probability_by_standing"
+)
 BANZUKE_DIVISION_BY_ERA_SOURCE_ROOT = (
     Path("files") / "output" / "banzuke_division_era" / "site" / "banzuke_division_by_era"
 )
@@ -124,6 +138,11 @@ class CareerLengthDataOutput:
 @dataclass(frozen=True, kw_only=True)
 class TypicalEqueloValuesDataOutput:
     csv_path: Path
+
+
+@dataclass(frozen=True, kw_only=True)
+class WinProbabilityByStandingDataOutput:
+    data_paths: tuple[Path, ...]
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -292,6 +311,24 @@ def copy_typical_equelo_values_data_output(
         target_name="typical_equelo_values.csv",
     )
     return TypicalEqueloValuesDataOutput(csv_path=csv_path)
+
+
+def copy_win_probability_by_standing_data_output(
+    *,
+    output_root: Path,
+) -> WinProbabilityByStandingDataOutput:
+    """Copy the Win Probability by Standing CSV set into make_site2 output."""
+
+    route_data_root = output_root / WIN_PROBABILITY_BY_STANDING_ROUTE_DATA_DIR
+    if route_data_root.exists():
+        shutil.rmtree(route_data_root)
+    route_data_root.mkdir(parents=True, exist_ok=True)
+
+    names = ("observed_trace_points.csv", "equelo_trace_points.csv")
+    data_paths = tuple(route_data_root / name for name in names)
+    for name, target_path in zip(names, data_paths, strict=True):
+        shutil.copy2(WIN_PROBABILITY_BY_STANDING_SOURCE_ROOT / name, target_path)
+    return WinProbabilityByStandingDataOutput(data_paths=data_paths)
 
 
 def copy_banzuke_division_by_era_data_output(

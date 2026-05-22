@@ -10,6 +10,7 @@ from src.products.make_site2.data_output import (
     copy_rank_at_retirement_data_output,
     copy_standings_by_wins_data_output,
     copy_typical_equelo_values_data_output,
+    copy_win_probability_by_standing_data_output,
 )
 
 
@@ -317,5 +318,52 @@ def test_copy_typical_equelo_values_data_output_stages_only_csv(
     )
     assert output.csv_path == route_data_root / "typical_equelo_values.csv"
     assert output.csv_path.read_text(encoding="utf-8") == "csv"
+    assert not (route_data_root / "page.json").exists()
+    assert not (route_data_root / "metadata.json").exists()
+
+
+def test_copy_win_probability_by_standing_data_output_stages_csv_set(
+    monkeypatch,
+    tmp_path: Path,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    source_root = (
+        tmp_path
+        / "files"
+        / "output"
+        / "probability"
+        / "matchups"
+        / "site"
+        / "win_probability_by_standing"
+    )
+    source_root.mkdir(parents=True)
+    (source_root / "observed_trace_points.csv").write_text(
+        "observed",
+        encoding="utf-8",
+    )
+    (source_root / "equelo_trace_points.csv").write_text("equelo", encoding="utf-8")
+    (source_root / "page.json").write_text("page", encoding="utf-8")
+    (source_root / "metadata.json").write_text("metadata", encoding="utf-8")
+
+    output = copy_win_probability_by_standing_data_output(output_root=tmp_path / "site")
+
+    route_data_root = (
+        tmp_path
+        / "site"
+        / "ratings-models"
+        / "observed-vs-modelled"
+        / "win-probability-by-standing"
+        / "data"
+    )
+    assert sorted(path.name for path in output.data_paths) == [
+        "equelo_trace_points.csv",
+        "observed_trace_points.csv",
+    ]
+    assert (route_data_root / "observed_trace_points.csv").read_text(
+        encoding="utf-8"
+    ) == "observed"
+    assert (route_data_root / "equelo_trace_points.csv").read_text(
+        encoding="utf-8"
+    ) == "equelo"
     assert not (route_data_root / "page.json").exists()
     assert not (route_data_root / "metadata.json").exists()

@@ -248,6 +248,47 @@ CAREER_LENGTH_FILTERS = (
 )
 
 
+WIN_PROBABILITY_BY_STANDING_DIVISION_FILTER_VALUES = (
+    FilterValue(value="Makuuchi", label="Makuuchi"),
+    FilterValue(value="Juryo", label="Juryo"),
+    FilterValue(value="Makushita", label="Makushita"),
+    FilterValue(value="Sandanme", label="Sandanme"),
+    FilterValue(value="Jonidan", label="Jonidan"),
+    FilterValue(value="Jonokuchi", label="Jonokuchi"),
+    FilterValue(value="All", label="All"),
+)
+
+
+WIN_PROBABILITY_BY_STANDING_FILTERS = (
+    Filter(
+        id="source",
+        label="Source",
+        control="select",
+        default="observed",
+        url_key="source",
+        values=(
+            FilterValue(value="observed", label="Observed"),
+            FilterValue(value="equelo", label="Equelo"),
+        ),
+    ),
+    Filter(
+        id="division",
+        label="Division",
+        control="select",
+        default="Makuuchi",
+        url_key="division",
+        values=WIN_PROBABILITY_BY_STANDING_DIVISION_FILTER_VALUES,
+    ),
+    Filter(
+        id="error_bars",
+        label="Error bars",
+        control="checkbox",
+        default=True,
+        url_key="error_bars",
+    ),
+)
+
+
 def standings_source(window: str) -> SelectedTableDataSource:
     filename = f"multiple basho standings view (2026_03, BACKWARDS, {window})"
     return SelectedTableDataSource(
@@ -1172,6 +1213,69 @@ TYPICAL_EQUELO_VALUES_ARTIFACT = SectionedTableArtifact(
 )
 
 
+WIN_PROBABILITY_BY_STANDING_ARTIFACT = ChartArtifact(
+    id="win_probability_by_standing",
+    heading="Win Probability by Standing",
+    kind="chart",
+    renderer="standing_win_probability_chart",
+    data_binding=DataBinding(
+        kind="selected_csv",
+        sources=("observed", "equelo"),
+    ),
+    data_sources=(
+        DataSource(
+            id="observed",
+            label="Observed",
+            path=(
+                "ratings-models/observed-vs-modelled/"
+                "win-probability-by-standing/data/observed_trace_points.csv"
+            ),
+            media_type="text/csv",
+        ),
+        DataSource(
+            id="equelo",
+            label="Equelo",
+            path=(
+                "ratings-models/observed-vs-modelled/"
+                "win-probability-by-standing/data/equelo_trace_points.csv"
+            ),
+            media_type="text/csv",
+        ),
+    ),
+    traces=(
+        ChartTrace(
+            id="standing_trace",
+            label="Standing",
+            kind="scatter",
+            x="opponent_chii",
+            y="p_selected_wins",
+            group_by="selected_chii",
+            error_y=("ci95_lower", "ci95_upper"),
+        ),
+    ),
+    x_axis=ChartAxis(
+        id="x",
+        source_field="opponent_chii",
+        label="Opponent sideless chii",
+    ),
+    y_axis=ChartAxis(
+        id="y",
+        source_field="p_selected_wins",
+        label="P(selected standing wins)",
+        minimum=0,
+        maximum=1,
+        tickformat=".0%",
+    ),
+    provenance={
+        "default_display_trace": "Y1",
+        "sanyaku_display": ("Y1", "O1", "S1", "K1"),
+        "x_order_field": "opponent_ordinal",
+        "selected_order_field": "selected_ordinal",
+        "legend_title": "Selected chii",
+    },
+)
+
+
 def build_public_site_shell(plan: PublicationPlan) -> PublicSiteShell:
     banzuke_division_by_era_page = plan.pages["banzuke_division_by_era"].page
     banzuke_changes_page = plan.pages["banzuke_changes"].page
@@ -1184,6 +1288,7 @@ def build_public_site_shell(plan: PublicationPlan) -> PublicSiteShell:
     rank_at_retirement_page = plan.pages["rank_at_retirement"].page
     standings_page = plan.pages["standings_by_wins"].page
     typical_equelo_values_page = plan.pages["typical_equelo_values"].page
+    win_probability_by_standing_page = plan.pages["win_probability_by_standing"].page
     content_panels = (
         ContentPanel(
             page_id=banzuke_changes_page.id,
@@ -1320,6 +1425,20 @@ def build_public_site_shell(plan: PublicationPlan) -> PublicSiteShell:
                 note_ids=tuple(note.id for note in TYPICAL_EQUELO_VALUES_ARTIFACT.notes),
             ),
         ),
+        ContentPanel(
+            page_id=win_probability_by_standing_page.id,
+            heading=Heading(
+                title=win_probability_by_standing_page.title,
+                summary=win_probability_by_standing_page.summary,
+            ),
+            grammar="G1",
+            contents=G1Contents(
+                filter_section=FilterSection(
+                    filters=WIN_PROBABILITY_BY_STANDING_FILTERS
+                ),
+                pa=PA(artifact_id=WIN_PROBABILITY_BY_STANDING_ARTIFACT.id),
+            ),
+        ),
     )
     renderable_page_ids = frozenset(panel.page_id for panel in content_panels)
     return PublicSiteShell(
@@ -1386,6 +1505,9 @@ def build_runtime_manifest(plan: PublicationPlan) -> dict[str, Any]:
             STANDINGS_BY_WINS_ARTIFACT.id: to_plain(STANDINGS_BY_WINS_ARTIFACT),
             TYPICAL_EQUELO_VALUES_ARTIFACT.id: to_plain(
                 TYPICAL_EQUELO_VALUES_ARTIFACT
+            ),
+            WIN_PROBABILITY_BY_STANDING_ARTIFACT.id: to_plain(
+                WIN_PROBABILITY_BY_STANDING_ARTIFACT
             ),
         },
     }

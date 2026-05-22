@@ -902,8 +902,10 @@ P2:
 This priority guess should be revised once implementation starts.
 
 ---
+# 24 New Ideas
+1. Chii v.Elo before and after/during
 
-# 24. Summary
+# 25. Summary
 
 The major design spine is settled.
 
@@ -920,3 +922,4 @@ local deployment workflow
 This file should be updated as decisions are made.
 
 Do not let it become a second design notebook.
+

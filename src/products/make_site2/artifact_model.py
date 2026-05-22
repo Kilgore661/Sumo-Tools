@@ -47,6 +47,7 @@ class ChartTrace:
     x: str
     y: str
     group_by: str | None = None
+    error_y: tuple[str, str] | None = None
 
 
 @dataclass(frozen=True, kw_only=True)

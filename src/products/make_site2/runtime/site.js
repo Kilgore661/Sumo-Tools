@@ -186,7 +186,7 @@
       '<section class="content-panel">',
       `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
       `<h3>${escapeHtml(panel.heading.summary)}</h3>`,
-      '<div class="content-body content-body-no-filters">',
+      '<div class="content-body">',
       renderFilterSection(panel.contents.filter_section, state, index),
       '<div class="pa-slot">',
       renderArtifactTitleBlock(artifact, state, selectedEntry, filters),
@@ -291,11 +291,40 @@
       await renderFinishByChiiContentPanel(panel, artifact, overrideState);
       return;
     }
+    if (artifact.renderer === "standing_win_probability_chart") {
+      await renderStandingWinProbabilityContentPanel(panel, artifact, overrideState);
+      return;
+    }
     if (artifact.renderer === "career_length") {
       await renderCareerLengthContentPanel(panel, artifact, overrideState);
       return;
     }
     throw new Error(`Unsupported chart renderer: ${artifact.renderer}`);
+  }
+
+  async function renderStandingWinProbabilityContentPanel(panel, artifact, overrideState = null) {
+    const filters = panel.contents.filter_section.filters;
+    const state = overrideState || resolveFilterState(filters, readFilterUrlState(filters));
+    state.source = resolveSelectedDataSourceId(artifact, state.source);
+    state.division = resolveFilterValue(filters, "division", state.division);
+    writePanelUrl(panel.page_id, filters, state, { replace: true });
+    const rowsBySource = await fetchArtifactCsvSet(artifact);
+
+    contentPanel.innerHTML = [
+      '<section class="content-panel">',
+      `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
+      `<h3>${escapeHtml(panel.heading.summary)}</h3>`,
+      '<div class="content-body">',
+      renderFilterSection(panel.contents.filter_section, state),
+      '<div class="pa-slot">',
+      renderStandingWinProbabilityChart(artifact, state, rowsBySource),
+      '</div>',
+      '</div>',
+      renderNotes(artifact, state),
+      '</section>'
+    ].join("");
+    renderStandingWinProbabilityPlot(artifact, state, rowsBySource);
+    wireFilterSection(panel, state);
   }
 
   async function renderCareerLengthContentPanel(panel, artifact, overrideState = null) {
@@ -777,6 +806,172 @@
       '</div>',
       '<div id="career-length-chart" class="plotly-chart"></div>',
     ].join("");
+  }
+
+  function renderStandingWinProbabilityChart(artifact, state, rowsBySource) {
+    const source = selectedStandingSource(artifact, state);
+    const rows = rowsBySource[source.id] || [];
+    if (!rows.length) {
+      return `<p>No ${escapeHtml(source.label)} data is available.</p>`;
+    }
+    return [
+      '<div class="artifact-title-block">',
+      `<h4>${escapeHtml(artifact.heading)}</h4>`,
+      `<div>${escapeHtml(source.label)} source</div>`,
+      '</div>',
+      '<div id="standing-win-probability-chart" class="plotly-chart"></div>',
+    ].join("");
+  }
+
+  function renderStandingWinProbabilityPlot(artifact, state, rowsBySource) {
+    const host = document.getElementById("standing-win-probability-chart");
+    if (!host) return;
+    if (!window.Plotly) {
+      host.innerHTML = "<p>Plotly is not available.</p>";
+      return;
+    }
+    const source = selectedStandingSource(artifact, state);
+    const rows = rowsBySource[source.id] || [];
+    const traces = standingWinProbabilityTraces(artifact, state, source, rows);
+    Plotly.react(
+      host,
+      traces,
+      standingWinProbabilityLayout(artifact, traces),
+      { responsive: true, displaylogo: false }
+    ).then(() => {
+      if (!host.on) return;
+      host.on("plotly_legenddoubleclick", event => {
+        const target = host.data[event.curveNumber];
+        if (!target) return false;
+        const visibility = host.data.map((trace, index) => {
+          if (trace.meta?.division !== target.meta?.division) return false;
+          return index === event.curveNumber ? true : "legendonly";
+        });
+        Plotly.restyle(host, { visible: visibility });
+        return false;
+      });
+    });
+  }
+
+  function standingWinProbabilityTraces(artifact, state, source, rows) {
+    const trace = artifact.traces[0];
+    return standingWinProbabilityGroups(artifact, state, rows, trace)
+      .map(group => standingWinProbabilityTrace(artifact, state, source, group, trace));
+  }
+
+  function standingWinProbabilityGroups(artifact, state, rows, trace) {
+    const groups = new Map();
+    for (const row of rows) {
+      if (!displayStandingChii(artifact, row.selected_chii)) continue;
+      if (!displayStandingChii(artifact, row.opponent_chii)) continue;
+      const division = divisionForStandingChii(row.selected_chii);
+      if (state.division !== "All" && division !== state.division) continue;
+      if (!groups.has(row[trace.group_by])) groups.set(row[trace.group_by], []);
+      groups.get(row[trace.group_by]).push(row);
+    }
+    const selectedOrderField = artifact.provenance.selected_order_field;
+    const xOrderField = artifact.provenance.x_order_field;
+    return [...groups.entries()]
+      .map(([key, groupRows]) => ({
+        key,
+        division: divisionForStandingChii(key),
+        order: Number(groupRows[0]?.[selectedOrderField]) || 0,
+        rows: groupRows.sort((left, right) =>
+          compareValues(Number(left[xOrderField]) || 0, Number(right[xOrderField]) || 0)
+        ),
+      }))
+      .sort((left, right) => left.order - right.order);
+  }
+
+  function standingWinProbabilityTrace(artifact, state, source, group, trace) {
+    const errorFields = trace.error_y || [];
+    const showErrorBars = Boolean(state.error_bars) && errorFields.length === 2;
+    const plotlyTrace = {
+      type: "scatter",
+      mode: "lines+markers",
+      name: group.key,
+      x: group.rows.map(row => row[trace.x]),
+      y: group.rows.map(row => Number(row[trace.y])),
+      visible: standingTraceVisible(artifact, group),
+      meta: { division: group.division },
+      customdata: group.rows.map(row => standingWinProbabilityCustomData(source, row)),
+      hovertemplate: standingWinProbabilityHoverTemplate(source),
+    };
+    if (showErrorBars) {
+      const lower = errorFields[0];
+      const upper = errorFields[1];
+      const array = group.rows.map(row => {
+        const high = Number(row[upper]);
+        const value = Number(row[trace.y]);
+        return Number.isFinite(high) && Number.isFinite(value) ? high - value : 0;
+      });
+      const arrayminus = group.rows.map(row => {
+        const low = Number(row[lower]);
+        const value = Number(row[trace.y]);
+        return Number.isFinite(low) && Number.isFinite(value) ? value - low : 0;
+      });
+      if (array.some(value => value > 0) || arrayminus.some(value => value > 0)) {
+        plotlyTrace.error_y = {
+          type: "data",
+          symmetric: false,
+          array,
+          arrayminus,
+          visible: true,
+          color: "#d7e0ef",
+          thickness: 2,
+          width: 4,
+        };
+      }
+    }
+    return plotlyTrace;
+  }
+
+  function standingWinProbabilityCustomData(source, row) {
+    if (source.id === "observed") {
+      return [
+        row.selected_chii,
+        row.opponent_chii,
+        Number(row.opponent_ordinal),
+        Number(row.n_obs),
+        Number(row.n_selected_wins),
+        Number(row.ci95_lower),
+        Number(row.ci95_upper),
+      ];
+    }
+    return [
+      row.selected_chii,
+      row.opponent_chii,
+      Number(row.opponent_ordinal),
+      Number(row.selected_rating),
+      Number(row.opponent_rating),
+    ];
+  }
+
+  function standingWinProbabilityHoverTemplate(source) {
+    if (source.id === "observed") {
+      return [
+        "Selected=%{customdata[0]}",
+        "Opponent=%{customdata[1]}",
+        "P(selected wins)=%{y:.3f}",
+        "CI95=[%{customdata[5]:.3f}, %{customdata[6]:.3f}]",
+        "Wins=%{customdata[4]:,} / %{customdata[3]:,}",
+        "<extra></extra>",
+      ].join("<br>");
+    }
+    return [
+      "Selected=%{customdata[0]}",
+      "Opponent=%{customdata[1]}",
+      "P(selected wins)=%{y:.3f}",
+      "Selected rating=%{customdata[3]:.1f}",
+      "Opponent rating=%{customdata[4]:.1f}",
+      "<extra></extra>",
+    ].join("<br>");
+  }
+
+  function standingTraceVisible(artifact, group) {
+    const preferred = artifact.provenance.default_display_trace || "";
+    if (group.key === preferred) return true;
+    return "legendonly";
   }
 
   function renderCareerLengthTable(view, rows) {
@@ -1299,6 +1494,44 @@
     };
   }
 
+  function standingWinProbabilityLayout(artifact, traces) {
+    return {
+      autosize: true,
+      paper_bgcolor: "rgba(0,0,0,0)",
+      plot_bgcolor: "rgba(0,0,0,0)",
+      margin: { l: 76, r: 36, t: 18, b: 92 },
+      xaxis: {
+        title: artifact.x_axis.label,
+        type: "category",
+        categoryorder: "array",
+        categoryarray: visibleStandingCategories(traces),
+        automargin: true,
+        gridcolor: "rgba(127,149,192,0.18)",
+        zerolinecolor: "rgba(127,149,192,0.35)",
+        color: "#c9d4ee",
+      },
+      yaxis: {
+        title: artifact.y_axis.label,
+        range: axisRange(artifact.y_axis),
+        tickformat: artifact.y_axis.tickformat || undefined,
+        automargin: true,
+        gridcolor: "rgba(127,149,192,0.22)",
+        zerolinecolor: "rgba(127,149,192,0.35)",
+        color: "#c9d4ee",
+      },
+      hovermode: "closest",
+      legend: {
+        title: { text: artifact.provenance.legend_title || "" },
+        itemclick: "toggle",
+        itemdoubleclick: false,
+      },
+      font: {
+        family: "Arial, Helvetica, sans-serif",
+        color: "#ffffff",
+      },
+    };
+  }
+
   function sparseTickText(labels, maxLabels) {
     const step = Math.max(1, Math.ceil(labels.length / maxLabels));
     return labels.map((label, index) => index % step === 0 ? label : "");
@@ -1673,6 +1906,63 @@
     if (column.formatter === "decimal_2") return decimal(value, 2);
     if (column.id === "active") return value === "True" || value === "true" || value === "1" ? "Yes" : "No";
     return escapeHtml(value);
+  }
+
+  function selectedStandingSource(artifact, state) {
+    return artifact.data_sources.find(source => source.id === state.source)
+      || artifact.data_sources[0];
+  }
+
+  function resolveSelectedDataSourceId(artifact, selectedSource) {
+    return artifact.data_sources.some(source => source.id === selectedSource)
+      ? selectedSource
+      : artifact.data_sources[0].id;
+  }
+
+  function resolveFilterValue(filters, filterId, selectedValue) {
+    const filter = filters.find(candidate => candidate.id === filterId);
+    if (!filter) return selectedValue;
+    return filter.values.some(value => value.value === selectedValue)
+      ? selectedValue
+      : filter.default;
+  }
+
+  function displayStandingChii(artifact, chii) {
+    const sanyaku = artifact.provenance.sanyaku_display || [];
+    if (String(chii).startsWith("Y")) return sanyaku.includes(chii);
+    if (String(chii).startsWith("O")) return sanyaku.includes(chii);
+    if (String(chii).startsWith("S") && !String(chii).startsWith("Sd")) {
+      return sanyaku.includes(chii);
+    }
+    if (String(chii).startsWith("K")) return sanyaku.includes(chii);
+    return true;
+  }
+
+  function divisionForStandingChii(chii) {
+    const value = String(chii || "");
+    if (value.startsWith("Ms")) return "Makushita";
+    if (value.startsWith("Sd")) return "Sandanme";
+    if (value.startsWith("Jd")) return "Jonidan";
+    if (value.startsWith("Jk")) return "Jonokuchi";
+    if (["Y", "O", "S", "K", "M"].some(prefix => value.startsWith(prefix))) return "Makuuchi";
+    if (value.startsWith("J")) return "Juryo";
+    return "Other";
+  }
+
+  function visibleStandingCategories(traces) {
+    const entries = new Map();
+    const visibleTraces = traces.filter(trace =>
+      trace.visible === true || trace.visible === undefined
+    );
+    const selectedTraces = visibleTraces.length ? visibleTraces : traces;
+    for (const trace of selectedTraces) {
+      trace.x.forEach((label, index) => {
+        entries.set(label, trace.customdata[index][2]);
+      });
+    }
+    return [...entries.entries()]
+      .sort((left, right) => Number(left[1]) - Number(right[1]))
+      .map(([label]) => label);
   }
 
   async function fetchJson(path) {

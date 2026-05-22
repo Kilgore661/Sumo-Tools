@@ -209,7 +209,65 @@ navigation tree.
 
 ---
 
-# 6. Current Implementation Consequence
+# 6. Control Applicability and Empty-but-Valid States
+
+`Win Probability by Standing` raises a related but distinct pressure point.
+
+The implemented page is structurally G1:
+
+```text
+ContentPanel
+  Heading
+  Controls
+  PA
+```
+
+The controls are flat:
+
+```text
+Source
+Division
+Error bars
+```
+
+One way to understand the artifact is as a conceptual multi-source dataset. In
+that relational framing, all three controls can be read as filters:
+
+```text
+Source
+  select observed or Equelo rows
+
+Division
+  select rows for a division
+
+Error bars
+  select or show the CI95 evidence layer where CI95 values exist
+```
+
+This avoids treating the page as nested or branch-like.
+
+The unresolved model question is not whether the page is G1. The unresolved
+question is whether controls should know when they are ineffective, invalid,
+empty, or applicable only to some source states.
+
+For now, the active model does not include conditional control visibility or
+control applicability. States such as:
+
+```text
+Source = Equelo
+Error bars = true
+```
+
+are allowed even though there is no CI95 layer to draw for Equelo data. The
+renderer should draw what the selected data state permits, not invent a
+half-designed conditional-control model.
+
+If future pages require better UX for this, promote control applicability into
+the main UI Model Design.
+
+---
+
+# 7. Current Implementation Consequence
 
 The current implementation model should not be rewritten around this appendix.
 
@@ -225,3 +283,27 @@ Keep DataBinding general enough that it does not assume:
 If a future artifact requires view-local options or mixed payload views, this
 appendix should be promoted into the main Artifact Model Design.
 
+
+
+# Lightbulb Moment (or a Bump on the head?)
+
+The idea behind using a grammar like G1 is that layout flows from the model.
+The resulting rendering need not visually reflect the underlying semantic
+structure, but this is what we want and using a grammar helps us to organise
+the rendering. 
+
+Now, in G1, PA is terminal symbol; a PA has no structure, it is a semantic blob.It
+follows then that as terminal symbol we can do whatever we like re the 
+implementation? Eg an empty display? Re 7.3.1: we can display a table with
+or without an Active column;  we could play a different tone when the user
+hovers over an active rikishi or an inactive rikishi. Whatever.
+
+I think the issue we encountered with 6.2.1, 6.3.1 and 7.3.1 can all be traced
+back to the issue that PA has no structure. (Maximally, I think there is a relationship between types of PA and types of control that is at least context-sensitive; this suggests that the problem of UI specification may be *much* harder than I thought.)
+
+There is also the question of why the LLM keeps sneaking titles into PA when
+the grammar does not say there should be one (because PA=blobs). It is just
+done this again with 6.3.1; there is nothing to say the PA should say
+"Equelo/Observed" source. This bespoke detailing. OTOH, as a blob, there is
+nothing to say there can't be a title either. Or a video. It seems to me this
+is another aspect of the same problem.
