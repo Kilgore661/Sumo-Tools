@@ -314,7 +314,6 @@ Navigation
 ContentPanel
 Heading
 FilterSection
-BranchSelector
 PA placement
 Note placement
 status markers
@@ -354,7 +353,6 @@ Navigation
 ContentPanel
 Heading
 FilterSection placement
-BranchSelector
 page status
 site-wide theme
 site-wide layout
@@ -379,7 +377,7 @@ render active Navigation state
 render ContentPanel
 render Heading
 render Contents structure
-render FilterSection / BranchSelector containers
+render FilterSection containers
 render PA slot
 render Artifact container and bootstrap
 render Notes container
@@ -487,7 +485,6 @@ The renderer should preserve the distinction between:
 ```text
 page Heading
 FilterSection
-BranchSelector
 PA slot
 Artifact container
 Notes
@@ -519,33 +516,37 @@ identity.
 
 # 12. Filter Rendering
 
-`Filter` is the model term.
+`Filter` is the current model term.
 
-A Filter is not a widget.
+A Filter is not a specific browser widget.
 
-The renderer chooses controls to expose Filters.
-
-A rendered FilterControl is the atomic label-control unit for one Filter.
-
-The Filter label and its control travel together as one unbreakable unit in the
-layout. A FilterSection containing peer Filters should therefore render as peer
-FilterControls, not as separate label and widget streams.
-
-Possible controls include:
+For the current flat G1 grammar, each rendered FilterControl exposes one
+semantic FilterItem:
 
 ```text
-radio buttons
-segmented controls
-dropdowns
-checkbox groups
-toggles
-tabs
+BooleanChoice
+SingleFiniteChoice
 ```
 
-These are rendering choices.
+A rendered FilterControl is the atomic label-control unit for one FilterItem.
 
-They are not separate UI Model concepts unless a later pressure case requires
-them.
+The Filter label and its control travel together as one unbreakable unit in the
+layout. A FilterSection containing peer FilterItems should therefore render as peer
+FilterControls, not as separate label and widget streams.
+
+Rendering policy:
+
+```text
+BooleanChoice -> checkbox
+SingleFiniteChoice with 1-7 values -> radio button group
+SingleFiniteChoice with more than 7 values -> dropdown
+```
+
+Dropdowns are always single-select widgets.
+
+The semantic control is `SingleFiniteChoice`, not `dropdown` or `radio group`.
+The renderer chooses between those widgets from the value count unless a future
+pressure case justifies an explicit override.
 
 The renderer must preserve Filter scope.
 
@@ -555,9 +556,9 @@ Examples:
 G1:
   FilterSection affects the visible PA.
 
-G2:
-  BranchSelector chooses the branch.
-  Selected branch FilterSection affects that branch's PA.
+Deferred richer grammar:
+  selected branches, artifact views, or conditional controls may need their own
+  scoped filter/control structures.
 ```
 
 Filters do not own Notes.
@@ -599,35 +600,22 @@ not a complexity claim.
 
 ---
 
-# 14. G2 Rendering
+# 14. Deferred Richer Rendering Grammars
 
-G2 is the selected-alternative grammar.
+The current renderer does not implement a second content grammar for nested
+filters, hierarchical choices, or selected artifact branches.
 
-Conceptually:
+Those cases are deferred until a promoted page requires them.
 
-```text
-Heading
-BranchSelector
-selected Branch FilterSection?
-selected Branch PA
-relevant Notes
-```
-
-Unselected branches are not rendered as simultaneous visible content.
-
-They may exist in runtime bootstrap data or model data, but only the selected
-branch is active.
-
-Changing the BranchSelector changes:
+Examples of deferred rendering pressure:
 
 ```text
-visible branch
-visible branch filters
-visible PA
-relevant notes
+selected artifact views
+view-local FilterSections
+conditional controls
+controls whose applicability depends on another control
+mixed chart/table artifacts
 ```
-
-The renderer must make this scope clear.
 
 ---
 
@@ -875,7 +863,6 @@ Navigation
 ContentPanel
 Heading
 FilterSection
-BranchSelector
 PA placement
 Notes
 status markers
@@ -966,7 +953,7 @@ gracefully:
 ```text
 missing promoted page route
 unknown artifact kind in generated UI Model
-contradictory G2 branch structure
+contradictory content grammar structure
 missing required producer input during build
 ```
 
@@ -1051,7 +1038,7 @@ old CSS drift
 known table rendering needs
 known chart rendering needs
 BRB runtime behavior
-Career Length G2 behavior
+Career Length artifact-view pressure
 Banzuke Changes custom artifact rendering
 provisional theme/layout ideas
 ```

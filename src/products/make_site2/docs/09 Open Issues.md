@@ -722,44 +722,45 @@ but the DataBinding vocabulary should not block Career Length later.
 
 ## 17.2 Mutually Exclusive Filter Widget Choice
 
+Status: Decided.
+
 Some filters expose a mutually exclusive range of values.
 
-Current examples include:
+Decision:
 
 ```text
-dropdown
-radio group
-segmented control
+The semantic control is SingleFiniteChoice.
+Dropdowns and radio button groups are alternative renderings of
+SingleFiniteChoice.
+Dropdowns are always single-select.
+Render SingleFiniteChoice as a radio button group unless there are more than 7
+values.
+Render SingleFiniteChoice as a dropdown when there are more than 7 values.
+Render BooleanChoice as a checkbox.
 ```
 
-The model currently records the existence of the filter and its values, but it
-does not fully answer who decides which widget should render that choice.
-
-Open questions:
+The model may continue to use compact implementation names if they are read
+semantically:
 
 ```text
-Should make_site2 infer the widget from the option count and filter role?
-Should the model explicitly say dropdown, radio group, or segmented control?
-If the artifact model should not own this, where should the decision live?
-Should House Style provide defaults that the model may override?
-Should the renderer ever decide, or should it only implement a prior decision?
+checkbox = BooleanChoice
+select = SingleFiniteChoice
 ```
 
-Related questions:
+Deferred pressure:
 
 ```text
-When is a checkbox preferable to a two-value exclusive choice?
 When is a segmented control preferable to a radio group?
-When is a long option list too long for visible choices?
-Which widget decisions affect layout strongly enough to be model-owned?
-Which widget decisions are merely chrome?
+Should a future pressure case allow an explicit widget override?
+Should a future richer grammar allow nested or conditional controls?
 ```
 
 Current direction:
 
 ```text
-The renderer should not make this decision ad hoc.
-The eventual design should distinguish filter meaning from filter presentation.
+Update the implementation so control rendering follows the semantic
+BooleanChoice / SingleFiniteChoice rule instead of treating "select" as a
+literal dropdown commitment.
 ```
 
 ---
@@ -922,4 +923,3 @@ local deployment workflow
 This file should be updated as decisions are made.
 
 Do not let it become a second design notebook.
-

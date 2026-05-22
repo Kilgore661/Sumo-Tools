@@ -345,7 +345,7 @@ Filters do not own Notes.
 
 # 11. Content Grammar Contract
 
-`make_site2` shall support at least two content grammar shapes.
+`make_site2` shall support the G1 content grammar for current promoted pages.
 
 ## G1: Single Visible Artefact
 
@@ -361,35 +361,42 @@ Contents
   FilterSection?
   PA
   Note*
+
+FilterSection
+  FilterItem*
+
+FilterItem
+  BooleanChoice | SingleFiniteChoice
+
+BooleanChoice
+  label
+  default
+
+SingleFiniteChoice
+  label
+  value+
+  default
 ```
 
 G1 is the default promoted-page shape.
 
-## G2: Selected Alternative
+This is not the only possible way to model a content panel.
 
-G2 describes pages where a selector chooses between alternative branches, and
-only the selected branch contributes the visible artefact.
+In particular, G1 does not currently accommodate nested or hierarchical lists of
+filters, choices, or options. This is deliberate. The current navigation tree
+mostly contains items that do not need this sophistication.
+
+There are a few items that might benefit from structured filters, but
+`make_site2` has decided to keep the current model simple for now even though
+this can lead to awkward displays. For example, in 6.3.1 Win Probability by
+Standing, `Error bars` semantically applies only to the observed source, but it
+is currently rendered as a flat peer control alongside `Source`.
+
+Richer content-panel and artifact-view models are deferred. See:
 
 ```text
-ContentPanel
-  Heading
-  Contents
-
-Contents
-  BranchSelector
-  Branch+
-  Note*
-
-Branch
-  FilterSection?
-  PA
+A Appendix - Better Models.md
 ```
-
-G2 does not mean multiple simultaneous visible artefacts.
-
-It means one selected branch is active at a time.
-
-The known pressure case is Career Length.
 
 ---
 
@@ -708,7 +715,7 @@ Before replacing `make_site`, `make_site2` shall demonstrate:
 ```text
 at least one G1 table page
 at least one G1 chart page
-at least one G2 selected-alternative page
+flat FilterSection handling for BooleanChoice and SingleFiniteChoice controls
 one custom artifact renderer inside a shared page structure
 explicit handling of legacy/prototype/excluded pages
 shared filter vocabulary
@@ -747,8 +754,9 @@ Heading
 Contents
 Filter
 FilterSection
-BranchSelector
-Branch
+FilterItem
+BooleanChoice
+SingleFiniteChoice
 PA
 Artifact
 Note
