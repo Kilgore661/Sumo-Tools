@@ -2,30 +2,27 @@
 
 ## Status
 
-Initial open-issues register for `make_site2`.
+Current open-issues register for `make_site2`, revised after the first implementation review and resulting documentation/code corrections.
 
-This document records unresolved decisions, implementation pressure points, and questions deliberately deferred from the requirements, specification, and design documents.
+This document records unresolved decisions, deliberately deferred design work, and future implementation pressure points.
 
-It is not a second design notebook.
-
-Each item should remain short, actionable, and linked back to the relevant design area where possible.
+It is not a second design notebook and it is not a history of completed implementation work.
 
 ---
 
 # 1. Purpose
 
-The purpose of this document is to keep unresolved work visible without scattering decision notes across the design documents.
-
 An issue belongs here when:
 
 ```text
-the project has identified the question
-the answer is not yet settled
-the answer is not required to continue the current design pass
-the question may matter during implementation
+the project has identified a real remaining question or deferred action
+the answer is not yet settled, or implementation/consolidation remains outstanding
+the item matters to future development or maintenance
 ```
 
-An issue should be removed once the decision has been made and the relevant requirements, specification, design, or implementation document has been updated.
+A settled decision should normally be removed once it has been reflected in the relevant requirements, specification, design or implementation material.
+
+A short settled-decision record may remain here temporarily where it prevents a superseded design question from being reintroduced.
 
 ---
 
@@ -38,7 +35,7 @@ Open
   Known issue with no settled answer yet.
 
 Decided
-  Decision made, but docs or implementation may still need updating.
+  Decision made, but documentation, implementation or consolidation remains.
 
 In progress
   Active implementation or design work is underway.
@@ -47,18 +44,106 @@ Blocked
   Cannot proceed until another issue is resolved.
 
 Done
-  Completed and ready to remove during the next docs tidy.
+  Completed and ready to remove during the next documentation tidy.
+
+Deferred
+  Deliberately postponed until real pressure or a later consolidation stage.
 ```
 
 Default assumption: if an issue appears here without an explicit status, it is **Open**.
 
 ---
 
-# 3. Status and Inclusion Policy
+# 3. Decisions Settled During the First Implementation Review
 
-## 3.1 Final Page Status Vocabulary
+This section is retained briefly to prevent superseded questions from returning as apparent open issues. These matters should be removed from this file once the revised design/code baseline is comfortably established.
 
-Current working statuses are:
+## 3.1 Deep Links and Static Output Shape
+
+Status: **Done**.
+
+Decision and implementation position:
+
+```text
+The public-site requirement is stable deep linking that restores the selected
+public page and material analytical state.
+
+The requirement does not mandate one HTML file per public page.
+
+The current implementation uses a static application shell with URL state for
+selected page and analytical state. This is compatible with the requirement.
+```
+
+Verified follow-up:
+
+```text
+unknown selected page state reports an informative error and falls back
+invalid finite filter values fall back to defaults
+switching pages does not retain irrelevant previous-page filter state
+```
+
+## 3.2 Current Content Grammar
+
+Status: **Done**.
+
+Decision:
+
+```text
+G1 is the active ContentPanel grammar.
+
+Richer nested/filter-ownership or Artifact/View models are deferred to
+A Appendix - Better Models.md.
+
+Career Length is not a required G2 implementation case.
+```
+
+## 3.3 Generated Output Cleaning and Deployment Boundary
+
+Status: **Done**.
+
+Decision and implementation position:
+
+```text
+A full build clears the contents of the generated build-output root in place.
+
+Local/LAN deployment may clean the configured site-specific local target.
+
+Remote deployment creates/uploads/overwrites and does not automatically purge
+stale remote files.
+```
+
+The in-place output cleaning avoids requiring removal of the output-root directory itself on Windows.
+
+## 3.4 Explicit Page Status, Unknown Page Handling and Filter Vocabulary
+
+Status: **Done**.
+
+Implemented and checked:
+
+```text
+active PageDefinition declarations state status explicitly
+unknown selected-page state is reported and falls back predictably
+filter_value is used as the implementation field name instead of option_value
+```
+
+Terminology clarification:
+
+```text
+Filter is the formal model and implementation vocabulary for reader-selectable
+analytical state.
+
+Human-facing UI text may use ordinary wording such as "Options".
+```
+
+---
+
+# 4. Status and Inclusion Policy
+
+## 4.1 Status Vocabulary
+
+Status: **Open**.
+
+Current vocabulary is:
 
 ```text
 promoted
@@ -73,23 +158,14 @@ excluded
 Decision needed:
 
 ```text
-Is this the final vocabulary?
+Is this the long-term vocabulary?
 Are any statuses redundant?
-Do we need separate development-only status?
+Is a separate development-only status required?
 ```
 
-## 3.2 Inclusion by Build Mode
+## 4.2 Inclusion by Build Mode
 
-Decide which statuses are included in which build modes.
-
-Possible build modes:
-
-```text
-development
-public
-local preview
-stress test
-```
+Status: **Open**.
 
 Current direction:
 
@@ -98,80 +174,70 @@ promoted:
   included in ordinary public builds
 
 candidate / research / diagnostic / legacy:
-  included only when build mode requests them or public structure justifies them
+  included only where a build mode or explicit public decision requests them
 
 superseded / excluded:
   excluded by default
 ```
 
-Precise policy remains open.
-
----
-
-# 4. Route and Slug Policy
-
-## 4.1 Slug Derivation
-
-Routes are derived from canonical navigation placement.
-
 Decision needed:
 
 ```text
-How exactly are slugs generated from navigation nodes?
+What named build modes are supported?
+What is the exact status-inclusion policy for each?
+How are non-promoted inclusions marked in a rendered development build?
 ```
 
-Examples:
+---
 
-```text
-Current Sumo / Basho Results
-  -> /current-sumo/basho-results/
+# 5. Deep-Link Policy and Home Selection
 
-or
+## 5.1 Published URL Compatibility
 
-Current Sumo / Basho Results
-  -> /current/basho-results/
-```
+Status: **Open for future public-compatibility policy**.
 
-## 4.2 Route Stability
-
-Decide when a route becomes stable enough that renaming requires compatibility handling.
+The current selected-page/view representation is acceptable and implemented. What remains open is when published URLs become stable enough that later changes require compatibility handling.
 
 Questions:
 
 ```text
-When is a route public?
-Do early make_site2 routes need redirect support?
-Can route changes be ignored during dev-ui work?
+When does a deep-link shape become public/stable?
+Do early development links need compatibility treatment?
+If a page id or filter id changes after publication, what compatibility mechanism
+is required?
 ```
 
-## 4.3 Home Route
+## 5.2 Home / Landing Selection
 
-Decide whether the home route is:
+Status: **Open**.
+
+The runtime has a valid landing/fallback state. The model-level treatment remains to be settled if it becomes important.
+
+Questions:
 
 ```text
-a normal PageDefinition selected by HomePageId
-generated from quick links and navigation
-some other special page
+Should home/landing be a normal PageDefinition selected by HomePageId?
+Should it be generated from navigation/quick links?
+Is the current landing-only treatment sufficient for the public site?
 ```
-
-Current preference: home is a normal page selected by `HomePageId`.
 
 ---
 
-# 5. Quick Links
+# 6. Quick Links
 
-Quick links are accepted as useful casual-reader shortcuts into the canonical navigation tree.
+Status: **Open**.
 
-Open questions:
+Quick links are accepted as potentially useful casual-reader shortcuts into the canonical subject-led navigation structure.
+
+Questions:
 
 ```text
-Where are quick links rendered?
-Are they in the Sidebar, home page, or both?
-Are quick links required in the first implementation?
-What are the first quick links?
+Are quick links required?
+Where are they rendered: Sidebar, landing page, or both?
+What are the initial quick links?
 ```
 
-Candidate first quick links:
+Candidate subjects:
 
 ```text
 Basho Results
@@ -179,393 +245,249 @@ Standings
 Banzuke Changes
 ```
 
----
-
-# 6. First Vertical Slice: BRB
-
-BRB / Basho Results is the leading candidate for the first vertical slice.
-
-The first slice should demonstrate:
-
-```text
-producer orchestration
-site-facing input consumption
-PublicationPlan
-UI Model
-Artifact Model
-Rendering
-BuildOutput
-local/LAN deployment
-```
-
-Open questions:
-
-```text
-What exact BRB producer step should make_site2 call?
-What site-facing input does BRB expose first?
-What is the minimal BRB artifact contract?
-What filters are required in the first slice?
-What data payloads are required?
-What useful result proves the slice works?
-```
+Quick links must select existing public pages; they do not define a second information architecture.
 
 ---
 
-# 7. Producer Orchestration API
+# 7. Producer Orchestration and Site-Facing Inputs
 
-`make_site2` is the public-site build orchestrator.
+## 7.1 Producer Orchestration API
 
-Decision needed:
+Status: **Open as future cleanup/evolution**.
 
-```text
-How does make_site2 call producers?
-```
+`make_site2` already consumes producer-backed site material. The remaining question is whether producer invocation needs a more formal API as the product grows.
 
-Possible forms:
+Possible future forms:
 
 ```text
 producer prepare functions
 a producer registry
-direct imports for the first slice
 a small orchestration module
-command-line subprocesses
-```
-
-Current preference:
-
-```text
-simple direct orchestration first
-formal producer API only when needed
-```
-
-But this remains open.
-
----
-
-# 8. Site-Facing Input Representation
-
-The former first-class “PA Manifest” concept has been superseded.
-
-Current design says producer site-facing inputs may be:
-
-```text
-Python objects
-generated JSON-like data
-CSV data
-chart data/config
-structured prose
-asset references
-data references
-labels
-notes
-provenance
-renderer hints
-artifact kind declarations
-```
-
-Open questions:
-
-```text
-What representation is used first?
-Python objects?
-JSON files?
-Generated files consumed by Python?
-Some mixture?
-```
-
-Decision should be driven by the first BRB slice.
-
----
-
-# 9. ThemeConfig and LayoutConfig
-
-Rendering design now includes:
-
-```text
-RenderConfig
-  ThemeConfig
-  LayoutConfig
-  RuntimeConfig
-```
-
-Open questions:
-
-```text
-Where does the config live?
-Python file?
-JSON/YAML?
-Dataclass literals?
-How are CSS custom properties generated?
-What are the first tokens?
-```
-
-The goal is the visual tuning loop:
-
-```text
-edit config literals
-  -> rebuild
-  -> deploy/preview locally
-  -> inspect in browser
-  -> adjust config
-```
-
-First implementation should be simple.
-
----
-
-# 10. Runtime Bootstrap Format
-
-Each route page may include runtime bootstrap data.
-
-Open questions:
-
-```text
-Inline JSON script tag?
-External page JSON file?
-Generated JavaScript assignment?
-Per-page bootstrap or shared index?
-```
-
-Bootstrap may include:
-
-```text
-page id
-route
-status
-filters
-default filter state
-branch definitions
-artifact references
-data URLs
-note relevance data
-build metadata
-```
-
-Exact format is open.
-
----
-
-# 11. URL State Policy
-
-Meaningful public state should be serializable where useful.
-
-Open questions:
-
-```text
-Query string or hash?
-Which filter states are shareable?
-Are default values omitted?
-How are invalid values handled in browser runtime?
-Does ordinary table sort become URL state?
+command-line subprocess integration
 ```
 
 Current direction:
 
 ```text
-route identifies page
-query/hash identifies meaningful non-default state
-transient UI state is not serialized
+keep orchestration simple until repeated producer integration pressure justifies
+a formal API
+```
+
+## 7.2 Site-Facing Input Representation
+
+Status: **Open as a generalisation question**.
+
+Current implementation demonstrates concrete artifact/data representations. It remains open whether the project needs a more explicit stable general handoff format across producers.
+
+Possible representations:
+
+```text
+Python objects
+generated JSON-like structures
+CSV/data files consumed by Python or JavaScript
+a mixed contract appropriate to Artifact kind
+```
+
+The former first-class `PA Manifest` concept remains superseded unless later implementation pressure deliberately reintroduces a manifest as a serialization/handoff format.
+
+---
+
+# 8. ThemeConfig and LayoutConfig
+
+Status: **Open**.
+
+Rendering design identifies the need for centrally managed theme/layout policy.
+
+Questions:
+
+```text
+Should ThemeConfig/LayoutConfig/RuntimeConfig become formal code structures?
+Where should configuration live?
+How are CSS custom properties or equivalent tokens generated?
+Which current styling values should become shared tokens first?
+```
+
+Goal:
+
+```text
+edit centralized presentation policy
+  -> rebuild
+  -> deploy/preview locally
+  -> inspect in browser
+  -> adjust
+```
+
+Do not turn this into page-specific styling work.
+
+---
+
+# 9. Runtime Bootstrap / Manifest and URL-State Evolution
+
+## 9.1 Runtime Manifest Shape
+
+Status: **Open for future refinement**.
+
+The current single-shell runtime already uses serialized page/artifact/runtime information. Remaining questions concern its long-term contract:
+
+```text
+What is the intended stable manifest/bootstrap schema?
+Should schema/version metadata be emitted?
+How much should remain implementation-local rather than contractual?
+```
+
+The manifest/bootstrap data must continue to realize the declared UI/Artifact model rather than become a second hidden public model.
+
+## 9.2 URL-State Policy Beyond Current Fixes
+
+Status: **Open for policy refinement**.
+
+Current behaviour has been corrected for unknown pages, invalid finite filter values and stale filter state during page switching.
+
+Remaining policy questions:
+
+```text
+Are all material non-default Filter states shareable?
+Should defaults always be omitted or is omission implementation discretion?
+Does any ordinary table sort or chart interaction ever become public URL state?
+Should invalid values be visibly reported or silently defaulted in all cases?
 ```
 
 ---
 
-# 12. Output Tree Defaults
+# 10. Output Tree, Build Metadata and Cache Policy
 
-Current typical output shape:
+## 10.1 Output Tree Conventions
+
+Status: **Open for standardisation**.
+
+The current generated site is a valid static application output tree. Remaining questions concern naming and long-term conventions:
 
 ```text
-<output_root>/
-  index.html
-  current/
-    basho-results/
-      index.html
-  assets/
-  runtime/
-  data/
-  build/
-    build-info.json
+Exact output-root default
+runtime/assets/data folder naming
+whether to generate a sitemap or route/state index
+whether any future static entry aliases are useful
 ```
 
-Open questions:
+No open issue remains about requiring page-per-route HTML.
+
+## 10.2 Build Metadata
+
+Status: **Open**.
+
+Questions:
 
 ```text
-Exact output root default
-runtime folder name
-assets folder name
-data folder layout
-whether route-local data folders are needed
-whether to generate sitemap or route index
-```
-
----
-
-# 13. Build Metadata
-
-Build metadata should be written.
-
-Open questions:
-
-```text
-Exact filename?
-Exact schema?
+Should build metadata be emitted?
+Exact filename and schema?
 Include git branch/commit?
 Include build mode?
-Include route/page counts?
-Include runtime bundle identity?
+Include page count/runtime identity?
 ```
 
-Current placeholder:
+Candidate location:
 
 ```text
 build/build-info.json
 ```
 
+## 10.3 Cache Policy
+
+Status: **Open**.
+
+Current direction:
+
+```text
+development cache-busting is sufficient for now
+production cache policy is deferred
+```
+
+Questions:
+
+```text
+Asset URL query token or content-stamped filenames?
+Data URL cache busting?
+How should runtime/manifest updates be invalidated in production?
+```
+
 ---
 
-# 14. Deployment Commands and Targets
+# 11. Deployment Commands and Future Remote Sync
 
-Deployment design recognizes:
+## 11.1 CLI Vocabulary
+
+Status: **Open**.
+
+The word `build` can mean different stages of the wider project pipeline:
 
 ```text
-build only
-preview server
-local/LAN deployment
-remote deployment
+rebuild analytical world from raw/source inputs
+prepare site-facing producer outputs
+assemble the static site
+deploy completed output
+preview an existing output tree
 ```
 
-Open questions:
+`make_site2` should not suggest that its ordinary CLI rebuilds the entire analytical world from source.
+
+Possible vocabulary:
 
 ```text
-Exact CLI flags
-Exact default local deploy path
-Exact default remote root
-Whether preview server is launched by make_site2 or documented as manual
-Whether remote deploy is included in first implementation
-```
-
-Known current environment:
-
-```text
-LAN Apache URL:
-  http://192.168.0.6/sumo-tools2/
-
-Likely mapped local target:
-  A:\\local\\htm\\sumo-tools2
-
-Remote URL:
-  http://68.66.241.105/sumo-tools2/
-```
-
-## 14.1 Best CLI Vocabulary and Options
-
-Status: Open.
-
-The word "build" is ambiguous.
-
-It can mean:
-
-```text
-build everything from scratch
-  rebuild the whole project data world from raw/source inputs
-
-build the data we need
-  run selected producers and write site-facing CSV/JSON/etc.
-
-build the site
-  assemble the static public site from prepared site-facing inputs
-```
-
-The first meaning exists at the wider project/pipeline level but is not a
-`make_site2` responsibility. `make_site2` should not present its ordinary CLI as
-if it can rebuild the whole analytical world from scratch.
-
-Possible clearer pipeline vocabulary:
-
-```text
-rebuild-world
-  run the full upstream project pipeline from raw/source inputs; outside
-  make_site2's normal scope
-
 produce
-  run analysis/producers and write site-facing CSV/JSON/etc.
-
 assemble
-  turn site definition + produced artefacts into the static site tree
-
 deploy
-  copy/upload the completed site tree to the server and/or remote server
-
 preview
-  serve an existing site tree with the preview server
 ```
 
-Under this vocabulary, the default full workflow is:
+Questions:
 
 ```text
-produce -> assemble -> deploy server -> deploy remote server
+Should current CLI flags be renamed before becoming public/stable?
+Should no-build deployment be named deploy-existing?
+Should producer preparation and site assembly be separately invokable?
 ```
 
-The wider project workflow, outside make_site2's normal CLI scope, would have an
-earlier stage:
+## 11.2 Remote Deployment / Future Sync
 
-```text
-rebuild-world -> produce -> assemble -> deploy server -> deploy remote server
-```
+Status: **Open for future improvement**.
 
-The current `--no-build` option is useful but may be poorly named because it
-depends on the ambiguous word "build". A possible clearer future name is:
-
-```text
---deploy-existing
-```
-
-Decision needed:
-
-```text
-What are the best CLI options?
-Should no-build deployment be renamed before the CLI settles?
-Should command names distinguish produce/assemble/deploy/preview explicitly?
-```
-
----
-
-# 15. Remote Deployment / Future Sync
-
-Remote deployment is secondary for now.
-
-Current accepted behavior:
+Current accepted behaviour is settled:
 
 ```text
 ensure directories exist
 upload/overwrite files
-do not delete stale remote files
+do not delete stale remote files automatically
 manual remote purge is acceptable
 ```
 
-Open questions:
+Future questions:
 
 ```text
-Will a future sync tool replace make_site2 remote deployment?
-Should remote clean deploy ever be implemented?
-What remote upload mechanism should be used long-term?
+Will a sync tool eventually replace make_site2 remote upload?
+Should any deliberately scoped remote-clean option ever exist?
+What upload/synchronisation mechanism should be preferred long-term?
 ```
 
 ---
 
-# 16. Notes and Note Targeting
+# 12. Notes, Artifact Metadata and Runtime Boundaries
 
-Notes are general, not table-only.
+## 12.1 Note Targeting
 
-Open questions:
+Status: **Open**.
+
+Notes are general and belong to PAs or visible Artifact features, not Filters.
+
+Questions:
 
 ```text
-How are note targets represented?
-How much target taxonomy is needed for the first slice?
-How are relevant notes selected in browser runtime?
-Are PA-level notes enough initially?
+How are note targets represented as more pages need them?
+How much target taxonomy is required?
+How are relevance updates represented in runtime data?
+Are PA-level notes sufficient for most current cases?
 ```
 
-Possible note targets:
+Possible targets:
 
 ```text
 PA
@@ -575,16 +497,16 @@ chart trace
 chart source
 data source
 prose section
-visible artifact feature
+visible Artifact feature
 ```
 
-Do not invent a large taxonomy before examples require it.
+Do not invent a large taxonomy before real examples require it.
 
----
+## 12.2 Artifact Metadata Extension
 
-# 17. Artifact Metadata Details
+Status: **Open as driven by future pages**.
 
-Initial artifact kinds:
+Current Artifact kinds include:
 
 ```text
 table
@@ -595,364 +517,184 @@ prose
 custom_artifact
 ```
 
-Open questions:
+Future questions:
 
 ```text
-Exact table column metadata vocabulary
-Exact chart semantic metadata vocabulary
-Exact sectioned-table structure
-Exact prose representation
-Exact custom artifact renderer registration
+What further table/chart semantic metadata is required?
+Does sectioned-table structure need refinement?
+What prose representation is sufficient?
+How should custom Artifact renderer registration mature?
 ```
 
-Decision should be driven by actual migrated pages.
+Decision should remain evidence-driven.
 
-## 17.1 Finish by Chii Checkpoint
+## 12.3 Richer Filter / Artifact-View Model
 
-Status: In progress.
+Status: **Deferred**.
 
-The next planned implementation target is:
-
-```text
-5.1 Finish by Chii
-```
+Pressure cases remain documented in Appendix A, including conditional control applicability and richer Artifact/View relationships.
 
 Current decision:
 
 ```text
-Do not migrate the legacy standalone HTML page.
-Do not use an iframe.
-Represent Finish by Chii as a normal Artifact in the make_site2 shell.
+retain flat G1 unless a real promoted-page problem justifies an active model
+change
 ```
 
-Target artifact shape:
+Promotion criteria should include one or more of:
 
 ```text
-Artifact
-  TitleBlock
-    title
-    subtitle
-  Payload
-    Plotly chart
-  Notes, optional
-```
-
-The title and subtitle should follow the existing `make_site` / legacy
-Finish-by-Chii behavior. They belong to the Artifact, not to Plotly and not to
-the chart payload itself.
-
-Options should use the existing page grammar:
-
-```text
-FilterSection
-  FilterControl*
-```
-
-No new options layout rule is currently expected for this page.
-
-The immediate design pressure is data loading.
-
-Existing `make_site` evidence shows these data-loading patterns:
-
-```text
-single CSV
-CSV plus metadata
-option-selected CSV
-indexed CSV family
-view-selected CSV
-```
-
-Finish by Chii exposes another needed pattern:
-
-```text
-csv_set
-  top_thresholds CSV
-  bottom_thresholds CSV
-```
-
-Working definition:
-
-```text
-DataSource
-  one copied resource
-
-DataBinding
-  the artifact-level rule for how one or more DataSources become payload data
-```
-
-For Finish by Chii, the implementation should introduce only the binding needed
-for the page:
-
-```text
-DataBinding(kind=csv_set)
-  source role: top_thresholds
-  source role: bottom_thresholds
-```
-
-Do not hide the two-source requirement inside bespoke chart-loading code.
-
-Deferred pressure:
-
-```text
-7.3.1 Career Length
-```
-
-Career Length may be understood through a more general artifact-view model, but
-that model is not part of the current implementation plan. See:
-
-```text
-A Appendix - Better Models.md
-```
-
-Current executive decision:
-
-```text
-Career Length / Longest will have no local options for now.
-```
-
-Before implementing Finish by Chii, inspect Career Length enough to avoid
-choosing a DataBinding shape that assumes:
-
-```text
-one artifact = one CSV = one payload kind
-```
-
-The Finish by Chii implementation should remain independent of Career Length,
-but the DataBinding vocabulary should not block Career Length later.
-
-## 17.2 Mutually Exclusive Filter Widget Choice
-
-Status: Decided.
-
-Some filters expose a mutually exclusive range of values.
-
-Decision:
-
-```text
-The semantic control is SingleFiniteChoice.
-Dropdowns and radio button groups are alternative renderings of
-SingleFiniteChoice.
-Dropdowns are always single-select.
-Render SingleFiniteChoice as a radio button group unless there are more than 7
-values.
-Render SingleFiniteChoice as a dropdown when there are more than 7 values.
-Render BooleanChoice as a checkbox.
-```
-
-The model may continue to use compact implementation names if they are read
-semantically:
-
-```text
-checkbox = BooleanChoice
-select = SingleFiniteChoice
-```
-
-Deferred pressure:
-
-```text
-When is a segmented control preferable to a radio group?
-Should a future pressure case allow an explicit widget override?
-Should a future richer grammar allow nested or conditional controls?
-```
-
-Current direction:
-
-```text
-Update the implementation so control rendering follows the semantic
-BooleanChoice / SingleFiniteChoice rule instead of treating "select" as a
-literal dropdown commitment.
+users are materially misled by states permitted under the flat model
+Notes/provenance cannot be owned honestly
+renderers accumulate repeated unexplained conditional structure
+one visible PA no longer accurately describes the page
 ```
 
 ---
 
-# 18. JavaScript Runtime Boundaries
+# 13. JavaScript Runtime and Browser Error Presentation
 
-Rendering design says JavaScript handles local interactivity but must not own public site structure.
+## 13.1 Runtime Boundaries
 
-Open questions:
+Status: **Open for future refactoring pressure**.
+
+Current principle:
 
 ```text
-How many JS modules?
-How is artifact renderer dispatch represented in JS?
-How are filters bound to runtime state?
-How are notes updated?
-How much table rendering is generic?
-How much BRB behavior is custom?
+shared runtime owns declared URL state, common Filters, common rendering
+behaviour and page selection
+
+Artifact runtimes own Artifact internals
 ```
 
-Current direction:
+Questions:
 
 ```text
-shared runtime owns filters, branch switching, URL state, and common behaviors
-artifact runtimes own artifact internals
+When should JavaScript be split into modules?
+How is Artifact renderer dispatch best represented long-term?
+How generic should table/chart behaviour become?
 ```
 
----
+## 13.2 Browser Error Presentation
 
-# 19. Browser Error Reporting
+Status: **Open for future UX improvement**.
 
-UX failures should report useful diagnostic information simply.
-
-Current initial direction:
+Current minimum behaviour is settled and implemented:
 
 ```text
-alert()
+invalid selected-page state produces an informative alert and safe fallback
 ```
 
-Open questions:
+Future question:
 
 ```text
-What errors should be reported through alert?
-Should a visible error panel replace alert later?
-What diagnostic details should be included?
-```
-
-Build/model contradictions are not UX errors and should crash during build.
-
----
-
-# 20. Cache Policy
-
-Caching was a significant problem in the predecessor site.
-
-Current direction:
-
-```text
-development cache-busting is enough for now
-production cache policy deferred
-```
-
-Open questions:
-
-```text
-What exact cache-busting mechanism?
-Asset URL query token?
-Content-stamped filenames?
-Data URL cache busting?
-Do route pages get cache tokens?
+Should inline error presentation eventually replace or supplement alert()?
 ```
 
 ---
 
-# 21. Documentation Follow-Up
+# 14. Documentation Consolidation
 
-Open documentation tasks:
-
-```text
-Add or update docs index / README.
-Remove stale "manifest" vocabulary from any remaining docs.
-Standardize BuildOutput terminology.
-Keep deferred questions centralized here.
-Move decided items out of this file after docs are updated.
-```
-
----
-
-## 21.1 Aspirational Specification and Rendering Audit Consolidation
+## 14.1 Aspirational Specification and Rendering Audit
 
 Status: **Decided / deferred documentation consolidation**.
 
 Decision already reached:
 
 ```text
-make_site2 is model-led but not model-maximal. The formal model should
-represent distinctions that affect public meaning, ownership, valid
-composition, validation, or runtime/rendering contract. It need not
-formalise ordinary presentation of already-modelled leaf values.
+make_site2 is model-led but not model-maximal.
 
-05.1 Rendering Grammar Audit How To.md complements this principle. It
-provides the audit method for distinguishing concrete model ownership,
-acceptable virtual ownership, browser defaults, genuine custom Artifact
-behaviour, and unjustified bespoke implementation.
+The formal model should represent distinctions that affect public meaning,
+ownership, valid composition, validation or runtime/rendering contract.
 
-Human-facing UI text may use ordinary wording such as "Options". The ban
-on Option/option applies when naming formal model or implementation
+It need not formalise ordinary presentation of already-modelled leaf values.
+
+05.1 Rendering Grammar Audit How To.md complements this principle by providing
+the audit method for distinguishing concrete model ownership, acceptable virtual
+ownership, browser defaults, genuine custom Artifact behaviour and unjustified
+bespoke implementation.
+
+Human-facing UI text may use ordinary wording such as "Options". The ban on
+Option/option applies when naming formal model or implementation
 representations of the Filter concept, not to all visible copy.
 ```
 
 Deferred action:
 
 ```text
-After the current review fixes and validation are complete, decide whether
-On Aspirational Specifications.md should remain a standalone canonical
-design note or be folded into an existing canonical design document, while
-preserving its relationship to 05.1 Rendering Grammar Audit How To.md.
+Decide whether On Aspirational Specifications.md should remain a standalone
+canonical design note or be folded into an existing canonical design document,
+while preserving its relationship to 05.1 Rendering Grammar Audit How To.md.
+```
+
+## 14.2 General Documentation Hygiene
+
+Status: **Open / ongoing**.
+
+Tasks:
+
+```text
+Add or update docs index / README if needed.
+Standardize BuildOutput terminology.
+Keep deferred questions centralized here.
+Remove completed items from this file once they no longer prevent regression.
 ```
 
 ---
 
-# 22. First Implementation Plan
+# 15. Future Analytical Ideas
 
-After `09 Open Issues.md`, the next useful document may be:
+Status: **Open / unassessed**.
 
-```text
-10 First Slice Implementation Plan.md
-```
-
-Likely focus:
+Recorded idea:
 
 ```text
-BRB-only vertical slice
-minimal SiteDefinition
-minimal PublicationPlan
-minimal UIModel
-minimal Rendering
-minimal BuildOutput
-local/LAN deploy
+Chii versus Elo before and after/during
 ```
 
-Open question:
-
-```text
-Do we need this document before writing code?
-```
+This is an analytical/product idea, not currently a `make_site2` design issue. It should be promoted into page/design work only after its public purpose and producer requirements are considered.
 
 ---
 
-# 23. Current Priority Guess
+# 16. Current Priority View
 
-Current likely priorities:
+Current likely priorities after the completed first review pass:
 
 ```text
 P0:
-  first BRB vertical slice
-  ThemeConfig/LayoutConfig minimal config
-  output tree defaults
-  local/LAN deployment target
-  runtime bootstrap format
+  confirm and maintain a stable post-review baseline
+  decide next public-page/product work
 
 P1:
-  route slug policy
-  first status inclusion policy
-  notes targeting
-  producer orchestration cleanup
+  status/build-mode inclusion policy
+  runtime manifest/bootstrap contract refinement, if needed
+  ThemeConfig/LayoutConfig centralisation
+  notes/Artifact metadata only where real page pressure demands it
 
 P2:
-  remote deployment sync
+  remote sync improvement
   production cache policy
-  sitemap/redirects
+  deep-link compatibility policy once URLs are publicly stable
+  richer structured Filter/Artifact-view modelling if promoted from Appendix A
 ```
 
-This priority guess should be revised once implementation starts.
+This priority view should be revised as the next real product task is selected.
 
 ---
-# 24 New Ideas
-1. Chii v.Elo before and after/during
 
-# 25. Summary
+# 17. Summary
 
-The major design spine is settled.
-
-The remaining questions are mostly about:
+The first implementation review pass has settled and verified the major drift identified between documentation and code:
 
 ```text
-first implementation shape
-exact file/config formats
-first producer integration
-runtime/bootstrap details
-local deployment workflow
+stable deep-linked static application output is permitted
+G1 is the active current grammar
+generated output is cleaned safely in place
+page status is explicit
+unknown-page and invalid/stale URL-state behaviour is controlled
+formal filter_value terminology is aligned
 ```
 
-This file should be updated as decisions are made.
+Remaining issues concern policy maturation, future extension and documentation consolidation rather than immediate correction of the completed review findings.
 
-Do not let it become a second design notebook.
+Do not let this file become a second design notebook.
