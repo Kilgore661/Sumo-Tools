@@ -848,6 +848,39 @@ Move decided items out of this file after docs are updated.
 
 ---
 
+## 21.1 Aspirational Specification and Rendering Audit Consolidation
+
+Status: **Decided / deferred documentation consolidation**.
+
+Decision already reached:
+
+```text
+make_site2 is model-led but not model-maximal. The formal model should
+represent distinctions that affect public meaning, ownership, valid
+composition, validation, or runtime/rendering contract. It need not
+formalise ordinary presentation of already-modelled leaf values.
+
+05.1 Rendering Grammar Audit How To.md complements this principle. It
+provides the audit method for distinguishing concrete model ownership,
+acceptable virtual ownership, browser defaults, genuine custom Artifact
+behaviour, and unjustified bespoke implementation.
+
+Human-facing UI text may use ordinary wording such as "Options". The ban
+on Option/option applies when naming formal model or implementation
+representations of the Filter concept, not to all visible copy.
+```
+
+Deferred action:
+
+```text
+After the current review fixes and validation are complete, decide whether
+On Aspirational Specifications.md should remain a standalone canonical
+design note or be folded into an existing canonical design document, while
+preserving its relationship to 05.1 Rendering Grammar Audit How To.md.
+```
+
+---
+
 # 22. First Implementation Plan
 
 After `09 Open Issues.md`, the next useful document may be:

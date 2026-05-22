@@ -120,7 +120,7 @@ It owns:
 ```text
 site definition
 navigation
-routes
+public page-selection/deep-link conventions
 page status
 publication planning
 UI Model
@@ -304,7 +304,7 @@ A promoted page should have:
 ```text
 PageDefinition
 canonical navigation placement
-canonical route
+stable public selection/deep-link identity
 explicit page status
 site-facing producer input
 UI Model representation
@@ -348,7 +348,7 @@ examples of what not to preserve
 They should not define:
 
 ```text
-public routes
+public deep-link semantics
 page grammar
 site theme
 CSS architecture
@@ -405,12 +405,12 @@ The previous UI-model experiment is evidence.
 Useful evidence includes:
 
 ```text
-G1 / G2 grammar pressure
+G1 and deferred richer-model pressure
 BRB as G1 indexed-table case
-Career Length as G2 selected-alternative case
+Career Length as deferred Artifact/View pressure
 Banzuke Changes as custom artifact case
 direct rendering inside a shared ContentPanel
-note/filter/branch interactions
+note/filter and deferred structured-control interactions
 the value of confining custom renderers to artifact slots
 ```
 
@@ -586,7 +586,7 @@ A possible migration order is:
    G1 chart
 
 5. Career Length
-   G2 selected alternative
+   G1 for now; richer Artifact/View modelling remains deferred pressure
 
 6. Typical Equelo Ratings
    sectioned table and/or prose-adjacent artifact
@@ -696,7 +696,7 @@ Non-acceptable promoted-page use:
 ```text
 copy old HTML and treat it as the real page
 parse old HTML to recover model meaning
-let old HTML define page shell or route
+let old HTML define page shell or public deep-link semantics
 ```
 
 ---
@@ -792,7 +792,7 @@ Producer integration does not own:
 ```text
 site requirements
 public navigation policy
-route derivation
+public page-selection/deep-link semantics
 UI rendering
 theme/layout configuration
 deployment execution

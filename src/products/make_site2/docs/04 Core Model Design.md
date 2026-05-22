@@ -96,8 +96,8 @@ or excluded?
 What global assets or defaults belong to the site?
 ```
 
-The Site Model does not derive routes, resolve dependencies, render HTML, or
-inspect artifact internals.
+The Site Model does not resolve public deep-link representation, dependencies,
+rendered output, or artifact internals.
 
 Detailed design:
 
@@ -116,8 +116,8 @@ It owns resolved build structure:
 ```text
 PublicationPlan
 PlannedPage
-Route
-RouteTable
+PublicSelectionReference
+PublicSelectionTable
 DependencySet
 ResolvedAsset
 ResolvedData
@@ -160,11 +160,8 @@ ContentPanel
 Heading
 Contents
 G1Contents
-G2Contents
 FilterSection
 Filter
-BranchSelector
-Branch
 PA slot
 Note ownership
 ```
@@ -174,8 +171,7 @@ The UI Model answers:
 ```text
 What does the user interface structurally contain?
 What is the selected page's ContentPanel?
-Is the page G1 or G2?
-What filters are visible?
+What flat G1 filters are visible?
 What PA slot is being shown?
 Where do notes belong?
 ```
@@ -223,7 +219,7 @@ Which behavior belongs inside the artifact rather than the surrounding page?
 The Artifact Model is deliberately below the UI Model.
 
 A custom artifact renderer may be necessary, but it renders only the artifact
-slot. It does not own the page shell, navigation, route, Heading, or surrounding
+slot. It does not own the page shell, navigation, public page-selection semantics, Heading, or surrounding
 ContentPanel structure.
 
 Detailed design:
@@ -293,7 +289,6 @@ The UI Model owns the surrounding structure:
 ContentPanel
 Heading
 Filters
-Branch selection
 PA placement
 Note ownership
 ```
@@ -318,7 +313,7 @@ Example:
 ```text
 A Banzuke Changes table may need a custom artifact renderer.
 That renderer may own banzuke-shaped table internals.
-It may not own the page shell, route, navigation, or ContentPanel grammar.
+It may not own the page shell, public page-selection semantics, navigation, or ContentPanel grammar.
 ```
 
 ---
@@ -336,8 +331,8 @@ Site Model:
   Page "Basho Results" exists under a navigation node.
 
 Publication Plan:
-  Page "Basho Results" is included in this build at a concrete route and has
-  concrete artifact-input/data/asset dependencies.
+  Page "Basho Results" is included in this build with a concrete public
+  selection/deep-link reference and artifact-input/data/asset dependencies.
 ```
 
 This distinction prevents public intent from being confused with build mechanics.
@@ -354,7 +349,8 @@ For example:
 
 ```text
 Publication Plan:
-  PlannedPage has route /current/basho-results/ and references a BRB artifact input.
+  PlannedPage has a stable public selection/deep-link reference and references a
+  BRB artifact input.
 
 UI Model:
   Page resolves to G1 contents with a Heading, FilterSection, indexed-table PA,
@@ -378,7 +374,7 @@ navigation shape
 known page types
 producer output realities
 runtime and styling pressure points
-G1/G2 grammar choices
+G1 grammar and deferred richer-model pressure
 ```
 
 They are not design authority for `make_site2`.

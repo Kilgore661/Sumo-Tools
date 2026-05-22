@@ -7,7 +7,7 @@ Initial design document for build and output writing in `make_site2`.
 This document describes how rendered site material becomes a concrete static
 output tree.
 
-It does not describe route derivation, UI-model resolution, rendering internals,
+It does not describe public selection/deep-link resolution, UI-model resolution, rendering internals,
 producer computation, or deployment execution.
 
 Deployment is a first-class package capability, but deployment is designed
@@ -97,7 +97,7 @@ written to disk yet.
 It may contain:
 
 ```text
-rendered route pages
+rendered application entry HTML and any optional additional entry pages
 rendered or serialized bootstrap data
 runtime asset references
 global asset references
@@ -170,8 +170,7 @@ Deployment later copies or uploads that output.
 
 The output root is cleared before each build.
 
-This prevents stale generated files from surviving after pages, assets, routes,
-or data dependencies are removed.
+This prevents stale generated files from surviving after pages, assets, data dependencies or runtime outputs are removed.
 
 A build output directory should represent the current build, not an accumulation
 of historical builds.
@@ -184,68 +183,51 @@ Incremental writing may be reconsidered only if a real requirement appears.
 
 The generated output tree should be ordinary static-site material.
 
-A typical shape is:
+A typical current shape is:
 
 ```text
 <output_root>/
   index.html
-  current/
-    basho-results/
-      index.html
-  banzuke/
-    changes/
-      index.html
-  history/
-    career-length/
-      index.html
   assets/
     ...
   runtime/
-    ...
+    ... application runtime and manifest/bootstrap data ...
   data/
     ...
   build/
     build-info.json
 ```
 
-Exact folder names may change.
+Exact folder names may change. Additional HTML entry pages may be added if a
+later public requirement justifies them.
 
 The important requirements are:
 
 ```text
-route pages are real static HTML files
-runtime assets are present
+an application entry HTML file is present
+runtime and serialized model/bootstrap assets are present where required
 data required by interactive pages is present
-build metadata is present
+build metadata is present where emitted
 the output root can be served as static files
+supported deep links can restore the intended public page/view state
 ```
 
 ---
 
-# 8. Route Page Output
+# 8. Application Entry and Optional Additional Entries
 
-Each canonical route is written as a real static route page.
-
-The preferred route-page form is directory `index.html`:
-
-```text
-/current/basho-results/index.html
-```
-
-rather than:
-
-```text
-/current/basho-results.html
-```
-
-This keeps public URLs clean and makes route folders natural containers for
-route-local files if needed later.
-
-The root route is written as:
+The current output design permits one static application entry point:
 
 ```text
 /index.html
 ```
+
+with selected page identity and material view state restored by the runtime from
+the stable deep-link representation.
+
+The output design does not require one HTML file per public page. If later design
+adds path-based or route-local HTML entry points, output writing shall stage them
+as explicit rendered outputs rather than infer them from incidental files.
 
 ---
 
@@ -256,7 +238,7 @@ The build/output stage writes generated files.
 Generated files may include:
 
 ```text
-route HTML pages
+application entry HTML and any explicitly rendered additional entry pages
 serialized bootstrap data
 serialized UI/artifact model data needed by the browser runtime
 build metadata
@@ -376,7 +358,7 @@ site title
 build timestamp
 build mode
 output root
-route count
+included-page count
 page count
 runtime bundle identity
 source branch or commit, if conveniently available
@@ -402,7 +384,7 @@ This allows deployment to know:
 where the generated site lives
 what entry point exists
 what files were written
-what route pages exist
+what entry/model/data files exist
 what build metadata exists
 ```
 
@@ -446,37 +428,27 @@ It does not redo publication planning or UI-model resolution.
 
 # 17. File Paths
 
-The output stage translates public routes and output references into filesystem
-paths.
+The output stage translates rendered entry files, serialized runtime/model
+references, assets and data references into filesystem paths.
 
-Examples:
-
-```text
-Route:
-  /current/basho-results/
-
-Output file:
-  <output_root>/current/basho-results/index.html
-```
-
-This mapping belongs to build/output design.
-
-Public route semantics are already resolved by the Publication Plan.
+The public deep-link representation is already resolved by upstream
+publication/rendering/runtime design; output writing stages the required static
+files and must not infer public semantics from incidental source layout.
 
 ---
 
 # 18. Relative Links and Asset URLs
 
-Generated route pages need correct links to runtime assets, data files, and
-other pages.
+Generated entry/runtime material needs correct references to runtime assets,
+data files, serialized model/bootstrap files and public assets.
 
-The output design should support stable URL references from route pages to:
+The output design should support stable URL references to:
 
 ```text
-runtime CSS/JS
+runtime CSS/JavaScript
+serialized page/Artifact/bootstrap data
 data files
 assets
-other route pages
 ```
 
 The exact URL policy is deferred.
@@ -537,7 +509,7 @@ Build/output writing does not own:
 public site requirements
 site definition
 page inclusion policy
-route derivation
+public deep-link semantics
 UI Model structure
 artifact model structure
 artifact rendering internals
@@ -575,7 +547,7 @@ Output writing decides where that rendered page is placed in the static tree.
 
 # 23. Relationship to PublicationPlan
 
-The Publication Plan identifies routes, included pages, dependencies, and
+The Publication Plan identifies included pages, public selection references, dependencies, and
 runtime requirements.
 
 Output writing uses the rendered consequences of that plan.
@@ -625,7 +597,7 @@ current runtime asset copying
 current data-file copying
 current local deployment expectations
 current cache-busting behavior
-current generated page routes
+current generated entry/runtime/data-file layout
 ```
 
 That evidence is not authoritative.
@@ -646,9 +618,9 @@ exact assets folder name
 exact data folder layout
 exact build metadata schema
 exact cache/version policy
-whether route-local data folders are ever needed
+whether page-local data folders are ever needed
 whether output should include a generated sitemap
-whether output should include redirects for renamed routes
+whether later deep-link changes require redirects or compatibility handling
 exact relation between build output root and local deploy root
 ```
 
@@ -662,7 +634,8 @@ Build and output writing turns `RenderedSite` into `BuildOutput`.
 
 It writes a clean static output tree.
 
-It writes real route pages using directory `index.html` form.
+It writes the static application entry material and any later explicitly
+required additional HTML entry points.
 
 It copies runtime assets, global assets, page assets, and data files required by
 the rendered site.

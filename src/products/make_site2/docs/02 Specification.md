@@ -198,7 +198,7 @@ A navigation node shall have:
 ```text
 stable id or key
 human-facing label
-slug or route component
+slug or public selection component, where used
 zero or more children
 optional page reference
 optional status/readiness metadata
@@ -217,25 +217,33 @@ second navigation system.
 
 ---
 
-# 7. Route Contract
+# 7. Deep-Link and Page-Selection Contract
 
-`make_site2` shall derive or validate stable public routes from navigation and
-page definitions.
+`make_site2` shall provide stable deep-site URLs for public analytical views.
 
-Routes shall be public concepts.
+A deep link shall identify the selected public page and any material analytical
+state needed to reproduce the displayed result.
 
-Routes shall not be derived from incidental source filenames, legacy output
-paths, or producer implementation details.
+Page identity and material view state may be represented by path segments, query
+state, hash state, or a combination, provided the mechanism is explicit, stable,
+reproducible, and compatible with static deployment.
 
-Each promoted page shall have exactly one canonical public route.
+Public page selection shall not be derived from incidental source filenames,
+legacy output paths, or producer implementation details.
 
-Route changes after publication shall be deliberate compatibility decisions.
+Changes to published deep-link semantics shall be deliberate compatibility
+decisions.
+
+This contract does not require one generated HTML file per public page. A
+single-shell static application is permitted if opening its deep links reliably
+restores the intended public page and material view state.
 
 ---
 
 # 8. Page Contract
 
-A page is a public publication unit.
+A page is a public publication unit, whether selected by path, URL state, or a
+combination of the two.
 
 A page definition shall include:
 
@@ -256,7 +264,7 @@ A page is not merely:
 
 ```text
 an HTML file
-a route
+a URL encoding
 a copied generated artefact
 ```
 
@@ -301,7 +309,10 @@ mechanism.
 
 # 10. Filter Contract
 
-`make_site2` shall use **Filter**, not **Option**, as the public UI-model term.
+`make_site2` shall use **Filter**, not **Option**, as the formal public UI-model
+term. This rule applies to model and implementation identifiers for the
+concept; reader-facing UI copy may use ordinary wording such as `Options`
+where that is clearer to readers.
 
 A filter is reader-visible state that restricts, selects, projects, or otherwise
 narrows what part of the available analytical view is shown.
@@ -314,7 +325,6 @@ column projection
 source selection
 measure selection
 representation selection
-branch selection
 PA selection
 visibility preset selection
 ```
@@ -499,7 +509,7 @@ what labels should be shown
 
 ```text
 navigation
-routes
+public page-selection/deep-link conventions
 page framing
 shared rendering grammar
 filter rendering conventions
@@ -523,7 +533,6 @@ sidebar
 navigation
 heading layout
 filter section layout
-branch selector layout
 PA placement
 notes placement
 shared table/chart/prose containers
@@ -546,7 +555,7 @@ Artifact renderers shall not own:
 ```text
 page title
 site navigation
-route
+public page-selection/deep-link semantics
 global shell
 ContentPanel structure
 page-level status
@@ -563,7 +572,7 @@ A legacy/prototype inclusion shall not silently count as a promoted page.
 Legacy/prototype content shall not define:
 
 ```text
-public route policy
+public deep-link policy
 site navigation policy
 page grammar
 CSS architecture
@@ -585,21 +594,20 @@ reverse-engineering generated HTML
 
 # 17. URL State Contract
 
-Meaningful public filter state shall be serializable into the URL where
-shareability matters.
+Meaningful public state shall be serializable into the URL where shareability
+matters. This includes the selected public page when page identity is represented
+through URL state rather than a distinct path.
 
 Default state may be omitted from the URL.
 
 Non-default state that materially changes interpretation should be
 representable.
 
-The route identifies the page.
-
-Query/hash state may identify:
+URL state may identify:
 
 ```text
+selected public page
 selected filter values
-selected branch
 selected data instance
 selected representation
 visible table preset
@@ -618,7 +626,8 @@ ordinary table sort, unless declared meaningful
 Plotly zoom, unless declared meaningful
 ```
 
-Invalid URL state shall degrade predictably.
+Invalid URL state shall degrade predictably and shall not silently leave the
+public content region blank.
 
 ---
 
@@ -629,8 +638,9 @@ A successful build shall produce a complete static output tree.
 The output tree shall include:
 
 ```text
-site entry HTML
-route HTML or route data as required
+site/application entry HTML
+additional HTML entry points, if used
+serialized page-selection or runtime-manifest data, where required
 runtime CSS
 runtime JavaScript
 serialized page/artifact data, where required
@@ -671,7 +681,7 @@ Examples:
 missing data
 empty table
 invalid filter
-unknown route
+unknown selected page or invalid page URL state
 missing required producer input
 unsupported artifact renderer
 failed data load
@@ -679,8 +689,8 @@ excluded page selected
 legacy page not available
 ```
 
-A promoted page shall not silently render blank space when a required artefact is
-missing.
+A promoted page shall not silently render blank space when required content is
+missing or selected page state is invalid.
 
 ---
 
@@ -692,6 +702,7 @@ The first useful `make_site2` vertical slice shall demonstrate:
 one generated static site
 one subject-led navigation tree
 one promoted page
+one stable deep-linkable selected-page/view mechanism
 no iframe for promoted content
 one G1 page
 one FilterSection
@@ -719,7 +730,7 @@ flat FilterSection handling for BooleanChoice and SingleFiniteChoice controls
 one custom artifact renderer inside a shared page structure
 explicit handling of legacy/prototype/excluded pages
 shared filter vocabulary
-shared route/navigation behavior
+shared deep-link/navigation behavior
 no promoted iframe pages
 no promoted copied-HTML pages
 ```
@@ -746,7 +757,7 @@ The following terms are part of the `make_site2` specification:
 ```text
 Site
 Navigation
-Route
+DeepLink
 Page
 Sidebar
 ContentPanel
@@ -771,8 +782,9 @@ The following term is not part of the `make_site2` public model:
 Option
 ```
 
-This restriction applies to the `make_site2` requirements, specification, design,
-model, public terminology, and implementation-facing vocabulary.
+This restriction applies when naming formal concepts or their implementation
+representations, including grammar entities, model terms, class names,
+attribute names, keys and variables.
 
-It does not prohibit using the ordinary English word "option" in conversation,
-planning notes, or informal discussion.
+It does not prohibit ordinary reader-facing copy such as the heading
+`Options`, nor ordinary informal English use of the word `option`.

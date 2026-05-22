@@ -24,9 +24,9 @@ framing; expert readers should be able to access richer filters, caveats,
 methodology, and research detail without the site becoming a pile of unrelated
 tools.
 
-The package owns the public-site structure: navigation, routes, page framing,
-shared rendering grammar, filters, notes, public status, static output, and
-deployment shape. Producers own analysis-specific computation and site-facing
+The package owns the public-site structure: navigation, stable deep-linkable
+public page/view selection, page framing, shared rendering grammar, filters,
+notes, public status, static output, and deployment shape. Producers own analysis-specific computation and site-facing
 artefact data. Legacy/prototype HTML may be used as evidence or temporary
 compatibility material, but promoted public pages must move toward intentional
 site-facing inputs and the shared publication model.
@@ -35,9 +35,9 @@ site-facing inputs and the shared publication model.
 calculation of standings, banzuke comparisons, probability traces, Equelo
 ratings, or historical summaries. Those outputs are prepared earlier by analysis
 and miscellaneous producer modules. `make_site2` consumes their site-facing
-CSV/JSON/artifact outputs, stages them under public routes, renders the shared
-site shell and runtime model, and hands the completed static output to
-deployment.
+CSV/JSON/artifact outputs, stages them in the public static output tree,
+renders the shared site shell and runtime model, and hands the completed static
+output to deployment.
 
 The older `make_site` product has the same pipeline position: it consumes
 previously prepared producer outputs rather than manufacturing the whole public
@@ -101,7 +101,8 @@ It is responsible for:
 2. Declaring or consuming subject-led navigation.
 3. Maintaining a registry of promoted, candidate, research, diagnostic, legacy,
    superseded, and excluded pages.
-4. Deriving or validating stable public routes.
+4. Providing stable deep-site URLs that restore the selected public page and
+   its material analytical state.
 5. Connecting page definitions to site-facing artefacts, data, artifact inputs, and
    runtime assets.
 6. Rendering pages through a shared publication grammar.
@@ -148,7 +149,10 @@ The public web server should not require:
 - user accounts;
 - server-side runtime computation.
 
-Client-side JavaScript is allowed for interactive pages.
+Client-side JavaScript is allowed for interactive pages and for restoring the
+selected public page and material analytical state from a deep link. The static
+site may use one application shell or multiple HTML entry pages; neither shape
+is required merely by static deployment.
 
 ---
 
@@ -200,7 +204,10 @@ it.
 
 Promoted pages should render through the shared publication model.
 
-The successor model uses `Filter`, not `Option`, as the public UI-model term.
+The successor model uses `Filter`, not `Option`, as the formal public UI-model term.
+This vocabulary rule governs the model and implementation identifiers for the
+concept; it does not prevent reader-facing UI copy such as `Options` where that
+word is clearer to ordinary users.
 
 A filter is reader-visible state that restricts, selects, projects, or otherwise
 narrows what part of the available analytical view is shown. This intentionally
@@ -214,7 +221,7 @@ Filters may internally correspond to:
 - source selection;
 - measure selection;
 - representation selection;
-- branch selection;
+- PA or representation selection;
 - PA selection;
 - visibility preset selection.
 
@@ -234,7 +241,7 @@ path.
 
 It should not permanently define:
 
-- public routes;
+- public deep-link semantics;
 - page grammar;
 - styling;
 - data contracts;
@@ -257,6 +264,7 @@ The first real successor package does not require:
 - user accounts;
 - a database-backed public API;
 - a full single-page application framework;
+- one generated HTML page per public page;
 - complete migration of all legacy v9 ideas;
 - publication of all generated Sumo-Tools artefacts.
 
@@ -275,4 +283,4 @@ The package should let the site say:
 
 > Here is the public question, here is the curated analytical artefact, here are
 > the filters that change what is visible, here are the caveats and provenance,
-> and here is the stable route where this public page lives.
+> and here is a stable deep link that restores this public analytical view.

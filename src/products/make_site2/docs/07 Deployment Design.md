@@ -25,7 +25,7 @@ optionally uploaded to the remote public host
 
 Deployment does not define the site.
 
-Deployment does not derive routes.
+Deployment does not define public page-selection or deep-link semantics.
 
 Deployment does not render pages.
 
@@ -432,7 +432,7 @@ Deployment consumes `BuildOutput`.
 where the generated site lives
 what entry point exists
 what files were written
-what route pages exist
+what static entry/runtime/data files exist
 what build metadata exists
 ```
 
@@ -466,13 +466,14 @@ They have different ownership.
 
 # 16. Relationship to Rendering
 
-Deployment does not know or care how route pages were rendered.
+Deployment does not know or care how public page selections were rendered or
+restored from deep links.
 
 Deployment should not inspect:
 
 ```text
 UI Model
-G1/G2 structure
+G1 or any later UI grammar structure
 filters
 artifacts
 notes
@@ -517,7 +518,7 @@ Deployment does not own:
 requirements
 site definition
 page inclusion policy
-route derivation
+public page-selection/deep-link design
 UI Model structure
 artifact model structure
 rendering

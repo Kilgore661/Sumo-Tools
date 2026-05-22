@@ -5,9 +5,9 @@
 Initial design document for rendering in `make_site2`.
 
 This document describes how the UI Model and Artifact Model become rendered
-static route pages plus browser-side interactive behavior.
+static-site material plus browser-side interactive behaviour.
 
-It does not describe route derivation, publication planning, output writing, or
+It does not describe public selection planning, publication planning, output writing, or
 deployment.
 
 ---
@@ -73,64 +73,44 @@ It does not deploy the site.
 
 ---
 
-# 3. Hybrid Route-Page Rendering Model
+# 3. Deep-Linked Static Rendering Model
 
-`make_site2` uses a hybrid static rendering model.
+`make_site2` currently uses a deep-linked static application model.
 
-Python generates one real static HTML route page per planned page.
+Python generates the shared static application material and serialized modelled
+public structure. Browser JavaScript restores the selected public page and its
+material analytical state from a deep link and realizes that modelled page
+within the shared shell.
 
-Examples:
-
-```text
-/current/basho-results/index.html
-/banzuke/changes/index.html
-/history/career-length/index.html
-```
-
-Each route page uses the shared shell and is rendered from the UI Model.
-
-Each route page contains stable UI structure such as:
+The shell contains stable UI structure such as:
 
 ```text
 Sidebar
-ContentPanel
-Heading
-Filter containers
-PA / artifact container
-Notes container
-runtime bootstrap data
+ContentPanel mount point
+runtime asset references
+runtime bootstrap or manifest reference
 ```
 
-Browser JavaScript then handles dynamic behavior inside those prepared slots:
+Browser JavaScript then handles dynamic behaviour within modelled structure:
 
 ```text
+selected page restoration
 filters
-branch selection
 interactive tables
 charts
 visible notes
-URL state where required
+URL-state synchronization
 ```
 
-The public server remains static.
+The public server remains static. It only serves generated files.
 
-It only serves generated files.
+This design does not require one generated HTML page per public page. It also
+does not permit JavaScript to become an unmodelled second site architecture:
+page identities, ContentPanel structures, Filters, Artifacts and Notes must come
+from planned/modelled public-site material made available to the runtime.
 
-This design deliberately avoids both extremes:
-
-```text
-not:
-  copied standalone HTML pages with unrelated shells
-
-not:
-  one opaque JavaScript application that replaces the whole site
-```
-
-Python owns stable public page structure.
-
-JavaScript owns local interactivity.
-
-The UI Model is the contract between them.
+A future design may introduce additional HTML entry points if a public
+requirement justifies them. They are not required now.
 
 ---
 
@@ -156,7 +136,8 @@ RenderedSite
 Conceptually, `RenderedSite` may include:
 
 ```text
-route pages
+application shell HTML
+serialized UI/artifact bootstrap or manifest data
 shared shell fragments
 runtime bootstrap data
 runtime asset references
@@ -347,7 +328,7 @@ custom artifact internals
 They do not own:
 
 ```text
-page route
+public page-selection/deep-link semantics
 Sidebar
 Navigation
 ContentPanel
@@ -367,21 +348,16 @@ A custom artifact renderer is not allowed to become a custom page renderer.
 
 # 7. Rendering Pipeline
 
-For each planned page already resolved into the UI Model, rendering proceeds
+For a planned site already resolved into the UI Model, rendering proceeds
 conceptually as:
 
 ```text
-render route page shell
-render Sidebar
-render active Navigation state
-render ContentPanel
-render Heading
-render Contents structure
-render FilterSection containers
-render PA slot
-render Artifact container and bootstrap
-render Notes container
-emit runtime bootstrap data
+render shared application shell
+render Sidebar and Navigation structure
+emit or reference runtime bootstrap/manifest data
+restore selected page state in the browser
+render selected ContentPanel, Heading, Contents, Filters, PA and Notes
+render the selected Artifact contents as required
 ```
 
 Artifact internals are rendered by artifact renderers.
@@ -456,7 +432,7 @@ Sidebar hider
 
 The renderer consumes planned navigation.
 
-It does not derive routes.
+It does not invent public page identities or deep-link semantics.
 
 It does not decide which pages are included.
 
@@ -674,7 +650,7 @@ payload kind.
 
 If an Artifact has no title block, the renderer omits it.
 
-In the current G1 grammar, an Artifact title is a peer of `Options` and `Notes`
+In the current G1 grammar, an Artifact title is a peer of `FilterSection` and `Notes`
 inside the content area and renders at the same heading level.
 
 ---
@@ -739,17 +715,16 @@ Status should be visible enough to prevent accidental misinterpretation.
 
 # 19. Runtime Bootstrap
 
-Each route page may include runtime bootstrap data.
+The generated static application may include runtime bootstrap or manifest data.
 
 Bootstrap data may include:
 
 ```text
 page id
-route
+public selection/deep-link reference
 status
 filter definitions
 default filter state
-branch definitions
 artifact references
 data URLs
 note relevance data
@@ -781,7 +756,6 @@ It may own:
 
 ```text
 filter control event handling
-branch switching
 table sorting, filtering, and rendering
 chart initialization
 note relevance updates
@@ -793,8 +767,8 @@ It must not own:
 
 ```text
 public site structure
-route derivation
-page identity
+undeclared public page-selection semantics
+invented page identity
 canonical navigation structure
 semantic page grammar
 site-wide theme policy
@@ -815,10 +789,15 @@ No Node.js runtime is required by the public site.
 CSS must express the UI Model, Artifact Model, and explicitly declared rendering
 grammar.
 
-It must not introduce semantic, structural, or visual distinctions that are not
-present in those models or grammars.
+It must not introduce meaning-bearing semantic or structural distinctions that
+are absent from those models or declared rendering policy.
 
-This applies down to the smallest implementation choices:
+Ordinary presentation of already-modelled entities and leaf values may be
+handled through shared rendering/theme/layout policy, including standard
+typography, spacing, alignment and formatting, provided no new public meaning or
+undeclared relationship is implied.
+
+Meaning-bearing implementation choices include:
 
 ```text
 wrapper structure
@@ -897,8 +876,8 @@ Rendering/runtime serializes and restores it where needed.
 Examples:
 
 ```text
+selected public page
 selected filters
-selected branch
 selected representation
 selected data instance
 visible table preset
@@ -908,7 +887,8 @@ Default state may be omitted from the URL.
 
 Non-default meaningful state should be shareable where useful.
 
-Exact route/query/hash policy is deferred.
+Exact path/query/hash syntax is deferred, subject to the specification's
+stable deep-link contract.
 
 Transient browser state need not be public URL state unless promoted into the
 model.
@@ -945,13 +925,14 @@ failed data fetch
 missing runtime data file
 unsupported browser-side artifact state
 invalid restored URL state
+unknown selected page id
 ```
 
 Examples of build/model failures that should crash rather than degrade
 gracefully:
 
 ```text
-missing promoted page route
+missing required promoted-page selection information
 unknown artifact kind in generated UI Model
 contradictory content grammar structure
 missing required producer input during build
@@ -969,7 +950,7 @@ Rendering does not own:
 ```text
 site definition
 page inclusion policy
-route derivation
+public page-selection/deep-link planning
 producer computation
 artifact data generation
 deployment
@@ -1080,11 +1061,13 @@ These should be resolved when they become implementation pressure points.
 
 # 27. Summary
 
-`make_site2` uses hybrid route-page rendering.
+`make_site2` currently uses deep-linked static application rendering.
 
-Python renders stable route pages from the UI Model.
+Python renders shared static site material and exposes modelled public structure
+to the runtime.
 
-JavaScript handles dynamic behavior inside prepared slots.
+JavaScript restores the selected public page and handles dynamic behaviour inside
+that modelled structure.
 
 The server remains static.
 

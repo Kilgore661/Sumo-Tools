@@ -15,9 +15,10 @@ build pipeline, producer integration, deployment, and migration details.
 
 `make_site2` is a static analytical publication builder.
 
-It reads a declared public site, resolves pages into stable routes and curated
-page publications, converts each promoted page into an explicit UI Model, and
-renders that model through a shared shell and artifact renderer registry.
+It reads a declared public site, resolves curated page publications and stable
+public page-selection/deep-link references, converts each promoted page into an
+explicit UI Model, and renders that model through a shared shell and artifact
+renderer registry.
 
 The central design rule is:
 
@@ -56,8 +57,7 @@ ContentPanel
 Heading
 Contents
 FilterSection
-BranchSelector
-Branch
+FilterItem
 PA
 Artifact
 Note
@@ -109,7 +109,7 @@ CLI / command entry
 The key semantic seam is:
 
 ```text
-PageDefinition + route + artifact/data references
+PageDefinition + public page-selection/deep-link reference + artifact/data references
   -> UIModelResolver
   -> UIModel
 ```
@@ -210,7 +210,7 @@ The planner turns declarations into a concrete build plan.
 It owns:
 
 ```text
-route derivation
+public page-selection/deep-link resolution
 page inclusion/exclusion
 status filtering
 dependency collection
@@ -233,7 +233,7 @@ Example:
 
 ```text
 navigation node -> page id
-page id -> canonical route
+page id -> stable public selection/deep-link reference
 page id -> required artifact inputs/data/assets
 page status -> include, exclude, or mark explicitly
 ```
@@ -253,7 +253,7 @@ Input:
 
 ```text
 PageDefinition
-Route
+PublicSelectionReference
 Status
 Producer site-facing input or artifact input
 Data references
@@ -270,10 +270,9 @@ PageUIModel
 The resolver answers semantic UI questions:
 
 ```text
-Is this page G1 or G2?
 What is the page Heading?
-What filters exist?
-What PA or branch is visible by default?
+What flat G1 filters exist?
+What PA is visible by default?
 What artifact is being shown?
 Where do notes belong?
 Which notes are relevant to which PA/artifact features?
@@ -299,7 +298,7 @@ Sidebar
   Navigation
 
 PageUIModel
-  Route
+  PublicSelectionReference
   Status
   ContentPanel
 
@@ -308,21 +307,14 @@ ContentPanel
   Contents
 
 Contents
-  G1Contents | G2Contents
+  G1Contents
 
 G1Contents
   FilterSection?
   PA
   Note*
 
-G2Contents
-  BranchSelector
-  Branch+
-  Note*
-
-Branch
-  FilterSection?
-  PA
+Richer nested-filter or artifact-view structures are deferred to Appendix A.
 
 PA
   id
@@ -360,7 +352,6 @@ Navigation rendering
 ContentPanel layout
 Heading rendering
 FilterSection rendering
-BranchSelector rendering
 PA placement
 Note rendering
 CSS class conventions
@@ -403,7 +394,7 @@ Artifact renderers do not own:
 ```text
 page title
 site navigation
-route
+public page-selection/deep-link semantics
 global shell
 ContentPanel structure
 page-level status
@@ -425,7 +416,7 @@ It owns:
 ```text
 clearing or preparing the output directory
 writing entry HTML
-writing route/page HTML or route data
+writing application-entry HTML and serialized page/artifact data where needed
 writing serialized page/artifact data where needed
 copying data files
 copying assets
@@ -458,7 +449,7 @@ Deployment should not influence:
 ```text
 site semantics
 navigation
-routes
+public page-selection/deep-link semantics
 UI Model structure
 artifact rendering
 ```
@@ -511,7 +502,7 @@ It does not own artifact internals.
 The planner owns:
 
 ```text
-route derivation
+public page-selection/deep-link resolution
 page inclusion
 dependency collection
 planned output structure
@@ -531,8 +522,7 @@ ContentPanel
 Heading
 Contents
 FilterSection
-BranchSelector
-Branch
+FilterItem
 PA
 Artifact slot
 Note ownership
@@ -551,7 +541,6 @@ shared layout
 shared HTML structure
 shared CSS class conventions
 filter control rendering
-branch selector rendering
 note placement
 runtime initialization
 ```
