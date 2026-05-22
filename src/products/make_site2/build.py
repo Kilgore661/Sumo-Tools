@@ -65,6 +65,8 @@ def build_site(
         else datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
     )
 
+    if output_root.exists():
+        shutil.rmtree(output_root)
     output_root.mkdir(parents=True, exist_ok=True)
     (output_root / "runtime").mkdir(parents=True, exist_ok=True)
 

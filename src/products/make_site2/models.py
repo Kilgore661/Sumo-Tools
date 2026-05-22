@@ -86,7 +86,7 @@ class PageDefinition:
     title: str
     summary: str
     artifact: ArtifactRef
-    status: PageStatus = PageStatus.PROMOTED
+    status: PageStatus
     data: tuple[DataRef, ...] = ()
 
 

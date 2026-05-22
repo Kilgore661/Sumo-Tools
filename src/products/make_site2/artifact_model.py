@@ -142,7 +142,7 @@ class BanzukeChangesArtifact:
 class SelectedTableDataSource:
     id: str
     label: str
-    option_value: str
+    filter_value: str
     path: str
     metadata_path: str
     media_type: str

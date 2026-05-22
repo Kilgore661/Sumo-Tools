@@ -294,7 +294,7 @@ def standings_source(window: str) -> SelectedTableDataSource:
     return SelectedTableDataSource(
         id=f"window_{window}",
         label=f"{window} basho",
-        option_value=window,
+        filter_value=window,
         path=f"current-sumo/standings-by-wins/data/{filename}.csv",
         metadata_path=f"current-sumo/standings-by-wins/data/{filename}.json",
         media_type="text/csv",

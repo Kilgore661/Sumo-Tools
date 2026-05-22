@@ -76,7 +76,7 @@
       renderLandingPanel();
       return;
     }
-    selectPage(pageId, { replaceUrl: true });
+    selectPage(pageId);
   }
 
   function renderLandingPanel() {
@@ -89,14 +89,19 @@
   }
 
   function selectPage(pageId, { pushUrl = false, replaceUrl = false } = {}) {
+    const panel = runtimeManifest.ui.content_panels.find(candidate => candidate.page_id === pageId);
+    if (!panel) {
+      window.alert(
+        `The requested page "${pageId}" is not available in this site build. Showing the home page instead.`
+      );
+      markActivePage("");
+      writePageUrl("", { replace: true });
+      renderLandingPanel();
+      return;
+    }
     markActivePage(pageId);
     if (pushUrl || replaceUrl) {
       writePageUrl(pageId, { replace: replaceUrl });
-    }
-    const panel = runtimeManifest.ui.content_panels.find(candidate => candidate.page_id === pageId);
-    if (!panel) {
-      contentPanel.replaceChildren();
-      return;
     }
     renderContentPanel(panel).catch(error => {
       contentPanel.innerHTML = `<p>${escapeHtml(error.message)}</p>`;
@@ -110,7 +115,7 @@
   }
 
   function writePageUrl(pageId, { replace }) {
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams();
     if (pageId) {
       params.set(PAGE_PARAM, pageId);
     } else {
@@ -127,7 +132,7 @@
   }
 
   function writePanelUrl(pageId, filters, state, { replace }) {
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams();
     if (pageId) params.set(PAGE_PARAM, pageId);
     for (const filter of filters) {
       params.set(filter.url_key || filter.id, String(state[filter.id]));
@@ -507,7 +512,15 @@
 
   function coerceFilterValue(filter, value) {
     if (filter.control === "checkbox") return value === true || value === "true";
-    return value === null || value === undefined || value === "" ? filter.default : value;
+    if (value === null || value === undefined || value === "") return filter.default;
+    if (
+      filter.values &&
+      filter.values.length &&
+      !filter.values.some(candidate => String(candidate.value) === String(value))
+    ) {
+      return filter.default;
+    }
+    return value;
   }
 
   function resolveSelectedDivision(rows, selectedDivision) {
@@ -532,7 +545,7 @@
 
   function selectedStandingsSource(artifact, state) {
     return artifact.data_sources.find(source =>
-      String(source.option_value) === String(state[artifact.selector_filter_id])
+      String(source.filter_value) === String(state[artifact.selector_filter_id])
     );
   }
 
