@@ -1,0 +1,123 @@
+Review based on observations as a user:
+
+1. Simple things re the table (but not Notes).
+
+1.1. The first col "Pos" isn't right - in heading or meaning. It should contain the row number
+(i.e. not change from 1, 2, 3,...). It should not be sortable. The col heading
+should be blank too.
+
+1.2. The default sort for Shikona should be ascending.
+
+1.3. The col heading "Count" should be "Bouts".
+
+1.4. Page heading (and page <title>) should be "Ozumo Standings".
+
+1.5. The table heading should be
+
+"Standings for Last N basho (MMM YYYY to MMM YYYY)"
+
+with the earliest date first.
+
+1.6. The default number of basho should be however many basho there have been in
+the current calendar year, or 6 if there have been no basho so far.
+
+2. Semantic/operational bugs/changes
+
+We are intending to change the default settings to what I think a user would
+expect i.e. "Bouts" (was "Count") will be the expected number of bouts fought
+in the given period i.e. 15 or 7 times the number of basho *in which the
+rikishi appeared on the banzuke*.
+
+However, it seems that Note 5 is incorrect even as things stand. It says "Mean
+is Wins divided by Count." but this is not the case. Eg, we see, for 2 basho:
+
+Pos	Shikona	Chii	Wins	Count	Mean
+1	Kirishima	S1e	22	29	11.00
+...
+and 22/29 is not 11. I think the displayed mean is total wins divided by the number of
+basho.
+
+22/29 as a percentage is certainly an number of interest and should be added
+in due course, but with caution: is it 22/29 or 22/30? 30 is the expected
+number of bouts for 2 basho for a sekitori - this is the "expected vs. fought"
+issue that has plagued us for some time.
+
+3. Plan
+Phase 1: fix the HTML text as above and correct Note 5. This will give us a
+consistent page with better headings.
+Phase 2: get to the bottom of what "Mean" can mean and what we are going to
+compute and display.
+
+Here are my user-based thoughts:
+
+Tm, the obvious/expected numbers are
+
+a) credited wins/number of basho
+b) credited wins/expected bouts.
+
+which are essentially the "same" number given that the number of expected
+bouts is a function of the bouts per basho. This suggests two cols: "Mean" (as
+we have now) and "%" (meaning "probability"); eg, 15 wins in two basho has mean
+15/2=7.5 and the percentage is 15/30 = 0.5 or 50%. 
+
+Ideally, the col headers should be more meaningful, but they need to be short
+- this is what the Notes are for i.e. to explain what we, er,... mean. I think
+the typical reader will make the assumptions (a) and (b). A less
+typical reader, or a typical reader who sees what seems to be an anomaly, will
+want to know more.
+
+They may not like/question:
+2.1 Counting fusensho. This is exactly what WinPolicy is "for". CREDITED is
+hard-coded (as far a the UI is concerned) for now.
+2.2 Treating a rikishi who was not on the banzuke for the first part of a
+range of basho as if they were on the banzuke but lost all their fights. I
+think this is whas BashoBasis is for but the description in the doc:
+
+"CONTAINING: Only tournaments where the rikishi actually appeared (adjusts for injury/absence)."
+
+is wrong. It does *not* adjust for injury because you stay on the banzuke when
+injured, and there are no reasons for absence other than injury (or
+retirement, and you can't come back after you retire.)
+
+However, SELECTED is described correctly and is the hard-coded value used for
+the UI.
+
+2.3 As with fusensho, so with fusenpai: do we count "credited losses" as
+"losses"? This is not symmetrically treated (cf  WinPolicy) in the code, but
+here the type is BoutBasis (but LossPolicy would be better). As far as the UI
+is concerned EXPECTED is hard-coded.
+
+I now think there are three issues here.
+
+(a) A typical user will (we imagine) be interested in the performance of the
+top guys in the recent past. The chances of the period including a time when a
+rikishi was not yet on the banzuke are zero. Users who interested in say
+Jonidan could think the issue is significant, but rikishi don't generally stay
+in the lowest divisions for very long - perhaps for just one basho. On this
+account the SELECTED/CONTAINING distinction seems pointless (for a user).
+Another perspective is someone who wants to look at 60 basho. Here there is a
+good chance that some top rikishi have not been in sumo for 10 years. So the
+BashoBasis does have a place in the design after all, but the relevance of the
+results is dependent on the number of basho and the range of divisions chosen.
+My view here is that we keep BashoBasis and we keep the UI hard-coded to
+SELECTED and perhaps add a TL;DR note.
+
+b) Treating a rikishi who is Maegashira (or Juryo etc.) *now* as if they had
+been Maegashira throughout the range of basho is moot.
+Eg someone with a high mean but the wins mostly recorded in Juryo. This
+suggests the semantics of the filter needs thought.
+
+My immediate inclination is to take the view that the properties we are
+interested in *for the sekitori* make less sense for lower divisions because
+rikishi persistence is lower or indeed much lower. This means that any
+putative new axis should be considered in the context of the sekitori only. An
+obvious idea is to say that if you filter on Makuuchi - a STRICT
+interpretation perhaps - you want only rikishi
+who were makuuchi across the whole period in question. This sounds reasonable,
+
+With respect to rikishi in the lower divisions, there are rikishi
+who have been in Sandanme (say) for a very long time, and I see no reason to
+prevent users from finding their stats by disallowing Makushita and below as
+filtering choices. What you might get if you allow for STRICT interpretation
+for the lowest divisions, I am not sure. Probably not much of interest to
+anyone, but who knows?

@@ -1,0 +1,948 @@
+/*
+Banzuke Change Report browser client.
+
+Responsibilities:
+- load site_config.json
+- validate the browser data contract at the static asset boundary
+- load the published CSV
+- populate the division selector
+- render the selected division into the editable HTML shell
+*/
+
+const state = {
+  config: null,
+  rows: [],
+  currentDivision: null,
+  showContext: false,
+  showDelta: false,
+  showBanzukeStyle: true,
+  showEquelo: false,
+};
+
+const el = {
+  pageTitle: document.getElementById("page-title"),
+  tableTitle: document.getElementById("table-title"),
+  division: document.getElementById("division-select"),
+  context: document.getElementById("context-columns"),
+  banzukeStyle: document.getElementById("banzuke-style"),
+  delta: document.getElementById("delta-columns"),
+  equelo: document.getElementById("equelo-columns"),
+  colgroup: document.querySelector("#banzuke-table colgroup"),
+  head: document.querySelector("#banzuke-table thead"),
+  table: document.getElementById("banzuke-table"),
+  body: document.getElementById("banzuke-body"),
+};
+
+const REQUIRED_CONFIG_KEYS = new Set([
+  "title",
+  "current_date",
+  "previous_date",
+  "default_division",
+  "data_file",
+  "divisions",
+]);
+
+const REQUIRED_CSV_COLUMNS = [
+  "division_id",
+  "division_label",
+  "bz_chii",
+  "east_rikishi_id",
+  "east_chii",
+  "east_shikona",
+  "east_graph_shikona",
+  "east_old_chii",
+  "east_result",
+  "east_result_movement",
+  "east_delta",
+  "east_delta_class",
+  "east_equelo",
+  "west_rikishi_id",
+  "west_chii",
+  "west_shikona",
+  "west_graph_shikona",
+  "west_old_chii",
+  "west_result",
+  "west_result_movement",
+  "west_delta",
+  "west_delta_class",
+  "west_equelo",
+];
+
+const VALID_DELTA_CLASSES = new Set([
+  "",
+  "neutral",
+  "up low",
+  "up mid",
+  "up high",
+  "down low",
+  "down mid",
+  "down high",
+]);
+
+document.addEventListener("DOMContentLoaded", init);
+
+async function init() {
+  try {
+    state.config = await loadJson("site_config.json");
+    validateConfig(state.config);
+
+    state.rows = await loadCsv(state.config.data_file);
+    validateRows(state.rows);
+
+    applyConfigDefaultsToState();
+    buildDivisionOptions();
+    applyUrlStateOrDefault();
+    applyStateToControls();
+    wireEvents();
+    render();
+  } catch (err) {
+    fail(err);
+  }
+}
+
+function applyConfigDefaultsToState() {
+  state.currentDivision = state.config.default_division;
+}
+
+function buildDivisionOptions() {
+  el.division.innerHTML = "";
+
+  state.config.divisions.forEach((division) => {
+    const option = document.createElement("option");
+    option.value = division.id;
+    option.textContent = division.label;
+    el.division.appendChild(option);
+  });
+}
+
+function applyUrlStateOrDefault() {
+  const params = new URLSearchParams(window.location.search);
+  const division = params.get("division");
+
+  if (division && !validDivisionIds().has(division)) {
+    alert(`Unknown division "${division}" in URL. The default division will be shown.`);
+    replaceUrlState();
+    return;
+  }
+
+  if (division) {
+    state.currentDivision = division;
+  }
+
+  applyContextUrlState(params);
+  applyBanzukeStyleUrlState(params);
+  applyDeltaUrlState(params);
+  applyEqueloUrlState(params);
+}
+
+function applyContextUrlState(params) {
+  const context = params.get("context");
+
+  if (!context) {
+    return;
+  }
+
+  if (context !== "true" && context !== "false") {
+    alert(`Unknown context value "${context}" in URL. Context will be hidden.`);
+    replaceUrlState();
+    return;
+  }
+
+  state.showContext = context === "true";
+}
+
+function applyBanzukeStyleUrlState(params) {
+  const banzukeStyle = params.get("banzuke_style");
+
+  if (!banzukeStyle) {
+    return;
+  }
+
+  if (banzukeStyle !== "true" && banzukeStyle !== "false") {
+    alert(`Unknown banzuke_style value "${banzukeStyle}" in URL. Banzuke style will be shown.`);
+    replaceUrlState();
+    return;
+  }
+
+  state.showBanzukeStyle = banzukeStyle === "true";
+}
+
+function applyDeltaUrlState(params) {
+  const delta = params.get("delta");
+
+  if (!delta) {
+    return;
+  }
+
+  if (delta !== "true" && delta !== "false") {
+    alert(`Unknown delta value "${delta}" in URL. Delta will be hidden.`);
+    replaceUrlState();
+    return;
+  }
+
+  state.showDelta = delta === "true";
+}
+
+function applyEqueloUrlState(params) {
+  const equelo = params.get("equelo");
+
+  if (!equelo) {
+    return;
+  }
+
+  if (equelo !== "true" && equelo !== "false") {
+    alert(`Unknown equelo value "${equelo}" in URL. Equelo ratings will be hidden.`);
+    replaceUrlState();
+    return;
+  }
+
+  state.showEquelo = equelo === "true";
+}
+
+function applyStateToControls() {
+  el.division.value = state.currentDivision;
+  el.context.checked = state.showContext;
+  el.banzukeStyle.checked = state.showBanzukeStyle;
+  el.delta.checked = state.showDelta;
+  el.equelo.checked = state.showEquelo;
+}
+
+function wireEvents() {
+  el.division.addEventListener("change", () => {
+    state.currentDivision = el.division.value;
+    pushUrlState();
+    render();
+  });
+
+  el.context.addEventListener("change", () => {
+    state.showContext = el.context.checked;
+    pushUrlState();
+    renderOptions();
+  });
+
+  el.banzukeStyle.addEventListener("change", () => {
+    state.showBanzukeStyle = el.banzukeStyle.checked;
+    pushUrlState();
+    render();
+  });
+
+  el.delta.addEventListener("change", () => {
+    state.showDelta = el.delta.checked;
+    pushUrlState();
+    renderOptions();
+  });
+
+  el.equelo.addEventListener("change", () => {
+    state.showEquelo = el.equelo.checked;
+    pushUrlState();
+    renderOptions();
+  });
+}
+
+function render() {
+  const rows = state.rows.filter((row) => row.division_id === state.currentDivision);
+
+  el.pageTitle.textContent = state.config.title;
+  el.tableTitle.textContent = `${formatBashoMonthYear(state.config.current_date)} Banzuke`;
+  document.title = state.config.title;
+
+  renderOptions();
+  renderTable(rows);
+}
+
+function renderOptions() {
+  renderTableTemplate();
+  el.table.classList.toggle("hide-context", !state.showContext);
+  el.table.classList.toggle("hide-delta", !state.showDelta);
+  el.table.classList.toggle("hide-equelo", !state.showEquelo);
+  el.table.classList.toggle("one-col-table", !state.showBanzukeStyle);
+  applyNoteVisibility();
+  hideNotePopover();
+}
+
+function formatBashoMonthYear(dateToken) {
+  const [year, month] = dateToken.split("/");
+  const monthName = new Date(Number(year), Number(month) - 1, 1)
+    .toLocaleString("en-GB", { month: "long" });
+  return `${monthName} ${year}`;
+}
+
+function renderTableTemplate() {
+  if (state.showBanzukeStyle) {
+    renderTwoColumnTemplate();
+  } else {
+    renderOneColumnTemplate();
+  }
+}
+
+function renderTwoColumnTemplate() {
+  const sideColumnCount = currentSideColumnCount();
+
+  el.colgroup.innerHTML = `
+    <col class="equelo-col equelo-col-toggle">
+    <col class="old-col context-col">
+    <col class="score-col context-col">
+    <col class="direction-col">
+    <col class="delta-value-col delta-value-col-toggle">
+    <col class="shikona-col">
+    <col class="bz-col">
+    <col class="shikona-col">
+    <col class="direction-col">
+    <col class="delta-value-col delta-value-col-toggle">
+    <col class="score-col context-col">
+    <col class="old-col context-col">
+    <col class="equelo-col equelo-col-toggle">
+  `;
+
+  el.head.innerHTML = `
+    <tr>
+      <th scope="colgroup" colspan="${sideColumnCount}" data-side-head>East</th>
+      <th scope="col" rowspan="2" class="bz-head">Rank</th>
+      <th scope="colgroup" colspan="${sideColumnCount}" data-side-head>West</th>
+    </tr>
+    <tr>
+      <th scope="col" class="equelo-head">Equelo</th>
+      <th scope="col" class="context-head">Chii</th>
+      <th scope="col" class="context-head" data-note-target="note-result">Result</th>
+      <th scope="col" class="delta-head" data-note-target="note-direction">⇅</th>
+      <th scope="col" class="delta-value-head" data-note-target="note-delta">Δ</th>
+      <th scope="col">Shikona</th>
+      <th scope="col">Shikona</th>
+      <th scope="col" class="delta-head" data-note-target="note-direction">⇅</th>
+      <th scope="col" class="delta-value-head" data-note-target="note-delta">Δ</th>
+      <th scope="col" class="context-head" data-note-target="note-result">Result</th>
+      <th scope="col" class="context-head">Chii</th>
+      <th scope="col" class="equelo-head">Equelo</th>
+    </tr>
+  `;
+
+  wireNotePopovers();
+}
+
+function renderOneColumnTemplate() {
+  el.colgroup.innerHTML = `
+    <col class="bz-col">
+    <col class="shikona-col">
+    <col class="direction-col">
+    <col class="delta-value-col delta-value-col-toggle">
+    <col class="score-col context-col">
+    <col class="old-col context-col">
+    <col class="equelo-col equelo-col-toggle">
+  `;
+
+  el.head.innerHTML = `
+    <tr>
+      <th scope="col" class="bz-head">Chii</th>
+      <th scope="col">Shikona</th>
+      <th scope="col" class="delta-head" data-note-target="note-direction">⇅</th>
+      <th scope="col" class="delta-value-head" data-note-target="note-delta">Δ</th>
+      <th scope="col" class="context-head" data-note-target="note-result">Result</th>
+      <th scope="col" class="context-head">Chii</th>
+      <th scope="col" class="equelo-head">Equelo</th>
+    </tr>
+  `;
+
+  wireNotePopovers();
+}
+
+function currentSideColumnCount() {
+  let count = 2;
+
+  if (state.showContext) {
+    count += 2;
+  }
+
+  if (state.showDelta) {
+    count += 1;
+  }
+
+  if (state.showEquelo) {
+    count += 1;
+  }
+
+  return count;
+}
+
+function renderTable(rows) {
+  el.body.innerHTML = "";
+
+  if (!state.showBanzukeStyle) {
+    renderOneColumnTable(rows);
+    return;
+  }
+
+  renderTwoColumnTable(rows);
+}
+
+function renderTwoColumnTable(rows) {
+  rows.forEach((row) => {
+    const tr = document.createElement("tr");
+
+    appendEqueloCell(tr, row.east_equelo, row.east_rikishi_id);
+    appendTextCell(tr, row.east_old_chii, contextClass(row.east_rikishi_id));
+    appendScoreCell(
+      tr,
+      row.east_result,
+      contextClass(row.east_rikishi_id),
+      row.east_result_movement
+    );
+    appendDeltaCells(tr, row.east_delta, row.east_delta_class, row.east_rikishi_id);
+    appendRikishiCell(tr, row.east_shikona, row.east_graph_shikona, "east", row.east_rikishi_id);
+    appendBzChiiCell(tr, row.bz_chii);
+    appendRikishiCell(tr, row.west_shikona, row.west_graph_shikona, "west", row.west_rikishi_id);
+    appendDeltaCells(tr, row.west_delta, row.west_delta_class, row.west_rikishi_id);
+    appendScoreCell(
+      tr,
+      row.west_result,
+      contextClass(row.west_rikishi_id),
+      row.west_result_movement
+    );
+    appendTextCell(tr, row.west_old_chii, contextClass(row.west_rikishi_id));
+    appendEqueloCell(tr, row.west_equelo, row.west_rikishi_id);
+
+    el.body.appendChild(tr);
+  });
+}
+
+function renderOneColumnTable(rows) {
+  rows.forEach((row) => {
+    appendOneColumnSideRow(row, "east");
+    appendOneColumnSideRow(row, "west");
+  });
+}
+
+function appendOneColumnSideRow(row, side) {
+  const rikishiId = row[`${side}_rikishi_id`];
+
+  if (!rikishiId) {
+    return;
+  }
+
+  const tr = document.createElement("tr");
+
+  appendBzChiiCell(tr, row[`${side}_chii`]);
+  appendRikishiCell(
+    tr,
+    row[`${side}_shikona`],
+    row[`${side}_graph_shikona`],
+    // Prototype: reuse the right-side display order/classes for one-col rows.
+    "west",
+    rikishiId
+  );
+  appendDeltaCells(
+    tr,
+    row[`${side}_delta`],
+    row[`${side}_delta_class`],
+    rikishiId
+  );
+  appendScoreCell(
+    tr,
+    row[`${side}_result`],
+    contextClass(rikishiId),
+    row[`${side}_result_movement`]
+  );
+  appendTextCell(tr, row[`${side}_old_chii`], contextClass(rikishiId));
+  appendEqueloCell(tr, row[`${side}_equelo`], rikishiId);
+
+  el.body.appendChild(tr);
+}
+
+function appendTextCell(tr, value, className = "") {
+  const td = document.createElement("td");
+  td.textContent = value;
+
+  if (className) {
+    td.className = className;
+  }
+
+  tr.appendChild(td);
+}
+
+function appendScoreCell(tr, value, className = "", movement = "") {
+  const td = document.createElement("td");
+  const span = document.createElement("span");
+  span.className = "score";
+  span.textContent = value;
+  td.appendChild(span);
+
+  if (movement) {
+    const movementSpan = document.createElement("span");
+    movementSpan.className = "rank-level-movement";
+    movementSpan.textContent = movement;
+    td.appendChild(document.createTextNode(" "));
+    td.appendChild(movementSpan);
+  }
+
+  if (className) {
+    td.className = className;
+  }
+
+  tr.appendChild(td);
+}
+
+function appendEqueloCell(tr, value, rikishiId) {
+  const td = document.createElement("td");
+  td.className = rikishiId ? "equelo-cell" : "equelo-cell empty";
+  td.textContent = value;
+  tr.appendChild(td);
+}
+
+function appendDeltaCells(tr, value, deltaClass, rikishiId) {
+  const directionTd = document.createElement("td");
+  const valueTd = document.createElement("td");
+  const directionSpan = document.createElement("span");
+  const valueSpan = document.createElement("span");
+
+  directionTd.className = deltaDirectionCellClass(rikishiId);
+  valueTd.className = deltaCellClass(deltaClass, rikishiId);
+  valueTd.classList.add("delta-value-cell");
+  directionSpan.className = "delta-direction";
+  valueSpan.className = "delta";
+
+  if (rikishiId) {
+    directionSpan.textContent = deltaDirection(value);
+    valueSpan.textContent = unsignedDelta(value);
+  }
+
+  directionTd.appendChild(directionSpan);
+  valueTd.appendChild(valueSpan);
+  tr.appendChild(directionTd);
+  tr.appendChild(valueTd);
+}
+
+function appendRikishiCell(tr, shikona, graphShikona, sideClass, rikishiId) {
+  const td = document.createElement("td");
+  td.className = rikishiId ? `rikishi ${sideClass}` : "empty";
+
+  if (rikishiId) {
+    td.appendChild(rikishiLink(shikona, graphShikona, rikishiId));
+  } else {
+    td.textContent = shikona;
+  }
+
+  tr.appendChild(td);
+}
+
+function rikishiLink(shikona, graphShikona, rikishiId) {
+  const link = document.createElement("a");
+  const encodedGraphShikona = encodeURIComponent(graphShikona);
+  let suppressNextClick = false;
+
+  link.textContent = shikona;
+  link.href = `https://sumodb.sumogames.de/Rikishi.aspx?r=${encodeURIComponent(rikishiId)}`;
+  link.title = "Click: SumoDB. Alt-click: Gaspode-san.";
+
+  link.addEventListener("mousedown", (event) => {
+    if (!event.altKey || event.button !== 0) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    suppressNextClick = true;
+
+    openRikishiTarget(
+      `http://www.661.org.uk/cgi-bin/index.py?graph=any&new_rik=&r_${encodedGraphShikona}=${encodedGraphShikona}&graph_type=by_time`
+    );
+  });
+
+  link.addEventListener("click", (event) => {
+    event.preventDefault();
+
+    if (suppressNextClick) {
+      suppressNextClick = false;
+      return;
+    }
+
+    openRikishiTarget(
+      `https://sumodb.sumogames.de/Rikishi.aspx?r=${encodeURIComponent(rikishiId)}`
+    );
+  });
+
+  return link;
+}
+
+function openRikishiTarget(url) {
+  const opened = window.open(url, "_blank", "noopener");
+
+  if (opened) {
+    opened.focus();
+  }
+}
+
+function appendBzChiiCell(tr, value) {
+  const th = document.createElement("th");
+  th.scope = "row";
+  th.className = value.includes("HD") || value.includes("TD") || value.includes("OB") || value.includes("YO")
+    ? "bz-chii annotated"
+    : "bz-chii";
+  th.textContent = value;
+  tr.appendChild(th);
+}
+
+function contextClass(rikishiId) {
+  return rikishiId ? "context-cell" : "context-cell empty";
+}
+
+function deltaCellClass(deltaClass, rikishiId) {
+  const classes = ["delta-cell"];
+
+  if (deltaClass) {
+    classes.push(deltaClass);
+  }
+
+  if (!rikishiId) {
+    classes.push("empty");
+  }
+
+  return classes.join(" ");
+}
+
+function deltaDirectionCellClass(rikishiId) {
+  return rikishiId ? "delta-cell delta-direction-cell" : "delta-cell delta-direction-cell empty";
+}
+
+function deltaDirection(value) {
+  if (value.startsWith("+")) {
+    return "↑";
+  }
+
+  if (value.startsWith("-")) {
+    return "↓";
+  }
+
+  return "\u00a0";
+}
+
+function unsignedDelta(value) {
+  return value.replace(/^[+-]/, "");
+}
+
+const NOTE_POPOVER_DELAY_MS = 450;
+
+let notePopoverTimer = null;
+let notePopoverGlobalsWired = false;
+
+function wireNotePopovers() {
+  const headings = document.querySelectorAll(
+    "#banzuke-table th[data-note-target]"
+  );
+
+  headings.forEach((th) => {
+    th.addEventListener("mouseenter", () => {
+      clearNotePopoverTimer();
+
+      notePopoverTimer = window.setTimeout(() => {
+        showNotePopover(th);
+      }, NOTE_POPOVER_DELAY_MS);
+    });
+
+    th.addEventListener("mouseleave", () => {
+      clearNotePopoverTimer();
+
+      window.setTimeout(() => {
+        const popover = getNotePopover();
+
+        if (!popover.matches(":hover")) {
+          hideNotePopover();
+        }
+      }, 50);
+    });
+  });
+
+  if (notePopoverGlobalsWired) {
+    return;
+  }
+
+  notePopoverGlobalsWired = true;
+
+  const popover = getNotePopover();
+
+  popover.addEventListener("mouseleave", () => {
+    hideNotePopover();
+  });
+
+  popover.addEventListener("click", (event) => {
+    event.stopPropagation();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      clearNotePopoverTimer();
+      hideNotePopover();
+    }
+  });
+}
+
+function applyNoteVisibility() {
+  document.querySelectorAll("[data-note-for]").forEach((note) => {
+    const noteFor = note.dataset.noteFor;
+
+    note.hidden = !noteIsVisible(noteFor);
+  });
+}
+
+function noteIsVisible(noteFor) {
+  if (noteFor === "all") {
+    return true;
+  }
+
+  if (noteFor === "context") {
+    return state.showContext;
+  }
+
+  if (noteFor === "delta") {
+    return state.showDelta;
+  }
+
+  return false;
+}
+
+function getNotePopover() {
+  let popover = document.getElementById("note-popover");
+
+  if (!popover) {
+    popover = document.createElement("div");
+    popover.id = "note-popover";
+    popover.className = "notes-popover";
+    popover.hidden = true;
+
+    document.body.appendChild(popover);
+  }
+
+  return popover;
+}
+
+function showNotePopover(th) {
+  const noteTarget = th.dataset.noteTarget;
+
+  if (!noteTarget || document.getElementById(noteTarget)?.hidden) {
+    return;
+  }
+
+  const popover = getNotePopover();
+
+  popover.innerHTML = "";
+
+  const link = document.createElement("a");
+  link.href = `#${noteTarget}`;
+  link.textContent = "See Notes ⓘ";
+
+  popover.appendChild(link);
+
+  const rect = th.getBoundingClientRect();
+
+  popover.hidden = false;
+
+  const popoverRect = popover.getBoundingClientRect();
+
+  const left =
+    window.scrollX +
+    rect.left +
+    rect.width / 2 -
+    popoverRect.width / 2;
+
+  const top =
+    window.scrollY +
+    rect.bottom +
+    6;
+
+  popover.style.left = `${Math.max(8, left)}px`;
+  popover.style.top = `${top}px`;
+}
+
+function hideNotePopover() {
+  const popover = getNotePopover();
+  popover.hidden = true;
+}
+
+function clearNotePopoverTimer() {
+  if (notePopoverTimer !== null) {
+    window.clearTimeout(notePopoverTimer);
+    notePopoverTimer = null;
+  }
+}
+
+async function loadJson(url) {
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(`Cannot load ${url}`);
+  }
+
+  return await response.json();
+}
+
+async function loadCsv(url) {
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(`Cannot load ${url}`);
+  }
+
+  const text = await response.text();
+  return parseCsv(text);
+}
+
+function parseCsv(text) {
+  const lines = text.trim().split(/\r?\n/);
+
+  if (lines.length === 0 || !lines[0]) {
+    return [];
+  }
+
+  const headers = splitCsvLine(lines[0]);
+  const rows = [];
+
+  for (let i = 1; i < lines.length; i++) {
+    if (!lines[i].trim()) {
+      continue;
+    }
+
+    const values = splitCsvLine(lines[i]);
+    const row = {};
+
+    headers.forEach((header, idx) => {
+      row[header] = values[idx] ?? "";
+    });
+
+    rows.push(row);
+  }
+
+  rows.headers = headers;
+  return rows;
+}
+
+function splitCsvLine(line) {
+  const values = [];
+  let current = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    const next = line[i + 1];
+
+    if (ch === '"' && inQuotes && next === '"') {
+      current += '"';
+      i += 1;
+    } else if (ch === '"') {
+      inQuotes = !inQuotes;
+    } else if (ch === "," && !inQuotes) {
+      values.push(current);
+      current = "";
+    } else {
+      current += ch;
+    }
+  }
+
+  values.push(current);
+  return values;
+}
+
+function validateConfig(config) {
+  REQUIRED_CONFIG_KEYS.forEach((key) => {
+    if (!(key in config)) {
+      throw new Error(`BCR config is missing "${key}"`);
+    }
+  });
+
+  if (!Array.isArray(config.divisions) || config.divisions.length === 0) {
+    throw new Error("BCR config divisions must be a non-empty array");
+  }
+
+  config.divisions.forEach((division) => {
+    if (!division.id || !division.label) {
+      throw new Error("BCR config divisions must have id and label");
+    }
+  });
+
+  if (!validDivisionIds().has(config.default_division)) {
+    throw new Error(`BCR default_division "${config.default_division}" is not in divisions`);
+  }
+}
+
+function validateRows(rows) {
+  REQUIRED_CSV_COLUMNS.forEach((column) => {
+    if (!rows.headers.includes(column)) {
+      throw new Error(`BCR CSV is missing "${column}"`);
+    }
+  });
+
+  rows.forEach((row) => {
+    const hasEast = Boolean(row.east_rikishi_id);
+    const hasWest = Boolean(row.west_rikishi_id);
+
+    if (!hasEast && !hasWest) {
+      throw new Error(`BCR row ${row.division_id}/${row.bz_chii} has no east or west rikishi`);
+    }
+
+    if (!validDivisionIds().has(row.division_id)) {
+      throw new Error(`BCR CSV row has unknown division "${row.division_id}"`);
+    }
+
+    if (!VALID_DELTA_CLASSES.has(row.east_delta_class)) {
+      throw new Error(`BCR CSV row has unknown east delta class "${row.east_delta_class}"`);
+    }
+
+    if (!VALID_DELTA_CLASSES.has(row.west_delta_class)) {
+      throw new Error(`BCR CSV row has unknown west delta class "${row.west_delta_class}"`);
+    }
+  });
+}
+
+function validDivisionIds() {
+  return new Set(state.config.divisions.map((division) => division.id));
+}
+
+function pushUrlState() {
+  const url = new URL(window.location.href);
+  url.search = "";
+
+  if (state.currentDivision !== state.config.default_division) {
+    url.searchParams.set("division", state.currentDivision);
+  }
+
+  if (state.showContext) {
+    url.searchParams.set("context", "true");
+  }
+
+  if (state.showDelta) {
+    url.searchParams.set("delta", "true");
+  }
+
+  if (state.showEquelo) {
+    url.searchParams.set("equelo", "true");
+  }
+
+  if (!state.showBanzukeStyle) {
+    url.searchParams.set("banzuke_style", "false");
+  }
+
+  history.pushState(null, "", url);
+  notifyParentUrlState();
+}
+
+function replaceUrlState() {
+  const url = new URL(window.location.href);
+  url.search = "";
+  history.replaceState(null, "", url);
+  notifyParentUrlState();
+}
+
+function notifyParentUrlState() {
+  if (window.parent === window) {
+    return;
+  }
+
+  window.parent.postMessage({
+    type: "site:url-state",
+    page: "banzuke_changes",
+    params: Object.fromEntries(new URLSearchParams(window.location.search).entries()),
+  }, "*");
+}
+
+function fail(err) {
+  console.error(err);
+  alert(`Unable to load Banzuke Change Report data:\n\n${err.message}`);
+}

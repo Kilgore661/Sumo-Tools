@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/x-icon" href="../Sumo/meep.png">
+  <link rel="stylesheet" href="../../common/files/site-wide.css" />
+  <link rel="stylesheet" href="../../site-page.css" />
+  <link rel="stylesheet" href="../../common/files/tool-layout.css" />
+  <link rel="stylesheet" href="standings.css" />
+  <title>Grand Sumo Standings by Wins Digest</title>
+</head>
+<body>
+  <div class="page">
+    <header class="title-bar">
+      <div id="page-title">Grand Sumo Standings by Wins Digest</div>
+      <div id="range-label">Rolling recent-performance standings by wins.</div>
+    </header>
+
+    <div class="main">
+      <aside class="menu">
+        <h2>Options</h2>
+
+        <fieldset class="control-group" id="view-mode-group">
+          <legend>View</legend>
+
+          <label class="radio-option">
+            <input type="radio" name="view-mode" value="standard" checked />
+            Standard
+          </label>
+
+          <label class="radio-option">
+            <input type="radio" name="view-mode" value="percentages" />
+            Percentages
+          </label>
+
+          <label class="radio-option">
+            <input type="radio" name="view-mode" value="combined" />
+            Combined
+          </label>
+        </fieldset>
+        <hr>
+        <div class="control-group">
+          <label for="num-basho-select">Number of Basho</label>
+          <select name="num_basho" id="num-basho-select">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6" selected>6</option>
+            <option value="12">12</option>
+            <option value="18">18</option>
+            <option value="24">24</option>
+            <option value="36">36</option>
+            <option value="60">60</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label class="checkbox-option">
+            <input type="checkbox" id="activity-current-only" checked />
+            <span>Active Rikishi Only</span>
+          </label>
+        </div>
+        <hr>
+        <div class="control-group">
+          <label for="division-select">Division</label>
+          <select name="division" id="division-select">
+            <option value="all">All</option>
+            <option value="makuuchi" selected>Makuuchi</option>
+            <option value="juryo">Juryo</option>
+            <option value="makushita">Makushita</option>
+            <option value="sandanme">Sandanme</option>
+            <option value="jonidan">Jonidan</option>
+            <option value="jonokuchi">Jonokuchi</option>
+          </select>
+        </div>
+
+      </aside>
+
+      <main class="content">
+        <div class="content-inner">
+          <h2 id="table-title">Standings (Last 6 Basho, May 2025 to Mar 2026)</h2>
+
+          <table class="standings-table" id="standings-table">
+            <thead>
+              <tr data-header-for="standard">
+                <th data-column="selected_average_credited_wins" data-sort-id="standard-rank"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">#</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+                <th data-column="shikona" data-sort-id="shikona" data-note-target="note-identity"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Shikona</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+                <th data-column="chii_ordinal" data-sort-id="chii" data-note-target="note-identity"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Chii</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+                <th data-column="credited_wins" data-sort-id="wins" data-note-target="note-wins"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Wins</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+                <th data-column="selected_average_credited_wins" data-sort-id="standard-average"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Average</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+              </tr>
+              <tr data-header-for="percentages">
+                <th data-column="win_percent" data-sort-id="percentage-rank"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">#</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+                <th data-column="shikona" data-sort-id="shikona" data-note-target="note-identity"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Shikona</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+                <th data-column="chii_ordinal" data-sort-id="chii" data-note-target="note-identity"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Chii</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+                <th data-column="credited_wins" data-sort-id="wins" data-note-target="note-wins"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Wins</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+                <th data-column="selected_expected_bout_count" data-sort-id="percentage-bouts" data-note-target="note-bouts"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Bouts</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+                <th data-column="win_percent" data-sort-id="percentage-win-percent"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Win %</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+              </tr>
+<tr data-header-for="combined" class="combined-group-row">
+  <th class="row-index-head combined-row-head" rowspan="2" data-note-target="note-row-number"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Row</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+  <th class="combined-primary-head" rowspan="2" data-column="shikona" data-sort-id="shikona" data-note-target="note-identity"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Shikona</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+  <th class="combined-primary-head" rowspan="2" data-column="chii_ordinal" data-sort-id="chii" data-note-target="note-identity"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Chii</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+  <th class="combined-primary-head" rowspan="2" data-column="credited_wins" data-sort-id="wins" data-note-target="note-wins"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Wins</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+  <th colspan="2" class="header-group by-basho-group">Wins per Basho</th>
+  <th colspan="3" class="header-group by-bout-group percentage-group">Wins per Bout</th>
+</tr>
+<tr data-header-for="combined" class="combined-detail-row">
+  <th class="by-basho-group" data-column="selected_average_credited_wins" data-sort-id="standard-average"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Average</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+  <th data-column="selected_average_credited_wins" data-sort-id="standard-rank"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">#</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+  <th class="by-bout-group percentage-start" data-column="selected_expected_bout_count" data-sort-id="percentage-bouts" data-note-target="note-bouts"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Bouts</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+  <th data-column="win_percent" data-sort-id="percentage-win-percent"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">Win %</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+  <th data-column="win_percent" data-sort-id="percentage-rank"><span class="th-label"><span class="sort-spacer" aria-hidden="true"></span><span class="th-caption">#</span><span class="sort-indicator" aria-hidden="true"></span></span></th>
+</tr>
+            </thead>
+
+            <tbody id="standings-body">
+              <tr>
+                <td class="row-index">1</td>
+                <td>Aonishiki</td>
+                <td>O1e</td>
+                <td>63</td>
+
+                <td data-view="standard combined">10.50</td>
+                <td data-view="combined">1</td>
+
+                <td class="metric-separator" data-view-separator="combined" aria-hidden="true"></td>
+
+                <td data-view="percentages combined">90</td>
+                <td data-view="percentages combined">70.0</td>
+                <td data-view="combined">1</td>
+              </tr>
+              <tr>
+                <td class="row-index">2</td>
+                <td>Onosato</td>
+                <td>Y1e</td>
+                <td>61</td>
+
+                <td data-view="standard combined">10.17</td>
+                <td data-view="combined">2</td>
+
+                <td class="metric-separator" data-view-separator="combined" aria-hidden="true"></td>
+
+                <td data-view="percentages combined">90</td>
+                <td data-view="percentages combined">67.8</td>
+                <td data-view="combined">2</td>
+              </tr>
+              <tr>
+                <td class="row-index">3</td>
+                <td>Hoshoryu</td>
+                <td>Y1w</td>
+                <td>58</td>
+
+                <td data-view="standard combined">9.67</td>
+                <td data-view="combined">3</td>
+
+                <td class="metric-separator" data-view-separator="combined" aria-hidden="true"></td>
+
+                <td data-view="percentages combined">90</td>
+                <td data-view="percentages combined">64.4</td>
+                <td data-view="combined">3</td>
+              </tr>
+              <tr>
+                <td class="row-index">4</td>
+                <td>Asanoyama</td>
+                <td>M12w</td>
+                <td>46</td>
+
+                <td data-view="standard combined">7.67</td>
+                <td data-view="combined">4</td>
+
+                <td class="metric-separator" data-view-separator="combined" aria-hidden="true"></td>
+
+                <td data-view="percentages combined">82</td>
+                <td data-view="percentages combined">56.1</td>
+                <td data-view="combined">4</td>
+              </tr>
+              <tr>
+                <td class="row-index">5</td>
+                <td>Abi</td>
+                <td>M5e</td>
+                <td>44</td>
+
+                <td data-view="standard combined">7.33</td>
+                <td data-view="combined">5</td>
+
+                <td class="metric-separator" data-view-separator="combined" aria-hidden="true"></td>
+
+                <td data-view="percentages combined">90</td>
+                <td data-view="percentages combined">48.9</td>
+                <td data-view="combined">5</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="notes" id="notes">
+            <h3>Notes</h3>
+            <ol>
+              <li id="note-identity" data-note-for="all">
+                The reported <strong>Shikona</strong> and <strong>Chii</strong> are those that pertain to the rikishi in the latest basho.
+                <em>(E.g. a rikishi promoted after the penultimate basho is shown at the higher rank.)</em>
+              </li>
+              <li id="note-alt-bug" data-note-for="all">
+                Alt-clicking does not work for the most recent shindeshi.
+                <strong>TBD</strong>
+              </li>
+              <li id="note-wins" data-note-for="all"><strong>Wins</strong> include fusensho.</li>
+              <li id="note-active" data-note-for="all">
+                An <strong>Active</strong> rikishi is one that is listed on the banzuke for the latest basho.
+              </li>
+              <li id="note-bouts" data-note-for="percentages combined">
+                <strong>Bouts</strong> is the number of bouts the rikishi was expected to fight over the selected basho, taking account of the division they were in at the time.
+                <em>(E.g. 5 basho in sekitori and one in Makushita means 5×15 + 7 = 82 bouts.)</em>
+              </li>
+            </ol>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="standings.js"></script>
+</body>
+</html>

@@ -1,0 +1,214 @@
+# ContentPanel Rendering — Draft Notes v1
+
+## Relationship to the Semantic Specification
+
+The semantic specification defines:
+
+```text id="8t2hnj"
+ContentPanel
+    = Heading + Options + PA
+```
+
+This document concerns the realization of ContentPanel within the standard renderer.
+
+---
+
+# General ContentPanel Structure
+
+The standard renderer realizes ContentPanel approximately as:
+
+```text id="4jwkpx"
+ContentPanel
+    = Heading band
+    + Body region
+
+Body region
+    = Options region
+    + PA region
+```
+
+These are renderer/layout concepts rather than semantic entities.
+
+---
+
+# ContentPanel Colours and Typography
+
+ContentPanel inherits site-wide rendering defaults unless explicitly overridden.
+
+Typical defaults include:
+
+* left-aligned text,
+* normal-weight sans typography,
+* WHITE foreground,
+* NAVY background.
+
+The renderer should prefer:
+
+* inherited defaults,
+* semantic typography scales,
+* and shared layout defaults
+
+over:
+
+* local CSS overrides,
+* per-component styling,
+* or representation-specific styling rules.
+
+---
+
+# Heading Rendering
+
+## Structure
+
+Heading comprises:
+
+* MainHeading,
+* and optional SubHeading.
+
+---
+
+## Typography
+
+MainHeading uses:
+
+```text id="xg7cmt"
+h2 scale
+```
+
+SubHeading uses:
+
+```text id="qehzso"
+h3 scale
+```
+
+These are typography scales/tokens rather than HTML heading semantics.
+
+---
+
+## Semantics
+
+Heading owns:
+
+* page framing,
+* page identity,
+* and publication naming.
+
+Representations do not own titles.
+
+---
+
+# Body Region
+
+The Body region contains:
+
+* Options region,
+* and PA region.
+
+The standard renderer positions:
+
+* Options to the left,
+* and PA to the right.
+
+Exact sizing and overflow behaviour remain renderer policy.
+
+---
+
+# Options Rendering
+
+## Relationship to the Semantic Specification
+
+The semantic structure of Options is defined by:
+
+```text id="h7xtsv"
+Public UI Grammar — Specification v1 (Draft)
+```
+
+This rendering document specifies only:
+
+* realization,
+* layout,
+* and presentation behaviour.
+
+---
+
+## General Rendering
+
+Options are rendered as:
+
+* an indented,
+* hierarchical,
+* non-numbered,
+* non-collapsible list.
+
+Options region heading:
+
+```text id="7yyhsa"
+"Options"
+```
+
+uses:
+
+```text id="ag9xzi"
+h3 scale
+```
+
+---
+
+## Typography
+
+Option labels and OptionGroup labels use:
+
+```text id="ls19zt"
+h4 scale
+```
+
+Nested OptionGroups do not reduce typography scale.
+
+Hierarchy is expressed through:
+
+* indentation,
+* grouping,
+* and structure,
+
+rather than progressively smaller typography.
+
+---
+
+## Colours and Defaults
+
+Option controls inherit:
+
+* site-wide defaults,
+* and ContentPanel defaults,
+
+unless explicitly overridden.
+
+---
+
+# PA Rendering
+
+## Status
+
+To be specified.
+
+---
+
+## Known Constraints
+
+The semantic specification defines:
+
+```text id="5zqz9n"
+PA
+    = Representation + Notes
+```
+
+The renderer must preserve:
+
+* semantic association between Representation and Notes,
+* and ownership boundaries.
+
+The renderer must not:
+
+* introduce representation-owned publication titles,
+* or violate Heading ownership.
+

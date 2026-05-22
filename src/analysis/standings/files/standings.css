@@ -1,0 +1,304 @@
+:root {
+  --line: var(--site-line);
+  --text: var(--site-text);
+  --muted: var(--site-muted);
+  --table-line: var(--site-line-soft);
+}
+
+.radio-option {
+  margin: 6px 0;
+}
+
+.content-inner h2 {
+  margin: 0 0 20px 0;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.standings-table {
+  border-collapse: collapse;
+  width: max-content;
+  margin: 0 auto;
+}
+
+.standings-table th,
+.standings-table td {
+  border: 1px solid var(--table-line);
+  padding: 7px 10px;
+  text-align: center;
+  white-space: nowrap;
+  color: var(--text);
+}
+
+.standings-table th {
+  background: var(--site-table-head-bg);
+  font-weight: bold;
+  cursor: default;
+}
+
+.standings-table th[data-column] {
+  cursor: pointer;
+}
+
+.header-group {
+  cursor: default !important;
+}
+
+.percentage-group,
+.percentage-start {
+  border-left: 2px solid var(--line) !important;
+}
+
+.th-label {
+  display: inline-grid;
+  grid-template-columns: 0.9em auto 0.9em;
+  column-gap: 0.25em;
+  align-items: center;
+  justify-content: center;
+}
+
+.sort-spacer,
+.sort-indicator {
+  display: inline-block;
+  width: 0.9em;
+  min-width: 0.9em;
+  text-align: center;
+}
+
+.sort-indicator {
+  color: var(--muted);
+  font-size: 0.85em;
+  line-height: 1;
+}
+
+.standings-table tbody tr:nth-child(odd) td {
+  background: var(--site-row-odd);
+}
+
+.standings-table tbody tr:nth-child(even) td {
+  background: var(--site-row-even);
+}
+
+.standings-table th:nth-child(2),
+.standings-table td:nth-child(2) {
+  text-align: left;
+  padding-left: 14px;
+  padding-right: 14px;
+}
+
+.standings-table a,
+.standings-table a:visited,
+.standings-table a:hover,
+.standings-table a:active {
+  color: inherit;
+  text-decoration: none;
+}
+
+.standings-table a:focus {
+  outline: 1px dotted currentColor;
+  outline-offset: 1px;
+}
+
+.row-index-head {
+  width: 28px;
+  cursor: default !important;
+}
+
+.combined-row-head {
+  color: #7f95b8 !important;
+}
+
+.standings-table td.row-index {
+  color: #7f95b8;
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+.standings-table td.rank-position {
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+.metric-separator {
+  width: 3px;
+  min-width: 3px;
+  padding: 0 !important;
+  border-left: 1px solid var(--line) !important;
+  border-right: 1px solid var(--line) !important;
+  background: transparent !important;
+}
+
+.notes {
+  margin-top: 16px;
+  font-size: 14px;
+  color: var(--muted);
+  text-align: left;
+  max-width: 600px
+}
+
+.notes h3 {
+  margin: 0 0 8px 0;
+  color: var(--text);
+}
+
+.notes ol {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.notes li {
+  margin-bottom: 8px;
+}
+
+#view-mode-group legend {
+  padding: 0;
+  margin: 0 0 6px 0;
+}
+
+#view-mode-group {
+  border: 0;
+  padding: 0;
+  margin: 0 0 14px 0;
+}
+
+.radio-option input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+
+  border: 1px solid #9cb1d8;
+  border-radius: 50%;
+  background: #d7e0ef;
+  cursor: pointer;
+  position: relative;
+}
+
+.radio-option input[type="radio"]:checked::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: #10264f;
+}
+
+.checkbox-option input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+
+  border: 1px solid #9cb1d8;
+  border-radius: 3px;
+  background: #d7e0ef;
+
+  position: relative;
+  cursor: pointer;
+}
+
+.checkbox-option input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 4px;
+  height: 8px;
+  border: solid black;
+  border-width: 0 2px 2px 0;
+  transform: translate(-50%, -58%) rotate(45deg) scale(0.72);
+  transform-origin: center;
+}
+
+/* Contextual notes popover.
+   JS will position and show one reusable element when hovering over
+   note-enabled table headings. */
+.notes-popover {
+  position: absolute;
+  z-index: 1000;
+
+  max-width: 220px;
+  padding: 6px 9px;
+
+  background: #f7f9ff;
+  color: #10264f;
+  border: 1px solid #9cb1d8;
+  border-radius: 5px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.28);
+
+  font-size: 13px;
+  line-height: 1.35;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.notes-popover[hidden] {
+  display: none;
+}
+
+.notes-popover a,
+.notes-popover a:visited,
+.notes-popover a:hover,
+.notes-popover a:active {
+  color: #224f9f;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.notes-popover a:focus {
+  outline: 1px solid #224f9f;
+  outline-offset: 2px;
+}
+
+.notes li:target {
+  background: rgba(201, 212, 238, 0.14);
+  outline: 1px solid rgba(201, 212, 238, 0.35);
+  outline-offset: 3px;
+}
+
+
+/* Combined-view grouped header refinement. */
+.standings-table tbody td {
+  font-size: 15px;
+}
+
+.standings-table tr.combined-group-row th {
+  background: var(--site-table-head-bg);
+  font-size: 15px;
+  padding-top: 2px;
+  padding-bottom: 3px;
+  line-height: 1.05;
+}
+
+.standings-table tr.combined-detail-row th {
+  background: var(--site-table-head-bg);
+  font-size: 13px;
+  padding-top: 0;
+  padding-bottom: 5px;
+  line-height: 1.1;
+}
+
+.standings-table th.combined-primary-head,
+.standings-table tr.combined-group-row th.header-group {
+  background: var(--site-table-head-bg);
+  color: var(--text) !important;
+  font-size: 15px !important;
+  font-weight: bold !important;
+}
+
+.by-basho-group,
+.by-bout-group,
+.percentage-group,
+.percentage-start {
+  border-left: 2px solid var(--line) !important;
+}
+
+/* Combined-view body/header alignment and tighter metric spacing. */
+#standings-table:has(thead tr.combined-group-row:not([style*="display: none"])) tbody td:nth-child(5) {
+  border-left: 2px solid var(--line) !important;
+}
+
+#standings-table:has(thead tr.combined-group-row:not([style*="display: none"])) tbody td:nth-child(n+5) {
+  padding-left: 7px;
+  padding-right: 7px;
+}
+
+#standings-table tr.combined-detail-row th {
+  padding-left: 7px;
+  padding-right: 7px;
+}

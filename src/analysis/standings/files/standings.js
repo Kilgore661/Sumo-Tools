@@ -1,0 +1,1148 @@
+/*
+standings.js
+
+--------------------------------------------------------------------------------
+Config Note:
+This file now uses a normal .js extension.  It previously used .js.txt only
+because some older tools struggled to read JavaScript files directly.
+-------------------------------------------------------------------------------- 
+
+Ozumo Standings browser client.
+
+Responsibilities:
+- load site_config.json
+- populate selectors
+- load selected CSV + sidecar JSON
+- filter by division
+- sort visible columns
+- compute visible competition positions
+- render the current table
+
+No standings calculations are performed here.
+*/
+
+/* ================================================== */
+/* 1. Configuration and runtime state                 */
+/* ================================================== */
+
+const DATA_DIR = "./data";
+
+const DEFAULT_SORT_COLUMN = "selected_average_credited_wins";
+const DEFAULT_SORT_ID = "standard-average";
+const DEFAULT_SORT_DESCENDING = true;
+
+const state = {
+  config: null,
+  rows: [],
+  meta: null,
+  currentNumBasho: null,
+  currentDivision: null,
+  sortColumn: DEFAULT_SORT_COLUMN,
+  sortId: DEFAULT_SORT_ID,
+  sortDescending: DEFAULT_SORT_DESCENDING,
+  viewMode: "standard",
+  currentOnly: true,
+};
+
+/*
+Static DOM hooks.
+
+Note:
+- headers includes only sortable columns, i.e. <th> elements carrying
+  data-column attributes.
+- the row-number header is intentionally excluded because it is not sortable.
+*/
+const el = {
+  numBasho: document.getElementById("num-basho-select"),
+  division: document.getElementById("division-select"),
+  body: document.getElementById("standings-body"),
+  range: document.getElementById("range-label"),
+  pageTitle: document.getElementById("page-title"),
+  title: document.getElementById("table-title"),
+  headers: document.querySelectorAll("#standings-table th[data-column]"),
+  currentOnly: document.getElementById("activity-current-only"),
+};
+
+/* ================================================== */
+/* 2. Startup                                         */
+/* ================================================== */
+
+document.addEventListener("DOMContentLoaded", init);
+
+async function init() {
+  try {
+    state.config = await loadJson(`${DATA_DIR}/site_config.json`);
+
+    buildNumBashoOptions();
+    applyConfigDefaultsToState();
+    applyUrlStateOrDefaults();
+    applyStateToControls();
+    wireEvents();
+    wireViewModeEvents();
+    wireHistoryEvents();
+    applyViewMode();
+    wireNotePopovers();
+
+    await loadWindow(state.currentNumBasho);
+  } catch (err) {
+    fail(err);
+  }
+}
+
+function applyConfigDefaultsToState() {
+  state.currentNumBasho = state.config.default_num_basho;
+  state.currentDivision = state.config.default_division;
+  state.sortColumn = DEFAULT_SORT_COLUMN;
+  state.sortId = DEFAULT_SORT_ID;
+  state.sortDescending = DEFAULT_SORT_DESCENDING;
+  state.viewMode = "standard";
+  state.currentOnly = true;
+}
+
+function applyStateToControls() {
+  el.numBasho.value = String(state.currentNumBasho);
+  el.division.value = state.currentDivision;
+  el.currentOnly.checked = state.currentOnly;
+
+  const checkedView = document.querySelector(
+    `input[name="view-mode"][value="${state.viewMode}"]`
+  );
+
+  if (checkedView) {
+    checkedView.checked = true;
+  }
+}
+
+/* ================================================== */
+/* 3. Controls                                        */
+/* ================================================== */
+
+function buildNumBashoOptions() {
+  el.numBasho.innerHTML = "";
+
+  for (const n of state.config.supported_num_basho) {
+    const option = document.createElement("option");
+    option.value = String(n);
+    option.textContent = String(n);
+    el.numBasho.appendChild(option);
+  }
+}
+
+function wireEvents() {
+  el.numBasho.addEventListener("change", async () => {
+    state.currentNumBasho = Number(el.numBasho.value);
+    pushUrlState();
+    await loadWindow(state.currentNumBasho);
+  });
+
+  el.currentOnly.addEventListener("change", () => {
+    state.currentOnly = el.currentOnly.checked;
+    pushUrlState();
+    render();
+  });
+
+  el.division.addEventListener("change", () => {
+    state.currentDivision = el.division.value;
+    pushUrlState();
+    render();
+  });
+
+  el.headers.forEach((th) => {
+    th.style.cursor = "pointer";
+
+    th.addEventListener("click", () => {
+      handleHeaderClick(th);
+    });
+  });
+}
+
+function handleHeaderClick(th) {
+  hideNotePopover();
+
+  const column = th.dataset.column;
+  const sortId = th.dataset.sortId || column;
+
+  if (state.sortColumn === column && state.sortId === sortId) {
+    state.sortDescending = !state.sortDescending;
+  } else {
+    state.sortColumn = column;
+    state.sortId = sortId;
+    state.sortDescending = defaultSortDescendingForColumn(column);
+  }
+
+  pushUrlState();
+  render();
+}
+
+function defaultSortDescendingForColumn(column) {
+  /*
+  Textual browse-oriented columns sort ascending on first click.
+  Metric columns sort descending on first click.
+
+  Text columns sort alphabetically on first click.
+  Chii sorts best-to-worst on first click, which means ascending ordinal.
+  Metric columns sort descending on first click.
+  */
+  return !(
+    column === "shikona" ||
+    column === "chii_ordinal"
+  );
+}
+
+
+/* ================================================== */
+/* 4. CGI-like URL state                              */
+/* ================================================== */
+
+function applyUrlStateOrDefaults() {
+  const result = parseUrlState(window.location.search);
+
+  if (result.ok) {
+    try {
+      applyParsedUrlState(
+        result.statePatch,
+        result.hasExplicitView,
+        result.hasExplicitSort
+      );
+      return;
+    } catch (err) {
+      handleInvalidUrlState(err.message);
+      return;
+    }
+  }
+
+  handleInvalidUrlState(result.message);
+}
+
+function handleInvalidUrlState(message) {
+  alert(`Invalid standings URL: ${message}\n\nThe page will be loaded with the default settings.`);
+  applyConfigDefaultsToState();
+  replaceUrlState();
+}
+
+function parseUrlState(search) {
+  const params = new URLSearchParams(search);
+
+  if ([...params.keys()].length === 0) {
+    return {
+      ok: true,
+      statePatch: {},
+      hasExplicitView: false,
+      hasExplicitSort: false,
+    };
+  }
+
+  const allowedParams = new Set([
+    "currentNumBasho",
+    "currentDivision",
+    "sortColumn",
+    "sortId",
+    "sortDescending",
+    "viewMode",
+    "currentOnly",
+  ]);
+
+  for (const key of params.keys()) {
+    if (!allowedParams.has(key)) {
+      return invalidUrlState(`unknown parameter "${key}"`);
+    }
+  }
+
+  const patch = {};
+
+  if (params.has("currentNumBasho")) {
+    const raw = params.get("currentNumBasho");
+    const value = Number(raw);
+
+    if (!Number.isInteger(value) || !state.config.supported_num_basho.includes(value)) {
+      return invalidUrlState(`unsupported currentNumBasho "${raw}"`);
+    }
+
+    patch.currentNumBasho = value;
+  }
+
+  if (params.has("currentDivision")) {
+    const value = params.get("currentDivision");
+
+    if (!validDivisionValues().has(value)) {
+      return invalidUrlState(`unsupported currentDivision "${value}"`);
+    }
+
+    patch.currentDivision = value;
+  }
+
+  if (params.has("viewMode")) {
+    const value = params.get("viewMode");
+
+    if (!validViewModes().has(value)) {
+      return invalidUrlState(`unsupported viewMode "${value}"`);
+    }
+
+    patch.viewMode = value;
+  }
+
+  if (params.has("currentOnly")) {
+    const parsed = parseBooleanParam(params.get("currentOnly"));
+
+    if (parsed === null) {
+      return invalidUrlState(`unsupported currentOnly "${params.get("currentOnly")}"`);
+    }
+
+    patch.currentOnly = parsed;
+  }
+
+  if (params.has("sortColumn")) {
+    patch.sortColumn = params.get("sortColumn");
+  }
+
+  if (params.has("sortId")) {
+    patch.sortId = params.get("sortId");
+  }
+
+  if (params.has("sortDescending")) {
+    const parsed = parseBooleanParam(params.get("sortDescending"));
+
+    if (parsed === null) {
+      return invalidUrlState(`unsupported sortDescending "${params.get("sortDescending")}"`);
+    }
+
+    patch.sortDescending = parsed;
+  }
+
+  const hasExplicitSort =
+    params.has("sortColumn") ||
+    params.has("sortId") ||
+    params.has("sortDescending");
+
+  if (hasExplicitSort && !(params.has("sortColumn") && params.has("sortId") && params.has("sortDescending"))) {
+    return invalidUrlState(
+      "sortColumn, sortId, and sortDescending must be supplied together"
+    );
+  }
+
+  return {
+    ok: true,
+    statePatch: patch,
+    hasExplicitView: params.has("viewMode"),
+    hasExplicitSort,
+  };
+}
+
+function invalidUrlState(message) {
+  return {
+    ok: false,
+    message,
+  };
+}
+
+function applyParsedUrlState(patch, hasExplicitView, hasExplicitSort) {
+  Object.assign(state, patch);
+
+  if (hasExplicitView && !hasExplicitSort) {
+    resetSortToViewDefault();
+  }
+
+  const sortIsValid = sortChoiceIsValidForMode(
+    state.viewMode,
+    state.sortColumn,
+    state.sortId
+  );
+
+  if (!sortIsValid) {
+    throw new Error(
+      `Invalid URL state: sortColumn "${state.sortColumn}" and sortId "${state.sortId}" are not valid for viewMode "${state.viewMode}".`
+    );
+  }
+}
+
+function parseBooleanParam(value) {
+  if (value === "true") {
+    return true;
+  }
+
+  if (value === "false") {
+    return false;
+  }
+
+  return null;
+}
+
+function validDivisionValues() {
+  return new Set([...el.division.options].map((option) => option.value));
+}
+
+function validViewModes() {
+  return new Set(
+    [...document.querySelectorAll('input[name="view-mode"]')].map(
+      (radio) => radio.value
+    )
+  );
+}
+
+function sortChoiceIsValidForMode(mode, sortColumn, sortId) {
+  return validSortChoicesForMode(mode).some(
+    (choice) => choice.column === sortColumn && choice.sortId === sortId
+  );
+}
+
+function validSortChoicesForMode(mode) {
+  const choices = [];
+
+  document
+    .querySelectorAll("#standings-table th[data-column]")
+    .forEach((th) => {
+      const headerRow = th.closest("[data-header-for]");
+
+      if (!headerRow) {
+        return;
+      }
+
+      const modes = headerRow.dataset.headerFor.split(/\s+/);
+
+      if (!modes.includes(mode)) {
+        return;
+      }
+
+      choices.push({
+        column: th.dataset.column,
+        sortId: th.dataset.sortId || th.dataset.column,
+      });
+    });
+
+  return choices;
+}
+
+function pushUrlState() {
+  const url = urlForCurrentState();
+  history.pushState(null, "", url);
+  notifyParentUrlState();
+}
+
+function replaceUrlState() {
+  const url = urlForDefaultState();
+  history.replaceState(null, "", url);
+  notifyParentUrlState();
+}
+
+function urlForCurrentState() {
+  if (stateMatchesDefaults()) {
+    return urlForDefaultState();
+  }
+
+  const url = new URL(window.location.href);
+  url.search = "";
+  url.hash = "";
+
+  const params = new URLSearchParams();
+  params.set("currentNumBasho", String(state.currentNumBasho));
+  params.set("currentDivision", state.currentDivision);
+  params.set("sortColumn", state.sortColumn);
+  params.set("sortId", state.sortId);
+  params.set("sortDescending", String(state.sortDescending));
+  params.set("viewMode", state.viewMode);
+  params.set("currentOnly", String(state.currentOnly));
+
+  url.search = params.toString();
+  return url;
+}
+
+function urlForDefaultState() {
+  const url = new URL(window.location.href);
+  url.search = "";
+  url.hash = "";
+  return url;
+}
+
+function notifyParentUrlState() {
+  if (window.parent === window) {
+    return;
+  }
+
+  window.parent.postMessage({
+    type: "site:url-state",
+    page: "standings_by_wins",
+    params: Object.fromEntries(new URLSearchParams(window.location.search).entries()),
+  }, "*");
+}
+
+function stateMatchesDefaults() {
+  return (
+    state.currentNumBasho === state.config.default_num_basho &&
+    state.currentDivision === state.config.default_division &&
+    state.sortColumn === DEFAULT_SORT_COLUMN &&
+    state.sortId === DEFAULT_SORT_ID &&
+    state.sortDescending === DEFAULT_SORT_DESCENDING &&
+    state.viewMode === "standard" &&
+    state.currentOnly === true
+  );
+}
+
+function wireHistoryEvents() {
+  window.addEventListener("popstate", async () => {
+    const previousNumBasho = state.currentNumBasho;
+
+    try {
+      applyConfigDefaultsToState();
+      applyUrlStateOrDefaults();
+      applyStateToControls();
+      applyViewMode();
+
+      if (state.currentNumBasho !== previousNumBasho) {
+        await loadWindow(state.currentNumBasho);
+      } else {
+        render();
+      }
+    } catch (err) {
+      fail(err);
+    }
+  });
+}
+
+/* ================================================== */
+/* 5. Data loading                                    */
+/* ================================================== */
+
+async function loadWindow(numBasho) {
+  const root = fileRoot(numBasho);
+  const stamp = Date.now();
+
+  state.rows = await loadCsv(`${root}.csv?v=${stamp}`);
+  state.meta = await loadJson(`${root}.json?v=${stamp}`);
+
+  render();
+}
+
+function fileRoot(numBasho) {
+  const anchor = state.config.anchor_token;
+  const direction = state.config.direction;
+
+  return `${DATA_DIR}/multiple basho standings view (${anchor}, ${direction}, ${numBasho})`;
+}
+
+/* ================================================== */
+/* 5. Render orchestration                            */
+/* ================================================== */
+
+function render() {
+  const filteredRows = getFilteredRows();
+  const sortedRows = getSortedRows(filteredRows);
+
+  const meanPositions = computeCompetitionPositions(
+    filteredRows,
+    "selected_average_credited_wins",
+    true
+  );
+
+  const percentPositions = computeCompetitionPositions(
+    filteredRows,
+    "win_percent",
+    true
+  );
+
+  renderMeta();
+  renderSortIndicators();
+  renderTable(sortedRows, meanPositions, percentPositions);
+}
+
+/* ================================================== */
+/* 6. Heading / metadata rendering                    */
+/* ================================================== */
+
+function renderMeta() {
+  const start = formatMonthYear(state.meta.effective_start_date);
+  const end = formatMonthYear(state.meta.effective_end_date);
+
+  el.title.textContent =
+    `Standings for ${start} to ${end} (${state.currentNumBasho} Basho)`;
+
+  el.range.textContent = "Rolling recent-performance standings by wins.";
+}
+
+function formatMonthYear(token) {
+  const [y, m] = token.split("/");
+  const monthNames = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+  ];
+
+  return `${monthNames[Number(m) - 1]} ${y}`;
+}
+
+/* ================================================== */
+/* 7. Table body rendering                            */
+/* ================================================== */
+
+function renderTable(rows, meanPositions, percentPositions) {
+  el.body.innerHTML = "";
+
+  const mode = state.viewMode;
+
+  rows.forEach((row, index) => {
+    const tr = document.createElement("tr");
+    const rikishiId = String(row.rikishi_id);
+
+    if (mode === "standard") {
+      appendCell(tr, meanPositions.get(rikishiId), "rank-position");
+    } else if (mode === "percentages") {
+      appendCell(tr, percentPositions.get(rikishiId), "rank-position");
+    } else {
+      appendCell(tr, index + 1, "row-index");
+    }
+
+    appendShikonaCell(tr, row);
+    appendCell(tr, row.chii);
+    appendCell(tr, row.credited_wins);
+
+    if (mode === "standard" || mode === "combined") {
+      appendCell(tr, format2(row.selected_average_credited_wins));
+    }
+
+    if (mode === "combined") {
+      appendCell(tr, meanPositions.get(rikishiId));
+    }
+
+    if (mode === "percentages" || mode === "combined") {
+      appendCell(tr, row.selected_expected_bout_count, mode === "combined" ? "percentage-start" : "");
+      appendCell(tr, formatPercent(row.win_percent));
+    }
+
+    if (mode === "combined") {
+      appendCell(tr, percentPositions.get(rikishiId));
+    }
+
+    el.body.appendChild(tr);
+  });
+}
+function appendCell(tr, value, className = "") {
+  const td = document.createElement("td");
+  td.textContent = value;
+
+  if (className) {
+    td.className = className;
+  }
+
+  tr.appendChild(td);
+}
+
+function appendShikonaCell(tr, row) {
+  const td = document.createElement("td");
+  const link = document.createElement("a");
+  const shikona = String(row.shikona);
+  const graphShikona = String(row.graph_shikona);
+  const encodedGraphShikona = encodeURIComponent(graphShikona);
+
+  link.textContent = shikona;
+  link.href = `https://sumodb.sumogames.de/Rikishi.aspx?r=${encodeURIComponent(row.rikishi_id)}`;
+  link.title = "Click: SumoDB. Alt-click: Gaspode-san.";
+
+  let suppressNextClick = false;
+
+  function openShikonaTarget(url) {
+    const opened = window.open(url, "_blank", "noopener");
+
+    if (opened) {
+      opened.focus();
+    }
+  }
+
+  link.addEventListener("mousedown", (event) => {
+    if (!event.altKey || event.button !== 0) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    suppressNextClick = true;
+
+    openShikonaTarget(
+      `http://www.661.org.uk/cgi-bin/index.py?graph=any&new_rik=&r_${encodedGraphShikona}=${encodedGraphShikona}&graph_type=by_time`
+    );
+  });
+
+  link.addEventListener("click", (event) => {
+    event.preventDefault();
+  
+    if (suppressNextClick) {
+      suppressNextClick = false;
+      return;
+    }
+
+    openShikonaTarget(
+      `https://sumodb.sumogames.de/Rikishi.aspx?r=${encodeURIComponent(row.rikishi_id)}`
+    );
+  });
+
+  td.appendChild(link);
+  tr.appendChild(td);
+}
+
+function appendSeparatorCell(tr) {
+  const td = document.createElement("td");
+  td.className = "metric-separator";
+  td.setAttribute("aria-hidden", "true");
+  tr.appendChild(td);
+}
+
+/* ================================================== */
+/* 8. Derived visible positions                       */
+/* ================================================== */
+
+function computeCompetitionPositions(rows, column, descending) {
+  /*
+  Returns a Map from rikishi_id -> competition rank for the supplied metric.
+
+  Example rank pattern:
+      1
+      2
+      2
+      4
+
+  These positions are computed over the filtered rows, independent of the
+  current display order.
+  */
+  const ordered = [...rows].sort((a, b) => {
+    const dir = descending ? -1 : 1;
+    return compare(a[column], b[column]) * dir;
+  });
+
+  const positions = new Map();
+  let previousValue = null;
+  let previousPosition = 0;
+
+  ordered.forEach((row, index) => {
+    const currentValue = row[column];
+    let position;
+
+    if (index > 0 && compare(currentValue, previousValue) === 0) {
+      position = previousPosition;
+    } else {
+      position = index + 1;
+      previousPosition = position;
+      previousValue = currentValue;
+    }
+
+    positions.set(String(row.rikishi_id), position);
+  });
+
+  return positions;
+}
+
+/* ================================================== */
+/* 9. Filtering                                       */
+/* ================================================== */
+
+function getFilteredRows() {
+  let rows = [...state.rows];
+
+  if (state.currentDivision !== "all") {
+    rows = rows.filter((row) =>
+      divisionMatches(Number(row.chii_ordinal), state.currentDivision)
+    );
+  }
+
+  if (state.currentOnly) {
+    rows = rows.filter((row) => row.is_current === "1");
+  }
+
+  return rows;
+}
+
+function divisionMatches(chiiOrdinal, division) {
+  /*
+  Division is derived from chii ordinal by taking the leading level code.
+  */
+  const d = Math.floor(chiiOrdinal / 100000);
+
+  if (division === "makuuchi") {
+    return d >= 0 && d <= 4;
+  }
+
+  if (division === "juryo") {
+    return d === 5;
+  }
+
+  if (division === "makushita") {
+    return d === 6;
+  }
+
+  if (division === "sandanme") {
+    return d === 7;
+  }
+
+  if (division === "jonidan") {
+    return d === 8;
+  }
+
+  if (division === "jonokuchi") {
+    return d === 9;
+  }
+
+  return true;
+}
+
+/* ================================================== */
+/* 10. Sorting                                        */
+/* ================================================== */
+
+function getSortedRows(rows) {
+  const out = [...rows];
+  const col = state.sortColumn;
+  const dir = state.sortDescending ? -1 : 1;
+
+  out.sort((a, b) => compare(a[col], b[col]) * dir);
+
+  return out;
+}
+
+function renderSortIndicators() {
+  el.headers.forEach((th) => {
+    const indicator = th.querySelector(".sort-indicator");
+
+    if (!indicator) {
+      return;
+    }
+
+    const sortId = th.dataset.sortId || th.dataset.column;
+
+    indicator.textContent =
+      th.dataset.column === state.sortColumn && sortId === state.sortId
+        ? sortIndicatorForColumn(th.dataset.column, state.sortDescending)
+        : "";
+  });
+}
+
+function sortIndicatorForColumn(column, descending) {
+  // For most columns, descending means larger-to-smaller and is shown as ▼.
+  // Chii is different: better ranks have lower ordinals, so the visual
+  // best-to-worst direction is the inverse of the numeric sort direction.
+  if (column === "chii_ordinal") {
+    return descending ? "▲" : "▼";
+  }
+
+  return descending ? "▼" : "▲";
+}
+
+function compare(a, b) {
+  /*
+  Numeric fields are compared numerically.
+  Everything else is compared lexically.
+  */
+  const na = Number(a);
+  const nb = Number(b);
+
+  const aNum = !Number.isNaN(na);
+  const bNum = !Number.isNaN(nb);
+
+  if (aNum && bNum) {
+    return na - nb;
+  }
+
+  return String(a).localeCompare(String(b));
+}
+
+/* ================================================== */
+/* 11. File parsing / formatting helpers              */
+/* ================================================== */
+
+async function loadJson(url) {
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(`Cannot load ${url}`);
+  }
+
+  return await response.json();
+}
+
+async function loadCsv(url) {
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(`Cannot load ${url}`);
+  }
+
+  const text = await response.text();
+  return parseCsv(text);
+}
+
+function parseCsv(text) {
+  const lines = text.trim().split(/\r?\n/);
+
+  if (lines.length === 0) {
+    return [];
+  }
+
+  const headers = splitCsvLine(lines[0]);
+  const rows = [];
+
+  for (let i = 1; i < lines.length; i++) {
+    if (!lines[i].trim()) {
+      continue;
+    }
+
+    const values = splitCsvLine(lines[i]);
+    const row = {};
+
+    headers.forEach((header, idx) => {
+      row[header] = values[idx] ?? "";
+    });
+
+    rows.push(row);
+  }
+
+  return rows;
+}
+
+function splitCsvLine(line) {
+  // Current published CSV contract is simple and comma-split is sufficient.
+  return line.split(",");
+}
+
+function format2(value) {
+  return Number(value).toFixed(2);
+}
+
+function formatPercent(value) {
+  return Number(value).toFixed(1);
+}
+
+/* ================================================== */
+/* 12. Failure handling                               */
+/* ================================================== */
+
+function fail(err) {
+  console.error(err);
+  alert("Unable to load standings data.");
+}
+
+/* -------------------------------------------------- */
+/* 13. View                                           */
+/* -------------------------------------------------- */
+
+function visibleSortColumnsForMode(mode) {
+  const out = new Set();
+
+  document
+    .querySelectorAll("#standings-table th[data-column]")
+    .forEach((th) => {
+      const viewAttr = th.dataset.view;
+
+      // No data-view means always visible.
+      if (!viewAttr) {
+        out.add(th.dataset.column);
+        return;
+      }
+
+      const modes = viewAttr.split(/\s+/);
+      if (modes.includes(mode)) {
+        out.add(th.dataset.column);
+      }
+    });
+
+  return out;
+}
+
+function resetSortToViewDefault() {
+  if (state.viewMode === "percentages") {
+    state.sortColumn = "win_percent";
+    state.sortId = "percentage-win-percent";
+  } else if (state.viewMode === "combined") {
+    state.sortColumn = "win_percent";
+    state.sortId = "percentage-win-percent";
+  } else {
+    state.sortColumn = DEFAULT_SORT_COLUMN;
+    state.sortId = DEFAULT_SORT_ID;
+  }
+
+  state.sortDescending = DEFAULT_SORT_DESCENDING;
+}
+
+function initialiseViewMode() {
+  const checked = document.querySelector('input[name="view-mode"]:checked');
+
+  state.viewMode = checked ? checked.value : "standard";
+  resetSortToViewDefault();
+  applyViewMode();
+}
+
+function wireViewModeEvents() {
+  const radios = document.querySelectorAll('input[name="view-mode"]');
+
+  radios.forEach((radio) => {
+    radio.addEventListener("change", () => {
+      if (!radio.checked) {
+        return;
+      }
+
+      state.viewMode = radio.value;
+      resetSortToViewDefault();
+      applyViewMode();
+      pushUrlState();
+      render();
+    });
+  });
+}
+
+function applyViewMode() {
+  applyViewColumns();
+  applyViewNotes();
+}
+
+function applyViewColumns() {
+  const mode = state.viewMode;
+
+  document
+    .querySelectorAll("[data-header-for]")
+    .forEach((el) => {
+      const modes = el.dataset.headerFor.split(/\s+/);
+      el.style.display = modes.includes(mode) ? "" : "none";
+    });
+
+  document
+    .querySelectorAll("[data-view]")
+    .forEach((el) => {
+      const modes = el.dataset.view.split(/\s+/);
+      el.style.display = modes.includes(mode) ? "" : "none";
+    });
+
+  document
+    .querySelectorAll("[data-view-separator]")
+    .forEach((el) => {
+      const target = el.dataset.viewSeparator;
+      el.style.display = target === mode ? "" : "none";
+    });
+}
+
+function applyViewNotes() {
+  const mode = state.viewMode;
+
+  document
+    .querySelectorAll("[data-note-for]")
+    .forEach((el) => {
+      const modes = el.dataset.noteFor.split(/\s+/);
+
+      const visible =
+        modes.includes("all") || modes.includes(mode);
+
+      el.style.display = visible ? "" : "none";
+    });
+}
+
+/* -------------------------------------------------- */
+/* 14. Note popovers                                  */
+/* -------------------------------------------------- */
+
+const NOTE_POPOVER_DELAY_MS = 450;
+
+let notePopoverTimer = null;
+
+function wireNotePopovers() {
+  const headings = document.querySelectorAll(
+    "#standings-table th[data-note-target]"
+  );
+
+  headings.forEach((th) => {
+    th.addEventListener("mouseenter", () => {
+      clearNotePopoverTimer();
+
+      notePopoverTimer = window.setTimeout(() => {
+        showNotePopover(th);
+      }, NOTE_POPOVER_DELAY_MS);
+    });
+
+    th.addEventListener("mouseleave", () => {
+      clearNotePopoverTimer();
+
+      window.setTimeout(() => {
+        const popover = getNotePopover();
+
+        if (!popover.matches(":hover")) {
+          hideNotePopover();
+        }
+      }, 50);
+    });
+  });
+
+  const popover = getNotePopover();
+
+  popover.addEventListener("mouseleave", () => {
+    hideNotePopover();
+  });
+
+  popover.addEventListener("click", (event) => {
+    event.stopPropagation();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      clearNotePopoverTimer();
+      hideNotePopover();
+    }
+  });
+}
+
+function getNotePopover() {
+  let popover = document.getElementById("note-popover");
+
+  if (!popover) {
+    popover = document.createElement("div");
+    popover.id = "note-popover";
+    popover.className = "notes-popover";
+    popover.hidden = true;
+
+    document.body.appendChild(popover);
+  }
+
+  return popover;
+}
+
+function showNotePopover(th) {
+  const noteTarget = th.dataset.noteTarget;
+
+  if (!noteTarget) {
+    return;
+  }
+
+  const popover = getNotePopover();
+
+  popover.innerHTML = "";
+
+  const link = document.createElement("a");
+  link.href = `#${noteTarget}`;
+  link.textContent = "See Notes ⓘ";
+
+  popover.appendChild(link);
+
+  const rect = th.getBoundingClientRect();
+
+  popover.hidden = false;
+
+  const popoverRect = popover.getBoundingClientRect();
+
+  const left =
+    window.scrollX +
+    rect.left +
+    rect.width / 2 -
+    popoverRect.width / 2;
+
+  const top =
+    window.scrollY +
+    rect.bottom +
+    6;
+
+  popover.style.left = `${Math.max(8, left)}px`;
+  popover.style.top = `${top}px`;
+}
+
+function hideNotePopover() {
+  const popover = getNotePopover();
+  popover.hidden = true;
+}
+
+function clearNotePopoverTimer() {
+  if (notePopoverTimer !== null) {
+    window.clearTimeout(notePopoverTimer);
+    notePopoverTimer = null;
+  }
+}

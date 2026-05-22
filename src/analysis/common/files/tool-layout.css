@@ -1,0 +1,10 @@
+/*
+Compatibility stylesheet for legacy table app shells.
+
+Shared public page, option, table, note, and link styling now lives in
+`src/products/make_site/files/site-page.css` and is copied to the generated
+site root as `site-page.css`.
+
+Legacy pages may keep linking this file while migration is in progress, but it
+should not define independent page-shell styling.
+*/

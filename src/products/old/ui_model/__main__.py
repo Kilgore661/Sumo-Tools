@@ -1,0 +1,10 @@
+"""Command-line entry point for make_site2."""
+
+from __future__ import annotations
+
+from .cli import main
+
+
+if __name__ == "__main__":
+    main()
+

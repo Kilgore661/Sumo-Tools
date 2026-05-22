@@ -1,0 +1,233 @@
+
+## High-level picture
+
+The core model is an identity-first model of sumo tournaments. At the top level it is
+
+```text
+History : Date → BashoState
+BashoState = Banzuke × Summary
+Summary = (Day → DailyResults) × Performances
+```
+
+and that decomposition is described as intentional and strong. Identity is `RikId`; rank is an attribute of identity, not identity itself. `Banzuke` is therefore modeled as mappings from `RikId`, not as a list of rank strings. 
+
+The parser code fits that model closely. `parse_bashostate(...)` produces validated rank data, parses daily results against that validated roster context, then `tidy_up(...)` constructs a `Banzuke`, `Summary`, and `BashoState`, and range parsing accumulates those into a `History`.
+
+## The central object: `Chii`
+
+The model document makes `Chii` the key semantic object. It is not a string; it is a structured rank with components
+
+```text
+(level, number, side, annotation)
+```
+
+and every `Chii` has an `ordinal()` which defines total ordering. The ordering precedence is explicitly `level → number → annotation → side`. Annotation comes before side because the model treats `(level, number, side)` as a base slot and annotation as distinguishing multiple occupants within that slot. 
+
+That same design shows up in persistence: the newer serializer stores `Chii` as its ordinal integer and reconstructs it with `Chii.from_ordinal(...)`, which strongly confirms that `ordinal()` is intended as the canonical portable representation of rank.
+
+## What `Chii` appears to model
+
+The strongest explicit statement in the core-model note is that `Chii` models not just “rank” but rank slots:
+
+```text
+(level, number, side) → 1..n occupants
+```
+
+with annotation distinguishing the occupants. The note then spells out the consequence that `(level, number, side)` is not unique and that multiple rikishi may share a base rank slot. It also says rank uniqueness, unique ordinal, and unique rank string are **not** guaranteed by `Banzuke`, and that this is intentional.
+
+So, from the model note alone, the intended abstract model is **non-injective in the inverse direction**:
+
+* you always have `RikId → Chii`,
+* but you are **not** guaranteed `Chii → RikId`.
+
+That is the lack of injectivity you asked me to emphasize.
+
+## The lack of injectivity: what is explicit, what is not
+
+Here is the precise state of play.
+
+### Explicit in the core-model note
+
+The note explicitly says:
+
+* `Chii` is “not guaranteed unique”,
+* `(level, number, side)` is not unique,
+* multiple rikishi may share a base rank,
+* `Banzuke` does not guarantee rank uniqueness, unique ordinal, or unique rank string.
+
+That is a very strong statement that the model, as documented, does **not** enforce injectivity from rank to rikishi.
+
+### Explicit in the parser/core wrapper code
+
+`tidy_up(...)` takes `validated_data: Dict[RikId, FinalBanzukeEntry]`, pulls out `entry.chii` and `entry.shikona`, checks only that each value is a `Chii`, and then constructs
+
+* `Riks(validated_data.keys())`
+* `RikChii(rik_newfoo_map)`
+* `RikShikona(rik_shikona_map)`
+* `Banzuke(...)`
+
+There is no inverse uniqueness check there. 
+
+Likewise, the serializers write and read `rikchii` as a mapping from `rid` to serialized rank value. They do not check that no two `rid` values map to the same `Chii`/ordinal.
+
+So from the code I have seen, the construction path is:
+
+```text
+validated_data : Dict[RikId, FinalBanzukeEntry]
+    → RikId → Chii
+    → Banzuke
+```
+
+and **nothing in that visible path enforces injectivity of `RikId → Chii`**.
+
+### What may still be true in practice
+
+It may still be true that the FSM always produces an injective mapping in practice, or that the unseen `sumo_core` constructors validate this. But that is **not evident** from the parser code, serializers, or the model note I have seen. The visible code assumes correctness from upstream FSM output; it does not prove it.
+
+So the best factual statement is:
+
+> The visible model and parser code are built around a mapping `RikId → Chii`, and neither the documented core model nor the shown parser/persistence code establishes injectivity of that mapping. In fact, the model note explicitly warns against assuming rank uniqueness.
+
+## Identity-first design
+
+The model is very clearly identity-first. The note says everything hangs off `RikId`: rank, shikona, performance. This is why `Banzuke` is a mapping from `RikId`, and why the daily parser can work relative to a validated roster context keyed by rikishi ID rather than raw rank strings. 
+
+The parser reinforces that. The FSM layer returns `Dict[RikId, FinalBanzukeEntry]`, and `tidy_up(...)` simply carries those identities forward into `Banzuke`. The daily parser is fed a compatibility dictionary derived from that validated identity-based mapping.
+
+## Banzuke as roster, not rank list
+
+The model note explicitly says the mental model is “who is in the tournament and where they are placed,” not “a list of ranks.” `Banzuke` consists of `RikId → Chii` and `RikId → Shikona` with shared domain. It guarantees that each rikishi has a rank and a name, but does not guarantee uniqueness of rank. 
+
+That is exactly how the parser constructs it in `tidy_up(...)`: from the keys of the validated mapping and two per-rikishi maps, one to `Chii` and one to shikona. 
+
+## Summary, DailyResults, BoutResult, Performance
+
+The model note says `Summary` is
+
+* `Day → DailyResults`
+* `RikId → Performance`
+
+with the invariant that, if days exist, they start at Day 1 and are contiguous. `DailyResults` contains a torikumi and `Pair → BoutResult`, and is intentionally light on validation. `BoutResult` enforces exactly two distinct rikishi and only specific outcome pairs: `(W, L)`, `(FS, FP)`, `(DRAW, DRAW)`. `Performance` represents prizes and promotion/demotion markers and cannot have both Yusho and Jun-Yusho.
+
+The older serializer confirms these structures in code. It serializes:
+
+* `DailyResults` as `torikumi` plus `results_lookup`,
+* `BoutResult` as two rikishi, two outcomes, decision, symbol,
+* `Performance` as prizes and `updown`,
+* `Summary` as `daily_results` and `performances`. 
+
+So even without the `sumo_core` source, the combined docs and serializers give a fairly concrete picture of these types.
+
+## What is *not* in model scope
+
+The model note explicitly says `Mz` is not modeled. The compatibility adapter in `parser2_utils.py` explains why: the daily parser wants a legacy context in which `'chii'` may literally be `'Mz'`, but formalizing `Mz` as a real `Chii`/division would break the ordinal scheme.
+
+That tells me the model boundary is deliberate:
+
+* ranked banzuke participants are in,
+* Mae-zumo is tolerated at ingestion boundaries,
+* but it is not part of the semantic rank model and should not leak into persisted data.
+
+The serializers support that too: the older serializer explicitly skips `'Mz'` strings when serializing `RikChii`/`RikShikona`, and the newer annotation-aware serializer only serializes actual `Chii` values.
+
+## Validation philosophy
+
+One important meta-point from the model note is that validation is inconsistent: the codebase mixes offensive intent with defensive residue, so you should not infer importance from whether a check exists. Instead, the note tells you to infer semantics from representation, ordering logic, parsing grammar, and comments about edge cases. 
+
+That matters directly for injectivity: the absence of an inverse-uniqueness check in visible code is **not** proof that uniqueness is unimportant, but neither is it proof that uniqueness is guaranteed. It simply means the visible code is not where that property is established.
+
+## What classes and types I am aware of
+
+Here is the fullest list I can assemble from the files and docs you have shown.
+
+### Core model classes/types explicitly imported or described
+
+* `Banzuke`
+* `Chii`
+* `RikChii`
+* `Shikona` 
+* `RikShikona`
+* `Riks`
+* `BashoState`
+* `Summary`
+* `DailyResults`
+* `BoutResult`
+* `ResultLookup` 
+* `Performance`
+* `History`
+* `Date`
+* `Year`
+* `Month`
+* `RikId`
+* `Day`
+* `Pair` 
+* `Torikumi` 
+
+### Enum / primitive types I have seen imported
+
+* `Division` 
+* `MSD` 
+* `Outcome`
+* `Side` 
+* `Symbol`
+* `Annotation` 
+* `Prize`
+* `Direction`
+* `Kimarite` 
+
+### Parser/FSM-facing classes and dataclasses
+
+* `FinalBanzukeEntry`
+* `BanzukeRow` 
+* `RikishiData` 
+* `GruntFSM` 
+* `OSK_FSM`
+* `YokozunaFSM` 
+* `SanyakuBaseFSM` 
+* `Token` 
+* `AR_Token` 
+
+### Persistence / infrastructure classes
+
+* `BaseSerialiser`
+* `SumoSerialiser` 
+* `NewSumoSerialiser`
+* `WarningLogger` 
+
+### Table/body types visible from imports
+
+* `TableType`
+* `BodyTable`
+* `BanzukeTables`
+
+That is the set of classes/types I am concretely aware of from the materials shown.
+
+## What I infer about the unseen `sumo_core`
+
+From the docs and serializers, I infer that `sumo_core` is trying to be a typed, semantic, persistence-friendly domain model rather than a bag of scraping results. That inference is strong because:
+
+* `Chii` is semantic and ordered, not textual, 
+* persistence uses ordinals rather than strings,
+* `History/BashoState/Banzuke/Summary` have a clean algebraic decomposition, 
+* the parser’s job is normalization into those types, not preservation of source text.
+
+I also infer that the model is intentionally somewhat lossy: it wants to preserve the semantic tournament state, not the exact HTML presentation or the exact upstream errors.
+
+## Where I think the model is under-specified or contradictory
+
+The biggest tension is exactly the one you raised: the model note explicitly permits non-unique `Chii`, whereas your stated semantic intention is that a real basho should have a 1–1 mapping between final ranks and rikishi.
+
+From what I have seen, the code and note support the weaker, more permissive interpretation:
+
+* `Banzuke` as a class does not enforce inverse uniqueness,
+* `Chii` is documented as non-unique,
+* `Banzuke` explicitly does not guarantee rank uniqueness. 
+
+So if the real requirement is stronger — “for any valid final banzuke, no two distinct `RikId` map to the same full `Chii`” — then that requirement is **not evident** from the shown model docs and parser/persistence code. It may still be intended, but it is not encoded in the visible artifacts.
+
+## Bottom line
+
+The most defensible summary is this:
+
+The core model I can see is a typed semantic model centered on `RikId`, `Chii`, `Banzuke`, `Summary`, `BashoState`, and `History`. It treats rank as a structured ordered semantic object, not as text. Persistence is model-native, especially through `Chii.ordinal()`. `Mz` is explicitly out of model. `Summary`, `DailyResults`, `BoutResult`, and `Performance` are all identity-based and reasonably well sketched by the docs and serializers. But the visible model is **not injective from rank to rikishi**: both the documentation and the visible construction/serialization code lack any guarantee that distinct `RikId` cannot map to the same full `Chii`, and the core-model note explicitly warns against assuming rank uniqueness.
+
