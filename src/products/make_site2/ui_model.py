@@ -12,7 +12,7 @@ from typing import Literal
 from .publication_model import NavigationItem
 
 
-ControlKind = Literal["select", "checkbox", "basho_date_selector", "data_selector"]
+ControlKind = Literal["select", "checkbox"]
 ContentGrammar = Literal["G1"]
 
 

@@ -241,6 +241,9 @@ def test_runtime_manifest_declares_brb_ui_and_artifact_semantics() -> None:
         "rating_context",
         "nu_chii",
     ]
+    assert filters[0]["control"] == "select"
+    assert filters[1]["control"] == "select"
+    assert filters[2]["control"] == "checkbox"
     assert brb_artifact["kind"] == "indexed_table"
     assert brb_artifact["indexed_source"]["index_path"] == (
         "sumo-history/basho-results/data/basho_results_index.json"
@@ -420,6 +423,7 @@ def test_runtime_manifest_declares_career_length_as_flat_g1_view_selector() -> N
 
     assert panel["grammar"] == "G1"
     assert [item["id"] for item in filters] == ["view"]
+    assert filters[0]["control"] == "select"
     assert [item["value"] for item in filters[0]["values"]] == [
         "distribution",
         "pmf",
@@ -475,14 +479,19 @@ def test_brb_filter_defaults_and_url_keys_match_current_public_site() -> None:
     }
 
     assert filters["basho_date"]["default"] == "latest"
+    assert filters["basho_date"]["control"] == "select"
     assert filters["basho_date"]["url_key"] == "basho"
     assert filters["division"]["default"] == "makuuchi"
+    assert filters["division"]["control"] == "select"
     assert filters["division"]["url_key"] == "division"
     assert filters["previous_context"]["default"] is False
+    assert filters["previous_context"]["control"] == "checkbox"
     assert filters["previous_context"]["url_key"] == "previous"
     assert filters["rating_context"]["default"] is False
+    assert filters["rating_context"]["control"] == "checkbox"
     assert filters["rating_context"]["url_key"] == "ratings"
     assert filters["nu_chii"]["default"] is False
+    assert filters["nu_chii"]["control"] == "checkbox"
     assert filters["nu_chii"]["url_key"] == "nu_chii"
 
 

@@ -73,7 +73,7 @@ BRB_FILTERS = (
     Filter(
         id="basho_date",
         label="Basho",
-        control="basho_date_selector",
+        control="select",
         default="latest",
         url_key="basho",
     ),
@@ -214,7 +214,7 @@ FINISH_BY_CHII_FILTERS = (
     Filter(
         id="chii",
         label="Chii",
-        control="data_selector",
+        control="select",
         default="Y1e",
         url_key="chii",
         values_source=FilterValuesSource(

@@ -596,14 +596,46 @@
         '</label>'
       ].join("");
     }
-    const values = filter.control === "basho_date_selector"
-      ? bashoSelectorValues(index)
-      : filter.values_source
-      ? dataSelectorValues(filter, state, rowsBySource)
-      : filter.values;
-    const selected = filter.control === "basho_date_selector"
-      ? selectedIndexEntry(index, state[filter.id]).basho
-      : state[filter.id];
+    const values = filterValues(filter, state, index, rowsBySource);
+    const selected = selectedFilterValue(filter, state, index);
+    if (values.length <= 7) {
+      return renderRadioChoice(filter, values, selected);
+    }
+    return renderDropdownChoice(filter, values, selected);
+  }
+
+  function filterValues(filter, state, index, rowsBySource) {
+    if (filter.id === "basho_date" && index) return bashoSelectorValues(index);
+    if (filter.values_source) return dataSelectorValues(filter, state, rowsBySource);
+    return filter.values;
+  }
+
+  function selectedFilterValue(filter, state, index) {
+    if (filter.id === "basho_date" && index) {
+      return selectedIndexEntry(index, state[filter.id]).basho;
+    }
+    return state[filter.id];
+  }
+
+  function renderRadioChoice(filter, values, selected) {
+    return [
+      `<div class="choice-control" role="group" aria-label="${escapeHtml(filter.label)}">`,
+      `<span class="choice-label">${escapeHtml(filter.label)}</span>`,
+      '<ul class="choice-list">',
+      ...values.map(value => [
+        '<li>',
+        '<label class="radio-control">',
+        `<input type="radio" name="${escapeHtml(filter.id)}" value="${escapeHtml(value.value)}"${value.value === selected ? " checked" : ""}>`,
+        `<span>${escapeHtml(value.label)}</span>`,
+        '</label>',
+        '</li>',
+      ].join("")),
+      '</ul>',
+      '</div>'
+    ].join("");
+  }
+
+  function renderDropdownChoice(filter, values, selected) {
     return [
       '<label class="filter-control">',
       `<span>${escapeHtml(filter.label)}</span>`,

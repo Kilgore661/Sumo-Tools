@@ -92,3 +92,14 @@ def test_sectioned_table_renderer_uses_model_sections() -> None:
     assert "function renderTableSection(section, rows, columns)" in source
     assert "section.source_field" in source
     assert "section.order_by" in source
+
+
+def test_filter_renderer_uses_single_finite_choice_policy() -> None:
+    source = RUNTIME_SOURCE.read_text(encoding="utf-8")
+
+    assert "function filterValues(filter, state, index, rowsBySource)" in source
+    assert "function renderRadioChoice(filter, values, selected)" in source
+    assert "function renderDropdownChoice(filter, values, selected)" in source
+    assert "if (values.length <= 7)" in source
+    assert 'type="radio"' in source
+    assert 'filter.id === "basho_date" && index' in source
