@@ -682,6 +682,14 @@ This priority view should be revised as the next real product task is selected.
 
 ---
 
+# 16. Misc TBDs
+
+1. Consider adding a Note for all charts "This is a Ploly chart with lots of controls in the top-right corner"
+
+2. Add a popover for plotly legends saying you can click/double click here.
+
+3. Why does Kotokaze have no Equelo rating for 1980/09? Ditto Mienoumi. Presumably the code says they didn't fight so there is no rating which is incorrect: if someone does not fight, their rating is unchanged.
+
 # 17. Summary
 
 The first implementation review pass has settled and verified the major drift identified between documentation and code:

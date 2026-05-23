@@ -1698,13 +1698,17 @@
 
   function banzukeSideColumns(side, state) {
     const identity = { id: "shikona", heading: "Shikona", side };
+    const direction = { id: "direction", heading: "⇅", side };
     const columns = [];
+  
     if (state.equelo) columns.push({ id: "equelo", heading: "Equelo", side });
     if (state.context) {
       columns.push({ id: "old_chii", heading: "Previous Chii", side });
       columns.push({ id: "result", heading: "Result", side });
     }
+    columns.push(direction);
     if (state.delta) columns.push({ id: "delta", heading: "Delta", side });
+  
     if (side === "east") return [...columns, identity];
     return [identity, ...columns.reverse()];
   }
@@ -1738,6 +1742,12 @@
     return columnId === "shikona" ? ' data-column-id="shikona"' : "";
   }
 
+  function movementDirection(value) {
+    if (String(value).startsWith("+")) return "↑";
+    if (String(value).startsWith("-")) return "↓";
+    return "";
+  }
+
   function banzukeSideValue(row, side, columnId) {
     if (columnId === "chii") return escapeHtml(row[`${side}_chii`]);
     if (columnId === "shikona") {
@@ -1750,6 +1760,9 @@
       const result = row[`${side}_result`];
       const movement = row[`${side}_result_movement`];
       return escapeHtml([result, movement].filter(Boolean).join(" "));
+    }
+    if (columnId === "direction") {
+      return movementDirection(row[`${side}_delta`]);
     }
     return escapeHtml(row[`${side}_${columnId}`]);
   }
