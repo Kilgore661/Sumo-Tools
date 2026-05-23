@@ -167,9 +167,9 @@ Not every minor token adjustment requires its own design argument. The purpose
 is to expose structure, ownership and semantic presentation decisions, not to
 turn harmless tuning into bureaucracy.
 
-`06.1 Rendering Audit Method.md` shall define the audit procedure for applying
-this discipline. `06.2 Rendering Changes.md` shall stage pending or provisional
-rendering decisions before they are incorporated here.
+`06 Rendering Audit and Changes.md` defines the audit procedure for applying
+this discipline and stages pending or provisional rendering decisions before
+they are incorporated here.
 
 ---
 
@@ -358,8 +358,8 @@ or a declared combination.
 A final heading-typography ownership rule is not yet incorporated into this
 Rendering Design. Current implementation may contain provisional size rules.
 The decision whether typography is governed by role-specific rendering classes,
-HTML heading levels, or an explicit combination shall be carried into the
-rendering-change/action record until agreed.
+HTML heading levels, or an explicit combination shall be carried into
+`06 Rendering Audit and Changes.md` until agreed.
 
 ---
 
@@ -695,7 +695,7 @@ Whether central rank values in the banzuke-style rendering are semantic row
 headers or ordinary table values is not yet incorporated as a settled rendering
 rule. The choice affects both markup semantics and whether bold presentation
 would communicate intended meaning. It shall be carried as an action item in
-the rendering change record until resolved.
+`06 Rendering Audit and Changes.md` until resolved.
 
 ---
 
@@ -732,8 +732,8 @@ Defaults require review when they create visible claims. Examples include:
 
 A provisional implementation treatment may remain in code while a rendering
 choice is being evaluated. It shall not become normative merely by existing in
-CSS or JavaScript. Pending decisions belong in the rendering-change record and
-are incorporated here only when agreed.
+CSS or JavaScript. Pending decisions belong in `06 Rendering Audit and
+Changes.md` and are incorporated here only when agreed.
 
 ---
 
@@ -760,21 +760,20 @@ represented by the model or declared custom-PA boundaries.
 ## 22. Relationship to Rendering Audit and Change Record
 
 Rendering Design is the normative home for agreed visible presentation policy.
-It shall be read together with two downstream working documents:
+It shall be read together with:
 
 ```text
-06.1 Rendering Audit Method.md
-06.2 Rendering Changes.md
+06 Rendering Audit and Changes.md
 ```
 
-`06.1 Rendering Audit Method.md` shall define how a rendered fact is traced to:
+That working document defines how a rendered fact is traced to:
 
 - a specified/modelled owner;
 - a declared rendering rule;
 - accepted default behaviour;
 - or an explicit recorded exception/provisional state.
 
-`06.2 Rendering Changes.md` shall contain:
+It also contains:
 
 - proposed rendering rules not yet incorporated here;
 - implemented but unsettled presentation choices;
