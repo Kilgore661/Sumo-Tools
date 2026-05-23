@@ -14,7 +14,7 @@ legibility across top-level and nested entries. This treatment does not
 determine table or other artifact density.
 
 Current implementation:
-`.nav-list { line-height: 1.4; }`
+`.nav-list { line-height: 1.45; }`
 
 ## Section 11. Heading Rendering
 
@@ -94,10 +94,11 @@ Current implementation:
   side delta value.
 - The numeric `delta` column remains conditional on `state.delta`.
 
-### Table-like artifact horizontal cell padding
+### Table-like artifact cell padding
 
-Table-like artifacts use shared horizontal cell padding so adjacent column
-values remain visually distinct without increasing vertical table density.
+Table-like artifacts use shared internal cell padding so adjacent column values
+remain visually distinct and table rows have a small amount of vertical
+breathing room.
 
 This is a site-wide table-like artifact rule, not a page-specific or
 artifact-specific exception. The current value is provisional and should
@@ -109,6 +110,63 @@ Current implementation:
 ```css
 .artifact-table th,
 .artifact-table td {
-  padding: 0 0.25em;
+  padding: 2px 0.25em;
 }
 ```
+
+### Table-like artifact alternating data-row backgrounds
+
+Table-like artifacts distinguish successive data rows using alternating
+background colours. This treatment applies to rows in `tbody` only; table
+headings are not striped.
+
+The alternating row treatment is a shared table-like artifact rule rather than
+a Banzuke Changes exception. The current colours are provisional theme values.
+
+Current implementation:
+
+```css
+:root {
+  --artifact-row-odd-bg: #12234b;
+  --artifact-row-even-bg: #1b2c52;
+}
+
+.artifact-table tbody tr:nth-child(odd) {
+  background: var(--artifact-row-odd-bg);
+}
+
+.artifact-table tbody tr:nth-child(even) {
+  background: var(--artifact-row-even-bg);
+}
+```
+
+### Table-like artifact collapsed cell borders
+
+Table-like artifacts suppress browser-default gaps between adjacent cells so
+shared row-background treatment reads as a continuous row rather than as
+separate cells divided by background-coloured gutters.
+
+Current implementation:
+
+```css
+.artifact-table {
+  border-collapse: collapse;
+}
+```
+
+### Action item: choose the semantic treatment of Banzuke Changes rank cells
+
+In the banzuke-style table, the central Rank value describes the banzuke row
+occupied by the East and West rikishi. The former rendering represented that
+value as a row-header cell and styled it at normal font weight.
+
+The current provisional implementation emits the value as `<td scope="row">`
+to avoid browser-default bold rendering. The `scope` attribute does not give an
+ordinary data cell row-header semantics.
+
+Choose whether the Rank value is:
+
+1. a semantic row header, in which case it should render as `<th scope="row">`
+   with an explicit normal-weight presentation rule if required; or
+2. an ordinary table value, in which case it should render as `<td>` without a
+   `scope` attribute.
