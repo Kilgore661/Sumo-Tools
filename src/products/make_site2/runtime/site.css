@@ -1,6 +1,8 @@
 :root {
   --page-bg: #071733;
   --page-fg: #ffffff;
+  --artifact-row-odd-bg: #12234b;
+  --artifact-row-even-bg: #1b2c52;
 }
 
 body.site-context-local {
@@ -156,14 +158,26 @@ h3 {
   text-align: center;
 }
 
+.artifact-table {
+  border-collapse: collapse;
+}
+
 .artifact-table th,
 .artifact-table td {
-  padding: 0 0.25em;
+  padding: 2px 0.25em;
   text-align: center;
 }
 
 .artifact-table [data-column-id="shikona"] {
   text-align: left;
+}
+
+.artifact-table tbody tr:nth-child(odd) {
+  background: var(--artifact-row-odd-bg);
+}
+
+.artifact-table tbody tr:nth-child(even) {
+  background: var(--artifact-row-even-bg);
 }
 
 .sectioned-table-grid {

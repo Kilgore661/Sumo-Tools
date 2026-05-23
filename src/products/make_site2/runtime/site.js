@@ -1665,7 +1665,7 @@
       ...rows.map(row => [
         '<tr>',
         ...eastColumns.map(column => renderBanzukeSideCell(row, column)),
-        `<th scope="row">${escapeHtml(row.bz_chii)}</th>`,
+        `<td scope="row">${escapeHtml(row.bz_chii)}</td>`,
         ...westColumns.map(column => renderBanzukeSideCell(row, column)),
         '</tr>',
       ].join("")),
