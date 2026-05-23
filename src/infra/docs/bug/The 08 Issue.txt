@@ -1,0 +1,9 @@
+08 bad.html seemed to result in a bad parse that was silently incorporated
+into the zip.
+
+I deleted it at ran tracker --now and got a new version that seemed to parse
+and build ok. The files are different but the bad one looks plausible.
+
+What *is* the bad file? What is bad about it? How did it become bad - was it
+served bad or just written bad. Why did the tracker not stop with an error
+message?
