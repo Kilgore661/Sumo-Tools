@@ -93,3 +93,22 @@ Current implementation:
 - `banzukeSideValue()` renders direction by deriving `↑` or `↓` from the signed
   side delta value.
 - The numeric `delta` column remains conditional on `state.delta`.
+
+### Table-like artifact horizontal cell padding
+
+Table-like artifacts use shared horizontal cell padding so adjacent column
+values remain visually distinct without increasing vertical table density.
+
+This is a site-wide table-like artifact rule, not a page-specific or
+artifact-specific exception. The current value is provisional and should
+eventually be represented as a shared table-density token if explicit rendering
+configuration is introduced.
+
+Current implementation:
+
+```css
+.artifact-table th,
+.artifact-table td {
+  padding: 0 0.25em;
+}
+```
