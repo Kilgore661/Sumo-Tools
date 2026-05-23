@@ -58,6 +58,9 @@ select {
 }
 
 .nav-toggle {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
   position: fixed;
   top: 0;
   left: 0;
@@ -67,11 +70,24 @@ select {
 .nav-list {
   counter-reset: nav-item;
   list-style: none;
-  line-height: 1.4
+  font-size: 13px;
+  line-height: 1.45
 }
 
 .site-nav > .nav-list {
   padding-left: 0;
+}
+
+.site-title {
+    font-size: 24px
+}
+
+h2 {
+    font-size: 20px;
+}
+
+h3 {
+    font-size: 18px;
 }
 
 .nav-list .nav-list {
