@@ -16,8 +16,6 @@ determine table or other artifact density.
 Current implementation:
 `.nav-list { line-height: 1.4; }`
 
-
-
 ## Section 11. Heading Rendering
 
 ### Action item: choose ownership of heading typography
@@ -61,8 +59,6 @@ Choose whether intentional heading typography is owned by:
 This choice should be made before further typography is imported from legacy
 CSS or additional heading-specific styling is added.
 
-## 
-
 ## Section 12. Filter Rendering
 
 ### Filter-section list markers
@@ -73,3 +69,27 @@ indentation remains unless a later layout rule replaces it.
 
 Current implementation:
 `.filter-section ul { list-style: none; }`
+
+## Section 16. Artifact Rendering
+
+### Banzuke Changes movement direction
+
+Banzuke Changes distinguishes the direction of a rikishi's movement from the
+magnitude of that movement.
+
+In both the banzuke-style and scan-style table renderings, movement direction is
+a visible part of the artifact. The column is headed `⇅` and displays `↑` for
+upward movement, `↓` for downward movement, and no symbol for neutral movement.
+
+The optional `Delta` filter controls the display of numeric movement magnitude;
+it does not control visibility of the direction column.
+
+Current implementation:
+
+- `banzukeSideColumns()` always includes a `direction` column headed `⇅` for
+  each side of the banzuke-style table.
+- `banzukeScanColumns()` always includes a `direction` column headed `⇅` in the
+  scan-style table.
+- `banzukeSideValue()` renders direction by deriving `↑` or `↓` from the signed
+  side delta value.
+- The numeric `delta` column remains conditional on `state.delta`.
