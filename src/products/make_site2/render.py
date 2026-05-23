@@ -98,7 +98,7 @@ def cache_busted_url(
 def render_navigation_bar(navigation_bar: NavigationBar) -> str:
     return "\n".join(
         (
-            '<nav class="site-nav" data-nav-panel aria-label="Site navigation">',
+            '<nav id="site-nav" class="site-nav" data-nav-panel aria-label="Site navigation">',
             f'<h1 class="site-title">{render_visible_title(navigation_bar.heading)}</h1>',
             '<ol class="nav-list">',
             *[render_navigation_item(item) for item in navigation_bar.navigation_tree],

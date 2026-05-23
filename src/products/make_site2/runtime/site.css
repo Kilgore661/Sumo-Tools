@@ -53,6 +53,10 @@ select {
   width: max-content;
 }
 
+.site-nav[hidden] {
+  display: none;
+}
+
 .nav-toggle {
   position: fixed;
   top: 0;
