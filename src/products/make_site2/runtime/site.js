@@ -1717,12 +1717,13 @@
     const columns = [
       { id: "chii", heading: "Chii" },
       { id: "shikona", heading: "Shikona" },
+      { id: "direction", heading: "⇅" },
     ];
-    if (state.context) {
-      columns.push({ id: "old_chii", heading: "Previous Chii" });
-      columns.push({ id: "result", heading: "Result" });
-    }
     if (state.delta) columns.push({ id: "delta", heading: "Delta" });
+    if (state.context) {
+      columns.push({ id: "result", heading: "Result" });
+      columns.push({ id: "old_chii", heading: "Previous Chii" });
+    }
     if (state.equelo) columns.push({ id: "equelo", heading: "Equelo" });
     return columns;
   }
