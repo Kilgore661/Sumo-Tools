@@ -67,6 +67,7 @@ select {
 .nav-list {
   counter-reset: nav-item;
   list-style: none;
+  line-height: 1.4
 }
 
 .site-nav > .nav-list {
@@ -85,6 +86,11 @@ select {
 .nav-label::before {
   content: counters(nav-item, ".") ". ";
 }
+
+.filter-section ul {
+  list-style: none;
+}
+
 
 .content-body {
   display: grid;
