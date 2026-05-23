@@ -158,6 +158,7 @@ h3 {
 
 .artifact-table th,
 .artifact-table td {
+  padding: 0 0.25em;
   text-align: center;
 }
 
