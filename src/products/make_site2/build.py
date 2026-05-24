@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import json
+import re
 import shutil
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import urlencode
 
 from src.infra.live_store.api import get_history
 from src.sumo_core.History import History
@@ -36,6 +38,9 @@ PACKAGE_ROOT = Path(__file__).resolve().parent
 REPO_ROOT = PACKAGE_ROOT.parents[2]
 DEFAULT_OUTPUT_ROOT = REPO_ROOT / "files" / "output" / "make_site2"
 RUNTIME_MODULE_SOURCE_ROOT = PACKAGE_ROOT / "runtime" / "site-refactor"
+MODULE_IMPORT_RE = re.compile(
+    r'(?P<prefix>(?:from\s+|import\s+)["\'])(?P<path>\.{1,2}/[^"\']+\.js)(?P<suffix>["\'])'
+)
 
 
 def build_site(
@@ -107,16 +112,44 @@ def build_site(
         PACKAGE_ROOT / "runtime" / "site.css",
         output_root / "runtime" / "site.css",
     )
-    shutil.copytree(
-        RUNTIME_MODULE_SOURCE_ROOT,
-        output_root / "runtime",
-        dirs_exist_ok=True,
-        ignore=shutil.ignore_patterns("README.md"),
+    copy_runtime_modules(
+        output_root=output_root,
+        cache_mode=cache_mode,
+        cache_bust_token=resolved_cache_bust_token,
     )
     return BuildOutput(
         root=output_root,
         entrypoint=output_root / "index.html",
         file_count=count_output_files(output_root),
+    )
+
+
+def copy_runtime_modules(
+    *, output_root: Path, cache_mode: str, cache_bust_token: str
+) -> None:
+    """Copy modular browser runtime, preserving dev cache-bust behaviour."""
+
+    runtime_output_root = output_root / "runtime"
+    for source_path in RUNTIME_MODULE_SOURCE_ROOT.rglob("*"):
+        if not source_path.is_file() or source_path.name == "README.md":
+            continue
+        destination = runtime_output_root / source_path.relative_to(RUNTIME_MODULE_SOURCE_ROOT)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        if source_path.suffix == ".js" and cache_mode == "dev" and cache_bust_token:
+            content = source_path.read_text(encoding="utf-8")
+            content = cache_bust_module_imports(content, cache_bust_token)
+            destination.write_text(content, encoding="utf-8")
+        else:
+            shutil.copyfile(source_path, destination)
+
+
+def cache_bust_module_imports(content: str, cache_bust_token: str) -> str:
+    query = urlencode({"cb": cache_bust_token})
+    return MODULE_IMPORT_RE.sub(
+        lambda match: (
+            f'{match.group("prefix")}{match.group("path")}?{query}{match.group("suffix")}'
+        ),
+        content,
     )
 
 
