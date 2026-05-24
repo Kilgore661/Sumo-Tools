@@ -338,7 +338,7 @@ Examples include:
 
 Examples include:
 
-- Sidebar and ContentPanel layout;
+- NavigationBar and ContentPanel layout;
 - Navigation spacing and shared styling;
 - shared Page-heading treatment;
 - Filter panel presentation;
