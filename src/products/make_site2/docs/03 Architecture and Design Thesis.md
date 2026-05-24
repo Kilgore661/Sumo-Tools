@@ -48,7 +48,7 @@ The page grammar `PG`, specified in `02 Specification.md`, defines the semantic
 shape of the visible public page:
 
 ```text
-PublicUI -> Sidebar . ContentPanel
+PublicUI -> NavigationBar . ContentPanel
 ContentPanel -> Heading . Contents
 Contents -> FilterSection? . PAPanel
 PAPanel -> PA . Notes
@@ -84,9 +84,9 @@ possible to ask:
 
 Examples include:
 
-- the Sidebar and ContentPanel appearing as separate top-level regions;
-- the Sidebar hider affecting the Sidebar rather than the selected analytical
-  state;
+- the NavigationBar and ContentPanel appearing as separate top-level regions;
+- the NavigationBar hider affecting the NavigationBar rather than the selected
+  analytical state;
 - Filters being visually separate from the PAPanel they govern;
 - Notes appearing as part of the PAPanel rather than spanning the sibling
   FilterSection;
@@ -115,7 +115,7 @@ Public intent establishes which material is deliberately published, where it
 belongs in the public site and what public selection/state is meaningful.
 
 The semantic public model establishes what interface structure exists for that
-published material: Sidebar, Navigation, selected ContentPanel, Heading,
+published material: NavigationBar, Navigation, selected ContentPanel, Heading,
 FilterSection where present, PAPanel, PA and Notes.
 
 Rendering decides how those established entities are expressed as HTML, CSS and
@@ -222,7 +222,7 @@ structure conforming to the applicable public grammar.
 
 For a promoted page conforming to `PG`, it resolves:
 
-- the Sidebar and Navigation required for the visible PublicUI;
+- the NavigationBar and Navigation required for the visible PublicUI;
 - the selected ContentPanel;
 - the Heading;
 - the Contents structure;
@@ -247,7 +247,7 @@ At high level, it contains concepts including:
 
 ```text
 PublicUI
-Sidebar
+NavigationBar
 Navigation
 ContentPanel
 Heading
@@ -286,7 +286,7 @@ The UI Renderer consumes the UI Model and realises public page structure.
 It owns shared realisation of modelled page entities, including:
 
 - the PublicUI shell;
-- Sidebar and Navigation presentation;
+- NavigationBar and Navigation presentation;
 - ContentPanel, Heading and Contents layout;
 - FilterSection presentation;
 - PAPanel placement;
@@ -311,7 +311,7 @@ They may own matters such as:
 They shall not own:
 
 - the public shell;
-- Sidebar or Navigation structure;
+- NavigationBar or Navigation structure;
 - selected-page Heading;
 - FilterSection/PAPanel relationship;
 - Notes placement outside their declared PA/Note relationship;
@@ -455,8 +455,8 @@ The remainder of the active document set shall refine this architecture:
   representing public declarations, publication resolution, `PG` and PAs;
 - `05 Rendering Design.md` shall specify visible realisation of `PG` and PA
   terminal forms;
-- `06 Rendering Audit and Change Record` documents shall define how rendering
-  is checked and how provisional changes are staged;
+- `06 Rendering Audit and Changes.md` shall define how rendering is checked and
+  how provisional changes are staged;
 - `07 Build, Output and Runtime Design.md` shall specify production of the
   runnable static output;
 - `08 Producer Integration and Migration.md` shall specify PA inputs and use of
