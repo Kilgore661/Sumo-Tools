@@ -57,7 +57,7 @@ The UI Renderer owns visible realisation of the `PG` entities and relationships:
 
 ```text
 PublicUI
-Sidebar
+NavigationBar
 Navigation
 ContentPanel
 Heading
@@ -91,7 +91,8 @@ PAPanel ownership, or create a page-local shell.
 that rendering must preserve. Some visible requirements follow strongly from
 those relationships. For example:
 
-- `Sidebar` and `ContentPanel` must appear as distinct top-level public regions;
+- `NavigationBar` and `ContentPanel` must appear as distinct top-level public
+  regions;
 - a `FilterSection`, when present, must be distinct from its sibling `PAPanel`;
 - `Notes` must appear as belonging to `PAPanel`, not to `FilterSection`;
 - a custom PA must remain within the PA position and not replace page-level
@@ -180,7 +181,7 @@ following semantic shape:
 
 ```text
 PublicUI
-  Sidebar
+  NavigationBar
     site caption
     Navigation
     hider
@@ -200,7 +201,7 @@ A conceptual rendered structure may therefore be:
 ```html
 <div class="site-shell">
   <aside class="site-nav">
-    <!-- site caption, navigation and hider realisation -->
+    <!-- NavigationBar: site caption, navigation and hider realisation -->
   </aside>
 
   <main class="site-main">
@@ -221,6 +222,8 @@ A conceptual rendered structure may therefore be:
 This markup is illustrative rather than a required literal HTML template. The
 required fact is the visible and semantic relationship: `FilterSection` is a
 sibling of `PAPanel`, and `PA` and `Notes` belong together inside `PAPanel`.
+The illustrative `<aside>` and current `.site-nav` CSS name do not define the
+model term: the modelled public region is `NavigationBar`.
 
 ---
 
@@ -228,9 +231,9 @@ sibling of `PAPanel`, and `PA` and `Notes` belong together inside `PAPanel`.
 
 ### 5.1 Top-Level Regions
 
-**Owner:** `PublicUI -> Sidebar . ContentPanel`
+**Owner:** `PublicUI -> NavigationBar . ContentPanel`
 
-**Rule:** The public UI shall visibly realise one Sidebar region and one
+**Rule:** The public UI shall visibly realise one NavigationBar region and one
 ContentPanel region as the primary top-level page areas.
 
 **Scope:** Applies to promoted pages rendered through `PG`, including the
@@ -240,13 +243,13 @@ selected page shell regardless of PA terminal form.
 presentation area. The two regions are part of the specified public page, not
 page-local rendering conveniences.
 
-### 5.2 Sidebar Visibility State
+### 5.2 NavigationBar Visibility State
 
-The Sidebar may be hidden and restored by its modelled hider. When hidden, the
-ContentPanel shall occupy the available public-page width without being pushed
-below an invisible or collapsed Sidebar.
+The NavigationBar may be hidden and restored by its modelled hider. When hidden,
+the ContentPanel shall occupy the available public-page width without being
+pushed below an invisible or collapsed NavigationBar.
 
-Hiding the Sidebar shall not change:
+Hiding the NavigationBar shall not change:
 
 - selected Page;
 - Filter state;
@@ -254,19 +257,19 @@ Hiding the Sidebar shall not change:
 - Notes relevance;
 - public analytical state.
 
-Sidebar collapse is shell presentation state rather than Filter state.
+NavigationBar collapse is shell presentation state rather than Filter state.
 
 ---
 
-## 6. Rendering `Sidebar`
+## 6. Rendering `NavigationBar`
 
 ### 6.1 Site Caption
 
-**Owner:** `Sidebar -> <site caption> . Navigation . <hider>`
+**Owner:** `NavigationBar -> <site caption> . Navigation . <hider>`
 
 **Rule:** The site caption shall appear as the visible public identity of the
-site within the Sidebar and shall remain distinct from selected Page headings
-and PA framing.
+site within the NavigationBar and shall remain distinct from selected Page
+headings and PA framing.
 
 The site caption may use site-level emphasis appropriate to public identity, but
 its precise typographic ownership and treatment shall be declared deliberately
@@ -274,10 +277,10 @@ rather than inferred accidentally from a convenient HTML heading level.
 
 ### 6.2 Hider
 
-**Owner:** `Sidebar -> ... . <hider>`
+**Owner:** `NavigationBar -> ... . <hider>`
 
 **Rule:** The hider shall be visibly associated with showing or hiding the
-Sidebar and shall provide usable interaction state and accessible meaning.
+NavigationBar and shall provide usable interaction state and accessible meaning.
 
 Its glyph, size and positioning are rendering choices. They shall not obscure
 the ContentPanel or suggest that the control changes analytical content.
@@ -336,7 +339,7 @@ rendering-change decision.
 **Owner:** `ContentPanel -> Heading . Contents`
 
 **Rule:** The ContentPanel shall visibly present the selected Page's Heading and
-its Contents as a coherent page region distinct from the Sidebar.
+its Contents as a coherent page region distinct from the NavigationBar.
 
 The ContentPanel shall not be replaced by a PA-specific page shell. Its Heading
 and Contents relationship remains common across PA terminal forms.
@@ -745,7 +748,8 @@ in `PG` while doing so.
 
 The following distinctions apply:
 
-- Sidebar Hider state affects shell visibility, not analytical public state.
+- NavigationBar Hider state affects shell visibility, not analytical public
+  state.
 - Filter state affects visible PA presentation and may affect Notes relevance.
 - PA-local transient interactions need not become public state merely because
   they are interactive.
@@ -790,9 +794,9 @@ scope and intended visible rule have been agreed.
 
 A conforming normal rendering of a promoted Page under `PG` shall satisfy:
 
-1. `PublicUI` visibly realises a Sidebar and a ContentPanel.
-2. Sidebar realises site caption, Navigation and Hider meaning.
-3. Hiding Sidebar does not change analytical Page/Filter/PA meaning.
+1. `PublicUI` visibly realises a NavigationBar and a ContentPanel.
+2. NavigationBar realises site caption, Navigation and Hider meaning.
+3. Hiding NavigationBar does not change analytical Page/Filter/PA meaning.
 4. ContentPanel realises Heading and Contents.
 5. FilterSection, where present, is visually distinguishable as a sibling of
    PAPanel.
