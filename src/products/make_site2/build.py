@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import shutil
 import json
+import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -35,6 +35,7 @@ from .site_definition import SITE
 PACKAGE_ROOT = Path(__file__).resolve().parent
 REPO_ROOT = PACKAGE_ROOT.parents[2]
 DEFAULT_OUTPUT_ROOT = REPO_ROOT / "files" / "output" / "make_site2"
+RUNTIME_MODULE_SOURCE_ROOT = PACKAGE_ROOT / "runtime" / "site-refactor"
 
 
 def build_site(
@@ -102,14 +103,15 @@ def build_site(
         json.dumps(build_runtime_manifest(plan), indent=2),
         encoding="utf-8",
     )
-    (output_root / "runtime").mkdir(parents=True, exist_ok=True)
     shutil.copyfile(
         PACKAGE_ROOT / "runtime" / "site.css",
         output_root / "runtime" / "site.css",
     )
-    shutil.copyfile(
-        PACKAGE_ROOT / "runtime" / "site.js",
-        output_root / "runtime" / "site.js",
+    shutil.copytree(
+        RUNTIME_MODULE_SOURCE_ROOT,
+        output_root / "runtime",
+        dirs_exist_ok=True,
+        ignore=shutil.ignore_patterns("README.md"),
     )
     return BuildOutput(
         root=output_root,
