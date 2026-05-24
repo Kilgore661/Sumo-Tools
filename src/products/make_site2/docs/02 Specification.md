@@ -47,7 +47,7 @@ The following terms are formal concepts in this specification:
 ```text
 Site
 PublicUI
-Sidebar
+NavigationBar
 Navigation
 ContentPanel
 Heading
@@ -90,15 +90,15 @@ The public website shall conform to the page grammar `PG` for promoted pages in
 the initial supported public shape.
 
 `PG` specifies the visible semantic structure of the public page. It begins at
-the full visible public UI, including the Sidebar and the selected page
+the full visible public UI, including the NavigationBar and the selected page
 ContentPanel.
 
 ```text
 PG
 
-PublicUI -> Sidebar . ContentPanel
+PublicUI -> NavigationBar . ContentPanel
 
-Sidebar -> <site caption> . Navigation . <hider>
+NavigationBar -> <site caption> . Navigation . <hider>
 
 Navigation -> <hierarchical numbered navigation items>
 
@@ -134,9 +134,9 @@ later design documents where necessary.
 
 The following are specified structural relationships:
 
-- `Sidebar` and `ContentPanel` are the two top-level visible regions of the
-  public UI.
-- `Sidebar` contains site identity, Navigation and a sidebar-visibility control.
+- `NavigationBar` and `ContentPanel` are the two top-level visible regions of
+  the public UI.
+- `NavigationBar` contains site identity, Navigation and a NavigationBar-visibility control.
 - `ContentPanel` contains the selected page Heading and Contents.
 - `FilterSection`, where present, is a sibling of `PAPanel`.
 - `PAPanel` contains the visible Published Artifact and its Notes.
@@ -183,24 +183,24 @@ presence of output files.
 
 ---
 
-## 5. PublicUI and Sidebar Contract
+## 5. PublicUI and NavigationBar Contract
 
 `PublicUI` is the visible public website surface for a selected page.
 
-It shall contain one `Sidebar` and one `ContentPanel` in accordance with `PG`.
+It shall contain one `NavigationBar` and one `ContentPanel` in accordance with `PG`.
 
-The `Sidebar` shall provide:
+The `NavigationBar` shall provide:
 
 - the site caption or identity;
 - the public Navigation;
-- a control allowing the reader to hide and restore the Sidebar.
+- a control allowing the reader to hide and restore the NavigationBar.
 
-The sidebar-visibility control changes the public shell presentation; it is not
-a Filter because it does not change the visible analytical content of the
+The NavigationBar-visibility control changes the public shell presentation; it
+is not a Filter because it does not change the visible analytical content of the
 selected page.
 
-Hiding the Sidebar shall not remove, replace or alter the selected page or its
-material analytical state.
+Hiding the NavigationBar shall not remove, replace or alter the selected page or
+its material analytical state.
 
 ---
 
@@ -268,7 +268,7 @@ It shall contain:
 
 The Heading is distinct from:
 
-- the site caption in the Sidebar;
+- the site caption in the NavigationBar;
 - Published Artifact framing within the PAPanel;
 - table headings, chart labels or other artefact-internal labels;
 - Notes headings or note content.
@@ -383,8 +383,8 @@ Published Artifact model and rendering design documents.
 
 A custom artefact may provide specialised visible analytical presentation, but
 it shall occupy the PA position in the PAPanel and shall not silently redefine
-`PublicUI`, `Sidebar`, `ContentPanel`, `Heading`, `Contents`, `FilterSection`,
-`PAPanel` or `Notes` structure.
+`PublicUI`, `NavigationBar`, `ContentPanel`, `Heading`, `Contents`,
+`FilterSection`, `PAPanel` or `Notes` structure.
 
 ---
 
@@ -568,7 +568,7 @@ A first conforming production slice shall demonstrate:
 
 - one generated static public site;
 - one visible `PublicUI` conforming to `PG`;
-- a Sidebar containing site identity, Navigation and a working hider;
+- a NavigationBar containing site identity, Navigation and a working hider;
 - one subject-led hierarchical numbered Navigation structure;
 - one promoted Page rendered in a ContentPanel;
 - one Heading and one Contents structure;
