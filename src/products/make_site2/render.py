@@ -48,7 +48,7 @@ def render_site_shell(
             "</main>",
             "</div>",
             (
-                '<script '
+                '<script type="module" '
                 f'src="{escape(cache_busted_url("runtime/site.js", cache_mode=cache_mode, cache_bust_token=cache_bust_token, cache_bust_param=cache_bust_param))}"></script>'
             ),
             "</body>",
