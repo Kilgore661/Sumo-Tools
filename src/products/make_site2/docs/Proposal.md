@@ -16,7 +16,7 @@ The archived documentation contains much of the information needed to describe
 rendering. It begins largely with contracts for data, declarations and public
 publication units, then introduces visible UI structure in several places. In
 particular, it states that the UI Model owns the full public interface, including
-the sidebar and content panel, but gives the named content grammar to the
+the navigation bar and content panel, but gives the named content grammar to the
 interior of the content panel only. That makes it too easy to discuss page
 rendering as though the outer shell were merely implementation while the inner
 content were model-governed.
@@ -82,7 +82,7 @@ Visible authored structure and layout must therefore flow from:
 4. a justified and recorded exception.
 
 This makes rendering auditable. It permits an auditor to ask not only whether a
-Published Artifact is rendered correctly, but also whether sidebar layout,
+Published Artifact is rendered correctly, but also whether NavigationBar layout,
 navigation presentation, content-panel structure, filter placement and notes
 placement are justified by the same public page model.
 
@@ -97,9 +97,9 @@ rather than only within the selected page contents.
 ```text
 PG
 
-PublicUI -> Sidebar . ContentPanel
+PublicUI -> NavigationBar . ContentPanel
 
-Sidebar -> <site caption> . Navigation . <hider>
+NavigationBar -> <site caption> . Navigation . <hider>
 
 Navigation -> <hierarchical numbered navigation items>
 
@@ -138,7 +138,7 @@ terminal of the page grammar.
 The proposed grammar makes two substantive changes:
 
 1. `PG` governs the whole visible page, including the relationship between the
-   `Sidebar` and `ContentPanel`.
+   `NavigationBar` and `ContentPanel`.
 2. `PAPanel` is an explicit entity containing the Published Artifact and its
    Notes, while the `FilterSection` is its sibling.
 
@@ -231,8 +231,8 @@ Proposed document family:
 ```
 
 The Public UI Model document must represent the full `PG` tree, including the
-sidebar, content panel and `PAPanel` relationship. It must not present the
-sidebar as outside the named page grammar.
+NavigationBar, content panel and `PAPanel` relationship. It must not present the
+NavigationBar as outside the named page grammar.
 
 ### `05 Rendering Design.md`
 
@@ -242,7 +242,7 @@ It should be organised around the productions of `PG`, including:
 
 ```text
 Rendering PublicUI
-Rendering Sidebar
+Rendering NavigationBar
 Rendering Navigation
 Rendering ContentPanel
 Rendering Heading
@@ -334,8 +334,8 @@ while re-evaluating them against `PG`.
 
 In particular:
 
-- sidebar and navigation layout are rendered consequences of the public page
-  model, not incidental shell styling;
+- NavigationBar and Navigation layout are rendered consequences of the public
+  page model, not incidental shell styling;
 - notes belong in `PAPanel`, below or alongside the Published Artifact as
   declared by rendering design, and must not span the sibling `FilterSection`;
 - shared table treatment is a rendering rule for Published Artifact table
