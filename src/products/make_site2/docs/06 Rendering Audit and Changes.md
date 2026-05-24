@@ -64,8 +64,8 @@ experience in the rendered public site.
 
 Examples include:
 
-- Sidebar and ContentPanel placement;
-- Sidebar hiding/restoration behaviour;
+- NavigationBar and ContentPanel placement;
+- NavigationBar hiding/restoration behaviour;
 - Navigation hierarchy, numbering and spacing;
 - Heading emphasis and hierarchy;
 - placement of Filters relative to PAPanel;
@@ -184,7 +184,7 @@ Examples:
 
 - Notes visibly span both `FilterSection` and `PAPanel` even though Notes belong
   within `PAPanel`;
-- collapsing Sidebar causes ContentPanel to render below it rather than
+- collapsing NavigationBar causes ContentPanel to render below it rather than
   occupying the available top-level page region;
 - a custom PA renders its own competing Page heading or shell.
 
@@ -296,7 +296,8 @@ is not required unless the adjustment raises a new concern.
 role-specific site-title selector and partly through generic HTML heading-level
 selectors.
 
-**Owner:** `Sidebar -> <site caption>` and `Heading -> <main heading> . <sub heading>?`.
+**Owner:** `NavigationBar -> <site caption>` and
+`Heading -> <main heading> . <sub heading>?`.
 
 **Classification:** Semantic-presentation concern.
 
