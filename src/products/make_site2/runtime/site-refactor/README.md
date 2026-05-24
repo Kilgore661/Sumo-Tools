@@ -18,9 +18,7 @@ runtime/ui/...
 runtime/utils/...
 ```
 
-The former monolithic source file at `runtime/site.js` is retained temporarily
-as inactive comparison/rollback evidence. The active build no longer copies or
-executes it.
+The active build copies and executes only this modular runtime tree.
 
 ## Loading
 
@@ -45,12 +43,13 @@ build exposes changed runtime code without stale imported modules being reused.
 - `data/http.js`, `data/csv.js`: transport and CSV parsing.
 - `ui/navigation-toggle.js`: NavigationBar expansion/collapse behaviour.
 - `ui/filters.js`: Filter state, controls and Filter event wiring.
-- `panels/render-content-panel.js`: panel orchestration by PA kind.
+- `panels/render-content-panel.js`: panel orchestration by PA kind and the
+  explicit `PAPanel` rendering relationship.
 - `ui/tables.js`: table renderers and table-only data shaping.
 - `ui/charts.js`: Plotly views, chart trace construction and chart layouts.
-- `ui/notes.js`: conditional Note display.
+- `ui/notes.js`: conditional Note display within `PAPanel`.
 - `utils/html.js`: HTML escaping.
 
-This refactor deliberately does not reduce repeated panel markup or change the
-current Notes placement. Those are later design-led changes, beginning with the
-explicit `PAPanel` correction.
+The module split does not yet reduce repeated panel markup. The subsequent
+`PAPanel` correction has now been applied: Notes render within the PA-owned
+region rather than outside the combined Filters/PA content layout.
