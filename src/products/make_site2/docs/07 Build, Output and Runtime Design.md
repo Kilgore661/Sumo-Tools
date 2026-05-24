@@ -348,7 +348,7 @@ The browser runtime may require shared static source assets such as:
 ```text
 site CSS
 site JavaScript
-navigation and Sidebar interaction support
+Navigation and NavigationBar interaction support
 public-state restoration support
 Filter interaction support
 PA-terminal runtime support
@@ -416,12 +416,12 @@ The runtime shall preserve distinctions established upstream:
 | selected Page | public selection/public UI state |
 | selected Filter values | Filter/public PA presentation state |
 | relevant Notes shown because PA state changed | PAPanel/Notes consequence of visible PA state |
-| Sidebar hidden/restored | shell/UI state, not Filter state |
+| NavigationBar hidden/restored | shell/UI state, not Filter state |
 | hover, ordinary scroll or other transient interaction | ordinarily not material public state |
 
-The runtime shall not represent Sidebar hiding as a Filter, move Notes outside
-their PAPanel relationship, or create alternative Page structures unknown to the
-model.
+The runtime shall not represent NavigationBar hiding as a Filter, move Notes
+outside their PAPanel relationship, or create alternative Page structures
+unknown to the model.
 
 ---
 
@@ -540,7 +540,7 @@ A successful build shall be inspectable through an ordinary local workflow.
 Local inspection shall permit review of:
 
 - overall PublicUI rendering;
-- Sidebar and Navigation behaviour;
+- NavigationBar and Navigation behaviour;
 - selected Page/public state restoration;
 - Filter behaviour;
 - PA rendering and data loading;
@@ -622,7 +622,7 @@ A conforming build/output/runtime implementation shall satisfy:
 5. It does not redefine `PG` or Rendering Design in output-writing or runtime
    convenience code.
 6. Browser runtime restores and applies only declared public state and preserves
-   Sidebar/Filter/PAPanel/Notes ownership distinctions.
+   NavigationBar/Filter/PAPanel/Notes ownership distinctions.
 7. Required missing or invalid output fails clearly rather than creating
    misleading publication.
 8. A completed BuildOutput is suitable for local inspection and optional
