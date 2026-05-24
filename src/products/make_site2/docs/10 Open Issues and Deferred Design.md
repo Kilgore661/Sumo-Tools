@@ -78,7 +78,7 @@ The following positions are no longer open questions in the active document set:
 The formal page grammar is PG, rooted at PublicUI, not a grammar confined to
 inner selected-page contents.
 
-PublicUI contains Sidebar and ContentPanel.
+PublicUI contains NavigationBar and ContentPanel.
 
 Contents contains an optional FilterSection and a PAPanel.
 
@@ -319,8 +319,8 @@ architecture.
 **Questions:**
 
 - Are quick links useful or required?
-- Are they part of Sidebar, a landing Page or another declared public entry
-  route?
+- Are they part of NavigationBar, a landing Page or another declared public
+  entry route?
 - Which Pages merit quick access initially?
 
 ---
