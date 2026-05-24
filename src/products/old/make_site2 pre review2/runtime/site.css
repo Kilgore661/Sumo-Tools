@@ -1,0 +1,203 @@
+:root {
+  --page-bg: #071733;
+  --page-fg: #ffffff;
+  --artifact-row-odd-bg: #12234b;
+  --artifact-row-even-bg: #1b2c52;
+}
+
+body.site-context-local {
+  --page-bg: #071733;
+}
+
+body.site-context-remote {
+  --page-bg: #3b0508;
+}
+
+body.site-context-preview {
+  --page-bg: #063819;
+}
+
+body {
+  background: var(--page-bg);
+  color: var(--page-fg);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+.site-shell {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  height: 100vh;
+}
+
+.site-shell.nav-collapsed {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.site-nav,
+.site-main {
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.site-nav {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  width: max-content;
+}
+
+.site-nav[hidden] {
+  display: none;
+}
+
+.nav-toggle {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+.nav-list {
+  counter-reset: nav-item;
+  list-style: none;
+  font-size: 13px;
+  line-height: 1.45
+}
+
+.site-nav > .nav-list {
+  padding-left: 0;
+}
+
+.site-title {
+    font-size: 24px
+}
+
+h2 {
+    font-size: 20px;
+}
+
+h3 {
+    font-size: 18px;
+}
+
+.nav-list .nav-list {
+  padding-left: 2em;
+}
+
+.nav-list li {
+  counter-increment: nav-item;
+}
+
+.nav-link::before,
+.nav-label::before {
+  content: counters(nav-item, ".") ". ";
+}
+
+.filter-section ul {
+  list-style: none;
+}
+
+
+.content-body {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  min-width: 0;
+}
+
+.content-body-no-filters {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.landing-panel {
+  align-items: center;
+  display: flex;
+  min-height: 100%;
+  justify-content: center;
+}
+
+.landing-panel h2 {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.filter-control,
+.checkbox-control {
+  align-items: baseline;
+  column-gap: 0.25em;
+  display: inline-flex;
+  white-space: nowrap;
+}
+
+.pa-slot {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+.plotly-chart {
+  height: 520px;
+  max-width: 100%;
+  width: 900px;
+}
+
+.artifact-title-block {
+  text-align: center;
+}
+
+.artifact-table {
+  border-collapse: collapse;
+}
+
+.artifact-table th,
+.artifact-table td {
+  padding: 2px 0.25em;
+  text-align: center;
+}
+
+.artifact-table [data-column-id="shikona"] {
+  text-align: left;
+}
+
+.artifact-table tbody tr:nth-child(odd) {
+  background: var(--artifact-row-odd-bg);
+}
+
+.artifact-table tbody tr:nth-child(even) {
+  background: var(--artifact-row-even-bg);
+}
+
+.sectioned-table-grid {
+  align-items: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: center;
+  max-width: 100%;
+}
+
+.table-section h5 {
+  margin: 0.5rem 0;
+  text-align: center;
+}
+
+.sectioned-table [data-column-id="label"] {
+  text-align: left;
+}
+
+.sectioned-table [data-column-id="rating"] {
+  text-align: right;
+}
