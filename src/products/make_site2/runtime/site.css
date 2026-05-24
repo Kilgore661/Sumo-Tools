@@ -120,6 +120,12 @@ h3 {
   grid-template-columns: minmax(0, 1fr);
 }
 
+.pa-panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
 .landing-panel {
   align-items: center;
   display: flex;
