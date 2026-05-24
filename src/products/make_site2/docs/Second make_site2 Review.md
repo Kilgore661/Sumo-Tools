@@ -56,8 +56,8 @@ The principal normative change from the archived documents is the replacement
 of the old inner-content `G1` framing by the whole-page grammar `PG`:
 
 ```text
-PublicUI -> Sidebar . ContentPanel
-Sidebar -> <site caption> . Navigation . <hider>
+PublicUI -> NavigationBar . ContentPanel
+NavigationBar -> <site caption> . Navigation . <hider>
 ContentPanel -> Heading . Contents
 Contents -> FilterSection? . PAPanel
 PAPanel -> PA . Notes
@@ -348,8 +348,8 @@ G1-selected-page contents model
 It does not reflect the new specification:
 
 ```text
-PG starts at PublicUI and contains Sidebar and ContentPanel as the top-level
-modelled relationship.
+PG starts at PublicUI and contains NavigationBar and ContentPanel as the
+modelled top-level relationship.
 ```
 
 ### 8.2 Specific Mismatches
@@ -357,7 +357,7 @@ modelled relationship.
 | New model concept | Current implementation position | Assessment |
 | --- | --- | --- |
 | `PublicUI` | `PublicSiteShell`, not named as a `PG` instance | Conceptually close but still framed as shell outside grammar. |
-| `Sidebar` | `NavigationBar` plus `NavigationCollapseControl` | Substantial content exists, but the public model name/ownership does not follow `PG`. |
+| `NavigationBar` | `NavigationBar` plus `NavigationCollapseControl` | Already aligned in name and broad ownership; it needs to sit explicitly within the `PG` representation rather than outside a contents-only grammar. |
 | `ContentPanel -> Heading . Contents` | `ContentPanel` with `Heading` and `G1Contents` | Close internally, but tied to obsolete grammar vocabulary. |
 | `Contents -> FilterSection? . PAPanel` | `G1Contents(filter_section, pa, note_ids)` | Missing `PAPanel`; `filter_section` is mandatory rather than optional. |
 | `PAPanel -> PA . Notes` | no `PAPanel`; PA id and note ids are peers in `G1Contents` | Direct model gap. |
@@ -372,7 +372,7 @@ representation, for example conceptually:
 
 ```text
 PublicUIModel
-  Sidebar
+  NavigationBar
   ContentPanel
 
 Contents
@@ -386,7 +386,8 @@ PAPanel
 
 The exact Python refactor should be decided carefully rather than performed as a
 terminology-only rename. It must support the Notes rendering correction and the
-runtime manifest transition cleanly.
+runtime manifest transition cleanly. Existing `NavigationBar` terminology need
+not be changed.
 
 **Priority:** P0.
 
@@ -981,7 +982,7 @@ more consistent with the model-first intent.
 ### Phase 1: Correct the Central PG Structural Gap
 
 1. Decide the minimal Python/runtime-manifest representation of `PG`, especially
-   `PublicUI`, `Sidebar`, `Contents`, `PAPanel` and `Notes`.
+   `PublicUI`, `NavigationBar`, `Contents`, `PAPanel` and `Notes`.
 2. Replace or retire `G1Contents`/`ContentGrammar = "G1"` in favour of that
    explicit representation.
 3. Change runtime rendering so Notes are rendered inside PAPanel alongside the
@@ -1051,7 +1052,8 @@ producer integration remain validated by this review.
 
 The review should not trigger unnecessary rewriting. In particular:
 
-- the subject-led Navigation declaration is a useful owned starting point;
+- the existing `NavigationBar` term and subject-led Navigation declaration are
+  useful owned starting points;
 - explicit Page statuses and status-filtered planning are directionally right;
 - structured PA declarations and site-facing data use are valuable and should
   be retained;
@@ -1082,10 +1084,10 @@ strategy is not coherent: anchors promise route-local pages that the build does
 not write, while JavaScript supplies a different query-state navigation path.
 
 The encouraging conclusion is that much of the implementation can be carried
-forward. Site Definition, Navigation, status-aware planning, structured PA
-declarations, static runtime assembly and deployment are already recognisable
-forms of the new architecture. The next work should therefore be focused and
-model-led:
+forward. Site Definition, NavigationBar, Navigation, status-aware planning,
+structured PA declarations, static runtime assembly and deployment are already
+recognisable forms of the new architecture. The next work should therefore be
+focused and model-led:
 
 ```text
 make PG explicit in the code
