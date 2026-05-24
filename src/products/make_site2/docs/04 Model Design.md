@@ -102,8 +102,8 @@ For promoted pages in the initial supported public shape, it shall represent
 `PG`:
 
 ```text
-PublicUI -> Sidebar . ContentPanel
-Sidebar -> <site caption> . Navigation . <hider>
+PublicUI -> NavigationBar . ContentPanel
+NavigationBar -> <site caption> . Navigation . <hider>
 ContentPanel -> Heading . Contents
 Contents -> FilterSection? . PAPanel
 PAPanel -> PA . Notes
@@ -112,7 +112,7 @@ Notes -> Note*
 
 It shall therefore represent, as applicable:
 
-- the visible Sidebar and ContentPanel relationship;
+- the visible NavigationBar and ContentPanel relationship;
 - site caption, Navigation and hider state/meaning;
 - selected-page Heading;
 - FilterSection and FilterItems;
@@ -155,8 +155,8 @@ The following invariants govern the model layer:
    rendered.
 2. The Public UI Model for an initial supported promoted Page shall conform to
    `PG`.
-3. The Sidebar is part of the modelled public page, not unmodelled rendering
-   infrastructure.
+3. The NavigationBar is part of the modelled public page, not unmodelled
+   rendering infrastructure.
 4. `PAPanel` contains the PA and its Notes; `FilterSection` is a sibling of
    `PAPanel`, not the owner of Notes.
 5. A PA renderer may specialise the PA terminal form but shall not invent a
