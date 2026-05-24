@@ -10,8 +10,9 @@ import { escapeHtml } from "../utils/html.js";
 
 async function renderContentPanel(panel, overrideState = null) {
   const artifactId = panel.contents.pa_panel.pa.artifact_id;
-  const artifact = getRuntimeManifest().artifacts[artifactId];
-  if (!artifact) throw new Error(`Unknown artifact: ${artifactId}`);
+  const declaredArtifact = getRuntimeManifest().artifacts[artifactId];
+  if (!declaredArtifact) throw new Error(`Unknown artifact: ${artifactId}`);
+  const artifact = artifactForPAPanel(panel, declaredArtifact);
   if (artifact.kind === "indexed_table") {
     await renderIndexedTableContentPanel(panel, artifact, overrideState);
     return;
@@ -33,6 +34,13 @@ async function renderContentPanel(panel, overrideState = null) {
     return;
   }
   throw new Error(`Unsupported artifact kind: ${artifact.kind}`);
+}
+function artifactForPAPanel(panel, artifact) {
+  const noteIds = new Set(panel.contents.pa_panel.notes.note_ids || []);
+  return {
+    ...artifact,
+    notes: (artifact.notes || []).filter(note => noteIds.has(note.id)),
+  };
 }
 async function renderIndexedTableContentPanel(panel, artifact, overrideState = null) {
   const filters = panel.contents.filter_section.filters;
@@ -356,4 +364,4 @@ function bashoResultsTitle(state, entry, filters) {
   return `${division} Results for ${label}`;
 }
 
-export { renderContentPanel, renderIndexedTableContentPanel, renderBanzukeChangesContentPanel, renderSectionedTableContentPanel, renderStandingsContentPanel, renderChartContentPanel, renderStandingWinProbabilityContentPanel, renderCareerLengthContentPanel, renderFinishByChiiContentPanel, renderStackedBarChartContentPanel, renderGroupedLineChartContentPanel, renderOrderedBarChartContentPanel, renderCategoryBarChartContentPanel, fetchArtifactCsvSet, renderArtifactTitleBlock, artifactTitle, bashoResultsTitle };
+export { renderContentPanel, renderIndexedTableContentPanel, renderBanzukeChangesContentPanel, renderSectionedTableContentPanel, renderStandingsContentPanel, renderChartContentPanel, renderStandingWinProbabilityContentPanel, renderCareerLengthContentPanel, renderFinishByChiiContentPanel, renderStackedBarChartContentPanel, renderGroupedLineChartContentPanel, renderOrderedBarChartContentPanel, renderCategoryBarChartContentPanel, fetchArtifactCsvSet, renderArtifactTitleBlock, artifactTitle, bashoResultsTitle, artifactForPAPanel };
