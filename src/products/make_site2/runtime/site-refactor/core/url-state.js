@@ -1,18 +1,6 @@
-/**
- * State synchronization brokers managing History and address configuration strings.
- */
+export const PAGE_PARAM = "page";
 
-const PAGE_PARAM = "page";
-
-export function readFilterUrlState(filters) {
-  const params = new URLSearchParams(window.location.search);
-  return Object.fromEntries(filters.map(filter => [
-    filter.id,
-    params.get(filter.url_key || filter.id)
-  ]));
-}
-
-export function writePageUrl(pageId, { replace }) {
+function writePageUrl(pageId, { replace }) {
   const params = new URLSearchParams();
   if (pageId) {
     params.set(PAGE_PARAM, pageId);
@@ -28,8 +16,7 @@ export function writePageUrl(pageId, { replace }) {
     history.pushState(null, "", next);
   }
 }
-
-export function writePanelUrl(pageId, filters, state, { replace }) {
+function writePanelUrl(pageId, filters, state, { replace }) {
   const params = new URLSearchParams();
   if (pageId) params.set(PAGE_PARAM, pageId);
   for (const filter of filters) {
@@ -44,3 +31,12 @@ export function writePanelUrl(pageId, filters, state, { replace }) {
     history.pushState(null, "", next);
   }
 }
+function readFilterUrlState(filters) {
+  const params = new URLSearchParams(window.location.search);
+  return Object.fromEntries(filters.map(filter => [
+    filter.id,
+    params.get(filter.url_key || filter.id)
+  ]));
+}
+
+export { writePageUrl, writePanelUrl, readFilterUrlState };
