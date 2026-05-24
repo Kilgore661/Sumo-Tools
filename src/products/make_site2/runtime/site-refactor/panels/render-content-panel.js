@@ -9,9 +9,9 @@ import { renderBanzukeChangesTable, renderIndexedTable, renderSectionedTable, re
 import { escapeHtml } from "../utils/html.js";
 
 async function renderContentPanel(panel, overrideState = null) {
-  if (panel.grammar !== "G1") throw new Error(`Unsupported content grammar: ${panel.grammar}`);
-  const artifact = getRuntimeManifest().artifacts[panel.contents.pa.artifact_id];
-  if (!artifact) throw new Error(`Unknown artifact: ${panel.contents.pa.artifact_id}`);
+  const artifactId = panel.contents.pa_panel.pa.artifact_id;
+  const artifact = getRuntimeManifest().artifacts[artifactId];
+  if (!artifact) throw new Error(`Unknown artifact: ${artifactId}`);
   if (artifact.kind === "indexed_table") {
     await renderIndexedTableContentPanel(panel, artifact, overrideState);
     return;
@@ -53,12 +53,14 @@ async function renderIndexedTableContentPanel(panel, artifact, overrideState = n
     `<h3>${escapeHtml(panel.heading.summary)}</h3>`,
     '<div class="content-body">',
     renderFilterSection(panel.contents.filter_section, state, index),
+    '<section class="pa-panel">',
     '<div class="pa-slot">',
     renderArtifactTitleBlock(artifact, state, selectedEntry, filters),
     renderIndexedTable(artifact, filteredRows, state),
     '</div>',
-    '</div>',
     renderNotes(artifact, state),
+    '</section>',
+    '</div>',
     '</section>'
   ].join("");
   wireFilterSection(panel, state, renderContentPanel);
@@ -78,11 +80,13 @@ async function renderBanzukeChangesContentPanel(panel, artifact, overrideState =
     `<h3>${escapeHtml(panel.heading.summary)}</h3>`,
     '<div class="content-body">',
     renderFilterSection(panel.contents.filter_section, state),
+    '<section class="pa-panel">',
     '<div class="pa-slot">',
     renderBanzukeChangesTable(artifact, filteredRows, state, config),
     '</div>',
-    '</div>',
     renderNotes(artifact, state),
+    '</section>',
+    '</div>',
     '</section>'
   ].join("");
   wireFilterSection(panel, state, renderContentPanel);
@@ -96,11 +100,13 @@ async function renderSectionedTableContentPanel(panel, artifact) {
     `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
     `<h3>${escapeHtml(panel.heading.summary)}</h3>`,
     '<div class="content-body content-body-no-filters">',
+    '<section class="pa-panel">',
     '<div class="pa-slot">',
     renderSectionedTable(artifact, rows),
     '</div>',
-    '</div>',
     renderNotes(artifact, {}),
+    '</section>',
+    '</div>',
     '</section>'
   ].join("");
 }
@@ -122,11 +128,13 @@ async function renderStandingsContentPanel(panel, artifact, overrideState = null
     `<h3>${escapeHtml(panel.heading.summary)}</h3>`,
     '<div class="content-body">',
     renderFilterSection(panel.contents.filter_section, state),
+    '<section class="pa-panel">',
     '<div class="pa-slot">',
     renderStandingsTable(artifact, sortedRows, filteredRows, state),
     '</div>',
-    '</div>',
     renderNotes(artifact, state),
+    '</section>',
+    '</div>',
     '</section>'
   ].join("");
   wireFilterSection(panel, state, renderContentPanel);
@@ -176,11 +184,13 @@ async function renderStandingWinProbabilityContentPanel(panel, artifact, overrid
     `<h3>${escapeHtml(panel.heading.summary)}</h3>`,
     '<div class="content-body">',
     renderFilterSection(panel.contents.filter_section, state),
+    '<section class="pa-panel">',
     '<div class="pa-slot">',
     renderStandingWinProbabilityChart(artifact, state, rowsBySource),
     '</div>',
-    '</div>',
     renderNotes(artifact, state),
+    '</section>',
+    '</div>',
     '</section>'
   ].join("");
   renderStandingWinProbabilityPlot(artifact, state, rowsBySource);
@@ -199,11 +209,13 @@ async function renderCareerLengthContentPanel(panel, artifact, overrideState = n
     `<h3>${escapeHtml(panel.heading.summary)}</h3>`,
     '<div class="content-body">',
     renderFilterSection(panel.contents.filter_section, state),
+    '<section class="pa-panel">',
     '<div class="pa-slot">',
     renderCareerLengthArtifact(artifact, state, rowsBySource),
     '</div>',
-    '</div>',
     renderNotes(artifact, state),
+    '</section>',
+    '</div>',
     '</section>'
   ].join("");
   renderCareerLengthPlot(artifact, state, rowsBySource);
@@ -232,11 +244,13 @@ async function renderFinishByChiiContentPanel(panel, artifact, overrideState = n
     `<h3>${escapeHtml(panel.heading.summary)}</h3>`,
     '<div class="content-body">',
     renderFilterSection(panel.contents.filter_section, state, null, rowsBySource),
+    '<section class="pa-panel">',
     '<div class="pa-slot">',
     renderFinishByChiiChart(artifact, state, filters, rowsBySource),
     '</div>',
-    '</div>',
     renderNotes(artifact, state),
+    '</section>',
+    '</div>',
     '</section>'
   ].join("");
   renderFinishByChiiPlot(artifact, state, rowsBySource);
@@ -249,11 +263,13 @@ async function renderStackedBarChartContentPanel(panel, artifact) {
     `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
     `<h3>${escapeHtml(panel.heading.summary)}</h3>`,
     '<div class="content-body content-body-no-filters">',
+    '<section class="pa-panel">',
     '<div class="pa-slot">',
     renderStackedBarChart(artifact, rowsBySource),
     '</div>',
-    '</div>',
     renderNotes(artifact, {}),
+    '</section>',
+    '</div>',
     '</section>'
   ].join("");
   renderStackedBarPlot(artifact, rowsBySource);
@@ -265,11 +281,13 @@ async function renderGroupedLineChartContentPanel(panel, artifact) {
     `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
     `<h3>${escapeHtml(panel.heading.summary)}</h3>`,
     '<div class="content-body content-body-no-filters">',
+    '<section class="pa-panel">',
     '<div class="pa-slot">',
     renderGroupedLineChart(artifact, rowsBySource),
     '</div>',
-    '</div>',
     renderNotes(artifact, {}),
+    '</section>',
+    '</div>',
     '</section>'
   ].join("");
   renderGroupedLinePlot(artifact, rowsBySource);
@@ -281,11 +299,13 @@ async function renderOrderedBarChartContentPanel(panel, artifact) {
     `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
     `<h3>${escapeHtml(panel.heading.summary)}</h3>`,
     '<div class="content-body content-body-no-filters">',
+    '<section class="pa-panel">',
     '<div class="pa-slot">',
     renderOrderedBarChart(artifact, rowsBySource),
     '</div>',
-    '</div>',
     renderNotes(artifact, {}),
+    '</section>',
+    '</div>',
     '</section>'
   ].join("");
   renderOrderedBarPlot(artifact, rowsBySource);
@@ -297,11 +317,13 @@ async function renderCategoryBarChartContentPanel(panel, artifact) {
     `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
     `<h3>${escapeHtml(panel.heading.summary)}</h3>`,
     '<div class="content-body content-body-no-filters">',
+    '<section class="pa-panel">',
     '<div class="pa-slot">',
     renderCategoryBarChart(artifact, rowsBySource),
     '</div>',
-    '</div>',
     renderNotes(artifact, {}),
+    '</section>',
+    '</div>',
     '</section>'
   ].join("");
   renderCategoryBarPlot(artifact, rowsBySource);
