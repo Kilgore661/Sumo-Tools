@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass, is_dataclass
 from typing import Any
+from urllib.parse import urlencode
 
 from ..publication_model import NavigationItem, PublicationPlan
 from ..ui_model import (
@@ -85,6 +86,7 @@ PANEL_DECLARATIONS: dict[str, PanelDeclaration] = {
 
 def build_public_site_shell(plan: PublicationPlan) -> PublicSiteShell:
     declarations = planned_panel_declarations(plan)
+    declaration_by_page_id = dict(declarations)
     content_panels = tuple(
         build_content_panel(plan.pages[page_id].page, declaration)
         for page_id, declaration in declarations
@@ -94,7 +96,7 @@ def build_public_site_shell(plan: PublicationPlan) -> PublicSiteShell:
         navigation_bar=NavigationBar(
             heading=plan.site.title,
             navigation_tree=renderable_navigation_tree(
-                plan.navigation_tree, renderable_page_ids
+                plan.navigation_tree, renderable_page_ids, declaration_by_page_id
             ),
             collapse_control=NavigationCollapseControl(
                 enabled=True,
@@ -135,24 +137,56 @@ def planned_panel_declarations(
     return tuple((page_id, PANEL_DECLARATIONS[page_id]) for page_id in plan.pages)
 
 
+def canonical_default_view_href(page_id: str, filters: tuple[Filter, ...]) -> str:
+    """Return the single-shell public link requesting a Page's default view."""
+
+    state: list[tuple[str, str]] = [("page", page_id)]
+    state.extend(
+        (filter.url_key or filter.id, serialize_filter_value(filter.default))
+        for filter in filters
+    )
+    return f"?{urlencode(state)}"
+
+
+def serialize_filter_value(value: str | bool) -> str:
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    return str(value)
+
+
 def renderable_navigation_tree(
-    items: tuple[NavigationItem, ...], renderable_page_ids: frozenset[str]
+    items: tuple[NavigationItem, ...],
+    renderable_page_ids: frozenset[str],
+    declaration_by_page_id: dict[str, PanelDeclaration],
 ) -> tuple[NavigationItem, ...]:
-    return tuple(renderable_navigation_item(item, renderable_page_ids) for item in items)
+    return tuple(
+        renderable_navigation_item(item, renderable_page_ids, declaration_by_page_id)
+        for item in items
+    )
 
 
 def renderable_navigation_item(
-    item: NavigationItem, renderable_page_ids: frozenset[str]
+    item: NavigationItem,
+    renderable_page_ids: frozenset[str],
+    declaration_by_page_id: dict[str, PanelDeclaration],
 ) -> NavigationItem:
     included = item.page_id in renderable_page_ids if item.page_id is not None else False
+    declaration = declaration_by_page_id.get(item.page_id or "")
+    href = (
+        canonical_default_view_href(item.page_id, declaration.filters)
+        if included and item.page_id is not None and declaration is not None
+        else None
+    )
     return NavigationItem(
         id=item.id,
         label=item.label,
         slug=item.slug,
         page_id=item.page_id,
-        href=item.href if included else None,
+        href=href,
         included=included,
-        children=renderable_navigation_tree(item.children, renderable_page_ids),
+        children=renderable_navigation_tree(
+            item.children, renderable_page_ids, declaration_by_page_id
+        ),
     )
 
 
