@@ -66,6 +66,7 @@ Note
 Page
 Public Status
 Public State
+Public View Link
 Deep Link
 Site-Facing Input
 Producer
@@ -79,6 +80,10 @@ Reader-facing UI copy may use ordinary wording such as `Options` where that is
 clearer.
 
 The term `Option` is not a formal model term for a Filter.
+
+A `Public View Link` is a canonical copyable URL representation of one material
+public view. It identifies a selected Page and, where applicable, all material
+Filter values needed to restore that view.
 
 ---
 
@@ -214,7 +219,7 @@ A Navigation item shall have, as applicable:
 - a stable identity;
 - a reader-facing label;
 - zero or more child items;
-- an optional public page destination;
+- an optional public Page destination;
 - status or readiness information where exposed publicly.
 
 A Navigation item need not itself select a page; it may group child items.
@@ -225,6 +230,10 @@ it exists.
 
 The selected available page shall be identifiable in Navigation where it has a
 navigation destination.
+
+A Navigation destination for a selectable Page shall be a valid Public View Link
+to that Page's canonical default view. It shall not advertise an output path
+that the static site does not publish.
 
 ---
 
@@ -238,7 +247,7 @@ A Page shall have, as applicable:
 - a public title;
 - optional public summary/framing text;
 - public status;
-- a public entry route through Navigation or another deliberate public link;
+- a public entry link through Navigation or another deliberate public link;
 - Contents conforming to an approved public grammar;
 - required Published Artifact, data and asset references;
 - Filter and default-state declarations where applicable;
@@ -436,36 +445,70 @@ contracts.
 
 ---
 
-## 15. Public Selection and Deep-Link Contract
+## 15. Public Selection and Public View Link Contract
 
-The site shall support stable public selection of promoted pages.
+The public site shall use one static application shell for ordinary promoted
+Page presentation. Selecting a Page or changing its material Filter state shall
+select a public view within that shell rather than require one generated HTML
+entry document per Page.
 
-Where material analytical state changes the public view, a public link shall be
-capable of restoring that state where shareability is required.
+Every material public view shall have one canonical Public View Link that can be
+copied, pasted and reopened to restore that view.
 
-Public state may include:
+A Public View Link shall serialize:
+
+- the selected Page; and
+- every material Filter value applying to that Page, including its declared
+  default value where that Filter is present.
+
+For example, a link to a filtered Banzuke Changes view may conceptually encode:
+
+```text
+?page=banzuke_changes
+  &division=juryo
+  &context=1
+  &banzuke_style=1
+  &delta=1
+  &equelo=0
+```
+
+The exact parameter names and Boolean representation are implementation-level
+choices where they are consistent and stable for the public contract. The
+required policy is that canonical links are explicit: two links shall not be
+intentionally emitted as canonical representations of the same material public
+view merely because one relies on current Filter defaults.
+
+Navigation destinations shall target each selected Page's canonical default
+public view. A Page with no material Filters requires only its selected Page
+identity in its canonical link.
+
+Public state includes:
 
 - selected Page;
 - selected Filter values;
-- selected data instance;
-- selected representation;
-- visible table or chart view where declared material.
+- selected data instance represented through a Filter;
+- selected representation or visible table/chart view represented through a
+  Filter or other declared material public state.
 
-Transient browser interaction need not form part of public state unless it is
-explicitly promoted into the public contract. Examples of normally transient
-state include:
+The following are not ordinarily part of the Public View Link:
 
+- whether the NavigationBar is hidden or shown;
 - hover state;
 - scroll position;
 - an open tooltip;
 - ordinary table sort, unless declared material;
 - chart zoom, unless declared material.
 
-Public page identities and public state shall not be derived from incidental
-source filenames or legacy output locations.
+The runtime may accept an incomplete or formerly valid incoming public-state
+link and resolve missing or invalid values predictably. Once a valid public view
+has been resolved, it shall expose that view's canonical Public View Link in the
+browser address bar.
+
+Public Page identities and public state shall not be derived from incidental
+source filenames, output file paths or legacy output locations.
 
 Invalid requested public state shall degrade predictably and shall not silently
-leave a promoted page empty or misleading.
+leave a promoted Page empty or misleading.
 
 ---
 
@@ -493,7 +536,7 @@ Static output may contain, where required:
 - build metadata useful for verification.
 
 Client-side JavaScript may realise interactive public behaviour and restore
-public state from stable links.
+public state from canonical Public View Links.
 
 Build and deployment shall remain separable operations.
 
@@ -558,7 +601,8 @@ The product shall handle, as applicable:
 Build-time invalidity of required promoted material shall be reported as a build
 failure or explicit blocking error. Invalid reader-requested state in an
 otherwise valid built site shall degrade predictably to an available public
-state or a clear public error presentation.
+state or a clear public error presentation and, when a view is resolved, expose
+the resolved canonical Public View Link.
 
 ---
 
@@ -567,15 +611,18 @@ state or a clear public error presentation.
 A first conforming production slice shall demonstrate:
 
 - one generated static public site;
+- one static application shell for ordinary promoted Page views;
 - one visible `PublicUI` conforming to `PG`;
 - a NavigationBar containing site identity, Navigation and a working hider;
 - one subject-led hierarchical numbered Navigation structure;
+- Navigation links resolving to canonical default Public View Links;
 - one promoted Page rendered in a ContentPanel;
 - one Heading and one Contents structure;
 - optional/actual FilterSection behaviour using supported FilterItems;
 - one PAPanel containing one PA and Notes;
 - one table or indexed-table PA terminal;
-- stable selected-page public state;
+- canonical selected-Page and material Filter public state that can be copied,
+  pasted and restored;
 - site-facing inputs rather than copied legacy HTML for the promoted page;
 - working local build and inspection;
 - explicit public status handling.
