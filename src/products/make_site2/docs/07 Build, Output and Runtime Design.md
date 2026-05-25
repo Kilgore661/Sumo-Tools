@@ -26,6 +26,7 @@ It shall provide:
 - all required entry material, assets, data and browser runtime files;
 - predictable local inspection of the generated site;
 - restoration and operation of declared public state in the browser;
+- canonical copyable links for all material public views; and
 - explicit failure when required publication material cannot be written or run
   correctly.
 
@@ -39,8 +40,8 @@ Build and output:
   write the files required to publish that realised site.
 
 Browser runtime:
-  activates declared interaction and state-restoration behaviour in static
-  output.
+  activates declared interaction and canonical public-state restoration in
+  static output.
 
 Deployment:
   places completed output at a local or remote serving destination.
@@ -107,6 +108,10 @@ BrowserRuntime
 
 RuntimeBootstrap
   serialized material required to initialise the public site in the browser
+
+CanonicalPublicViewLink
+  a copyable URL selecting one Page and all applicable material Filter values
+  required to reproduce one visible public view
 ```
 
 These are design concepts. Exact Python class names and serialized formats may
@@ -183,7 +188,6 @@ It may contain:
 ```text
 RenderedSite
   entry_html
-  additional_entry_html*
   runtime_bootstrap_material?
   rendered_or_serialized_public_model_material?
   required_runtime_asset_references
@@ -191,6 +195,10 @@ RenderedSite
   required_data_references
   build_metadata_inputs
 ```
+
+The selected current publication design uses one ordinary HTML application
+entry shell. Additional entry documents are not required to represent planned
+Pages or material views in this design.
 
 The exact balance between rendered HTML and serialized model/data consumed by
 runtime is an implementation choice. Whatever the balance, the output shall
@@ -210,7 +218,7 @@ Conceptually:
 ```text
 BuildOutput
   output_root
-  entry_points
+  application_entry_point
   runtime_files
   asset_files
   data_files
@@ -225,6 +233,7 @@ It shall be sufficient for:
 - serving the site as static files;
 - local inspection;
 - deployment without rediscovering build intent;
+- restoring every material public view from its canonical Public View Link; and
 - verifying which output was produced where practical.
 
 Deployment consumes completed output; it shall not need to rerun planning or
@@ -259,7 +268,7 @@ partial build results.
 
 The output tree shall consist of ordinary static web material.
 
-An initial conceptual shape is:
+The current conceptual shape is:
 
 ```text
 <output_root>/
@@ -274,42 +283,62 @@ An initial conceptual shape is:
     build-info.json, if emitted
 ```
 
-Exact folder names and serialization choices may change. The required
+Exact supporting folder names and serialization choices may change. The required
 properties are:
 
-- at least one browser-loadable entry point exists;
+- the single browser-loadable ordinary entry shell exists;
 - required site/runtime CSS and JavaScript assets are present;
 - required data and serialized material are present;
 - asset and data references work when the output is served statically;
-- declared public selections and material state can be restored according to
-  the public-state contract;
+- canonical Public View Links restore declared Page selection and material
+  Filter state;
+- Navigation destinations link to canonical default views in the shell rather
+  than unwritten per-Page HTML files; and
 - output does not depend on the developer machine's source paths.
 
 ---
 
-## 10. Entry Point and Page Selection
+## 10. Single Application Shell and Public View Selection
 
-The initial design permits a single application entry HTML document, for
-example:
+The selected current design uses one ordinary application entry HTML document:
 
 ```text
 /index.html
 ```
 
-with selected Page and material public state restored by static browser runtime
-from the approved public-selection/deep-link representation.
+Promoted Pages and their material public views are selected within that shell by
+canonical Public View Links. The build shall not need to generate one HTML
+entry document per Page in order to satisfy Page selection or copyable-view
+requirements.
 
-The specification does not require one generated HTML document per public Page.
-Nor does this design prohibit additional explicit entry documents where a later
-requirement or public-link design justifies them.
+A canonical Public View Link shall identify:
 
-Whichever approach is selected:
+- the selected Page; and
+- all applicable material Filter values for that Page, including declared
+  defaults.
 
-- public Page identity shall come from Publication Plan/public-state design, not
-  from incidental output filenames;
-- output writing shall write explicitly planned entry material;
-- runtime shall restore only modelled/specified public state;
-- invalid public state shall be handled predictably under the Specification.
+Navigation destinations shall identify their Page's canonical default view.
+Runtime changes to material Filter state shall expose the new canonical view
+link in the browser address bar.
+
+The exact query parameter names, ordering and Boolean encoding are implementation
+details provided they are consistent, deterministic and preserve the public
+contract. Canonical link output shall not intentionally rely on omitted Filter
+parameters whose meaning depends on current defaults.
+
+The shell root URL may continue to identify the current landing view while
+home/default Page policy remains unsettled. It shall not form an alternative
+canonical link for a material selected-Page view.
+
+The consequences are:
+
+- public Page identity comes from Publication Plan/public-state design, not
+  output filenames;
+- output writing writes the one selected application entry shell explicitly;
+- runtime restores only modelled/specified public state;
+- normal anchor links work as links even without in-place click interception;
+- incomplete or invalid incoming state is handled predictably and normalised to
+  canonical resolved state where a valid view is displayed.
 
 ---
 
@@ -321,7 +350,7 @@ the resolved rendered site.
 It owns:
 
 - preparing the output root;
-- writing entry HTML and any explicitly planned additional entry files;
+- writing the application entry HTML;
 - writing serialized bootstrap/model material needed at runtime;
 - copying or writing runtime assets;
 - copying or writing required public assets and PA data;
@@ -349,7 +378,7 @@ The browser runtime may require shared static source assets such as:
 site CSS
 site JavaScript
 Navigation and NavigationBar interaction support
-public-state restoration support
+canonical public-state restoration and writing support
 Filter interaction support
 PA-terminal runtime support
 data-loading utilities
@@ -360,9 +389,9 @@ The Publication Plan shall make required runtime support knowable before output
 writing completes. The output writer shall stage that support in the static
 output.
 
-The initial implementation may include one standard shared runtime bundle for
-all builds. A later split-bundle design shall preserve the same ownership rule:
-runtime dependencies arise from planned/modelled content and shall not be
+The initial implementation may include one standard shared runtime module tree
+for all builds. A later split-bundle design shall preserve the same ownership
+rule: runtime dependencies arise from planned/modelled content and shall not be
 silently discovered as a side effect of an improvised renderer path.
 
 ---
@@ -374,7 +403,7 @@ A static interactive site may require browser-readable bootstrap material.
 Runtime bootstrap may include, as applicable:
 
 - site caption and planned Navigation material;
-- included Page identities and public selection references;
+- included Page identities and canonical default Public View Links;
 - Page Heading and Contents material needed client-side;
 - Filter declarations, allowed/default/current state handling;
 - PA references and terminal-form metadata;
@@ -398,30 +427,34 @@ build review.
 
 ## 14. Public State Restoration and Runtime Interaction
 
-The BrowserRuntime may restore and update declared public state in the rendered
-static site.
+The BrowserRuntime shall restore and update declared public state in the rendered
+static site through canonical Public View Links.
 
-It shall support, as required by the selected pages:
+It shall support, as required by the selected Pages:
 
-- selecting the public Page identified by a stable public selection reference;
-- applying material Filter state;
+- selecting the public Page identified by a canonical link;
+- applying all material Filter state represented by that link;
 - loading or selecting PA data needed for the state;
 - displaying the corresponding relevant Notes;
-- maintaining a reproducible public link where the Specification requires it.
+- rewriting incomplete or safely resolved invalid incoming state to the
+  canonical link for the displayed valid public view; and
+- writing a changed canonical link when the reader changes Page or material
+  Filter state.
 
 The runtime shall preserve distinctions established upstream:
 
-| State or interaction | Ownership |
+| State or interaction | Ownership / public-link treatment |
 | --- | --- |
-| selected Page | public selection/public UI state |
-| selected Filter values | Filter/public PA presentation state |
-| relevant Notes shown because PA state changed | PAPanel/Notes consequence of visible PA state |
-| NavigationBar hidden/restored | shell/UI state, not Filter state |
-| hover, ordinary scroll or other transient interaction | ordinarily not material public state |
+| selected Page | public selection state; always in a selected Page's canonical link |
+| selected Filter values | material Filter/PA presentation state; all applicable values in canonical link |
+| relevant Notes shown because PA state changed | PAPanel/Notes consequence of visible PA state; not an independent parameter unless later required |
+| NavigationBar hidden/restored | shell/UI state; not part of Public View Link |
+| hover, ordinary scroll or ordinary tooltip | transient; not part of Public View Link |
 
 The runtime shall not represent NavigationBar hiding as a Filter, move Notes
-outside their PAPanel relationship, or create alternative Page structures
-unknown to the model.
+outside their PAPanel relationship, create alternative Page structures unknown
+to the model, or leave the address bar representing a different material view
+from the one displayed.
 
 ---
 
@@ -452,13 +485,15 @@ The generated site shall work when served as static web content through the
 supported local and public hosting arrangements.
 
 Entry material, runtime assets, bootstrap data, PA data and public assets shall
-refer to one another using URLs compatible with the selected output and
-public-link policy.
+refer to one another using URLs compatible with the single-shell output design.
+Canonical Public View Links shall address material selected-Page views in that
+shell and shall not use route-local HTML destinations that are not written by the
+build.
 
-This document does not choose the exact path/query/hash public-selection policy.
-It does require that output writing and BrowserRuntime implement whichever policy
-is specified upstream without depending on local filesystem paths or accidental
-working-directory behaviour.
+The public contract does not require links to be human-readable. It requires
+that material views have deterministic, copyable and restorable canonical links.
+The precise parameter representation remains an implementation detail subject to
+that contract.
 
 A file opened directly from disk is not necessarily an adequate substitute for
 static serving if browser security rules or runtime data loading prevent valid
@@ -512,7 +547,9 @@ Examples include:
 - missing required public data or PA asset;
 - failed write/copy operation;
 - contradictory output paths or duplicate required destinations;
-- failure to serialize required runtime/bootstrap material.
+- failure to serialize required runtime/bootstrap material;
+- a planned Navigation destination that cannot identify its Page's canonical
+  default public view in the single shell.
 
 A public build shall not silently omit required promoted content or create an
 apparently successful but unusable static site.
@@ -528,8 +565,9 @@ Examples include:
 
 Where a valid built site receives invalid requested reader state, it shall fall
 back or report predictably as defined by the Specification/runtime policy. Where
-required built material is absent, the failure should be visible and
-diagnosable rather than silently producing misleading content.
+it resolves a valid visible view, it shall expose that view's canonical Public
+View Link. Where required built material is absent, the failure should be visible
+and diagnosable rather than silently producing misleading content.
 
 ---
 
@@ -542,7 +580,8 @@ Local inspection shall permit review of:
 - overall PublicUI rendering;
 - NavigationBar and Navigation behaviour;
 - selected Page/public state restoration;
-- Filter behaviour;
+- canonical link copy/paste, reload and new-tab behaviour;
+- Filter behaviour and link updates;
 - PA rendering and data loading;
 - Notes relevance and placement;
 - runtime errors and missing assets;
@@ -613,22 +652,25 @@ supersede the active Specification, Model Design or Rendering Design.
 
 A conforming build/output/runtime implementation shall satisfy:
 
-1. It writes a static output tree sufficient to serve the planned public site.
+1. It writes a static output tree containing the one ordinary application shell
+   required to serve the planned public site.
 2. It writes or stages all assets, data and runtime support required by included
    promoted Pages and PAs.
 3. It does not include extra public Pages merely because source files exist.
 4. It does not infer public Page identity or PA meaning from incidental output
    paths.
-5. It does not redefine `PG` or Rendering Design in output-writing or runtime
+5. Navigation destinations and runtime-selected material views expose canonical
+   Public View Links addressed into the single shell.
+6. It does not redefine `PG` or Rendering Design in output-writing or runtime
    convenience code.
-6. Browser runtime restores and applies only declared public state and preserves
+7. Browser runtime restores and applies only declared public state and preserves
    NavigationBar/Filter/PAPanel/Notes ownership distinctions.
-7. Required missing or invalid output fails clearly rather than creating
+8. Required missing or invalid output fails clearly rather than creating
    misleading publication.
-8. A completed BuildOutput is suitable for local inspection and optional
+9. A completed BuildOutput is suitable for local inspection and optional
    downstream deployment.
-9. Stale output shall not survive a normal clean build in a way that appears to
-   be part of the current site.
+10. Stale output shall not survive a normal clean build in a way that appears to
+    be part of the current site.
 
 ---
 
@@ -638,11 +680,11 @@ The following matters remain deferred until implementation pressure requires
 settled policy:
 
 - exact default output root;
-- exact output directory layout and naming;
+- exact supporting output directory layout and naming;
 - exact serialized runtime/bootstrap model format;
-- whether one entry HTML document remains sufficient for all approved public
-  link designs;
-- exact path/query/hash public-state implementation;
+- exact canonical query parameter names, ordering and Boolean encoding;
+- long-term compatibility guarantees for previously published canonical Public
+  View Links;
 - exact cache/version strategy;
 - exact build metadata schema;
 - exact local serving workflow;
@@ -652,8 +694,10 @@ settled policy:
 - whether archive/ZIP output is a build-output convenience or a deployment
   operation.
 
-These questions shall not be resolved by allowing output or runtime code to
-quietly establish new public semantics.
+The decision to use one static shell and canonical Page-plus-material-Filter
+links is not deferred. These questions concern its representation, evolution or
+operational support. They shall not be resolved by allowing output or runtime
+code to quietly establish new public semantics.
 
 ---
 
@@ -665,11 +709,14 @@ static site from a planned, modelled and rendered public publication.
 It says:
 
 ```text
-how rendered site material is written as static output
-what runtime/assets/data/bootstrap material must be staged
-how declared public state can be restored in the browser
-how builds are inspected and diagnosed
-how output hands off to deployment
+one ordinary static application shell hosts selected public Page views
+canonical Public View Links identify Page plus material Filter state
+Navigation links identify canonical default Page views
+browser runtime restores and writes canonical public state
+rendered site material is written as static output
+runtime/assets/data/bootstrap material is staged
+builds are inspected and diagnosed
+output hands off to deployment
 ```
 
 It does not say:
