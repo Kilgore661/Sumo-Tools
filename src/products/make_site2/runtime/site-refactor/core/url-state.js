@@ -24,6 +24,9 @@ function writeCanonicalViewUrl(pageId, filters = [], state = {}, { replace }) {
     history.pushState(null, "", next);
   }
 }
+function writePanelUrl(pageId, filters, state, options) {
+  writeCanonicalViewUrl(pageId, filters, state, options);
+}
 function readFilterUrlState(filters) {
   const params = new URLSearchParams(window.location.search);
   return Object.fromEntries(filters.map(filter => [
@@ -32,4 +35,4 @@ function readFilterUrlState(filters) {
   ]));
 }
 
-export { publicViewUrl, serializeFilterValue, writeCanonicalViewUrl, readFilterUrlState };
+export { publicViewUrl, serializeFilterValue, writeCanonicalViewUrl, writePanelUrl, readFilterUrlState };
