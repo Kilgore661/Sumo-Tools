@@ -89,54 +89,14 @@ class Heading:
     summary: str
 
 
-@dataclass(frozen=True, kw_only=True, init=False)
+@dataclass(frozen=True, kw_only=True)
 class ContentPanel:
     page_id: str
     heading: Heading
     contents: Contents
-
-    def __init__(
-        self,
-        *,
-        page_id: str,
-        heading: Heading,
-        contents: Contents,
-        grammar: str | None = None,
-    ) -> None:
-        """Construct a content panel.
-
-        ``grammar`` is accepted temporarily while repeated site-manifest panel
-        declarations are migrated from their former ``grammar="G1"`` spelling.
-        It is not model state and is not serialized into the public UI manifest.
-        """
-
-        if grammar not in (None, "G1"):
-            raise ValueError(f"Unsupported legacy content grammar: {grammar!r}")
-        object.__setattr__(self, "page_id", page_id)
-        object.__setattr__(self, "heading", heading)
-        object.__setattr__(self, "contents", contents)
 
 
 @dataclass(frozen=True, kw_only=True)
 class PublicSiteShell:
     navigation_bar: NavigationBar
     content_panels: tuple[ContentPanel, ...]
-
-
-def G1Contents(
-    *,
-    filter_section: FilterSection,
-    pa: PA,
-    note_ids: tuple[str, ...] = (),
-) -> Contents:
-    """Temporary construction adapter for legacy site-manifest declarations.
-
-    The returned model is the active ``Contents -> FilterSection? . PAPanel``
-    structure. Empty legacy filter sections are converted to absent optional
-    filter sections; Notes are explicitly owned by ``PAPanel``.
-    """
-
-    return Contents(
-        filter_section=filter_section if filter_section.filters else None,
-        pa_panel=PAPanel(pa=pa, notes=Notes(note_ids=note_ids)),
-    )
