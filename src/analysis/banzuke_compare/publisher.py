@@ -1,10 +1,10 @@
 """
 Static publisher for the Banzuke Change Report browser app.
 
-This module is intentionally written top-down.  The public contract of
-``main`` is the publication contract: given a valid project/data world and a
-requested current banzuke date, leave behind a static browser app whose data
-files satisfy the BCR browser contract.
+This module is intentionally written top-down.  The standalone ``main``
+contract publishes a browser app for a separately available new banzuke.  The
+``write_selected_history_publication_data`` contract publishes the make_site2
+PA data for the final two banzukes contained in a selected History.
 """
 
 from __future__ import annotations
@@ -13,12 +13,11 @@ import argparse
 from pathlib import Path
 
 from src.infra.parser.parser2_IntDate import IntDate
+from src.sumo_core.History import History
 
-from .classes import (
-    PublicationRequest,
-)
+from .classes import PublicationRequest, PublishedFiles
 from .banzuke_diff import build_banzuke_diff
-from .banzuke_source import load_publication_source
+from .banzuke_source import load_publication_source, load_selected_history_source
 from .deploy import copy_static_assets
 from .publisher_reports import write_publication_data
 from .report_view import build_bcr_report
@@ -62,21 +61,57 @@ def _parse_date(date_text: str) -> IntDate:
     return IntDate(int(year_text), int(month_text))
 
 
+def publication_request(
+    *,
+    output_root: Path,
+    requested_date=None,
+) -> PublicationRequest:
+    """Return the file/date policy shared by BCR publication entry points."""
+
+    package_dir = Path(__file__).resolve().parent
+    return PublicationRequest(
+        requested_date=requested_date,
+        output_root=output_root,
+        static_dir=package_dir / "files",
+        common_static_dir=package_dir.parent / "common" / "files",
+    )
+
+
 def build_publication_request(args: argparse.Namespace) -> PublicationRequest:
     """
     Contract:
         args is the parsed command-line namespace from _build_parser.
-        Returns the complete filesystem/date policy for one publisher run.
+        Returns the complete filesystem/date policy for one standalone publisher
+        run.
     """
 
-    package_dir = Path(__file__).resolve().parent
-
-    return PublicationRequest(
-        requested_date=None if args.date is None else _parse_date(args.date),
+    return publication_request(
         output_root=args.output_root,
-        static_dir=package_dir / "files",
-        common_static_dir=package_dir.parent / "common" / "files",
+        requested_date=None if args.date is None else _parse_date(args.date),
     )
+
+
+def write_selected_history_publication_data(
+    *,
+    history: History,
+    output_root: Path,
+) -> PublishedFiles:
+    """Write make_site2 Banzuke Changes data from a selected History.
+
+    Contract:
+        history is the selected History/data instance for the containing site
+        build and contains at least two basho entries.
+
+        Publishes Banzuke Changes for the final banzuke contained in that
+        History, compared with its immediate predecessor.  No live-store or
+        separately parsed later banzuke participates in this publication path.
+    """
+
+    request = publication_request(output_root=output_root)
+    source = load_selected_history_source(request, history)
+    diff = build_banzuke_diff(source)
+    report = build_bcr_report(diff)
+    return write_publication_data(report)
 
 
 def main() -> None:
