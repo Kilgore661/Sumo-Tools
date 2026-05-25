@@ -91,6 +91,15 @@ A promoted Page is represented in the Public UI Model before rendering.
 Rendering is an auditable realisation of the model, with informed rendering
 policy recorded in 05 Rendering Design.md.
 
+The current public-link design uses one static application shell.
+
+Every material selected-Page view has one canonical Public View Link containing
+Page identity and all applicable material Filter values, including defaults.
+
+Navigation destinations identify canonical default Page views; transient or
+shell-only state such as NavigationBar visibility is not part of a Public View
+Link.
+
 Producer modules own analytical meaning; make_site2 owns coherent public
 publication of that meaning.
 
@@ -281,50 +290,69 @@ superseded / excluded
 
 ## 6. Public Selection, URLs and Entry Points
 
-### 6.1 Public Link / Generated Output Inconsistency
+### 6.1 Canonical Single-Shell Public View Links
 
-**Status:** Open; current implementation correction required.
+**Status:** Decided; implementation and verification outstanding.
 
-**Owner on resolution:** `02 Specification.md`, `04.2 Publication Plan Model.md`,
+**Owner:** `02 Specification.md`, `04.2 Publication Plan Model.md`,
 `07 Build, Output and Runtime Design.md`.
 
-**Issue:** Navigation anchors currently advertise route-local destinations such
-as `.../index.html`, while the generated site writes only a root `index.html`
-and relies on JavaScript query-state page selection during ordinary clicks.
-JavaScript interception therefore masks a mismatch between visible link
-behaviour and actual static output.
+**Former implementation issue:** Navigation anchors currently advertise
+route-local destinations such as `.../index.html`, while the generated site
+writes only a root `index.html` and relies on JavaScript query-state Page
+selection during ordinary clicks. JavaScript interception therefore masks a
+mismatch between visible link behaviour and actual static output.
 
-**Required decision:** Choose an internally coherent current implementation:
+**Decision made:**
 
-1. emit public Navigation links compatible with the existing single-shell state
-   strategy; or
-2. generate route-local entry output matching the anchor destinations.
+```text
+The current site uses one static application shell.
+
+Each material selected-Page view has one canonical Public View Link containing:
+  selected Page identity
+  every applicable material Filter value, including declared defaults
+
+Navigation destinations identify the canonical default view of their Page.
+```
+
+Links need not be human-readable. They must be deterministic, copyable and able
+to restore the same material public view. NavigationBar visibility, scroll,
+hover, tooltip state and other transient/shell-only interaction are not part of
+the link.
+
+**Implementation required:**
+
+- generate Navigation hrefs from Page identity and default Filter declarations,
+  rather than emitting unwritten route-local HTML destinations;
+- centralise runtime canonical public-view URL writing/restoration;
+- include applicable Filter values explicitly, including defaults;
+- normalise incomplete or safely resolved invalid incoming state to the
+  canonical link of the displayed valid view;
+- remove Filter parameters belonging to a previously selected Page when the
+  Page changes.
 
 **Verification required:** Ordinary click, open-in-new-tab/copied link, direct
-navigation and invalid requested Page handling.
+navigation, reload, filtered view restoration, Page changes after Filters,
+invalid/missing Filter resolution and browser back/forward behaviour.
 
-### 6.2 Durable Public URL and State Policy
+### 6.2 Durable Evolution of Published Public Links
 
-**Status:** Open for durable policy; current static runtime approach remains
-acceptable once the immediate link/output mismatch is corrected.
+**Status:** Deferred beyond the current decision.
 
 **Owner on resolution:** `02 Specification.md`, `04.2 Publication Plan Model.md`,
 `07 Build, Output and Runtime Design.md`.
 
-**Current position:** Stable public selection of Pages and material public state
-is required. A single static entry shell whose browser runtime restores selected
-Page and material state may satisfy that requirement; one HTML document per Page
-is not required.
+**Settled current position:** One static shell and canonical Page-plus-material-
+Filter links are the current public-state design. Canonical links explicitly
+state applicable material Filter values rather than relying on current defaults.
 
-**Questions:**
+**Questions still deferred:**
 
-- What exact path/query/hash representation becomes the durable public contract?
-- Which Filter states are material and shareable?
-- Should defaults be omitted from public links or explicitly retained?
-- When do published URL shapes require compatibility guarantees?
-- What happens if Page ids or Filter ids need to change after public release?
-- Which invalid requested states should be visibly reported versus silently
-  normalised to safe defaults?
+- What exact parameter names, ordering and Boolean encoding are adopted in code?
+- Once links are publicly published, what compatibility guarantees apply to
+  later changes in Page ids or Filter ids/values?
+- Which invalid requested states should eventually display an explicit public
+  message rather than normalise silently to a safe view?
 
 ### 6.3 Home / Landing Page
 
@@ -333,6 +361,10 @@ is not required.
 **Owner on resolution:** `04.1 Site Definition Model.md`,
 `04.2 Publication Plan Model.md`, possibly `02 Specification.md` if observable
 public behaviour changes.
+
+**Current constraint:** The root shell URL may remain the current undeclared
+landing view while policy is unsettled, but it shall not create a second
+canonical link for a material selected-Page view.
 
 **Questions:**
 
@@ -348,9 +380,9 @@ public behaviour changes.
 **Owner on resolution:** `04.1 Site Definition Model.md` and Rendering Design if
 visible placement is introduced.
 
-**Current constraint:** Any quick link must point into the canonical public
-Page/Navigation structure rather than define a competing information
-architecture.
+**Current constraint:** Any quick link must point to a canonical Public View
+Link for an included Page rather than define a competing information
+architecture or an unwritten output destination.
 
 **Questions:**
 
@@ -544,8 +576,10 @@ These questions should be answered from real PAs rather than invented abstractly
 
 **Current position:** Browser-readable runtime material transports the modelled
 public site and PA references needed for a static interactive site. It must not
-become a second hidden public model. The current serialized material now exposes
+become a second hidden public model. The current serialized material exposes
 `PAPanel` directly rather than the former inner-content `G1` arrangement.
+Runtime material must next expose/use canonical default Navigation links and
+support canonical material-view state in the single shell.
 
 **Questions:**
 
@@ -560,6 +594,10 @@ become a second hidden public model. The current serialized material now exposes
 **Status:** Open for standardisation.
 
 **Owner on resolution:** `07 Build, Output and Runtime Design.md`.
+
+**Settled current output principle:** Material Page views are selected within
+one static application shell; output is not required to write route-local HTML
+entry files for each Page.
 
 **Questions:**
 
@@ -647,8 +685,8 @@ and `07 Build, Output and Runtime Design.md` / Rendering Design for realisation.
 
 **Questions:**
 
-- How should invalid selected Page or Filter state be reported to readers?
-- Is silent fallback appropriate for all invalid Filter values?
+- How should invalid selected Page or Filter state be reported to readers before
+  or alongside canonical normalisation?
 - Should runtime data-load failures appear inline in the ContentPanel or PA
   region rather than through transient alerts/logging?
 - How much detail is appropriate in public versus development contexts?
@@ -662,6 +700,10 @@ and `07 Build, Output and Runtime Design.md` / Rendering Design for realisation.
 **Current improvement:** Manifest assembly now fails if a Page included by the
 Publication Plan lacks a corresponding public panel declaration, and exports
 artefacts only for planned public panels.
+
+**Next validation pressure:** Planned Navigation links must be generated as
+canonical default Public View Links for the selected single-shell design rather
+than preserve unwritten route-local destinations.
 
 **Questions:**
 
@@ -737,9 +779,10 @@ Completed foundation
   removal of the obsolete G1 compatibility seam
   modular browser-runtime activation
   plan-driven assembly of visible panels and exported artefacts
+  decision to use canonical Page-plus-material-Filter links in one static shell
 
 P0
-  correct the public Navigation-link / generated-output inconsistency
+  implement and verify canonical single-shell Navigation/runtime links
   settle or explicitly defer rendering choices needed for current work
 
 P1
@@ -755,7 +798,7 @@ P2
 P3
   production cache policy
   remote exact-sync/deployment maturity
-  durable public URL compatibility policy
+  durable compatibility policy for published Public View Links
   richer PG extensions only where promoted public need requires them
 ```
 
@@ -767,20 +810,23 @@ publication priorities change.
 ## 15. Summary
 
 The first material structural mismatch between the new documentation and the
-current implementation has now been resolved: the UI model, runtime manifest
-and browser rendering represent Notes inside `PAPanel`, not as material spanning
+current implementation has been resolved: the UI model, runtime manifest and
+browser rendering represent Notes inside `PAPanel`, not as material spanning
 Filters and PA.
 
-The most immediate remaining code/design mismatch is now the public
-Navigation-link/output relationship: emitted anchor destinations and generated
-static entry output must tell one coherent public-selection story.
+A decision has now been made for the most immediate remaining contract defect:
+`make_site2` shall use one static shell and canonical Public View Links that
+state Page identity and all applicable material Filter values. The current code
+still needs to replace route-local Navigation destinations and canonicalise
+runtime URL writing/restoration accordingly, followed by inspection of copied,
+reloaded, new-tab and filtered-view links.
 
 Other live decisions remain deliberately open:
 
 - Notes visual/dimension policy;
 - heading typography ownership;
 - Banzuke Changes Rank semantics;
-- public status/inclusion and durable state policies;
+- public status/inclusion and future link-compatibility policies;
 - integration/migration priorities;
 - runtime/output/deployment maturity and safety.
 
