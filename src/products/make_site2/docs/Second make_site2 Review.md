@@ -3,56 +3,62 @@
 ## Status
 
 Current review of `src/products/make_site2` against the replacement active
-documentation set drafted in May 2026, updated after the first corrective
-implementation work and the decision on public-view linking.
+documentation set drafted in May 2026, updated after the first corrective work,
+canonical-link implementation and discovery of the Selected-History coherence
+failure.
 
-This review is comparative. It asks whether the current code implements the new
-requirements, specification, model boundaries and rendering discipline. It is
-not a historical record of every implementation state: findings that have been
-corrected are recorded as such, and current remaining mismatches are given
-priority.
+This review is comparative. It records corrected findings as completed, names
+current code/design mismatches, and orders the remaining work. Supporting detail
+for the new data-coherence finding is recorded in:
+
+```text
+10.1 Selected History Coherence Audit.md
+```
 
 The `PAPanel`/Notes correction and modular-runtime activation have been checked
 through the normal local build/deploy inspection workflow and reported as
-working. The canonical single-shell public-link design has now been agreed in
-the active documentation, but the corresponding code correction has not yet
-been made or verified.
+working. The canonical single-shell public-link correction has fixed the
+reported right-click/new-tab 404, but its wider verification checklist remains
+to be completed. The Selected-History coherence rule is now specified and
+designed; its implementation remains the active P0.
 
 ---
 
 ## 1. Active Documentation Baseline
 
-The active documentation establishes this design sequence:
+The active documentation now establishes:
 
 ```text
 01 Requirements
-  The public site must remain a coherent publication surface as more
-  analytical artefacts are added.
+  The public site must remain coherent as analytical artefacts are added.
 
 02 Specification
-  The page grammar PG specifies the whole visible public page and every
-  material public view has a canonical copyable link.
+  PG specifies the full visible page; public material views have canonical
+  copyable links; a selected History governs History-dependent published
+  material throughout a build.
 
 03 Architecture and Design Thesis
-  No promoted public page is rendered until represented in the UI Model.
+  Promoted public material is represented in explicit models before rendering.
 
 04 Model Design
   Site Definition, Publication Plan, Public UI Model and Published Artifact
   Model have distinct responsibilities.
 
-05 Rendering Design
-  Rendering is an auditable realisation of modelled owners and declared
+05 / 06 Rendering
+  Rendering is an auditable realisation of modelled relationships and declared
   presentation policy.
 
-06 Rendering Audit and Changes
-  Visible facts are tested for ownership, conformance and implied meaning.
+07 Build, Output and Runtime
+  One static application shell delivers canonical public-view links and stages
+  only coherent selected-data-instance material.
 
-07–09
-  Build/runtime, integration/migration and deployment deliver the modelled and
-  rendered site without redefining it.
+08 Producer Integration and Migration
+  Producers own analytical computation; make_site2 publishes only deliberate,
+  coherent site-facing inputs.
 
-10
-  Unresolved issues are recorded rather than settled implicitly in code.
+10 / 10.1
+  Remaining issues and the Selected-History evidence/audit are recorded
+  explicitly.
 ```
 
 The governing page structure is:
@@ -65,23 +71,31 @@ Contents -> FilterSection? . PAPanel
 PAPanel -> PA . Notes
 ```
 
-The governing current public-view-link policy is:
+The governing public-link policy is:
 
 ```text
 one static application shell
-canonical public link = selected Page + all applicable material Filter values
-Navigation destination = canonical default public view of its Page
+canonical link = selected Page + all applicable material Filter values
+Navigation link = canonical default view of the selected Page
 ```
 
-`A Appendix - Better Models.md`, currently restored outside `docs/archive`, is
-not assessed here as active normative design. Its status should be considered
-only when richer-page pressure is reviewed deliberately.
+The governing build/data-instance policy is:
+
+```text
+An explicit History input selects the History/data instance for the whole built
+site.
+
+Every included promoted PA whose meaning depends on History must be derived
+from, or validated against, that selected History.
+
+A canonical view link does not ordinarily freeze the History/data instance of a
+later deployment; each individual built site must nevertheless be internally
+coherent.
+```
 
 ---
 
 ## 2. Current Implementation Areas Considered
-
-This review concerns the following current implementation areas:
 
 ```text
 models.py
@@ -105,66 +119,58 @@ deploy.py
 __main__.py
 ```
 
-The implementation has changed since the initial review:
+Material changes since the initial review include:
 
-- the browser runtime is now modular and is loaded as an ES module;
-- `ui_model.py` now represents `Contents`, `PAPanel` and `Notes` directly;
-- manifest declarations have been split behind a stable `site_manifest.py`
-  facade;
-- manifest assembly now constructs `PAPanel` directly and exports artefacts for
-  planned public panels;
-- Notes now render within the PA-owned region.
-
-The active documentation has additionally changed since the initial review:
-
-- a single static shell has been selected as the current public-view output
-  design;
-- canonical Public View Links must state selected Page identity and all
-  applicable material Filter values, including defaults;
-- Navigation destinations must identify canonical default Page views rather
-  than unwritten route-local entry documents.
+- activation of the modular ES-module browser runtime;
+- explicit `Contents`, `PAPanel` and `Notes` representation in `ui_model.py`;
+- rendering of Notes inside the PA-owned region;
+- split manifest declarations behind a stable `site_manifest.py` facade;
+- direct assembly of `PAPanel` without the old `G1` compatibility seam;
+- plan-driven inclusion of visible panels/exported artefacts;
+- canonical single-shell Navigation-link generation and runtime URL writing.
 
 ---
 
 ## 3. Overall Assessment
 
-The implementation is now substantially closer to the new design than at the
-start of this review.
+The codebase remains a suitable basis for continued development rather than
+replacement. The first review cycle has removed the principal structural drift
+between the new documentation and the visible page implementation.
 
-It already had useful architectural seams:
-
-- explicit Site Definition and subject-led Navigation;
-- explicit Page statuses;
-- a `PublicationPlan` layer;
-- semantic PA declarations and site-facing structured data;
-- static output and browser runtime;
-- local and remote deployment paths;
-- implemented table readability rules and PA-specific Banzuke Changes movement
-  direction.
-
-The first material conflict with the new `PG`-centred model has now been
-corrected:
+The original top-priority structural defect is complete:
 
 ```text
-formerly:
-  inner selected-page contents used G1 and Notes rendered outside the PA region
+formerly
+  Notes were outside the PA-owned region and the active model retained an inner
+  G1 contents story.
 
-now:
+now
   ContentPanel contains Contents; Contents contains optional FilterSection and
-  PAPanel; PAPanel contains PA and Notes; runtime renders that relationship
+  PAPanel; PAPanel contains PA and Notes; runtime renders that relationship.
 ```
 
-The most significant remaining current inconsistency is now governed by an
-agreed correction rather than an unresolved choice:
+The next link/output defect has been implemented and partly verified:
 
-> Navigation links still advertise route-local static destinations while current
-> output supplies a single root application entry and JavaScript query-state
-> selection. The agreed fix is to emit and maintain canonical Public View Links
-> in the existing single static shell.
+```text
+formerly
+  anchors advertised unwritten route-local entry files.
 
-Other remaining matters are a mixture of genuine design decisions, incomplete
-layer control and operational safety improvements rather than evidence that the
-product needs to be started again.
+now
+  anchors and runtime use canonical single-shell Page-plus-Filter state links;
+  the reported open-in-new-tab 404 has been eliminated.
+```
+
+Testing that correction exposed the new active P0:
+
+> `build_site(...)` accepts an explicit `History`, but currently passes it only
+> into Basho Results. Other included promoted PA inputs are copied from
+> pre-existing outputs without validation against that selected History. A build
+> from history ending at `1980_11` therefore displayed correct `1980_11` Basho
+> Results alongside incorrect current/2026 Banzuke Changes data.
+
+This is more serious than a visual or routing defect: it can produce a
+successful-looking public site whose promoted analytical Pages disagree about
+which data instance the site publishes.
 
 ---
 
@@ -172,73 +178,25 @@ product needs to be started again.
 
 | Priority | Finding | Current assessment |
 | --- | --- | --- |
-| Done | `Contents`, `PAPanel` and `Notes` are explicitly modelled; Notes render inside the PA region and no longer span Filters. | First central `PG` structural nonconformance corrected and locally verified. |
-| Done | `site_manifest.py` previously mixed declarations, UI assembly and runtime export behind a temporary `G1` adapter. | Split behind a stable facade; new assembly constructs the active model directly and removes the `G1` seam. |
+| Done | `Contents`, `PAPanel` and `Notes` are explicitly modelled; Notes render within the PA region. | Central `PG` structural nonconformance corrected and locally verified. |
+| Done | The former `G1` compatibility seam and monolithic manifest declaration/assembly file obscured the active model. | Manifest split complete; model constructed directly. |
 | Done | The monolithic browser runtime impeded manageable change. | Modular ES-module runtime activated and working locally. |
-| Decided / P0 implementation | Navigation `href`s are route-local `.../index.html` paths while build output supplies only root `index.html` and runtime query-state navigation. | Implement canonical single-shell Page-plus-material-Filter links and verify copied/reloaded/new-tab behaviour. |
-| P1 | Publication planning controls visible panels/exported artefacts more directly than before, but data staging and wider runtime dependencies remain largely hard-coded in the build. | Layer boundary improved but incomplete. |
-| P1 | Runtime renderer branches still repeat ContentPanel/PAPanel assembly around specialised PA internals. | Scaling/drift risk remains, though duplicated shape now renders correctly. |
-| P1 | All currently declared Pages remain `PROMOTED`, despite still-open status/inclusion and rendering-policy questions. | Curation/status review still required. |
-| P1 | Local deployment cleaning accepts arbitrary supplied roots without the documented successor-target safety validation. | Operational safety improvement required. |
-| P2 | Heading typography, Rank-cell semantics, Notes visual/dimension policy and context-colour meaning remain unsettled. | Deliberate open rendering/design questions. |
-| P2 | PA metadata partly mixes analytical/semantic material and rendering/runtime hints in `provenance`. | Align gradually under real PA pressure. |
+| Implemented; verification outstanding | Navigation links advertised unwritten route-local pages. | Canonical single-shell links implemented; reported new-tab 404 fixed; remaining browser tests pending. |
+| **P0** | Explicit-History builds mix coherent and unrelated copied promoted PA data. | Rule now specified/designed; enforcement and first producer integration outstanding. |
+| P1 | Planning does not yet drive all producer/data staging dependencies. | The History P0 is the first concrete consequence; mature incrementally from producer cases. |
+| P1 | Runtime PA-renderer branches repeat ContentPanel/PAPanel assembly. | Drift/scaling risk remains, though repeated shape is now correct. |
+| P1 | All current Pages remain `PROMOTED` despite incomplete data-instance integration policy. | Status/inclusion review remains necessary. |
+| P1 | Local deployment cleaning lacks intended-target safety validation. | Operational safety improvement required. |
+| P2 | Heading typography, Rank-cell semantics, Notes visual/dimension policy and context-colour meaning remain unsettled. | Independent deliberate design choices. |
+| P2 | Some PA metadata mixes analytical/provenance and rendering/runtime hints. | Clarify under real PA migration pressure. |
 
 ---
 
-## 5. Site Definition and Publication Planning (`04.1`, `04.2`)
+## 5. Public UI Model and Rendering Corrections (`02`, `04.3`, `05`, `06`)
 
-### 5.1 Strong Existing Alignment
+### 5.1 Corrected Relationship
 
-`SiteDefinition`, Page declarations, statuses and subject-led Navigation remain a
-sound implementation basis for the active model. Public intent is declared
-separately from HTML rendering, and only planned Pages participate in public
-panel assembly.
-
-### 5.2 Improvement Since Initial Review
-
-The new internal manifest assembly layer now provides a `PanelDeclaration` for
-each public Page and resolves public panels from the `PublicationPlan`. It also
-raises an error if an included planned Page has no panel declaration and exports
-runtime artefacts only for planned panels.
-
-This removes the earlier unconditional artefact-export list problem and makes
-public assembly more accountable to planning.
-
-### 5.3 Immediate Planning Correction Required
-
-The active Publication Plan design now requires each included selectable Page to
-have a canonical default Public View Link and each Navigation destination to use
-that link. The implementation still exposes route-local hrefs inherited from
-its former route representation.
-
-The immediate correction should generate visible Navigation destinations from:
-
-```text
-Page identity + declared default values of the Page's material Filters
-```
-
-rather than from unwritten route-local HTML paths.
-
-### 5.4 Remaining Broader Boundary Gap
-
-`build.py` still stages/copies or generates data through a fixed series of calls
-before or independently of a richer resolved Page-dependency contract.
-Consequently:
-
-- status/inclusion changes may not yet drive data preparation completely;
-- data can be staged for Pages not ultimately included in a future build mode;
-- producer/input failures arise through hard-coded build steps rather than a
-  fully resolved dependency plan.
-
-This remains a P1 maturation issue, not part of the canonical-link correction.
-
----
-
-## 6. Public UI Model and `PG` (`02`, `03`, `04.3`)
-
-### 6.1 Corrected Model Relationship
-
-The implementation now directly models the key ordinary page relationship:
+The implementation now directly models and renders:
 
 ```text
 PublicSiteShell
@@ -252,12 +210,12 @@ PublicSiteShell
         Notes
 ```
 
-`NavigationBar` remains the accepted model term. The obsolete inner-content
-`G1` arrangement and its compatibility adapter have been removed.
+`NavigationBar` is retained as the accepted public-model term. The obsolete
+inner-content `G1` arrangement and compatibility adapter have been removed.
 
-### 6.2 Corrected Rendering Relationship
+### 5.2 Corrected Notes Rendering
 
-The modular runtime now renders the visible relationship as:
+Rendered Contents now has the relationship:
 
 ```html
 <div class="content-body">
@@ -269,303 +227,271 @@ The modular runtime now renders the visible relationship as:
 </div>
 ```
 
-and limits visible Notes to the Note ids owned by the visible `PAPanel`.
+Visible Notes are restricted to the Note ids owned by the visible `PAPanel`.
+This is structural conformance, not merely styling improvement.
 
-This correction matters because it does not merely place Notes more attractively:
-it makes their visible ownership conform to `PG`.
+### 5.3 Remaining Rendering Decisions
 
-### 6.3 Minor Remaining Naming Point
+These are open but no longer P0 defects:
 
-The implementation class remains named `PublicSiteShell` rather than
-`PublicUI`. This is not currently a material mismatch: the class now contains
-the modelled top-level visible regions and no longer depends on a competing
-inner-content grammar. A rename should occur only if it improves clarity during
-a later model tidy, not as a priority correction.
+- Notes-panel maximum height, overflow and visual framing;
+- heading typography ownership;
+- semantic/visible treatment of Banzuke Changes central Rank values;
+- whether local/remote/preview page-background colours are an intended context
+  cue.
 
 ---
 
-## 7. Public Selection and Static Output (`02`, `04.2`, `07`)
+## 6. Public Selection and Canonical Links (`02`, `04.2`, `07`)
 
-### 7.1 Current Implementation Mismatch
+### 6.1 Former Mismatch and Implemented Correction
 
-`routes.py` derives route-like Page hrefs such as:
+The former implementation exposed route-local hrefs such as:
+
+```text
+current-sumo/standings-by-wins/index.html
+```
+
+while the build writes one root `index.html`. Ordinary click behaviour appeared
+to work only because runtime intercepted the link.
+
+The current implementation now generates Navigation destinations from Page
+identity and declared default Filter state and writes canonical runtime URLs in
+the single application shell. For example, the built Standings by Wins link is
+now of the form:
+
+```text
+?page=standings_by_wins&view=standard&num_basho=6&current_only=true&division=makuuchi
+```
+
+After rebuild/deployment, the originally reported right-click/open-in-new-tab
+404 no longer occurs.
+
+### 6.2 Remaining Closure Checks
+
+The canonical-link issue should remain marked **implemented; verification
+outstanding** until these are checked:
+
+```text
+filtered table Page copied and reopened
+filtered chart Page copied and reopened
+Page change after filtering removes irrelevant stale parameters
+reload restores the same selected public view
+browser back/forward restores coherent public views
+incomplete or invalid incoming state normalises predictably
+```
+
+### 6.3 Clarified Meaning of Links and Data
+
+The link decision does not require immutable snapshot links for all published
+source data.
+
+For Banzuke Changes, a canonical default link correctly means:
+
+```text
+show the selected view of latest-basho changes in the History published by this
+built site
+```
+
+A later coherent deployment may show later latest-basho changes through the same
+link. Conversely, if a Page exposes a reader selection such as a fixed basho,
+that Filter value belongs in its canonical public view state.
+
+---
+
+## 7. Active P0: Selected-History Coherence (`02`, `04.2`, `07`, `08`, `10.1`)
+
+### 7.1 Observed Failure
+
+Using:
+
+```text
+--history-zip '.\files\output\Historys\1978_01 to 1980_11.zip'
+```
+
+produced a site in which:
+
+```text
+Basho Results
+  correctly used the selected History and displayed the latest basho as
+  1980_11.
+
+Banzuke Changes
+  copied pre-existing current/full-history material and displayed 2026 data.
+```
+
+### 7.2 Code Cause
+
+`build.py` resolves one `resolved_history`, then invokes:
 
 ```python
-def route_href(parts: tuple[str, ...]) -> str:
-    return PurePosixPath(*parts, "index.html").as_posix()
+build_basho_results_data_output(history=resolved_history, ...)
 ```
 
-Navigation anchors expose those hrefs. The current build, however, writes a
-single root `index.html`, and browser runtime intercepts ordinary clicks and
-uses query-state selection.
+but invokes the remaining PA paths as copying operations without that History,
+including:
 
-The result is that the ordinary JavaScript-click experience can appear to work
-while the anchor itself promises a static destination the output tree does not
-provide. Likely affected behaviours include open-in-new-tab, copy-link/direct
-navigation and operation without successful runtime interception.
-
-### 7.2 Decision Made
-
-The active specification and design now choose:
-
-```text
-one static application shell
-canonical Public View Link = Page identity + all applicable material Filter values
-Navigation link = canonical default Public View Link for the Page
+```python
+copy_banzuke_changes_data_output(output_root=output_root)
+copy_standings_by_wins_data_output(output_root=output_root)
+copy_finish_by_chii_data_output(output_root=output_root)
+copy_rank_at_retirement_data_output(output_root=output_root)
+copy_career_length_data_output(output_root=output_root)
 ```
 
-Human-readable route-local paths are not required. The required behaviour is
-that every material public view has a deterministic link which can be copied,
-pasted and reopened to restore the same view.
+Banzuke Changes copies from `files/output/bcr/...`; other copied sources include
+paths naming current/latest or `1958_01_to_2026_05` / `1958_2026` material.
 
-Canonical links must state applicable material Filter values explicitly,
-including default values. Shell-only/transient state such as NavigationBar
-visibility, scroll, hover or ordinary tooltip state is excluded.
+### 7.3 Current Audit Assessment
 
-### 7.3 Implementation and Verification Required
-
-The next code correction shall:
-
-1. emit Navigation hrefs into the existing single shell using Page identity and
-   declared default Filter values;
-2. centralise canonical runtime URL writing/restoration for selected Page and
-   all applicable material Filter state;
-3. remove irrelevant Filter parameters when the selected Page changes;
-4. resolve incomplete or safely recoverable invalid incoming URLs and expose
-   the canonical link for the valid displayed view; and
-5. verify ordinary click, new-tab/copied/direct navigation, reload, filtered
-   view restoration and back/forward behaviour.
-
-Longer-term compatibility guarantees for links that have been published remain
-a later policy matter; they do not block implementing the chosen current
-contract.
-
----
-
-## 8. Published Artifact Model (`04.4`)
-
-### 8.1 Strong Existing Basis
-
-The implementation continues to model meaningful PA concepts:
-
-- indexed sources and ordinary data sources;
-- table columns and column groups;
-- chart traces and axes;
-- sectioned-table sections;
-- Notes and Note relevance;
-- specialised Banzuke Changes and Standings declarations.
-
-The refactor into `manifest/artifacts.py` makes these declarations easier to
-locate and separates them from public UI assembly.
-
-### 8.2 Terminal-Form Alignment Still Incomplete
-
-The documentation names broad PA terminal forms such as `<table>`, `<indexed
-table>`, `<chart>`, `<sectioned table>`, `<prose>` and `<custom artifact>`.
-Current implementation kinds include specialised forms such as
-`banzuke_changes` and `standings`.
-
-This is not an immediate blocker. It remains an evidence-driven question:
-whether these should remain terminal kinds, become renderer kinds beneath a
-broader terminal form, or motivate a clearer custom-artifact registration
-boundary.
-
-### 8.3 Metadata Ownership Still Needs Care
-
-Some chart declaration `provenance` material represents rendering/runtime hints
-rather than public source/method provenance, including colour maps, tick angles,
-legend instructions and view configuration. The separation between analytical
-meaning, public explanation and rendering configuration should be clarified as
-real PA work makes that worthwhile.
-
----
-
-## 9. Filters and Notes (`02`, `04.3`, `05`)
-
-The current Filter model and runtime already provide declared reader-visible
-state, allowed/default values, URL restoration, data/source selection and Note
-relevance behaviour.
-
-The formal specification distinguishes:
-
-```text
-FilterItem -> BooleanChoice | SingleFiniteChoice
-```
-
-whereas the implementation currently models generic `Filter` declarations with
-widget-flavoured `control` values and selects radio versus dropdown rendering
-for finite choices in runtime. This remains a model/rendering-policy refinement,
-not an immediate correctness blocker.
-
-The Notes ownership issue is no longer open: Notes are now owned and rendered by
-`PAPanel`. Richer Note targets remain deferred until real cases require them.
-
-The chosen canonical-link design now makes all material Filter state part of the
-public-view link contract. The current runtime's URL behaviour must therefore be
-checked and amended so every applicable Filter value, including defaults, is
-written canonically for the displayed selected-Page view.
-
----
-
-## 10. Rendering Design and Audit (`05`, `06`)
-
-### 10.1 Implemented Shared Treatments
-
-The following rendering treatments are implemented and already documented as
-agreed rules or corrections:
-
-| Rendering treatment | Current status |
+| Assessment | Pages / PAs |
 | --- | --- |
-| Navigation-local line height | Incorporated shared rule. |
-| Filter structural lists without bullets | Incorporated shared rule. |
-| Shared table cell padding | Incorporated shared rule. |
-| Alternating data-row backgrounds | Incorporated shared rule. |
-| Continuous table-row colouring without unintended cell gaps | Incorporated shared rule. |
-| Banzuke Changes `⇅` movement-direction feature in both table forms | Incorporated PA-specific rule. |
-| Notes rendered within `PAPanel` rather than beneath Filters and PA together | Implemented and locally verified structural correction. |
+| Conforming for explicit History selection | Basho Results |
+| Demonstrated or plainly nonconforming in the restricted-history case | Banzuke Changes; Finish by Chii; Rank at Retirement; Career Length |
+| Not proven coherent because copied input is not derived from or validated against selected History | Standings by Wins; Banzuke Division by Era; Makuuchi Rank by Era; Division Stability; First Chii Appearance; Typical Equelo Ratings; Win Probability by Standing |
 
-### 10.2 Open Rendering Decisions
+### 7.4 Rule Now Incorporated
 
-The following remain genuinely open:
+The active documents now require:
 
-- heading typography ownership between role-specific selectors and HTML heading
-  defaults;
-- semantic/visible treatment of Banzuke Changes central Rank cells;
-- Notes-panel maximum height, overflow and additional visual framing;
-- whether local/remote/preview background colours are an intended operational
-  cue or should be revised/removed.
+```text
+An explicit History input selects the History/data instance for the whole built
+site.
 
-These should remain separate from the public-link/output correction.
+Every included promoted PA whose meaning depends on History must be derived
+from, or validated against, that selected History.
+```
 
----
+Planning must treat incoherent required input as blocking unless explicit
+non-public/inspection policy permits reduced inclusion. Output must not stage
+convenient but unvalidated copied material as coherent. Producer integration
+must preserve the boundary that producers compute analytical material and
+`make_site2` validates/stages/publishes it.
 
-## 11. Runtime Architecture and Scaling Risk (`03`, `05`, `07`)
+### 7.5 Next Implementation Decision and Investigation
 
-### 11.1 Improvement Since Initial Review
+There are two legitimate immediate enforcement paths:
 
-The browser runtime has been split into manageable ES modules and is now the
-active build output source. This reduces editing risk and makes responsibilities
-such as URL state, Filters, Notes, tables, charts and panel dispatch easier to
-inspect.
+```text
+Policy A
+  Prepare or validate all included History-dependent PAs before allowing an
+  explicit-History build to succeed.
 
-### 11.2 Immediate Runtime Work
+Policy B
+  Fail or explicitly omit unsupported PAs under explicit-history builds while
+  integrating producers one by one.
+```
 
-The modular runtime's URL-state responsibility is now the natural implementation
-point for canonical Public View Link restoration and writing. That work should
-remain focused on public state and avoid simultaneously centralising all repeated
-panel-renderer structure.
-
-### 11.3 Remaining Duplication
-
-The runtime still has PA-specific content-panel renderer functions that repeat
-Heading, ContentBody, optional FilterSection, PAPanel and Notes assembly around
-PA internals. They now repeat the **correct** shape, but repetition still creates
-future drift risk.
-
-A later refactor should make common page/PAPanel assembly occur once and keep
-specialisation within PA internals. This should not be combined with the next
-public-link/output correction unless doing so becomes technically unavoidable.
+The documented recommendation is to use Policy B as the immediate safety rule
+and investigate/integrate Banzuke Changes first. The next technical task is to
+inspect the Banzuke Compare producer boundary for a History-consuming
+preparation path or validation identity, without reimplementing its analysis in
+`make_site2`.
 
 ---
 
-## 12. Build, Output and Runtime (`07`)
+## 8. Site Definition and Publication Planning (`04.1`, `04.2`)
 
-### 12.1 Current Alignment
+The explicit Site Definition, Page statuses, subject-led Navigation and
+`PublicationPlan` layer remain sound foundations. Manifest assembly now maps
+planned Pages to visible panels/exported artefacts and generates canonical
+Navigation links.
 
-The build/runtime path now includes:
+The new P0 reveals the remaining planning gap: the plan/build path does not yet
+resolve or validate the selected data instance required by all included
+History-dependent PA inputs. This is no longer a merely abstract maturation
+item; it is the immediate build-contract correction.
 
-- clean static output-tree creation;
-- a root entry HTML document;
-- serialized public UI/runtime manifest material;
-- a modular ES-module browser runtime copied into output;
-- development cache-busting extended across relative ES-module imports;
-- static PA data staging;
-- browser restoration of Page and Filter state;
-- `BuildOutput` reporting.
-
-These support the selected single-shell design in broad form.
-
-### 12.2 Required Current Correction
-
-The current output already supplies the selected shell, but live Navigation links
-and URL-state writing do not yet implement the newly settled canonical link
-contract. The immediate implementation change is therefore alignment within the
-existing output architecture, not a redesign of output around per-Page entry
-files.
-
-### 12.3 Remaining Later Work
-
-Longer-term issues remain:
-
-- broader dependency/data staging driven by the Publication Plan;
-- documented/versioned bootstrap-manifest policy;
-- optional build metadata;
-- validation that promoted planned Pages have all required model/data/runtime
-  support;
-- compatibility policy for canonical links after public publication.
+All currently declared Pages remain `PROMOTED`. That status should later be
+reviewed against the ability to supply coherent data in relevant build modes,
+not only against whether the UI can render a copied output.
 
 ---
 
-## 13. Producer Integration and Migration (`08`)
+## 9. Published Artifact and Producer Boundaries (`04.4`, `08`)
 
-The current product consumes structured site-facing data/configuration and
-renders PAs in the public runtime; it does not normally publish copied standalone
-legacy pages. This remains a strong alignment with the migration boundary.
+The current PA model provides useful concepts including data sources, indexed
+sources, table columns/groups, chart traces/axes, sectioned tables, Notes and
+specialised Banzuke Changes/Standings declarations.
 
-The restored Banzuke Changes `⇅` feature remains a useful example of legacy
-evidence being assessed and adopted as public analytical meaning rather than old
-page structure being copied wholesale.
+The Selected-History failure reinforces the producer boundary:
 
-Integration contracts remain spread across Page declarations, PA declarations,
-data-output preparation, build orchestration and runtime assumptions. The new
-manifest split improves local clarity, but larger producer/build integration
-should be refined only while migrating real Pages.
+```text
+Producer
+  computes History-dependent analytical material for a selected input and may
+  supply validation/provenance identity.
+
+make_site2
+  declares Pages/PAs, resolves coherent requirements, rejects incoherent input,
+  renders and publishes the result.
+```
+
+Copied producer output remains acceptable only where it is deliberate
+site-facing material and, where required, demonstrably coherent with the
+selected build data instance. It cannot be treated as valid solely because its
+CSV/JSON shape matches what the runtime can read.
+
+Longer-term PA questions remain: specialised kinds versus broad terminal forms,
+and separation of analytical provenance from rendering/runtime configuration.
 
 ---
 
-## 14. Deployment and Operations (`09`)
+## 10. Runtime Architecture and Build/Output (`03`, `07`)
 
-Existing build/deploy commands support build-only, local deployment, remote
-SFTP deployment and deploying existing output. These broadly align with the
-operations design.
+The modular ES-module runtime has substantially reduced editing risk and made
+URL, Filter, Note, table, chart and panel responsibilities inspectable. It now
+supports canonical public-view URL writing.
 
-Two concrete operational concerns remain:
+The runtime still repeats common page/PAPanel assembly in specialised renderer
+functions; this is later scaling/drift work rather than a current correctness
+failure.
+
+`build.py` is now the locus of the active P0 because it combines one PA built
+from `resolved_history` with multiple copied PA data outputs whose relation to
+that History is not validated. Build metadata identifying selected History and
+per-PA derivation/validation may become useful, but validation/enforcement comes
+first.
+
+---
+
+## 11. Deployment and Other Operational Findings (`09`)
+
+Existing commands support build-only, local deployment, remote SFTP deployment
+and deployment of existing output. These broadly align with the operations
+design.
+
+Two concrete operational matters remain P1:
 
 1. check the documented local target spelling (`A:\local\htm\sumo-tools2`)
    against the current code value (`A:/local/html/sumo-tools2`); and
 2. add clean-target safety validation before treating arbitrary CLI-supplied
    local roots as safe for destructive replacement.
 
-The second concern is P1 because it has potential destructive impact.
+Neither should be mixed into the Selected-History producer/data correction.
 
 ---
 
-## 15. Additional Specific Findings Still Open
+## 12. Additional Specific Findings Still Open
 
-### 15.1 Page Summary Containing Escaped HTML
+### 12.1 Page Summary Containing Escaped HTML
 
-A Page summary for `first_chii_appearance` has previously contained embedded HTML
-anchor markup while the runtime escapes summaries as text. Unless already
-corrected outside this review, that should be treated as a plain-text wording bug
-or become a deliberately modelled structured-framing feature; embedded HTML in
-an escaped string is not a valid link implementation.
+The `first_chii_appearance` Page summary includes embedded HTML anchor markup,
+while runtime escapes summaries as text. This should eventually be corrected as
+plain text or modelled deliberately as structured framing; escaped HTML in a
+summary string is not a valid link implementation.
 
-### 15.2 Home/Landing Presentation
+### 12.2 Home/Landing Presentation
 
-Runtime landing behaviour remains outside the declared Page set and primarily
-signals local/remote/preview context. Since home/landing policy is still open,
-this is implemented provisional behaviour requiring later review, not an
-immediate blocker for the current next fix.
-
-The selected single-shell link design permits the root shell URL to remain the
-landing view for now; it must not also become an alternative canonical link for
-a material selected-Page view.
+Runtime landing behaviour remains outside the declared Page set and displays
+site context. Since home/landing policy is still open, this remains provisional
+rather than a blocker. The root shell URL must not become an alternative
+canonical link for a material selected-Page view.
 
 ---
 
-## 16. Recommended Correction Sequence From Here
+## 13. Recommended Sequence From Here
 
-### Completed
+### Completed or Implemented Pending Closure Checks
 
 ```text
 Activate modular runtime without intended behaviour change.
@@ -573,55 +499,55 @@ Correct active terminology to NavigationBar.
 Model Contents / PAPanel / Notes explicitly.
 Render Notes within PAPanel and verify locally.
 Split manifest declarations behind a stable facade and remove the G1 seam.
-Decide that public material views use canonical Page-plus-Filter links in one
-static shell.
+Specify and implement canonical single-shell Page-plus-Filter links.
+Verify the reported new-tab/404 defect is fixed.
+Specify/design the Selected-History whole-build coherence rule.
 ```
 
-### Next: Implement the Canonical Public Link Contract
+### Active P0
 
-1. Generate Navigation hrefs from Page identity plus declared default material
-   Filter values, not unwritten route-local output paths.
-2. Centralise canonical URL restoration/writing in the modular runtime.
-3. Ensure every applicable material Filter value, including defaults, is present
-   in the displayed view's canonical link.
-4. Ensure Page selection removes stale parameters belonging to another Page.
-5. Verify ordinary click, copied/new-tab/direct link, reload, filtered-view and
-   back/forward behaviour.
+```text
+Settle immediate enforcement policy for explicit-History builds.
+Inspect the Banzuke Compare producer boundary.
+Integrate or validate Banzuke Changes against resolved_history.
+Prevent a successful explicit-History build from silently including other
+unvalidated History-dependent promoted material.
+```
 
-### Then: Address High-Value Independent Matters
+### Outstanding Closure Check
 
-1. Decide heading typography ownership.
-2. Decide Banzuke Changes Rank-cell semantics.
-3. Decide Notes-panel visual/dimension policy.
-4. Decide context-colour presentation policy.
-5. Add deployment target-safety validation.
+```text
+Complete the remaining canonical-link browser verification and update its final
+status in the central documents.
+```
 
-### Later: Mature the Scaling Boundaries
+### Later Work
 
-1. Reduce repeated page/PAPanel runtime assembly.
-2. Move data/runtime dependencies toward Publication Plan-driven resolution.
-3. Review Page promotion status and build-mode inclusion.
-4. Refine producer integration while migrating the next real PA family.
+```text
+Resolve independent rendering choices.
+Review Page promotion/build-mode inclusion policy.
+Add deployment target-safety validation.
+Reduce repeated runtime page/PAPanel assembly when worthwhile.
+Mature plan-driven data dependencies through further real producer cases.
+```
 
 ---
 
-## 17. Conclusion
+## 14. Conclusion
 
-The first correction cycle has materially improved alignment between the active
-new documentation and the code. The implementation no longer carries the old
-`G1` inner-content story in its active public UI model or runtime rendering:
-`PAPanel` is now an explicit modelled and rendered owner of PA and Notes.
+The first correction cycle has corrected public-structure drift and replaced
+invalid route-local live links with a coherent single-shell public-state design.
+That link change is implemented and has fixed the defect which exposed it,
+although its full verification closure remains outstanding.
 
-The next mismatch also now has an explicit design resolution: the current public
-site uses one static application shell, and every material selected-Page view is
-to be represented by a canonical link containing Page identity and all
-applicable material Filter values. Code still needs to implement that decision
-by replacing route-local live Navigation destinations and canonically maintaining
-runtime URL state.
+That verification uncovered a deeper active P0: `make_site2` currently allows an
+explicit selected History to govern only Basho Results while other promoted
+History-dependent Pages can publish unrelated copied data. The project has now
+recorded and incorporated the correct rule: a selected History governs the
+whole built site's dependent promoted material, with producers responsible for
+analytical computation and `make_site2` responsible for coherent publication.
 
-The codebase remains worth evolving rather than replacing. After canonical
-public links are implemented and verified, the remaining issues are contained
-rendering-policy, planning-maturity and operational-safety choices. Addressing
-them in sequence will continue the intended approach: visible and operational
-behaviour should flow from explicit public-model and design decisions rather
-than accumulate as unexamined implementation convenience.
+The next task is therefore not more page styling or URL design. It is to enforce
+that rule safely, beginning with the Banzuke Changes producer boundary and with
+an explicit policy preventing misleading mixed-history builds during incremental
+integration.
