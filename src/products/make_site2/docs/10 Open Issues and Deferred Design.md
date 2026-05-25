@@ -107,33 +107,36 @@ the active specification or design is deliberately amended.
 
 ## 4. Immediate Conformance and Rendering Work
 
-### 4.1 Notes Placement in Current Rendering
+### 4.1 Notes Placement Under `PAPanel`
 
-**Status:** Decided; implementation and verification outstanding.
+**Status:** Done; remove on tidy after protection against regression is judged
+sufficient.
 
 **Owner:** `02 Specification.md`, `04.3 Public UI Model.md`,
 `05 Rendering Design.md`, `06 Rendering Audit and Changes.md`.
 
-**Issue:** Current `make_site2` rendering has been identified as placing Notes
-beneath a combined region containing both Filters and the PA. That implies that
-Notes span or belong to both regions.
+**Former issue:** `make_site2` rendered Notes beneath a combined region
+containing both Filters and the PA, implying that Notes belonged to or spanned
+both regions.
 
-**Decision already made:**
+**Settled relationship:**
 
 ```text
 Contents -> FilterSection? . PAPanel
 PAPanel -> PA . Notes
 ```
 
-Notes must be rendered within the PAPanel relationship and not as spanning the
-sibling FilterSection.
+**Implemented correction:**
 
-**Work required:**
-
-- alter rendering structure to represent PAPanel explicitly where necessary;
-- place Notes inside that PAPanel;
-- confirm pages without Filters and pages without visible Notes remain correct;
-- inspect the rendered result using the audit method in `06`.
+- `ui_model.py` now represents `Contents`, `PAPanel` and `Notes` directly;
+- manifest assembly constructs this model natively and represents an absent
+  FilterSection as `None` where there are no Filters;
+- the modular browser runtime renders Notes within `.pa-panel` and limits them
+  to the Note ids owned by that PAPanel;
+- the temporary `G1Contents` / `grammar="G1"` compatibility seam has been
+  removed;
+- local build/deploy inspection has confirmed that the corrected rendering
+  works.
 
 **Separate open choice:** Exact Notes-panel height, overflow and visual
 treatment remain open under Section 4.2.
@@ -144,21 +147,21 @@ treatment remain open under Section 4.2.
 
 **Owner on resolution:** `05 Rendering Design.md`.
 
-**Issue:** The ownership and placement of Notes are settled, but the shared
-visible realisation is not. A bounded panel below the PA with a candidate
-maximum height of `170px` has been discussed.
+**Issue:** Notes ownership and placement are now correctly implemented, but the
+shared visible treatment is not settled. A bounded panel below the PA with a
+candidate maximum height of `170px` has been discussed.
 
 **Questions:**
 
-- Should Notes normally be rendered below the PA inside PAPanel?
 - Should a shared maximum height be used?
 - Is `170px` an appropriate initial value?
 - Should overflow be internally scrollable?
 - How should the layout behave where Notes are very short or absent?
 - Should Notes-panel treatment vary by PA terminal form?
 
-**Decision criterion:** The treatment should make Note ownership clear, keep
-Notes accessible and avoid unnecessarily crowding the PA.
+**Decision criterion:** The treatment should keep Notes accessible while avoiding
+unnecessary crowding of the PA; it must not undo their clear ownership by
+`PAPanel`.
 
 ### 4.3 Heading Typography Ownership
 
@@ -202,6 +205,17 @@ choices have entangled this semantic question with browser-default bold text.
 
 **Why this matters:** Markup semantics and visible emphasis should each express
 intended meaning; neither should be chosen merely to avoid a browser default.
+
+### 4.5 Site-Context Colour Treatment
+
+**Status:** Open for deliberate acceptance, revision or removal.
+
+**Owner on resolution:** `05 Rendering Design.md` and, where operational context
+is involved, `09 Deployment and Operations.md`.
+
+**Issue:** Runtime currently gives local, remote and preview contexts distinct
+page-background colours. This may be a useful operational cue, but it remains an
+implemented presentation choice without an explicit settled meaning.
 
 ---
 
@@ -267,10 +281,32 @@ superseded / excluded
 
 ## 6. Public Selection, URLs and Entry Points
 
-### 6.1 Public URL and State Policy
+### 6.1 Public Link / Generated Output Inconsistency
+
+**Status:** Open; current implementation correction required.
+
+**Owner on resolution:** `02 Specification.md`, `04.2 Publication Plan Model.md`,
+`07 Build, Output and Runtime Design.md`.
+
+**Issue:** Navigation anchors currently advertise route-local destinations such
+as `.../index.html`, while the generated site writes only a root `index.html`
+and relies on JavaScript query-state page selection during ordinary clicks.
+JavaScript interception therefore masks a mismatch between visible link
+behaviour and actual static output.
+
+**Required decision:** Choose an internally coherent current implementation:
+
+1. emit public Navigation links compatible with the existing single-shell state
+   strategy; or
+2. generate route-local entry output matching the anchor destinations.
+
+**Verification required:** Ordinary click, open-in-new-tab/copied link, direct
+navigation and invalid requested Page handling.
+
+### 6.2 Durable Public URL and State Policy
 
 **Status:** Open for durable policy; current static runtime approach remains
-acceptable.
+acceptable once the immediate link/output mismatch is corrected.
 
 **Owner on resolution:** `02 Specification.md`, `04.2 Publication Plan Model.md`,
 `07 Build, Output and Runtime Design.md`.
@@ -290,7 +326,7 @@ is not required.
 - Which invalid requested states should be visibly reported versus silently
   normalised to safe defaults?
 
-### 6.2 Home / Landing Page
+### 6.3 Home / Landing Page
 
 **Status:** Open.
 
@@ -305,7 +341,7 @@ public behaviour changes.
 - Is a distinct landing presentation required at all?
 - How is an unavailable configured home Page handled in a build?
 
-### 6.3 Additional Entry Points / Quick Links
+### 6.4 Additional Entry Points / Quick Links
 
 **Status:** Deferred pending reader need.
 
@@ -396,7 +432,8 @@ richer-structure Pages only after ordinary PG/PA paths are stable
 
 **Current position:** Notes belong to PAs or visible PA features, not Filters.
 The current model intentionally avoids a large target taxonomy in advance of
-need.
+need. The implemented runtime now respects the Note ids owned by each visible
+PAPanel.
 
 **Possible targets under pressure:**
 
@@ -411,9 +448,9 @@ custom-PA visible feature
 
 **Questions:**
 
-- How are Note targets represented in model/serialized runtime data?
-- How are relevance conditions expressed and updated under Filter state?
-- Are PA-level Notes sufficient for most near-term Pages?
+- How should richer Note targets be represented in model/serialized runtime data?
+- How should relevance conditions grow if PA-level ownership is insufficient?
+- Are current PA-level Notes sufficient for most near-term Pages?
 
 ### 8.2 PA Metadata and Renderer Registration
 
@@ -439,7 +476,8 @@ custom-PA visible feature
 rendering documents.
 
 **Current position:** The active `PG` supports one visible PAPanel containing
-one PA, with an optional flat sibling FilterSection.
+one PA, with an optional flat sibling FilterSection. This ordinary structure is
+now represented and rendered directly in the current implementation.
 
 **Pressure indicating that PG may need extension includes:**
 
@@ -504,16 +542,18 @@ These questions should be answered from real PAs rather than invented abstractly
 
 **Owner on resolution:** `07 Build, Output and Runtime Design.md`.
 
-**Current position:** Browser-readable runtime material may transport the
-modelled public site and PA references needed for a static interactive site. It
-must not become a second hidden public model.
+**Current position:** Browser-readable runtime material transports the modelled
+public site and PA references needed for a static interactive site. It must not
+become a second hidden public model. The current serialized material now exposes
+`PAPanel` directly rather than the former inner-content `G1` arrangement.
 
 **Questions:**
 
 - What bootstrap/manifest schema is durable enough to document or version?
 - Should schema or runtime version metadata be emitted?
 - What should remain implementation-local?
-- How are Note relevance and PA/runtime dependencies transported cleanly?
+- How should any future richer Note relevance and PA/runtime dependencies be
+  transported cleanly?
 
 ### 10.2 Output Tree and Build Metadata
 
@@ -539,15 +579,18 @@ practical concern.
 **Owner on resolution:** `07 Build, Output and Runtime Design.md` and
 `09 Deployment and Operations.md`.
 
+**Current observation:** The modular ES-module runtime is now copied as the
+active runtime source, with development cache-busting extended across relative
+module imports.
+
 **Questions:**
 
-- What development cache-busting strategy is sufficient?
 - What production cache/version policy is eventually required?
 - How are runtime/bootstrap and PA data updates invalidated consistently?
 
-### 10.4 Deployment Interface and Remote Synchronisation
+### 10.4 Deployment Interface, Safety and Remote Synchronisation
 
-**Status:** Open for future operational improvement.
+**Status:** Open for operational improvement.
 
 **Owner on resolution:** `09 Deployment and Operations.md`.
 
@@ -555,13 +598,18 @@ practical concern.
 target is desirable. Initial remote deployment may upload/overwrite without
 purging stale remote files, with that limitation understood.
 
-**Questions:**
+**Immediate implementation concerns:**
+
+- verify the documented local target spelling (`htm` versus the code's `html`);
+- add a target-safety guard before regarding arbitrary CLI-supplied clean local
+  deployment roots as conforming.
+
+**Further questions:**
 
 - What is the final command vocabulary for build, preview, deploy and deploy
   existing output?
 - Should preview serving be built into `make_site2` or remain an external
   workflow?
-- What remote transport mechanism should be used long term?
 - Should remote deployment become exact synchronisation with stale-file
   removal?
 - What automated post-deployment verification or rollback policy is needed?
@@ -611,9 +659,14 @@ and `07 Build, Output and Runtime Design.md` / Rendering Design for realisation.
 
 **Owner on resolution:** Relevant model/build documents and tests.
 
+**Current improvement:** Manifest assembly now fails if a Page included by the
+Publication Plan lacks a corresponding public panel declaration, and exports
+artefacts only for planned public panels.
+
 **Questions:**
 
-- Which invariants in `04.1` through `04.4` require executable validation first?
+- Which remaining invariants in `04.1` through `04.4` require executable
+  validation first?
 - Which failures should block builds versus appear as diagnostics under
   development policy?
 - How should rendering audit findings be connected to regression tests where a
@@ -676,22 +729,27 @@ interesting analytical question is not automatically a public-site design issue.
 
 ## 14. Current Priority View
 
-The likely immediate priorities after the replacement documentation draft are:
+The likely immediate priorities are:
 
 ```text
+Completed foundation
+  explicit Contents / PAPanel / Notes model and rendering
+  removal of the obsolete G1 compatibility seam
+  modular browser-runtime activation
+  plan-driven assembly of visible panels and exported artefacts
+
 P0
-  review the active documentation set for consistency
-  implement and audit Notes placement under PAPanel
-  settle or explicitly defer the open rendering choices needed for current work
+  correct the public Navigation-link / generated-output inconsistency
+  settle or explicitly defer rendering choices needed for current work
 
 P1
   decide the next real producer-to-public migration target
   confirm build-status inclusion and local iteration workflow requirements
-  validate current implementation against the new PG-centred design
+  add local deployment target-safety protection
 
 P2
   refine runtime/bootstrap/output conventions as real pressure emerges
-  centralise additional theme/layout policy where useful
+  centralise page-level runtime structure where useful
   establish ordinary chart/prose/sectioned-table PA treatments from real Pages
 
 P3
@@ -708,31 +766,23 @@ publication priorities change.
 
 ## 15. Summary
 
-The active design now has a clear centre:
+The first material structural mismatch between the new documentation and the
+current implementation has now been resolved: the UI model, runtime manifest
+and browser rendering represent Notes inside `PAPanel`, not as material spanning
+Filters and PA.
 
-```text
-Requirements describe the coherent growing public site that is needed.
+The most immediate remaining code/design mismatch is now the public
+Navigation-link/output relationship: emitted anchor destinations and generated
+static entry output must tell one coherent public-selection story.
 
-Specification defines PG and the observable public contract.
+Other live decisions remain deliberately open:
 
-Models represent public intent, planned publication, visible PublicUI and PAs.
-
-Rendering Design realises that model under auditable shared policy.
-
-Build/runtime and deployment deliver the resulting static site.
-```
-
-The material open issues are therefore not uncertainty about the basic story.
-They are the decisions and implementation work needed to complete, mature and
-scale that story responsibly:
-
-- correct Notes placement and settle its visual treatment;
-- resolve currently ambiguous semantic presentation decisions;
-- establish status/inclusion and durable public-state policies;
-- integrate and migrate real producer material without bypassing the model;
-- extend PA metadata or `PG` only when genuine public pressure demands it;
-- mature output, runtime and deployment workflows as the site becomes more
-  public and operationally important.
+- Notes visual/dimension policy;
+- heading typography ownership;
+- Banzuke Changes Rank semantics;
+- public status/inclusion and durable state policies;
+- integration/migration priorities;
+- runtime/output/deployment maturity and safety.
 
 This document shall keep those matters visible without allowing unresolved work
 to become implicit design through convenience or drift.
