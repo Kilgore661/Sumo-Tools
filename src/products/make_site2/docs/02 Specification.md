@@ -31,6 +31,7 @@ The specification covers:
 - curation and public status;
 - public state and reproducible public links;
 - producer/site-facing input boundaries;
+- coherent use of a selected History/data instance throughout one build;
 - required failure behaviour;
 - acceptance criteria for the initial supported public page shape.
 
@@ -68,6 +69,9 @@ Public Status
 Public State
 Public View Link
 Deep Link
+History
+Selected History
+Data Instance
 Site-Facing Input
 Producer
 ```
@@ -84,6 +88,11 @@ The term `Option` is not a formal model term for a Filter.
 A `Public View Link` is a canonical copyable URL representation of one material
 public view. It identifies a selected Page and, where applicable, all material
 Filter values needed to restore that view.
+
+A `Selected History` is a History/data instance deliberately chosen for a build,
+whether supplied explicitly or selected by the normal build workflow. Where a
+PA's public meaning depends on History, that PA must be coherent with the
+Selected History used by the built site.
 
 ---
 
@@ -180,6 +189,7 @@ A public site shall have:
 - a registry of pages eligible for public inclusion;
 - public status information;
 - the assets and site-facing inputs needed to realise included pages;
+- a Selected History/data instance where included analytical material depends on History;
 - build and public-state defaults where applicable.
 
 The public site definition shall express intended public organisation. It shall
@@ -395,6 +405,21 @@ it shall occupy the PA position in the PAPanel and shall not silently redefine
 `PublicUI`, `NavigationBar`, `ContentPanel`, `Heading`, `Contents`,
 `FilterSection`, `PAPanel` or `Notes` structure.
 
+### 12.1 Published-Data Coherence
+
+Where a PA's public meaning depends on History or a History-derived data
+instance, its visible data shall be coherent with the Selected History of the
+built site.
+
+For example, a PA whose meaning is “latest banzuke changes” means changes into
+the latest basho of the Selected History for that build. It shall not silently
+publish results derived from a different later History while another Page in the
+same build reflects the selected earlier History.
+
+This is a PA/build-data requirement, not a requirement that a Public View Link
+freeze the underlying published History forever. The same canonical link may
+correctly display later latest-basho data after a later coherent deployment.
+
 ---
 
 ## 13. Notes Contract
@@ -453,7 +478,8 @@ select a public view within that shell rather than require one generated HTML
 entry document per Page.
 
 Every material public view shall have one canonical Public View Link that can be
-copied, pasted and reopened to restore that view.
+copied, pasted and reopened to restore that view against the data instance
+published by the built site.
 
 A Public View Link shall serialize:
 
@@ -492,12 +518,20 @@ Public state includes:
 
 The following are not ordinarily part of the Public View Link:
 
+- the Selected History/data instance used by the build, unless it is itself a
+  declared reader-selectable Filter state;
 - whether the NavigationBar is hidden or shown;
 - hover state;
 - scroll position;
 - an open tooltip;
 - ordinary table sort, unless declared material;
 - chart zoom, unless declared material.
+
+Thus a Page whose declared meaning is “latest in the published History” may have
+one stable view link which displays different later data following a later
+coherent deployment. Conversely, where a Page exposes a Filter such as a
+specific basho selection, that Filter value forms part of the link's public
+state.
 
 The runtime may accept an incomplete or formerly valid incoming public-state
 link and resolve missing or invalid values predictably. Once a valid public view
@@ -540,6 +574,10 @@ public state from canonical Public View Links.
 
 Build and deployment shall remain separable operations.
 
+A completed public build shall be internally coherent with its Selected History.
+It shall not silently contain promoted History-dependent PA material generated
+from mutually inconsistent History/data instances.
+
 ---
 
 ## 17. Producer and Site-Facing Input Contract
@@ -555,14 +593,19 @@ inputs sufficient to publish the intended PA, including where applicable:
 - valid Filter values;
 - caveats;
 - provenance;
-- consistency requirements.
+- consistency requirements;
+- sufficient selected-History/data-instance identity or validation material
+  where the PA depends on History.
 
 `make_site2` owns the public organisation, public page structure, Filter
 presentation, PAPanel relationship, Notes presentation, public state,
-publication assembly and shared site behaviour.
+publication assembly and shared site behaviour. It also owns refusing to publish
+an included promoted PA where its required site-facing input cannot be shown to
+belong to the selected build data instance.
 
 `make_site2` shall not normally parse legacy generated HTML to recover the
-meaning of a promoted PA.
+meaning of a promoted PA, nor silently substitute unvalidated pre-existing
+producer output for input required from the Selected History.
 
 ---
 
@@ -591,6 +634,7 @@ The product shall handle, as applicable:
 
 - missing required PA inputs;
 - missing required data;
+- missing or unvalidated selected-History coherence for a required promoted PA;
 - invalid selected Page;
 - invalid Filter values;
 - unsupported PA terminal form;
@@ -599,10 +643,14 @@ The product shall handle, as applicable:
 - failed client-side data load.
 
 Build-time invalidity of required promoted material shall be reported as a build
-failure or explicit blocking error. Invalid reader-requested state in an
-otherwise valid built site shall degrade predictably to an available public
-state or a clear public error presentation and, when a view is resolved, expose
-the resolved canonical Public View Link.
+failure or explicit blocking error. In particular, a build selected by an
+explicit History shall not successfully publish an included promoted
+History-dependent PA from a different or unvalidated data instance merely
+because copyable producer output exists.
+
+Invalid reader-requested state in an otherwise valid built site shall degrade
+predictably to an available public state or a clear public error presentation
+and, when a view is resolved, expose the resolved canonical Public View Link.
 
 ---
 
@@ -623,6 +671,8 @@ A first conforming production slice shall demonstrate:
 - one table or indexed-table PA terminal;
 - canonical selected-Page and material Filter public state that can be copied,
   pasted and restored;
+- coherent use of any explicit Selected History for included promoted
+  History-dependent material;
 - site-facing inputs rather than copied legacy HTML for the promoted page;
 - working local build and inspection;
 - explicit public status handling.
@@ -637,7 +687,9 @@ demonstrate:
 - explicit handling of candidate, legacy or excluded material where included;
 - shared public state and public navigation behaviour;
 - no normal promoted-page dependence on iframe rendering or copied generated
-  legacy HTML.
+  legacy HTML;
+- no successful explicit-History build which silently mixes promoted
+  History-dependent data from incompatible data instances.
 
 ---
 
@@ -656,7 +708,8 @@ specification:
 - rendering design shall specify how those concepts are realised visually and
   interactively without inventing unowned public structure;
 - build, runtime, producer-integration and deployment documents shall specify
-  the supporting machinery.
+  the supporting machinery, including how Selected History coherence is
+  prepared or validated for included promoted material.
 
 These later design choices may refine implementation and rendering policy, but
 they shall not silently alter the public relationships specified by `PG` or the
