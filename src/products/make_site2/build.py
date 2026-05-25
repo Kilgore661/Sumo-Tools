@@ -13,8 +13,8 @@ from src.infra.live_store.api import get_history
 from src.sumo_core.History import History
 
 from .data_output import (
+    build_banzuke_changes_data_output,
     build_basho_results_data_output,
-    copy_banzuke_changes_data_output,
     copy_banzuke_division_by_era_data_output,
     copy_career_length_data_output,
     copy_division_stability_data_output,
@@ -84,7 +84,10 @@ def build_site(
         output_root=output_root,
         payload_mode=basho_results_payload_mode,
     )
-    copy_banzuke_changes_data_output(output_root=output_root)
+    build_banzuke_changes_data_output(
+        history=resolved_history,
+        output_root=output_root,
+    )
     copy_standings_by_wins_data_output(output_root=output_root)
     copy_finish_by_chii_data_output(output_root=output_root)
     copy_banzuke_division_by_era_data_output(output_root=output_root)
