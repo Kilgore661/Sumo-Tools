@@ -2,58 +2,48 @@
 
 ## Status
 
-Draft working document for auditing rendered output against the active
-`make_site2` public model and for recording rendering questions or changes that
-have not yet been incorporated into `05 Rendering Design.md`.
+Working document for auditing rendered output against the active `make_site2`
+public model and recording rendering questions or changes that have not yet been
+incorporated into `05 Rendering Design.md`.
 
-This document combines two related functions:
+This document has two functions:
 
-1. a stable method for examining visible rendering facts; and
-2. a working record of provisional, disputed or newly discovered rendering
-   matters.
+1. define a repeatable method for examining visible rendering facts; and
+2. record implemented corrections and unresolved rendering choices.
 
-If the change record eventually becomes large enough to obscure the audit
-method, the two functions may later be separated into distinct documents.
+`05 Rendering Design.md` remains the normative home for agreed rendering policy.
 
 ---
 
 ## 1. Purpose
 
-`05 Rendering Design.md` is the normative home for agreed rendering policy.
-This document is its working companion.
-
-It exists to prevent visible implementation details from quietly becoming
-public-site design without being understood. In particular, it supports review
-of whether a rendered feature:
+Rendering must not quietly change the structure or meaning of the public site.
+This document exists to test whether a visible treatment:
 
 - realises a relationship specified by `PG`;
 - expresses an agreed rendering rule for a modelled owner or PA feature;
-- relies acceptably on default behaviour;
+- relies acceptably on default browser/library behaviour;
 - implies unintended meaning;
-- reveals a missing or incorrect model relationship;
-- or should remain explicitly provisional pending a decision.
+- reveals a missing or incorrect model relationship; or
+- should remain explicitly provisional pending a decision.
 
-The objective is not to require a design debate for every harmless numerical
-adjustment. The objective is to catch structural drift and accidental semantic
-signals before they accumulate into an incoherent public site.
+Small token adjustments within an agreed treatment need not become design
+debates. Structural drift and accidental semantic signals do need to be caught.
 
 ---
 
 ## 2. Relationship to the Active Documentation
 
-The relevant document roles are:
-
 | Document | Role |
 | --- | --- |
 | `02 Specification.md` | Defines the public contracts and page grammar `PG`. |
-| `04.3 Public UI Model.md` | Defines the semantic visible interface that represents `PG`. |
-| `04.4 Published Artifact Model.md` | Defines PA-specific analytical meaning and visible feature ownership. |
+| `04.3 Public UI Model.md` | Defines the semantic visible interface representing `PG`. |
+| `04.4 Published Artifact Model.md` | Defines PA-specific meaning and visible feature ownership. |
 | `05 Rendering Design.md` | Defines agreed visible realisation and rendering policy. |
-| `06 Rendering Audit and Changes.md` | Audits rendered facts and stages unresolved or newly proposed rendering work. |
+| `06 Rendering Audit and Changes.md` | Audits rendered facts and stages unresolved or newly implemented work. |
 
-A settled rendering rule should normally be stated in `05`, not left here
-indefinitely. An entry in this document may be removed or reduced to a brief
-record after its outcome has been incorporated into the normative design.
+A settled rule should normally be incorporated into `05`. A completed
+implementation correction may remain here as a compact audit record.
 
 ---
 
@@ -70,194 +60,74 @@ Examples include:
 - Heading emphasis and hierarchy;
 - placement of Filters relative to PAPanel;
 - placement, sizing and visibility of Notes;
-- PA framing;
-- table column visibility, alignment, emphasis, row treatment or links;
+- table alignment, emphasis, row treatment and links;
 - chart traces, labels, legends and annotations;
 - PA-specific features such as Banzuke Changes movement direction;
-- interaction or state presentation where it materially affects the public
-  view.
-
-The audit is primarily concerned with visible facts that are authored,
-repeatable or semantically suggestive. It need not record every browser raster
-or imperceptible token adjustment.
+- interaction/state presentation where it materially affects the public view.
 
 ---
 
 ## 4. Audit Method
 
-For each visible rendering fact under review, proceed in order.
+For each visible fact under review:
 
-### Step 1: State what is visible
-
-Describe the fact in reader-facing terms, without beginning from the CSS or
-JavaScript mechanism.
-
-Examples:
-
-```text
-Notes appear below both the Options area and the displayed table.
-
-The central Rank values in the Banzuke Changes table are displayed in ordinary
-weight.
-
-Successive table data rows have alternating background colours.
-```
-
-### Step 2: Identify the owner
-
-Identify the closest semantic owner of the visible fact.
-
-Possible owners include:
-
-- a `PG` entity or relationship, such as `PAPanel -> PA . Notes`;
-- a Public UI Model entity, such as `Navigation` or `Heading`;
-- a PA terminal form, such as `<table>`;
-- a declared PA-specific visible feature, such as Banzuke Changes movement
-  direction;
-- a theme/runtime context, where the fact genuinely belongs to site-context
-  presentation rather than analytical meaning.
-
-If no owner can be identified, the rendering may be an arbitrary patch or a
-sign that the model/design is incomplete.
-
-### Step 3: Classify the route of justification
-
-Decide which of the following applies:
-
-1. **Specified relationship**: the fact is required, or prohibited, by `PG` or
-   another normative public/model relationship.
-2. **Agreed rendering rule**: the fact is a chosen presentation rule stated in
-   `05 Rendering Design.md` for the identified owner.
-3. **Accepted default behaviour**: the fact is produced by browser or library
-   defaults and has been accepted as harmless and consistent with the intended
-   public meaning.
-4. **Provisional or exceptional behaviour**: the fact exists, but a decision or
-   documented exception is still required.
-5. **Nonconformance or model gap**: the fact contradicts a specified/modelled
-   relationship, or the intended visible meaning has no adequate owner.
-
-### Step 4: Test for implied meaning
-
-Ask whether the visible treatment tells a reader anything beyond ordinary
-legibility or theme coherence.
-
-Treatments requiring particular care include:
-
-```text
-bold or prominent text      may imply importance or heading status
-muted text                   may imply secondary, unavailable or inactive status
-warning/accent colour        may imply warning, selection or result meaning
-grouping and placement       may imply ownership or association
-hiding/showing features      may imply relevance or public-state consequence
-icons and symbols            may state analytical meaning
-interaction/state persistence may imply a public-view contract
-```
-
-Where the treatment implies meaning, verify that the meaning is intended and
-owned by the model or PA feature. If it is unintended, the treatment should be
-changed even when the code is technically valid.
-
-### Step 5: Decide the outcome
-
-Record one of the following outcomes:
-
-- retain as conforming to `PG` or existing Rendering Design;
-- incorporate a settled rendering rule into `05`;
-- adjust implementation to comply with a settled rule;
-- accept a harmless default explicitly;
-- retain as provisional pending a named decision;
-- identify a specification/model gap;
-- reject as unowned or misleading presentation.
+1. **State what is visible** in reader-facing terms.
+2. **Identify its owner**: a `PG` relationship, Public UI entity, PA terminal,
+   PA-specific feature or genuine site/runtime context.
+3. **Classify its justification** as specified relationship, agreed rendering
+   rule, accepted default, provisional behaviour, or nonconformance/model gap.
+4. **Test implied meaning**: emphasis, colour, grouping, placement, symbols,
+   hiding/showing and persistent state may tell the reader more than intended.
+5. **Record the outcome**: retain, incorporate into `05`, correct the
+   implementation, accept a default explicitly, defer a named decision, or
+   identify a specification/model gap.
 
 ---
 
 ## 5. Significance Classification
 
-Not all rendering findings carry the same weight. Use the following categories
-to avoid both arbitrary patching and needless bureaucracy.
-
 ### 5.1 Structural Nonconformance
 
 A visible relationship contradicts `PG` or another public/model relationship.
+It requires correction or explicit model/specification change.
 
-Examples:
-
-- Notes visibly span both `FilterSection` and `PAPanel` even though Notes belong
-  within `PAPanel`;
-- collapsing NavigationBar causes ContentPanel to render below it rather than
-  occupying the available top-level page region;
-- a custom PA renders its own competing Page heading or shell.
-
-Structural nonconformance requires correction or an explicit specification/model
-change. It is not ordinary styling work.
+Example: Notes visibly spanning both `FilterSection` and the PA although the
+specified owner is `PAPanel -> PA . Notes`.
 
 ### 5.2 Semantic-Presentation Concern
 
-A visual treatment may convey analytical, structural or status meaning that has
-not been justified.
-
-Examples:
-
-- bold Rank values implying an importance distinction;
-- muted Navigation labels implying unavailability without a corresponding
-  status;
-- colour used to suggest a result, warning or selected state without declared
-  meaning;
-- an optional feature displayed or hidden inconsistently with its Filter rule.
-
-These matters require a deliberate decision and an accountable owner.
+A treatment may convey analytical, structural or status meaning that has not
+been justified, for example bold Rank values or status-like colour.
 
 ### 5.3 Shared Readability or Usability Policy
 
-A shared presentation treatment improves legibility or interaction without
-normally altering analytical meaning.
-
-Examples:
-
-- table cell padding;
-- alternating data-row backgrounds;
-- Navigation line height;
-- a shared Notes-panel overflow policy;
-- removal of unintended cell-spacing gutters.
-
-These decisions should be recorded in `05` with owner, scope and rationale once
-agreed. Exact token values may remain adjustable.
+A shared treatment improves legibility or interaction without normally changing
+analytical meaning, for example table padding, alternating row backgrounds or a
+shared Notes overflow policy.
 
 ### 5.4 Theme or Token Tuning
 
-An existing agreed treatment is refined without changing its semantic or
-structural function.
-
-Examples:
-
-- choosing a nearby shade for an already-agreed alternating table-row token;
-- fine-tuning a spacing value within an already agreed shared spacing policy.
-
-Such changes generally do not require a new model decision. They require review
-only where legibility, contrast, accessibility or implied meaning may materially
-change.
+An agreed treatment is adjusted without changing its structural or semantic
+function, for example choosing a nearby shade for alternating rows.
 
 ### 5.5 Accepted Default Behaviour
 
 Browser or library behaviour is visible but harmless and deliberately left in
-place.
-
-A default should be challenged when it creates an unwanted signal or violates
-an agreed relationship. Examples already encountered include browser-default
-list markers, cell gaps and bold table-header presentation.
+place. Defaults must be challenged where they create an unwanted signal or
+violate an agreed relationship.
 
 ---
 
-## 6. Recording a Proposed or Observed Change
+## 6. Recording Template
 
-An unresolved or newly proposed rendering matter should be recorded using this
-compact structure:
+Use the following compact form for unresolved or newly implemented rendering
+matters:
 
 ```md
 ### <Issue or change title>
 
 Status:
-Proposed | Implemented provisionally | Open decision | Nonconformance |
+Proposed | Implemented and verified | Open decision | Nonconformance |
 Resolved and incorporated in 05 | Rejected
 
 Visible fact:
@@ -271,30 +141,67 @@ Classification:
 Shared readability policy | Theme/token tuning | Accepted default>
 
 Treatment or question:
-<Proposed/implemented treatment, or decision that remains to be made.>
+<Implemented treatment or remaining decision.>
 
 Rationale:
-<Why this is appropriate or why it requires review.>
+<Why the treatment is appropriate or why review is required.>
 
 Destination:
-<Where it belongs in 05 if/when agreed, or which model/specification document
-requires amendment.>
+<Where the settled rule belongs or which model/specification document requires
+amendment.>
 ```
-
-For very small token adjustments within an already-settled policy, a full entry
-is not required unless the adjustment raises a new concern.
 
 ---
 
-## 7. Current Open Rendering Decisions
+## 7. Implemented and Verified Corrections
 
-### 7.1 Heading Typography Ownership
+### 7.1 Notes Are Now Rendered Within `PAPanel`
+
+**Status:** Implemented and locally verified, May 2026.
+
+**Visible fact:** When Notes are present, they now appear beneath the PA inside
+the PA-owned region; on pages with Filters they no longer span beneath the
+sibling FilterSection.
+
+**Owner:**
+
+```text
+Contents -> FilterSection? . PAPanel
+PAPanel -> PA . Notes
+```
+
+**Classification:** Correction of a structural nonconformance.
+
+**Implementation record:**
+
+- `ui_model.py` now represents `Contents`, `PAPanel` and `Notes` directly;
+- Pages without Filters use an absent `FilterSection`, not an empty visual
+  region;
+- runtime manifest construction now builds `PAPanel` explicitly;
+- the modular runtime renders Notes inside `.pa-panel` and honours the Note ids
+  owned by that PAPanel;
+- `.pa-panel` has only the minimal structural layout required for the PA and its
+  Notes to stack within the PA column;
+- the temporary `G1Contents`/`grammar="G1"` compatibility seam has been removed.
+
+**Audit result:** The user rebuilt/deployed and confirmed the corrected result
+works in the local inspection environment. The structural issue is therefore no
+longer open.
+
+**Remaining separate question:** Notes-panel visual/dimension policy remains
+open under Section 8.3; the correction does not settle a maximum height,
+scrolling or additional framing.
+
+---
+
+## 8. Current Open Rendering Decisions
+
+### 8.1 Heading Typography Ownership
 
 **Status:** Open decision; implementation currently provisional.
 
-**Visible fact:** The current implementation applies typography partly by a
-role-specific site-title selector and partly through generic HTML heading-level
-selectors.
+**Visible fact:** Typography is applied partly by a role-specific `.site-title`
+selector and partly through generic `h2`/`h3` selectors.
 
 **Owner:** `NavigationBar -> <site caption>` and
 `Heading -> <main heading> . <sub heading>?`.
@@ -304,219 +211,122 @@ selectors.
 **Current provisional implementation:**
 
 ```css
-.site-title {
-  font-size: 24px;
-}
-
-h2 {
-  font-size: 20px;
-}
-
-h3 {
-  font-size: 18px;
-}
+.site-title { font-size: 24px; }
+h2 { font-size: 20px; }
+h3 { font-size: 18px; }
 ```
 
-**Decision required:** Choose whether intentional heading typography is owned
-by:
+**Decision required:** Choose whether intentional heading typography is owned by
+HTML hierarchy, modelled rendered roles, or an explicit documented combination.
 
-1. HTML heading hierarchy;
-2. modelled rendered roles such as site caption, Page main heading and Page sub
-   heading; or
-3. an explicit combination, with a documented boundary between general heading
-   structure and role-specific treatment.
+**Destination:** `05 Rendering Design.md`, once resolved.
 
-**Rationale:** Size and prominence communicate heading hierarchy and role. An
-inconsistent ownership policy makes it difficult to tell whether visible
-emphasis is intentional or merely a side effect of convenient markup.
+### 8.2 Banzuke Changes Rank-Cell Semantics and Weight
 
-**Destination:** `05 Rendering Design.md`, Sections 6 and 8, once resolved.
+**Status:** Open decision; the visible weight no longer settles the semantic
+question.
 
-### 7.2 Banzuke Changes Rank-Cell Semantics and Weight
-
-**Status:** Open decision; current implementation avoids boldness but requires
-semantic review.
-
-**Visible fact:** The central Rank values in banzuke-style Banzuke Changes rows
-are currently shown at ordinary data-cell weight.
+**Visible fact:** Central Rank values in banzuke-style Banzuke Changes rows are
+shown at ordinary data-cell weight.
 
 **Owner:** Banzuke Changes custom PA, rank-position feature.
 
 **Classification:** Semantic-presentation concern.
 
-**Current implementation concern:** The implementation changed Rank values from
-row-header cells to ordinary data cells while retaining `scope="row"`. A
-`scope` attribute does not give an ordinary `<td>` row-header semantics.
-
 **Decision required:** Choose whether the central Rank value is:
 
-1. a semantic row header, rendered as `<th scope="row">` with ordinary-weight
-   visual treatment where bold emphasis is not intended; or
+1. a semantic row header, rendered as `<th scope="row">` with explicit
+   ordinary-weight styling if bold emphasis is not intended; or
 2. an ordinary data value, rendered as `<td>` without `scope`.
 
-**Rationale:** Using row-header markup is a structural/accessibility decision;
-using bold is a visible emphasis decision. They should not be conflated through
-browser defaults.
+**Rationale:** Markup semantics/accessibility and visible emphasis are separate
+choices and should not be conflated through browser defaults.
 
-**Destination:** `05 Rendering Design.md`, Banzuke Changes rendering subsection,
-and implementation once resolved.
+**Destination:** `04.4 Published Artifact Model.md` if semantic clarification is
+needed and `05 Rendering Design.md` for its visible realisation.
 
-### 7.3 Notes-Panel Layout and Dimension Policy
+### 8.3 Notes-Panel Visual and Dimension Policy
 
-**Status:** Open rendering decision following identified structural
-nonconformance.
+**Status:** Open rendering decision; structural placement is complete.
 
-**Visible fact:** The desired rendering is for Notes, where present, to form a
-panel associated with the PA rather than spanning beneath both Filters and PA.
-A candidate maximum Notes-panel height of `170px` has been discussed.
+**Visible fact:** Notes now belong visibly to the PA region and appear beneath
+the PA where present. The panel currently has only structural layout, not a
+settled bounded/scrolling visual policy.
 
 **Owner:** `PAPanel -> PA . Notes`.
 
-**Classification:** Two parts:
+**Classification:** Shared readability/usability policy.
 
-- Notes ownership/placement is a structural conformance matter already settled
-  by `PG` and `05`: Notes must be within PAPanel rather than under the sibling
-  FilterSection.
-- The exact panel layout, maximum height and overflow handling are shared
-  readability/usability policy still to be agreed.
+**Decision required:** Decide whether Notes should use additional panel framing,
+a maximum height such as the discussed `170px`, internal scrolling, and any
+common behaviour for absent or very short Notes.
 
-**Decision required:** Implement the structural correction and decide the shared
-Notes-panel visual rule, including whether Notes appear below the PA, whether a
-`170px` maximum is appropriate, and how overflow is handled.
+**Rationale:** Ownership is already correctly communicated by placement. Height,
+overflow and framing govern usability and use of screen space.
 
-**Rationale:** Placement conveys ownership; the height cap is a usability choice
-intended to preserve space for the PA while keeping explanatory material
-available.
+**Destination:** `05 Rendering Design.md`, once agreed.
 
-**Destination:** `05 Rendering Design.md`, Sections 11 and 12, once the exact
-panel treatment is agreed; implementation correction required for existing
-layout.
+### 8.4 Site-Context Colour Treatment
 
----
+**Status:** Implemented provisionally; decision not yet recorded in normative
+Rendering Design.
 
-## 8. Rendering Rules Already Incorporated into `05`
+**Visible fact:** Local, remote and preview runtime contexts use different page
+background colours.
 
-The following matters arose during implementation review and have already been
-incorporated as agreed rendering rules in `05 Rendering Design.md`. They are
-listed here only to maintain continuity with earlier working notes.
+**Owner:** Site/runtime context presentation, not analytical PA meaning.
 
-### 8.1 Navigation-Local Vertical Rhythm
+**Classification:** Semantic-presentation concern or accepted operational cue,
+pending decision.
 
-**Owner:** `Navigation`.
-
-**Rule incorporated in 05:** Navigation uses navigation-local vertical rhythm;
-current treatment is `.nav-list { line-height: 1.45; }`, with the exact value
-revisable.
-
-### 8.2 Filter Structural Lists Without Markers
-
-**Owner:** `FilterSection`.
-
-**Rule incorporated in 05:** Lists used to realise Filter controls or choices do
-not display list markers.
-
-### 8.3 Shared Table Cell Padding
-
-**Owner:** Table-like PA terminal forms.
-
-**Rule incorporated in 05:** Shared internal cell padding separates adjacent
-values and gives rows modest breathing room; current treatment is
-`padding: 2px 0.25em`.
-
-### 8.4 Alternating Data-Row Backgrounds
-
-**Owner:** Table-like PA terminal forms.
-
-**Rule incorporated in 05:** Successive `tbody` rows receive alternating
-background treatment; exact theme colours remain revisable tokens.
-
-### 8.5 Continuous Table Row Background Treatment
-
-**Owner:** Table-like PA terminal forms.
-
-**Rule incorporated in 05:** Unintended cell gaps are suppressed so row
-background treatment reads as continuous; current treatment uses collapsed
-borders.
-
-### 8.6 Banzuke Changes Movement Direction
-
-**Owner:** Banzuke Changes custom PA visible movement feature.
-
-**Rule incorporated in 05:** The `⇅` movement-direction feature is visible in
-both banzuke-style and scan-style presentations independently of the optional
-numeric `Delta` feature.
+**Decision required:** Accept, revise or remove this treatment deliberately and
+record its intended message to users/reviewers.
 
 ---
 
-## 9. Known Structural Finding Requiring Implementation Work
+## 9. Rendering Rules Already Incorporated into `05`
 
-### Notes Placement in Current `make_site2` Rendering
+The following agreed rules remain implemented and are listed here for continuity:
 
-**Status:** Identified nonconformance; design relationship settled, implementation
-correction not yet recorded as completed.
-
-**Visible fact:** In the current rendering structure, Notes are emitted after the
-combined content body containing both the FilterSection and PA slot. Visually,
-Notes therefore span beneath both regions when Filters are present.
-
-**Owner:** `Contents -> FilterSection? . PAPanel` and
-`PAPanel -> PA . Notes`.
-
-**Classification:** Structural nonconformance.
-
-**Required correction:** Render Notes within a PAPanel containing the PA,
-separate from the sibling FilterSection. Exact panel sizing and scrolling policy
-remains the open decision recorded in Section 7.3.
-
-**Rationale:** This is not merely a preference for a prettier layout. Placement
-currently misstates the specified ownership relationship between Notes, PA and
-Filters.
-
-**Destination:** Implementation change guided by `05 Rendering Design.md`,
-Sections 9, 11 and 12.
+| Owner | Incorporated rule |
+| --- | --- |
+| `Navigation` | Navigation-local vertical rhythm; current `.nav-list { line-height: 1.45; }`. |
+| `FilterSection` | Structural Filter lists display without list markers. |
+| Table-like PAs | Shared cell padding; current `padding: 2px 0.25em`. |
+| Table-like PAs | Alternating `tbody` row background treatment. |
+| Table-like PAs | Continuous row colouring through suppression of unintended cell gaps. |
+| Banzuke Changes PA | Visible `⇅` movement direction in both banzuke-style and scan-style views independently of optional numeric `Delta`. |
 
 ---
 
-## 10. Audit Checklist for Future Rendering Work
+## 10. Audit Checklist for Future Work
 
-When evaluating a rendering change or a newly promoted Page/PA, use this short
-checklist:
+When evaluating a rendering change or newly promoted Page/PA:
 
-1. What reader-visible fact is being introduced or altered?
+1. What reader-visible fact is introduced or altered?
 2. What `PG` entity, UI-model entity, PA terminal or PA-specific feature owns
    it?
-3. Does it preserve the relationships specified by `PG`?
+3. Does it preserve `PG` relationships?
 4. Is it already governed by an agreed rule in `05`?
 5. Does it imply meaning through emphasis, muting, colour, grouping, placement,
    hiding/showing, labels or symbols?
-6. If it is only token tuning, does it remain within an agreed treatment without
-   materially affecting readability or implied meaning?
-7. If it is unsettled, is it recorded here rather than left as silent
-   implementation policy?
-8. Once settled, has the rule been incorporated into `05` and the implementation
-   brought into conformity?
+6. If it is token tuning, does it remain within an agreed treatment?
+7. If unsettled, has it been recorded here rather than left as silent policy?
+8. Once settled, has it been incorporated into `05` and implemented/audited?
 
 ---
 
 ## 11. Summary
 
-Rendering audit exists to keep the visible public site aligned with the model
-and with agreed presentation policy as implementation and Published Artifacts
-grow.
+The first structural audit finding has now been corrected: Notes are modelled
+and rendered within `PAPanel`, rather than spanning beneath Filters and PA.
 
-The audit is strict where visible structure or implied meaning is at stake, and
-lightweight where an agreed presentation rule is merely being tuned. Its core
-question is always:
-
-```text
-What does this visible fact say to the reader, and where is that claim owned?
-```
-
-The open issues currently requiring further decision or implementation are:
+The current open rendering choices are:
 
 - ownership of heading typography;
 - semantic/visual treatment of Banzuke Changes Rank values;
-- correction and final shared treatment of Notes within PAPanel.
+- final shared Notes-panel visual/dimension policy; and
+- deliberate acceptance or rejection of context-colour presentation.
 
-Once those matters are settled, their normative rendering rules belong in
-`05 Rendering Design.md`.
+The audit remains strict where visible structure or implied meaning is at stake,
+and lightweight where an already agreed treatment is merely being tuned.
