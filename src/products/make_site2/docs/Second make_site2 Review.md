@@ -4,7 +4,7 @@
 
 Current review of `src/products/make_site2` against the replacement active
 documentation set drafted in May 2026, updated after the first corrective
-implementation work.
+implementation work and the decision on public-view linking.
 
 This review is comparative. It asks whether the current code implements the new
 requirements, specification, model boundaries and rendering discipline. It is
@@ -14,8 +14,9 @@ priority.
 
 The `PAPanel`/Notes correction and modular-runtime activation have been checked
 through the normal local build/deploy inspection workflow and reported as
-working. Other findings stated from code should still be checked in served
-output when they are addressed.
+working. The canonical single-shell public-link design has now been agreed in
+the active documentation, but the corresponding code correction has not yet
+been made or verified.
 
 ---
 
@@ -29,7 +30,8 @@ The active documentation establishes this design sequence:
   analytical artefacts are added.
 
 02 Specification
-  The page grammar PG specifies the whole visible public page.
+  The page grammar PG specifies the whole visible public page and every
+  material public view has a canonical copyable link.
 
 03 Architecture and Design Thesis
   No promoted public page is rendered until represented in the UI Model.
@@ -61,6 +63,14 @@ NavigationBar -> <site caption> . Navigation . <hider>
 ContentPanel -> Heading . Contents
 Contents -> FilterSection? . PAPanel
 PAPanel -> PA . Notes
+```
+
+The governing current public-view-link policy is:
+
+```text
+one static application shell
+canonical public link = selected Page + all applicable material Filter values
+Navigation destination = canonical default public view of its Page
 ```
 
 `A Appendix - Better Models.md`, currently restored outside `docs/archive`, is
@@ -105,6 +115,15 @@ The implementation has changed since the initial review:
   planned public panels;
 - Notes now render within the PA-owned region.
 
+The active documentation has additionally changed since the initial review:
+
+- a single static shell has been selected as the current public-view output
+  design;
+- canonical Public View Links must state selected Page identity and all
+  applicable material Filter values, including defaults;
+- Navigation destinations must identify canonical default Page views rather
+  than unwritten route-local entry documents.
+
 ---
 
 ## 3. Overall Assessment
@@ -135,12 +154,13 @@ now:
   PAPanel; PAPanel contains PA and Notes; runtime renders that relationship
 ```
 
-The most significant remaining current inconsistency is now different:
+The most significant remaining current inconsistency is now governed by an
+agreed correction rather than an unresolved choice:
 
-> Navigation links advertise route-local static destinations while current
+> Navigation links still advertise route-local static destinations while current
 > output supplies a single root application entry and JavaScript query-state
-> selection. The public anchor contract and the generated output therefore do
-> not yet tell one coherent story.
+> selection. The agreed fix is to emit and maintain canonical Public View Links
+> in the existing single static shell.
 
 Other remaining matters are a mixture of genuine design decisions, incomplete
 layer control and operational safety improvements rather than evidence that the
@@ -155,7 +175,7 @@ product needs to be started again.
 | Done | `Contents`, `PAPanel` and `Notes` are explicitly modelled; Notes render inside the PA region and no longer span Filters. | First central `PG` structural nonconformance corrected and locally verified. |
 | Done | `site_manifest.py` previously mixed declarations, UI assembly and runtime export behind a temporary `G1` adapter. | Split behind a stable facade; new assembly constructs the active model directly and removes the `G1` seam. |
 | Done | The monolithic browser runtime impeded manageable change. | Modular ES-module runtime activated and working locally. |
-| P0 | Navigation `href`s are route-local `.../index.html` paths while build output supplies only root `index.html` and runtime query-state navigation. | Current public-selection/output inconsistency; correct next. |
+| Decided / P0 implementation | Navigation `href`s are route-local `.../index.html` paths while build output supplies only root `index.html` and runtime query-state navigation. | Implement canonical single-shell Page-plus-material-Filter links and verify copied/reloaded/new-tab behaviour. |
 | P1 | Publication planning controls visible panels/exported artefacts more directly than before, but data staging and wider runtime dependencies remain largely hard-coded in the build. | Layer boundary improved but incomplete. |
 | P1 | Runtime renderer branches still repeat ContentPanel/PAPanel assembly around specialised PA internals. | Scaling/drift risk remains, though duplicated shape now renders correctly. |
 | P1 | All currently declared Pages remain `PROMOTED`, despite still-open status/inclusion and rendering-policy questions. | Curation/status review still required. |
@@ -184,7 +204,22 @@ runtime artefacts only for planned panels.
 This removes the earlier unconditional artefact-export list problem and makes
 public assembly more accountable to planning.
 
-### 5.3 Remaining Boundary Gap
+### 5.3 Immediate Planning Correction Required
+
+The active Publication Plan design now requires each included selectable Page to
+have a canonical default Public View Link and each Navigation destination to use
+that link. The implementation still exposes route-local hrefs inherited from
+its former route representation.
+
+The immediate correction should generate visible Navigation destinations from:
+
+```text
+Page identity + declared default values of the Page's material Filters
+```
+
+rather than from unwritten route-local HTML paths.
+
+### 5.4 Remaining Broader Boundary Gap
 
 `build.py` still stages/copies or generates data through a fixed series of calls
 before or independently of a richer resolved Page-dependency contract.
@@ -195,7 +230,7 @@ Consequently:
 - producer/input failures arise through hard-coded build steps rather than a
   fully resolved dependency plan.
 
-This remains a P1 maturation issue, not the next corrective change.
+This remains a P1 maturation issue, not part of the canonical-link correction.
 
 ---
 
@@ -251,7 +286,7 @@ a later model tidy, not as a priority correction.
 
 ## 7. Public Selection and Static Output (`02`, `04.2`, `07`)
 
-### 7.1 Current Mismatch
+### 7.1 Current Implementation Mismatch
 
 `routes.py` derives route-like Page hrefs such as:
 
@@ -269,23 +304,41 @@ while the anchor itself promises a static destination the output tree does not
 provide. Likely affected behaviours include open-in-new-tab, copy-link/direct
 navigation and operation without successful runtime interception.
 
-### 7.2 Required Correction
+### 7.2 Decision Made
 
-Choose one coherent immediate strategy:
+The active specification and design now choose:
 
-1. **Single-shell stateful links:** emit real hrefs that point to the root shell
-   plus its approved Page/filter state representation; or
-2. **Route-local entry output:** write the route-local HTML entry material that
-   current anchors imply.
+```text
+one static application shell
+canonical Public View Link = Page identity + all applicable material Filter values
+Navigation link = canonical default Public View Link for the Page
+```
 
-This is now the next implementation correction because it is a current broken
-contract rather than merely a long-term URL-policy question.
+Human-readable route-local paths are not required. The required behaviour is
+that every material public view has a deterministic link which can be copied,
+pasted and reopened to restore the same view.
 
-### 7.3 Later Durable Policy
+Canonical links must state applicable material Filter values explicitly,
+including default values. Shell-only/transient state such as NavigationBar
+visibility, scroll, hover or ordinary tooltip state is excluded.
 
-After immediate coherence is restored, the project may decide how durable the
-public Page/filter URL representation needs to be and what compatibility policy
-applies after publication.
+### 7.3 Implementation and Verification Required
+
+The next code correction shall:
+
+1. emit Navigation hrefs into the existing single shell using Page identity and
+   declared default Filter values;
+2. centralise canonical runtime URL writing/restoration for selected Page and
+   all applicable material Filter state;
+3. remove irrelevant Filter parameters when the selected Page changes;
+4. resolve incomplete or safely recoverable invalid incoming URLs and expose
+   the canonical link for the valid displayed view; and
+5. verify ordinary click, new-tab/copied/direct navigation, reload, filtered
+   view restoration and back/forward behaviour.
+
+Longer-term compatibility guarantees for links that have been published remain
+a later policy matter; they do not block implementing the chosen current
+contract.
 
 ---
 
@@ -347,6 +400,11 @@ not an immediate correctness blocker.
 The Notes ownership issue is no longer open: Notes are now owned and rendered by
 `PAPanel`. Richer Note targets remain deferred until real cases require them.
 
+The chosen canonical-link design now makes all material Filter state part of the
+public-view link contract. The current runtime's URL behaviour must therefore be
+checked and amended so every applicable Filter value, including defaults, is
+written canonically for the displayed selected-Page view.
+
 ---
 
 ## 10. Rendering Design and Audit (`05`, `06`)
@@ -390,7 +448,14 @@ active build output source. This reduces editing risk and makes responsibilities
 such as URL state, Filters, Notes, tables, charts and panel dispatch easier to
 inspect.
 
-### 11.2 Remaining Duplication
+### 11.2 Immediate Runtime Work
+
+The modular runtime's URL-state responsibility is now the natural implementation
+point for canonical Public View Link restoration and writing. That work should
+remain focused on public state and avoid simultaneously centralising all repeated
+panel-renderer structure.
+
+### 11.3 Remaining Duplication
 
 The runtime still has PA-specific content-panel renderer functions that repeat
 Heading, ContentBody, optional FilterSection, PAPanel and Notes assembly around
@@ -418,16 +483,26 @@ The build/runtime path now includes:
 - browser restoration of Page and Filter state;
 - `BuildOutput` reporting.
 
-### 12.2 Remaining Work
+These support the selected single-shell design in broad form.
 
-The main immediate defect is the emitted link/output inconsistency in Section 7.
+### 12.2 Required Current Correction
+
+The current output already supplies the selected shell, but live Navigation links
+and URL-state writing do not yet implement the newly settled canonical link
+contract. The immediate implementation change is therefore alignment within the
+existing output architecture, not a redesign of output around per-Page entry
+files.
+
+### 12.3 Remaining Later Work
+
 Longer-term issues remain:
 
 - broader dependency/data staging driven by the Publication Plan;
 - documented/versioned bootstrap-manifest policy;
 - optional build metadata;
 - validation that promoted planned Pages have all required model/data/runtime
-  support.
+  support;
+- compatibility policy for canonical links after public publication.
 
 ---
 
@@ -482,6 +557,10 @@ signals local/remote/preview context. Since home/landing policy is still open,
 this is implemented provisional behaviour requiring later review, not an
 immediate blocker for the current next fix.
 
+The selected single-shell link design permits the root shell URL to remain the
+landing view for now; it must not also become an alternative canonical link for
+a material selected-Page view.
+
 ---
 
 ## 16. Recommended Correction Sequence From Here
@@ -494,16 +573,20 @@ Correct active terminology to NavigationBar.
 Model Contents / PAPanel / Notes explicitly.
 Render Notes within PAPanel and verify locally.
 Split manifest declarations behind a stable facade and remove the G1 seam.
+Decide that public material views use canonical Page-plus-Filter links in one
+static shell.
 ```
 
-### Next: Correct the Public Link/Output Contract
+### Next: Implement the Canonical Public Link Contract
 
-1. Decide whether immediate public selection is single-shell/stateful or
-   route-local-entry based.
-2. Make Navigation hrefs, generated output and runtime URL restoration conform
-   to that decision.
-3. Verify ordinary click, open-in-new-tab/copied/direct link and invalid Page
-   handling.
+1. Generate Navigation hrefs from Page identity plus declared default material
+   Filter values, not unwritten route-local output paths.
+2. Centralise canonical URL restoration/writing in the modular runtime.
+3. Ensure every applicable material Filter value, including defaults, is present
+   in the displayed view's canonical link.
+4. Ensure Page selection removes stale parameters belonging to another Page.
+5. Verify ordinary click, copied/new-tab/direct link, reload, filtered-view and
+   back/forward behaviour.
 
 ### Then: Address High-Value Independent Matters
 
@@ -529,9 +612,16 @@ new documentation and the code. The implementation no longer carries the old
 `G1` inner-content story in its active public UI model or runtime rendering:
 `PAPanel` is now an explicit modelled and rendered owner of PA and Notes.
 
-The codebase remains worth evolving rather than replacing. Its primary current
-contract defect is now public-link/output coherence, followed by contained
-rendering-policy and operational-safety choices. Addressing those in sequence
-will continue the intended approach: visible and operational behaviour should
-flow from explicit public-model and design decisions rather than accumulate as
-unexamined implementation convenience.
+The next mismatch also now has an explicit design resolution: the current public
+site uses one static application shell, and every material selected-Page view is
+to be represented by a canonical link containing Page identity and all
+applicable material Filter values. Code still needs to implement that decision
+by replacing route-local live Navigation destinations and canonically maintaining
+runtime URL state.
+
+The codebase remains worth evolving rather than replacing. After canonical
+public links are implemented and verified, the remaining issues are contained
+rendering-policy, planning-maturity and operational-safety choices. Addressing
+them in sequence will continue the intended approach: visible and operational
+behaviour should flow from explicit public-model and design decisions rather
+than accumulate as unexamined implementation convenience.
