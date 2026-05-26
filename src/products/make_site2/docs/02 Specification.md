@@ -8,10 +8,10 @@ This document specifies the public website and observable behaviour that
 `make_site2` shall support. It refines the requirements stated in
 `01 Requirements.md`.
 
-This document defines the public structure and public contracts. It does not
-prescribe the internal Python class structure, HTML element selection, CSS
+This document defines public structure and public contracts. It does not
+prescribe internal Python class structure, HTML element selection, CSS
 selectors, JavaScript organisation, build implementation or deployment
-mechanism except where an observable public behaviour requires a constraint.
+mechanism except where observable public behaviour requires a constraint.
 
 ---
 
@@ -25,25 +25,21 @@ The specification covers:
 - the visible structure of the public website;
 - public navigation and page selection;
 - public page framing and contents;
-- Filters;
-- Published Artifacts;
-- Notes;
-- curation and public status;
+- Filters, Published Artifacts and Notes;
+- curation, Page availability and public status;
 - public state and reproducible public links;
 - producer/site-facing input boundaries;
-- coherent use of a selected History/data instance throughout one build;
-- required failure behaviour;
+- coherent use of History and any compatible additional Page inputs throughout
+  one build;
+- required failure or unavailable-state behaviour; and
 - acceptance criteria for the initial supported public page shape.
 
-The specification does not require every potentially useful analytical page to
-be promoted immediately. Only material deliberately included in the public site
-is governed as public material.
+Only material deliberately included in the public site is governed as public
+material.
 
 ---
 
 ## 2. Formal Vocabulary
-
-The following terms are formal concepts in this specification:
 
 ```text
 Site
@@ -65,6 +61,7 @@ Published Artifact
 Notes
 Note
 Page
+Page Availability
 Public Status
 Public State
 Public View Link
@@ -72,27 +69,33 @@ Deep Link
 History
 Selected History
 Data Instance
+Compatible Successor Input
 Site-Facing Input
 Producer
+Build Mode
 ```
 
 `PA` means **Published Artifact**.
 
 `Filter` is the formal term for a reader-visible control that selects,
 restricts, projects or otherwise changes the visible analytical presentation.
-Reader-facing UI copy may use ordinary wording such as `Options` where that is
-clearer.
-
-The term `Option` is not a formal model term for a Filter.
+Reader-facing UI copy may use ordinary wording such as `Options` where clearer.
 
 A `Public View Link` is a canonical copyable URL representation of one material
 public view. It identifies a selected Page and, where applicable, all material
-Filter values needed to restore that view.
+Filter values needed to restore that view. A link identifies requested Page and
+reader state; it does not by itself prove that a Page is available in a
+particular build.
 
 A `Selected History` is a History/data instance deliberately chosen for a build,
 whether supplied explicitly or selected by the normal build workflow. Where a
-PA's public meaning depends on History, that PA must be coherent with the
+PA's public meaning depends on History, that PA shall be coherent with the
 Selected History used by the built site.
+
+A `Compatible Successor Input` is additional data required by a Page whose
+public meaning concerns a successor state not yet represented in History. It is
+compatible only where its relationship to the Selected History is established
+by that Page's contract.
 
 ---
 
@@ -100,12 +103,7 @@ Selected History used by the built site.
 
 ### 3.1 Role of PG
 
-The public website shall conform to the page grammar `PG` for promoted pages in
-the initial supported public shape.
-
-`PG` specifies the visible semantic structure of the public page. It begins at
-the full visible public UI, including the NavigationBar and the selected page
-ContentPanel.
+Promoted public Pages in the initial supported public shape shall conform to:
 
 ```text
 PG
@@ -135,7 +133,7 @@ Values -> <value>+
 PAPanel -> PA . Notes
 
 PA -> <table> | <indexed table> | <chart> | <sectioned table> |
-      <prose> | <custom artifact>
+      <prose> | <custom artifact> | <unavailable explanation>
 
 Notes -> Note*
 ```
@@ -146,309 +144,218 @@ later design documents where necessary.
 
 ### 3.2 Consequences of PG
 
-The following are specified structural relationships:
-
-- `NavigationBar` and `ContentPanel` are the two top-level visible regions of
-  the public UI.
-- `NavigationBar` contains site identity, Navigation and a NavigationBar-visibility control.
-- `ContentPanel` contains the selected page Heading and Contents.
+- `NavigationBar` and `ContentPanel` are the two top-level visible regions.
+- `ContentPanel` contains the selected Page Heading and Contents.
 - `FilterSection`, where present, is a sibling of `PAPanel`.
-- `PAPanel` contains the visible Published Artifact and its Notes.
-- `Notes` may be empty because it expands to zero or more `Note` items.
-- Notes do not belong to the FilterSection.
-- The initial supported page shape presents one visible PA in its PAPanel.
-
-The specification does not require a separate visible Notes region when no Note
-is relevant or present.
+- `PAPanel` contains the visible PA and its Notes.
+- Notes do not belong to `FilterSection`.
+- An unavailable Page may retain its Page Heading and use its PAPanel to explain
+  why its normal PA is not available in the current build context.
 
 ### 3.3 Extension of PG
 
-A promoted page requiring visible structure that cannot be represented by `PG`
-shall not be implemented by silently adding page-local structure.
-
-Such a page requires one of:
-
-- an explicit extension to `PG`;
-- a declared additional public page grammar;
-- a documented restriction preventing promotion until the public model is
-  extended.
-
-Possible future needs include multiple simultaneously visible Published
-Artifacts, nested Filters, conditional Filter structure or more complex
-presentation relationships. These are not specified by this initial `PG`.
+A promoted Page requiring visible structure that cannot be represented by `PG`
+shall not be implemented by silently adding page-local structure. It requires an
+explicit grammar/design extension or a documented restriction on promotion.
 
 ---
 
-## 4. Site Contract
+## 4. Site, PublicUI and Navigation Contract
 
-A public site shall have:
+A public site shall have stable identity, public caption, Navigation, a registry
+of Pages eligible for public inclusion, public status information, required
+site-facing inputs/assets and build/public-state defaults where applicable.
 
-- a stable site identity;
-- a public site caption or title;
-- a Navigation structure;
-- a registry of pages eligible for public inclusion;
-- public status information;
-- the assets and site-facing inputs needed to realise included pages;
-- a Selected History/data instance where included analytical material depends on History;
-- build and public-state defaults where applicable.
+`PublicUI` contains one `NavigationBar` and one `ContentPanel`. The
+`NavigationBar` provides site identity, Navigation and a control allowing the
+reader to hide and restore the NavigationBar. Hiding it changes shell
+presentation only; it is not a Filter and shall not alter selected analytical
+content.
 
-The public site definition shall express intended public organisation. It shall
-not be inferred from producer directory structure, old generated pages or the
-presence of output files.
+Navigation shall be hierarchical and numbered, organised primarily by subject.
+An available selectable Navigation destination shall be a valid Public View Link
+to that Page's canonical default view and shall not advertise an output path the
+static site does not publish.
 
----
-
-## 5. PublicUI and NavigationBar Contract
-
-`PublicUI` is the visible public website surface for a selected page.
-
-It shall contain one `NavigationBar` and one `ContentPanel` in accordance with `PG`.
-
-The `NavigationBar` shall provide:
-
-- the site caption or identity;
-- the public Navigation;
-- a control allowing the reader to hide and restore the NavigationBar.
-
-The NavigationBar-visibility control changes the public shell presentation; it
-is not a Filter because it does not change the visible analytical content of the
-selected page.
-
-Hiding the NavigationBar shall not remove, replace or alter the selected page or
-its material analytical state.
+Where a promoted Page is unavailable in a production build, Navigation shall not
+present it as an ordinary available destination. It may remain visible as a
+disabled/unavailable item where that communicates useful public structure.
 
 ---
 
-## 6. Navigation Contract
+## 5. Page, Heading and Contents Contract
 
-Navigation shall present the public information structure as hierarchical,
-numbered navigation items.
+A Page is a curated public publication unit selectable within the site. It shall
+have, as applicable, a stable identity, title, optional summary/framing text,
+public status, availability resolution, deliberate public entry treatment,
+Contents conforming to approved grammar, required PA/data/assets, Filter
+defaults and Notes.
 
-A Navigation item shall have, as applicable:
+A promoted Page renders as a `ContentPanel` containing `Heading` and `Contents`.
+`Heading` contains a main heading and optional sub heading. It is distinct from
+the site caption, PA-internal framing, chart/table labels and Notes.
 
-- a stable identity;
-- a reader-facing label;
-- zero or more child items;
-- an optional public Page destination;
-- status or readiness information where exposed publicly.
+`Contents` contains optional `FilterSection` followed by `PAPanel`. Filters may
+control row/data selection, visible features, representation or other declared
+material public state. They shall not own Notes.
 
-A Navigation item need not itself select a page; it may group child items.
-
-Navigation shall be organised primarily by subject and shall not expose every
-producer output, implementation category or repository directory merely because
-it exists.
-
-The selected available page shall be identifiable in Navigation where it has a
-navigation destination.
-
-A Navigation destination for a selectable Page shall be a valid Public View Link
-to that Page's canonical default view. It shall not advertise an output path
-that the static site does not publish.
+A Page is not defined by an HTML file, incidental producer output filename or a
+copied legacy report.
 
 ---
 
-## 7. Page and ContentPanel Contract
+## 6. PAPanel, Published Artifact and Notes Contract
 
-A Page is a curated public publication unit selectable within the site.
+`PAPanel` is the visible public region containing one PA and its Notes. The
+relationship is material: Notes accompany and explain the PA or its visible
+features; they are not an extension of Filters.
 
-A Page shall have, as applicable:
+A PA shall have, as applicable, stable identity, public artefact form,
+site-facing inputs, meaningful visible features, public labels, Notes/caveats or
+provenance, and consistency/availability requirements required for truthful
+public presentation.
 
-- a stable page identity;
-- a public title;
-- optional public summary/framing text;
-- public status;
-- a public entry link through Navigation or another deliberate public link;
-- Contents conforming to an approved public grammar;
-- required Published Artifact, data and asset references;
-- Filter and default-state declarations where applicable;
-- Notes declarations where applicable.
-
-A promoted page supported by the initial implementation shall render as a
-`ContentPanel` conforming to `PG`.
-
-`ContentPanel` shall contain:
-
-- a `Heading` representing page-level reader framing; and
-- `Contents` representing the selected analytical public material.
-
-A Page is not defined by an HTML file, an incidental producer output filename or
-a copied legacy report.
+A Note may explain or qualify a PA, a visible feature, a selected representation
+or a relevant caveat/provenance fact. A change in Filter state may change Note
+relevance only because it changes visible PA state.
 
 ---
 
-## 8. Heading Contract
+## 7. Page Availability Contract
 
-`Heading` provides page-level framing for the selected Page.
+A Page may be declared/promoted as part of the product yet unavailable in a
+particular production build because its required input condition is not met.
 
-It shall contain:
+For an availability-sensitive Page:
 
-- a main heading; and
-- an optional sub heading.
+```text
+available
+  the Page's required compatible inputs exist and its normal PA may be shown;
 
-The Heading is distinct from:
+unavailable
+  the Page exists as part of the product, but its normal PA must not be
+  presented as valid in this build context.
+```
 
-- the site caption in the NavigationBar;
-- Published Artifact framing within the PAPanel;
-- table headings, chart labels or other artefact-internal labels;
-- Notes headings or note content.
+In an unavailable production state:
 
-The precise visual hierarchy and HTML realisation of these distinct roles belong
-to rendering design, subject to preserving their public meanings.
+- Navigation shall not invite ordinary available selection of the normal PA;
+- a direct Page request shall display a clear unavailable-state explanation;
+- the explanation may direct the reader to a different Page serving a related
+  but distinct public question; and
+- unavailable treatment shall not silently substitute a different PA meaning.
 
----
-
-## 9. Contents and FilterSection Contract
-
-`Contents` shall contain an optional `FilterSection` followed by a `PAPanel`.
-
-A `FilterSection`, where present, shall contain zero or more `FilterItem`
-instances. It shall present Filters that affect the visible analytical content
-or representation within the associated PAPanel.
-
-Filters may control matters including:
-
-- row selection;
-- source/data-instance selection;
-- visible column groups;
-- measure selection;
-- representation selection;
-- PA visibility presets or views where later specified.
-
-The initial `PG` permits flat FilterItems only. Nested or hierarchical Filter
-structure is not specified.
-
-A FilterSection shall not contain or own Notes. A Filter may affect whether a
-Note is relevant because it changes visible PA state, but Note ownership remains
-with the Published Artifact or visible Published Artifact feature.
+Development builds may deliberately expose an otherwise unavailable Page for
+regression testing only under an explicit development policy and conspicuous
+visible warning. Such an affordance is not valid production output.
 
 ---
 
-## 10. FilterItem Contract
+## 8. Specified Semantics of 2.1 Banzuke Changes
 
-A `FilterItem` shall be either a `BooleanChoice` or a `SingleFiniteChoice` in the
-initial supported page grammar.
+### 8.1 Public Question
 
-A Filter shall have, where applicable:
+**2.1 Banzuke Changes** is a **new-banzuke change report**. It answers:
 
-- a stable identifier;
-- a reader-facing label;
-- a default value;
-- allowed values;
-- participation in reproducible public state;
-- concise help text or presentation hints.
+```text
+A new banzuke has been published before that basho has results of its own.
+How does it differ from the preceding represented basho?
+```
 
-### 10.1 BooleanChoice
+### 8.2 Required Inputs
 
-A `BooleanChoice` shall represent a labelled true/false Filter with a declared
-default value.
+Its normal production PA requires:
 
-### 10.2 SingleFiniteChoice
+```text
+predecessor context
+  the latest relevant BashoState in the site's History, providing the previous
+  banzuke and previous-result context;
 
-A `SingleFiniteChoice` shall represent a labelled Filter selecting one value
-from one or more declared values, with a declared default value.
+successor subject
+  a compatible separately available newly published banzuke whose basho has not
+  yet entered History with results of its own.
+```
 
-The specification does not require any particular HTML widget for either
-FilterItem form. Widget selection belongs to rendering design so long as the
-specified meaning and state are preserved.
+### 8.3 What Banzuke Changes Is Not
 
----
+It is not:
 
-## 11. PAPanel Contract
+```text
+a general adjacent-historical-basho comparison Page;
+a Page which automatically compares the final two bashos contained in an
+arbitrary Selected History; or
+a Page permitted silently to display unrelated current/live output inside an
+archive or explicitly historical publication.
+```
 
-`PAPanel` is the visible public region containing one Published Artifact and its
-Notes.
+For bashos represented in History, readers use **Basho Results** to inspect
+results and comparisons with preceding represented bashos.
 
-A PAPanel shall contain:
+### 8.4 Production Availability
 
-- one `PA`; and
-- `Notes`, which may contain zero or more visible Notes.
+Banzuke Changes is available in a production build only where its compatible
+successor-banzuke input exists relative to that build's History and the
+successor has not yet entered History with results of its own.
 
-The PAPanel relationship is material: Notes accompany and explain the Published
-Artifact or visible Published Artifact features. They are not an extension of
-the FilterSection and shall not be presented as belonging to it.
+When no compatible newly published banzuke is available, its unavailable-state
+explanation shall be materially equivalent to:
 
-A rendering of `Contents` in which Notes visibly span the FilterSection as well
-as the Published Artifact does not conform to this specified relationship unless
-an amended grammar or explicit public exception is adopted.
+```text
+No newly published banzuke is currently available.
+Use Basho Results to compare a represented basho with its predecessor.
+```
 
----
+### 8.5 Temporary Development Exception
 
-## 12. Published Artifact Contract
+Outside its short normal production availability window, developers need to
+inspect and regress the Banzuke Changes UI. Until production availability
+enforcement is implemented, development builds may therefore leave 2.1 enabled
+and render its existing prepared/live report even where the production
+availability condition has not been established.
 
-A Published Artifact is the analytical object deliberately presented to the
-reader within a PAPanel.
+That is a deliberate testing exception, not alternative public semantics. Its
+visible sub heading shall append a conspicuous warning after `New-banzuke change
+report.` materially equivalent to:
 
-A PA shall have, as applicable:
+```text
+DEVELOPMENT WARNING: availability is not yet validated against this build's
+History. This Page is intended only for a newly published banzuke before its
+first results enter History; archive or historical builds may show unrelated
+live output.
+```
 
-- a stable identity;
-- a public artefact form;
-- a public label or framing where needed;
-- site-facing data or artefact inputs;
-- meaningful visible features;
-- Notes, caveats or provenance declarations where needed;
-- consistency requirements required for public presentation.
-
-The initial PA terminal forms in `PG` are:
-
-- `<table>`;
-- `<indexed table>`;
-- `<chart>`;
-- `<sectioned table>`;
-- `<prose>`;
-- `<custom artifact>`.
-
-The internal structure and rendering rules for those forms may be refined by
-Published Artifact model and rendering design documents.
-
-A custom artefact may provide specialised visible analytical presentation, but
-it shall occupy the PA position in the PAPanel and shall not silently redefine
-`PublicUI`, `NavigationBar`, `ContentPanel`, `Heading`, `Contents`,
-`FilterSection`, `PAPanel` or `Notes` structure.
-
-### 12.1 Published-Data Coherence
-
-Where a PA's public meaning depends on History or a History-derived data
-instance, its visible data shall be coherent with the Selected History of the
-built site.
-
-For example, a PA whose meaning is “latest banzuke changes” means changes into
-the latest basho of the Selected History for that build. It shall not silently
-publish results derived from a different later History while another Page in the
-same build reflects the selected earlier History.
-
-This is a PA/build-data requirement, not a requirement that a Public View Link
-freeze the underlying published History forever. The same canonical link may
-correctly display later latest-basho data after a later coherent deployment.
+The current build-mode distinction is appropriate for implementing the policy:
+ordinary non-`--prod` output is development output; `--prod` identifies
+production output. Until the production availability rule is actually enforced,
+production output shall not simply conceal the warning while still displaying
+unvalidated Banzuke Changes material.
 
 ---
 
-## 13. Notes Contract
+## 9. Published-Data and Publication-Context Coherence
 
-`Notes` consists of zero or more `Note` items accompanying a PA in a PAPanel.
+Where a PA's public meaning depends on History or a compatible successor input,
+its visible data shall be coherent with the build context required by that Page.
 
-A Note explains or qualifies visible analytical material. A Note may pertain to:
+For directly History-derived Pages this means deriving from or validating
+against the Selected History. For Banzuke Changes this means either validating a
+compatible successor-banzuke relationship to History, resolving the production
+Page as unavailable, or exposing only an explicitly warned development testing
+exception.
 
-- a PA as a whole;
-- a visible table column or column group;
-- a visible chart trace or data source;
-- a representation or visibility preset;
-- a visible artefact feature;
-- relevant caveat or provenance information.
+A completed production build shall not silently combine Pages drawn from
+mutually inconsistent or inapplicable publication contexts.
 
-A Note shall be visible only when relevant to the visible PA and material visible
-state.
-
-A Note does not belong to a Filter. A change in Filter state may change Note
-relevance only because it changes the visible state of the PA.
+This is a build/PA requirement, not a requirement that a Public View Link freeze
+all future published data. A later coherent deployment may legitimately serve
+newer data through the same Page/Filter link.
 
 ---
 
-## 14. Public Status and Curation Contract
+## 10. Public Status, Public State and Public View Links
 
-Every page candidate shall have an explicit public status or be excluded from
-public publication.
-
-The initial status vocabulary may include:
+Every Page candidate shall have explicit public status or be excluded. Initial
+status terms may include:
 
 ```text
 promoted
@@ -460,257 +367,112 @@ superseded
 excluded
 ```
 
-Only `promoted` pages are required to satisfy the normal public page grammar and
-rendering contract in full.
+Availability is distinct from status: a promoted availability-sensitive Page
+may be unavailable in a particular production build.
 
-Legacy, diagnostic or candidate content may be exposed only where its status and
-limitations are explicit. Such content shall not silently establish the public
-site's normal page grammar, navigation, styling, Filter behaviour or data
-contracts.
+The public site uses one static application shell for ordinary promoted Page
+presentation. Every material available public view shall have a canonical
+Public View Link which serializes selected Page and every applicable material
+Filter value, including defaults. A direct link to an unavailable Page may
+resolve to that Page's declared unavailable explanation.
 
----
+Public View Links do not ordinarily encode the build's Selected History or
+availability evidence unless represented as declared reader-selectable state.
+They shall not derive Page identity from incidental file paths or legacy output
+locations.
 
-## 15. Public Selection and Public View Link Contract
-
-The public site shall use one static application shell for ordinary promoted
-Page presentation. Selecting a Page or changing its material Filter state shall
-select a public view within that shell rather than require one generated HTML
-entry document per Page.
-
-Every material public view shall have one canonical Public View Link that can be
-copied, pasted and reopened to restore that view against the data instance
-published by the built site.
-
-A Public View Link shall serialize:
-
-- the selected Page; and
-- every material Filter value applying to that Page, including its declared
-  default value where that Filter is present.
-
-For example, a link to a filtered Banzuke Changes view may conceptually encode:
-
-```text
-?page=banzuke_changes
-  &division=juryo
-  &context=1
-  &banzuke_style=1
-  &delta=1
-  &equelo=0
-```
-
-The exact parameter names and Boolean representation are implementation-level
-choices where they are consistent and stable for the public contract. The
-required policy is that canonical links are explicit: two links shall not be
-intentionally emitted as canonical representations of the same material public
-view merely because one relies on current Filter defaults.
-
-Navigation destinations shall target each selected Page's canonical default
-public view. A Page with no material Filters requires only its selected Page
-identity in its canonical link.
-
-Public state includes:
-
-- selected Page;
-- selected Filter values;
-- selected data instance represented through a Filter;
-- selected representation or visible table/chart view represented through a
-  Filter or other declared material public state.
-
-The following are not ordinarily part of the Public View Link:
-
-- the Selected History/data instance used by the build, unless it is itself a
-  declared reader-selectable Filter state;
-- whether the NavigationBar is hidden or shown;
-- hover state;
-- scroll position;
-- an open tooltip;
-- ordinary table sort, unless declared material;
-- chart zoom, unless declared material.
-
-Thus a Page whose declared meaning is “latest in the published History” may have
-one stable view link which displays different later data following a later
-coherent deployment. Conversely, where a Page exposes a Filter such as a
-specific basho selection, that Filter value forms part of the link's public
-state.
-
-The runtime may accept an incomplete or formerly valid incoming public-state
-link and resolve missing or invalid values predictably. Once a valid public view
-has been resolved, it shall expose that view's canonical Public View Link in the
-browser address bar.
-
-Public Page identities and public state shall not be derived from incidental
-source filenames, output file paths or legacy output locations.
-
-Invalid requested public state shall degrade predictably and shall not silently
-leave a promoted Page empty or misleading.
+Invalid or incomplete public state shall degrade predictably and shall not leave
+a promoted Page blank or misleading.
 
 ---
 
-## 16. Static Publication Contract
+## 11. Static Publication and Producer Contract
 
-The generated website shall be publishable as static output.
+The generated website shall be publishable as static output without Python,
+database, application server, user accounts or dynamic public API. Client-side
+JavaScript may realise interaction and restore canonical public state.
 
-The public server shall not require:
+Producer modules own analysis-specific computation and meaning. For promoted
+material they shall provide deliberate site-facing inputs sufficient to publish
+the intended PA, including labels, meaningful visible fields/traces, valid
+Filters, caveats/provenance and required data-instance or compatible-successor
+identity/validation material.
 
-- Python;
-- a database;
-- an application server;
-- server-side computation;
-- user accounts;
-- a dynamic public API.
+`make_site2` owns public organisation, page structure, Filter/PAPanel/Notes
+presentation, public state, availability resolution, publication assembly and
+refusing to publish required public material whose input relationship cannot be
+shown to meet the Page contract.
 
-Static output may contain, where required:
-
-- HTML;
-- CSS;
-- JavaScript;
-- data files;
-- serialized page, PA or runtime data;
-- images and other public assets;
-- build metadata useful for verification.
-
-Client-side JavaScript may realise interactive public behaviour and restore
-public state from canonical Public View Links.
-
-Build and deployment shall remain separable operations.
-
-A completed public build shall be internally coherent with its Selected History.
-It shall not silently contain promoted History-dependent PA material generated
-from mutually inconsistent History/data instances.
+Legacy output and code may provide evidence, but are not normative merely
+because they exist.
 
 ---
 
-## 17. Producer and Site-Facing Input Contract
+## 12. Error and Missing-State Contract
 
-Producer modules own analysis-specific computation and meaning.
-
-For promoted public material, producers shall provide deliberate site-facing
-inputs sufficient to publish the intended PA, including where applicable:
-
-- data values;
-- labels;
-- meaningful visible columns or traces;
-- valid Filter values;
-- caveats;
-- provenance;
-- consistency requirements;
-- sufficient selected-History/data-instance identity or validation material
-  where the PA depends on History.
-
-`make_site2` owns the public organisation, public page structure, Filter
-presentation, PAPanel relationship, Notes presentation, public state,
-publication assembly and shared site behaviour. It also owns refusing to publish
-an included promoted PA where its required site-facing input cannot be shown to
-belong to the selected build data instance.
-
-`make_site2` shall not normally parse legacy generated HTML to recover the
-meaning of a promoted PA, nor silently substitute unvalidated pre-existing
-producer output for input required from the Selected History.
-
----
-
-## 18. Legacy Evidence Contract
-
-Legacy `make_site` output and code may be used as evidence of behaviour that
-might need to be retained, restored, corrected or deliberately rejected.
-
-Legacy material is not normative merely because it previously existed.
-
-A retained legacy behaviour shall be justifiable against current requirements,
-this specification or an explicitly recorded pending design decision.
-
-The active `make_site2` product shall not depend operationally on legacy
-`make_site` code or output for normal promoted-page publication.
-
----
-
-## 19. Error and Missing-State Contract
-
-A promoted page shall not silently render blank, structurally invalid or
-materially misleading public content when required inputs or required public
-state are missing or invalid.
+A promoted Page shall not silently render blank, structurally invalid or
+materially misleading production content when required inputs, availability or
+public state are missing or invalid.
 
 The product shall handle, as applicable:
 
-- missing required PA inputs;
-- missing required data;
-- missing or unvalidated selected-History coherence for a required promoted PA;
-- invalid selected Page;
-- invalid Filter values;
-- unsupported PA terminal form;
-- contradictory public model structure;
-- excluded or unavailable page selection;
-- failed client-side data load.
+- missing required PA inputs or data;
+- missing or unvalidated Selected-History coherence;
+- missing or incompatible successor input for an availability-sensitive Page;
+- invalid selected Page or Filter values;
+- unavailable Page selection;
+- failed client-side data load; and
+- unsupported or contradictory public model structure.
 
-Build-time invalidity of required promoted material shall be reported as a build
-failure or explicit blocking error. In particular, a build selected by an
-explicit History shall not successfully publish an included promoted
-History-dependent PA from a different or unvalidated data instance merely
-because copyable producer output exists.
+Build-time invalidity of required ordinary promoted material shall be reported as
+a build failure or explicit blocking error. A promoted availability-sensitive
+Page whose input condition is not met may instead be explicitly represented as
+unavailable under its declared production contract.
 
-Invalid reader-requested state in an otherwise valid built site shall degrade
-predictably to an available public state or a clear public error presentation
-and, when a view is resolved, expose the resolved canonical Public View Link.
+Development-only exposure of unavailable/unvalidated material shall be plainly
+labelled as such and shall not be mistaken for normal production publication.
 
 ---
 
-## 20. Initial Conformance Criteria
+## 13. Initial Conformance Criteria
 
 A first conforming production slice shall demonstrate:
 
-- one generated static public site;
-- one static application shell for ordinary promoted Page views;
-- one visible `PublicUI` conforming to `PG`;
-- a NavigationBar containing site identity, Navigation and a working hider;
-- one subject-led hierarchical numbered Navigation structure;
-- Navigation links resolving to canonical default Public View Links;
-- one promoted Page rendered in a ContentPanel;
-- one Heading and one Contents structure;
-- optional/actual FilterSection behaviour using supported FilterItems;
-- one PAPanel containing one PA and Notes;
-- one table or indexed-table PA terminal;
-- canonical selected-Page and material Filter public state that can be copied,
-  pasted and restored;
-- coherent use of any explicit Selected History for included promoted
-  History-dependent material;
-- site-facing inputs rather than copied legacy HTML for the promoted page;
-- working local build and inspection;
-- explicit public status handling.
+- one generated static public site and one ordinary static application shell;
+- visible `PublicUI` conforming to `PG`;
+- a NavigationBar containing identity, Navigation and working hider;
+- subject-led hierarchical numbered Navigation;
+- canonical default Public View Links for available selected Pages;
+- a Heading and Contents structure with optional Filters and PAPanel;
+- PA and Notes ownership correctly represented;
+- copied/pasted/restored Page and material Filter state;
+- coherent use of History and any compatible Page-specific additional input;
+- explicit unavailable handling for a promoted Page where required;
+- site-facing inputs rather than copied legacy HTML; and
+- working local build and inspection.
 
 Before replacing the legacy public product, `make_site2` shall additionally
-demonstrate:
-
-- promoted table and chart PAs conforming to the public page grammar;
-- `BooleanChoice` and `SingleFiniteChoice` FilterItems;
-- a specialised/custom PA terminal that does not redefine surrounding PG
-  structure;
-- explicit handling of candidate, legacy or excluded material where included;
-- shared public state and public navigation behaviour;
-- no normal promoted-page dependence on iframe rendering or copied generated
-  legacy HTML;
-- no successful explicit-History build which silently mixes promoted
-  History-dependent data from incompatible data instances.
+demonstrate promoted table and chart PAs, required Filter forms, a specialised PA
+which does not redefine surrounding `PG`, explicit status/availability handling,
+and no successful production build silently mixing incompatible publication
+contexts.
 
 ---
 
-## 21. Relationship to Design Documents
+## 14. Relationship to Design Documents
 
-This specification establishes the public website structure and public
-behaviour required of `make_site2`.
+This specification establishes public website structure and observable public
+behaviour. Subsequent design documents shall explain how the implementation
+satisfies it, including:
 
-Subsequent design documents shall explain how the implementation satisfies this
-specification:
+- model-first architecture and auditable rendering of `PG`;
+- Page inclusion and availability planning;
+- Published Artifact and rendering policy;
+- build/runtime support for canonical links and unavailable states;
+- producer integration for Selected History and compatible successor inputs;
+- deployment and operational policy.
 
-- `03 Architecture and Design Thesis.md` shall explain the model-first
-  architecture and how it supports coherent, auditable rendering of `PG`;
-- model design documents shall specify semantic representations of the concepts
-  and relationships defined here;
-- rendering design shall specify how those concepts are realised visually and
-  interactively without inventing unowned public structure;
-- build, runtime, producer-integration and deployment documents shall specify
-  the supporting machinery, including how Selected History coherence is
-  prepared or validated for included promoted material.
-
-These later design choices may refine implementation and rendering policy, but
-they shall not silently alter the public relationships specified by `PG` or the
-public contracts in this document.
+These design choices may refine implementation and rendering policy, but they
+shall not silently alter `PG`, the specified semantics of 2.1 Banzuke Changes,
+or the distinction between production publication and explicitly warned
+development testing output.
