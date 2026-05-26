@@ -188,23 +188,30 @@ remains:
 | Plainly nonconforming for the restricted-history build | Finish by Chii; Rank at Retirement; Career Length |
 | Not proven coherent because copied input is unvalidated against selected History | Standings by Wins; Banzuke Division by Era; Makuuchi Rank by Era; Division Stability; First Chii Appearance; Typical Equelo Ratings; Win Probability by Standing |
 
-### Immediate action already decided
+### Immediate Action Already Decided
 
 ```text
 Add the visible development warning to 2.1 when rendering development output,
 leaving its present testable behaviour otherwise unchanged.
 ```
 
-### Later production enforcement
+### Later Production Enforcement
 
-```text
-Resolve Banzuke Changes availability from History plus compatible successor
-banzuke input.
-Render it normally only when available.
-Otherwise disable/mark its Navigation entry unavailable and provide a direct-
-request explanation directing readers to Basho Results.
-Continue Selected-History enforcement for ordinary History-derived copied PAs.
-```
+This is one P0 work item, not a set of independent priorities. It includes:
+
+- implementing Banzuke Changes production availability handling;
+- resolving availability from History plus compatible successor banzuke input;
+- rendering Banzuke Changes normally only when available;
+- otherwise disabling or marking its Navigation entry unavailable and providing
+  a direct-request explanation directing readers to Basho Results;
+- continuing Selected-History enforcement for ordinary History-derived copied
+  PAs;
+- deciding whether `--prod` remains the production-coherence switch;
+- keeping quick explicit-history inspection builds usable only if their reduced
+  or caveated scope is clear in command output and, where useful, the generated
+  site; and
+- carrying data-instance identity/provenance far enough to enforce or explain
+  those decisions.
 
 ---
 
@@ -229,12 +236,13 @@ This defect does not reopen the canonical-link correction.
 
 | Issue | Status | Note |
 | --- | --- | --- |
-| Notes-panel height/overflow/framing | Open | Rendering decision. |
+| Notes-panel height, overflow and framing, including the discussed `170px` cap | Open / next user-visible item | Rendering decision owned by `05 Rendering Design.md`. |
 | Heading typography ownership | Open | Rendering decision. |
 | Banzuke Changes central Rank semantics | Open | PA/rendering decision. |
 | Context-specific background colours | Open | Rendering/operations decision. |
 | General unavailable-Page model/rendering | Open | Banzuke Changes is the first concrete required case. |
 | Page promotion review | Open | Review against coherence, availability and actual PA rendering. |
+| Plotly interaction state in deep links | Deferred / TBD | Decide whether canonical public links should preserve Plotly legend/trace visibility, zoom/pan, or other client-side chart state. Complexity is moderate-to-high if yes: define which Plotly state is public material state versus temporary reader interaction, serialize it without unstable Plotly internals, restore it after data/render completion, keep URLs readable, and avoid breaking canonical-link semantics. |
 | Runtime/bootstrap schema/versioning | Deferred | Long-term serialization policy. |
 | Build metadata / data-instance identity | Open | Include History/successor-input identity where useful. |
 | Deployment target safety | Open / P1 | Guard cleaning arbitrary local targets; check `htm`/`html` spelling. |
@@ -256,16 +264,36 @@ Immediate decided patch
   out-of-window testing behaviour remains accessible in development output
 
 P0
-  implement Banzuke Changes production availability handling
-  enforce coherent selected-History publication for directly History-derived PAs
+  whole-site publication coherence as one grouped item:
+    implement Banzuke Changes production availability handling
+    enforce coherent selected-History publication for directly History-derived
+    copied PAs
+    decide whether --prod remains the production-coherence switch
+    carry enough data-instance identity/provenance to enforce or explain policy
 
-New triage item
-  reproduce and diagnose empty Plotly line-chart rendering
+Next independent observed defect requiring triage
+  Plotly line-chart Pages can display empty chart frames with no traces;
+  establish scope/cause and promote priority if reproducible on promoted Pages
 
-Later
-  settle rendering choices and Page-promotion policy
-  add deployment safety protection
-  refine metadata/runtime/output conventions
+Next user-visible design item
+  settle Notes-panel height, overflow and framing, including whether the
+  discussed 170px cap is the right default presentation rule
+
+P1
+  add local deployment target-safety protection
+  follow through on further producer integrations after the P0 policy and
+  Banzuke Changes slice
+
+P2
+  settle the remaining open rendering choices
+  refine build metadata/runtime/output conventions
+  centralise repeated page-level runtime structure where worthwhile
+
+P3
+  production cache policy
+  remote exact-sync/deployment maturity
+  durable published-link compatibility policy
+  richer PG extensions only where promoted public need requires them
 ```
 
 ---
@@ -282,4 +310,6 @@ temporarily keep it accessible for regression testing provided a conspicuous
 warning makes that exception visible.
 
 Other copied History-derived PAs remain subject to the broader Selected-History
-coherence audit. A separate Plotly empty-trace defect remains open for triage.
+coherence audit. A separate Plotly empty-trace defect remains open for triage,
+and the next user-visible design item after that is Notes-panel height,
+overflow and framing.

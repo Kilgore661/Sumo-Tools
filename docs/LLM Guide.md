@@ -1,5 +1,9 @@
 # LLM System Prompt Context: Contract-First Collaboration and Offensive Programming
 
+Read this file together with `docs/House Style.md`. The House Style document
+contains project-wide documentation, coding and git workflow rules, including
+the commit message policy and required `Next:` section.
+
 ## Collaboration Rule
 
 The user wants to write the right code, not code that is merely a plausible
@@ -145,12 +149,32 @@ Mapped/cloud drives are not generally usable from this session. `A:` is the LAN/
 
 Your local/LAN deploy target lives on `A:` and is therefore not directly deployable by me in this session. Remote deploy is also not directly available because `GEOLOCATION` is not present in my environment, and you supply the password manually.
 
+Because the user's local web server serves files from mapped drive `A:`, an LLM
+should normally run `make_site2` with `--build-only` rather than `--local-only`.
+For the user and LLM to inspect the same rendered site, either the user or the
+LLM should start a Python static server over the generated build output, for
+example:
+
+```powershell
+py -m src.products.make_site2 --build-only --history-zip ".\files\output\Historys\1978_01 to 1980_11.zip"
+py -m http.server 8766 --directory ".\files\output\make_site2"
+```
+
+Then both can use `http://localhost:8766/` while that PowerShell process keeps
+running.
+
 I can see environment variable names available to the Codex shell, but not your broader interactive shell environment. I should not assume secrets or mapped-drive credentials are available.
 
 The `node` on `PATH` is blocked with access denied, but bundled runtime Node works at:
 
 ```text
 C:\Users\kilgo\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe
+```
+
+Use that explicit executable for JavaScript checks, for example:
+
+```powershell
+& "C:\Users\kilgo\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe" --check ".\src\products\make_site2\runtime\site-refactor\ui\charts.js"
 ```
 
 Python works from the workspace. For local static preview, the command is:
@@ -161,16 +185,26 @@ python -m http.server <port> --directory <folder>
 
 but the folder must actually contain `index.html`. The earlier `8787` 404 was because `files/output/make_site2` did not exist from `X:\Sumo-Tools`.
 
-Pytest may have a local capture problem in this environment. A normal focused
-pytest run failed during capture teardown with:
+Use the repo-local virtual environment for tests:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -s <test paths>
+```
+
+The user-site pytest install may be visible to the human's interactive shell
+but not to Codex. If `py -m pytest` or `python -m pytest` fails from Codex,
+do not chase the global Python environment first; use the repo-local `.venv`.
+
+Pytest may also have a local capture problem in this environment. A normal
+focused pytest run failed during capture teardown with:
 
 ```text
 ValueError: I/O operation on closed file.
 ```
 
 Rerunning with `-s` bypassed capture and produced ordinary test results. If an
-LLM sees this pytest/capture failure again, it should flag it explicitly and ask
-the user what, if anything, they want to do about this.
+LLM sees this pytest/capture failure again, it should switch to the `.venv`
+command above with `-s`, then report any remaining real test failures.
 
 There is a lingering Python server on port `8766`, started earlier, serving a working recent build. I can access it through the Codex in-app browser.
 

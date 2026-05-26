@@ -188,8 +188,10 @@ function renderStandingWinProbabilityPlot(artifact, state, rowsBySource) {
 }
 function standingWinProbabilityTraces(artifact, state, source, rows) {
   const trace = artifact.traces[0];
-  return standingWinProbabilityGroups(artifact, state, rows, trace)
-    .map(group => standingWinProbabilityTrace(artifact, state, source, group, trace));
+  const groups = standingWinProbabilityGroups(artifact, state, rows, trace);
+  const selectedTraceKey = selectedStandingTraceKey(artifact, groups);
+  return groups
+    .map(group => standingWinProbabilityTrace(artifact, state, source, group, trace, selectedTraceKey));
 }
 function standingWinProbabilityGroups(artifact, state, rows, trace) {
   const groups = new Map();
@@ -214,7 +216,7 @@ function standingWinProbabilityGroups(artifact, state, rows, trace) {
     }))
     .sort((left, right) => left.order - right.order);
 }
-function standingWinProbabilityTrace(artifact, state, source, group, trace) {
+function standingWinProbabilityTrace(artifact, state, source, group, trace, selectedTraceKey) {
   const errorFields = trace.error_y || [];
   const showErrorBars = Boolean(state.error_bars) && errorFields.length === 2;
   const plotlyTrace = {
@@ -223,7 +225,7 @@ function standingWinProbabilityTrace(artifact, state, source, group, trace) {
     name: group.key,
     x: group.rows.map(row => row[trace.x]),
     y: group.rows.map(row => Number(row[trace.y])),
-    visible: standingTraceVisible(artifact, group),
+    visible: standingTraceVisible(group, selectedTraceKey),
     meta: { division: group.division },
     customdata: group.rows.map(row => standingWinProbabilityCustomData(source, row)),
     hovertemplate: standingWinProbabilityHoverTemplate(source),
@@ -296,9 +298,13 @@ function standingWinProbabilityHoverTemplate(source) {
     "<extra></extra>",
   ].join("<br>");
 }
-function standingTraceVisible(artifact, group) {
+function selectedStandingTraceKey(artifact, groups) {
   const preferred = artifact.provenance.default_display_trace || "";
-  if (group.key === preferred) return true;
+  if (groups.some(group => group.key === preferred)) return preferred;
+  return groups[0]?.key || "";
+}
+function standingTraceVisible(group, selectedTraceKey) {
+  if (group.key === selectedTraceKey) return true;
   return "legendonly";
 }
 function renderCareerLengthTable(view, rows) {
@@ -892,4 +898,4 @@ function visibleStandingCategories(traces) {
     .map(([label]) => label);
 }
 
-export { renderFinishByChiiChart, renderFinishByChiiPlot, finishByChiiRows, renderStackedBarChart, renderGroupedLineChart, renderOrderedBarChart, renderCategoryBarChart, renderCareerLengthArtifact, renderStandingWinProbabilityChart, renderStandingWinProbabilityPlot, standingWinProbabilityTraces, standingWinProbabilityGroups, standingWinProbabilityTrace, standingWinProbabilityCustomData, standingWinProbabilityHoverTemplate, standingTraceVisible, renderCareerLengthTable, renderCareerLengthPlot, careerLengthTraces, renderCategoryBarPlot, renderOrderedBarPlot, renderGroupedLinePlot, renderStackedBarPlot, stackedBarRows, chartRows, stackedBarTraceSpec, groupedLineTraceSpec, orderedBarTraceSpec, stackedBarTraces, groupedLineTraces, orderedBarTrace, categoryBarTrace, orderedRows, orderedBarHoverTemplate, groupedLineHoverTemplate, stackedBarGroupOrder, chartGroupOrder, stackedBarLayout, groupedChartLayout, orderedBarLayout, categoryBarLayout, careerLengthLayout, standingWinProbabilityLayout, sparseTickText, monthIndexTicks, monthIndexLabel, axisRange, chartElementId, resolveCareerLengthView, careerLengthView, careerLengthCellValue, selectedStandingSource, resolveSelectedDataSourceId, resolveFilterValue, displayStandingChii, divisionForStandingChii, visibleStandingCategories };
+export { renderFinishByChiiChart, renderFinishByChiiPlot, finishByChiiRows, renderStackedBarChart, renderGroupedLineChart, renderOrderedBarChart, renderCategoryBarChart, renderCareerLengthArtifact, renderStandingWinProbabilityChart, renderStandingWinProbabilityPlot, standingWinProbabilityTraces, standingWinProbabilityGroups, standingWinProbabilityTrace, standingWinProbabilityCustomData, standingWinProbabilityHoverTemplate, selectedStandingTraceKey, standingTraceVisible, renderCareerLengthTable, renderCareerLengthPlot, careerLengthTraces, renderCategoryBarPlot, renderOrderedBarPlot, renderGroupedLinePlot, renderStackedBarPlot, stackedBarRows, chartRows, stackedBarTraceSpec, groupedLineTraceSpec, orderedBarTraceSpec, stackedBarTraces, groupedLineTraces, orderedBarTrace, categoryBarTrace, orderedRows, orderedBarHoverTemplate, groupedLineHoverTemplate, stackedBarGroupOrder, chartGroupOrder, stackedBarLayout, groupedChartLayout, orderedBarLayout, categoryBarLayout, careerLengthLayout, standingWinProbabilityLayout, sparseTickText, monthIndexTicks, monthIndexLabel, axisRange, chartElementId, resolveCareerLengthView, careerLengthView, careerLengthCellValue, selectedStandingSource, resolveSelectedDataSourceId, resolveFilterValue, displayStandingChii, divisionForStandingChii, visibleStandingCategories };
