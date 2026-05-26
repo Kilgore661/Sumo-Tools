@@ -6,9 +6,7 @@ Current register of unresolved decisions, implementation work and deferred
 design for `src/products/make_site2`.
 
 The active Requirements, Specification and Design documents define the product.
-This document records remaining work or decisions without allowing them to
-become implicit design through convenience or drift. Detailed supporting audits
-currently include:
+Detailed evidence is recorded in:
 
 ```text
 06 Rendering Audit and Changes.md
@@ -38,49 +36,91 @@ Done; remove on tidy
 
 ---
 
-## 2. Current Baseline
-
-The following positions are established in the active document set:
+## 2. Established Baseline
 
 ```text
 PG is rooted at PublicUI.
-
 PublicUI contains NavigationBar and ContentPanel.
-
 Contents contains FilterSection? and PAPanel.
-
 PAPanel contains PA and Notes; Notes do not belong to FilterSection.
-
 Rendering is an auditable realisation of modelled public structure.
 
-The current public-link design uses one static application shell.
-
+The public-link design uses one static application shell.
 Canonical Public View Links state selected Page identity and all applicable
 material Filter values, including defaults.
-
 Navigation links identify canonical default Page views.
 
-An explicit History input selects the History/data instance for the whole built
-site.
-
-Every included promoted PA whose meaning depends on History must be derived
-from, or validated against, that selected History.
-
-A canonical link identifies a view of the published site; it does not ordinarily
-freeze the underlying build History/data instance.
-
-Producers own analytical computation and meaning; make_site2 owns coherent
-public publication, planning, validation, rendering/output assembly and refusal
-to publish incoherent required material.
+A build has a coherent publication context.
+An explicit History input selects the History/data instance for material whose
+public meaning depends on that History.
+A Page whose meaning additionally requires compatible successor/live input must
+have that input validated or be explicitly resolved as unavailable in production.
 ```
 
-The Selected-History rule is incorporated in:
+### 2.1 Banzuke Changes Semantics
+
+The meaning of **2.1 Banzuke Changes** is now settled:
 
 ```text
-02 Specification.md
-04.2 Publication Plan Model.md
-07 Build, Output and Runtime Design.md
-08 Producer Integration and Migration.md
+Banzuke Changes is a new-banzuke change report.
+
+It answers:
+  A newly published banzuke is available before that basho has results of its
+  own. How does it differ from the preceding represented basho?
+
+It is not:
+  a general adjacent-historical-basho comparison Page;
+  a view of the final two bashos in an arbitrary selected History; or
+  a Page which may silently display unrelated current/live material in an
+  archive-history publication.
+```
+
+Production availability requires:
+
+```text
+predecessor context
+  the latest relevant BashoState in the site's History;
+
+current subject
+  a compatible newly published successor banzuke which has not yet entered
+  History with results of its own.
+```
+
+When that condition is not met, the production Page shall be unavailable. Its
+Navigation treatment shall not invite ordinary selection and a direct request
+shall explain that no newly published banzuke is available and direct readers
+to Basho Results for represented historical comparison.
+
+### 2.2 Temporary Development Exception
+
+**Status:** Decided; warning implementation outstanding.
+
+Outside the short natural availability window, developers still need to inspect
+and regress the Banzuke Changes UI. Therefore a development build may leave 2.1
+selectable and render the existing prepared/live report even when production
+availability is not established.
+
+This is a testing affordance, not alternate public semantics. Until production
+availability enforcement is implemented, the enabled development Page must add
+a conspicuous warning after its existing subheading `New-banzuke change
+report.` materially equivalent to:
+
+```text
+DEVELOPMENT WARNING: availability is not yet validated against this build's
+History. This Page is intended only for a newly published banzuke before its
+first results enter History; archive or historical builds may show unrelated
+live output.
+```
+
+The current command-line mode distinction is appropriate for this policy:
+
+```text
+ordinary build without --prod
+  development output; may expose the warning-backed testing affordance.
+
+build with --prod
+  production output; eventually must enforce the availability rule rather than
+  silently removing the warning while publishing unvalidated material.
 ```
 
 ---
@@ -99,326 +139,147 @@ PAPanel -> PA . Notes
 ```
 
 Notes render within `.pa-panel`, are limited to the Note ids owned by that
-PAPanel, and no longer visibly span Filters and PA. The temporary
-`G1Contents`/`grammar="G1"` seam has been removed. Local inspection confirmed
-the corrected rendering works.
+PAPanel, and no longer visibly span Filters and PA. The temporary `G1` seam has
+been removed and local inspection confirmed the corrected rendering works.
 
 ### 3.2 Canonical Single-Shell Public View Links
 
 **Status:** Done; remove on tidy.
 
-**Former issue:** Navigation anchors advertised route-local `.../index.html`
-destinations that were not generated, while ordinary left clicks appeared to
-work only because JavaScript intercepted them.
-
-**Implemented correction:** Navigation hrefs are emitted as canonical
-single-shell Page/default-Filter links, and runtime URL handling writes
-canonical Page-plus-material-Filter public state.
-
-**Verification completed:**
+Navigation hrefs are emitted as canonical single-shell Page/default-Filter links
+and runtime URL handling writes canonical Page-plus-material-Filter public
+state. Verification established:
 
 ```text
-Generated Navigation anchors for Banzuke Changes, Standings by Wins,
-Finish by Chii and Basho Results use ?page=... shell-query links with explicit
-default Filter values.
-
-The built index contains no Navigation href of the former .../index.html form.
-
-Representative Navigation destinations open in new tabs without a 404.
-
-A filtered table view can be copied/reopened with its state restored.
-
-A filtered chart view can be copied/reopened with its state restored.
-
-Changing Pages removes irrelevant stale Filter parameters.
-
-Reload and browser back/forward preserve the selected public view.
-
-Incomplete/invalid incoming state behaves acceptably and does not advertise
-unwritten Page entry files.
+examined Navigation anchors use ?page=... links with explicit defaults;
+no Navigation href advertises an unwritten .../index.html Page destination;
+representative new-tab destinations work without a 404;
+filtered table and chart links copy/reopen with their states restored;
+Page changes remove stale parameters;
+reload and browser back/forward preserve views; and
+incomplete/invalid incoming state behaves acceptably.
 ```
 
-**Clarification recorded during testing:** A link records reader-selected state,
-not an immutable snapshot of source data. A default Banzuke Changes link may
-correctly continue to mean “latest changes in the History published by this
-site”.
+A canonical Page/view link does not itself establish that an
+availability-sensitive Page has publishable material in a particular build.
 
 ---
 
-## 4. Active P0: Selected History / Whole-Site Data Coherence
+## 4. Active P0: Whole-Site Publication Coherence
 
-### 4.1 Explicit-History Build Coherence
+**Status:** General rule and Banzuke Changes meaning decided; implementation
+outstanding.
 
-**Status:** Decided rule; enforcement policy and implementation outstanding.
+A restricted-history build ending at `1980_11` correctly displayed Basho Results
+for `1980_11` but also displayed copied current/live Banzuke Changes material
+from 2026. This is not a link failure. It is misleading publication-context
+handling.
 
-**Owning documents:** `02 Specification.md`, `04.2 Publication Plan Model.md`,
-`07 Build, Output and Runtime Design.md`, `08 Producer Integration and Migration.md`.
+For Banzuke Changes the correction is now understood as availability handling,
+not as recomputing a generic final-two-bashos report from the selected History.
 
-**Detailed evidence:** `10.1 Selected History Coherence Audit.md`.
-
-**Observed failure:** A build invoked with a history zip ending at `1980_11`
-showed:
-
-```text
-Basho Results
-  correctly reflecting the selected History and ending at 1980_11.
-
-Banzuke Changes
-  incorrectly displaying copied current/full-history 2026 data.
-```
-
-**Established rule:**
-
-```text
-An explicit History input selects the History/data instance for the whole built
-site.
-
-Every included promoted PA whose meaning depends on History must be derived
-from, or validated against, that selected History.
-```
-
-**Why P0:** A site that renders successfully but mixes incompatible data
-instances across promoted Pages is materially misleading.
-
-**Current implementation fact:** `build_site(...)` passes `resolved_history`
-only into Basho Results. Banzuke Changes and the other included PA inputs are
-staged from pre-existing outputs without selected-History validation; several
-source paths visibly identify wider/current intervals.
-
-**Initial audit:**
+For directly History-derived copied PAs the existing Selected-History issue
+remains:
 
 | Assessment | Pages / PAs |
 | --- | --- |
 | Conforming for explicit History selection | Basho Results |
-| Demonstrated or plainly nonconforming for the restricted-history build | Banzuke Changes; Finish by Chii; Rank at Retirement; Career Length |
-| Not proven coherent because copied input is not derived from or validated against selected History | Standings by Wins; Banzuke Division by Era; Makuuchi Rank by Era; Division Stability; First Chii Appearance; Typical Equelo Ratings; Win Probability by Standing |
+| Availability-sensitive; misleading in archive builds until warned/enforced | Banzuke Changes |
+| Plainly nonconforming for the restricted-history build | Finish by Chii; Rank at Retirement; Career Length |
+| Not proven coherent because copied input is unvalidated against selected History | Standings by Wins; Banzuke Division by Era; Makuuchi Rank by Era; Division Stability; First Chii Appearance; Typical Equelo Ratings; Win Probability by Standing |
 
-### 4.2 Enforcement Policy to Decide and Implement
-
-Two implementation paths remain legitimate:
+### Immediate action already decided
 
 ```text
-Policy A
-  Integrate/prepare all included History-dependent promoted PAs before allowing
-  an explicit-History build to succeed.
-
-Policy B
-  Fail or explicitly omit unsupported PAs in explicit-History builds while
-  integrating producers incrementally.
+Add the visible development warning to 2.1 when rendering development output,
+leaving its present testable behaviour otherwise unchanged.
 ```
 
-**Recommended immediate policy:** adopt Policy B as the safety rule, and
-integrate Banzuke Changes first. A normal public build must not silently omit
-required promoted Pages; omission would need an explicit reduced
-inspection/non-public build policy.
-
-### 4.3 Next Technical Investigation
-
-Inspect the Banzuke Compare producer boundary to determine whether it:
-
-- already accepts a `History` object or selected-history serialization;
-- can produce `site_config.json` and `banzuke_change_report.csv` for a supplied
-  History/output root;
-- emits enough identity/provenance to validate prepared output against the
-  selected History; or
-- needs a deliberate site-facing preparation API.
-
-The correction must preserve the boundary:
+### Later production enforcement
 
 ```text
-Producer
-  computes Banzuke Changes from the selected History.
-
-make_site2
-  plans, validates, stages and presents coherent site-facing output.
+Resolve Banzuke Changes availability from History plus compatible successor
+banzuke input.
+Render it normally only when available.
+Otherwise disable/mark its Navigation entry unavailable and provide a direct-
+request explanation directing readers to Basho Results.
+Continue Selected-History enforcement for ordinary History-derived copied PAs.
 ```
 
 ---
 
-## 5. Newly Observed Implementation Defect: Empty Plotly Line Charts
-
-### 5.1 Missing Line-Chart Traces
+## 5. New Defect: Empty Plotly Line Charts
 
 **Status:** Open; reproduce, scope and diagnose.
 
-**Observation:** While verifying current browser behaviour, Pages rendering
-Plotly line charts were observed to display a valid-looking chart frame without
-any plotted traces. This may occur intermittently or systematically; the exact
-affected Pages, triggering state and cause have not yet been established.
+Pages rendering Plotly line charts have been observed to display a chart frame
+without visible traces. The affected Pages, states and cause have not yet been
+established.
 
-**Why it matters:** A chart PA with axes/container but no intended traces is not
-a successful rendering of the Published Artifact. Even if the shell, Filters
-and canonical links behave correctly, the analytical material is absent.
+Investigation shall determine whether data files load and contain rows, whether
+runtime errors occur, whether traces are constructed before Plotly invocation,
+and whether the problem affects only line charts or other Plotly renderers.
+A reliably empty promoted chart PA is a material rendering failure.
 
-**Investigation required:**
-
-```text
-Identify each affected Page and Filter state.
-Determine whether the expected data files load and contain rows.
-Check browser console/runtime errors.
-Determine whether traces are absent before Plotly invocation, filtered away,
-or present but not rendered/visible.
-Establish whether the defect affects line charts only or other Plotly chart
-renderers.
-Record priority once scope is known; treat any consistently blank promoted PA
-as a high-priority rendering defect.
-```
-
-This observation does not reopen the canonical-link correction: filtered chart
-link restoration was verified separately from whether all chart renderers draw
-their intended traces.
+This defect does not reopen the canonical-link correction.
 
 ---
 
-## 6. Open Rendering Decisions
-
-These remain independent of the active data-coherence P0 and the newly observed
-blank-chart defect:
-
-| Issue | Status | Owner on resolution |
-| --- | --- | --- |
-| Notes-panel height, overflow and framing, including the discussed `170px` cap | Open | `05 Rendering Design.md` |
-| Heading typography ownership: role-specific treatment versus general heading defaults | Open | `05 Rendering Design.md` |
-| Banzuke Changes central Rank value: row-header semantics or ordinary data value | Open | `04.4 Published Artifact Model.md` and `05 Rendering Design.md` |
-| Local/remote/preview background colours as deliberate context cue | Open | `05 Rendering Design.md`, possibly `09 Deployment and Operations.md` |
-
----
-
-## 7. Public Status and Build Inclusion Policy
-
-### 7.1 Status Vocabulary and Inclusion Modes
-
-**Status:** Open; now relevant to Selected-History enforcement.
-
-The current status vocabulary is:
-
-```text
-promoted
-candidate
-research
-diagnostic
-legacy
-superseded
-excluded
-```
-
-The project still needs to confirm build-mode inclusion policy. In particular,
-it must decide whether a restricted-history inspection build can omit unsupported
-promoted PAs under an explicit non-public policy, while a normal public build
-must fail rather than omit or publish mixed-history material.
-
-### 7.2 Page Promotion Review
-
-**Status:** Open.
-
-All currently declared Pages remain `PROMOTED`. This should eventually be
-reviewed against public-contract completeness, including coherent data-instance
-support and successful PA rendering, not merely the presence of a Page shell.
-
----
-
-## 8. Producer Integration and Migration
-
-### 8.1 Immediate Producer Pressure
-
-**Status:** In progress as P0 investigation.
-
-Banzuke Changes is no longer merely a useful custom-table migration example. It
-is the first demonstrated selected-History producer-integration failure and is
-the next concrete producer boundary to inspect.
-
-### 8.2 Broader Producer/Input Contract
-
-**Status:** Deferred in general; data-instance identity/validation is immediate
-where required by the P0.
-
-Copied producer output is insufficient for a History-dependent promoted PA in
-an explicit-History build unless it is prepared from, or validated against, the
-Selected History. A wider producer orchestration or interchange API should be
-designed from real integration pressure rather than invented in advance.
-
----
-
-## 9. Runtime, Output and Operational Policy
+## 6. Other Open or Deferred Matters
 
 | Issue | Status | Note |
 | --- | --- | --- |
-| Plotly line-chart traces missing | Open / triage | Chart frames sometimes or always appear with no traces; investigate data loading and chart runtime. |
-| Runtime/bootstrap schema/versioning | Deferred | Runtime now exposes `PAPanel` and canonical URL writing; long-term serialization policy remains open. |
-| Build metadata / data-instance identity | Open | Selected-History identity is now a strong candidate for inspectable build or per-PA validation metadata. |
-| Production cache policy | Deferred | Development module cache-busting is active. |
-| Deployment target safety | Open / P1 | Add a safety guard before cleaning arbitrary CLI-supplied local targets; check documented `htm` versus code `html` target spelling. |
-| Remote exact synchronisation | Deferred | Current remote deployment may leave stale files unless later strengthened. |
+| Notes-panel height/overflow/framing | Open | Rendering decision. |
+| Heading typography ownership | Open | Rendering decision. |
+| Banzuke Changes central Rank semantics | Open | PA/rendering decision. |
+| Context-specific background colours | Open | Rendering/operations decision. |
+| General unavailable-Page model/rendering | Open | Banzuke Changes is the first concrete required case. |
+| Page promotion review | Open | Review against coherence, availability and actual PA rendering. |
+| Runtime/bootstrap schema/versioning | Deferred | Long-term serialization policy. |
+| Build metadata / data-instance identity | Open | Include History/successor-input identity where useful. |
+| Deployment target safety | Open / P1 | Guard cleaning arbitrary local targets; check `htm`/`html` spelling. |
+| Production cache policy and remote exact sync | Deferred | Operational maturity. |
 
 ---
 
-## 10. Other Deferred Design Pressure
-
-The following remain deferred pending real need:
-
-- durable compatibility guarantees for published canonical Public View Links;
-- home/landing Page modelling and any additional quick links;
-- richer Note targeting;
-- PA terminal-kind versus specialised-renderer registration refinement;
-- richer `PG` structures for multiple PAs or nested Filter scope;
-- centralisation of repeated runtime page/PAPanel assembly;
-- ordinary chart/prose shared rendering policy beyond current real cases;
-- documentation index/archive/proposal tidy.
-
----
-
-## 11. Current Priority View
+## 7. Priority View
 
 ```text
-Completed foundation
-  explicit Contents / PAPanel / Notes model and rendering
+Completed
+  Contents / PAPanel / Notes model and rendering
   removal of the obsolete G1 compatibility seam
-  modular browser-runtime activation
-  plan-driven assembly of visible panels and exported artefacts
-  canonical single-shell Navigation/runtime link implementation and verification
-  normative incorporation of the Selected-History coherence rule
+  modular browser runtime activation
+  canonical single-shell Navigation/runtime links, implemented and verified
+
+Immediate decided patch
+  add conspicuous development warning to Banzuke Changes while its present
+  out-of-window testing behaviour remains accessible in development output
 
 P0
-  enforce coherent explicit-History builds across included promoted
-  History-dependent PAs; investigate/integrate Banzuke Changes first
+  implement Banzuke Changes production availability handling
+  enforce coherent selected-History publication for directly History-derived PAs
 
-New observed defect requiring triage
-  Plotly line-chart Pages can display empty chart frames with no traces;
-  establish scope/cause and promote priority if reproducible on promoted Pages
+New triage item
+  reproduce and diagnose empty Plotly line-chart rendering
 
-P1
-  settle explicit-history inspection/public build inclusion behaviour
-  follow through on producer integrations exposed by the audit
-  add local deployment target-safety protection
-
-P2
-  settle open rendering choices
-  refine build metadata/runtime/output conventions
-  centralise repeated page-level runtime structure where worthwhile
-
-P3
-  production cache policy
-  remote exact-sync/deployment maturity
-  durable published-link compatibility policy
-  richer PG extensions only where promoted public need requires them
+Later
+  settle rendering choices and Page-promotion policy
+  add deployment safety protection
+  refine metadata/runtime/output conventions
 ```
 
 ---
 
-## 12. Summary
+## 8. Summary
 
-The Notes/PAPanel structural correction is complete. The canonical single-shell
-link correction is now also complete and verified: generated Navigation links
-address valid shell-query public views; representative new-tab and copied-link
-flows work; state is restored across Page changes, reload and browser history.
+The Notes/PAPanel and canonical-link corrections are complete and verified.
 
-The active P0 remains Selected-History coherence: a Selected History governs all
-included promoted History-dependent material in a build, but the current
-implementation uses it directly only for Basho Results and can publish
-incompatible copied PA data. `10.1 Selected History Coherence Audit.md` records
-the evidence and PA-by-PA audit.
+The active publication-coherence issue is now more accurately defined. Banzuke
+Changes is a Page for a newly published successor banzuke before results enter
+History; it is not an arbitrary historical comparison Page. Production must
+only expose it when its successor-input condition is met, while development may
+temporarily keep it accessible for regression testing provided a conspicuous
+warning makes that exception visible.
 
-A new visible implementation defect has also been recorded: some or all Plotly
-line-chart Pages may render empty chart frames with no traces. Its reproduction,
-scope and cause must be established before a corrective implementation is
-chosen.
+Other copied History-derived PAs remain subject to the broader Selected-History
+coherence audit. A separate Plotly empty-trace defect remains open for triage.
