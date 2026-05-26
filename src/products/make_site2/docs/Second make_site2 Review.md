@@ -4,12 +4,12 @@
 
 Current review of `src/products/make_site2` against the replacement active
 documentation set drafted in May 2026, updated after the first corrective work,
-canonical-link implementation and discovery of the Selected-History coherence
-failure.
+canonical-link implementation and verification, and discovery of the
+Selected-History coherence failure.
 
 This review is comparative. It records corrected findings as completed, names
 current code/design mismatches, and orders the remaining work. Supporting detail
-for the new data-coherence finding is recorded in:
+for the data-coherence finding is recorded in:
 
 ```text
 10.1 Selected History Coherence Audit.md
@@ -17,10 +17,15 @@ for the new data-coherence finding is recorded in:
 
 The `PAPanel`/Notes correction and modular-runtime activation have been checked
 through the normal local build/deploy inspection workflow and reported as
-working. The canonical single-shell public-link correction has fixed the
-reported right-click/new-tab 404, but its wider verification checklist remains
-to be completed. The Selected-History coherence rule is now specified and
-designed; its implementation remains the active P0.
+working. The canonical single-shell public-link correction is now also verified:
+Navigation destinations are generated as valid shell-query links, representative
+new-tab/copy/reload/history behaviours work, and the original 404 is gone.
+
+The Selected-History coherence rule is specified and designed; its
+implementation remains the active P0. During link verification a further visible
+defect was observed: some or all Plotly line-chart Pages may display chart frames
+with no plotted traces. That issue is recorded for reproduction and triage; it
+does not invalidate the completed link verification.
 
 ---
 
@@ -149,7 +154,7 @@ now
   PAPanel; PAPanel contains PA and Notes; runtime renders that relationship.
 ```
 
-The next link/output defect has been implemented and partly verified:
+The link/output defect is also complete:
 
 ```text
 formerly
@@ -157,10 +162,11 @@ formerly
 
 now
   anchors and runtime use canonical single-shell Page-plus-Filter state links;
-  the reported open-in-new-tab 404 has been eliminated.
+  generated Navigation output and representative browser-state behaviours have
+  been verified, including elimination of the reported open-in-new-tab 404.
 ```
 
-Testing that correction exposed the new active P0:
+Testing the link correction exposed the active P0:
 
 > `build_site(...)` accepts an explicit `History`, but currently passes it only
 > into Basho Results. Other included promoted PA inputs are copied from
@@ -172,6 +178,12 @@ This is more serious than a visual or routing defect: it can produce a
 successful-looking public site whose promoted analytical Pages disagree about
 which data instance the site publishes.
 
+A separate display defect was noticed during verification: Plotly line-chart
+Pages can appear with their chart container/axes present but no displayed
+traces. The defect needs reproduction and scoping before its cause or exact
+priority is asserted; if consistently reproducible on a promoted Page, it is a
+material PA-rendering failure.
+
 ---
 
 ## 4. Summary of Current Findings
@@ -181,8 +193,9 @@ which data instance the site publishes.
 | Done | `Contents`, `PAPanel` and `Notes` are explicitly modelled; Notes render within the PA region. | Central `PG` structural nonconformance corrected and locally verified. |
 | Done | The former `G1` compatibility seam and monolithic manifest declaration/assembly file obscured the active model. | Manifest split complete; model constructed directly. |
 | Done | The monolithic browser runtime impeded manageable change. | Modular ES-module runtime activated and working locally. |
-| Implemented; verification outstanding | Navigation links advertised unwritten route-local pages. | Canonical single-shell links implemented; reported new-tab 404 fixed; remaining browser tests pending. |
-| **P0** | Explicit-History builds mix coherent and unrelated copied promoted PA data. | Rule now specified/designed; enforcement and first producer integration outstanding. |
+| Done | Navigation links advertised unwritten route-local pages. | Canonical single-shell links implemented and verified through generated anchors, new-tab, copied filtered-state, reload and browser-history checks. |
+| **P0** | Explicit-History builds mix coherent and unrelated copied promoted PA data. | Rule specified/designed; enforcement and first producer integration outstanding. |
+| Open / triage | Plotly line-chart Pages sometimes or always display empty chart frames with no traces. | Establish affected Pages/states, data-load/runtime behaviour and reproducibility; raise priority if confirmed on promoted PAs. |
 | P1 | Planning does not yet drive all producer/data staging dependencies. | The History P0 is the first concrete consequence; mature incrementally from producer cases. |
 | P1 | Runtime PA-renderer branches repeat ContentPanel/PAPanel assembly. | Drift/scaling risk remains, though repeated shape is now correct. |
 | P1 | All current Pages remain `PROMOTED` despite incomplete data-instance integration policy. | Status/inclusion review remains necessary. |
@@ -230,15 +243,19 @@ Rendered Contents now has the relationship:
 Visible Notes are restricted to the Note ids owned by the visible `PAPanel`.
 This is structural conformance, not merely styling improvement.
 
-### 5.3 Remaining Rendering Decisions
+### 5.3 Remaining Rendering Decisions and Defects
 
-These are open but no longer P0 defects:
+The following deliberate design choices remain open but are not P0 defects:
 
 - Notes-panel maximum height, overflow and visual framing;
 - heading typography ownership;
 - semantic/visible treatment of Banzuke Changes central Rank values;
 - whether local/remote/preview page-background colours are an intended context
   cue.
+
+Separately, Plotly line-chart Pages have now been observed to show empty chart
+frames without visible traces. That is an implementation defect to reproduce and
+diagnose, not a design choice to settle by styling policy.
 
 ---
 
@@ -255,31 +272,42 @@ current-sumo/standings-by-wins/index.html
 while the build writes one root `index.html`. Ordinary click behaviour appeared
 to work only because runtime intercepted the link.
 
-The current implementation now generates Navigation destinations from Page
-identity and declared default Filter state and writes canonical runtime URLs in
-the single application shell. For example, the built Standings by Wins link is
-now of the form:
+The current implementation generates Navigation destinations from Page identity
+and declared default Filter state and writes canonical runtime URLs in the
+single application shell. For example, the built Standings by Wins link is of
+the form:
 
 ```text
 ?page=standings_by_wins&view=standard&num_basho=6&current_only=true&division=makuuchi
 ```
 
-After rebuild/deployment, the originally reported right-click/open-in-new-tab
-404 no longer occurs.
+### 6.2 Verification Completed
 
-### 6.2 Remaining Closure Checks
-
-The canonical-link issue should remain marked **implemented; verification
-outstanding** until these are checked:
+The correction has been verified as follows:
 
 ```text
-filtered table Page copied and reopened
-filtered chart Page copied and reopened
-Page change after filtering removes irrelevant stale parameters
-reload restores the same selected public view
-browser back/forward restores coherent public views
-incomplete or invalid incoming state normalises predictably
+Generated index.html links for Banzuke Changes, Standings by Wins,
+Finish by Chii and Basho Results are shell-query links with explicit declared
+default Filter state.
+
+Generated index.html contains no Navigation href matching .../index.html.
+
+Representative Navigation destinations opened in new tabs successfully,
+including the originally failing case.
+
+A non-default table view and a non-default chart view were copied and reopened
+with Page/Filter state restored.
+
+Switching Pages removed stale Filter parameters belonging to the previous Page.
+
+Reload and browser back/forward restored visible public views consistently.
+
+Incomplete/invalid incoming URL handling behaved acceptably.
 ```
+
+The canonical-link P0 is therefore closed. The Plotly blank-line-chart
+observation is separate: URL restoration can be correct even where the chart
+renderer fails to show its intended data traces.
 
 ### 6.3 Clarified Meaning of Links and Data
 
@@ -328,7 +356,7 @@ Banzuke Changes
 build_basho_results_data_output(history=resolved_history, ...)
 ```
 
-but invokes the remaining PA paths as copying operations without that History,
+but invokes remaining PA paths as copying operations without that History,
 including:
 
 ```python
@@ -352,7 +380,7 @@ paths naming current/latest or `1958_01_to_2026_05` / `1958_2026` material.
 
 ### 7.4 Rule Now Incorporated
 
-The active documents now require:
+The active documents require:
 
 ```text
 An explicit History input selects the History/data instance for the whole built
@@ -390,31 +418,43 @@ preparation path or validation identity, without reimplementing its analysis in
 
 ---
 
-## 8. Site Definition and Publication Planning (`04.1`, `04.2`)
+## 8. Newly Observed Plotly Line-Chart Defect
 
-The explicit Site Definition, Page statuses, subject-led Navigation and
-`PublicationPlan` layer remain sound foundations. Manifest assembly now maps
-planned Pages to visible panels/exported artefacts and generates canonical
-Navigation links.
+During completion of canonical-link testing, Pages using Plotly line charts were
+observed to show a chart frame with no visible plotted traces. At present it is
+not known whether this is systematic or state-dependent, which Pages are
+affected, or whether the failure originates in data staging/loading, trace
+construction, filtering or Plotly visibility/rendering.
 
-The new P0 reveals the remaining planning gap: the plan/build path does not yet
-resolve or validate the selected data instance required by all included
-History-dependent PA inputs. This is no longer a merely abstract maturation
-item; it is the immediate build-contract correction.
+The appropriate immediate investigation is:
 
-All currently declared Pages remain `PROMOTED`. That status should later be
-reviewed against the ability to supply coherent data in relevant build modes,
-not only against whether the UI can render a copied output.
+```text
+Reproduce the empty-chart condition and list the affected Page ids/URLs.
+Inspect whether each expected CSV/data input is present and contains data.
+Inspect browser-console/runtime failures.
+Inspect trace arrays immediately before Plotly render/update calls.
+Determine whether non-line Plotly renderers are affected.
+```
+
+This should be prioritised once its scope is known. A reliably empty promoted
+chart PA is a material rendering failure, regardless of whether its Page shell,
+Filters and canonical URL are correct.
 
 ---
 
-## 9. Published Artifact and Producer Boundaries (`04.4`, `08`)
+## 9. Site Definition, Publication Planning and Producer Boundaries
 
-The current PA model provides useful concepts including data sources, indexed
-sources, table columns/groups, chart traces/axes, sectioned tables, Notes and
-specialised Banzuke Changes/Standings declarations.
+The explicit Site Definition, Page statuses, subject-led Navigation and
+`PublicationPlan` layer remain sound foundations. Manifest assembly maps planned
+Pages to visible panels/exported artefacts and now generates verified canonical
+Navigation links.
 
-The Selected-History failure reinforces the producer boundary:
+The Selected-History P0 reveals the remaining planning gap: the plan/build path
+does not yet resolve or validate the selected data instance required by all
+included History-dependent PA inputs. This is the immediate build-contract
+correction.
+
+The producer boundary remains:
 
 ```text
 Producer
@@ -429,28 +469,33 @@ make_site2
 Copied producer output remains acceptable only where it is deliberate
 site-facing material and, where required, demonstrably coherent with the
 selected build data instance. It cannot be treated as valid solely because its
-CSV/JSON shape matches what the runtime can read.
+CSV/JSON shape matches what runtime can read.
 
-Longer-term PA questions remain: specialised kinds versus broad terminal forms,
-and separation of analytical provenance from rendering/runtime configuration.
+All currently declared Pages remain `PROMOTED`; this should later be reviewed
+against coherent data-instance support and successful PA rendering, not merely
+whether their shells exist.
 
 ---
 
 ## 10. Runtime Architecture and Build/Output (`03`, `07`)
 
 The modular ES-module runtime has substantially reduced editing risk and made
-URL, Filter, Note, table, chart and panel responsibilities inspectable. It now
-supports canonical public-view URL writing.
+URL, Filter, Note, table and chart responsibilities inspectable. Its canonical
+public-view URL writing is now verified.
 
 The runtime still repeats common page/PAPanel assembly in specialised renderer
 functions; this is later scaling/drift work rather than a current correctness
 failure.
 
-`build.py` is now the locus of the active P0 because it combines one PA built
-from `resolved_history` with multiple copied PA data outputs whose relation to
-that History is not validated. Build metadata identifying selected History and
-per-PA derivation/validation may become useful, but validation/enforcement comes
-first.
+The newly observed Plotly issue means chart runtime/data handling now needs a
+focused investigation: a plotted PA must not silently become an empty plot even
+where all surrounding Page state is correct.
+
+`build.py` remains the locus of the Selected-History P0 because it combines one
+PA built from `resolved_history` with multiple copied PA data outputs whose
+relation to that History is not validated. Build metadata identifying selected
+History and per-PA derivation/validation may become useful, but
+validation/enforcement comes first.
 
 ---
 
@@ -467,7 +512,8 @@ Two concrete operational matters remain P1:
 2. add clean-target safety validation before treating arbitrary CLI-supplied
    local roots as safe for destructive replacement.
 
-Neither should be mixed into the Selected-History producer/data correction.
+Neither should be mixed into the Selected-History producer/data correction or
+blank-chart investigation.
 
 ---
 
@@ -491,7 +537,7 @@ canonical link for a material selected-Page view.
 
 ## 13. Recommended Sequence From Here
 
-### Completed or Implemented Pending Closure Checks
+### Completed
 
 ```text
 Activate modular runtime without intended behaviour change.
@@ -499,8 +545,7 @@ Correct active terminology to NavigationBar.
 Model Contents / PAPanel / Notes explicitly.
 Render Notes within PAPanel and verify locally.
 Split manifest declarations behind a stable facade and remove the G1 seam.
-Specify and implement canonical single-shell Page-plus-Filter links.
-Verify the reported new-tab/404 defect is fixed.
+Specify, implement and verify canonical single-shell Page-plus-Filter links.
 Specify/design the Selected-History whole-build coherence rule.
 ```
 
@@ -514,11 +559,13 @@ Prevent a successful explicit-History build from silently including other
 unvalidated History-dependent promoted material.
 ```
 
-### Outstanding Closure Check
+### New Triage Item
 
 ```text
-Complete the remaining canonical-link browser verification and update its final
-status in the central documents.
+Reproduce and scope empty Plotly line-chart rendering.
+Determine whether data loads, traces are constructed and Plotly receives visible
+trace arrays.
+Assign final priority from the affected promoted Pages and reproducibility.
 ```
 
 ### Later Work
@@ -536,18 +583,17 @@ Mature plan-driven data dependencies through further real producer cases.
 ## 14. Conclusion
 
 The first correction cycle has corrected public-structure drift and replaced
-invalid route-local live links with a coherent single-shell public-state design.
-That link change is implemented and has fixed the defect which exposed it,
-although its full verification closure remains outstanding.
+invalid route-local live links with a coherent, verified single-shell public
+state design.
 
-That verification uncovered a deeper active P0: `make_site2` currently allows an
+The active P0 is Selected-History coherence: `make_site2` currently allows an
 explicit selected History to govern only Basho Results while other promoted
-History-dependent Pages can publish unrelated copied data. The project has now
+History-dependent Pages can publish unrelated copied data. The project has
 recorded and incorporated the correct rule: a selected History governs the
 whole built site's dependent promoted material, with producers responsible for
 analytical computation and `make_site2` responsible for coherent publication.
 
-The next task is therefore not more page styling or URL design. It is to enforce
-that rule safely, beginning with the Banzuke Changes producer boundary and with
-an explicit policy preventing misleading mixed-history builds during incremental
-integration.
+A new visible chart-rendering defect has now also been recorded. Plotly line
+charts may render without their intended traces; its affected scope and cause
+must be established before repair, without confusing it with the already-closed
+canonical-link work or the separate Selected-History P0.
