@@ -21,7 +21,7 @@ currently include:
 
 ```text
 Open
-  A known question requiring a decision.
+  A known question or observed defect requiring investigation or decision.
 
 Decided; implementation outstanding
   The design rule is settled but code or migration remains.
@@ -40,7 +40,7 @@ Done; remove on tidy
 
 ## 2. Current Baseline
 
-The following positions are now established in the active document set:
+The following positions are established in the active document set:
 
 ```text
 PG is rooted at PublicUI.
@@ -74,7 +74,7 @@ public publication, planning, validation, rendering/output assembly and refusal
 to publish incoherent required material.
 ```
 
-The Selected-History rule is now incorporated in:
+The Selected-History rule is incorporated in:
 
 ```text
 02 Specification.md
@@ -85,7 +85,7 @@ The Selected-History rule is now incorporated in:
 
 ---
 
-## 3. Completed or Near-Completed Correction Work
+## 3. Completed Correction Work
 
 ### 3.1 Notes Placement Under `PAPanel`
 
@@ -105,29 +105,37 @@ the corrected rendering works.
 
 ### 3.2 Canonical Single-Shell Public View Links
 
-**Status:** Implemented; verification and documentary closure outstanding.
+**Status:** Done; remove on tidy.
 
 **Former issue:** Navigation anchors advertised route-local `.../index.html`
 destinations that were not generated, while ordinary left clicks appeared to
 work only because JavaScript intercepted them.
 
-**Implemented correction:** Navigation hrefs are now emitted as canonical
+**Implemented correction:** Navigation hrefs are emitted as canonical
 single-shell Page/default-Filter links, and runtime URL handling writes
 canonical Page-plus-material-Filter public state.
 
-**Verified so far:** after pulling, rebuilding and deploying the changed code,
-opening **Standings by Wins** in a new tab uses its canonical link rather than a
-nonexistent route-local page; the observed 404 is gone.
-
-**Remaining checks before closure:**
+**Verification completed:**
 
 ```text
-copy/reopen a filtered table Page link
-copy/reopen a filtered chart Page link
-change from a filtered Page to an unfiltered Page and confirm stale parameters go
-reload behaviour
-browser back/forward behaviour
-incomplete/invalid state normalisation
+Generated Navigation anchors for Banzuke Changes, Standings by Wins,
+Finish by Chii and Basho Results use ?page=... shell-query links with explicit
+default Filter values.
+
+The built index contains no Navigation href of the former .../index.html form.
+
+Representative Navigation destinations open in new tabs without a 404.
+
+A filtered table view can be copied/reopened with its state restored.
+
+A filtered chart view can be copied/reopened with its state restored.
+
+Changing Pages removes irrelevant stale Filter parameters.
+
+Reload and browser back/forward preserve the selected public view.
+
+Incomplete/invalid incoming state behaves acceptably and does not advertise
+unwritten Page entry files.
 ```
 
 **Clarification recorded during testing:** A link records reader-selected state,
@@ -191,8 +199,8 @@ Two implementation paths remain legitimate:
 
 ```text
 Policy A
-  Integrate/prep all included History-dependent promoted PAs before allowing an
-  explicit-History build to succeed.
+  Integrate/prepare all included History-dependent promoted PAs before allowing
+  an explicit-History build to succeed.
 
 Policy B
   Fail or explicitly omit unsupported PAs in explicit-History builds while
@@ -227,9 +235,45 @@ make_site2
 
 ---
 
-## 5. Open Rendering Decisions
+## 5. Newly Observed Implementation Defect: Empty Plotly Line Charts
 
-These remain independent of the active data-coherence P0:
+### 5.1 Missing Line-Chart Traces
+
+**Status:** Open; reproduce, scope and diagnose.
+
+**Observation:** While verifying current browser behaviour, Pages rendering
+Plotly line charts were observed to display a valid-looking chart frame without
+any plotted traces. This may occur intermittently or systematically; the exact
+affected Pages, triggering state and cause have not yet been established.
+
+**Why it matters:** A chart PA with axes/container but no intended traces is not
+a successful rendering of the Published Artifact. Even if the shell, Filters
+and canonical links behave correctly, the analytical material is absent.
+
+**Investigation required:**
+
+```text
+Identify each affected Page and Filter state.
+Determine whether the expected data files load and contain rows.
+Check browser console/runtime errors.
+Determine whether traces are absent before Plotly invocation, filtered away,
+or present but not rendered/visible.
+Establish whether the defect affects line charts only or other Plotly chart
+renderers.
+Record priority once scope is known; treat any consistently blank promoted PA
+as a high-priority rendering defect.
+```
+
+This observation does not reopen the canonical-link correction: filtered chart
+link restoration was verified separately from whether all chart renderers draw
+their intended traces.
+
+---
+
+## 6. Open Rendering Decisions
+
+These remain independent of the active data-coherence P0 and the newly observed
+blank-chart defect:
 
 | Issue | Status | Owner on resolution |
 | --- | --- | --- |
@@ -240,9 +284,9 @@ These remain independent of the active data-coherence P0:
 
 ---
 
-## 6. Public Status and Build Inclusion Policy
+## 7. Public Status and Build Inclusion Policy
 
-### 6.1 Status Vocabulary and Inclusion Modes
+### 7.1 Status Vocabulary and Inclusion Modes
 
 **Status:** Open; now relevant to Selected-History enforcement.
 
@@ -263,19 +307,19 @@ it must decide whether a restricted-history inspection build can omit unsupporte
 promoted PAs under an explicit non-public policy, while a normal public build
 must fail rather than omit or publish mixed-history material.
 
-### 6.2 Page Promotion Review
+### 7.2 Page Promotion Review
 
 **Status:** Open.
 
 All currently declared Pages remain `PROMOTED`. This should eventually be
 reviewed against public-contract completeness, including coherent data-instance
-support, not merely rendering availability.
+support and successful PA rendering, not merely the presence of a Page shell.
 
 ---
 
-## 7. Producer Integration and Migration
+## 8. Producer Integration and Migration
 
-### 7.1 Immediate Producer Pressure
+### 8.1 Immediate Producer Pressure
 
 **Status:** In progress as P0 investigation.
 
@@ -283,7 +327,7 @@ Banzuke Changes is no longer merely a useful custom-table migration example. It
 is the first demonstrated selected-History producer-integration failure and is
 the next concrete producer boundary to inspect.
 
-### 7.2 Broader Producer/Input Contract
+### 8.2 Broader Producer/Input Contract
 
 **Status:** Deferred in general; data-instance identity/validation is immediate
 where required by the P0.
@@ -295,10 +339,11 @@ designed from real integration pressure rather than invented in advance.
 
 ---
 
-## 8. Runtime, Output and Operational Policy
+## 9. Runtime, Output and Operational Policy
 
 | Issue | Status | Note |
 | --- | --- | --- |
+| Plotly line-chart traces missing | Open / triage | Chart frames sometimes or always appear with no traces; investigate data loading and chart runtime. |
 | Runtime/bootstrap schema/versioning | Deferred | Runtime now exposes `PAPanel` and canonical URL writing; long-term serialization policy remains open. |
 | Build metadata / data-instance identity | Open | Selected-History identity is now a strong candidate for inspectable build or per-PA validation metadata. |
 | Production cache policy | Deferred | Development module cache-busting is active. |
@@ -307,7 +352,7 @@ designed from real integration pressure rather than invented in advance.
 
 ---
 
-## 9. Other Deferred Design Pressure
+## 10. Other Deferred Design Pressure
 
 The following remain deferred pending real need:
 
@@ -322,7 +367,7 @@ The following remain deferred pending real need:
 
 ---
 
-## 10. Current Priority View
+## 11. Current Priority View
 
 ```text
 Completed foundation
@@ -330,16 +375,16 @@ Completed foundation
   removal of the obsolete G1 compatibility seam
   modular browser-runtime activation
   plan-driven assembly of visible panels and exported artefacts
-  canonical single-shell Navigation/runtime link implementation
-    (reported new-tab defect verified; full closure checks remain)
+  canonical single-shell Navigation/runtime link implementation and verification
   normative incorporation of the Selected-History coherence rule
 
 P0
   enforce coherent explicit-History builds across included promoted
   History-dependent PAs; investigate/integrate Banzuke Changes first
 
-Closure check outstanding
-  complete canonical-link browser verification and update its final status
+New observed defect requiring triage
+  Plotly line-chart Pages can display empty chart frames with no traces;
+  establish scope/cause and promote priority if reproducible on promoted Pages
 
 P1
   settle explicit-history inspection/public build inclusion behaviour
@@ -360,20 +405,20 @@ P3
 
 ---
 
-## 11. Summary
+## 12. Summary
 
 The Notes/PAPanel structural correction is complete. The canonical single-shell
-link correction is implemented and has fixed the observed right-click/new-tab
-failure; its remaining agreed browser checks still need completing before final
-closure.
+link correction is now also complete and verified: generated Navigation links
+address valid shell-query public views; representative new-tab and copied-link
+flows work; state is restored across Page changes, reload and browser history.
 
-The new active P0 is fully recorded: a Selected History governs all included
-promoted History-dependent material in a build, but the current implementation
-uses it directly only for Basho Results and can publish incompatible copied PA
-data. That governing rule is now present in the active specification and design
-set, with `10.1 Selected History Coherence Audit.md` providing the evidence and
-PA-by-PA audit.
+The active P0 remains Selected-History coherence: a Selected History governs all
+included promoted History-dependent material in a build, but the current
+implementation uses it directly only for Basho Results and can publish
+incompatible copied PA data. `10.1 Selected History Coherence Audit.md` records
+the evidence and PA-by-PA audit.
 
-The next substantive implementation task is to settle safe immediate enforcement
-and inspect/integrate the Banzuke Changes producer boundary without duplicating
-producer-owned analysis inside `make_site2`.
+A new visible implementation defect has also been recorded: some or all Plotly
+line-chart Pages may render empty chart frames with no traces. Its reproduction,
+scope and cause must be established before a corrective implementation is
+chosen.
