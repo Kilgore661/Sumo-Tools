@@ -606,6 +606,16 @@ be declared with that PA or feature.
 Browser-default emphasis shall not be retained merely by accident when it
 communicates an unintended semantic distinction.
 
+### 14.6 Sortable Heading Treatment
+
+**Owner:** table-like PA terminal forms
+
+**Rule:** A sortable table column heading shall render as an interactive heading
+control. The active sorted heading shall show the current sort direction with a
+trailing up/down indicator and expose equivalent accessible sort state.
+
+Row-number headings shall not render as sortable controls.
+
 ---
 
 ## 15. Rendering Indexed-Table PAs

@@ -79,6 +79,8 @@ For readers seeking a clear public view, it shall provide:
 For readers seeking deeper analysis, it shall be capable of providing:
 
 - richer controls;
+- sortable table views where column order helps readers inspect or compare
+  analytical material;
 - caveats and explanatory notes;
 - provenance;
 - methodology;

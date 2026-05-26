@@ -242,7 +242,12 @@ This defect does not reopen the canonical-link correction.
 | Context-specific background colours | Open | Rendering/operations decision. |
 | General unavailable-Page model/rendering | Open | Banzuke Changes is the first concrete required case. |
 | Page promotion review | Open | Review against coherence, availability and actual PA rendering. |
+| Documentation chunking for LLMs | Deferred / TBD | Consider whether active docs should be refactored into smaller LLM-manageable chunks with hierarchical README/front-door files. |
+| Code chunking for LLMs | Deferred / TBD | Consider whether make_site2 code should be refactored into smaller LLM-manageable modules or package areas without introducing abstraction churn. |
+| Sortable table columns | Decided; implementation outstanding | Implement the specified table-column sorting behaviour for table-like PAs. |
+| Nested table sorting | Deferred / TBD | Investigate whether table sorting should support secondary sort keys, and possibly only primary/secondary ordering rather than arbitrary-depth sort stacks. |
 | Plotly interaction state in deep links | Deferred / TBD | Decide whether canonical public links should preserve Plotly legend/trace visibility, zoom/pan, or other client-side chart state. Complexity is moderate-to-high if yes: define which Plotly state is public material state versus temporary reader interaction, serialize it without unstable Plotly internals, restore it after data/render completion, keep URLs readable, and avoid breaking canonical-link semantics. |
+| Table sort state in deep links | Deferred / TBD | Decide whether ordinary table sort state should be encoded in canonical public view links or remain PA-local browser interaction. |
 | Runtime/bootstrap schema/versioning | Deferred | Long-term serialization policy. |
 | Build metadata / data-instance identity | Open | Include History/successor-input identity where useful. |
 | Deployment target safety | Open / P1 | Guard cleaning arbitrary local targets; check `htm`/`html` spelling. |
@@ -280,12 +285,15 @@ Next user-visible design item
   discussed 170px cap is the right default presentation rule
 
 P1
+  implement sortable table columns
   add local deployment target-safety protection
   follow through on further producer integrations after the P0 policy and
   Banzuke Changes slice
 
 P2
   settle the remaining open rendering choices
+  consider documentation chunking for LLM-manageable orientation
+  consider code chunking for LLM-manageable maintenance
   refine build metadata/runtime/output conventions
   centralise repeated page-level runtime structure where worthwhile
 

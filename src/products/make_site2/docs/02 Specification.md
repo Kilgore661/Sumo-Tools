@@ -215,6 +215,14 @@ site-facing inputs, meaningful visible features, public labels, Notes/caveats or
 provenance, and consistency/availability requirements required for truthful
 public presentation.
 
+Table-like PAs shall support ordinary column sorting as part of their PA-local
+reader interaction where a sortable table is the approved PA form. Row-number
+columns are reference columns and shall not be sortable. Ordinary data columns
+shall be sortable unless the PA model explicitly declares them unsortable.
+Clicking a sortable column heading shall sort by that column; clicking the
+active sorted heading again shall toggle sort direction. The active sorted
+column and direction shall be visible to the reader.
+
 A Note may explain or qualify a PA, a visible feature, a selected representation
 or a relevant caveat/provenance fact. A change in Filter state may change Note
 relevance only because it changes visible PA state.
