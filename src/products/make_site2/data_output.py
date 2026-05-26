@@ -6,7 +6,6 @@ import shutil
 from dataclasses import dataclass
 from pathlib import Path
 
-from src.analysis.banzuke_compare.publisher import write_selected_history_publication_data
 from src.analysis.sumo_history.basho_results.build import (
     build_index,
     build_payload_rows,
@@ -66,6 +65,7 @@ MAKUUCHI_RANK_BY_ERA_ROUTE_DATA_DIR = (
     / "data"
 )
 BANZUKE_CHANGES_ROUTE_DIR = Path("current-sumo") / "banzuke-changes"
+BANZUKE_CHANGES_SOURCE_ROOT = Path("files") / "output" / "bcr"
 DIVISION_STABILITY_SOURCE_ROOT = (
     Path("files") / "output" / "persistence" / "site" / "division_stability"
 )
@@ -378,24 +378,25 @@ def copy_single_csv_chart_data_output(
     return target_path
 
 
-def build_banzuke_changes_data_output(
-    *,
-    history: History,
-    output_root: Path,
-) -> BanzukeChangesDataOutput:
-    """Build Banzuke Changes PA data from the selected site History."""
+def copy_banzuke_changes_data_output(*, output_root: Path) -> BanzukeChangesDataOutput:
+    """Copy Banzuke Compare producer output into the make_site2 output tree."""
 
     route_root = output_root / BANZUKE_CHANGES_ROUTE_DIR
+    route_data_root = route_root / "data"
     if route_root.exists():
         shutil.rmtree(route_root)
+    route_data_root.mkdir(parents=True, exist_ok=True)
 
-    published_files = write_selected_history_publication_data(
-        history=history,
-        output_root=route_root,
+    site_config_path = route_root / "site_config.json"
+    report_csv_path = route_data_root / "banzuke_change_report.csv"
+    shutil.copy2(BANZUKE_CHANGES_SOURCE_ROOT / "site_config.json", site_config_path)
+    shutil.copy2(
+        BANZUKE_CHANGES_SOURCE_ROOT / "data" / "banzuke_change_report.csv",
+        report_csv_path,
     )
     return BanzukeChangesDataOutput(
-        site_config_path=published_files.site_config_file,
-        report_csv_path=published_files.csv_file,
+        site_config_path=site_config_path,
+        report_csv_path=report_csv_path,
     )
 
 
