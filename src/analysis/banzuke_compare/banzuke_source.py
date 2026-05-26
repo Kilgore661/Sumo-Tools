@@ -14,15 +14,11 @@ def load_publication_source(request: PublicationRequest) -> PublicationSource:
     """
     Contract:
         request either names a current banzuke date, or leaves date selection
-        to the standalone publisher's latest-date policy.  The selected date
-        can be parsed and has a predecessor in project history.
+        to the latest-date policy.  The selected date can be parsed and has a
+        predecessor in project history.
 
-        Returns the live history, separately parsed current banzuke date, and
-        previous basho state needed by the standalone BCR calculation pipeline.
-
-    Note:
-        This is the standalone-new-banzuke workflow.  For a make_site2 build
-        governed by a selected History use load_selected_history_source().
+        Returns the live history, current banzuke, previous banzuke date, and
+        previous basho state needed by the BCR calculation pipeline.
     """
 
     history = get_history()
@@ -40,49 +36,15 @@ def load_publication_source(request: PublicationRequest) -> PublicationSource:
     )
 
 
-def load_selected_history_source(
-    request: PublicationRequest,
-    history: History,
-) -> PublicationSource:
-    """Build the BCR source whose current and previous banzukes are in History.
-
-    Contract:
-        history is the data instance selected for the containing site build and
-        contains at least two basho states.  The final History entry is the
-        current banzuke to report; its predecessor supplies comparison and
-        previous-result context.
-
-        Returns a PublicationSource wholly governed by that selected History.
-        It does not read the live store or parse a later external banzuke.
-    """
-
-    dates = sorted(history.keys())
-    if len(dates) < 2:
-        raise ValueError("Banzuke Changes requires at least two basho in History")
-
-    current_date = dates[-1]
-    previous_date = dates[-2]
-    current_basho = history(current_date)
-
-    return PublicationSource(
-        request=request,
-        history=history,
-        current_date=current_date,
-        current_banzuke=current_basho.banzuke,
-        previous_date=previous_date,
-        previous_basho=history(previous_date),
-    )
-
-
 def resolve_current_date(history: History, requested_date: Date | None) -> Date:
     """
     Contract:
         history is non-empty.  requested_date is either None or the requested
         current banzuke date.
 
-        Returns the current banzuke date for the standalone publisher run.  If
-        no date is requested, the standalone BCR date is the next basho after
-        the latest completed basho in History.
+        Returns the current banzuke date for this publisher run.  If no date is
+        requested, the current BCR date is the next basho after the latest
+        completed basho in History.
     """
 
     if requested_date is not None:
