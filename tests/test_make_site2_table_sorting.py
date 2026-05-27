@@ -25,6 +25,20 @@ def test_runtime_manifest_exposes_table_sort_metadata() -> None:
     assert column_by_id(columns, "score")["sort_kind"] == "record"
 
 
+def test_basho_results_previous_result_owns_rank_level_marker() -> None:
+    manifest = build_runtime_manifest(build_publication_plan(SITE))
+    artifact = manifest["artifacts"][BASHO_RESULTS_ARTIFACT.id]
+    columns = artifact["columns"]
+    previous_group = next(group for group in artifact["column_groups"] if group["id"] == "previous_basho")
+    notes = {note["id"]: note for note in artifact["notes"]}
+
+    assert previous_group["columns"] == ["previous_chii", "previous_result"]
+    assert not any(column["id"] == "previous_delta_direction" for column in columns)
+    assert "note_previous_direction" not in notes
+    assert "trailing up/down marker" in notes["note_previous_result"]["text"]
+    assert column_by_id(columns, "previous_result")["sort_kind"] == "record"
+
+
 def test_standings_columns_declare_sort_values_for_visible_metrics() -> None:
     manifest = build_runtime_manifest(build_publication_plan(SITE))
     artifact = manifest["artifacts"][STANDINGS_BY_WINS_ARTIFACT.id]

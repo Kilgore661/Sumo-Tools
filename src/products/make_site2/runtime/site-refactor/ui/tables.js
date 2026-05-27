@@ -473,7 +473,19 @@ function isColumnVisible(column, groups, state) {
 }
 function cellValue(column, row, index) {
   if (column.id === "row_number") return String(index + 1);
+  if (column.id === "previous_result") return resultWithMovement(
+    row[column.source_field || column.id],
+    row.previous_rank_level_movement,
+  );
   return row[column.source_field || column.id] || "";
 }
+function resultWithMovement(result, movement) {
+  const marker = rankLevelMovementMarker(movement);
+  return [result || "", marker].filter(Boolean).join(" ");
+}
+function rankLevelMovementMarker(value) {
+  if (value === "\u2191" || value === "\u2193") return value;
+  return "";
+}
 
-export { renderSectionedTable, renderTableSection, renderIndexedTable, renderBanzukeChangesTable, renderBanzukeStyleTable, renderBanzukeScanTable, banzukeSideColumns, banzukeScanColumns, renderBanzukeSideCell, renderBanzukeScanCell, banzukeCellAttributes, movementDirection, banzukeSideValue, renderRikishiLink, renderStandingsTable, standingsVisibleColumns, standingsVisibleGroups, renderStandingsTableHead, standingsCellValue, standingsRowsForState, standingsDivisionMatches, sortedStandingsRows, defaultStandingsSortColumn, competitionPositions, decimal, compareValues, currentTableSortState, firstSortableColumn, isSortableColumn, sortDefaultDirection, sortRows, compareNullableSortValues, compareSortValues, sortValue, recordWins, renderTableHeading, wireTableSorting, toggledSortDirection, tableCellAttributes, isColumnVisible, cellValue };
+export { renderSectionedTable, renderTableSection, renderIndexedTable, renderBanzukeChangesTable, renderBanzukeStyleTable, renderBanzukeScanTable, banzukeSideColumns, banzukeScanColumns, renderBanzukeSideCell, renderBanzukeScanCell, banzukeCellAttributes, movementDirection, banzukeSideValue, renderRikishiLink, renderStandingsTable, standingsVisibleColumns, standingsVisibleGroups, renderStandingsTableHead, standingsCellValue, standingsRowsForState, standingsDivisionMatches, sortedStandingsRows, defaultStandingsSortColumn, competitionPositions, decimal, compareValues, currentTableSortState, firstSortableColumn, isSortableColumn, sortDefaultDirection, sortRows, compareNullableSortValues, compareSortValues, sortValue, recordWins, renderTableHeading, wireTableSorting, toggledSortDirection, tableCellAttributes, isColumnVisible, cellValue, resultWithMovement, rankLevelMovementMarker };

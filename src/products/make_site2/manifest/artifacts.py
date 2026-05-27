@@ -79,14 +79,13 @@ BASHO_RESULTS_ARTIFACT = IndexedTableArtifact(
     selector_filter_id="basho_date",
     column_groups=(
         ColumnGroup(id="identity", heading="", always_visible=True, columns=("row_number", "shikona", "chii")),
-        ColumnGroup(id="previous_basho", heading="Previous Basho", controlling_filter_id="previous_context", columns=("previous_chii", "previous_result", "previous_delta_direction")),
+        ColumnGroup(id="previous_basho", heading="Previous Basho", controlling_filter_id="previous_context", columns=("previous_chii", "previous_result")),
         ColumnGroup(id="result_state", heading="After/During", always_visible=True, columns=("score", "equelo", "delta_equelo", "nu_chii")),
     ),
     columns=(
         TableColumn(id="row_number", heading="#", group="identity", always_visible=True, sort_kind="none", align="center"),
         TableColumn(id="shikona", heading="Shikona", source_field="shikona", group="identity", always_visible=True, sort_kind="text", note_id="note_shikona"),
         TableColumn(id="chii", heading="Chii", source_field="chii", group="identity", always_visible=True, sort_key="chii_ordinal", sort_kind="chii_ordinal", note_id="note_chii"),
-        TableColumn(id="previous_delta_direction", heading="Direction", source_field="previous_delta_direction", group="previous_basho", align="center", note_id="note_previous_direction"),
         TableColumn(id="previous_result", heading="Result", source_field="previous_result", group="previous_basho", sort_kind="record", align="center", note_id="note_previous_result"),
         TableColumn(id="previous_chii", heading="Chii", source_field="previous_chii", group="previous_basho", sort_key="previous_chii_ordinal", sort_kind="chii_ordinal", align="center"),
         TableColumn(id="score", heading="Score", source_field="score", group="result_state", always_visible=True, sort_kind="record", align="center", note_id="note_score"),
@@ -98,7 +97,7 @@ BASHO_RESULTS_ARTIFACT = IndexedTableArtifact(
     notes=(
         Note(id="note_shikona", applies_to=("all",), text="Shikona is the name used by the rikishi for the selected basho."),
         Note(id="note_chii", applies_to=("all",), text="Chii is the official rank slot at the start of the selected basho."),
-        Note(id="note_previous_direction", applies_to=("previous_basho",), text="Direction indicates a better or worse position than in the previous basho."),
+        Note(id="note_previous_result", applies_to=("previous_basho",), text="Previous Result gives wins, losses and absences followed by prizes if any. A trailing up/down marker indicates promotion or demotion into the selected basho's broad rank level."),
         Note(id="note_score", applies_to=("all",), text="Score gives wins, losses and absences for the selected basho. For an in-progress basho it is the score through the latest published day."),
         Note(id="note_equelo", applies_to=("rating_context",), text="Equelo is the fixed_v2 process rating at the represented point."),
         Note(id="note_delta_equelo", applies_to=("rating_context",), text="Delta Equelo is the rating change from the start of the selected basho."),

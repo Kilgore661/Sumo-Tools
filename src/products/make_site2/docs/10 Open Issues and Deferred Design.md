@@ -244,7 +244,6 @@ This defect does not reopen the canonical-link correction.
 | Page promotion review | Open | Review against coherence, availability and actual PA rendering. |
 | Documentation chunking for LLMs | Deferred / TBD | Consider whether active docs should be refactored into smaller LLM-manageable chunks with hierarchical README/front-door files. |
 | Code chunking for LLMs | Deferred / TBD | Consider whether make_site2 code should be refactored into smaller LLM-manageable modules or package areas without introducing abstraction churn. |
-| Basho Results result/direction consistency | Decided; implementation outstanding | Remove the separate Direction column and append the movement arrow to Result, matching the Banzuke Changes treatment. |
 | Nested table sorting | Deferred / TBD | Investigate whether table sorting should support secondary sort keys, and possibly only primary/secondary ordering rather than arbitrary-depth sort stacks. |
 | Producer result-field shape | Deferred / TBD | Where distinct result values are emitted by a data builder, do not coalesce them into one display string as current result fields do. Current sortable-column implementation may parse compact result strings for wins sorting, but should carry an explicit warning comment until this issue is resolved. |
 | Plotly interaction state in deep links | Deferred / TBD | Decide whether canonical public links should preserve Plotly legend/trace visibility, zoom/pan, or other client-side chart state. Complexity is moderate-to-high if yes: define which Plotly state is public material state versus temporary reader interaction, serialize it without unstable Plotly internals, restore it after data/render completion, keep URLs readable, and avoid breaking canonical-link semantics. |
@@ -282,9 +281,7 @@ Next independent observed defect requiring triage
   Plotly line-chart Pages can display empty chart frames with no traces;
   establish scope/cause and promote priority if reproducible on promoted Pages
 
-Next user-visible changes
-  make Basho Results append movement arrows to Result instead of showing a
-  separate Direction column
+Deferred model follow-up
   decide later whether the runtime table chrome/body split needs promotion into
   an explicit PA model concept
 
@@ -323,6 +320,5 @@ warning makes that exception visible.
 
 Other copied History-derived PAs remain subject to the broader Selected-History
 coherence audit. A separate Plotly empty-trace defect remains open for triage.
-The next user-visible change is Basho Results result/direction consistency. A
-future explicit PA model for table chrome/body separation remains deferred
+A future explicit PA model for table chrome/body separation remains deferred
 unless real pressure appears.

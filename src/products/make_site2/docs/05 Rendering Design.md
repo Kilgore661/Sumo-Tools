@@ -758,7 +758,22 @@ relevant Filter; that Filter does not remove the direction feature.
 **Rationale:** Direction is part of the default public reading of banzuke
 change, while numeric magnitude is optional further detail.
 
-### 19.2 Banzuke Changes Rank Treatment Not Yet Settled
+### 19.2 Basho Results Previous Result Movement Marker
+
+**Owner:** Basho Results visible Previous Basho result feature
+
+**Rule:** When Previous Basho context is visible, Basho Results shall render
+the previous result as one compact result value: wins-losses, optional absences,
+optional prizes, and an optional trailing up/down marker indicating promotion
+or demotion into the selected basho's broad rank level.
+
+Basho Results shall not render a separate Direction column for this marker.
+This keeps the result value consistent with Banzuke Changes result display.
+
+Sorting the Result column remains based on the wins component of the compact
+result value.
+
+### 19.3 Banzuke Changes Rank Treatment Not Yet Settled
 
 Whether central rank values in the banzuke-style rendering are semantic row
 headers or ordinary table values is not yet incorporated as a settled rendering

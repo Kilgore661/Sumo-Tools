@@ -325,6 +325,7 @@ The following agreed rules remain implemented and are listed here for continuity
 | Table-like PAs | Sticky PA title/caption and table headings inside the PA slot. |
 | Table-like PAs | Table-body-only vertical scrolling below the table headings for ordinary table PAs. |
 | `PAPanel -> PA . Notes` | Bottom Notes panel, visible by default when relevant, with local show/hide control. |
+| Basho Results PA | Previous Basho Result includes the rank-level movement marker rather than using a separate Direction column. |
 | Banzuke Changes PA | Visible `⇅` movement direction in both banzuke-style and scan-style views independently of optional numeric `Delta`. |
 
 ---
