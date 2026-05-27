@@ -247,24 +247,48 @@ needed and `05 Rendering Design.md` for its visible realisation.
 
 ### 8.3 Notes-Panel Visual and Dimension Policy
 
-**Status:** Open rendering decision; structural placement is complete.
+**Status:** Implemented shared rendering decision.
 
-**Visible fact:** Notes now belong visibly to the PA region and appear beneath
-the PA where present. The panel currently has only structural layout, not a
-settled bounded/scrolling visual policy.
+**Visible fact:** Notes belong visibly to the PA region and appear in a framed
+bottom panel within `PAPanel` when relevant. The panel is visible by default,
+uses a local `Hide notes` / `Show notes` control, and is constrained to a
+readable width of about `800px`.
 
 **Owner:** `PAPanel -> PA . Notes`.
 
 **Classification:** Shared readability/usability policy.
 
-**Decision required:** Decide whether Notes should use additional panel framing,
-a maximum height such as the discussed `170px`, internal scrolling, and any
-common behaviour for absent or very short Notes.
+**Decision recorded:** Notes are content-height by default rather than capped at
+the earlier discussed `170px`. If no Note is currently relevant, no empty Notes
+panel or toggle is rendered. Showing or hiding Notes changes the available PA
+slot space; Plotly charts are resized after the toggle.
 
 **Rationale:** Ownership is already correctly communicated by placement. Height,
 overflow and framing govern usability and use of screen space.
 
-**Destination:** `05 Rendering Design.md`, once agreed.
+**Destination:** Incorporated into `05 Rendering Design.md`.
+
+### 8.3.1 Table-Body Scrollbar Boundary
+
+**Status:** Deferred model/rendering refinement discovered during Notes-panel
+implementation.
+
+**Visible fact:** The current runtime keeps PA titles and table headings sticky
+inside the PA slot, but the scrollbar still belongs to the whole PA slot rather
+than a distinct table-data body viewport. This means the scrollbar begins at
+the top of the PA panel rather than below the table headings.
+
+**Owner:** Table-like PA terminal structure inside `PAPanel -> PA`.
+
+**Classification:** Rendering-grammar / PA-structure refinement.
+
+**Decision required:** Decide whether table-like PAs should expose explicit
+non-scrolling table chrome and a separate scrolling data region in the model or
+runtime grammar.
+
+**Destination:** Deferred in `10 Open Issues and Deferred Design.md`; if
+accepted, incorporate into `04.4 Published Artifact Model.md` and `05 Rendering
+Design.md`.
 
 ### 8.4 Site-Context Colour Treatment
 
@@ -295,6 +319,8 @@ The following agreed rules remain implemented and are listed here for continuity
 | Table-like PAs | Shared cell padding; current `padding: 2px 0.25em`. |
 | Table-like PAs | Alternating `tbody` row background treatment. |
 | Table-like PAs | Continuous row colouring through suppression of unintended cell gaps. |
+| Table-like PAs | Sticky PA title/caption and table headings inside the PA slot. |
+| `PAPanel -> PA . Notes` | Bottom Notes panel, visible by default when relevant, with local show/hide control. |
 | Banzuke Changes PA | Visible `⇅` movement direction in both banzuke-style and scan-style views independently of optional numeric `Delta`. |
 
 ---
@@ -325,7 +351,7 @@ The current open rendering choices are:
 
 - ownership of heading typography;
 - semantic/visual treatment of Banzuke Changes Rank values;
-- final shared Notes-panel visual/dimension policy; and
+- table-body-only scrolling for table-like PAs; and
 - deliberate acceptance or rejection of context-colour presentation.
 
 The audit remains strict where visible structure or implied meaning is at stake,

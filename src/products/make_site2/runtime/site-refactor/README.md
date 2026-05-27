@@ -45,6 +45,8 @@ build exposes changed runtime code without stale imported modules being reused.
 - `ui/filters.js`: Filter state, controls and Filter event wiring.
 - `panels/render-content-panel.js`: panel orchestration by PA kind and the
   explicit `PAPanel` rendering relationship.
+- `ui/layout.js`: shared PA-panel layout hooks such as sticky artifact title
+  and table-heading offset calculation.
 - `ui/tables.js`: table renderers and table-only data shaping.
 - `ui/charts.js`: Plotly views, chart trace construction and chart layouts.
 - `ui/notes.js`: conditional Note display within `PAPanel`.

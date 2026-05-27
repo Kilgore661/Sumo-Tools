@@ -4,7 +4,8 @@ import { readFilterUrlState, writePanelUrl } from "../core/url-state.js";
 import { fetchCsv, fetchJson } from "../data/http.js";
 import { renderCareerLengthArtifact, renderCareerLengthPlot, renderCategoryBarChart, renderCategoryBarPlot, renderFinishByChiiChart, renderFinishByChiiPlot, renderGroupedLineChart, renderGroupedLinePlot, renderOrderedBarChart, renderOrderedBarPlot, renderStackedBarChart, renderStackedBarPlot, renderStandingWinProbabilityChart, renderStandingWinProbabilityPlot, resolveCareerLengthView, resolveFilterValue, resolveSelectedDataSourceId } from "../ui/charts.js";
 import { filterValueLabel, renderFilterSection, resolveBanzukeChangesDivision, resolveFilterState, resolveSelectedDataValue, resolveSelectedDivision, resolveSelectedFilterValueFromSource, resolveStandingsDivision, resolveStandingsWindow, selectedIndexEntry, selectedStandingsSource, wireFilterSection } from "../ui/filters.js";
-import { renderNotes } from "../ui/notes.js";
+import { wirePAPanelLayout } from "../ui/layout.js";
+import { renderNotes, wireNotesPanel } from "../ui/notes.js";
 import { banzukeScanColumns, renderBanzukeChangesTable, renderIndexedTable, renderSectionedTable, renderStandingsTable, standingsRowsForState, wireTableSorting } from "../ui/tables.js";
 import { escapeHtml } from "../utils/html.js";
 
@@ -73,6 +74,8 @@ async function renderIndexedTableContentPanel(panel, artifact, overrideState = n
   ].join("");
   wireFilterSection(panel, state, renderContentPanel);
   wireTableSorting(panel, artifact, renderContentPanel);
+  wireNotesPanel();
+  wirePAPanelLayout();
 }
 async function renderBanzukeChangesContentPanel(panel, artifact, overrideState = null) {
   const filters = panel.contents.filter_section.filters;
@@ -102,6 +105,8 @@ async function renderBanzukeChangesContentPanel(panel, artifact, overrideState =
   if (!state.banzuke_style) {
     wireTableSorting(panel, artifact, renderContentPanel, banzukeScanColumns(state));
   }
+  wireNotesPanel();
+  wirePAPanelLayout();
 }
 async function renderSectionedTableContentPanel(panel, artifact) {
   const rowsBySource = await fetchArtifactCsvSet(artifact);
@@ -122,6 +127,8 @@ async function renderSectionedTableContentPanel(panel, artifact) {
     '</section>'
   ].join("");
   wireTableSorting(panel, artifact, renderContentPanel);
+  wireNotesPanel();
+  wirePAPanelLayout();
 }
 async function renderStandingsContentPanel(panel, artifact, overrideState = null) {
   const filters = panel.contents.filter_section.filters;
@@ -151,6 +158,8 @@ async function renderStandingsContentPanel(panel, artifact, overrideState = null
   ].join("");
   wireFilterSection(panel, state, renderContentPanel);
   wireTableSorting(panel, artifact, renderContentPanel);
+  wireNotesPanel();
+  wirePAPanelLayout();
 }
 async function renderChartContentPanel(panel, artifact, overrideState = null) {
   if (artifact.renderer === "stacked_bar_chart") {
@@ -208,6 +217,8 @@ async function renderStandingWinProbabilityContentPanel(panel, artifact, overrid
   ].join("");
   renderStandingWinProbabilityPlot(artifact, state, rowsBySource);
   wireFilterSection(panel, state, renderContentPanel);
+  wireNotesPanel();
+  wirePAPanelLayout();
 }
 async function renderCareerLengthContentPanel(panel, artifact, overrideState = null) {
   const filters = panel.contents.filter_section.filters;
@@ -233,6 +244,8 @@ async function renderCareerLengthContentPanel(panel, artifact, overrideState = n
   ].join("");
   renderCareerLengthPlot(artifact, state, rowsBySource);
   wireFilterSection(panel, state, renderContentPanel);
+  wireNotesPanel();
+  wirePAPanelLayout();
 }
 async function renderFinishByChiiContentPanel(panel, artifact, overrideState = null) {
   const filters = panel.contents.filter_section.filters;
@@ -268,6 +281,8 @@ async function renderFinishByChiiContentPanel(panel, artifact, overrideState = n
   ].join("");
   renderFinishByChiiPlot(artifact, state, rowsBySource);
   wireFilterSection(panel, state, renderContentPanel);
+  wireNotesPanel();
+  wirePAPanelLayout();
 }
 async function renderStackedBarChartContentPanel(panel, artifact) {
   const rowsBySource = await fetchArtifactCsvSet(artifact);
@@ -286,6 +301,8 @@ async function renderStackedBarChartContentPanel(panel, artifact) {
     '</section>'
   ].join("");
   renderStackedBarPlot(artifact, rowsBySource);
+  wireNotesPanel();
+  wirePAPanelLayout();
 }
 async function renderGroupedLineChartContentPanel(panel, artifact) {
   const rowsBySource = await fetchArtifactCsvSet(artifact);
@@ -304,6 +321,8 @@ async function renderGroupedLineChartContentPanel(panel, artifact) {
     '</section>'
   ].join("");
   renderGroupedLinePlot(artifact, rowsBySource);
+  wireNotesPanel();
+  wirePAPanelLayout();
 }
 async function renderOrderedBarChartContentPanel(panel, artifact) {
   const rowsBySource = await fetchArtifactCsvSet(artifact);
@@ -322,6 +341,8 @@ async function renderOrderedBarChartContentPanel(panel, artifact) {
     '</section>'
   ].join("");
   renderOrderedBarPlot(artifact, rowsBySource);
+  wireNotesPanel();
+  wirePAPanelLayout();
 }
 async function renderCategoryBarChartContentPanel(panel, artifact) {
   const rowsBySource = await fetchArtifactCsvSet(artifact);
@@ -340,6 +361,8 @@ async function renderCategoryBarChartContentPanel(panel, artifact) {
     '</section>'
   ].join("");
   renderCategoryBarPlot(artifact, rowsBySource);
+  wireNotesPanel();
+  wirePAPanelLayout();
 }
 async function fetchArtifactCsvSet(artifact) {
   const entries = await Promise.all(

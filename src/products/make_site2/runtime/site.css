@@ -25,10 +25,17 @@ body.site-context-preview {
   --content-bg: #084821;
 }
 
+html,
+body {
+  height: 100%;
+}
+
 body {
   background: var(--page-bg);
   color: var(--page-fg);
   font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  overflow: hidden;
 }
 
 a {
@@ -59,10 +66,14 @@ select {
   grid-template-columns: minmax(0, 1fr);
 }
 
-.site-nav,
-.site-main {
+.site-nav {
   min-height: 0;
   overflow-y: auto;
+}
+
+.site-main {
+  min-height: 0;
+  overflow: hidden;
 }
 
 .site-nav {
@@ -78,11 +89,22 @@ select {
 }
 
 .content-panel {
-  min-height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  width: 100%;
 }
 
 .site-nav[hidden] {
   display: none;
+}
+
+#content-panel {
+  display: flex;
+  height: 100%;
+  min-height: 0;
 }
 
 .nav-toggle {
@@ -143,6 +165,8 @@ h3 {
 .content-body {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
+  flex: 1 1 auto;
+  min-height: 0;
   min-width: 0;
 }
 
@@ -153,6 +177,8 @@ h3 {
 .pa-panel {
   display: flex;
   flex-direction: column;
+  height: 100%;
+  min-height: 0;
   min-width: 0;
 }
 
@@ -180,14 +206,53 @@ h3 {
   align-items: center;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  flex: 1 1 auto;
+  justify-content: flex-start;
+  min-height: 0;
   min-width: 0;
+  overflow: auto;
 }
 
 .plotly-chart {
-  height: 520px;
+  flex: 1 1 auto;
+  height: 100%;
   max-width: 100%;
+  min-height: 320px;
   width: 900px;
+}
+
+.notes-panel {
+  align-self: center;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  margin-top: auto;
+  max-width: 100%;
+  padding: 0.45rem 0.75rem 0.65rem;
+  width: min(800px, 100%);
+}
+
+.notes-toggle {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  color: inherit;
+  cursor: pointer;
+  margin: 0 0 0.35rem;
+  padding: 0.15rem 0.45rem;
+}
+
+.notes-panel h4 {
+  margin: 0.2rem 0 0.35rem;
+}
+
+.notes-panel ol {
+  margin: 0;
+  padding-left: 1.35rem;
+}
+
+.notes-panel li + li {
+  margin-top: 0.25rem;
 }
 
 .plotly-chart .modebar {
@@ -201,17 +266,29 @@ h3 {
 }
 
 .artifact-title-block {
+  align-self: stretch;
+  background: var(--content-bg);
+  position: sticky;
   text-align: center;
+  top: 0;
+  z-index: 4;
 }
 
 .artifact-table {
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
 }
 
 .artifact-table th,
 .artifact-table td {
   padding: 2px 0.25em;
   text-align: center;
+}
+
+.artifact-table thead th {
+  background: var(--content-bg);
+  position: sticky;
+  z-index: 3;
 }
 
 .table-sort-button {
@@ -255,8 +332,11 @@ h3 {
 }
 
 .table-section h5 {
+  background: var(--content-bg);
   margin: 0.5rem 0;
+  position: sticky;
   text-align: center;
+  z-index: 3;
 }
 
 .sectioned-table [data-column-id="label"] {

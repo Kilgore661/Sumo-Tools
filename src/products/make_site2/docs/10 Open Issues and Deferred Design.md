@@ -236,7 +236,7 @@ This defect does not reopen the canonical-link correction.
 
 | Issue | Status | Note |
 | --- | --- | --- |
-| Notes-panel height, overflow and framing, including the discussed `170px` cap | Open / next user-visible item | Rendering decision owned by `05 Rendering Design.md`. |
+| Table-body-only scrolling for table-like PAs | Deferred / TBD | Current sticky-title/header treatment keeps context visible, but the scrollbar still belongs to the PA slot. Consider a richer table PA structure with non-scrolling chrome and a scrolling data viewport. |
 | Heading typography ownership | Open | Rendering decision. |
 | Banzuke Changes central Rank semantics | Open | PA/rendering decision. |
 | Context-specific background colours | Open | Rendering/operations decision. |
@@ -244,7 +244,8 @@ This defect does not reopen the canonical-link correction.
 | Page promotion review | Open | Review against coherence, availability and actual PA rendering. |
 | Documentation chunking for LLMs | Deferred / TBD | Consider whether active docs should be refactored into smaller LLM-manageable chunks with hierarchical README/front-door files. |
 | Code chunking for LLMs | Deferred / TBD | Consider whether make_site2 code should be refactored into smaller LLM-manageable modules or package areas without introducing abstraction churn. |
-| Sortable table columns | Decided; implementation outstanding | Implement the specified table-column sorting behaviour for table-like PAs. |
+| Hot-links section in NavigationBar | Decided; implementation outstanding | Add curated links below the site title/navigation tree, initially Banzuke Changes then Basho Results, without section numbers. |
+| Basho Results result/direction consistency | Decided; implementation outstanding | Remove the separate Direction column and append the movement arrow to Result, matching the Banzuke Changes treatment. |
 | Nested table sorting | Deferred / TBD | Investigate whether table sorting should support secondary sort keys, and possibly only primary/secondary ordering rather than arbitrary-depth sort stacks. |
 | Producer result-field shape | Deferred / TBD | Where distinct result values are emitted by a data builder, do not coalesce them into one display string as current result fields do. Current sortable-column implementation may parse compact result strings for wins sorting, but should carry an explicit warning comment until this issue is resolved. |
 | Plotly interaction state in deep links | Deferred / TBD | Decide whether canonical public links should preserve Plotly legend/trace visibility, zoom/pan, or other client-side chart state. Complexity is moderate-to-high if yes: define which Plotly state is public material state versus temporary reader interaction, serialize it without unstable Plotly internals, restore it after data/render completion, keep URLs readable, and avoid breaking canonical-link semantics. |
@@ -281,12 +282,14 @@ Next independent observed defect requiring triage
   Plotly line-chart Pages can display empty chart frames with no traces;
   establish scope/cause and promote priority if reproducible on promoted Pages
 
-Next user-visible design item
-  settle Notes-panel height, overflow and framing, including whether the
-  discussed 170px cap is the right default presentation rule
+Next user-visible changes
+  add the curated hot-links section to the NavigationBar
+  make Basho Results append movement arrows to Result instead of showing a
+  separate Direction column
+  revisit table-like PA structure so only table data, not PA/table chrome,
+  owns the vertical scrollbar
 
 P1
-  implement sortable table columns
   add local deployment target-safety protection
   follow through on further producer integrations after the P0 policy and
   Banzuke Changes slice
@@ -309,7 +312,8 @@ P3
 
 ## 8. Summary
 
-The Notes/PAPanel and canonical-link corrections are complete and verified.
+The Notes/PAPanel, sortable-column, notes-panel and canonical-link corrections
+are complete and verified.
 
 The active publication-coherence issue is now more accurately defined. Banzuke
 Changes is a Page for a newly published successor banzuke before results enter
@@ -319,6 +323,6 @@ temporarily keep it accessible for regression testing provided a conspicuous
 warning makes that exception visible.
 
 Other copied History-derived PAs remain subject to the broader Selected-History
-coherence audit. A separate Plotly empty-trace defect remains open for triage,
-and the next user-visible design item after that is Notes-panel height,
-overflow and framing.
+coherence audit. A separate Plotly empty-trace defect remains open for triage.
+The next user-visible changes are the curated hot-links section, Basho Results
+result/direction consistency, and the deferred table-body viewport refinement.

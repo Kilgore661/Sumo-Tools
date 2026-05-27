@@ -458,12 +458,25 @@ the available viewport. It shall maintain a place for Notes within the PAPanel
 without allowing a specialised PA renderer to take ownership of page-level
 layout.
 
-### 11.3 Notes-Panel Dimension Policy Not Yet Settled
+The active runtime constrains each ContentPanel to the available shell height.
+Within that space, the PAPanel is a vertical region containing a flexible PA
+slot followed by its Notes panel when relevant. The PA slot is the scrollable
+artifact region; the surrounding content column shall not require page-level
+vertical scrolling for ordinary PA overflow.
 
-A bounded Notes panel positioned within PAPanel may be an appropriate shared
-realisation. Any exact maximum height, overflow treatment and PA/Notes space
-allocation shall be recorded as a rendering rule when agreed. It is not fixed by
-this draft merely because a candidate value has been discussed.
+### 11.3 Notes-Panel Dimension and Toggle Policy
+
+The shared Notes panel shall be positioned at the bottom of its PAPanel,
+visible by default when relevant Notes exist, and hideable by a local
+`Hide notes` / `Show notes` control attached to the panel.
+
+The Notes panel shall be visually framed as explanatory material associated
+with the PA and constrained to a readable measure. The current shared maximum
+width is about `800px`; height is content-driven so the current relevant Notes
+are visible without introducing an internal Notes scrollbar.
+
+When no Note is relevant, the renderer need not display an empty Notes panel or
+Notes toggle.
 
 ---
 
@@ -485,8 +498,7 @@ Notes are relevant only through its effect on visible PA state.
 
 Notes should be visibly distinguishable from PA data while remaining associated
 with the PA they explain. Treatment may include a Notes heading, a panel
-boundary, internal scrolling under a settled bounded-height policy, or other
-shared presentation rules.
+boundary, a show/hide control, or other shared presentation rules.
 
 Treatments that mute, highlight or otherwise imply differences in Note status or
 importance shall have declared meaning before being treated as normative.
@@ -506,6 +518,10 @@ FilterSection layout or Notes outside the PAPanel ownership relationship.
 
 PA framing distinct from Page Heading shall be rendered consistently where it is
 modelled.
+
+When a PA terminal form uses a Plotly chart, the chart should resize to fill the
+remaining PA slot space after ordinary layout changes, including Notes-panel
+show/hide changes, subject to any chart-specific minimum useful size.
 
 ---
 
@@ -589,14 +605,33 @@ gutters.
 
 ```css
 .artifact-table {
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
 }
 ```
 
 This is a shared rendering treatment rather than a semantic claim about table
 data.
 
-### 14.5 Alignment, Emphasis and Semantic Signals
+### 14.5 Sticky Table Context
+
+**Owner:** table-like PA terminal forms
+
+**Rule:** When table content overflows the PA slot vertically, the PA title or
+caption and table column headings should remain visible at the top of the PA
+slot while data rows scroll.
+
+The current runtime realizes this by making the artifact title block, table
+section headings and table header cells sticky within the PA slot scroll
+container. This is a rendering treatment for reader orientation; it does not
+change table data, sorting semantics or PA ownership.
+
+**Known limitation:** The scrollbar currently belongs to the PA slot as a
+whole, so it begins at the top of the PA panel rather than below a dedicated
+table-body viewport. A deeper table-artifact structure may later split
+non-scrolling table chrome from a scrolling data region.
+
+### 14.6 Alignment, Emphasis and Semantic Signals
 
 Column alignment, link styling, font weight, muted text and status colours may
 communicate meaning. Where such treatments are common shared table behaviour,
@@ -606,7 +641,7 @@ be declared with that PA or feature.
 Browser-default emphasis shall not be retained merely by accident when it
 communicates an unintended semantic distinction.
 
-### 14.6 Sortable Heading Treatment
+### 14.7 Sortable Heading Treatment
 
 **Owner:** table-like PA terminal forms
 
