@@ -74,7 +74,10 @@ PAGES = PageRegistry(
         "first_chii_appearance": PageDefinition(
             id="first_chii_appearance",
             title="First Chii Appearance",
-            summary="Earliest observed bout appearance at <a href=\"sumodb.de\">SumoDB</a>for each chii.",
+            summary=(
+                "Earliest observed bout appearance at "
+                '<a href="https://sumodb.sumogames.de/">SumoDB</a> for each chii.'
+            ),
             status=PageStatus.PROMOTED,
             artifact=artifact("first_chii_appearance", "chart"),
         ),

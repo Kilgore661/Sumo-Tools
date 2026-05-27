@@ -43,6 +43,11 @@ function artifactForPAPanel(panel, artifact) {
     notes: (artifact.notes || []).filter(note => noteIds.has(note.id)),
   };
 }
+
+function renderContentSummary(summary) {
+  return `<h3 class="content-summary">${summary}</h3>`;
+}
+
 async function renderIndexedTableContentPanel(panel, artifact, overrideState = null) {
   const filters = panel.contents.filter_section.filters;
   const state = overrideState || resolveFilterState(filters, readFilterUrlState(filters));
@@ -59,7 +64,7 @@ async function renderIndexedTableContentPanel(panel, artifact, overrideState = n
   contentPanel.innerHTML = [
     '<section class="content-panel">',
     `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
-    `<h3>${escapeHtml(panel.heading.summary)}</h3>`,
+    renderContentSummary(panel.heading.summary),
     '<div class="content-body">',
     renderFilterSection(panel.contents.filter_section, state, index),
     '<section class="pa-panel">',
@@ -89,7 +94,7 @@ async function renderBanzukeChangesContentPanel(panel, artifact, overrideState =
   contentPanel.innerHTML = [
     '<section class="content-panel">',
     `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
-    `<h3>${escapeHtml(panel.heading.summary)}</h3>`,
+    renderContentSummary(panel.heading.summary),
     '<div class="content-body">',
     renderFilterSection(panel.contents.filter_section, state),
     '<section class="pa-panel">',
@@ -115,7 +120,7 @@ async function renderSectionedTableContentPanel(panel, artifact) {
   contentPanel.innerHTML = [
     '<section class="content-panel">',
     `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
-    `<h3>${escapeHtml(panel.heading.summary)}</h3>`,
+    renderContentSummary(panel.heading.summary),
     '<div class="content-body content-body-no-filters">',
     '<section class="pa-panel">',
     '<div class="pa-slot">',
@@ -144,7 +149,7 @@ async function renderStandingsContentPanel(panel, artifact, overrideState = null
   contentPanel.innerHTML = [
     '<section class="content-panel">',
     `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
-    `<h3>${escapeHtml(panel.heading.summary)}</h3>`,
+    renderContentSummary(panel.heading.summary),
     '<div class="content-body">',
     renderFilterSection(panel.contents.filter_section, state),
     '<section class="pa-panel">',
@@ -203,7 +208,7 @@ async function renderStandingWinProbabilityContentPanel(panel, artifact, overrid
   contentPanel.innerHTML = [
     '<section class="content-panel">',
     `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
-    `<h3>${escapeHtml(panel.heading.summary)}</h3>`,
+    renderContentSummary(panel.heading.summary),
     '<div class="content-body">',
     renderFilterSection(panel.contents.filter_section, state),
     '<section class="pa-panel">',
@@ -230,7 +235,7 @@ async function renderCareerLengthContentPanel(panel, artifact, overrideState = n
   contentPanel.innerHTML = [
     '<section class="content-panel">',
     `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
-    `<h3>${escapeHtml(panel.heading.summary)}</h3>`,
+    renderContentSummary(panel.heading.summary),
     '<div class="content-body">',
     renderFilterSection(panel.contents.filter_section, state),
     '<section class="pa-panel">',
@@ -267,7 +272,7 @@ async function renderFinishByChiiContentPanel(panel, artifact, overrideState = n
   contentPanel.innerHTML = [
     '<section class="content-panel">',
     `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
-    `<h3>${escapeHtml(panel.heading.summary)}</h3>`,
+    renderContentSummary(panel.heading.summary),
     '<div class="content-body">',
     renderFilterSection(panel.contents.filter_section, state, null, rowsBySource),
     '<section class="pa-panel">',
@@ -289,7 +294,7 @@ async function renderStackedBarChartContentPanel(panel, artifact) {
   contentPanel.innerHTML = [
     '<section class="content-panel">',
     `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
-    `<h3>${escapeHtml(panel.heading.summary)}</h3>`,
+    renderContentSummary(panel.heading.summary),
     '<div class="content-body content-body-no-filters">',
     '<section class="pa-panel">',
     '<div class="pa-slot">',
@@ -309,7 +314,7 @@ async function renderGroupedLineChartContentPanel(panel, artifact) {
   contentPanel.innerHTML = [
     '<section class="content-panel">',
     `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
-    `<h3>${escapeHtml(panel.heading.summary)}</h3>`,
+    renderContentSummary(panel.heading.summary),
     '<div class="content-body content-body-no-filters">',
     '<section class="pa-panel">',
     '<div class="pa-slot">',
@@ -329,7 +334,7 @@ async function renderOrderedBarChartContentPanel(panel, artifact) {
   contentPanel.innerHTML = [
     '<section class="content-panel">',
     `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
-    `<h3>${escapeHtml(panel.heading.summary)}</h3>`,
+    renderContentSummary(panel.heading.summary),
     '<div class="content-body content-body-no-filters">',
     '<section class="pa-panel">',
     '<div class="pa-slot">',
@@ -349,7 +354,7 @@ async function renderCategoryBarChartContentPanel(panel, artifact) {
   contentPanel.innerHTML = [
     '<section class="content-panel">',
     `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
-    `<h3>${escapeHtml(panel.heading.summary)}</h3>`,
+    renderContentSummary(panel.heading.summary),
     '<div class="content-body content-body-no-filters">',
     '<section class="pa-panel">',
     '<div class="pa-slot">',

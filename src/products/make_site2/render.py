@@ -163,6 +163,8 @@ def render_navigation_label(item: NavigationItem) -> str:
     label = escape(item.label)
     if item.href is None:
         return f'<span class="nav-label">{label}</span>'
+    if item.page_id is None:
+        return f'<a class="nav-link" href="{escape(item.href)}">{label}</a>'
     page_id = escape(item.page_id or "")
     return (
         f'<a class="nav-link" href="{escape(item.href)}" '

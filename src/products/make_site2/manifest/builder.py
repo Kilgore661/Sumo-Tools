@@ -29,6 +29,9 @@ QUICK_LINKS: tuple[tuple[str, str], ...] = (
     ("banzuke_changes", "Banzuke Changes"),
 )
 
+LANDING_NAVIGATION_NODE_ID = "home"
+LANDING_NAVIGATION_HREF = "index.html"
+
 
 @dataclass(frozen=True, kw_only=True)
 class PanelDeclaration:
@@ -206,6 +209,8 @@ def renderable_navigation_item(
         if included and item.page_id is not None and declaration is not None
         else None
     )
+    if item.id == LANDING_NAVIGATION_NODE_ID and item.page_id is None:
+        href = LANDING_NAVIGATION_HREF
     return NavigationItem(
         id=item.id,
         label=item.label,

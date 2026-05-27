@@ -325,7 +325,23 @@ shall preserve their modelled meaning.
 Numbering shall arise from the rendered hierarchy or another shared rendering
 mechanism; it shall not require public labels to embed ad hoc numbering text.
 
-### 8.2 Navigation-Local Vertical Rhythm
+The Home Navigation node may be rendered as a link to the shell landing view
+even though the landing view is not currently a declared material Page. Such a
+link is a shell entry point and shall not be treated as a Page-selection link.
+
+### 8.2 Link Decoration
+
+**Owner:** Site-wide public link presentation.
+
+**Rule:** Links shall not be underlined by default, but shall be underlined when
+hovered or keyboard-focused. A Page or PA may still use other declared visual
+treatments to distinguish links, active Navigation items or unavailable
+destinations.
+
+This rule applies site-wide rather than being owned separately by Navigation,
+QuickLinks or individual PA renderers.
+
+### 8.3 Navigation-Local Vertical Rhythm
 
 **Owner:** `Navigation`
 
@@ -345,11 +361,16 @@ content-table density or other PA-terminal spacing.
 value. The shared rule that Navigation may have its own readability treatment is
 settled.
 
-### 8.3 Navigation Typography and Status Treatments
+### 8.4 Navigation Typography and Status Treatments
 
 Font size, emphasis, selected-state treatment, muted/unavailable-state
 treatment and similar Navigation presentation rules shall be declared when they
 are intended to carry stable public meaning.
+
+Navigation placeholders, meaning Navigation nodes that group child entries but
+are not themselves links, shall be visually muted. The current treatment renders
+their labels at about 50% foreground opacity so linked destinations remain the
+stronger navigational affordance.
 
 A treatment that merely occurs because of provisional implementation shall not
 be treated as settled Navigation policy until recorded here or in a staged
@@ -380,6 +401,15 @@ PA framing or PA-internal headings.
 Typography may be used to convey this hierarchy, but a settled typographic rule
 must state whether its owner is the modelled role, the HTML heading hierarchy,
 or a declared combination.
+
+Page sub headings may contain trusted inline HTML declared by the Site
+Definition, such as links. The shared renderer shall render that declared inline
+markup rather than displaying it as escaped text. This is a site-definition
+authoring contract, not permission for producer data or arbitrary copied HTML to
+replace page structure.
+
+The site caption and selected Page main heading shall have modest top spacing
+so they do not sit directly against the viewport edge.
 
 ### 9.3 Current Typography Issue
 

@@ -349,8 +349,9 @@ contract. Canonical link output shall not intentionally rely on omitted Filter
 parameters whose meaning depends on current defaults.
 
 The shell root URL may continue to identify the current landing view while
-home/default Page policy remains unsettled. It shall not form an alternative
-canonical link for a material selected-Page view.
+home/default Page policy remains unsettled. The NavigationBar Home node may
+link to that shell landing view. It shall not form an alternative canonical
+link for a material selected-Page view.
 
 ---
 
