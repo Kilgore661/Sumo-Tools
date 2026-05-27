@@ -2,6 +2,12 @@ import { divisionId, filterValueLabel } from "./filters.js";
 import { compareValues, decimal, renderRikishiLink } from "./tables.js";
 import { escapeHtml } from "../utils/html.js";
 
+const PLOTLY_CONFIG = {
+  displayModeBar: true,
+  displaylogo: false,
+  responsive: true,
+};
+
 function renderFinishByChiiChart(artifact, state, filters, rowsBySource) {
   const rows = finishByChiiRows(artifact, state, rowsBySource);
   if (!rows.length) {
@@ -71,7 +77,7 @@ function renderFinishByChiiPlot(artifact, state, rowsBySource) {
       color: "#ffffff",
     },
   };
-  Plotly.react(host, [trace], layout, { responsive: true, displaylogo: false });
+  Plotly.react(host, [trace], layout, PLOTLY_CONFIG);
 }
 function finishByChiiRows(artifact, state, rowsBySource) {
   const sourceId = state.direction === "bottom" ? "bottom_thresholds" : "top_thresholds";
@@ -171,7 +177,7 @@ function renderStandingWinProbabilityPlot(artifact, state, rowsBySource) {
     host,
     traces,
     standingWinProbabilityLayout(artifact, traces),
-    { responsive: true, displaylogo: false }
+    PLOTLY_CONFIG
   ).then(() => {
     if (!host.on) return;
     host.on("plotly_legenddoubleclick", event => {
@@ -342,7 +348,7 @@ function renderCareerLengthPlot(artifact, state, rowsBySource) {
     host,
     careerLengthTraces(view, rowsBySource[state.view] || []),
     careerLengthLayout(view),
-    { responsive: true, displaylogo: false }
+    PLOTLY_CONFIG
   );
 }
 function careerLengthTraces(view, rows) {
@@ -376,7 +382,7 @@ function renderCategoryBarPlot(artifact, rowsBySource) {
     host,
     [trace],
     categoryBarLayout(artifact, trace),
-    { responsive: true, displaylogo: false }
+    PLOTLY_CONFIG
   );
 }
 function renderOrderedBarPlot(artifact, rowsBySource) {
@@ -391,7 +397,7 @@ function renderOrderedBarPlot(artifact, rowsBySource) {
     host,
     [trace],
     orderedBarLayout(artifact, trace),
-    { responsive: true, displaylogo: false }
+    PLOTLY_CONFIG
   );
 }
 function renderGroupedLinePlot(artifact, rowsBySource) {
@@ -405,7 +411,7 @@ function renderGroupedLinePlot(artifact, rowsBySource) {
     host,
     groupedLineTraces(artifact, rowsBySource),
     groupedChartLayout(artifact, rowsBySource),
-    { responsive: true, displaylogo: false }
+    PLOTLY_CONFIG
   );
 }
 function renderStackedBarPlot(artifact, rowsBySource) {
@@ -419,7 +425,7 @@ function renderStackedBarPlot(artifact, rowsBySource) {
     host,
     stackedBarTraces(artifact, rowsBySource),
     stackedBarLayout(artifact, rowsBySource),
-    { responsive: true, displaylogo: false }
+    PLOTLY_CONFIG
   );
 }
 function stackedBarRows(artifact, rowsBySource) {

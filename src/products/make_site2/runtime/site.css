@@ -1,5 +1,7 @@
 :root {
   --page-bg: #071733;
+  --nav-bg: #071733;
+  --content-bg: #0b1d3e;
   --page-fg: #ffffff;
   --artifact-row-odd-bg: #12234b;
   --artifact-row-even-bg: #1b2c52;
@@ -7,14 +9,20 @@
 
 body.site-context-local {
   --page-bg: #071733;
+  --nav-bg: #071733;
+  --content-bg: #0b1d3e;
 }
 
 body.site-context-remote {
   --page-bg: #3b0508;
+  --nav-bg: #3b0508;
+  --content-bg: #4a090d;
 }
 
 body.site-context-preview {
   --page-bg: #063819;
+  --nav-bg: #063819;
+  --content-bg: #084821;
 }
 
 body {
@@ -31,6 +39,14 @@ button,
 input,
 select {
   font: inherit;
+}
+
+.filter-section select {
+  box-sizing: border-box;
+  height: 1.25em;
+  line-height: 1;
+  padding-block: 0;
+  padding-inline: 0.2em;
 }
 
 .site-shell {
@@ -50,9 +66,19 @@ select {
 }
 
 .site-nav {
+  background: var(--nav-bg);
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   width: max-content;
+}
+
+.site-main,
+.content-panel {
+  background: var(--content-bg);
+}
+
+.content-panel {
+  min-height: 100%;
 }
 
 .site-nav[hidden] {
@@ -109,6 +135,10 @@ h3 {
   list-style: none;
 }
 
+.filter-section .choice-list {
+  padding-left: 1em;
+}
+
 
 .content-body {
   display: grid;
@@ -158,6 +188,16 @@ h3 {
   height: 520px;
   max-width: 100%;
   width: 900px;
+}
+
+.plotly-chart .modebar {
+  opacity: 0.35;
+  transition: opacity 120ms ease-in-out;
+}
+
+.plotly-chart:hover .modebar,
+.plotly-chart:focus-within .modebar {
+  opacity: 1;
 }
 
 .artifact-title-block {
