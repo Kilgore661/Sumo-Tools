@@ -265,7 +265,7 @@ NavigationBar collapse is shell presentation state rather than Filter state.
 
 ### 6.1 Site Caption
 
-**Owner:** `NavigationBar -> <site caption> . Navigation . <hider>`
+**Owner:** `NavigationBar -> <site caption> . QuickLinks? . Navigation . <hider>`
 
 **Rule:** The site caption shall appear as the visible public identity of the
 site within the NavigationBar and shall remain distinct from selected Page
@@ -287,9 +287,25 @@ the ContentPanel or suggest that the control changes analytical content.
 
 ---
 
-## 7. Rendering `Navigation`
+## 7. Rendering `QuickLinks`
 
-### 7.1 Hierarchical Numbering
+### 7.1 QuickLinks Placement
+
+**Owner:** `NavigationBar -> ... . QuickLinks? . Navigation ...`
+
+**Rule:** When QuickLinks are present, they shall render in the NavigationBar
+after the site caption and before the full Navigation tree.
+
+The current shared treatment is a simple ordered list with the caption
+`Quick Links`. QuickLinks shall not use the hierarchical numbering of the main
+Navigation tree and shall not require public labels to embed ad hoc numbering
+text.
+
+---
+
+## 8. Rendering `Navigation`
+
+### 8.1 Hierarchical Numbering
 
 **Owner:** `Navigation -> <hierarchical numbered navigation items>`
 
@@ -300,7 +316,7 @@ shall preserve their modelled meaning.
 Numbering shall arise from the rendered hierarchy or another shared rendering
 mechanism; it shall not require public labels to embed ad hoc numbering text.
 
-### 7.2 Navigation-Local Vertical Rhythm
+### 8.2 Navigation-Local Vertical Rhythm
 
 **Owner:** `Navigation`
 
@@ -320,7 +336,7 @@ content-table density or other PA-terminal spacing.
 value. The shared rule that Navigation may have its own readability treatment is
 settled.
 
-### 7.3 Navigation Typography and Status Treatments
+### 8.3 Navigation Typography and Status Treatments
 
 Font size, emphasis, selected-state treatment, muted/unavailable-state
 treatment and similar Navigation presentation rules shall be declared when they
@@ -332,9 +348,9 @@ rendering-change decision.
 
 ---
 
-## 8. Rendering `ContentPanel` and `Heading`
+## 9. Rendering `ContentPanel` and `Heading`
 
-### 8.1 ContentPanel
+### 9.1 ContentPanel
 
 **Owner:** `ContentPanel -> Heading . Contents`
 
@@ -344,7 +360,7 @@ its Contents as a coherent page region distinct from the NavigationBar.
 The ContentPanel shall not be replaced by a PA-specific page shell. Its Heading
 and Contents relationship remains common across PA terminal forms.
 
-### 8.2 Heading Roles
+### 9.2 Heading Roles
 
 **Owner:** `Heading -> <main heading> . <sub heading>?`
 
@@ -356,7 +372,7 @@ Typography may be used to convey this hierarchy, but a settled typographic rule
 must state whether its owner is the modelled role, the HTML heading hierarchy,
 or a declared combination.
 
-### 8.3 Current Typography Issue
+### 9.3 Current Typography Issue
 
 A final heading-typography ownership rule is not yet incorporated into this
 Rendering Design. Current implementation may contain provisional size rules.
@@ -366,9 +382,9 @@ HTML heading levels, or an explicit combination shall be carried into
 
 ---
 
-## 9. Rendering `Contents`
+## 10. Rendering `Contents`
 
-### 9.1 Structural Relationship
+### 10.1 Structural Relationship
 
 **Owner:** `Contents -> FilterSection? . PAPanel`
 
@@ -379,7 +395,7 @@ containing the PA and its Notes.
 **Rationale:** Filters change the visible analytical presentation. They do not
 own the Published Artifact or the explanatory Notes attached to it.
 
-### 9.2 Layout Freedom Within the Relationship
+### 10.2 Layout Freedom Within the Relationship
 
 The grammar does not dictate one exact spatial arrangement for the two sibling
 regions. Rendering Design may choose, for example, a side-by-side arrangement
@@ -392,9 +408,9 @@ interaction rather than emerging page-by-page.
 
 ---
 
-## 10. Rendering `FilterSection` and `FilterItem`
+## 11. Rendering `FilterSection` and `FilterItem`
 
-### 10.1 FilterSection Identity
+### 11.1 FilterSection Identity
 
 **Owner:** `FilterSection -> FilterItem*`
 
@@ -403,7 +419,7 @@ reader-visible controls affecting the associated PAPanel/PA presentation. Its
 reader-facing heading may use ordinary wording such as `Options` while the
 formal model concept remains `FilterSection`.
 
-### 10.2 Filter Widget Policy
+### 11.2 Filter Widget Policy
 
 **Owner:** `FilterItem -> BooleanChoice | SingleFiniteChoice`
 
@@ -417,7 +433,7 @@ state meaning.
 The exact widget-selection threshold or policy shall be recorded when it is
 needed as stable shared behaviour.
 
-### 10.3 Structural Lists Do Not Display List Markers
+### 11.3 Structural Lists Do Not Display List Markers
 
 **Owner:** `FilterSection`
 
@@ -438,9 +454,9 @@ may be refined separately.
 
 ---
 
-## 11. Rendering `PAPanel`
+## 12. Rendering `PAPanel`
 
-### 11.1 PA-and-Notes Relationship
+### 12.1 PA-and-Notes Relationship
 
 **Owner:** `PAPanel -> PA . Notes`
 
@@ -451,7 +467,7 @@ or visible PA features.
 A normal rendering in which Notes span beneath both the sibling FilterSection
 and the PA does not conform to this relationship.
 
-### 11.2 PAPanel Layout
+### 12.2 PAPanel Layout
 
 The PAPanel may use a layout container appropriate to its PA terminal form and
 the available viewport. It shall maintain a place for Notes within the PAPanel
@@ -464,7 +480,7 @@ slot followed by its Notes panel when relevant. The PA slot is the scrollable
 artifact region; the surrounding content column shall not require page-level
 vertical scrolling for ordinary PA overflow.
 
-### 11.3 Notes-Panel Dimension and Toggle Policy
+### 12.3 Notes-Panel Dimension and Toggle Policy
 
 The shared Notes panel shall be positioned at the bottom of its PAPanel,
 visible by default when relevant Notes exist, and hideable by a local
@@ -480,9 +496,9 @@ Notes toggle.
 
 ---
 
-## 12. Rendering `Notes`
+## 13. Rendering `Notes`
 
-### 12.1 Visibility and Ownership
+### 13.1 Visibility and Ownership
 
 **Owner:** `Notes -> Note*`, within `PAPanel`
 
@@ -494,7 +510,7 @@ Notes shall not appear as help text owned by individual Filters unless a
 separate Filter-help concept is modelled and declared. A Filter may alter which
 Notes are relevant only through its effect on visible PA state.
 
-### 12.2 Visible Notes Treatment
+### 13.2 Visible Notes Treatment
 
 Notes should be visibly distinguishable from PA data while remaining associated
 with the PA they explain. Treatment may include a Notes heading, a panel
@@ -505,9 +521,9 @@ importance shall have declared meaning before being treated as normative.
 
 ---
 
-## 13. Rendering `PA` Terminal Forms
+## 14. Rendering `PA` Terminal Forms
 
-### 13.1 General PA Rule
+### 14.1 General PA Rule
 
 **Owner:** `PAPanel -> PA . Notes`
 
@@ -525,13 +541,13 @@ show/hide changes, subject to any chart-specific minimum useful size.
 
 ---
 
-## 14. Rendering Table-Like PAs
+## 15. Rendering Table-Like PAs
 
 This section applies to `<table>`, `<indexed table>` and table-like portions of
 `<sectioned table>` PAs unless an explicit PA-specific rule justifies an
 exception.
 
-### 14.1 Shared Table Container
+### 15.1 Shared Table Container
 
 **Owner:** table-like PA terminal forms
 
@@ -542,7 +558,7 @@ Individual PAs may define column meaning, groups, links, optional visible
 features and specialised structure. Those meanings do not prevent shared table
 legibility treatment from applying where compatible.
 
-### 14.2 Cell Padding
+### 15.2 Cell Padding
 
 **Owner:** table-like PA terminal forms
 
@@ -564,7 +580,7 @@ Navigation, Filters, Notes or charts.
 **Value status:** Exact padding values are revisable table-density values. The
 shared treatment is settled as a table-rendering rule.
 
-### 14.3 Alternating Data-Row Backgrounds
+### 15.3 Alternating Data-Row Backgrounds
 
 **Owner:** table-like PA terminal forms
 
@@ -593,7 +609,7 @@ shall apply to data rows, not heading rows.
 policy. The exact theme colours are revisable presentation tokens and should be
 reviewed when alternative site-context themes are normalised.
 
-### 14.4 Continuous Row Treatment
+### 15.4 Continuous Row Treatment
 
 **Owner:** table-like PA terminal forms
 
@@ -613,7 +629,7 @@ gutters.
 This is a shared rendering treatment rather than a semantic claim about table
 data.
 
-### 14.5 Sticky Table Context
+### 15.5 Sticky Table Context
 
 **Owner:** table-like PA terminal forms
 
@@ -636,7 +652,7 @@ model entity. If future pressure requires producer-visible table chrome/body
 semantics, the Published Artifact model may be refined to represent that split
 directly.
 
-### 14.6 Alignment, Emphasis and Semantic Signals
+### 15.6 Alignment, Emphasis and Semantic Signals
 
 Column alignment, link styling, font weight, muted text and status colours may
 communicate meaning. Where such treatments are common shared table behaviour,
@@ -646,7 +662,7 @@ be declared with that PA or feature.
 Browser-default emphasis shall not be retained merely by accident when it
 communicates an unintended semantic distinction.
 
-### 14.7 Sortable Heading Treatment
+### 15.7 Sortable Heading Treatment
 
 **Owner:** table-like PA terminal forms
 
@@ -658,7 +674,7 @@ Row-number headings shall not render as sortable controls.
 
 ---
 
-## 15. Rendering Indexed-Table PAs
+## 16. Rendering Indexed-Table PAs
 
 **Owner:** `PA -> <indexed table>`
 
@@ -675,7 +691,7 @@ apply unless a declared exception is required.
 
 ---
 
-## 16. Rendering Chart PAs
+## 17. Rendering Chart PAs
 
 **Owner:** `PA -> <chart>`
 
@@ -692,9 +708,9 @@ require them and are agreed.
 
 ---
 
-## 17. Rendering Sectioned-Table and Prose PAs
+## 18. Rendering Sectioned-Table and Prose PAs
 
-### 17.1 Sectioned Tables
+### 18.1 Sectioned Tables
 
 **Owner:** `PA -> <sectioned table>`
 
@@ -702,7 +718,7 @@ A sectioned-table PA shall render its modelled sections within the PA region.
 Section labels and local table structure are PA-internal visible features.
 Shared table treatment applies to its table-like content where compatible.
 
-### 17.2 Prose
+### 18.2 Prose
 
 **Owner:** `PA -> <prose>`
 
@@ -715,7 +731,7 @@ require a settled shared treatment.
 
 ---
 
-## 18. Rendering Custom-Artifact PAs
+## 19. Rendering Custom-Artifact PAs
 
 **Owner:** `PA -> <custom artifact>`
 
@@ -727,7 +743,7 @@ Custom PA rendering may declare feature-specific rendering rules where those
 features carry public analytical meaning. Such rules shall identify their PA
 owner and shall not be disguised as generic site styling.
 
-### 18.1 Banzuke Changes Movement Direction
+### 19.1 Banzuke Changes Movement Direction
 
 **Owner:** Banzuke Changes custom PA visible movement features
 
@@ -742,7 +758,7 @@ relevant Filter; that Filter does not remove the direction feature.
 **Rationale:** Direction is part of the default public reading of banzuke
 change, while numeric magnitude is optional further detail.
 
-### 18.2 Banzuke Changes Rank Treatment Not Yet Settled
+### 19.2 Banzuke Changes Rank Treatment Not Yet Settled
 
 Whether central rank values in the banzuke-style rendering are semantic row
 headers or ordinary table values is not yet incorporated as a settled rendering
@@ -752,7 +768,7 @@ would communicate intended meaning. It shall be carried as an action item in
 
 ---
 
-## 19. Theme and Environment Presentation
+## 20. Theme and Environment Presentation
 
 Theme values may provide coherent visual identity and distinguish relevant site
 contexts where that distinction is intentionally public or useful for safe
@@ -769,7 +785,7 @@ shall be stated once its intended public/preview meaning is settled.
 
 ---
 
-## 20. Browser Defaults, Libraries and Provisional Implementation
+## 21. Browser Defaults, Libraries and Provisional Implementation
 
 Browser and rendering-library defaults may supply ordinary presentation where
 that default has been deliberately accepted and does not communicate unintended
@@ -790,7 +806,7 @@ Changes.md` and are incorporated here only when agreed.
 
 ---
 
-## 21. Rendering State and Interaction
+## 22. Rendering State and Interaction
 
 The browser runtime may apply public selection and Filter state to determine the
 visible Page and PA presentation. It shall preserve the ownership relationships
@@ -811,7 +827,7 @@ represented by the model or declared custom-PA boundaries.
 
 ---
 
-## 22. Relationship to Rendering Audit and Change Record
+## 23. Relationship to Rendering Audit and Change Record
 
 Rendering Design is the normative home for agreed visible presentation policy.
 It shall be read together with:
@@ -840,7 +856,7 @@ scope and intended visible rule have been agreed.
 
 ---
 
-## 23. Rendering Invariants
+## 24. Rendering Invariants
 
 A conforming normal rendering of a promoted Page under `PG` shall satisfy:
 
@@ -861,7 +877,7 @@ A conforming normal rendering of a promoted Page under `PG` shall satisfy:
 
 ---
 
-## 24. Summary
+## 25. Summary
 
 `PG` defines the semantic public page. The Public UI Model and Published
 Artifact Model represent the page and analytical material before rendering.

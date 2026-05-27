@@ -70,7 +70,7 @@ The governing page structure is:
 
 ```text
 PublicUI -> NavigationBar . ContentPanel
-NavigationBar -> <site caption> . Navigation . <hider>
+NavigationBar -> <site caption> . QuickLinks? . Navigation . <hider>
 ContentPanel -> Heading . Contents
 Contents -> FilterSection? . PAPanel
 PAPanel -> PA . Notes

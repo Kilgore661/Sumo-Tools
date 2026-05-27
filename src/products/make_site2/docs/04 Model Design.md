@@ -103,7 +103,7 @@ For promoted pages in the initial supported public shape, it shall represent
 
 ```text
 PublicUI -> NavigationBar . ContentPanel
-NavigationBar -> <site caption> . Navigation . <hider>
+NavigationBar -> <site caption> . QuickLinks? . Navigation . <hider>
 ContentPanel -> Heading . Contents
 Contents -> FilterSection? . PAPanel
 PAPanel -> PA . Notes

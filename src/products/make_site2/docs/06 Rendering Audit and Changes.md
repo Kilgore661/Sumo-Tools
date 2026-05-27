@@ -316,6 +316,7 @@ The following agreed rules remain implemented and are listed here for continuity
 
 | Owner | Incorporated rule |
 | --- | --- |
+| `NavigationBar -> QuickLinks` | Curated QuickLinks render after the site caption and before the main Navigation tree. |
 | `Navigation` | Navigation-local vertical rhythm; current `.nav-list { line-height: 1.45; }`. |
 | `FilterSection` | Structural Filter lists display without list markers. |
 | Table-like PAs | Shared cell padding; current `padding: 2px 0.25em`. |

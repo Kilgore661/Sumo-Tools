@@ -22,8 +22,16 @@ class NavigationCollapseControl:
 
 
 @dataclass(frozen=True, kw_only=True)
+class NavigationQuickLink:
+    label: str
+    page_id: str
+    href: str
+
+
+@dataclass(frozen=True, kw_only=True)
 class NavigationBar:
     heading: str
+    quick_links: tuple[NavigationQuickLink, ...]
     navigation_tree: tuple[NavigationItem, ...]
     collapse_control: NavigationCollapseControl
 

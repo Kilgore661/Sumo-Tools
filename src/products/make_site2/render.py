@@ -100,10 +100,32 @@ def render_navigation_bar(navigation_bar: NavigationBar) -> str:
         (
             '<nav id="site-nav" class="site-nav" data-nav-panel aria-label="Site navigation">',
             f'<h1 class="site-title">{render_visible_title(navigation_bar.heading)}</h1>',
+            render_quick_links(navigation_bar),
             '<ol class="nav-list">',
             *[render_navigation_item(item) for item in navigation_bar.navigation_tree],
             "</ol>",
             "</nav>",
+        )
+    )
+
+
+def render_quick_links(navigation_bar: NavigationBar) -> str:
+    if not navigation_bar.quick_links:
+        return ""
+    return "\n".join(
+        (
+            '<section class="quick-links" aria-labelledby="quick-links-heading">',
+            '<h2 id="quick-links-heading">Quick Links</h2>',
+            '<ol class="quick-links-list">',
+            *[
+                (
+                    f'<li><a class="quick-link nav-link" href="{escape(link.href)}" '
+                    f'data-page-id="{escape(link.page_id)}">{escape(link.label)}</a></li>'
+                )
+                for link in navigation_bar.quick_links
+            ],
+            "</ol>",
+            "</section>",
         )
     )
 

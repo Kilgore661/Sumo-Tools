@@ -244,7 +244,6 @@ This defect does not reopen the canonical-link correction.
 | Page promotion review | Open | Review against coherence, availability and actual PA rendering. |
 | Documentation chunking for LLMs | Deferred / TBD | Consider whether active docs should be refactored into smaller LLM-manageable chunks with hierarchical README/front-door files. |
 | Code chunking for LLMs | Deferred / TBD | Consider whether make_site2 code should be refactored into smaller LLM-manageable modules or package areas without introducing abstraction churn. |
-| Hot-links section in NavigationBar | Decided; implementation outstanding | Add curated links below the site title/navigation tree, initially Banzuke Changes then Basho Results, without section numbers. |
 | Basho Results result/direction consistency | Decided; implementation outstanding | Remove the separate Direction column and append the movement arrow to Result, matching the Banzuke Changes treatment. |
 | Nested table sorting | Deferred / TBD | Investigate whether table sorting should support secondary sort keys, and possibly only primary/secondary ordering rather than arbitrary-depth sort stacks. |
 | Producer result-field shape | Deferred / TBD | Where distinct result values are emitted by a data builder, do not coalesce them into one display string as current result fields do. Current sortable-column implementation may parse compact result strings for wins sorting, but should carry an explicit warning comment until this issue is resolved. |
@@ -265,6 +264,7 @@ Completed
   removal of the obsolete G1 compatibility seam
   modular browser runtime activation
   canonical single-shell Navigation/runtime links, implemented and verified
+  QuickLinks model and rendering in NavigationBar
 
 Immediate decided patch
   add conspicuous development warning to Banzuke Changes while its present
@@ -283,7 +283,6 @@ Next independent observed defect requiring triage
   establish scope/cause and promote priority if reproducible on promoted Pages
 
 Next user-visible changes
-  add the curated hot-links section to the NavigationBar
   make Basho Results append movement arrows to Result instead of showing a
   separate Direction column
   decide later whether the runtime table chrome/body split needs promotion into
@@ -324,6 +323,6 @@ warning makes that exception visible.
 
 Other copied History-derived PAs remain subject to the broader Selected-History
 coherence audit. A separate Plotly empty-trace defect remains open for triage.
-The next user-visible changes are the curated hot-links section and Basho
-Results result/direction consistency. A future explicit PA model for table
-chrome/body separation remains deferred unless real pressure appears.
+The next user-visible change is Basho Results result/direction consistency. A
+future explicit PA model for table chrome/body separation remains deferred
+unless real pressure appears.

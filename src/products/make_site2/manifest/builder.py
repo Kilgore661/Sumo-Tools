@@ -15,6 +15,7 @@ from ..ui_model import (
     Heading,
     NavigationBar,
     NavigationCollapseControl,
+    NavigationQuickLink,
     Notes,
     PA,
     PAPanel,
@@ -22,6 +23,11 @@ from ..ui_model import (
 )
 from . import artifacts as a
 from . import filters as f
+
+QUICK_LINKS: tuple[tuple[str, str], ...] = (
+    ("basho_results_browser", "Basho Results"),
+    ("banzuke_changes", "Banzuke Changes"),
+)
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -95,6 +101,9 @@ def build_public_site_shell(plan: PublicationPlan) -> PublicSiteShell:
     return PublicSiteShell(
         navigation_bar=NavigationBar(
             heading=plan.site.title,
+            quick_links=renderable_quick_links(
+                QUICK_LINKS, renderable_page_ids, declaration_by_page_id
+            ),
             navigation_tree=renderable_navigation_tree(
                 plan.navigation_tree, renderable_page_ids, declaration_by_page_id
             ),
@@ -152,6 +161,26 @@ def serialize_filter_value(value: str | bool) -> str:
     if isinstance(value, bool):
         return "true" if value else "false"
     return str(value)
+
+
+def renderable_quick_links(
+    quick_links: tuple[tuple[str, str], ...],
+    renderable_page_ids: frozenset[str],
+    declaration_by_page_id: dict[str, PanelDeclaration],
+) -> tuple[NavigationQuickLink, ...]:
+    resolved = []
+    for page_id, label in quick_links:
+        declaration = declaration_by_page_id.get(page_id)
+        if page_id not in renderable_page_ids or declaration is None:
+            continue
+        resolved.append(
+            NavigationQuickLink(
+                page_id=page_id,
+                label=label,
+                href=canonical_default_view_href(page_id, declaration.filters),
+            )
+        )
+    return tuple(resolved)
 
 
 def renderable_navigation_tree(

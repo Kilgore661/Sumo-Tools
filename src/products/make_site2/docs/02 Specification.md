@@ -110,7 +110,7 @@ PG
 
 PublicUI -> NavigationBar . ContentPanel
 
-NavigationBar -> <site caption> . Navigation . <hider>
+NavigationBar -> <site caption> . QuickLinks? . Navigation . <hider>
 
 Navigation -> <hierarchical numbered navigation items>
 
