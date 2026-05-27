@@ -41,7 +41,6 @@ def render_site_shell(
             "</head>",
             f"<body{cache_attrs}>",
             '<div class="site-shell" data-nav-shell>',
-            render_navigation_toggle(shell.navigation_bar),
             render_navigation_bar(shell.navigation_bar),
             '<main class="site-main" aria-label="Page content">',
             '<div id="content-panel"></div>',
@@ -99,11 +98,16 @@ def render_navigation_bar(navigation_bar: NavigationBar) -> str:
     return "\n".join(
         (
             '<nav id="site-nav" class="site-nav" data-nav-panel aria-label="Site navigation">',
+            '<div class="nav-hider-strip">',
+            render_navigation_toggle(navigation_bar),
+            "</div>",
+            '<div id="site-nav-content" class="nav-content" data-nav-content>',
             f'<h1 class="site-title">{render_visible_title(navigation_bar.heading)}</h1>',
             render_quick_links(navigation_bar),
             '<ol class="nav-list">',
             *[render_navigation_item(item) for item in navigation_bar.navigation_tree],
             "</ol>",
+            "</div>",
             "</nav>",
         )
     )
@@ -136,7 +140,7 @@ def render_navigation_toggle(navigation_bar: NavigationBar) -> str:
         return ""
     return (
         '<button type="button" class="nav-toggle" data-nav-toggle '
-        'aria-controls="site-nav" aria-expanded="true" '
+        'aria-controls="site-nav-content" aria-expanded="true" '
         'aria-label="Hide navigation" title="Hide navigation" '
         f'data-storage-key="{escape(control.storage_key)}">&lt;</button>'
     )

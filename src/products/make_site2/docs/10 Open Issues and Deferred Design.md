@@ -236,6 +236,7 @@ This defect does not reopen the canonical-link correction.
 
 | Issue | Status | Note |
 | --- | --- | --- |
+| Structural hider implementation | Implemented; verification outstanding | NavigationBar and Notes now use the same pattern: a first-class hider strip remains visible while the controlled content region collapses. NavigationBar controls NavigationContent; Notes controls NotesContent. |
 | Table chrome/body split as explicit PA model | Deferred / TBD | Runtime now implements table-body-only scrolling for ordinary table PAs. Consider a richer producer-facing PA model only if future pressure requires explicit non-scrolling chrome and scrolling data-region semantics. |
 | Heading typography ownership | Open | Rendering decision. |
 | Banzuke Changes central Rank semantics | Open | PA/rendering decision. |

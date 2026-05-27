@@ -434,6 +434,7 @@ It shall support, as required by selected Pages:
 | Selected History/data instance of build | build/input-coherence concern; not ordinarily in the view link |
 | relevant Notes shown because PA state changed | PAPanel/Notes consequence of visible PA state |
 | NavigationBar hidden/restored | shell/UI state; not part of Public View Link |
+| NotesContent hidden/restored | shell/UI state; may persist across Page changes; not part of Public View Link |
 | hover, ordinary scroll or ordinary tooltip | transient; not part of Public View Link |
 
 Runtime shall not mask incoherent build data by changing public-state semantics.

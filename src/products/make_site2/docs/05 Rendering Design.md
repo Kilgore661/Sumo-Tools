@@ -182,9 +182,11 @@ following semantic shape:
 ```text
 PublicUI
   NavigationBar
-    site caption
-    Navigation
     hider
+    NavigationContent
+      site caption
+      QuickLinks, if present
+      Navigation
   ContentPanel
     Heading
       main heading
@@ -194,6 +196,8 @@ PublicUI
       PAPanel
         PA
         Notes
+          hider
+          NotesContent
 ```
 
 A conceptual rendered structure may therefore be:
@@ -201,7 +205,7 @@ A conceptual rendered structure may therefore be:
 ```html
 <div class="site-shell">
   <aside class="site-nav">
-    <!-- NavigationBar: site caption, navigation and hider realisation -->
+    <!-- NavigationBar: hider plus NavigationContent realisation -->
   </aside>
 
   <main class="site-main">
@@ -245,9 +249,10 @@ page-local rendering conveniences.
 
 ### 5.2 NavigationBar Visibility State
 
-The NavigationBar may be hidden and restored by its modelled hider. When hidden,
-the ContentPanel shall occupy the available public-page width without being
-pushed below an invisible or collapsed NavigationBar.
+The NavigationBar content region may be hidden and restored by its modelled
+hider. When hidden, the NavigationBar's hider strip remains visible and the
+ContentPanel shall occupy the remaining available public-page width without
+being pushed below an invisible NavigationBar content region.
 
 Hiding the NavigationBar shall not change:
 
@@ -265,7 +270,8 @@ NavigationBar collapse is shell presentation state rather than Filter state.
 
 ### 6.1 Site Caption
 
-**Owner:** `NavigationBar -> <site caption> . QuickLinks? . Navigation . <hider>`
+**Owner:** `NavigationBar -> <hider> . NavigationContent`, where
+`NavigationContent -> <site caption> . QuickLinks? . Navigation`
 
 **Rule:** The site caption shall appear as the visible public identity of the
 site within the NavigationBar and shall remain distinct from selected Page
@@ -277,13 +283,16 @@ rather than inferred accidentally from a convenient HTML heading level.
 
 ### 6.2 Hider
 
-**Owner:** `NavigationBar -> ... . <hider>`
+**Owner:** `NavigationBar -> <hider> . NavigationContent`
 
-**Rule:** The hider shall be visibly associated with showing or hiding the
-NavigationBar and shall provide usable interaction state and accessible meaning.
+**Rule:** The hider shall occupy a thin structural strip within the NavigationBar
+and shall be visibly associated with showing or hiding NavigationContent. The
+strip remains visible when NavigationContent is hidden and shall provide usable
+interaction state and accessible meaning.
 
-Its glyph, size and positioning are rendering choices. They shall not obscure
-the ContentPanel or suggest that the control changes analytical content.
+Its glyph, size and precise positioning are rendering choices. It shall not
+obscure NavigationContent, the ContentPanel or selected Page heading, and it
+shall not suggest that the control changes analytical content.
 
 ---
 
@@ -291,7 +300,7 @@ the ContentPanel or suggest that the control changes analytical content.
 
 ### 7.1 QuickLinks Placement
 
-**Owner:** `NavigationBar -> ... . QuickLinks? . Navigation ...`
+**Owner:** `NavigationContent -> <site caption> . QuickLinks? . Navigation`
 
 **Rule:** When QuickLinks are present, they shall render in the NavigationBar
 after the site caption and before the full Navigation tree.
@@ -483,13 +492,22 @@ vertical scrolling for ordinary PA overflow.
 ### 12.3 Notes-Panel Dimension and Toggle Policy
 
 The shared Notes panel shall be positioned at the bottom of its PAPanel,
-visible by default when relevant Notes exist, and hideable by a local
-`Hide notes` / `Show notes` control attached to the panel.
+visible by default when relevant Notes exist, and hideable by a local structural
+Hider strip. The Hider strip remains visible when NotesContent is hidden so the
+reader can restore the Notes.
 
 The Notes panel shall be visually framed as explanatory material associated
 with the PA and constrained to a readable measure. The current shared maximum
 width is about `800px`; height is content-driven so the current relevant Notes
 are visible without introducing an internal Notes scrollbar.
+
+For the current simple treatment, chevron-like text glyphs may be used: a
+downward glyph when NotesContent is visible and an upward glyph when it is
+hidden.
+
+NotesContent visibility is a shell/UI preference rather than material PA state.
+The runtime may persist it across Page changes so a reader who hides Notes does
+not have them reappear merely because a new Navigation item was selected.
 
 When no Note is relevant, the renderer need not display an empty Notes panel or
 Notes toggle.
@@ -500,7 +518,7 @@ Notes toggle.
 
 ### 13.1 Visibility and Ownership
 
-**Owner:** `Notes -> Note*`, within `PAPanel`
+**Owner:** `Notes -> <hider> . NotesContent`, within `PAPanel`
 
 **Rule:** The renderer shall display only Notes relevant to the visible PA and
 material visible state. When no Note is relevant, it need not display an empty

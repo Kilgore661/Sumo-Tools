@@ -1,13 +1,17 @@
 import { updateStickyArtifactHeaders } from "./layout.js";
 import { escapeHtml } from "../utils/html.js";
 
+const NOTES_COLLAPSED_STORAGE_KEY = "gaspodeSumoLab.makeSite2.notesCollapsed";
+
 function renderNotes(artifact, state) {
   const notes = (artifact.notes || []).filter(note => noteApplies(note, state));
   if (!notes.length) return "";
   return [
     '<aside class="notes-panel" data-notes-panel>',
-    '<button class="notes-toggle" type="button" data-notes-toggle aria-expanded="true">Hide notes</button>',
-    '<div class="notes-panel-body" data-notes-body>',
+    '<div class="notes-hider-strip">',
+    '<button class="notes-toggle" type="button" data-notes-toggle aria-expanded="true" aria-label="Hide notes" title="Hide notes">˅</button>',
+    '</div>',
+    '<div class="notes-content" data-notes-body>',
     '<h4>Notes</h4>',
     '<ol>',
     ...notes.map(note => `<li>${escapeHtml(note.text)}</li>`),
@@ -22,15 +26,26 @@ function wireNotesPanel() {
   const toggle = panel.querySelector("[data-notes-toggle]");
   const body = panel.querySelector("[data-notes-body]");
   if (!toggle || !body) return;
+  const initialCollapsed = window.localStorage.getItem(NOTES_COLLAPSED_STORAGE_KEY) === "true";
+  applyNotesCollapsedState(panel, body, toggle, initialCollapsed);
   toggle.addEventListener("click", () => {
-    const collapsed = panel.classList.toggle("notes-panel-collapsed");
-    body.hidden = collapsed;
-    toggle.textContent = collapsed ? "Show notes" : "Hide notes";
-    toggle.setAttribute("aria-expanded", collapsed ? "false" : "true");
+    const collapsed = !panel.classList.contains("notes-panel-collapsed");
+    applyNotesCollapsedState(panel, body, toggle, collapsed);
+    window.localStorage.setItem(NOTES_COLLAPSED_STORAGE_KEY, String(collapsed));
     updateStickyArtifactHeaders();
     resizePlotlyCharts();
   });
 }
+
+function applyNotesCollapsedState(panel, body, toggle, collapsed) {
+  panel.classList.toggle("notes-panel-collapsed", collapsed);
+  body.hidden = collapsed;
+  toggle.textContent = collapsed ? "˄" : "˅";
+  toggle.setAttribute("aria-label", collapsed ? "Show notes" : "Hide notes");
+  toggle.title = collapsed ? "Show notes" : "Hide notes";
+  toggle.setAttribute("aria-expanded", collapsed ? "false" : "true");
+}
+
 function resizePlotlyCharts() {
   window.requestAnimationFrame(() => {
     if (!window.Plotly?.Plots?.resize) return;
@@ -54,4 +69,4 @@ function noteApplies(note, state) {
   return false;
 }
 
-export { renderNotes, wireNotesPanel, noteApplies };
+export { renderNotes, wireNotesPanel, noteApplies, applyNotesCollapsedState };

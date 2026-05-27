@@ -50,9 +50,13 @@ The active page grammar is:
 
 ```text
 PublicUI -> NavigationBar . ContentPanel
+NavigationBar -> <hider> . NavigationContent
+NavigationContent -> <site caption> . QuickLinks? . Navigation
 ContentPanel -> Heading . Contents
 Contents -> FilterSection? . PAPanel
 PAPanel -> PA . Notes
+Notes -> <hider> . NotesContent
+NotesContent -> Note*
 ```
 
 The active public-link policy is:

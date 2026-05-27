@@ -110,7 +110,9 @@ PG
 
 PublicUI -> NavigationBar . ContentPanel
 
-NavigationBar -> <site caption> . QuickLinks? . Navigation . <hider>
+NavigationBar -> <hider> . NavigationContent
+
+NavigationContent -> <site caption> . QuickLinks? . Navigation
 
 Navigation -> <hierarchical numbered navigation items>
 
@@ -135,7 +137,9 @@ PAPanel -> PA . Notes
 PA -> <table> | <indexed table> | <chart> | <sectioned table> |
       <prose> | <custom artifact> | <unavailable explanation>
 
-Notes -> Note*
+Notes -> <hider> . NotesContent
+
+NotesContent -> Note*
 ```
 
 The symbols in angle brackets are terminal public forms at this level of the
@@ -145,9 +149,12 @@ later design documents where necessary.
 ### 3.2 Consequences of PG
 
 - `NavigationBar` and `ContentPanel` are the two top-level visible regions.
+- `NavigationBar` contains a visible hider and a hideable NavigationContent
+  region.
 - `ContentPanel` contains the selected Page Heading and Contents.
 - `FilterSection`, where present, is a sibling of `PAPanel`.
 - `PAPanel` contains the visible PA and its Notes.
+- `Notes` contains a visible hider and hideable NotesContent when relevant.
 - Notes do not belong to `FilterSection`.
 - An unavailable Page may retain its Page Heading and use its PAPanel to explain
   why its normal PA is not available in the current build context.
@@ -168,7 +175,8 @@ site-facing inputs/assets and build/public-state defaults where applicable.
 
 `PublicUI` contains one `NavigationBar` and one `ContentPanel`. The
 `NavigationBar` provides site identity, Navigation and a control allowing the
-reader to hide and restore the NavigationBar. Hiding it changes shell
+reader to hide and restore the NavigationBar's content region. The control
+remains visible when the content region is hidden. Hiding it changes shell
 presentation only; it is not a Filter and shall not alter selected analytical
 content.
 

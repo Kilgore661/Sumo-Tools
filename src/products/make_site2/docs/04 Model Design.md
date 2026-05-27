@@ -103,17 +103,19 @@ For promoted pages in the initial supported public shape, it shall represent
 
 ```text
 PublicUI -> NavigationBar . ContentPanel
-NavigationBar -> <site caption> . QuickLinks? . Navigation . <hider>
+NavigationBar -> <hider> . NavigationContent
+NavigationContent -> <site caption> . QuickLinks? . Navigation
 ContentPanel -> Heading . Contents
 Contents -> FilterSection? . PAPanel
 PAPanel -> PA . Notes
-Notes -> Note*
+Notes -> <hider> . NotesContent
+NotesContent -> Note*
 ```
 
 It shall therefore represent, as applicable:
 
 - the visible NavigationBar and ContentPanel relationship;
-- site caption, Navigation and hider state/meaning;
+- NavigationBar hider, site caption and Navigation content;
 - selected-page Heading;
 - FilterSection and FilterItems;
 - PAPanel;

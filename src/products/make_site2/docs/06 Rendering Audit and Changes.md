@@ -251,8 +251,8 @@ needed and `05 Rendering Design.md` for its visible realisation.
 
 **Visible fact:** Notes belong visibly to the PA region and appear in a framed
 bottom panel within `PAPanel` when relevant. The panel is visible by default,
-uses a local `Hide notes` / `Show notes` control, and is constrained to a
-readable width of about `800px`.
+uses a structural hider strip controlling NotesContent, and is constrained to
+a readable width of about `800px`.
 
 **Owner:** `PAPanel -> PA . Notes`.
 
@@ -260,8 +260,8 @@ readable width of about `800px`.
 
 **Decision recorded:** Notes are content-height by default rather than capped at
 the earlier discussed `170px`. If no Note is currently relevant, no empty Notes
-panel or toggle is rendered. Showing or hiding Notes changes the available PA
-slot space; Plotly charts are resized after the toggle.
+panel or hider is rendered. Showing or hiding NotesContent changes the
+available PA slot space; Plotly charts are resized after the toggle.
 
 **Rationale:** Ownership is already correctly communicated by placement. Height,
 overflow and framing govern usability and use of screen space.
@@ -324,7 +324,7 @@ The following agreed rules remain implemented and are listed here for continuity
 | Table-like PAs | Continuous row colouring through suppression of unintended cell gaps. |
 | Table-like PAs | Sticky PA title/caption and table headings inside the PA slot. |
 | Table-like PAs | Table-body-only vertical scrolling below the table headings for ordinary table PAs. |
-| `PAPanel -> PA . Notes` | Bottom Notes panel, visible by default when relevant, with local show/hide control. |
+| `PAPanel -> PA . Notes` | Bottom Notes panel, visible by default when relevant, with a structural hider strip controlling NotesContent. |
 | Basho Results PA | Previous Basho Result includes the rank-level movement marker rather than using a separate Direction column. |
 | Banzuke Changes PA | Visible `⇅` movement direction in both banzuke-style and scan-style views independently of optional numeric `Delta`. |
 

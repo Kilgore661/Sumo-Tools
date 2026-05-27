@@ -62,13 +62,8 @@ select {
   height: 100vh;
 }
 
-.site-shell.nav-collapsed {
-  grid-template-columns: minmax(0, 1fr);
-}
-
 .site-nav {
   min-height: 0;
-  overflow-y: auto;
 }
 
 .site-main {
@@ -79,7 +74,7 @@ select {
 .site-nav {
   background: var(--nav-bg);
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-columns: 1.25rem max-content;
   width: max-content;
 }
 
@@ -97,24 +92,43 @@ select {
   width: 100%;
 }
 
-.site-nav[hidden] {
-  display: none;
-}
-
 #content-panel {
   display: flex;
   height: 100%;
   min-height: 0;
 }
 
+#content-title {
+  margin: 0;
+}
+
 .nav-toggle {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
   font-size: 18px;
   font-weight: 700;
   line-height: 1;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 1;
+  padding: 0.15rem 0;
+  width: 100%;
+}
+
+.nav-hider-strip {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+
+.nav-content {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  min-height: 0;
+  overflow: hidden;
+}
+
+.nav-content[hidden] {
+  display: none;
 }
 
 .nav-list {
@@ -124,12 +138,13 @@ select {
   line-height: 1.45
 }
 
-.site-nav > .nav-list {
+.nav-content > .nav-list {
   padding-left: 0;
 }
 
 .site-title {
-    font-size: 24px
+    font-size: 24px;
+    margin: 0;
 }
 
 .quick-links {
@@ -146,7 +161,7 @@ select {
   padding-left: 1.5em;
 }
 
-.site-nav > .nav-list {
+.nav-content > .nav-list {
   min-height: 0;
   overflow-y: auto;
 }
@@ -249,20 +264,33 @@ h3 {
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.24);
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
   flex: 0 0 auto;
   margin-top: auto;
   max-width: 100%;
-  padding: 0.45rem 0.75rem 0.65rem;
   width: min(800px, 100%);
 }
 
+.notes-hider-strip {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.08);
+  display: flex;
+  justify-content: center;
+}
+
 .notes-toggle {
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.32);
+  background: transparent;
+  border: 0;
   color: inherit;
   cursor: pointer;
-  margin: 0 0 0.35rem;
-  padding: 0.15rem 0.45rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0.1rem 0.75rem;
+}
+
+.notes-content {
+  padding: 0.45rem 0.75rem 0.65rem;
 }
 
 .notes-panel h4 {
