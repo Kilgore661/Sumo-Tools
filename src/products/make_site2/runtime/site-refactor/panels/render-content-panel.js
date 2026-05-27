@@ -5,7 +5,7 @@ import { fetchCsv, fetchJson } from "../data/http.js";
 import { renderCareerLengthArtifact, renderCareerLengthPlot, renderCategoryBarChart, renderCategoryBarPlot, renderFinishByChiiChart, renderFinishByChiiPlot, renderGroupedLineChart, renderGroupedLinePlot, renderOrderedBarChart, renderOrderedBarPlot, renderStackedBarChart, renderStackedBarPlot, renderStandingWinProbabilityChart, renderStandingWinProbabilityPlot, resolveCareerLengthView, resolveFilterValue, resolveSelectedDataSourceId } from "../ui/charts.js";
 import { filterValueLabel, renderFilterSection, resolveBanzukeChangesDivision, resolveFilterState, resolveSelectedDataValue, resolveSelectedDivision, resolveSelectedFilterValueFromSource, resolveStandingsDivision, resolveStandingsWindow, selectedIndexEntry, selectedStandingsSource, wireFilterSection } from "../ui/filters.js";
 import { renderNotes } from "../ui/notes.js";
-import { renderBanzukeChangesTable, renderIndexedTable, renderSectionedTable, renderStandingsTable, sortedStandingsRows, standingsRowsForState } from "../ui/tables.js";
+import { banzukeScanColumns, renderBanzukeChangesTable, renderIndexedTable, renderSectionedTable, renderStandingsTable, standingsRowsForState, wireTableSorting } from "../ui/tables.js";
 import { escapeHtml } from "../utils/html.js";
 
 async function renderContentPanel(panel, overrideState = null) {
@@ -72,6 +72,7 @@ async function renderIndexedTableContentPanel(panel, artifact, overrideState = n
     '</section>'
   ].join("");
   wireFilterSection(panel, state, renderContentPanel);
+  wireTableSorting(panel, artifact, renderContentPanel);
 }
 async function renderBanzukeChangesContentPanel(panel, artifact, overrideState = null) {
   const filters = panel.contents.filter_section.filters;
@@ -98,6 +99,9 @@ async function renderBanzukeChangesContentPanel(panel, artifact, overrideState =
     '</section>'
   ].join("");
   wireFilterSection(panel, state, renderContentPanel);
+  if (!state.banzuke_style) {
+    wireTableSorting(panel, artifact, renderContentPanel, banzukeScanColumns(state));
+  }
 }
 async function renderSectionedTableContentPanel(panel, artifact) {
   const rowsBySource = await fetchArtifactCsvSet(artifact);
@@ -117,6 +121,7 @@ async function renderSectionedTableContentPanel(panel, artifact) {
     '</div>',
     '</section>'
   ].join("");
+  wireTableSorting(panel, artifact, renderContentPanel);
 }
 async function renderStandingsContentPanel(panel, artifact, overrideState = null) {
   const filters = panel.contents.filter_section.filters;
@@ -128,7 +133,6 @@ async function renderStandingsContentPanel(panel, artifact, overrideState = null
   const rows = await fetchCsv(source.path);
   writePanelUrl(panel.page_id, filters, state, { replace: true });
   const filteredRows = standingsRowsForState(rows, state);
-  const sortedRows = sortedStandingsRows(filteredRows, state);
 
   contentPanel.innerHTML = [
     '<section class="content-panel">',
@@ -138,7 +142,7 @@ async function renderStandingsContentPanel(panel, artifact, overrideState = null
     renderFilterSection(panel.contents.filter_section, state),
     '<section class="pa-panel">',
     '<div class="pa-slot">',
-    renderStandingsTable(artifact, sortedRows, filteredRows, state),
+    renderStandingsTable(artifact, filteredRows, filteredRows, state),
     '</div>',
     renderNotes(artifact, state),
     '</section>',
@@ -146,6 +150,7 @@ async function renderStandingsContentPanel(panel, artifact, overrideState = null
     '</section>'
   ].join("");
   wireFilterSection(panel, state, renderContentPanel);
+  wireTableSorting(panel, artifact, renderContentPanel);
 }
 async function renderChartContentPanel(panel, artifact, overrideState = null) {
   if (artifact.renderer === "stacked_bar_chart") {

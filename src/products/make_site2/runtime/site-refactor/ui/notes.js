@@ -21,6 +21,7 @@ function noteApplies(note, state) {
   if (applies.includes("context")) return Boolean(state.context);
   if (applies.includes("delta")) return Boolean(state.delta);
   if (applies.includes("equelo")) return Boolean(state.equelo);
+  if (applies.includes("banzuke_style")) return Boolean(state.banzuke_style);
   if (applies.includes(state.metric_group_preset)) return true;
   if (applies.includes(state.view)) return true;
   return false;

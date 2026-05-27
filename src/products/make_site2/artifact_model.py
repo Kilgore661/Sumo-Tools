@@ -14,6 +14,7 @@ ArtifactKind = Literal[
     "banzuke_changes",
     "standings",
 ]
+SortDirection = Literal["ascending", "descending"]
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -79,6 +80,7 @@ class TableColumn:
     always_visible: bool = False
     sort_key: str | None = None
     sort_kind: str = "text"
+    sort_default_direction: SortDirection | None = None
     align: str | None = None
     note_id: str | None = None
 

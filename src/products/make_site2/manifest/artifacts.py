@@ -41,6 +41,7 @@ BANZUKE_CHANGES_ARTIFACT = BanzukeChangesArtifact(
     notes=(
         Note(id="note_result", applies_to=("context",), text="Result gives wins, losses and absences followed by prizes if any. A trailing up/down marker indicates promotion or demotion into the current broad rank level."),
         Note(id="note_delta", applies_to=("delta",), text="Delta indicates the size of movement from the previous basho's position, measured in banzuke rows."),
+        Note(id="note_banzuke_style_sorting", applies_to=("banzuke_style",), text="Sorting is not available in banzuke-style view because the layout preserves the East/West banzuke structure. Disable banzuke-style view to sort."),
     ),
 )
 
