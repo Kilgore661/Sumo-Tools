@@ -268,15 +268,39 @@ h3 {
 .artifact-title-block {
   align-self: stretch;
   background: var(--content-bg);
-  position: sticky;
   text-align: center;
-  top: 0;
-  z-index: 4;
+  z-index: 2;
 }
 
 .artifact-table {
   border-collapse: separate;
   border-spacing: 0;
+}
+
+.artifact-table-shell {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  max-width: 100%;
+  min-height: 0;
+}
+
+.artifact-table-header-region {
+  flex: 0 0 auto;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.artifact-table-body-region {
+  flex: 1 1 auto;
+  max-width: 100%;
+  min-height: 0;
+  overflow: auto;
+}
+
+.artifact-table-header,
+.artifact-table-body {
+  margin: 0 auto;
 }
 
 .artifact-table th,
@@ -287,8 +311,7 @@ h3 {
 
 .artifact-table thead th {
   background: var(--content-bg);
-  position: sticky;
-  z-index: 3;
+  z-index: 2;
 }
 
 .table-sort-button {
@@ -334,9 +357,8 @@ h3 {
 .table-section h5 {
   background: var(--content-bg);
   margin: 0.5rem 0;
-  position: sticky;
   text-align: center;
-  z-index: 3;
+  z-index: 2;
 }
 
 .sectioned-table [data-column-id="label"] {

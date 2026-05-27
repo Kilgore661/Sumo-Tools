@@ -236,7 +236,7 @@ This defect does not reopen the canonical-link correction.
 
 | Issue | Status | Note |
 | --- | --- | --- |
-| Table-body-only scrolling for table-like PAs | Deferred / TBD | Current sticky-title/header treatment keeps context visible, but the scrollbar still belongs to the PA slot. Consider a richer table PA structure with non-scrolling chrome and a scrolling data viewport. |
+| Table chrome/body split as explicit PA model | Deferred / TBD | Runtime now implements table-body-only scrolling for ordinary table PAs. Consider a richer producer-facing PA model only if future pressure requires explicit non-scrolling chrome and scrolling data-region semantics. |
 | Heading typography ownership | Open | Rendering decision. |
 | Banzuke Changes central Rank semantics | Open | PA/rendering decision. |
 | Context-specific background colours | Open | Rendering/operations decision. |
@@ -286,8 +286,8 @@ Next user-visible changes
   add the curated hot-links section to the NavigationBar
   make Basho Results append movement arrows to Result instead of showing a
   separate Direction column
-  revisit table-like PA structure so only table data, not PA/table chrome,
-  owns the vertical scrollbar
+  decide later whether the runtime table chrome/body split needs promotion into
+  an explicit PA model concept
 
 P1
   add local deployment target-safety protection
@@ -324,5 +324,6 @@ warning makes that exception visible.
 
 Other copied History-derived PAs remain subject to the broader Selected-History
 coherence audit. A separate Plotly empty-trace defect remains open for triage.
-The next user-visible changes are the curated hot-links section, Basho Results
-result/direction consistency, and the deferred table-body viewport refinement.
+The next user-visible changes are the curated hot-links section and Basho
+Results result/direction consistency. A future explicit PA model for table
+chrome/body separation remains deferred unless real pressure appears.

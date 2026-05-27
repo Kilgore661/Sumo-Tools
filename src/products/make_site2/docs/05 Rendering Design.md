@@ -626,10 +626,15 @@ section headings and table header cells sticky within the PA slot scroll
 container. This is a rendering treatment for reader orientation; it does not
 change table data, sorting semantics or PA ownership.
 
-**Known limitation:** The scrollbar currently belongs to the PA slot as a
-whole, so it begins at the top of the PA panel rather than below a dedicated
-table-body viewport. A deeper table-artifact structure may later split
-non-scrolling table chrome from a scrolling data region.
+**Current treatment:** Ordinary table-like PAs are upgraded at runtime into a
+table shell containing a non-scrolling header region and a scrolling body
+region. The body region owns the vertical scrollbar, so the scrollbar begins
+below the table headings while the PA title/caption and headings remain visible.
+
+This is currently a rendering realization rather than a distinct semantic PA
+model entity. If future pressure requires producer-visible table chrome/body
+semantics, the Published Artifact model may be refined to represent that split
+directly.
 
 ### 14.6 Alignment, Emphasis and Semantic Signals
 

@@ -270,25 +270,27 @@ overflow and framing govern usability and use of screen space.
 
 ### 8.3.1 Table-Body Scrollbar Boundary
 
-**Status:** Deferred model/rendering refinement discovered during Notes-panel
-implementation.
+**Status:** Implemented as a shared rendering treatment; possible future model
+refinement remains deferred.
 
-**Visible fact:** The current runtime keeps PA titles and table headings sticky
-inside the PA slot, but the scrollbar still belongs to the whole PA slot rather
-than a distinct table-data body viewport. This means the scrollbar begins at
-the top of the PA panel rather than below the table headings.
+**Visible fact:** Ordinary table-like PAs render with PA title/caption and table
+headings outside the scrolling table-body region. The vertical scrollbar begins
+below the table headings.
 
 **Owner:** Table-like PA terminal structure inside `PAPanel -> PA`.
 
 **Classification:** Rendering-grammar / PA-structure refinement.
 
-**Decision required:** Decide whether table-like PAs should expose explicit
-non-scrolling table chrome and a separate scrolling data region in the model or
-runtime grammar.
+**Decision recorded:** The runtime may split table rendering into a
+non-scrolling header region and scrolling body region as shared table
+presentation. This does not yet require a new producer-facing model entity.
 
-**Destination:** Deferred in `10 Open Issues and Deferred Design.md`; if
-accepted, incorporate into `04.4 Published Artifact Model.md` and `05 Rendering
-Design.md`.
+**Remaining question:** Decide later whether table-like PAs should expose
+explicit non-scrolling table chrome and a separate scrolling data region in the
+Published Artifact model.
+
+**Destination:** Rendering treatment incorporated into `05 Rendering Design.md`;
+future model question remains deferred only if real pressure appears.
 
 ### 8.4 Site-Context Colour Treatment
 
@@ -320,6 +322,7 @@ The following agreed rules remain implemented and are listed here for continuity
 | Table-like PAs | Alternating `tbody` row background treatment. |
 | Table-like PAs | Continuous row colouring through suppression of unintended cell gaps. |
 | Table-like PAs | Sticky PA title/caption and table headings inside the PA slot. |
+| Table-like PAs | Table-body-only vertical scrolling below the table headings for ordinary table PAs. |
 | `PAPanel -> PA . Notes` | Bottom Notes panel, visible by default when relevant, with local show/hide control. |
 | Banzuke Changes PA | Visible `⇅` movement direction in both banzuke-style and scan-style views independently of optional numeric `Delta`. |
 
@@ -351,7 +354,6 @@ The current open rendering choices are:
 
 - ownership of heading typography;
 - semantic/visual treatment of Banzuke Changes Rank values;
-- table-body-only scrolling for table-like PAs; and
 - deliberate acceptance or rejection of context-colour presentation.
 
 The audit remains strict where visible structure or implied meaning is at stake,
