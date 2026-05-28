@@ -180,6 +180,11 @@ function renderStandingWinProbabilityPlot(artifact, state, rowsBySource) {
     PLOTLY_CONFIG
   ).then(() => {
     if (!host.on) return;
+    if (host.__standingWinProbabilityHandlersAttached) return;
+    host.__standingWinProbabilityHandlersAttached = true;
+    host.on("plotly_restyle", () => {
+      syncStandingCategoryAxis(host);
+    });
     host.on("plotly_legenddoubleclick", event => {
       const target = host.data[event.curveNumber];
       if (!target) return false;
@@ -187,7 +192,9 @@ function renderStandingWinProbabilityPlot(artifact, state, rowsBySource) {
         if (trace.meta?.division !== target.meta?.division) return false;
         return index === event.curveNumber ? true : "legendonly";
       });
-      Plotly.restyle(host, { visible: visibility });
+      Plotly.restyle(host, { visible: visibility }).then(() => {
+        syncStandingCategoryAxis(host);
+      });
       return false;
     });
   });
@@ -903,5 +910,12 @@ function visibleStandingCategories(traces) {
     .sort((left, right) => Number(left[1]) - Number(right[1]))
     .map(([label]) => label);
 }
+function syncStandingCategoryAxis(host) {
+  if (!window.Plotly || !host?.data) return;
+  Plotly.relayout(host, {
+    "xaxis.categoryorder": "array",
+    "xaxis.categoryarray": visibleStandingCategories(host.data),
+  });
+}
 
-export { renderFinishByChiiChart, renderFinishByChiiPlot, finishByChiiRows, renderStackedBarChart, renderGroupedLineChart, renderOrderedBarChart, renderCategoryBarChart, renderCareerLengthArtifact, renderStandingWinProbabilityChart, renderStandingWinProbabilityPlot, standingWinProbabilityTraces, standingWinProbabilityGroups, standingWinProbabilityTrace, standingWinProbabilityCustomData, standingWinProbabilityHoverTemplate, selectedStandingTraceKey, standingTraceVisible, renderCareerLengthTable, renderCareerLengthPlot, careerLengthTraces, renderCategoryBarPlot, renderOrderedBarPlot, renderGroupedLinePlot, renderStackedBarPlot, stackedBarRows, chartRows, stackedBarTraceSpec, groupedLineTraceSpec, orderedBarTraceSpec, stackedBarTraces, groupedLineTraces, orderedBarTrace, categoryBarTrace, orderedRows, orderedBarHoverTemplate, groupedLineHoverTemplate, stackedBarGroupOrder, chartGroupOrder, stackedBarLayout, groupedChartLayout, orderedBarLayout, categoryBarLayout, careerLengthLayout, standingWinProbabilityLayout, sparseTickText, monthIndexTicks, monthIndexLabel, axisRange, chartElementId, resolveCareerLengthView, careerLengthView, careerLengthCellValue, selectedStandingSource, resolveSelectedDataSourceId, resolveFilterValue, displayStandingChii, divisionForStandingChii, visibleStandingCategories };
+export { renderFinishByChiiChart, renderFinishByChiiPlot, finishByChiiRows, renderStackedBarChart, renderGroupedLineChart, renderOrderedBarChart, renderCategoryBarChart, renderCareerLengthArtifact, renderStandingWinProbabilityChart, renderStandingWinProbabilityPlot, standingWinProbabilityTraces, standingWinProbabilityGroups, standingWinProbabilityTrace, standingWinProbabilityCustomData, standingWinProbabilityHoverTemplate, selectedStandingTraceKey, standingTraceVisible, renderCareerLengthTable, renderCareerLengthPlot, careerLengthTraces, renderCategoryBarPlot, renderOrderedBarPlot, renderGroupedLinePlot, renderStackedBarPlot, stackedBarRows, chartRows, stackedBarTraceSpec, groupedLineTraceSpec, orderedBarTraceSpec, stackedBarTraces, groupedLineTraces, orderedBarTrace, categoryBarTrace, orderedRows, orderedBarHoverTemplate, groupedLineHoverTemplate, stackedBarGroupOrder, chartGroupOrder, stackedBarLayout, groupedChartLayout, orderedBarLayout, categoryBarLayout, careerLengthLayout, standingWinProbabilityLayout, sparseTickText, monthIndexTicks, monthIndexLabel, axisRange, chartElementId, resolveCareerLengthView, careerLengthView, careerLengthCellValue, selectedStandingSource, resolveSelectedDataSourceId, resolveFilterValue, displayStandingChii, divisionForStandingChii, visibleStandingCategories, syncStandingCategoryAxis };
