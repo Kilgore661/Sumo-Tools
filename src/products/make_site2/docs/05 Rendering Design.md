@@ -585,7 +585,8 @@ modelled.
 
 When a PA terminal form uses a Plotly chart, the chart should resize to fill the
 remaining PA slot space after ordinary layout changes, including Notes-panel
-show/hide changes, subject to any chart-specific minimum useful size.
+show/hide changes and NavigationBar content hide/restore changes, subject to
+any chart-specific minimum useful size.
 
 ---
 

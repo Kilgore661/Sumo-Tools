@@ -13,6 +13,7 @@ function bootNavigationToggle() {
     const collapsed = !shell.classList.contains("nav-collapsed");
     applyNavigationCollapsedState(shell, panel, content, toggle, collapsed);
     window.localStorage.setItem(storageKey, String(collapsed));
+    resizePlotlyCharts();
   });
 }
 function applyNavigationCollapsedState(shell, panel, content, toggle, collapsed) {
@@ -26,4 +27,13 @@ function applyNavigationCollapsedState(shell, panel, content, toggle, collapsed)
   toggle.textContent = collapsed ? ">" : "<";
 }
 
-export { bootNavigationToggle, applyNavigationCollapsedState };
+function resizePlotlyCharts() {
+  window.requestAnimationFrame(() => {
+    if (!window.Plotly?.Plots?.resize) return;
+    document.querySelectorAll(".plotly-chart").forEach(chart => {
+      window.Plotly.Plots.resize(chart);
+    });
+  });
+}
+
+export { bootNavigationToggle, applyNavigationCollapsedState, resizePlotlyCharts };
