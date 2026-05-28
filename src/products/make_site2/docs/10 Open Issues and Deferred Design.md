@@ -238,6 +238,7 @@ This defect does not reopen the canonical-link correction.
 | --- | --- | --- |
 | Structural hider implementation | Implemented; verification outstanding | NavigationBar and Notes now use the same pattern: a first-class hider strip remains visible while the controlled content region collapses. NavigationBar controls NavigationContent; Notes controls NotesContent. |
 | Table chrome/body split as explicit PA model | Deferred / TBD | Runtime now implements table-body-only scrolling for ordinary table PAs. Consider a richer producer-facing PA model only if future pressure requires explicit non-scrolling chrome and scrolling data-region semantics. |
+| Ranked tabular views versus sortable table views | Deferred / TBD | Longest Careers shows the distinction: a table-like ranked view may intentionally preserve pre-sorted row order as public meaning. If arbitrary reader sorting is wanted for the same data, consider a separate neutral tabular/table-browser view rather than making the ranked view itself sortable. |
 | Heading typography ownership | Open | Rendering decision. |
 | Banzuke Changes central Rank semantics | Open | PA/rendering decision. |
 | Context-specific background colours | Open | Rendering/operations decision. |
@@ -285,6 +286,8 @@ Next independent observed defect requiring triage
 Deferred model follow-up
   decide later whether the runtime table chrome/body split needs promotion into
   an explicit PA model concept
+  preserve the distinction between ranked table-like views and neutral sortable
+  table-browser views
 
 P1
   add local deployment target-safety protection
