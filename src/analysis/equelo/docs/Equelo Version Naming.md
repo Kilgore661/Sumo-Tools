@@ -61,6 +61,39 @@ use the fixed_v2 process rating artefacts or a documented successor.  They
 should not derive the rating from the rikishi's current or next chii by looking
 up `Typical Equelo Ratings`.
 
+## Process Refresh versus Landmark Refresh
+
+Refreshing fixed_v2 process ratings and refreshing public rating landmarks are
+separate decisions.
+
+The process-rating command:
+
+```text
+python -m src.analysis.equelo.fixed_v2
+```
+
+regenerates the operational fixed_v2 artefacts, including
+`day_end_ratings.json` and `entrant_initial_ratings.json`, from the current
+history/data world. This is the normal refresh step when new basho results
+arrive and downstream pages need current individual rikishi ratings.
+
+The public-landmark command:
+
+```text
+python -m src.analysis.equelo.fixed_v2.v5_landmarks
+```
+
+regenerates the `Typical Equelo Ratings` landmark bundle. That bundle is a
+public interpretive scale, not a per-basho operational rating series.
+
+Current Equelo policy is to refresh process ratings during ordinary current-data
+updates, but not to automatically refresh the public landmark bundle merely
+because a new basho has completed. Regenerating landmarks is allowed, but it is
+an explicit public-scale decision: the maintainer should decide that the
+interpretive landmarks should move, run the landmark command deliberately, and
+allow the resulting site-facing bundle to be reviewed as a public-facing scale
+change.
+
 ## Additive Base
 
 The `(b)` parameter is the additive base convention used by the Equelo run.
