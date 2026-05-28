@@ -189,11 +189,14 @@ formal BP side: east, west, none
 
 ---
 
-## 6. Why This Matters for 6.3.1
+## 6. Why This Matters for Public Pages
 
-The 6.3.1 `Win Probability by Standing` chart is currently the pressure case.
+The 6.3.1 `Win Probability by Standing` chart was the first pressure case.
+The same issue now appears elsewhere, for example page 5.1, where a Chii
+dropdown can expose full or unusual BP values that are too raw for public
+selection.
 
-It needs to compare:
+For 6.3.1, the page needs to compare:
 
 ```text
 p_obs(c1 beats c2)
@@ -233,8 +236,8 @@ public "Ozeki" category should include `O1`, `O2`, and other Ozeki-numbered
 positions rather than exposing every technical banzuke slot number, we expect
 they would have said yes.
 
-This remains a hypothesis until validated, but it is strong enough to guide the
-6.3.1 stress test. It also explains why the public chart may need a different
+This remains a hypothesis until validated, but it is strong enough to guide
+pressure-case review. It also explains why public pages may need a different
 category layer from diagnostic/developer artifacts.
 
 There is also a pragmatic category that describes the current 6.3.1 display:
@@ -271,6 +274,10 @@ all ozeki BPs into a public category rendered as `O` or `Ozeki`.
 ## 7. Stress Test Plan
 
 Use 6.3.1 to stress-test the BP model before changing wider code.
+
+Also use other public controls that expose BP-like values, such as the 5.1 Chii
+dropdown, to test whether `BP.public_category` needs to become a shared
+producer/model concept rather than a local chart policy.
 
 Questions to answer:
 

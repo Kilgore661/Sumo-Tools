@@ -98,6 +98,11 @@ select {
   width: 100%;
 }
 
+.content-panel h4 {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
 #content-panel {
   display: flex;
   height: 100%;

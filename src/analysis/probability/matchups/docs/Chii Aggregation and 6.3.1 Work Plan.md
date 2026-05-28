@@ -298,6 +298,10 @@ means the selected canonical sideless BP, not all ozeki.
 
 ## 7. Public Category Probability Semantics
 
+`BP.public_category` is a wider BP/category modelling issue, not only a 6.3.1
+charting issue. Other public pages and controls that expose BP-like values, such
+as page 5.1's Chii dropdown, need the same projection question answered.
+
 If 6.3.1 uses `BP.public_category`, then the probability question becomes:
 
 ```text
@@ -493,7 +497,9 @@ category after applying the curated fixed_v2/v5 comparison domain
 ```
 
 For a future public-category implementation, the same fixed_v2 BP rating source
-should be aggregated to `BP.public_category` instead of to sideless BP.
+should be aggregated to `BP.public_category` instead of to sideless BP. The
+shared PublicCategory mapping should be owned outside this specific matchup
+producer if other pages, such as 5.1, also need it for public controls.
 
 ---
 
