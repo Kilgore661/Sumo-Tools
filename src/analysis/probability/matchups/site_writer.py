@@ -169,15 +169,18 @@ def _write_metadata(
         "missing_equelo_trace_points": len(observed_keys - equelo_keys),
         "sideless_rating_count": len(sideless_ratings),
         "rating_source": (
-            "latest fixed_v2 process ratings averaged by current sideless chii"
+            "fixed_v2 entrant-initial BP ratings averaged by sideless chii"
         ),
         "fixed_v2_rating_source": str(
-            fixed_v2_output_root / fixed_v2_model.DAY_END_RATINGS_FILE_NAME
+            fixed_v2_output_root / fixed_v2_model.ENTRANT_INITIAL_RATINGS_FILE_NAME
         ),
         "q": q,
         "domain_policy": (
             "Observed and Equelo trace points are restricted to sideless chii "
-            "represented in the latest fixed_v2 process-rating snapshot."
+            "represented in the curated fixed_v2/v5 rating domain. The domain "
+            "uses fixed_v2 entrant-initial BP ratings, excludes deleted rare "
+            "slots such as M18-M22 and J13-J24, and caps the lower bound at "
+            "Jd100w."
         ),
     }
     output_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")

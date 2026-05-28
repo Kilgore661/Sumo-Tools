@@ -6,13 +6,11 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from src.analysis.equelo.fixed_v2 import model as fixed_v2_model
-from src.analysis.equelo.fixed_v2.api import load_day_end_ratings
+from src.analysis.equelo.fixed_v2.api import load_entrant_initial_ratings
+from src.analysis.equelo.fixed_v1.initial_rating import V1_MAX_CHII, V4_DELETE_ORDINALS
 from src.analysis.equelo.expt1.simulate import expect
-from src.infra.live_store.api import get_history
-from src.sumo_core.BasicPrimitives import Month, Year
 from src.sumo_core.BasicEnums import Side
 from src.sumo_core.Chii import Chii
-from src.sumo_core.History import Date, History
 
 
 @dataclass(frozen=True)
@@ -34,8 +32,8 @@ class SidelessRating:
     sideless_chii: str
     sideless_ordinal: int
     rating: float
-    n_process_ratings: int
-    process_ratings_used: str
+    support_count: int
+    bp_ratings_used: str
 
 
 @dataclass(frozen=True)
@@ -71,34 +69,28 @@ def build_observed_trace_points(sideless_pair_csv: Path) -> tuple[ObservedTraceP
 def build_sideless_ratings(
     *,
     output_root: Path = fixed_v2_model.OUTPUT_ROOT,
-    history: History | None = None,
 ) -> tuple[SidelessRating, ...]:
-    """Average latest fixed_v2 process ratings by current sideless chii."""
-    history = get_history() if history is None else history
-    date, day, ratings = latest_rating_snapshot(output_root=output_root, history=history)
-    banzuke = history(date).banzuke
-    buckets: dict[int, list[tuple[int, Chii, float]]] = {}
+    """Average fixed_v2 entrant-initial BP ratings by sideless chii."""
+    ratings = load_entrant_initial_ratings(output_root=output_root)
+    buckets: dict[int, list[tuple[Chii, float]]] = {}
 
-    for rikishi_id_text, rating in ratings.items():
-        rikishi_id = int(rikishi_id_text)
-        if rikishi_id not in banzuke.rikchii:
+    for ordinal_text, rating in ratings.items():
+        chii = Chii.from_ordinal(int(ordinal_text))
+        if not _is_curated_rating_domain_chii(chii):
             continue
-        chii = banzuke.rikchii[rikishi_id]
         sideless_chii = _remove_side(chii)
-        buckets.setdefault(sideless_chii.ordinal(), []).append(
-            (rikishi_id, chii, float(rating))
-        )
+        buckets.setdefault(sideless_chii.ordinal(), []).append((chii, float(rating)))
 
     rows: list[SidelessRating] = []
     for sideless_ordinal in sorted(buckets):
         values = buckets[sideless_ordinal]
-        rating = sum(value for _, _, value in values) / len(values)
-        sideless_chii = _remove_side(values[0][1])
-        process_ratings_used = ";".join(
-            f"{rikishi_id}:{chii}:{value:.12g}"
-            for rikishi_id, chii, value in sorted(
+        rating = sum(value for _, value in values) / len(values)
+        sideless_chii = _remove_side(values[0][0])
+        bp_ratings_used = ";".join(
+            f"{chii}:{value:.12g}"
+            for chii, value in sorted(
                 values,
-                key=lambda item: (item[1].ordinal(), item[0]),
+                key=lambda item: item[0].ordinal(),
             )
         )
         rows.append(
@@ -106,36 +98,12 @@ def build_sideless_ratings(
                 sideless_chii=str(sideless_chii),
                 sideless_ordinal=sideless_ordinal,
                 rating=rating,
-                n_process_ratings=len(values),
-                process_ratings_used=process_ratings_used,
+                support_count=len(values),
+                bp_ratings_used=bp_ratings_used,
             )
         )
 
     return tuple(rows)
-
-
-def latest_rating_snapshot(
-    *,
-    output_root: Path = fixed_v2_model.OUTPUT_ROOT,
-    history: History | None = None,
-) -> tuple[Date, int, dict[str, float]]:
-    """Return the latest fixed_v2 day-end snapshot that aligns with History."""
-    history = get_history() if history is None else history
-    day_end_ratings = load_day_end_ratings(output_root=output_root)
-    history_date_by_text = {str(date): date for date in history}
-    available_date_texts = [
-        date_text for date_text in day_end_ratings if date_text in history_date_by_text
-    ]
-    if not available_date_texts:
-        raise ValueError("No fixed_v2 day-end rating snapshot matches the live history")
-
-    date_text = sorted(available_date_texts, key=_date_from_text)[-1]
-    date = history_date_by_text[date_text]
-    date_ratings = day_end_ratings[date_text]
-    day = max((int(day_text) for day_text in date_ratings), default=0)
-    if day == 0:
-        raise ValueError(f"No fixed_v2 day-end ratings found for {date}")
-    return date, day, date_ratings[str(day)]
 
 
 def filter_observed_points_to_rating_domain(
@@ -273,22 +241,20 @@ def _write_trace_metadata(
         "missing_equelo_trace_points": len(observed_keys - equelo_keys),
         "sideless_rating_count": len(sideless_ratings),
         "fixed_v2_output_root": str(fixed_v2_output_root),
-        "rating_source": "latest fixed_v2 process ratings averaged by current sideless chii",
+        "rating_source": "fixed_v2 entrant-initial BP ratings averaged by sideless chii",
         "fixed_v2_raw_rating_source": str(
-            fixed_v2_output_root / fixed_v2_model.DAY_END_RATINGS_FILE_NAME
+            fixed_v2_output_root / fixed_v2_model.ENTRANT_INITIAL_RATINGS_FILE_NAME
         ),
         "q": q,
         "domain_policy": (
             "Observed and Equelo trace points are restricted to sideless chii "
-            "represented in the latest fixed_v2 process-rating snapshot."
+            "represented in the curated fixed_v2/v5 rating domain. The domain "
+            "uses fixed_v2 entrant-initial BP ratings, excludes deleted rare "
+            "slots such as M18-M22 and J13-J24, and caps the lower bound at "
+            "Jd100w."
         ),
     }
     output_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
-
-
-def _date_from_text(value: str) -> Date:
-    year_text, month_text = value.split("/", 1)
-    return Date(Year(int(year_text)), Month(int(month_text)))
 
 
 def _remove_side(chii: Chii) -> Chii:
@@ -298,3 +264,9 @@ def _remove_side(chii: Chii) -> Chii:
         side=Side.NONE,
         ann=chii.ann,
     )
+
+
+def _is_curated_rating_domain_chii(chii: Chii) -> bool:
+    """Return True for BP slots retained by the fixed_v2/v5 domain policy."""
+    ordinal = chii.ordinal()
+    return ordinal <= V1_MAX_CHII and ordinal not in V4_DELETE_ORDINALS

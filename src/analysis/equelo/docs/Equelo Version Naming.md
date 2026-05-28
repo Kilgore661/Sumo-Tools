@@ -41,15 +41,26 @@ canonical technical name remains useful for provenance and future revisions.
 
 ## Rating Series vs Rating Landmarks
 
-The public landmark curve is a rating-landmark curve, not the canonical source for
-individual rikishi ratings.
+The word "rating" is overloaded in `fixed_v2` outputs. Consumers must choose
+the artifact that matches their question.
 
 The distinction is:
 
 * fixed_v2 process ratings are individual, bout-derived ratings at represented
   points in the basho timeline;
+* fixed_v2 entrant-initial BP ratings are the fixed-point `BP -> rating` map
+  used when the simulation needs an initial rating for an entrant without prior
+  represented rating history;
 * `Typical Equelo Ratings` values are illustrative landmarks
   associated with chii-like labels.
+
+Use:
+
+| Consumer question | Source |
+| --- | --- |
+| What is this rikishi rated after this represented day or basho? | `day_end_ratings.json` / fixed_v2 process ratings |
+| What rating does Equelo assign to this BP or BP-derived category for modelled BP/category probability? | `entrant_initial_ratings.json`, aggregated with a documented category policy and curated comparison domain |
+| What public landmark helps readers understand the scale? | `Typical Equelo Ratings` / fixed_v2 public landmarks |
 
 The landmark curve was made monotone so that the public scale is easier to
 read.  That does not mean individual process ratings must be monotone with
@@ -60,6 +71,12 @@ Public features that need an individual rikishi's rating after a basho should
 use the fixed_v2 process rating artefacts or a documented successor.  They
 should not derive the rating from the rikishi's current or next chii by looking
 up `Typical Equelo Ratings`.
+
+Public or research features that need a modelled probability for BP/category
+pairs should not average current occupants' process ratings by BP. That answers
+a different question and can violate the intended BP-rating order. Use the
+entrant-initial BP map, then apply the page's explicit domain and aggregation
+policy.
 
 ## Process Refresh versus Landmark Refresh
 

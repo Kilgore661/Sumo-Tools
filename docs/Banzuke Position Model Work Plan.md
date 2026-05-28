@@ -259,6 +259,13 @@ the charts are comparable because Observed and Equelo apply the same domain,
 but `O1` means `O1`, not "all Ozeki". This is acceptable as a description of
 current behavior, but it is not the target public specification.
 
+Do not conflate this selected-BP display policy with curated-domain exclusions.
+Historical or low-support BP slots such as `M18`-`M22` or `J13`-`J24` may be
+excluded from a comparison domain. Ordinary numbered sanyaku slots such as `O2`
+or `K2` are different: they remain meaningful BPs, and the open public-design
+question is whether to display selected canonical BPs such as `O1` or aggregate
+all ozeki BPs into a public category rendered as `O` or `Ozeki`.
+
 ---
 
 ## 7. Stress Test Plan

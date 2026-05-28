@@ -2,13 +2,14 @@
 
 ## Status
 
-Discussion/work-plan note.
+Investigation note and work plan.
 
 This document records the current investigation into Chii aggregation policy for
 the matchup probability work and, in particular, the `make_site2` page 6.3.1
 `Win Probability by Standing`.
 
-It is not yet a settled specification.
+The current selected-BP implementation is now understood and repaired. The
+public-category aggregation design remains unsettled.
 
 This note should be read alongside:
 
@@ -40,7 +41,7 @@ p_obs(c1 beats c2)
 p_rating(c1 beats c2)
 ```
 
-The current implementation has exposed an unresolved modelling question:
+The implementation exposed a modelling question:
 
 ```text
 What exactly are c1 and c2?
@@ -64,7 +65,8 @@ delta/comparison table, requires three things to be settled.
 3. The rating-derived measurement requires a canonical representative rating
    for every `c` in the chosen domain.
 
-The current 6.3.1 implementation satisfies these only partially.
+The repaired selected-BP implementation satisfies these for its current domain.
+The future public-category design still needs a settled category policy.
 
 ---
 
@@ -179,8 +181,8 @@ diagnostic sideless BP
   best diagnostic category; preserves O1/O2/O3 distinctions
 
 canonical displayed BP category
-  describes the current 6.3.1 charts; admits Y1/O1/S1/K1 and excludes rarer
-  numbered sanyaku categories
+  describes the current 6.3.1 charts; admits Y1/O1/S1/K1 and display-filters
+  other numbered sanyaku categories
 
 BP.public_category
   target public specification; maps O1/O2/O3 to O and similarly for other
@@ -193,6 +195,12 @@ effective domain in the rendered chart. `O1` means `O1` in both, and `O2` is
 ignored in both. The implementation is therefore directly comparable, but it is
 not implementing `BP.public_category` aggregation. It should be recorded as
 current behavior, not promoted as the final public model.
+
+This is different from excluding historical or low-support BP slots such as
+`M18`-`M22` or `J13`-`J24`. Those are outside the curated comparison domain.
+Numbered sanyaku slots such as `O2` and `K2` are ordinary possible BPs; choosing
+not to display them is a presentation/category policy, not a rating-domain
+cleaning rule.
 
 ---
 
@@ -224,19 +232,35 @@ Y1, O1, S1, K1
 That filter can hide rows that exist in the CSV. For example, `O2` may exist in
 the chart CSV while not appearing in the rendered Makuuchi chart.
 
-The current Equelo source has also been found to use a useless intermediate
-source:
+The previous Equelo source was found to use the wrong rating kind:
 
 ```text
 latest fixed_v2 process ratings averaged by current sideless chii
 ```
 
-This source is not a meaningful shared artifact and is not used elsewhere. It
-does not answer the chart's intended question. It creates jagged curves because
-the latest occupants of a rank bucket may have unusually high or low process
-ratings.
+This source answered a different question: "what are the current occupants of
+this BP bucket rated?" It did not answer "what rating does fixed_v2 assign to
+this BP?" It created jagged Equelo curves because the latest occupants of a BP
+bucket may have unusually high or low process ratings. For example, the old
+source could make `K1` higher-rated than `O1`, which violates the intended
+standing-rating interpretation of this chart.
 
-The replacement source `S'` has not yet been specified.
+The repaired current source is:
+
+```text
+fixed_v2 entrant-initial BP ratings
+  -> filter to the curated fixed_v2/v5 comparison domain
+  -> remove side
+  -> average BP ratings by sideless BP
+```
+
+This uses the raw fixed_v2 BP rating map, not latest process ratings and not
+the smoothed `Typical Equelo Ratings` public landmark table.
+
+The curated comparison domain excludes historical or low-support slots such as
+`M18`-`M22` and `J13`-`J24`, and caps the lower bound at `Jd100w`. The
+`M13`-`J1` bridge region remains in the domain because its non-monotonicity is
+part of the phenomenon being investigated.
 
 For observed probabilities, the current chart is a consistent implementation of
 the canonical displayed BP category approach:
@@ -254,7 +278,7 @@ public-category aggregation model.
 In other words, current 6.3.1 uses:
 
 ```text
-sideless BP data + canonical displayed sideless BP domain
+curated sideless BP data + canonical displayed sideless BP domain
 ```
 
 It does not use:
@@ -265,6 +289,10 @@ public-category aggregation
 
 This distinction matters because it determines whether `O2` is ignored or folded
 into an `O` category.
+
+It also matters for labels. If future work aggregates all ozeki BPs into one
+public category, the label must be `O` or `Ozeki`, not `O1`. A label of `O1`
+means the selected canonical sideless BP, not all ozeki.
 
 ---
 
@@ -457,6 +485,16 @@ This replaces the current useless source:
 latest fixed_v2 process ratings averaged by current sideless chii
 ```
 
+For the current selected-BP implementation, the replacement is already known:
+
+```text
+fixed_v2 entrant-initial BP ratings averaged to the selected sideless BP
+category after applying the curated fixed_v2/v5 comparison domain
+```
+
+For a future public-category implementation, the same fixed_v2 BP rating source
+should be aggregated to `BP.public_category` instead of to sideless BP.
+
 ---
 
 ## 10. Scope Decision
@@ -478,6 +516,8 @@ them immediately.
 
 ### Step 1: Audit Current Aggregation
 
+Status: current behavior understood for 6.3.1.
+
 Determine exactly how the current observed data preparation handles:
 
 - annotations;
@@ -496,6 +536,10 @@ O
 ```
 
 or is excluded.
+
+Current finding: the rendered chart uses selected sideless BP categories. It
+does not aggregate numbered sanyaku BPs into title bins. `O1` is plotted as
+`O1`; `O2` is not folded into `O1` or `O`.
 
 ### Step 2: Decide the Public Domain
 
@@ -523,14 +567,24 @@ not the model to persist as the public explanation of 6.3.1.
 
 ### Step 3: Specify S'
 
+Status: specified for the current selected-BP implementation; still open for
+the future public-category implementation.
+
 Specify the canonical representative rating source for every public category in
 the chosen domain.
 
-Open questions include:
+For the current selected-BP implementation, S' is generated from fixed_v2
+entrant-initial BP ratings, filtered to the curated fixed_v2/v5 comparison
+domain and averaged by sideless BP. It is not generated from the latest
+day-end process ratings and it is not generated from the public landmark table.
 
-- whether S' is generated from the fixed_v2 public landmark curve machinery;
-- whether S' should be persisted as its own producer artifact;
-- what provenance metadata S' must carry.
+Open questions for the future public-category implementation include:
+
+- whether a public-category rating artifact should be persisted as its own
+  producer output;
+- what provenance metadata that artifact must carry;
+- whether public-category labels should use abbreviations (`O`) or title text
+  (`Ozeki`) in the site UI.
 
 Settled direction:
 
@@ -542,12 +596,18 @@ Settled direction:
 
 ### Step 4: Update 6.3.1 Generation
 
-After the domain and S' are specified:
+Status: implemented for the current selected-BP implementation.
 
-- remove the useless latest-current-occupant source;
-- regenerate Observed and Equelo trace points over the same domain;
-- ensure metadata records the aggregation/binning policy and rating source;
-- keep confidence intervals visible for observed support.
+The current generator now:
+
+- removes the latest-current-occupant source;
+- uses fixed_v2 entrant-initial BP ratings;
+- applies the curated fixed_v2/v5 comparison domain to both Observed and
+  Equelo;
+- records the rating source and domain policy in metadata;
+- keeps confidence intervals visible for observed support.
+
+Future public-category work would revisit this generation step.
 
 ### Step 5: Reconsider Artifact A
 
