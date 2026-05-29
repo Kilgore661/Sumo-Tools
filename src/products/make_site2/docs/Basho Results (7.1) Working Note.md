@@ -1,4 +1,4 @@
-# 7.1 Basho Results Working Note
+# Basho Results (7.1) Working Note
 
 ## Status
 
@@ -192,4 +192,3 @@ The next task is to sort out the 7.1 model:
 - decide how grouped column structure is represented;
 - decide what metadata drives `Current` versus `After Basho` wording; and
 - only then implement the rendering/code changes.
-
