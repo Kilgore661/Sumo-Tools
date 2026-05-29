@@ -79,6 +79,7 @@ select {
 
 .site-nav {
   background: var(--nav-bg);
+  border-right: 1px solid rgba(255, 255, 255, 0.5);
   display: grid;
   grid-template-columns: 1.25rem max-content;
   width: max-content;
@@ -111,6 +112,13 @@ select {
 
 #content-title {
   margin: 0.5rem 0 0;
+  padding-left: 1rem;
+}
+
+.content-summary {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+  margin-bottom: 0;
+  padding: 0 0 0.5rem 1rem;
 }
 
 .nav-toggle {
@@ -208,6 +216,17 @@ h3 {
 
 .filter-section ul {
   list-style: none;
+}
+
+.filter-section {
+  border-right: 1px solid rgba(255, 255, 255, 0.5);
+  padding: 0.5rem 1rem 0 1rem;
+}
+
+.filter-list {
+  line-height: 1.5;
+  margin: 0;
+  padding-left: 0;
 }
 
 .filter-section .choice-list {
