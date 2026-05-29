@@ -1,5 +1,40 @@
 import { escapeHtml } from "../utils/html.js";
 
+const TRANSITIONAL_TABLE_SPEC = [
+  group("reference", "Reference", [
+    column("row_number", "#"),
+    column("shikona", "Shikona"),
+  ]),
+  group("before", "Before Basho", [
+    group("rba", "", [
+      column("bp", "BP"),
+      column("result", "Result"),
+      column("equelo", "Equelo"),
+    ]),
+  ]),
+  group("state", "Current/After", [
+    group("rba", "", [
+      column("bp", "BP"),
+      column("result", "Result"),
+      column("equelo", "Equelo"),
+      column("next_bp", "nuChii"),
+    ]),
+  ]),
+  group("comparison", "Comparison", [
+    column("delta_equelo", "Delta Equelo"),
+  ]),
+];
+
+function buildBashoResultsPresentationModel({ rows, state, entry, title }) {
+  const visiblePaths = bashoResultsVisiblePaths(state);
+  return {
+    header: bashoResultsHeader(title, entry),
+    table_spec: resolveStateHeading(TRANSITIONAL_TABLE_SPEC, entry),
+    values: rows.map((row, index) => transitionalRowValues(row, index)),
+    projection: { visible_paths: visiblePaths },
+  };
+}
+
 function renderBashoResultsPresentationTable(model) {
   const visiblePaths = new Set(model.projection?.visible_paths || []);
   const leaves = terminalNodes(model.table_spec || [], [], visiblePaths);
@@ -16,6 +51,70 @@ function renderBashoResultsPresentationTable(model) {
     '</tbody>',
     '</table>',
   ].join("");
+}
+
+function bashoResultsHeader(title, entry) {
+  return {
+    heading: title || "Basho Results",
+    subheading: bashoResultsSubheading(entry),
+  };
+}
+
+function bashoResultsSubheading(entry) {
+  const latestDay = Number(entry?.latest_day);
+  if (latestDay && latestDay < 15) return `After Day ${latestDay}`;
+  return "Final";
+}
+
+function resolveStateHeading(spec, entry) {
+  const stateHeading = Number(entry?.latest_day) && Number(entry.latest_day) < 15
+    ? "Current"
+    : "After Basho";
+  return spec.map(node => node.key === "state" ? { ...node, label: stateHeading } : node);
+}
+
+function bashoResultsVisiblePaths(state) {
+  const visible = [
+    "reference.row_number",
+    "reference.shikona",
+    "state.rba.bp",
+    "state.rba.result",
+  ];
+  if (state.previous_context) {
+    visible.push("before.rba.bp", "before.rba.result");
+  }
+  if (state.rating_context) {
+    if (state.previous_context) visible.push("before.rba.equelo");
+    visible.push("state.rba.equelo", "comparison.delta_equelo");
+  }
+  if (state.nu_chii) {
+    visible.push("state.rba.next_bp");
+  }
+  return visible;
+}
+
+function transitionalRowValues(row, index) {
+  return {
+    "reference.row_number": String(index + 1),
+    "reference.shikona": row.shikona || "",
+    "before.rba.bp": row.previous_chii || "",
+    "before.rba.result": resultWithMovement(row.previous_result, row.previous_rank_level_movement),
+    "before.rba.equelo": row.previous_equelo || "",
+    "state.rba.bp": row.chii || "",
+    "state.rba.result": row.score || "",
+    "state.rba.equelo": row.equelo || "",
+    "state.rba.next_bp": row.nu_chii || "",
+    "comparison.delta_equelo": row.delta_equelo || "",
+  };
+}
+
+function resultWithMovement(result, movement) {
+  return [result || "", rankLevelMovementMarker(movement)].filter(Boolean).join(" ");
+}
+
+function rankLevelMovementMarker(value) {
+  if (value === "\u2191" || value === "\u2193") return value;
+  return "";
 }
 
 function renderBashoResultsHeader(header) {
@@ -101,4 +200,12 @@ function valueAtPath(row, path) {
   return String(value);
 }
 
-export { renderBashoResultsPresentationTable, terminalNodes, headerRows };
+function group(key, label, children) {
+  return { key, label, children };
+}
+
+function column(key, label) {
+  return { key, label };
+}
+
+export { buildBashoResultsPresentationModel, renderBashoResultsPresentationTable, terminalNodes, headerRows };

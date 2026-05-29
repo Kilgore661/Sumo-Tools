@@ -3,6 +3,7 @@ import { getRuntimeManifest } from "../core/manifest-store.js";
 import { readFilterUrlState, writePanelUrl } from "../core/url-state.js";
 import { fetchCsv, fetchJson } from "../data/http.js";
 import { renderCareerLengthArtifact, renderCareerLengthPlot, renderCategoryBarChart, renderCategoryBarPlot, renderFinishByChiiChart, renderFinishByChiiPlot, renderGroupedLineChart, renderGroupedLinePlot, renderOrderedBarChart, renderOrderedBarPlot, renderStackedBarChart, renderStackedBarPlot, renderStandingWinProbabilityChart, renderStandingWinProbabilityPlot, resolveCareerLengthView, resolveFilterValue, resolveSelectedDataSourceId } from "../ui/charts.js";
+import { buildBashoResultsPresentationModel, renderBashoResultsPresentationTable } from "../ui/basho-results-table.js";
 import { filterValueLabel, renderFilterSection, resolveBanzukeChangesDivision, resolveFilterState, resolveSelectedDataValue, resolveSelectedDivision, resolveSelectedFilterValueFromSource, resolveStandingsDivision, resolveStandingsWindow, selectedIndexEntry, selectedStandingsSource, wireFilterSection } from "../ui/filters.js";
 import { wirePAPanelLayout } from "../ui/layout.js";
 import { renderNotes, wireNotesPanel } from "../ui/notes.js";
@@ -60,6 +61,14 @@ async function renderIndexedTableContentPanel(panel, artifact, overrideState = n
   state.division = resolveSelectedDivision(rows, state.division);
   writePanelUrl(panel.page_id, filters, state, { replace: true });
   const filteredRows = rows.filter(row => row.division_id === state.division);
+  const presentationModel = artifact.id === "basho_results_browser"
+    ? buildBashoResultsPresentationModel({
+      rows: filteredRows,
+      state,
+      entry: selectedEntry,
+      title: bashoResultsTitle(state, selectedEntry, filters),
+    })
+    : null;
 
   contentPanel.innerHTML = [
     '<section class="content-panel">',
@@ -69,8 +78,12 @@ async function renderIndexedTableContentPanel(panel, artifact, overrideState = n
     renderFilterSection(panel.contents.filter_section, state, index),
     '<section class="pa-panel">',
     '<div class="pa-slot">',
-    renderArtifactTitleBlock(artifact, state, selectedEntry, filters),
-    renderIndexedTable(artifact, filteredRows, state),
+    presentationModel
+      ? renderBashoResultsPresentationTable(presentationModel)
+      : [
+        renderArtifactTitleBlock(artifact, state, selectedEntry, filters),
+        renderIndexedTable(artifact, filteredRows, state),
+      ].join(""),
     '</div>',
     renderNotes(artifact, state),
     '</section>',
@@ -78,7 +91,9 @@ async function renderIndexedTableContentPanel(panel, artifact, overrideState = n
     '</section>'
   ].join("");
   wireFilterSection(panel, state, renderContentPanel);
-  wireTableSorting(panel, artifact, renderContentPanel);
+  if (!presentationModel) {
+    wireTableSorting(panel, artifact, renderContentPanel);
+  }
   wireNotesPanel();
   wirePAPanelLayout();
 }
