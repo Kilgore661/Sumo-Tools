@@ -194,8 +194,8 @@ def test_site_shell_is_rendered_from_ui_manifest() -> None:
     assert 'data-nav-shell' in html
     assert 'data-nav-toggle' in html
     assert 'gaspodeSumoLab.makeSite2.navCollapsed' in html
-    assert '<nav class="site-nav" data-nav-panel aria-label="Site navigation">' in html
-    assert '<script src="runtime/site.js"></script>' in html
+    assert '<nav id="site-nav" class="site-nav" data-nav-panel aria-label="Site navigation">' in html
+    assert '<script type="module" src="runtime/site.js"></script>' in html
     assert 'data-page-id="basho_results_browser"' in html
     assert 'data-page-id="banzuke_changes"' in html
     assert 'data-page-id="standings_by_wins"' in html
@@ -219,7 +219,7 @@ def test_site_shell_cache_busts_runtime_assets_in_dev_mode() -> None:
     assert 'data-cache-bust="test-token"' in html
     assert 'data-cache-bust-param="cb"' in html
     assert '<link rel="stylesheet" href="runtime/site.css?cb=test-token">' in html
-    assert '<script src="runtime/site.js?cb=test-token"></script>' in html
+    assert '<script type="module" src="runtime/site.js?cb=test-token"></script>' in html
 
 
 def test_site_shell_uses_stable_runtime_assets_in_prod_mode() -> None:
@@ -228,7 +228,7 @@ def test_site_shell_uses_stable_runtime_assets_in_prod_mode() -> None:
 
     assert "data-cache-bust" not in html
     assert '<link rel="stylesheet" href="runtime/site.css">' in html
-    assert '<script src="runtime/site.js"></script>' in html
+    assert '<script type="module" src="runtime/site.js"></script>' in html
 
 
 def test_runtime_manifest_declares_brb_ui_and_artifact_semantics() -> None:
@@ -297,7 +297,7 @@ def test_runtime_manifest_declares_standings_ui_and_artifact_semantics() -> None
     assert artifact["config_source"]["path"] == (
         "current-sumo/standings-by-wins/data/site_config.json"
     )
-    assert artifact["data_sources"][5]["option_value"] == "6"
+    assert artifact["data_sources"][5]["filter_value"] == "6"
     assert artifact["data_sources"][5]["path"] == (
         "current-sumo/standings-by-wins/data/"
         "multiple basho standings view (2026_03, BACKWARDS, 6).csv"
