@@ -130,9 +130,18 @@ expose equivalent accessible state.
 For Basho Results (7.1), the column identity used for sorting is the recursive
 terminal path, not a flat table-column id. A leaf may declare a separate
 sort-value path or sort kind where its displayed value is not the correct
-sortable value. Odd column-specific semantics, such as arrow-only movement
-values, may be handled by later column-specific sort rules without changing the
-default leaf-heading sorting policy.
+sortable value. The default Basho Results sort is the selected/current basho BP
+leaf, using the emitted BP ordinal value in ascending order. Odd column-specific
+semantics, such as arrow-only movement values, may be handled by later
+column-specific sort rules without changing the default leaf-heading sorting
+policy.
+
+For the immediate 7.1 repair, recursive-path sorting may be implemented locally
+inside the specialised Basho Results renderer. This is a tactical implementation
+choice, not a final table architecture decision. If recursive table sorting
+proves stable, or if another PA requires the same hierarchical table behaviour,
+shared table-sorting helpers should be extracted so flat and recursive tables use
+one coherent treatment where their models overlap.
 
 Known spine sections needing reconciliation include:
 
