@@ -64,7 +64,7 @@ function renderBashoResultsPresentationTable(model) {
     '<tbody>',
     ...sortedValues.map((row, index) => [
       '<tr>',
-      ...leaves.map(leaf => `<td data-column-path="${escapeHtml(leaf.path)}">${escapeHtml(cellValueAtPath(row, leaf.path, index))}</td>`),
+      ...leaves.map(leaf => `<td data-column-path="${escapeHtml(leaf.path)}">${renderBashoResultsCell(row, leaf.path, index)}</td>`),
       '</tr>',
     ].join("")),
     '</tbody>',
@@ -151,6 +151,7 @@ function transitionalRowValues(row, index) {
   return {
     "reference.row_number": String(index + 1),
     "reference.shikona": row.shikona || "",
+    "reference.rikishi_id": row.rikishi_id || "",
     "before.rba.bp": row.previous_chii || "",
     "before.rba.bp_ordinal": row.previous_chii_ordinal || "",
     "before.rba.result.wins": beforeResult.wins,
@@ -247,7 +248,7 @@ function renderNestedHeaderCell(cell, leaf, sortState) {
   const indicator = active ? (sortState.direction === "ascending" ? " ▲" : " ▼") : "";
   return [
     `<th ${attributes.join(" ")} aria-sort="${direction}">`,
-    `<button type="button" class="table-sort-button" data-basho-results-sort-path="${escapeHtml(leaf.path)}">`,
+    `<button type="button" class="table-sort-button" data-basho-results-sort-path="${escapeHtml(leaf.path)}" style="display: inline-flex; justify-content: center; width: 100%;">`,
     escapeHtml(cell.label),
     `<span class="table-sort-indicator" aria-hidden="true">${indicator}</span>`,
     '</button>',
@@ -401,9 +402,22 @@ function recordWins(value) {
   return match ? Number(match[1]) : null;
 }
 
-function cellValueAtPath(row, path, index) {
-  if (path === "reference.row_number") return String(index + 1);
-  return valueAtPath(row, path);
+function renderBashoResultsCell(row, path, index) {
+  if (path === "reference.row_number") return escapeHtml(String(index + 1));
+  if (path === "reference.shikona") {
+    return renderRikishiLink(row["reference.shikona"], row["reference.rikishi_id"]);
+  }
+  return escapeHtml(valueAtPath(row, path));
+}
+
+function renderRikishiLink(shikona, rikishiId) {
+  if (!rikishiId) return escapeHtml(shikona || "");
+  return [
+    `<a href="https://sumodb.sumogames.de/Rikishi.aspx?r=${encodeURIComponent(rikishiId)}"`,
+    ' target="_blank" rel="noopener">',
+    escapeHtml(shikona || ""),
+    '</a>',
+  ].join("");
 }
 
 function valueAtPath(row, path) {
