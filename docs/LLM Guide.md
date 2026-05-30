@@ -175,6 +175,12 @@ on `8766`, rebuild the output and refresh the browser rather than starting a
 second server on an ad hoc port. Use another port only after telling the user and
 recording why `8766` is unavailable.
 
+Browser inspection is not guaranteed in every ChatGPT/GitHub-only environment.
+If the active environment can only read/write GitHub files, it can inspect code
+and docs but cannot prove localhost browser behaviour. In that case, state
+plainly that the behaviour needs Codex/local-preview access or human browser
+inspection rather than pretending that source review or pytest proves it.
+
 I can see environment variable names available to the Codex shell, but not your broader interactive shell environment. I should not assume secrets or mapped-drive credentials are available.
 
 The `node` on `PATH` is blocked with access denied, but bundled runtime Node works at:
@@ -234,6 +240,42 @@ Then broaden only when the focused checks are understood:
 ```powershell
 .\.venv\Scripts\python.exe -m pytest -s tests
 ```
+
+Testing policy is pragmatic. This is not a professional safety-critical build
+where every historical test must be maintained forever. Tests may be current,
+stale, or legacy/redundant. Current useful tests should be kept; stale tests may
+be rewritten when they protect the current model; legacy tests that assert
+abandoned structure may be deleted. A failing test is evidence to classify, not
+automatic proof that product code is wrong.
+
+Use tests to support the work just done or about to be done. Do not preserve
+broad tests merely because they exist. It is acceptable to keep only a lightweight
+baseline plus focused regression checks for recent changes.
+
+For `make_site2`, useful recurring checks are:
+
+```text
+syntax/import checks
+  Python compile/import where relevant; JavaScript `node --check` on edited
+  runtime files.
+
+focused pytest checks
+  Model, manifest, build, CLI, data-output or renderer contracts directly
+  affected by the change.
+
+build/preview checks
+  Build the site, serve it on localhost:8766, and inspect the relevant browser
+  behaviour when the environment supports it.
+```
+
+Pytest is not a substitute for browser inspection. It cannot by itself prove
+click behaviour, DOM event wiring, CSS layout, heading alignment, Plotly
+visibility or other functional browser behaviour. When those are the material
+risk, use the shared preview or ask for human browser inspection.
+
+The user is not personally invested in maintaining test internals. If a change
+under `tests/*` is needed to delete legacy tests, update stale tests, or add a
+focused check for the current work, do it and explain the classification.
 
 The user-site pytest install may be visible to the human's interactive shell
 but not to Codex. If `py -m pytest` or `python -m pytest` fails from Codex,
