@@ -231,6 +231,11 @@ Clicking a sortable column heading shall sort by that column; clicking the
 active sorted heading again shall toggle sort direction. The active sorted
 column and direction shall be visible to the reader.
 
+For table-like PAs with hierarchical headings, a sortable column is a visible
+leaf heading that corresponds to exactly one data column. Group headings are not
+sortable unless a later PA-specific model explicitly gives them single-column
+sort meaning.
+
 A Note may explain or qualify a PA, a visible feature, a selected representation
 or a relevant caveat/provenance fact. A change in Filter state may change Note
 relevance only because it changes visible PA state.
@@ -348,7 +353,81 @@ unvalidated Banzuke Changes material.
 
 ---
 
-## 9. Published-Data and Publication-Context Coherence
+## 9. Specified Semantics of 7.1 Basho Results
+
+### 9.1 Public Question
+
+**7.1 Basho Results** is a represented-basho results browser. It answers:
+
+```text
+A basho is represented in History. What were the results for that basho, and how
+should selected before/current/after analytical context be inspected?
+```
+
+It covers completed historical bashos, the latest/current basho once represented
+results exist, and in-progress bashos where results are represented only through
+a known day.
+
+It is not the same Page as **2.1 Banzuke Changes** and does not answer the
+new-banzuke-before-results question.
+
+### 9.2 PA Form
+
+Basho Results is an indexed table PA. The selected basho and division determine
+the visible table instance. Optional public Filters may project additional
+visible context such as previous-basho context, ratings context or successor BP
+context where available.
+
+Basho Results may use a specialised recursive presentation table because its
+visible meaning requires temporal/grouped headings such as Reference,
+Before Basho, Current/After Basho and Comparison. This is a Basho Results PA
+model decision; it does not require all ordinary table PAs to use the same
+recursive table shape.
+
+### 9.3 Required Visible Meaning
+
+The Basho Results table shall distinguish:
+
+```text
+reference values
+  row number and rikishi identity;
+
+before context
+  predecessor-basho BP, decomposed predecessor result values and optional
+  pre-selected-basho rating context;
+
+state context
+  selected/current/after-basho BP, decomposed selected-basho result values,
+  optional rating context and optional successor BP context;
+
+comparison context
+  declared comparisons such as Delta Equelo where available.
+```
+
+Result values are logically decomposed into wins, losses, absences, prizes and
+Division Change. Compact producer result strings may remain a transitional input
+shape, but the public PA model treats the visible result fields as distinct.
+
+`reference.shikona` is a rikishi identity value and may render as a link to the
+corresponding public rikishi record when a valid rikishi id is supplied.
+
+### 9.4 Sorting
+
+Basho Results shares the ordinary table sorting contract. In the recursive table,
+the column identity used for sorting is the visible terminal path rather than a
+flat column id.
+
+Every visible leaf heading is sortable by default except the row-number column.
+Group headings are not sortable because they do not identify a single data
+column. The default Basho Results sort is selected/current BP ascending by the
+emitted BP ordinal value.
+
+Further Basho Results model details are specified in
+`04.5 Basho Results Model.md`.
+
+---
+
+## 10. Published-Data and Publication-Context Coherence
 
 Where a PA's public meaning depends on History or a compatible successor input,
 its visible data shall be coherent with the build context required by that Page.
@@ -368,7 +447,7 @@ newer data through the same Page/Filter link.
 
 ---
 
-## 10. Public Status, Public State and Public View Links
+## 11. Public Status, Public State and Public View Links
 
 Every Page candidate shall have explicit public status or be excluded. Initial
 status terms may include:
@@ -402,7 +481,7 @@ a promoted Page blank or misleading.
 
 ---
 
-## 11. Static Publication and Producer Contract
+## 12. Static Publication and Producer Contract
 
 The generated website shall be publishable as static output without Python,
 database, application server, user accounts or dynamic public API. Client-side
@@ -424,7 +503,7 @@ because they exist.
 
 ---
 
-## 12. Error and Missing-State Contract
+## 13. Error and Missing-State Contract
 
 A promoted Page shall not silently render blank, structurally invalid or
 materially misleading production content when required inputs, availability or
@@ -450,7 +529,7 @@ labelled as such and shall not be mistaken for normal production publication.
 
 ---
 
-## 13. Initial Conformance Criteria
+## 14. Initial Conformance Criteria
 
 A first conforming production slice shall demonstrate:
 
@@ -475,7 +554,7 @@ contexts.
 
 ---
 
-## 14. Relationship to Design Documents
+## 15. Relationship to Design Documents
 
 This specification establishes public website structure and observable public
 behaviour. Subsequent design documents shall explain how the implementation
@@ -484,11 +563,12 @@ satisfies it, including:
 - model-first architecture and auditable rendering of `PG`;
 - Page inclusion and availability planning;
 - Published Artifact and rendering policy;
+- Basho Results recursive table modelling;
 - build/runtime support for canonical links and unavailable states;
 - producer integration for Selected History and compatible successor inputs;
 - deployment and operational policy.
 
 These design choices may refine implementation and rendering policy, but they
 shall not silently alter `PG`, the specified semantics of 2.1 Banzuke Changes,
-or the distinction between production publication and explicitly warned
-development testing output.
+the specified semantics of 7.1 Basho Results, or the distinction between
+production publication and explicitly warned development testing output.
