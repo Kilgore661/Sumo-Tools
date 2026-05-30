@@ -411,7 +411,56 @@ shape, but the public PA model treats the visible result fields as distinct.
 `reference.shikona` is a rikishi identity value and may render as a link to the
 corresponding public rikishi record when a valid rikishi id is supplied.
 
-### 9.4 Sorting
+### 9.4 Rating-Order Comparison
+
+Basho Results may expose a rating-order comparison between official BP order and
+Equelo order for the same selected table population.
+
+```text
+banzuke position
+  the rikishi's ordinal position when the selected population is ordered by
+  official BP/Chii;
+
+rating-implied position
+  the rikishi's ordinal position when the selected population is ordered by
+  Equelo rating;
+
+BZ Error / DeltaBZ
+  the discrepancy between those two positions;
+
+RBBP
+  the official BP slot corresponding to the rikishi's rating-implied position.
+```
+
+BZ Error / DeltaBZ is a comparison between two orderings, not a scalar rank
+prediction. Its public form is direction plus absolute magnitude:
+
+```text
+direction
+  whether Equelo order places the rikishi higher or lower than official BP order;
+
+magnitude
+  the number of BP slots between the official BP position and rating-implied
+  position.
+```
+
+A displayed upward direction means the rating order places the rikishi higher
+than the official banzuke position. A displayed downward direction means the
+rating order places the rikishi lower than the official banzuke position.
+
+RBBP is also a rating-order comparison. It means:
+
+```text
+If the selected population were placed into the same official BP slots according
+to Equelo order, this rikishi would occupy this BP slot.
+```
+
+BZ Error / DeltaBZ and RBBP are not banzuke-making predictions. They do not
+claim that promotion rules, rank-holding conventions, sanyaku vacancies,
+committee judgment or other real banzuke constraints would produce that result.
+They express how the official BP order differs from the selected rating order.
+
+### 9.5 Sorting
 
 Basho Results shares the ordinary table sorting contract. In the recursive table,
 the column identity used for sorting is the visible terminal path rather than a
