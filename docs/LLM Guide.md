@@ -151,17 +151,29 @@ Your local/LAN deploy target lives on `A:` and is therefore not directly deploya
 
 Because the user's local web server serves files from mapped drive `A:`, an LLM
 should normally run `make_site2` with `--build-only` rather than `--local-only`.
-For the user and LLM to inspect the same rendered site, either the user or the
-LLM should start a Python static server over the generated build output, for
-example:
+
+Functional browser behaviour is distinct from syntax checks and pytest checks.
+Python/JavaScript syntax checks can show that files parse; pytest can check
+model/build/runtime contracts covered by tests; but browser behaviour needs a
+shared preview page that both the user and LLM can inspect. The agreed standard
+preview URL is:
+
+```text
+http://localhost:8766/
+```
+
+To create or refresh that shared preview, build output first, then serve the
+output directory on port `8766`:
 
 ```powershell
 py -m src.products.make_site2 --build-only --history-zip ".\files\output\Historys\1978_01 to 1980_11.zip"
 py -m http.server 8766 --directory ".\files\output\make_site2"
 ```
 
-Then both can use `http://localhost:8766/` while that PowerShell process keeps
-running.
+The serving PowerShell process must keep running. If a server is already running
+on `8766`, rebuild the output and refresh the browser rather than starting a
+second server on an ad hoc port. Use another port only after telling the user and
+recording why `8766` is unavailable.
 
 I can see environment variable names available to the Codex shell, but not your broader interactive shell environment. I should not assume secrets or mapped-drive credentials are available.
 
@@ -180,7 +192,7 @@ Use that explicit executable for JavaScript checks, for example:
 Python works from the workspace. For local static preview, the command is:
 
 ```powershell
-python -m http.server <port> --directory <folder>
+python -m http.server 8766 --directory <folder>
 ```
 
 but the folder must actually contain `index.html`. The earlier `8787` 404 was because `files/output/make_site2` did not exist from `X:\Sumo-Tools`.
@@ -238,7 +250,9 @@ Rerunning with `-s` bypassed capture and produced ordinary test results. If an
 LLM sees this pytest/capture failure again, it should switch to the `.venv`
 command above with `-s`, then report any remaining real test failures.
 
-There is a lingering Python server on port `8766`, started earlier, serving a working recent build. I can access it through the Codex in-app browser.
+There may be a lingering Python server on port `8766`, started earlier, serving
+a recent build. Treat `8766` as the shared preview port and check with the user
+before killing or replacing that process.
 
 For data/builds, sometimes the live store is not available; why is not clear because the user says it is running. The reliable Codex path is to build from a history zip, ideally the small one kept for speed.
 
