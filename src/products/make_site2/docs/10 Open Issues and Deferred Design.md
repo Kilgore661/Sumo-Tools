@@ -238,8 +238,8 @@ This defect does not reopen the canonical-link correction.
 | --- | --- | --- |
 | Structural hider implementation | Implemented; verification outstanding | NavigationBar and Notes now use the same pattern: a first-class hider strip remains visible while the controlled content region collapses. NavigationBar controls NavigationContent; Notes controls NotesContent. |
 | Table chrome/body split as explicit PA model | Deferred / TBD | Runtime now implements table-body-only scrolling for ordinary table PAs. Consider a richer producer-facing PA model only if future pressure requires explicit non-scrolling chrome and scrolling data-region semantics. |
-| Stress-test and fold in 7.1 Basho Results redesign | Open | The current agreed 7.1 account is `Basho Results (7.1) Outcome.md`. The transitional renderer is broadly successful, but it still needs stress-testing, especially by adding `DeltaBZ` / Banzuke Error and RBBP values, checking in-progress and no-successor-banzuke cases, and deciding how much transitional compact-result parsing may remain before the model is folded into the main spine. |
-| General table presentation model | Open | The 7.1 Basho Results redesign introduced a recursive presentation-model table shape for hierarchical table structure. Decide whether this should become the general model for other table-like PAs, remain a 7.1 custom renderer, or be extracted only when a second table proves the same pressure. The immediate 7.1 sorting repair may implement recursive-path sorting locally in the specialised renderer, but that is a tactical implementation choice rather than a final shared table architecture decision. If recursive table sorting proves stable, or another PA requires the same hierarchical table behaviour, extract shared table-sorting helpers so flat and recursive tables use one coherent treatment where their models overlap. Review existing flat, grouped, indexed and sectioned table artifacts before generalising. |
+| Stress-test 7.1 Basho Results redesign | Open | The settled 7.1 model has been folded into `04.5 Basho Results Model.md`. The remaining work is stress-testing and extending the transitional renderer, especially by adding `DeltaBZ` / Banzuke Error and RBBP values, checking in-progress and no-successor-banzuke cases, and deciding how much transitional compact-result parsing may remain. |
+| General table presentation model | Open | The 7.1 Basho Results redesign introduced a recursive presentation-model table shape for hierarchical table structure. Do not assume this becomes the general model for ordinary flat table PAs. Keep the 7.1 recursive-path sorting repair local unless recursive table sorting stabilises or another PA proves the same hierarchical pressure; then extract shared table-sorting helpers so flat and recursive tables use one coherent treatment where their models overlap. Review existing flat, grouped, indexed and sectioned table artifacts before generalising. |
 | Table column alignment model | Open | Human inspection of Basho Results (7.1) shows that heading/data horizontal alignment is not being handled coherently in the recursive 7.1 renderer. As it appears to the reader, ordinary short data columns such as W/L/A should have centred headings and centred data; Equelo-style numeric/rating columns should have centred headings but right-aligned data; Shikona-style name columns should have both heading and data left-aligned. Investigate whether table heading alignment and cell alignment should be explicit model properties, applied uniformly across the whole site. Also check whether existing non-7.1 tables already get this mostly right through the flat table model/CSS path, and whether 7.1 is inconsistent because its custom recursive renderer bypasses that path. |
 | nuChii meaning cleanup | Deferred / TBD | The implementation assumes `nuChii` means "new Chii", i.e. the Chii/BP in the next banzuke. This is internally consistent and does not require a code change. Remaining documentation references that use `nuChii` to mean something else can be ignored or removed during cleanup. (Originally `nuChii` was an estimate of what the new chii would be, but the algorithm for that is WIP). |
 | Ranked tabular views versus sortable table views | Deferred / TBD | Longest Careers shows the distinction: a table-like ranked view may intentionally preserve pre-sorted row order as public meaning. If arbitrary reader sorting is wanted for the same data, consider a separate neutral tabular/table-browser view rather than making the ranked view itself sortable. |
@@ -274,6 +274,7 @@ Completed
   modular browser runtime activation
   canonical single-shell Navigation/runtime links, implemented and verified
   QuickLinks model and rendering in NavigationBar
+  settled Basho Results (7.1) model folded into 04.5
 
 Immediate decided patch
   add conspicuous development warning to Banzuke Changes while its present
@@ -326,7 +327,8 @@ P3
 ## 8. Summary
 
 The Notes/PAPanel, sortable-column, notes-panel and canonical-link corrections
-are complete and verified.
+are complete and verified. The settled Basho Results (7.1) model is now folded
+into the main spine as `04.5 Basho Results Model.md`.
 
 The active publication-coherence issue is now more accurately defined. Banzuke
 Changes is a Page for a newly published successor banzuke before results enter
