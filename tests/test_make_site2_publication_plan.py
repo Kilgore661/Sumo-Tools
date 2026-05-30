@@ -1,9 +1,4 @@
-from src.products.make_site2.publication_model import (
-    artifact_refs,
-    build_publication_plan,
-)
-from src.products.make_site2.render import render_site_shell
-from src.products.make_site2.site_manifest import (
+from src.products.make_site2.manifest.artifacts import (
     BANZUKE_CHANGES_ARTIFACT,
     BANZUKE_DIVISION_BY_ERA_ARTIFACT,
     BASHO_RESULTS_ARTIFACT,
@@ -14,18 +9,33 @@ from src.products.make_site2.site_manifest import (
     RANK_AT_RETIREMENT_ARTIFACT,
     STANDINGS_BY_WINS_ARTIFACT,
     TYPICAL_EQUELO_VALUES_ARTIFACT,
+)
+from src.products.make_site2.publication_model import (
+    artifact_refs,
+    build_publication_plan,
+)
+from src.products.make_site2.render import render_site_shell
+from src.products.make_site2.site_definition import SITE
+from src.products.make_site2.site_manifest import (
     build_public_site_shell,
     build_runtime_manifest,
 )
-from src.products.make_site2.site_definition import SITE
 
 
 def content_panel_by_artifact(manifest: dict, artifact_id: str) -> dict:
     return next(
         panel
         for panel in manifest["ui"]["content_panels"]
-        if panel["contents"]["pa"]["artifact_id"] == artifact_id
+        if panel["contents"]["pa_panel"]["pa"]["artifact_id"] == artifact_id
     )
+
+
+def filter_section(panel: dict) -> dict:
+    return panel["contents"]["filter_section"]
+
+
+def note_ids(panel: dict) -> list[str]:
+    return panel["contents"]["pa_panel"]["notes"]["note_ids"]
 
 
 def test_publication_plan_resolves_copied_navigation_routes() -> None:
@@ -80,7 +90,7 @@ def test_publication_plan_resolves_copied_navigation_routes() -> None:
     )
 
 
-def test_navigation_bar_uses_resolved_hrefs_without_rendering_pages() -> None:
+def test_navigation_bar_uses_canonical_default_view_links_without_rendering_pages() -> None:
     plan = build_publication_plan(SITE)
     shell = build_public_site_shell(plan)
     sumo_history = next(
@@ -145,39 +155,34 @@ def test_navigation_bar_uses_resolved_hrefs_without_rendering_pages() -> None:
     )
 
     assert basho_results.included
-    assert basho_results.href == "sumo-history/basho-results/index.html"
+    assert basho_results.href == (
+        "?page=basho_results_browser&basho=latest&division=makuuchi"
+        "&previous=false&ratings=false&nu_chii=false"
+    )
     assert rank_at_retirement.included
-    assert rank_at_retirement.href == (
-        "sumo-history/career-lifecycle/rank-at-retirement/index.html"
-    )
+    assert rank_at_retirement.href == "?page=rank_at_retirement"
     assert career_length.included
-    assert career_length.href == (
-        "sumo-history/career-lifecycle/career-length/index.html"
-    )
+    assert career_length.href == "?page=career_length&view=distribution"
     assert banzuke_changes.included
-    assert banzuke_changes.href == "current-sumo/banzuke-changes/index.html"
+    assert banzuke_changes.href == (
+        "?page=banzuke_changes&division=makuuchi&context=false"
+        "&banzuke_style=true&delta=false&equelo=false"
+    )
     assert standings.included
-    assert standings.href == "current-sumo/standings-by-wins/index.html"
+    assert standings.href == (
+        "?page=standings_by_wins&view=standard&num_basho=6"
+        "&current_only=true&division=makuuchi"
+    )
     assert banzuke_division_by_era.included
-    assert banzuke_division_by_era.href == (
-        "banzuke-rank/banzuke-structure-over-time/"
-        "banzuke-division-by-era/index.html"
-    )
+    assert banzuke_division_by_era.href == "?page=banzuke_division_by_era"
     assert makuuchi_rank_by_era.included
-    assert makuuchi_rank_by_era.href == (
-        "banzuke-rank/banzuke-structure-over-time/"
-        "makuuchi-rank-by-era/index.html"
-    )
+    assert makuuchi_rank_by_era.href == "?page=makuuchi_rank_by_era"
     assert division_stability.included
-    assert division_stability.href == "banzuke-rank/division-stability/index.html"
+    assert division_stability.href == "?page=division_stability"
     assert first_chii_appearance.included
-    assert first_chii_appearance.href == (
-        "banzuke-rank/rank-history/first-chii-appearance/index.html"
-    )
+    assert first_chii_appearance.href == "?page=first_chii_appearance"
     assert typical_equelo_values.included
-    assert typical_equelo_values.href == (
-        "ratings-models/rating-and-rank/typical-equelo-values/index.html"
-    )
+    assert typical_equelo_values.href == "?page=typical_equelo_values"
     assert artifact_refs(plan)["basho_results_browser"].kind == "table"
 
 
@@ -230,10 +235,9 @@ def test_runtime_manifest_declares_brb_ui_and_artifact_semantics() -> None:
     manifest = build_runtime_manifest(build_publication_plan(SITE))
     brb_panel = content_panel_by_artifact(manifest, BASHO_RESULTS_ARTIFACT.id)
     brb_artifact = manifest["artifacts"]["basho_results_browser"]
-    filters = brb_panel["contents"]["filter_section"]["filters"]
+    filters = filter_section(brb_panel)["filters"]
 
-    assert brb_panel["grammar"] == "G1"
-    assert brb_panel["contents"]["pa"]["artifact_id"] == BASHO_RESULTS_ARTIFACT.id
+    assert brb_panel["contents"]["pa_panel"]["pa"]["artifact_id"] == BASHO_RESULTS_ARTIFACT.id
     assert [item["id"] for item in filters] == [
         "basho_date",
         "division",
@@ -254,10 +258,9 @@ def test_runtime_manifest_declares_banzuke_changes_ui_and_artifact_semantics() -
     manifest = build_runtime_manifest(build_publication_plan(SITE))
     panel = content_panel_by_artifact(manifest, BANZUKE_CHANGES_ARTIFACT.id)
     artifact = manifest["artifacts"]["banzuke_changes"]
-    filters = panel["contents"]["filter_section"]["filters"]
+    filters = filter_section(panel)["filters"]
 
-    assert panel["grammar"] == "G1"
-    assert panel["contents"]["pa"]["artifact_id"] == BANZUKE_CHANGES_ARTIFACT.id
+    assert panel["contents"]["pa_panel"]["pa"]["artifact_id"] == BANZUKE_CHANGES_ARTIFACT.id
     assert [item["id"] for item in filters] == [
         "division",
         "context",
@@ -279,10 +282,9 @@ def test_runtime_manifest_declares_standings_ui_and_artifact_semantics() -> None
     manifest = build_runtime_manifest(build_publication_plan(SITE))
     panel = content_panel_by_artifact(manifest, STANDINGS_BY_WINS_ARTIFACT.id)
     artifact = manifest["artifacts"]["standings_by_wins"]
-    filters = panel["contents"]["filter_section"]["filters"]
+    filters = filter_section(panel)["filters"]
 
-    assert panel["grammar"] == "G1"
-    assert panel["contents"]["pa"]["artifact_id"] == STANDINGS_BY_WINS_ARTIFACT.id
+    assert panel["contents"]["pa_panel"]["pa"]["artifact_id"] == STANDINGS_BY_WINS_ARTIFACT.id
     assert [item["id"] for item in filters] == [
         "metric_group_preset",
         "current_num_basho",
@@ -307,8 +309,7 @@ def test_runtime_manifest_declares_banzuke_era_chart_semantics() -> None:
     panel = content_panel_by_artifact(manifest, BANZUKE_DIVISION_BY_ERA_ARTIFACT.id)
     artifact = manifest["artifacts"]["banzuke_division_by_era"]
 
-    assert panel["grammar"] == "G1"
-    assert panel["contents"]["filter_section"]["filters"] == []
+    assert filter_section(panel) is None
     assert artifact["kind"] == "chart"
     assert artifact["renderer"] == "stacked_bar_chart"
     assert artifact["data_binding"] == {"kind": "csv", "sources": ["divisions"]}
@@ -327,8 +328,7 @@ def test_runtime_manifest_declares_makuuchi_rank_era_chart_semantics() -> None:
     panel = content_panel_by_artifact(manifest, MAKUUCHI_RANK_BY_ERA_ARTIFACT.id)
     artifact = manifest["artifacts"]["makuuchi_rank_by_era"]
 
-    assert panel["grammar"] == "G1"
-    assert panel["contents"]["filter_section"]["filters"] == []
+    assert filter_section(panel) is None
     assert artifact["kind"] == "chart"
     assert artifact["renderer"] == "stacked_bar_chart"
     assert artifact["data_binding"] == {"kind": "csv", "sources": ["ranks"]}
@@ -347,8 +347,7 @@ def test_runtime_manifest_declares_division_stability_chart_semantics() -> None:
     panel = content_panel_by_artifact(manifest, DIVISION_STABILITY_ARTIFACT.id)
     artifact = manifest["artifacts"]["division_stability"]
 
-    assert panel["grammar"] == "G1"
-    assert panel["contents"]["filter_section"]["filters"] == []
+    assert filter_section(panel) is None
     assert artifact["kind"] == "chart"
     assert artifact["renderer"] == "grouped_line_chart"
     assert artifact["data_binding"] == {"kind": "csv", "sources": ["persistence"]}
@@ -368,8 +367,7 @@ def test_runtime_manifest_declares_first_chii_appearance_chart_semantics() -> No
     panel = content_panel_by_artifact(manifest, FIRST_CHII_APPEARANCE_ARTIFACT.id)
     artifact = manifest["artifacts"]["first_chii_appearance"]
 
-    assert panel["grammar"] == "G1"
-    assert panel["contents"]["filter_section"]["filters"] == []
+    assert filter_section(panel) is None
     assert artifact["kind"] == "chart"
     assert artifact["renderer"] == "ordered_bar_chart"
     assert artifact["data_binding"] == {"kind": "csv", "sources": ["appearances"]}
@@ -389,9 +387,8 @@ def test_runtime_manifest_declares_rank_at_retirement_chart_semantics() -> None:
     panel = content_panel_by_artifact(manifest, RANK_AT_RETIREMENT_ARTIFACT.id)
     artifact = manifest["artifacts"]["rank_at_retirement"]
 
-    assert panel["grammar"] == "G1"
-    assert panel["contents"]["filter_section"]["filters"] == []
-    assert panel["contents"]["note_ids"] == ["rank_at_retirement"]
+    assert filter_section(panel) is None
+    assert note_ids(panel) == ["rank_at_retirement"]
     assert artifact["kind"] == "chart"
     assert artifact["renderer"] == "category_bar_chart"
     assert artifact["data_binding"] == {"kind": "csv", "sources": ["distribution"]}
@@ -419,9 +416,8 @@ def test_runtime_manifest_declares_career_length_as_flat_g1_view_selector() -> N
     manifest = build_runtime_manifest(build_publication_plan(SITE))
     panel = content_panel_by_artifact(manifest, CAREER_LENGTH_ARTIFACT.id)
     artifact = manifest["artifacts"]["career_length"]
-    filters = panel["contents"]["filter_section"]["filters"]
+    filters = filter_section(panel)["filters"]
 
-    assert panel["grammar"] == "G1"
     assert [item["id"] for item in filters] == ["view"]
     assert filters[0]["control"] == "select"
     assert [item["value"] for item in filters[0]["values"]] == [
@@ -453,9 +449,8 @@ def test_runtime_manifest_declares_typical_equelo_values_sectioned_table() -> No
     panel = content_panel_by_artifact(manifest, TYPICAL_EQUELO_VALUES_ARTIFACT.id)
     artifact = manifest["artifacts"]["typical_equelo_values"]
 
-    assert panel["grammar"] == "G1"
-    assert panel["contents"]["filter_section"]["filters"] == []
-    assert panel["contents"]["note_ids"] == ["typical_equelo_values", "jd100"]
+    assert filter_section(panel) is None
+    assert note_ids(panel) == ["typical_equelo_values", "jd100"]
     assert artifact["kind"] == "sectioned_table"
     assert artifact["renderer"] == "sectioned_table"
     assert artifact["primary_source"] == "typical_equelo_values"
@@ -475,7 +470,7 @@ def test_brb_filter_defaults_and_url_keys_match_current_public_site() -> None:
     manifest = build_runtime_manifest(build_publication_plan(SITE))
     brb_panel = content_panel_by_artifact(manifest, BASHO_RESULTS_ARTIFACT.id)
     filters = {
-        item["id"]: item for item in brb_panel["contents"]["filter_section"]["filters"]
+        item["id"]: item for item in filter_section(brb_panel)["filters"]
     }
 
     assert filters["basho_date"]["default"] == "latest"
@@ -495,13 +490,13 @@ def test_brb_filter_defaults_and_url_keys_match_current_public_site() -> None:
     assert filters["nu_chii"]["url_key"] == "nu_chii"
 
 
-def test_brb_notes_cover_context_columns() -> None:
+def test_brb_notes_cover_current_context_columns() -> None:
     manifest = build_runtime_manifest(build_publication_plan(SITE))
     brb_artifact = manifest["artifacts"]["basho_results_browser"]
 
     assert {item["id"] for item in brb_artifact["notes"]} >= {
+        "note_previous_result",
         "note_equelo",
         "note_delta_equelo",
         "note_nu_chii",
-        "note_previous_direction",
     }
