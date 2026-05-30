@@ -8,35 +8,25 @@ from src.products.make_site2.site_definition import SITE
 from src.products.make_site2.site_manifest import build_runtime_manifest
 
 
+# Basho Results (7.1) now uses a specialized recursive presentation-table
+# renderer. Its terminal-path sorting is tested in
+# test_make_site2_basho_results_redesign.py; this file keeps ordinary flat-table
+# sort metadata checks that still live in the runtime manifest.
+
+
 def column_by_id(columns: list[dict], column_id: str) -> dict:
     return next(column for column in columns if column["id"] == column_id)
 
 
-def test_runtime_manifest_exposes_table_sort_metadata() -> None:
-    manifest = build_runtime_manifest(build_publication_plan(SITE))
-    brb_artifact = manifest["artifacts"][BASHO_RESULTS_ARTIFACT.id]
-    columns = brb_artifact["columns"]
-
-    assert brb_artifact["default_sort_column"] == "chii"
-    assert brb_artifact["default_sort_descending"] is False
-    assert column_by_id(columns, "row_number")["sort_kind"] == "none"
-    assert column_by_id(columns, "chii")["sort_key"] == "chii_ordinal"
-    assert column_by_id(columns, "chii")["sort_kind"] == "chii_ordinal"
-    assert column_by_id(columns, "score")["sort_kind"] == "record"
-
-
-def test_basho_results_previous_result_owns_rank_level_marker() -> None:
+def test_runtime_manifest_declares_basho_results_as_specialized_indexed_table() -> None:
     manifest = build_runtime_manifest(build_publication_plan(SITE))
     artifact = manifest["artifacts"][BASHO_RESULTS_ARTIFACT.id]
-    columns = artifact["columns"]
-    previous_group = next(group for group in artifact["column_groups"] if group["id"] == "previous_basho")
-    notes = {note["id"]: note for note in artifact["notes"]}
 
-    assert previous_group["columns"] == ["previous_chii", "previous_result"]
-    assert not any(column["id"] == "previous_delta_direction" for column in columns)
-    assert "note_previous_direction" not in notes
-    assert "trailing up/down marker" in notes["note_previous_result"]["text"]
-    assert column_by_id(columns, "previous_result")["sort_kind"] == "record"
+    assert artifact["kind"] == "indexed_table"
+    assert artifact["selector_filter_id"] == "basho_date"
+    assert artifact["indexed_source"]["index_path"] == (
+        "sumo-history/basho-results/data/basho_results_index.json"
+    )
 
 
 def test_standings_columns_declare_sort_values_for_visible_metrics() -> None:
