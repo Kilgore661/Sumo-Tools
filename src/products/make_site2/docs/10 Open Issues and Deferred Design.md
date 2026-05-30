@@ -239,8 +239,8 @@ This defect does not reopen the canonical-link correction.
 | Structural hider implementation | Implemented; verification outstanding | NavigationBar and Notes now use the same pattern: a first-class hider strip remains visible while the controlled content region collapses. NavigationBar controls NavigationContent; Notes controls NotesContent. |
 | Table chrome/body split as explicit PA model | Deferred / TBD | Runtime now implements table-body-only scrolling for ordinary table PAs. Consider a richer producer-facing PA model only if future pressure requires explicit non-scrolling chrome and scrolling data-region semantics. |
 | Stress-test 7.1 Basho Results redesign | Open | The settled 7.1 model has been folded into `04.5 Basho Results Model.md`. The remaining work is stress-testing and extending the transitional renderer, especially by adding `DeltaBZ` / Banzuke Error and RBBP values, checking in-progress and no-successor-banzuke cases, and deciding how much transitional compact-result parsing may remain. |
-| General table presentation model | Open | The 7.1 Basho Results redesign introduced a recursive presentation-model table shape for hierarchical table structure. Do not assume this becomes the general model for ordinary flat table PAs. Keep the 7.1 recursive-path sorting repair local unless recursive table sorting stabilises or another PA proves the same hierarchical pressure; then extract shared table-sorting helpers so flat and recursive tables use one coherent treatment where their models overlap. Review existing flat, grouped, indexed and sectioned table artifacts before generalising. |
-| Table column alignment model | Open | Human inspection of Basho Results (7.1) shows that heading/data horizontal alignment is not being handled coherently in the recursive 7.1 renderer. As it appears to the reader, ordinary short data columns such as W/L/A should have centred headings and centred data; Equelo-style numeric/rating columns should have centred headings but right-aligned data; Shikona-style name columns should have both heading and data left-aligned. Investigate whether table heading alignment and cell alignment should be explicit model properties, applied uniformly across the whole site. Also check whether existing non-7.1 tables already get this mostly right through the flat table model/CSS path, and whether 7.1 is inconsistent because its custom recursive renderer bypasses that path. |
+| General table presentation model | Deferred | Do not generalise the 7.1 recursive table model into a universal table model now. The apparent commonality is real: flat tables can be treated as depth-one recursive tables, and grouped tables resemble shallow hierarchical tables. However, unification would require settled semantics for projection, hidden leaves, whether group headings collapse or persist when only one child remains visible, view-specific table specs, sort identity across projected leaves, and section/custom-table boundaries. That is too much model work for the current pressure. Keep 7.1 recursive tables and ordinary/non-7.1 table renderers separate for now. Prefer shared CSS/helper/rendering policy for genuinely common concerns such as alignment, typography, padding, row treatment, link styling and sortable-heading presentation. Reopen model unification only if repeated styling or behavioural divergence becomes worse than the cost of defining the general table theory. |
+| Table column alignment model | Open | Human inspection of Basho Results (7.1) shows that heading/data horizontal alignment is not being handled coherently in the recursive 7.1 renderer. As it appears to the reader, ordinary short data columns such as W/L/A should have centred headings and centred data; Equelo-style numeric/rating columns should have centred headings but right-aligned data; Shikona-style name columns should have both heading and data left-aligned. Investigate whether table heading alignment and cell alignment should be explicit model properties, applied uniformly across the whole site. This issue should be addressed as shared rendering/styling policy across existing table renderers before reopening the deferred universal table-model question. |
 | nuChii meaning cleanup | Deferred / TBD | The implementation assumes `nuChii` means "new Chii", i.e. the Chii/BP in the next banzuke. This is internally consistent and does not require a code change. Remaining documentation references that use `nuChii` to mean something else can be ignored or removed during cleanup. (Originally `nuChii` was an estimate of what the new chii would be, but the algorithm for that is WIP). |
 | Ranked tabular views versus sortable table views | Deferred / TBD | Longest Careers shows the distinction: a table-like ranked view may intentionally preserve pre-sorted row order as public meaning. If arbitrary reader sorting is wanted for the same data, consider a separate neutral tabular/table-browser view rather than making the ranked view itself sortable. |
 | Heading typography ownership | Open | Rendering decision. |
@@ -297,11 +297,11 @@ Deferred model follow-up
   an explicit PA model concept
   preserve the distinction between ranked table-like views and neutral sortable
   table-browser views
-  keep the immediate 7.1 recursive-path sorting repair local, then extract
-  shared table-sorting helpers if recursive table sorting stabilises or a second
-  PA proves the same hierarchical pressure
-  investigate whether table heading and cell alignment should be modelled
-  explicitly and applied uniformly across flat and recursive table renderers
+  defer universal table-model unification unless repeated styling or behavioural
+  divergence becomes worse than the cost of defining recursive table projection,
+  group-heading collapse and view-specific table-spec semantics
+  investigate table heading and cell alignment first as a shared rendering/styling
+  policy across existing table renderers
 
 P1
   add local deployment target-safety protection
@@ -340,4 +340,6 @@ warning makes that exception visible.
 Other copied History-derived PAs remain subject to the broader Selected-History
 coherence audit. A separate Plotly empty-trace defect remains open for triage.
 A future explicit PA model for table chrome/body separation remains deferred
-unless real pressure appears.
+unless real pressure appears. A universal recursive table presentation model is
+also deferred; shared table styling and alignment policy should be pursued first
+without requiring all table-like PAs to use the 7.1 table shape.
