@@ -14,6 +14,7 @@ consistent with the boundary established in:
 
 ```text
 04.4 Published Artifact Model.md
+04.5 Basho Results Model.md, for the specialised Basho Results (7.1) case
 07 Build, Output and Runtime Design.md
 ```
 
@@ -449,13 +450,21 @@ are missing.
 
 ### 16.1 Basho Results / BRB
 
-Basho Results is an indexed-table case already demonstrating direct use of the
+Basho Results is a promoted indexed-table case demonstrating direct use of the
 selected `History` in `make_site2`. In the reduced-history test it correctly
 resolved its latest result to `1980_11`.
 
 It is useful for demonstrating indexed/static data supply, public Filters
 selecting data instances, canonical public-view restoration and a coherent
 direct History-to-output path.
+
+The settled 7.1 public model is now in `04.5 Basho Results Model.md`. The
+current implementation uses a transitional presentation-model renderer for its
+recursive reference/before/current-after/comparison table shape. That is a valid
+promotion step because it remains inside the PA boundary and consumes coherent
+Basho Results rows, but it does not mean the producer/input shape is final:
+compact-result parsing, Banzuke Error/RBBP values and some table-model
+normalisation remain tracked follow-ups.
 
 ### 16.2 Banzuke Changes
 
@@ -637,6 +646,8 @@ make_site2 owns coherent public-site publication and rejects incoherent input
 promotion requires active models, shared rendering/output paths and coherent
   build-data-instance support where applicable
 legacy/prototype/copied output is evidence, not automatically valid input
+Basho Results is the current positive direct-History example, now folded into
+  the 04.5 model with remaining producer-shape follow-ups tracked separately
 Banzuke Changes is the first concrete selected-History integration correction
 ```
 
