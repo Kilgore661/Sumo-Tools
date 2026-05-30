@@ -33,14 +33,14 @@ but Codex normally cannot access mapped network drives.
 
 ## Main Areas
 
-| Path | Role |
-| --- | --- |
-| `src/sumo_core` | Core domain model. |
-| `src/infra` | Scraping, parsing, persistence, tracker and live store. |
-| `src/analysis` | Derived views, public tools, experiments and reports. |
-| `src/products/make_site2` | Current static publication system. |
-| `docs` | Project-level orientation and working conventions. |
-| `files/output` | Local generated data and build artifacts; not tracked by git. |
+| Path                      | Role                                                          |
+| ------------------------- | ------------------------------------------------------------- |
+| `src/sumo_core`           | Core domain model.                                            |
+| `src/infra`               | Scraping, parsing, persistence, tracker and live store.       |
+| `src/analysis`            | Derived views, public tools, experiments and reports.         |
+| `src/products/make_site2` | Current static publication system.                            |
+| `docs`                    | Project-level orientation and working conventions.            |
+| `files/output`            | Local generated data and build artifacts; not tracked by git. |
 
 ## Data Sources
 
@@ -48,13 +48,13 @@ Most build paths use a `History` object. There are two common ways to provide
 one:
 
 1. Use the live store:
-
+   
    ```powershell
    py -m src.products.make_site2 --build-only
    ```
 
 2. Use a local History zip, useful for quick repeatable tests:
-
+   
    ```powershell
    py -m src.products.make_site2 --build-only --history-zip ".\files\output\Historys\1978_01 to 1980_11.zip"
    ```
@@ -104,7 +104,7 @@ Start with:
 - `src/products/make_site2/docs/01 Requirements.md`
 - `src/products/make_site2/docs/02 Specification.md`
 - `src/products/make_site2/docs/10 Open Issues and Deferred Design.md`
-- `src/products/make_site2/docs/Second make_site2 Review.md`
+- `src/products/make_site2/docs/10.1 Selected History Coherence Audit.md`
 
 Current high-level status:
 
@@ -120,12 +120,12 @@ Current high-level status:
 
 ## Documentation Map
 
-| Document | Use |
-| --- | --- |
-| `docs/LLM Guide.md` | Collaboration rules, environment notes and project style for LLMs. |
-| `docs/Project Map.md` | Public-site product map and candidate pages. |
-| `docs/House Style.md` | Writing and documentation conventions. |
-| `src/products/make_site2/docs/README.md` | make_site2 documentation authority and reading order. |
+| Document                                 | Use                                                                |
+| ---------------------------------------- | ------------------------------------------------------------------ |
+| `docs/LLM Guide.md`                      | Collaboration rules, environment notes and project style for LLMs. |
+| `docs/Project Map.md`                    | Public-site product map and candidate pages.                       |
+| `docs/House Style.md`                    | Writing and documentation conventions.                             |
+| `src/products/make_site2/docs/README.md` | make_site2 documentation authority and reading order.              |
 
 Archived docs are useful evidence, but active numbered docs and current review
 documents govern current work.
