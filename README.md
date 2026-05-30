@@ -92,6 +92,8 @@ broken.
 
 ## make_site2 Status
 
+`make_site2` currently has the most developed documentation because it has been the active work area, not because it defines the purpose of Sumo-Tools. Treat it as one tool/probe in the wider project: a publication-oriented probe whose output happens to be a static public site. The project’s broader purpose remains building tools, analyses and exhibits from professional sumo data. That said,
+
 `make_site2` is the current publication system. Its active docs are in:
 
 ```text
