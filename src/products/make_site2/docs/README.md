@@ -1,8 +1,8 @@
 # make_site2 Documentation
 
 This directory is the active documentation set for `src/products/make_site2`.
-It contains normative design documents, current audit records and focused
-outcome notes for recent work not yet folded into the spine.
+It contains normative design documents, current audit records and supporting
+outcome notes for recent work.
 
 `make_site2` is a static publication layer. It assembles curated, precomputed
 sumo analysis into a coherent public site. Producers own analytical computation;
@@ -27,21 +27,21 @@ Then read the detailed model/design document for the area being changed:
 | Planning, inclusion, public view links, dependencies | `04.2 Publication Plan Model.md` |
 | Visible page structure, filters, PAPanel, notes | `04.3 Public UI Model.md` |
 | Tables, charts, artifact forms, PA-local meaning | `04.4 Published Artifact Model.md` |
+| Basho Results (7.1) recursive table model | `04.5 Basho Results Model.md` |
 | HTML/CSS/runtime realisation | `05 Rendering Design.md` and `06 Rendering Audit and Changes.md` |
 | Build output, runtime state, data staging | `07 Build, Output and Runtime Design.md` |
 | Producer boundaries and migration | `08 Producer Integration and Migration.md` |
 | Local/remote deployment | `09 Deployment and Operations.md` |
-| Basho Results 7.1 redesign outcome | `Basho Results (7.1) Outcome.md` |
 
 ## Document Authority
 
 | Kind | Documents | Authority |
 | --- | --- | --- |
 | Normative product contract | `01`, `02` | Defines what the product must do. |
-| Normative design | `03`, `04`, `04.1`-`04.4`, `05`, `07`, `08`, `09` | Defines intended model and system behavior. |
+| Normative design | `03`, `04`, `04.1`-`04.5`, `05`, `07`, `08`, `09` | Defines intended model and system behavior. |
 | Current issue register | `10` | Records known gaps and deferred decisions. |
 | Supporting audit | `06`, `10.1` | Records evidence and verification details; settled rules should move into normative docs. |
-| Focused outcome notes | `Basho Results (7.1) Outcome.md` | Current account of a recent design/implementation slice that has not yet been folded into the spine. |
+| Supporting outcome notes | `Basho Results (7.1) Outcome.md` | Historical/supporting account of the 7.1 redesign now folded into `04.5`. |
 | Background / style | `A Appendix - Better Models.md`, `House Style.md` | Useful context, not the main contract. |
 | Historical | `archive/` | Evidence only; do not treat as current unless active docs say so. |
 
@@ -78,6 +78,17 @@ Every included promoted PA whose meaning depends on History must be derived
 from, or validated against, that selected History.
 ```
 
+The active Basho Results (7.1) policy is now in:
+
+```text
+04.5 Basho Results Model.md
+```
+
+Basho Results uses a specialised recursive/hierarchical table model because its
+public meaning requires grouped reference, before, current/after and comparison
+structure. This does not decide that ordinary flat table PAs should be recast
+into the same shape.
+
 ## Current Implementation Status
 
 Implemented and verified:
@@ -87,6 +98,8 @@ Implemented and verified:
   FilterSection.
 - Navigation links use canonical single-shell `?page=...` links.
 - The modular browser runtime is active.
+- Basho Results (7.1) uses the recursive presentation-table model for the
+  settled transitional slice, including leaf-heading sorting and Shikona links.
 
 Known gaps:
 
@@ -100,62 +113,17 @@ Known gaps:
   explicit in code and visible output.
 - Some Plotly line-chart pages have been observed with empty chart frames and
   need reproduction/triage.
+- Basho Results table heading/data horizontal alignment revealed a broader table
+  alignment modelling question recorded in `10 Open Issues and Deferred Design.md`.
 - Local deployment target-safety validation is still open.
 - Some tests lag behind the modular runtime and manifest split.
 
-## Temporary Documentation Gap
+## Folded 7.1 Outcome Note
 
-`Basho Results (7.1) Outcome.md` is the current account of the recent 7.1
-Basho Results redesign. It has not yet been folded into the main documentation
-spine.
-
-Until that integration happens, treat the outcome note as authoritative for
-7.1-specific table structure, result decomposition, temporal grouping and
-Division Change rendering.
-
-The temporary 7.1 design authority also includes the following sorting rule.
-Basho Results (7.1) uses a recursive hierarchical table specification. For
-sorting purposes, a sortable column is a visible leaf heading: a terminal
-heading that sits above exactly one data column. Group headings in the recursive
-table structure are not sortable because they do not identify a single data
-column.
-
-Every visible leaf heading is sortable by default except the row-number column,
-which is a reference column and is renumbered after filtering and sorting.
-Clicking a sortable leaf heading sorts the table rows by that leaf column's sort
-value. Clicking the active sorted leaf heading reverses the sort direction. The
-active sorted leaf heading shall visibly indicate the current direction and
-expose equivalent accessible state.
-
-For Basho Results (7.1), the column identity used for sorting is the recursive
-terminal path, not a flat table-column id. A leaf may declare a separate
-sort-value path or sort kind where its displayed value is not the correct
-sortable value. The default Basho Results sort is the selected/current basho BP
-leaf, using the emitted BP ordinal value in ascending order. Odd column-specific
-semantics, such as arrow-only movement values, may be handled by later
-column-specific sort rules without changing the default leaf-heading sorting
-policy.
-
-For the immediate 7.1 repair, recursive-path sorting may be implemented locally
-inside the specialised Basho Results renderer. This is a tactical implementation
-choice, not a final table architecture decision. If recursive table sorting
-proves stable, or if another PA requires the same hierarchical table behaviour,
-shared table-sorting helpers should be extracted so flat and recursive tables use
-one coherent treatment where their models overlap.
-
-Known spine sections needing reconciliation include:
-
-- `02 Specification.md`: confirm the Basho Results / Banzuke Changes boundary
-  still says enough about represented-basho comparison.
-- `05 Rendering Design.md`: replace older compact previous-result wording with
-  the new decomposed result / Division Change model.
-- `06 Rendering Audit and Changes.md`: update the Basho Results PA rendering
-  audit row.
-- `08 Producer Integration and Migration.md`: update the Basho Results / BRB
-  pressure-case account to mention the transitional presentation-model
-  renderer.
-- `10.1 Selected History Coherence Audit.md`: preserve the History-coherence
-  finding, but note that 7.1 table rendering has since changed.
+`Basho Results (7.1) Outcome.md` records the working outcome of the recent 7.1
+redesign. Its settled model content has now been folded into
+`04.5 Basho Results Model.md`. Treat the outcome note as supporting evidence, not
+as an active authority competing with the spine.
 
 ## Running make_site2
 
