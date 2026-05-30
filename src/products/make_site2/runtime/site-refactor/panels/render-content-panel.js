@@ -322,7 +322,7 @@ function renderArtifactTitleBlock(artifact, state, entry, filters) {
   ].join("");
 }
 function bashoResultsTitle(state, entry, filters) {
-  const divisionLabel = filterValueLabel(filters.find(item => item.id === "division"), state.division) || state.division;
+  const divisionLabel = filterValueLabel(filters, "division", state.division) || state.division;
   return [entry?.label || state.basho_date, divisionLabel].filter(Boolean).join(" - ");
 }
 function bashoResultsSubheading(entry) {
