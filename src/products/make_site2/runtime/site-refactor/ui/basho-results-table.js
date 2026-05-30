@@ -248,7 +248,7 @@ function renderNestedHeaderCell(cell, leaf, sortState) {
   const indicator = active ? (sortState.direction === "ascending" ? " ▲" : " ▼") : "";
   return [
     `<th ${attributes.join(" ")} aria-sort="${direction}" style="text-align: center;">`,
-    `<button type="button" class="table-sort-button" data-basho-results-sort-path="${escapeHtml(leaf.path)}" style="display: flex !important; align-items: center !important; justify-content: center !important; gap: 0.15rem; width: 100% !important; float: none !important; text-align: center !important;">`,
+    `<button type="button" class="table-sort-button" data-basho-results-sort-path="${escapeHtml(leaf.path)}" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.15rem; margin: 0 auto; text-align: center;">`,
     escapeHtml(cell.label),
     `<span class="table-sort-indicator" aria-hidden="true">${indicator}</span>`,
     '</button>',
