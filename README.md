@@ -74,21 +74,37 @@ The `-s` flag avoids a known pytest capture teardown issue in this environment.
 The user-site pytest installation may be visible to an interactive shell but
 not to Codex, so prefer the repo-local `.venv` command.
 
-Focused make_site2 tests:
+Tests live under the repository-root `tests` directory. Discover them locally
+rather than relying on GitHub connector search:
+
+```powershell
+git ls-files "tests/*"
+git ls-files "tests/test_make_site2*.py"
+```
+
+For make_site2 work, run focused tests that protect the current change rather
+than assuming every historical test remains current. Useful starting points for
+recent Basho Results and table-sorting work are:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest -s `
-  .\tests\test_make_site2_build.py `
-  .\tests\test_make_site2_cli.py `
-  .\tests\test_make_site2_data_output.py `
-  .\tests\test_make_site2_deploy.py `
-  .\tests\test_make_site2_publication_plan.py `
-  .\tests\test_make_site2_runtime_source.py
+  .\tests\test_make_site2_basho_results_redesign.py `
+  .\tests\test_make_site2_table_sorting.py
 ```
 
-Some tests may lag behind the current modular runtime and manifest split. Treat
-test failures as project facts to inspect, not as proof that the environment is
-broken.
+Broaden to all tests only when the focused checks are understood:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -s tests
+```
+
+Tests may be current, stale or legacy. Treat failures as project facts to
+classify, not as automatic proof that product code is wrong or that the
+environment is broken.
+
+Pytest does not replace browser-functional inspection. For make_site2 browser
+behaviour, build the site, serve the output on the shared preview port
+`8766`, and inspect `http://localhost:8766/` when the environment supports it.
 
 ## make_site2 Status
 
