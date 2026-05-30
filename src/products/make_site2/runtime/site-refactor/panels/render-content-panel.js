@@ -200,72 +200,25 @@ async function renderChartContentPanel(panel, artifact, overrideState = null) {
     await renderCategoryBarChartContentPanel(panel, artifact);
     return;
   }
+  if (artifact.renderer === "finish_by_chii_chart") {
+    await renderFinishByChiiContentPanel(panel, artifact, overrideState);
+    return;
+  }
+  if (artifact.renderer === "standing_win_probability_chart") {
+    await renderStandingWinProbabilityContentPanel(panel, artifact, overrideState);
+    return;
+  }
   if (artifact.renderer === "career_length") {
     await renderCareerLengthContentPanel(panel, artifact, overrideState);
     return;
   }
-  if (artifact.renderer === "standing_win_probability") {
-    await renderStandingWinProbabilityContentPanel(panel, artifact, overrideState);
-    return;
-  }
-  throw new Error(`Unsupported chart renderer: ${artifact.renderer}`);
-}
-async function renderStackedBarChartContentPanel(panel, artifact) {
-  const rowsBySource = await fetchArtifactCsvSet(artifact);
-  renderStaticChartPanel(panel, artifact, renderStackedBarChart(artifact, rowsBySource));
-  renderStackedBarPlot(artifact, rowsBySource);
-}
-async function renderGroupedLineChartContentPanel(panel, artifact) {
-  const rowsBySource = await fetchArtifactCsvSet(artifact);
-  renderStaticChartPanel(panel, artifact, renderGroupedLineChart(artifact, rowsBySource));
-  renderGroupedLinePlot(artifact, rowsBySource);
-}
-async function renderOrderedBarChartContentPanel(panel, artifact) {
-  const rowsBySource = await fetchArtifactCsvSet(artifact);
-  renderStaticChartPanel(panel, artifact, renderOrderedBarChart(artifact, rowsBySource));
-  renderOrderedBarPlot(artifact, rowsBySource);
-}
-async function renderCategoryBarChartContentPanel(panel, artifact) {
-  const rowsBySource = await fetchArtifactCsvSet(artifact);
-  renderStaticChartPanel(panel, artifact, renderCategoryBarChart(artifact, rowsBySource));
-  renderCategoryBarPlot(artifact, rowsBySource);
-}
-async function renderCareerLengthContentPanel(panel, artifact, overrideState = null) {
-  const filters = panel.contents.filter_section.filters;
-  const state = overrideState || resolveFilterState(filters, readFilterUrlState(filters));
-  state.view = resolveFilterValue(filters.find(item => item.id === "view"), state.view);
-  writePanelUrl(panel.page_id, filters, state, { replace: true });
-  const rowsBySource = await fetchArtifactCsvSet(artifact);
-  const view = resolveCareerLengthView(artifact, state.view);
-
-  contentPanel.innerHTML = [
-    '<section class="content-panel">',
-    `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
-    renderContentSummary(panel.heading.summary),
-    '<div class="content-body">',
-    renderFilterSection(panel.contents.filter_section, state),
-    '<section class="pa-panel">',
-    '<div class="pa-slot">',
-    renderCareerLengthArtifact(artifact, state, rowsBySource),
-    '</div>',
-    renderNotes(artifact, state),
-    '</section>',
-    '</div>',
-    '</section>'
-  ].join("");
-  wireFilterSection(panel, state, renderContentPanel);
-  if (view.kind === "table") {
-    wireTableSorting(panel, artifact, renderContentPanel, view.columns);
-  }
-  wireNotesPanel();
-  wirePAPanelLayout();
-  renderCareerLengthPlot(artifact, state, rowsBySource);
+  throw new Error(`Unsupported artifact renderer: ${artifact.renderer}`);
 }
 async function renderStandingWinProbabilityContentPanel(panel, artifact, overrideState = null) {
   const filters = panel.contents.filter_section.filters;
   const state = overrideState || resolveFilterState(filters, readFilterUrlState(filters));
-  state.division = resolveSelectedFilterValueFromSource(filters.find(item => item.id === "division"), state.division);
-  state.standing = resolveSelectedFilterValueFromSource(filters.find(item => item.id === "standing"), state.standing);
+  state.source = resolveSelectedDataSourceId(artifact, state.source);
+  state.division = resolveFilterValue(filters, "division", state.division);
   writePanelUrl(panel.page_id, filters, state, { replace: true });
   const rowsBySource = await fetchArtifactCsvSet(artifact);
 
@@ -284,12 +237,77 @@ async function renderStandingWinProbabilityContentPanel(panel, artifact, overrid
     '</div>',
     '</section>'
   ].join("");
+  renderStandingWinProbabilityPlot(artifact, state, rowsBySource);
   wireFilterSection(panel, state, renderContentPanel);
   wireNotesPanel();
   wirePAPanelLayout();
-  renderStandingWinProbabilityPlot(artifact, state, rowsBySource);
 }
-function renderStaticChartPanel(panel, artifact, chartHtml) {
+async function renderCareerLengthContentPanel(panel, artifact, overrideState = null) {
+  const filters = panel.contents.filter_section.filters;
+  const state = overrideState || resolveFilterState(filters, readFilterUrlState(filters));
+  const rowsBySource = await fetchArtifactCsvSet(artifact);
+  state.view = resolveCareerLengthView(artifact, state.view);
+  writePanelUrl(panel.page_id, filters, state, { replace: true });
+
+  contentPanel.innerHTML = [
+    '<section class="content-panel">',
+    `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
+    renderContentSummary(panel.heading.summary),
+    '<div class="content-body">',
+    renderFilterSection(panel.contents.filter_section, state),
+    '<section class="pa-panel">',
+    '<div class="pa-slot">',
+    renderCareerLengthArtifact(artifact, state, rowsBySource),
+    '</div>',
+    renderNotes(artifact, state),
+    '</section>',
+    '</div>',
+    '</section>'
+  ].join("");
+  renderCareerLengthPlot(artifact, state, rowsBySource);
+  wireFilterSection(panel, state, renderContentPanel);
+  wireNotesPanel();
+  wirePAPanelLayout();
+}
+async function renderFinishByChiiContentPanel(panel, artifact, overrideState = null) {
+  const filters = panel.contents.filter_section.filters;
+  const state = overrideState || resolveFilterState(filters, readFilterUrlState(filters));
+  const rowsBySource = await fetchArtifactCsvSet(artifact);
+  state.division = resolveSelectedDataValue(
+    rowsBySource[artifact.data_binding.sources[0]] || [],
+    "division",
+    state.division,
+    "division_id",
+  );
+  state.chii = resolveSelectedFilterValueFromSource(
+    filters.find(filter => filter.id === "chii"),
+    state,
+    rowsBySource,
+  );
+  writePanelUrl(panel.page_id, filters, state, { replace: true });
+
+  contentPanel.innerHTML = [
+    '<section class="content-panel">',
+    `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
+    renderContentSummary(panel.heading.summary),
+    '<div class="content-body">',
+    renderFilterSection(panel.contents.filter_section, state, null, rowsBySource),
+    '<section class="pa-panel">',
+    '<div class="pa-slot">',
+    renderFinishByChiiChart(artifact, state, filters, rowsBySource),
+    '</div>',
+    renderNotes(artifact, state),
+    '</section>',
+    '</div>',
+    '</section>'
+  ].join("");
+  renderFinishByChiiPlot(artifact, state, rowsBySource);
+  wireFilterSection(panel, state, renderContentPanel);
+  wireNotesPanel();
+  wirePAPanelLayout();
+}
+async function renderStackedBarChartContentPanel(panel, artifact) {
+  const rowsBySource = await fetchArtifactCsvSet(artifact);
   contentPanel.innerHTML = [
     '<section class="content-panel">',
     `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
@@ -297,37 +315,103 @@ function renderStaticChartPanel(panel, artifact, chartHtml) {
     '<div class="content-body content-body-no-filters">',
     '<section class="pa-panel">',
     '<div class="pa-slot">',
-    chartHtml,
+    renderStackedBarChart(artifact, rowsBySource),
     '</div>',
     renderNotes(artifact, {}),
     '</section>',
     '</div>',
     '</section>'
   ].join("");
+  renderStackedBarPlot(artifact, rowsBySource);
+  wireNotesPanel();
+  wirePAPanelLayout();
+}
+async function renderGroupedLineChartContentPanel(panel, artifact) {
+  const rowsBySource = await fetchArtifactCsvSet(artifact);
+  contentPanel.innerHTML = [
+    '<section class="content-panel">',
+    `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
+    renderContentSummary(panel.heading.summary),
+    '<div class="content-body content-body-no-filters">',
+    '<section class="pa-panel">',
+    '<div class="pa-slot">',
+    renderGroupedLineChart(artifact, rowsBySource),
+    '</div>',
+    renderNotes(artifact, {}),
+    '</section>',
+    '</div>',
+    '</section>'
+  ].join("");
+  renderGroupedLinePlot(artifact, rowsBySource);
+  wireNotesPanel();
+  wirePAPanelLayout();
+}
+async function renderOrderedBarChartContentPanel(panel, artifact) {
+  const rowsBySource = await fetchArtifactCsvSet(artifact);
+  contentPanel.innerHTML = [
+    '<section class="content-panel">',
+    `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
+    renderContentSummary(panel.heading.summary),
+    '<div class="content-body content-body-no-filters">',
+    '<section class="pa-panel">',
+    '<div class="pa-slot">',
+    renderOrderedBarChart(artifact, rowsBySource),
+    '</div>',
+    renderNotes(artifact, {}),
+    '</section>',
+    '</div>',
+    '</section>'
+  ].join("");
+  renderOrderedBarPlot(artifact, rowsBySource);
+  wireNotesPanel();
+  wirePAPanelLayout();
+}
+async function renderCategoryBarChartContentPanel(panel, artifact) {
+  const rowsBySource = await fetchArtifactCsvSet(artifact);
+  contentPanel.innerHTML = [
+    '<section class="content-panel">',
+    `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
+    renderContentSummary(panel.heading.summary),
+    '<div class="content-body content-body-no-filters">',
+    '<section class="pa-panel">',
+    '<div class="pa-slot">',
+    renderCategoryBarChart(artifact, rowsBySource),
+    '</div>',
+    renderNotes(artifact, {}),
+    '</section>',
+    '</div>',
+    '</section>'
+  ].join("");
+  renderCategoryBarPlot(artifact, rowsBySource);
   wireNotesPanel();
   wirePAPanelLayout();
 }
 async function fetchArtifactCsvSet(artifact) {
   const entries = await Promise.all(
-    (artifact.data_sources || []).map(async source => [source.id, await fetchCsv(source.path)])
+    artifact.data_sources.map(async source => [source.id, await fetchCsv(source.path)])
   );
   return Object.fromEntries(entries);
 }
 function renderArtifactTitleBlock(artifact, state, entry, filters) {
+  const title = artifactTitle(artifact, state, entry, filters);
+  if (!title) return "";
   return [
     '<div class="artifact-title-block">',
-    `<h4>${escapeHtml(bashoResultsTitle(state, entry, filters) || artifact.heading)}</h4>`,
-    `<p>${escapeHtml(bashoResultsSubheading(entry))}</p>`,
-    '</div>',
+    `<h4>${escapeHtml(title)}</h4>`,
+    '</div>'
   ].join("");
 }
+function artifactTitle(artifact, state, entry, filters) {
+  if (artifact.id !== "basho_results_browser") return "";
+  return bashoResultsTitle(state, entry, filters);
+}
 function bashoResultsTitle(state, entry, filters) {
-  const divisionLabel = filterValueLabel(filters, "division", state.division) || state.division;
-  return [entry?.label || state.basho_date, divisionLabel].filter(Boolean).join(" - ");
+  const division = filterValueLabel(filters, "division", state.division) || state.division || "";
+  const label = entry.label || entry.basho || "";
+  if (entry.latest_day && Number(entry.latest_day) < 15) {
+    return `${division} Results (Day ${entry.latest_day}) for ${label}`;
+  }
+  return `${division} Results for ${label}`;
 }
-function bashoResultsSubheading(entry) {
-  const latestDay = Number(entry?.latest_day);
-  if (latestDay && latestDay < 15) return `After Day ${latestDay}`;
-  return "Final";
-}
-export { renderContentPanel, renderIndexedTableContentPanel, renderBanzukeChangesContentPanel, renderSectionedTableContentPanel, renderStandingsContentPanel, renderChartContentPanel, renderStackedBarChartContentPanel, renderGroupedLineChartContentPanel, renderOrderedBarChartContentPanel, renderCategoryBarChartContentPanel, renderCareerLengthContentPanel, renderStandingWinProbabilityContentPanel, renderStaticChartPanel, fetchArtifactCsvSet, renderArtifactTitleBlock, bashoResultsTitle, bashoResultsSubheading };
+
+export { renderContentPanel, renderIndexedTableContentPanel, renderBanzukeChangesContentPanel, renderSectionedTableContentPanel, renderStandingsContentPanel, renderChartContentPanel, renderStandingWinProbabilityContentPanel, renderCareerLengthContentPanel, renderFinishByChiiContentPanel, renderStackedBarChartContentPanel, renderGroupedLineChartContentPanel, renderOrderedBarChartContentPanel, renderCategoryBarChartContentPanel, fetchArtifactCsvSet, renderArtifactTitleBlock, artifactTitle, bashoResultsTitle, artifactForPAPanel };
