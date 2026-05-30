@@ -8,14 +8,26 @@ const TRANSITIONAL_TABLE_SPEC = [
   group("before", "Before Basho", [
     group("rba", "", [
       column("bp", "BP"),
-      column("result", "Result"),
+      group("result", "Result", [
+        column("wins", "W"),
+        column("losses", "L"),
+        column("absences", "A"),
+        column("prizes", "\u{1F4E6}"),
+        column("division_change", "Div"),
+      ]),
       column("equelo", "Equelo"),
     ]),
   ]),
   group("state", "Current/After", [
     group("rba", "", [
       column("bp", "BP"),
-      column("result", "Result"),
+      group("result", "Result", [
+        column("wins", "W"),
+        column("losses", "L"),
+        column("absences", "A"),
+        column("prizes", "\u{1F4E6}"),
+        column("division_change", "Div"),
+      ]),
       column("equelo", "Equelo"),
       column("next_bp", "nuChii"),
     ]),
@@ -78,10 +90,21 @@ function bashoResultsVisiblePaths(state) {
     "reference.row_number",
     "reference.shikona",
     "state.rba.bp",
-    "state.rba.result",
+    "state.rba.result.wins",
+    "state.rba.result.losses",
+    "state.rba.result.absences",
+    "state.rba.result.prizes",
+    "state.rba.result.division_change",
   ];
   if (state.previous_context) {
-    visible.push("before.rba.bp", "before.rba.result");
+    visible.push(
+      "before.rba.bp",
+      "before.rba.result.wins",
+      "before.rba.result.losses",
+      "before.rba.result.absences",
+      "before.rba.result.prizes",
+      "before.rba.result.division_change",
+    );
   }
   if (state.rating_context) {
     if (state.previous_context) visible.push("before.rba.equelo");
@@ -94,27 +117,64 @@ function bashoResultsVisiblePaths(state) {
 }
 
 function transitionalRowValues(row, index) {
+  const beforeResult = parseResult(row.previous_result);
+  const stateResult = parseResult(row.score);
   return {
     "reference.row_number": String(index + 1),
     "reference.shikona": row.shikona || "",
     "before.rba.bp": row.previous_chii || "",
-    "before.rba.result": resultWithMovement(row.previous_result, row.previous_rank_level_movement),
+    "before.rba.result.wins": beforeResult.wins,
+    "before.rba.result.losses": beforeResult.losses,
+    "before.rba.result.absences": beforeResult.absences,
+    "before.rba.result.prizes": beforeResult.prizes,
+    "before.rba.result.division_change": rankLevelMovementMarker(row.previous_rank_level_movement),
     "before.rba.equelo": row.previous_equelo || "",
     "state.rba.bp": row.chii || "",
-    "state.rba.result": row.score || "",
+    "state.rba.result.wins": stateResult.wins,
+    "state.rba.result.losses": stateResult.losses,
+    "state.rba.result.absences": stateResult.absences,
+    "state.rba.result.prizes": stateResult.prizes,
+    "state.rba.result.division_change": rankLevelMovementBetween(row.chii, row.nu_chii),
     "state.rba.equelo": row.equelo || "",
     "state.rba.next_bp": row.nu_chii || "",
     "comparison.delta_equelo": row.delta_equelo || "",
   };
 }
 
-function resultWithMovement(result, movement) {
-  return [result || "", rankLevelMovementMarker(movement)].filter(Boolean).join(" ");
+function parseResult(value) {
+  const text = String(value || "").trim();
+  const missing = { wins: "", losses: "", absences: "", prizes: "" };
+  if (!text || text === "-") return missing;
+  const match = text.match(/^(\d+)-(\d+)(?:-(\d+))?(?:\s+(.+))?$/);
+  if (!match) return { ...missing, prizes: text };
+  return {
+    wins: match[1],
+    losses: match[2],
+    absences: match[3] || "",
+    prizes: match[4] || "",
+  };
 }
 
 function rankLevelMovementMarker(value) {
   if (value === "\u2191" || value === "\u2193") return value;
+  if (value === "â†‘") return "\u2191";
+  if (value === "â†“") return "\u2193";
   return "";
+}
+
+function rankLevelMovementBetween(fromBp, toBp) {
+  const fromIndex = rankLevelIndex(fromBp);
+  const toIndex = rankLevelIndex(toBp);
+  if (fromIndex === null || toIndex === null || fromIndex === toIndex) return "";
+  return toIndex < fromIndex ? "\u2191" : "\u2193";
+}
+
+function rankLevelIndex(bp) {
+  const text = String(bp || "");
+  if (!text || text === "-") return null;
+  const match = text.match(/^(Y|O|S|K|Ms|Sd|Jd|Jk|M|J)/);
+  if (!match) return null;
+  return { Y: 0, O: 1, S: 2, K: 3, M: 4, J: 5, Ms: 6, Sd: 7, Jd: 8, Jk: 9 }[match[1]] ?? null;
 }
 
 function renderBashoResultsHeader(header) {

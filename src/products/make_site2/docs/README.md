@@ -1,7 +1,8 @@
 # make_site2 Documentation
 
 This directory is the active documentation set for `src/products/make_site2`.
-It contains both normative design documents and current review/audit records.
+It contains normative design documents, current audit records and focused
+outcome notes for recent work not yet folded into the spine.
 
 `make_site2` is a static publication layer. It assembles curated, precomputed
 sumo analysis into a coherent public site. Producers own analytical computation;
@@ -17,7 +18,6 @@ For orientation, read:
 3. `03 Architecture and Design Thesis.md`
 4. `04 Model Design.md`
 5. `10 Open Issues and Deferred Design.md`
-6. `Second make_site2 Review.md`
 
 Then read the detailed model/design document for the area being changed:
 
@@ -31,6 +31,7 @@ Then read the detailed model/design document for the area being changed:
 | Build output, runtime state, data staging | `07 Build, Output and Runtime Design.md` |
 | Producer boundaries and migration | `08 Producer Integration and Migration.md` |
 | Local/remote deployment | `09 Deployment and Operations.md` |
+| Basho Results 7.1 redesign outcome | `Basho Results (7.1) Outcome.md` |
 
 ## Document Authority
 
@@ -40,8 +41,8 @@ Then read the detailed model/design document for the area being changed:
 | Normative design | `03`, `04`, `04.1`-`04.4`, `05`, `07`, `08`, `09` | Defines intended model and system behavior. |
 | Current issue register | `10` | Records known gaps and deferred decisions. |
 | Supporting audit | `06`, `10.1` | Records evidence and verification details; settled rules should move into normative docs. |
-| Current review | `Second make_site2 Review.md` | Best compact snapshot of code-vs-doc status. |
-| Background/proposal | `Proposal.md`, `A Appendix - Better Models.md`, `House Style.md` | Useful context, not the main contract. |
+| Focused outcome notes | `Basho Results (7.1) Outcome.md` | Current account of a recent design/implementation slice that has not yet been folded into the spine. |
+| Background / style | `A Appendix - Better Models.md`, `House Style.md` | Useful context, not the main contract. |
 | Historical | `archive/` | Evidence only; do not treat as current unless active docs say so. |
 
 ## Current Baseline
@@ -101,6 +102,30 @@ Known gaps:
   need reproduction/triage.
 - Local deployment target-safety validation is still open.
 - Some tests lag behind the modular runtime and manifest split.
+
+## Temporary Documentation Gap
+
+`Basho Results (7.1) Outcome.md` is the current account of the recent 7.1
+Basho Results redesign. It has not yet been folded into the main documentation
+spine.
+
+Until that integration happens, treat the outcome note as authoritative for
+7.1-specific table structure, result decomposition, temporal grouping and
+Division Change rendering.
+
+Known spine sections needing reconciliation include:
+
+- `02 Specification.md`: confirm the Basho Results / Banzuke Changes boundary
+  still says enough about represented-basho comparison.
+- `05 Rendering Design.md`: replace older compact previous-result wording with
+  the new decomposed result / Division Change model.
+- `06 Rendering Audit and Changes.md`: update the Basho Results PA rendering
+  audit row.
+- `08 Producer Integration and Migration.md`: update the Basho Results / BRB
+  pressure-case account to mention the transitional presentation-model
+  renderer.
+- `10.1 Selected History Coherence Audit.md`: preserve the History-coherence
+  finding, but note that 7.1 table rendering has since changed.
 
 ## Running make_site2
 

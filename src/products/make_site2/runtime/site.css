@@ -422,6 +422,11 @@ h3 {
   text-align: left;
 }
 
+.brb-redesign-table th[data-column-path="reference.shikona"],
+.brb-redesign-table td[data-column-path="reference.shikona"] {
+  text-align: left;
+}
+
 .artifact-table tbody tr:nth-child(odd) {
   background: var(--artifact-row-odd-bg);
 }
