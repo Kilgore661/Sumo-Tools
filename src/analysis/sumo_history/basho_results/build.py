@@ -188,7 +188,7 @@ def build_row(
         graph_shikona=graph_shikona_for(rikishi_id, shikona),
         chii=str(chii),
         chii_ordinal=str(chii.ordinal()),
-        score=format_result(rikishi_id, chii, current_state.summary),
+        score=format_result_with_prizes(rikishi_id, chii, current_state.summary),
         previous_delta_direction=format_previous_delta_direction(previous_delta),
         previous_delta=normalise_missing(format_bcr_delta(previous_delta)),
         previous_result=format_previous_result(

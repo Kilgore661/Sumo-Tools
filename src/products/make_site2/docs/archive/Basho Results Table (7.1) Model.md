@@ -33,6 +33,17 @@ The abstract `TableSpec` is a fixed ordered recursive keyed structure whose
 terminal values are basic values/sorts. The row extent is external to the
 specification.
 
+Using the notation from `Tables as Dicts.md`, a table spec is an ordered
+recursive dict:
+
+```text
+TableSpec ::= S+
+S ::= <k> : (<t> | TableSpec)
+```
+
+Here, `<k>` is a key, `<t>` is a basic sort, and each `S` is one keyed
+specification whose value is either a basic sort or another `TableSpec`.
+
 The maximal table structure does not change over time. Instead, terminal paths
 resolve to concrete values or nulls according to a resolution model.
 
@@ -99,13 +110,18 @@ later concern.
 
 ## 5. 7.1 Maximal Table Spec
 
-Top-level groups:
+7.1 instantiates the generic `TableSpec` with:
 
 ```text
-reference
-before
-state
-comparison
+TableSpec_7_1 = BashoResultsFrame
+
+BashoResultsFrame ::=
+[
+  reference: ReferenceSpec,
+  before: RBASpec,
+  state: RBASpec,
+  comparison: ComparisonSpec
+]
 ```
 
 The `state` group is headed `Current` during an in-progress basho and `After

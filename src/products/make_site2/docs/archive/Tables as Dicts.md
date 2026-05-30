@@ -9,8 +9,8 @@ A **basic table spec** is an ordered list of basic sorts, with the table row ext
 A more general **table spec** allows columns to be grouped recursively. Structurally, it is an ordered nested dict whose terminal values are basic sorts:
 
 ```text
-S ::= <k> : (<t> | D)
-D ::= S+
+TableSpec ::= S+
+S ::= <k> : (<t> | TableSpec)
 ```
 
 Here, `<k>` is a key, `<t>` is a basic sort, and `S+` is a nonempty ordered list of keyed specifications.

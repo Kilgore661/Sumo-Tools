@@ -422,12 +422,26 @@ h3 {
   text-align: left;
 }
 
+.brb-redesign-table th[data-column-path="reference.shikona"],
+.brb-redesign-table td[data-column-path="reference.shikona"] {
+  text-align: left;
+}
+
 .artifact-table tbody tr:nth-child(odd) {
   background: var(--artifact-row-odd-bg);
 }
 
 .artifact-table tbody tr:nth-child(even) {
   background: var(--artifact-row-even-bg);
+}
+
+.brb-redesign-table th,
+.brb-redesign-table td {
+  border-left: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.brb-redesign-table th {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
 }
 
 .sectioned-table-grid {
