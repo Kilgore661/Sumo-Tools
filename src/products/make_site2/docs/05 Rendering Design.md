@@ -711,6 +711,14 @@ be declared with that PA or feature.
 Browser-default emphasis shall not be retained merely by accident when it
 communicates an unintended semantic distinction.
 
+The current table heading/cell horizontal alignment policy is not settled.
+Basho Results (7.1) exposed the issue because its recursive renderer does not
+obviously inherit the same alignment treatment as ordinary flat tables. The
+open question is whether heading alignment and cell alignment should be explicit
+model properties applied uniformly across flat and recursive table renderers.
+Until that decision is made, alignment differences remain an open rendering/model
+issue rather than a settled Basho Results exception.
+
 ### 15.7 Sortable Heading Treatment
 
 **Owner:** table-like PA terminal forms
@@ -720,6 +728,29 @@ control. The active sorted heading shall show the current sort direction with a
 trailing up/down indicator and expose equivalent accessible sort state.
 
 Row-number headings shall not render as sortable controls.
+
+For a recursive table, this rule applies to visible terminal/leaf headings.
+Group headings that span more than one data column are not sortable unless a
+PA-specific model declares single-column sort meaning for them.
+
+### 15.8 Basho Results Recursive Table Rendering
+
+**Owner:** Basho Results (7.1) recursive presentation table, as specified in
+`04.5 Basho Results Model.md`.
+
+**Rule:** Basho Results may render a specialised recursive table with grouped
+Reference, Before Basho, Current/After Basho and Comparison headings. The
+renderer shall remain inside the PA region of its PAPanel and shall not redefine
+Page Heading, FilterSection, Notes placement or shell layout.
+
+Basho Results result values are logically decomposed into wins, losses,
+absences, prizes and Division Change. Rendering may still bridge from compact
+producer fields while the producer shape is transitional, but the public model is
+the decomposed form specified in `04.5`.
+
+Basho Results Shikona cells may render as public rikishi links when rikishi ids
+are supplied. Basho Results recursive terminal paths are the visible column
+identities for leaf-heading sorting.
 
 ---
 
@@ -735,7 +766,7 @@ The fact that an indexed table loads or selects among payloads is PA-terminal
 behaviour. It shall not cause the PA renderer to redefine ContentPanel,
 FilterSection or Notes placement.
 
-Where the visible output is table-like, shared table treatments in Section 14
+Where the visible output is table-like, shared table treatments in Section 15
 apply unless a declared exception is required.
 
 ---
@@ -807,22 +838,7 @@ relevant Filter; that Filter does not remove the direction feature.
 **Rationale:** Direction is part of the default public reading of banzuke
 change, while numeric magnitude is optional further detail.
 
-### 19.2 Basho Results Previous Result Movement Marker
-
-**Owner:** Basho Results visible Previous Basho result feature
-
-**Rule:** When Previous Basho context is visible, Basho Results shall render
-the previous result as one compact result value: wins-losses, optional absences,
-optional prizes, and an optional trailing up/down marker indicating promotion
-or demotion into the selected basho's broad rank level.
-
-Basho Results shall not render a separate Direction column for this marker.
-This keeps the result value consistent with Banzuke Changes result display.
-
-Sorting the Result column remains based on the wins component of the compact
-result value.
-
-### 19.3 Banzuke Changes Rank Treatment Not Yet Settled
+### 19.2 Banzuke Changes Rank Treatment Not Yet Settled
 
 Whether central rank values in the banzuke-style rendering are semantic row
 headers or ordinary table values is not yet incorporated as a settled rendering
