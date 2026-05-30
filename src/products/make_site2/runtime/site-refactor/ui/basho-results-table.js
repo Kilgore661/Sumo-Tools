@@ -1,45 +1,50 @@
 import { escapeHtml } from "../utils/html.js";
 
+const BASHO_RESULTS_TABLE_ID = "basho_results_browser";
+const DEFAULT_BASHO_RESULTS_SORT_PATH = "state.rba.bp";
+const bashoResultsSortStates = new Map();
+
 const TRANSITIONAL_TABLE_SPEC = [
   group("reference", "Reference", [
-    column("row_number", "#"),
-    column("shikona", "Shikona"),
+    column("row_number", "#", { sort_kind: "none" }),
+    column("shikona", "Shikona", { sort_kind: "text" }),
   ]),
   group("before", "Before Basho", [
     group("rba", "", [
-      column("bp", "BP"),
+      column("bp", "BP", { sort_kind: "chii_ordinal", sort_path: "bp_ordinal" }),
       group("result", "Result", [
-        column("wins", "W"),
-        column("losses", "L"),
-        column("absences", "A"),
-        column("prizes", "\u{1F4E6}"),
-        column("division_change", "Div"),
+        column("wins", "W", { sort_kind: "numeric" }),
+        column("losses", "L", { sort_kind: "numeric" }),
+        column("absences", "A", { sort_kind: "numeric" }),
+        column("prizes", "\u{1F4E6}", { sort_kind: "text" }),
+        column("division_change", "Div", { sort_kind: "text" }),
       ]),
-      column("equelo", "Equelo"),
+      column("equelo", "Equelo", { sort_kind: "numeric" }),
     ]),
   ]),
   group("state", "Current/After", [
     group("rba", "", [
-      column("bp", "BP"),
+      column("bp", "BP", { sort_kind: "chii_ordinal", sort_path: "bp_ordinal" }),
       group("result", "Result", [
-        column("wins", "W"),
-        column("losses", "L"),
-        column("absences", "A"),
-        column("prizes", "\u{1F4E6}"),
-        column("division_change", "Div"),
+        column("wins", "W", { sort_kind: "numeric" }),
+        column("losses", "L", { sort_kind: "numeric" }),
+        column("absences", "A", { sort_kind: "numeric" }),
+        column("prizes", "\u{1F4E6}", { sort_kind: "text" }),
+        column("division_change", "Div", { sort_kind: "text" }),
       ]),
-      column("equelo", "Equelo"),
-      column("next_bp", "nuChii"),
+      column("equelo", "Equelo", { sort_kind: "numeric" }),
+      column("next_bp", "nuChii", { sort_kind: "chii_ordinal", sort_path: "next_bp_ordinal" }),
     ]),
   ]),
   group("comparison", "Comparison", [
-    column("delta_equelo", "Delta Equelo"),
+    column("delta_equelo", "Delta Equelo", { sort_kind: "numeric" }),
   ]),
 ];
 
 function buildBashoResultsPresentationModel({ rows, state, entry, title }) {
   const visiblePaths = bashoResultsVisiblePaths(state);
   return {
+    id: BASHO_RESULTS_TABLE_ID,
     header: bashoResultsHeader(title, entry),
     table_spec: resolveStateHeading(TRANSITIONAL_TABLE_SPEC, entry),
     values: rows.map((row, index) => transitionalRowValues(row, index)),
@@ -50,19 +55,43 @@ function buildBashoResultsPresentationModel({ rows, state, entry, title }) {
 function renderBashoResultsPresentationTable(model) {
   const visiblePaths = new Set(model.projection?.visible_paths || []);
   const leaves = terminalNodes(model.table_spec || [], [], visiblePaths);
+  const sortState = currentBashoResultsSortState(model, leaves);
+  const sortedValues = sortBashoResultsRows(model.values || [], leaves, sortState);
   return [
     renderBashoResultsHeader(model.header),
     '<table class="artifact-table brb-table brb-redesign-table">',
-    renderNestedHead(model.table_spec || [], visiblePaths),
+    renderNestedHead(model.table_spec || [], visiblePaths, leaves, sortState),
     '<tbody>',
-    ...(model.values || []).map(row => [
+    ...sortedValues.map((row, index) => [
       '<tr>',
-      ...leaves.map(leaf => `<td data-column-path="${escapeHtml(leaf.path)}">${escapeHtml(valueAtPath(row, leaf.path))}</td>`),
+      ...leaves.map(leaf => `<td data-column-path="${escapeHtml(leaf.path)}">${escapeHtml(cellValueAtPath(row, leaf.path, index))}</td>`),
       '</tr>',
     ].join("")),
     '</tbody>',
     '</table>',
   ].join("");
+}
+
+function wireBashoResultsPresentationSorting(panel, model, renderPanel) {
+  const visiblePaths = new Set(model.projection?.visible_paths || []);
+  const leaves = terminalNodes(model.table_spec || [], [], visiblePaths);
+  document.querySelectorAll(".brb-redesign-table .table-sort-button[data-basho-results-sort-path]").forEach(button => {
+    button.addEventListener("click", () => {
+      const path = button.dataset.bashoResultsSortPath;
+      const leaf = leaves.find(item => item.path === path);
+      if (!isSortableLeaf(leaf)) {
+        throw new Error(`Unsupported Basho Results sort path: ${path}`);
+      }
+      const current = currentBashoResultsSortState(model, leaves);
+      bashoResultsSortStates.set(model.id || BASHO_RESULTS_TABLE_ID, {
+        path,
+        direction: current.path === path
+          ? toggledSortDirection(current.direction)
+          : sortDefaultDirection(leaf),
+      });
+      renderPanel(panel);
+    });
+  });
 }
 
 function bashoResultsHeader(title, entry) {
@@ -123,6 +152,7 @@ function transitionalRowValues(row, index) {
     "reference.row_number": String(index + 1),
     "reference.shikona": row.shikona || "",
     "before.rba.bp": row.previous_chii || "",
+    "before.rba.bp_ordinal": row.previous_chii_ordinal || "",
     "before.rba.result.wins": beforeResult.wins,
     "before.rba.result.losses": beforeResult.losses,
     "before.rba.result.absences": beforeResult.absences,
@@ -130,6 +160,7 @@ function transitionalRowValues(row, index) {
     "before.rba.result.division_change": rankLevelMovementMarker(row.previous_rank_level_movement),
     "before.rba.equelo": row.previous_equelo || "",
     "state.rba.bp": row.chii || "",
+    "state.rba.bp_ordinal": row.chii_ordinal || "",
     "state.rba.result.wins": stateResult.wins,
     "state.rba.result.losses": stateResult.losses,
     "state.rba.result.absences": stateResult.absences,
@@ -137,6 +168,7 @@ function transitionalRowValues(row, index) {
     "state.rba.result.division_change": rankLevelMovementBetween(row.chii, row.nu_chii),
     "state.rba.equelo": row.equelo || "",
     "state.rba.next_bp": row.nu_chii || "",
+    "state.rba.next_bp_ordinal": row.nu_chii_ordinal || "",
     "comparison.delta_equelo": row.delta_equelo || "",
   };
 }
@@ -187,16 +219,39 @@ function renderBashoResultsHeader(header) {
   ].join("");
 }
 
-function renderNestedHead(nodes, visiblePaths) {
+function renderNestedHead(nodes, visiblePaths, leaves = null, sortState = null) {
   const rows = headerRows(nodes, visiblePaths);
+  const leafByPath = new Map((leaves || terminalNodes(nodes, [], visiblePaths)).map(leaf => [leaf.path, leaf]));
   return [
     '<thead>',
     ...rows.map(row => [
       '<tr>',
-      ...row.map(cell => `<th colspan="${cell.colspan}" rowspan="${cell.rowspan}" data-column-path="${escapeHtml(cell.path)}">${escapeHtml(cell.label)}</th>`),
+      ...row.map(cell => renderNestedHeaderCell(cell, leafByPath.get(cell.path), sortState)),
       '</tr>',
     ].join("")),
     '</thead>',
+  ].join("");
+}
+
+function renderNestedHeaderCell(cell, leaf, sortState) {
+  const attributes = [
+    `colspan="${cell.colspan}"`,
+    `rowspan="${cell.rowspan}"`,
+    `data-column-path="${escapeHtml(cell.path)}"`,
+  ];
+  if (!isSortableLeaf(leaf)) {
+    return `<th ${attributes.join(" ")}>${escapeHtml(cell.label)}</th>`;
+  }
+  const active = sortState?.path === leaf.path;
+  const direction = active ? sortState.direction : "none";
+  const indicator = active ? (sortState.direction === "ascending" ? " ▲" : " ▼") : "";
+  return [
+    `<th ${attributes.join(" ")} aria-sort="${direction}">`,
+    `<button type="button" class="table-sort-button" data-basho-results-sort-path="${escapeHtml(leaf.path)}">`,
+    escapeHtml(cell.label),
+    `<span class="table-sort-indicator" aria-hidden="true">${indicator}</span>`,
+    '</button>',
+    '</th>',
   ].join("");
 }
 
@@ -246,12 +301,109 @@ function terminalNodes(nodes, path, visiblePaths) {
     const nextPath = [...path, node.key];
     const pathText = nextPath.join(".");
     if (node.children) return terminalNodes(node.children, nextPath, visiblePaths);
-    return isVisiblePath(pathText, visiblePaths) ? [{ ...node, path: pathText }] : [];
+    return isVisiblePath(pathText, visiblePaths)
+      ? [{ ...node, path: pathText, sort_path: resolveLeafSortPath(node, nextPath) }]
+      : [];
   });
+}
+
+function resolveLeafSortPath(node, path) {
+  if (!node.sort_path) return path.join(".");
+  if (node.sort_path.includes(".")) return node.sort_path;
+  return [...path.slice(0, -1), node.sort_path].join(".");
 }
 
 function isVisiblePath(path, visiblePaths) {
   return !visiblePaths.size || visiblePaths.has(path);
+}
+
+function currentBashoResultsSortState(model, leaves) {
+  const existing = bashoResultsSortStates.get(model.id || BASHO_RESULTS_TABLE_ID);
+  if (existing && leaves.some(leaf => leaf.path === existing.path && isSortableLeaf(leaf))) {
+    return existing;
+  }
+  const leaf = leaves.find(item => item.path === DEFAULT_BASHO_RESULTS_SORT_PATH && isSortableLeaf(item))
+    || firstSortableLeaf(leaves);
+  return {
+    path: leaf?.path || "",
+    direction: sortDefaultDirection(leaf),
+  };
+}
+
+function firstSortableLeaf(leaves) {
+  return leaves.find(leaf => isSortableLeaf(leaf));
+}
+
+function isSortableLeaf(leaf) {
+  return Boolean(leaf) && leaf.sort_kind !== "none";
+}
+
+function sortBashoResultsRows(rows, leaves, sortState) {
+  const leaf = leaves.find(item => item.path === sortState?.path);
+  if (!isSortableLeaf(leaf)) return [...rows];
+  const multiplier = sortState.direction === "descending" ? -1 : 1;
+  return [...rows].sort((left, right) =>
+    compareNullableSortValues(
+      sortValueForLeaf(leaf, left),
+      sortValueForLeaf(leaf, right),
+      leaf,
+      multiplier,
+    )
+  );
+}
+
+function sortValueForLeaf(leaf, row) {
+  const value = row[leaf.sort_path || leaf.path];
+  if (leaf.sort_kind === "record") return recordWins(value);
+  if (leaf.sort_kind === "numeric" || leaf.sort_kind === "chii_ordinal") {
+    const number = Number(value);
+    return Number.isNaN(number) ? null : number;
+  }
+  return value ?? "";
+}
+
+function compareNullableSortValues(left, right, leaf, multiplier) {
+  if (left === null && right === null) return 0;
+  if (left === null) return 1;
+  if (right === null) return -1;
+  return multiplier * compareSortValues(left, right, leaf);
+}
+
+function compareSortValues(left, right, leaf) {
+  if (leaf.sort_kind === "text") return String(left).localeCompare(String(right));
+  return compareValues(left, right);
+}
+
+function compareValues(left, right) {
+  const leftNumber = Number(left);
+  const rightNumber = Number(right);
+  if (!Number.isNaN(leftNumber) && !Number.isNaN(rightNumber)) {
+    return leftNumber - rightNumber;
+  }
+  return String(left).localeCompare(String(right));
+}
+
+function sortDefaultDirection(leaf) {
+  if (!leaf) return "ascending";
+  if (leaf.sort_default_direction) return leaf.sort_default_direction;
+  if (leaf.sort_kind === "text" || leaf.sort_kind === "chii_ordinal") return "ascending";
+  return "descending";
+}
+
+function toggledSortDirection(direction) {
+  return direction === "ascending" ? "descending" : "ascending";
+}
+
+function recordWins(value) {
+  // Warning! Warning! Dr. Smith! This parses compact result strings because
+  // TBD "Producer result-field shape" has not been resolved.
+  const match = String(value ?? "").match(/^\s*(\d+)\s*-/);
+  return match ? Number(match[1]) : null;
+}
+
+function cellValueAtPath(row, path, index) {
+  if (path === "reference.row_number") return String(index + 1);
+  return valueAtPath(row, path);
 }
 
 function valueAtPath(row, path) {
@@ -264,8 +416,16 @@ function group(key, label, children) {
   return { key, label, children };
 }
 
-function column(key, label) {
-  return { key, label };
+function column(key, label, options = {}) {
+  return { key, label, ...options };
 }
 
-export { buildBashoResultsPresentationModel, renderBashoResultsPresentationTable, terminalNodes, headerRows };
+export {
+  buildBashoResultsPresentationModel,
+  renderBashoResultsPresentationTable,
+  wireBashoResultsPresentationSorting,
+  terminalNodes,
+  headerRows,
+  currentBashoResultsSortState,
+  sortBashoResultsRows,
+};
