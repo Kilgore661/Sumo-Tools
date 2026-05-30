@@ -185,10 +185,42 @@ python -m http.server <port> --directory <folder>
 
 but the folder must actually contain `index.html`. The earlier `8787` 404 was because `files/output/make_site2` did not exist from `X:\Sumo-Tools`.
 
+The make_site2 tests live under the repository-root `tests` directory, for
+example:
+
+```text
+tests\test_make_site2_basho_results_redesign.py
+tests\test_make_site2_table_sorting.py
+tests\test_make_site2_build.py
+```
+
+Do not rely on the GitHub connector to discover unknown test files. In this
+environment it can usually read files by exact known path, but file/directory
+discovery and broad code search may miss existing files. Use local Git/shell
+discovery from the repo root instead:
+
+```powershell
+git ls-files "tests/*"
+git ls-files "tests/test_make_site2*.py"
+git ls-files "*pytest*"
+```
+
 Use the repo-local virtual environment for tests:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest -s <test paths>
+```
+
+For focused make_site2 checks, start with known root tests such as:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -s tests\test_make_site2_basho_results_redesign.py tests\test_make_site2_table_sorting.py
+```
+
+Then broaden only when the focused checks are understood:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -s tests
 ```
 
 The user-site pytest install may be visible to the human's interactive shell
