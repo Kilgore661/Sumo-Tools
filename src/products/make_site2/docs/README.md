@@ -113,6 +113,27 @@ Until that integration happens, treat the outcome note as authoritative for
 7.1-specific table structure, result decomposition, temporal grouping and
 Division Change rendering.
 
+The temporary 7.1 design authority also includes the following sorting rule.
+Basho Results (7.1) uses a recursive hierarchical table specification. For
+sorting purposes, a sortable column is a visible leaf heading: a terminal
+heading that sits above exactly one data column. Group headings in the recursive
+table structure are not sortable because they do not identify a single data
+column.
+
+Every visible leaf heading is sortable by default except the row-number column,
+which is a reference column and is renumbered after filtering and sorting.
+Clicking a sortable leaf heading sorts the table rows by that leaf column's sort
+value. Clicking the active sorted leaf heading reverses the sort direction. The
+active sorted leaf heading shall visibly indicate the current direction and
+expose equivalent accessible state.
+
+For Basho Results (7.1), the column identity used for sorting is the recursive
+terminal path, not a flat table-column id. A leaf may declare a separate
+sort-value path or sort kind where its displayed value is not the correct
+sortable value. Odd column-specific semantics, such as arrow-only movement
+values, may be handled by later column-specific sort rules without changing the
+default leaf-heading sorting policy.
+
 Known spine sections needing reconciliation include:
 
 - `02 Specification.md`: confirm the Basho Results / Banzuke Changes boundary
