@@ -35,6 +35,7 @@ BRB_FILTERS = (
         values=DIVISION_FILTER_VALUES,
     ),
     Filter(id="previous_context", label="Previous Basho", control="checkbox", default=False, url_key="previous"),
+    Filter(id="changes_context", label="Changes", control="checkbox", default=True, url_key="changes"),
     Filter(id="rating_context", label="Equelo Ratings", control="checkbox", default=False, url_key="ratings"),
     Filter(id="analysis_context", label="Analysis", control="checkbox", default=False, url_key="analysis"),
     Filter(id="nu_chii", label="nuChii", control="checkbox", default=False, url_key="nu_chii"),
