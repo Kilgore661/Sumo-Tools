@@ -30,11 +30,11 @@ const TRANSITIONAL_TABLE_SPEC = [
     }),
   ]),
   group("changes", "Changes", [
+    column("delta_equelo", "ΔEq", { sort_kind: "numeric", presentation: PRESENTATION.RATING }),
     group("movement", "⇅", [
       column("bp", "Chii", { sort_kind: "text", presentation: PRESENTATION.MOVEMENT_SYMBOL }),
       column("division", "Div", { sort_kind: "text", presentation: PRESENTATION.MOVEMENT_SYMBOL }),
     ]),
-    column("delta_equelo", "ΔEq", { sort_kind: "numeric", presentation: PRESENTATION.RATING }),
   ]),
 ];
 
@@ -484,7 +484,7 @@ function isSortableLeaf(leaf) {
 function sortBashoResultsRows(rows, leaves, sortState) {
   const leaf = leaves.find(item => item.path === sortState?.path);
   if (!isSortableLeaf(leaf)) return [...rows];
-  const multiplier = sortState.direction === "descending" ? -1 : 1;
+  const multiplier = sortMultiplierForLeaf(leaf, sortState.direction);
   return [...rows].sort((left, right) =>
     compareNullableSortValues(
       sortValueForLeaf(leaf, left),
@@ -493,6 +493,13 @@ function sortBashoResultsRows(rows, leaves, sortState) {
       multiplier,
     )
   );
+}
+
+function sortMultiplierForLeaf(leaf, direction) {
+  if (leaf?.sort_kind === "chii_ordinal") {
+    return direction === "descending" ? 1 : -1;
+  }
+  return direction === "descending" ? -1 : 1;
 }
 
 function sortValueForLeaf(leaf, row) {
@@ -529,7 +536,8 @@ function compareValues(left, right) {
 function sortDefaultDirection(leaf) {
   if (!leaf) return "ascending";
   if (leaf.sort_default_direction) return leaf.sort_default_direction;
-  if (leaf.sort_kind === "text" || leaf.sort_kind === "chii_ordinal") return "ascending";
+  if (leaf.sort_kind === "chii_ordinal") return "descending";
+  if (leaf.sort_kind === "text") return "ascending";
   return "descending";
 }
 
