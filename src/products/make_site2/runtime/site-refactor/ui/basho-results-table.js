@@ -385,11 +385,14 @@ function renderNestedHeaderCell(cell, leaf, sortState) {
   const active = sortState?.path === leaf.path;
   const direction = active ? sortState.direction : "none";
   const indicator = active ? (sortState.direction === "ascending" ? " ▲" : " ▼") : "";
+  const escapedLabel = escapeHtml(cell.label);
+  const reservedSortText = `${escapedLabel} ▼`;
+  const visibleSortText = `${escapedLabel}${indicator}`;
   return [
     `<th ${attributes.join(" ")} aria-sort="${direction}">`,
-    `<button type="button" class="table-sort-button" data-basho-results-sort-path="${escapeHtml(leaf.path)}" style="display: inline-flex; align-items: center; justify-content: ${buttonJustifyContent(alignment)}; gap: 0.15rem; ${buttonMarginStyle(alignment)} text-align: ${alignment};">`,
-    escapeHtml(cell.label),
-    `<span class="table-sort-indicator" aria-hidden="true">${indicator}</span>`,
+    `<button type="button" class="table-sort-button" data-basho-results-sort-path="${escapeHtml(leaf.path)}" style="display: inline-grid; place-items: center; ${buttonMarginStyle(alignment)} text-align: ${alignment};">`,
+    `<span class="table-sort-width-reserver" aria-hidden="true" style="grid-area: 1 / 1; visibility: hidden; white-space: nowrap;">${reservedSortText}</span>`,
+    `<span class="table-sort-visible-content" style="grid-area: 1 / 1; white-space: nowrap;">${visibleSortText}</span>`,
     '</button>',
     '</th>',
   ].join("");
@@ -573,12 +576,6 @@ function headingAlignment(presentation) {
 function valueAlignment(presentation) {
   if (presentation === PRESENTATION.NAME) return "left";
   if (presentation === PRESENTATION.RATING || presentation === PRESENTATION.NUMERIC_MAGNITUDE) return "right";
-  return "center";
-}
-
-function buttonJustifyContent(alignment) {
-  if (alignment === "left") return "flex-start";
-  if (alignment === "right") return "flex-end";
   return "center";
 }
 
