@@ -15,6 +15,7 @@ const TRANSITIONAL_TABLE_SPEC = [
     column("next_bp", "nuChii", { sort_kind: "chii_ordinal", sort_path: "next_bp_ordinal" }),
   ]),
   group("comparison", "Comparison", [
+    column("division_change", "Div", { sort_kind: "text" }),
     column("delta_equelo", "Delta Equelo", { sort_kind: "numeric" }),
   ]),
 ];
@@ -39,7 +40,6 @@ function recordSpec() {
       column("losses", "L", { sort_kind: "numeric" }),
       column("absences", "A", { sort_kind: "numeric" }),
       column("prizes", "\u{1F4E6}", { sort_kind: "text" }),
-      column("division_change", "Div", { sort_kind: "text" }),
     ]),
   ];
 }
@@ -127,7 +127,7 @@ function bashoResultsVisiblePaths(state) {
     "selected.result.losses",
     "selected.result.absences",
     "selected.result.prizes",
-    "selected.result.division_change",
+    "comparison.division_change",
   ];
   if (state.previous_context) {
     visible.push(
@@ -136,7 +136,6 @@ function bashoResultsVisiblePaths(state) {
       "before.result.losses",
       "before.result.absences",
       "before.result.prizes",
-      "before.result.division_change",
     );
   }
   if (state.rating_context) {
@@ -253,7 +252,6 @@ function transitionalRowValues(row, index, analyses) {
     "before.result.losses": beforeResult.losses,
     "before.result.absences": beforeResult.absences,
     "before.result.prizes": beforeResult.prizes,
-    "before.result.division_change": rankLevelMovementMarker(row.previous_rank_level_movement),
     "selected.context.skill.bp": row.chii || "",
     "selected.context.skill.bp_ordinal": row.chii_ordinal || "",
     "selected.context.skill.equelo": row.equelo || "",
@@ -265,9 +263,9 @@ function transitionalRowValues(row, index, analyses) {
     "selected.result.losses": selectedResult.losses,
     "selected.result.absences": selectedResult.absences,
     "selected.result.prizes": selectedResult.prizes,
-    "selected.result.division_change": rankLevelMovementBetween(row.chii, row.nu_chii),
     "selected.next_bp": row.nu_chii || "",
     "selected.next_bp_ordinal": row.nu_chii_ordinal || "",
+    "comparison.division_change": rankLevelMovementBetween(row.chii, row.nu_chii),
     "comparison.delta_equelo": row.delta_equelo || "",
   };
 }
