@@ -31,10 +31,10 @@ const TRANSITIONAL_TABLE_SPEC = [
   ]),
   group("changes", "Changes", [
     group("movement", "⇅", [
-      column("bp", "BP", { sort_kind: "text", presentation: PRESENTATION.MOVEMENT_SYMBOL }),
+      column("bp", "Chii", { sort_kind: "text", presentation: PRESENTATION.MOVEMENT_SYMBOL }),
       column("division", "Div", { sort_kind: "text", presentation: PRESENTATION.MOVEMENT_SYMBOL }),
     ]),
-    column("delta_equelo", "Delta Equelo", { sort_kind: "numeric", presentation: PRESENTATION.RATING }),
+    column("delta_equelo", "ΔEq", { sort_kind: "numeric", presentation: PRESENTATION.RATING }),
   ]),
 ];
 
@@ -42,19 +42,19 @@ function recordSpec() {
   return [
     group("context", "Context", [
       group("skill", "Skill", [
-        column("bp", "BP", {
+        column("bp", "Chii", {
           sort_kind: "chii_ordinal",
           sort_path: "bp_ordinal",
           presentation: PRESENTATION.RANK_CODE,
         }),
-        column("equelo", "Equelo", { sort_kind: "numeric", presentation: PRESENTATION.RATING }),
+        column("equelo", "Eq", { sort_kind: "numeric", presentation: PRESENTATION.RATING }),
       ]),
       group("analysis", "Analysis", [
-        group("banzuke_error", "BZ Error", [
+        group("banzuke_error", "ΔBZ", [
           column("direction", "Dir", { sort_kind: "text", presentation: PRESENTATION.MOVEMENT_SYMBOL }),
           column("magnitude", "Mag", { sort_kind: "numeric", presentation: PRESENTATION.NUMERIC_MAGNITUDE }),
         ]),
-        column("rbbp", "RBBP", {
+        column("rbbp", "Eq Chii", {
           sort_kind: "chii_ordinal",
           sort_path: "rbbp_ordinal",
           presentation: PRESENTATION.RANK_CODE,
