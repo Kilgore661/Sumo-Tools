@@ -4,22 +4,37 @@ const BASHO_RESULTS_TABLE_ID = "basho_results_browser";
 const DEFAULT_BASHO_RESULTS_SORT_PATH = "selected.context.skill.bp";
 const bashoResultsSortStates = new Map();
 
+const PRESENTATION = {
+  DEFAULT: "default",
+  NAME: "name",
+  RANK_CODE: "rank_code",
+  RATING: "rating",
+  COMPACT_COUNT: "compact_count",
+  MOVEMENT_SYMBOL: "movement_symbol",
+  NUMERIC_MAGNITUDE: "numeric_magnitude",
+  COMPACT_TEXT: "compact_text",
+};
+
 const TRANSITIONAL_TABLE_SPEC = [
   group("reference", "Reference", [
-    column("row_number", "#", { sort_kind: "none" }),
-    column("shikona", "Shikona", { sort_kind: "text" }),
+    column("row_number", "#", { sort_kind: "none", presentation: PRESENTATION.NUMERIC_MAGNITUDE }),
+    column("shikona", "Shikona", { sort_kind: "text", presentation: PRESENTATION.NAME }),
   ]),
   group("before", "Before Basho", recordSpec()),
   group("selected", "Current/After", [
     ...recordSpec(),
-    column("next_bp", "nuChii", { sort_kind: "chii_ordinal", sort_path: "next_bp_ordinal" }),
+    column("next_bp", "nuChii", {
+      sort_kind: "chii_ordinal",
+      sort_path: "next_bp_ordinal",
+      presentation: PRESENTATION.RANK_CODE,
+    }),
   ]),
   group("changes", "Changes", [
     group("movement", "⇅", [
-      column("bp", "BP", { sort_kind: "text" }),
-      column("division", "Div", { sort_kind: "text" }),
+      column("bp", "BP", { sort_kind: "text", presentation: PRESENTATION.MOVEMENT_SYMBOL }),
+      column("division", "Div", { sort_kind: "text", presentation: PRESENTATION.MOVEMENT_SYMBOL }),
     ]),
-    column("delta_equelo", "Delta Equelo", { sort_kind: "numeric" }),
+    column("delta_equelo", "Delta Equelo", { sort_kind: "numeric", presentation: PRESENTATION.RATING }),
   ]),
 ];
 
@@ -27,22 +42,30 @@ function recordSpec() {
   return [
     group("context", "Context", [
       group("skill", "Skill", [
-        column("bp", "BP", { sort_kind: "chii_ordinal", sort_path: "bp_ordinal" }),
-        column("equelo", "Equelo", { sort_kind: "numeric" }),
+        column("bp", "BP", {
+          sort_kind: "chii_ordinal",
+          sort_path: "bp_ordinal",
+          presentation: PRESENTATION.RANK_CODE,
+        }),
+        column("equelo", "Equelo", { sort_kind: "numeric", presentation: PRESENTATION.RATING }),
       ]),
       group("analysis", "Analysis", [
         group("banzuke_error", "BZ Error", [
-          column("direction", "Dir", { sort_kind: "text" }),
-          column("magnitude", "Mag", { sort_kind: "numeric" }),
+          column("direction", "Dir", { sort_kind: "text", presentation: PRESENTATION.MOVEMENT_SYMBOL }),
+          column("magnitude", "Mag", { sort_kind: "numeric", presentation: PRESENTATION.NUMERIC_MAGNITUDE }),
         ]),
-        column("rbbp", "RBBP", { sort_kind: "chii_ordinal", sort_path: "rbbp_ordinal" }),
+        column("rbbp", "RBBP", {
+          sort_kind: "chii_ordinal",
+          sort_path: "rbbp_ordinal",
+          presentation: PRESENTATION.RANK_CODE,
+        }),
       ]),
     ]),
     group("result", "Result", [
-      column("wins", "W", { sort_kind: "numeric" }),
-      column("losses", "L", { sort_kind: "numeric" }),
-      column("absences", "A", { sort_kind: "numeric" }),
-      column("prizes", "\u{1F4E6}", { sort_kind: "text" }),
+      column("wins", "W", { sort_kind: "numeric", presentation: PRESENTATION.COMPACT_COUNT }),
+      column("losses", "L", { sort_kind: "numeric", presentation: PRESENTATION.COMPACT_COUNT }),
+      column("absences", "A", { sort_kind: "numeric", presentation: PRESENTATION.COMPACT_COUNT }),
+      column("prizes", "\u{1F4E6}", { sort_kind: "text", presentation: PRESENTATION.COMPACT_TEXT }),
     ]),
   ];
 }
@@ -71,7 +94,7 @@ function renderBashoResultsPresentationTable(model) {
     '<tbody>',
     ...sortedValues.map((row, index) => [
       '<tr>',
-      ...leaves.map(leaf => `<td data-column-path="${escapeHtml(leaf.path)}">${renderBashoResultsCell(row, leaf.path, index)}</td>`),
+      ...leaves.map(leaf => `<td data-column-path="${escapeHtml(leaf.path)}" style="text-align: ${valueAlignment(leaf.presentation)};">${renderBashoResultsCell(row, leaf.path, index)}</td>`),
       '</tr>',
     ].join("")),
     '</tbody>',
@@ -348,10 +371,13 @@ function renderNestedHead(nodes, visiblePaths, leaves = null, sortState = null) 
 }
 
 function renderNestedHeaderCell(cell, leaf, sortState) {
+  const presentation = leaf?.presentation || PRESENTATION.DEFAULT;
+  const alignment = headingAlignment(presentation);
   const attributes = [
     `colspan="${cell.colspan}"`,
     `rowspan="${cell.rowspan}"`,
     `data-column-path="${escapeHtml(cell.path)}"`,
+    `style="text-align: ${alignment};"`,
   ];
   if (!isSortableLeaf(leaf)) {
     return `<th ${attributes.join(" ")}>${escapeHtml(cell.label)}</th>`;
@@ -360,8 +386,8 @@ function renderNestedHeaderCell(cell, leaf, sortState) {
   const direction = active ? sortState.direction : "none";
   const indicator = active ? (sortState.direction === "ascending" ? " ▲" : " ▼") : "";
   return [
-    `<th ${attributes.join(" ")} aria-sort="${direction}" style="text-align: center;">`,
-    `<button type="button" class="table-sort-button" data-basho-results-sort-path="${escapeHtml(leaf.path)}" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.15rem; margin: 0 auto; text-align: center;">`,
+    `<th ${attributes.join(" ")} aria-sort="${direction}">`,
+    `<button type="button" class="table-sort-button" data-basho-results-sort-path="${escapeHtml(leaf.path)}" style="display: inline-flex; align-items: center; justify-content: ${buttonJustifyContent(alignment)}; gap: 0.15rem; ${buttonMarginStyle(alignment)} text-align: ${alignment};">`,
     escapeHtml(cell.label),
     `<span class="table-sort-indicator" aria-hidden="true">${indicator}</span>`,
     '</button>',
@@ -539,12 +565,35 @@ function valueAtPath(row, path) {
   return String(value);
 }
 
+function headingAlignment(presentation) {
+  if (presentation === PRESENTATION.NAME) return "left";
+  return "center";
+}
+
+function valueAlignment(presentation) {
+  if (presentation === PRESENTATION.NAME) return "left";
+  if (presentation === PRESENTATION.RATING || presentation === PRESENTATION.NUMERIC_MAGNITUDE) return "right";
+  return "center";
+}
+
+function buttonJustifyContent(alignment) {
+  if (alignment === "left") return "flex-start";
+  if (alignment === "right") return "flex-end";
+  return "center";
+}
+
+function buttonMarginStyle(alignment) {
+  if (alignment === "left") return "margin-right: auto;";
+  if (alignment === "right") return "margin-left: auto;";
+  return "margin: 0 auto;";
+}
+
 function group(key, label, children) {
   return { key, label, children };
 }
 
 function column(key, label, options = {}) {
-  return { key, label, ...options };
+  return { key, label, presentation: PRESENTATION.DEFAULT, ...options };
 }
 
 export {
