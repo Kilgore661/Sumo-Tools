@@ -14,8 +14,11 @@ const TRANSITIONAL_TABLE_SPEC = [
     ...recordSpec(),
     column("next_bp", "nuChii", { sort_kind: "chii_ordinal", sort_path: "next_bp_ordinal" }),
   ]),
-  group("comparison", "Comparison", [
-    column("division_change", "Div", { sort_kind: "text" }),
+  group("changes", "Changes", [
+    group("movement", "⇅", [
+      column("bp", "BP", { sort_kind: "text" }),
+      column("division", "Div", { sort_kind: "text" }),
+    ]),
     column("delta_equelo", "Delta Equelo", { sort_kind: "numeric" }),
   ]),
 ];
@@ -127,7 +130,8 @@ function bashoResultsVisiblePaths(state) {
     "selected.result.losses",
     "selected.result.absences",
     "selected.result.prizes",
-    "comparison.division_change",
+    "changes.movement.bp",
+    "changes.movement.division",
   ];
   if (state.previous_context) {
     visible.push(
@@ -140,7 +144,7 @@ function bashoResultsVisiblePaths(state) {
   }
   if (state.rating_context) {
     if (state.previous_context) visible.push("before.context.skill.equelo");
-    visible.push("selected.context.skill.equelo", "comparison.delta_equelo");
+    visible.push("selected.context.skill.equelo", "changes.delta_equelo");
   }
   if (state.analysis_context) {
     if (state.previous_context) {
@@ -265,8 +269,9 @@ function transitionalRowValues(row, index, analyses) {
     "selected.result.prizes": selectedResult.prizes,
     "selected.next_bp": row.nu_chii || "",
     "selected.next_bp_ordinal": row.nu_chii_ordinal || "",
-    "comparison.division_change": rankLevelMovementBetween(row.chii, row.nu_chii),
-    "comparison.delta_equelo": row.delta_equelo || "",
+    "changes.movement.bp": bpMovementBetween(row.chii_ordinal, row.nu_chii_ordinal),
+    "changes.movement.division": rankLevelMovementBetween(row.chii, row.nu_chii),
+    "changes.delta_equelo": row.delta_equelo || "",
   };
 }
 
@@ -289,6 +294,13 @@ function rankLevelMovementMarker(value) {
   if (value === "â†‘") return "\u2191";
   if (value === "â†“") return "\u2193";
   return "";
+}
+
+function bpMovementBetween(fromOrdinal, toOrdinal) {
+  const from = Number(fromOrdinal);
+  const to = Number(toOrdinal);
+  if (Number.isNaN(from) || Number.isNaN(to) || from === to) return "";
+  return to < from ? "\u2191" : "\u2193";
 }
 
 function rankLevelMovementBetween(fromBp, toBp) {
