@@ -375,14 +375,14 @@ new-banzuke-before-results question.
 
 Basho Results is an indexed table PA. The selected basho and division determine
 the visible table instance. Optional public Filters may project additional
-visible context such as previous-basho context, ratings context or successor BP
-context where available.
+visible context such as previous-basho context, Equelo ratings, Analysis values
+or successor BP context where available.
 
 Basho Results may use a specialised recursive presentation table because its
 visible meaning requires temporal/grouped headings such as Reference,
-Before Basho, Current/After Basho and Comparison. This is a Basho Results PA
-model decision; it does not require all ordinary table PAs to use the same
-recursive table shape.
+Before Basho, Current/After Basho, Context, Result and Comparison. This is a
+Basho Results PA model decision; it does not require all ordinary table PAs to
+use the same recursive table shape.
 
 ### 9.3 Required Visible Meaning
 
@@ -392,28 +392,34 @@ The Basho Results table shall distinguish:
 reference values
   row number and rikishi identity;
 
-before context
-  predecessor-basho BP, decomposed predecessor result values and optional
-  pre-selected-basho rating context;
+before record
+  predecessor-basho Context and Result values, visible when previous-basho
+  context is selected;
 
-state context
-  selected/current/after-basho BP, decomposed selected-basho result values,
-  optional rating context and optional successor BP context;
+selected record
+  selected/current/after-basho Context and Result values, always present for the
+  selected Basho Results table;
 
 comparison context
-  declared comparisons such as Delta Equelo where available.
+  declared comparisons such as Division Change and Delta Equelo where available.
 ```
 
-Result values are logically decomposed into wins, losses, absences, prizes and
-Division Change. Compact producer result strings may remain a transitional input
-shape, but the public PA model treats the visible result fields as distinct.
+A record's Context contains non-result values. It includes Skill, where BP is
+the official rank slot and Equelo is the rating value for the represented point,
+and may include Analysis values derived from comparing BP order with Equelo
+order.
+
+Result values are logically decomposed into wins, losses, absences and prizes.
+Compact producer result strings may remain a transitional input shape, but the
+public PA model treats the visible result fields as distinct. Division Change is
+not a result field; it is a comparison value.
 
 `reference.shikona` is a rikishi identity value and may render as a link to the
 corresponding public rikishi record when a valid rikishi id is supplied.
 
-### 9.4 Rating-Order Comparison
+### 9.4 Rating-Order Analysis
 
-Basho Results may expose a rating-order comparison between official BP order and
+Basho Results may expose rating-order Analysis comparing official BP order and
 Equelo order for the same selected table population.
 
 ```text
@@ -459,6 +465,11 @@ BZ Error / DeltaBZ and RBBP are not banzuke-making predictions. They do not
 claim that promotion rules, rank-holding conventions, sanyaku vacancies,
 committee judgment or other real banzuke constraints would produce that result.
 They express how the official BP order differs from the selected rating order.
+
+Equelo Ratings and Analysis are distinct projections. Selecting Equelo Ratings
+shall not itself expose the whole Analysis subtree. The current Analysis
+projection is monolithic: when selected, it shows BZ Error direction, BZ Error
+magnitude and RBBP together.
 
 ### 9.5 Sorting
 
