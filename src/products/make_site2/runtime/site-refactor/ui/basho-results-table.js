@@ -1,7 +1,7 @@
 import { escapeHtml } from "../utils/html.js";
 
 const BASHO_RESULTS_TABLE_ID = "basho_results_browser";
-const DEFAULT_BASHO_RESULTS_SORT_PATH = "selected.skill.bp";
+const DEFAULT_BASHO_RESULTS_SORT_PATH = "selected.context.skill.bp";
 const bashoResultsSortStates = new Map();
 
 const TRANSITIONAL_TABLE_SPEC = [
@@ -21,9 +21,11 @@ const TRANSITIONAL_TABLE_SPEC = [
 
 function recordSpec() {
   return [
-    group("skill", "Skill", [
-      column("bp", "BP", { sort_kind: "chii_ordinal", sort_path: "bp_ordinal" }),
-      column("equelo", "Equelo", { sort_kind: "numeric" }),
+    group("context", "Context", [
+      group("skill", "Skill", [
+        column("bp", "BP", { sort_kind: "chii_ordinal", sort_path: "bp_ordinal" }),
+        column("equelo", "Equelo", { sort_kind: "numeric" }),
+      ]),
       group("analysis", "Analysis", [
         group("banzuke_error", "BZ Error", [
           column("direction", "Dir", { sort_kind: "text" }),
@@ -120,7 +122,7 @@ function bashoResultsVisiblePaths(state) {
   const visible = [
     "reference.row_number",
     "reference.shikona",
-    "selected.skill.bp",
+    "selected.context.skill.bp",
     "selected.result.wins",
     "selected.result.losses",
     "selected.result.absences",
@@ -129,7 +131,7 @@ function bashoResultsVisiblePaths(state) {
   ];
   if (state.previous_context) {
     visible.push(
-      "before.skill.bp",
+      "before.context.skill.bp",
       "before.result.wins",
       "before.result.losses",
       "before.result.absences",
@@ -138,20 +140,21 @@ function bashoResultsVisiblePaths(state) {
     );
   }
   if (state.rating_context) {
+    if (state.previous_context) visible.push("before.context.skill.equelo");
+    visible.push("selected.context.skill.equelo", "comparison.delta_equelo");
+  }
+  if (state.analysis_context) {
     if (state.previous_context) {
       visible.push(
-        "before.skill.equelo",
-        "before.skill.analysis.banzuke_error.direction",
-        "before.skill.analysis.banzuke_error.magnitude",
-        "before.skill.analysis.rbbp",
+        "before.context.analysis.banzuke_error.direction",
+        "before.context.analysis.banzuke_error.magnitude",
+        "before.context.analysis.rbbp",
       );
     }
     visible.push(
-      "selected.skill.equelo",
-      "selected.skill.analysis.banzuke_error.direction",
-      "selected.skill.analysis.banzuke_error.magnitude",
-      "selected.skill.analysis.rbbp",
-      "comparison.delta_equelo",
+      "selected.context.analysis.banzuke_error.direction",
+      "selected.context.analysis.banzuke_error.magnitude",
+      "selected.context.analysis.rbbp",
     );
   }
   if (state.nu_chii) {
@@ -239,25 +242,25 @@ function transitionalRowValues(row, index, analyses) {
     "reference.row_number": String(index + 1),
     "reference.shikona": row.shikona || "",
     "reference.rikishi_id": row.rikishi_id || "",
-    "before.skill.bp": row.previous_chii || "",
-    "before.skill.bp_ordinal": row.previous_chii_ordinal || "",
-    "before.skill.equelo": row.previous_equelo || "",
-    "before.skill.analysis.banzuke_error.direction": beforeAnalysis.direction,
-    "before.skill.analysis.banzuke_error.magnitude": beforeAnalysis.magnitude,
-    "before.skill.analysis.rbbp": beforeAnalysis.rbbp,
-    "before.skill.analysis.rbbp_ordinal": beforeAnalysis.rbbpOrdinal,
+    "before.context.skill.bp": row.previous_chii || "",
+    "before.context.skill.bp_ordinal": row.previous_chii_ordinal || "",
+    "before.context.skill.equelo": row.previous_equelo || "",
+    "before.context.analysis.banzuke_error.direction": beforeAnalysis.direction,
+    "before.context.analysis.banzuke_error.magnitude": beforeAnalysis.magnitude,
+    "before.context.analysis.rbbp": beforeAnalysis.rbbp,
+    "before.context.analysis.rbbp_ordinal": beforeAnalysis.rbbpOrdinal,
     "before.result.wins": beforeResult.wins,
     "before.result.losses": beforeResult.losses,
     "before.result.absences": beforeResult.absences,
     "before.result.prizes": beforeResult.prizes,
     "before.result.division_change": rankLevelMovementMarker(row.previous_rank_level_movement),
-    "selected.skill.bp": row.chii || "",
-    "selected.skill.bp_ordinal": row.chii_ordinal || "",
-    "selected.skill.equelo": row.equelo || "",
-    "selected.skill.analysis.banzuke_error.direction": selectedAnalysis.direction,
-    "selected.skill.analysis.banzuke_error.magnitude": selectedAnalysis.magnitude,
-    "selected.skill.analysis.rbbp": selectedAnalysis.rbbp,
-    "selected.skill.analysis.rbbp_ordinal": selectedAnalysis.rbbpOrdinal,
+    "selected.context.skill.bp": row.chii || "",
+    "selected.context.skill.bp_ordinal": row.chii_ordinal || "",
+    "selected.context.skill.equelo": row.equelo || "",
+    "selected.context.analysis.banzuke_error.direction": selectedAnalysis.direction,
+    "selected.context.analysis.banzuke_error.magnitude": selectedAnalysis.magnitude,
+    "selected.context.analysis.rbbp": selectedAnalysis.rbbp,
+    "selected.context.analysis.rbbp_ordinal": selectedAnalysis.rbbpOrdinal,
     "selected.result.wins": selectedResult.wins,
     "selected.result.losses": selectedResult.losses,
     "selected.result.absences": selectedResult.absences,
