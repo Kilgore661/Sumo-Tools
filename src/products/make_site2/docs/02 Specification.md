@@ -310,7 +310,7 @@ archive or explicitly historical publication.
 ```
 
 For bashos represented in History, readers use **Basho Results** to inspect
-results and comparisons with preceding represented bashos.
+results and changes with predecessor/successor context where available.
 
 ### 8.4 Production Availability
 
@@ -361,7 +361,7 @@ unvalidated Banzuke Changes material.
 
 ```text
 A basho is represented in History. What were the results for that basho, and how
-should selected before/current/after analytical context be inspected?
+should selected before/current/after analytical context and changes be inspected?
 ```
 
 It covers completed historical bashos, the latest/current basho once represented
@@ -375,14 +375,14 @@ new-banzuke-before-results question.
 
 Basho Results is an indexed table PA. The selected basho and division determine
 the visible table instance. Optional public Filters may project additional
-visible context such as previous-basho context, Equelo ratings, Analysis values
-or successor BP context where available.
+visible context such as previous-basho context, Changes, Equelo ratings, Analysis
+values or successor BP context where available.
 
 Basho Results may use a specialised recursive presentation table because its
 visible meaning requires temporal/grouped headings such as Reference,
-Before Basho, Current/After Basho, Context, Result and Comparison. This is a
-Basho Results PA model decision; it does not require all ordinary table PAs to
-use the same recursive table shape.
+Before Basho, Current/After Basho, Context, Result and Changes. This is a Basho
+Results PA model decision; it does not require all ordinary table PAs to use the
+same recursive table shape.
 
 ### 9.3 Required Visible Meaning
 
@@ -400,8 +400,9 @@ selected record
   selected/current/after-basho Context and Result values, always present for the
   selected Basho Results table;
 
-comparison context
-  declared comparisons such as Division Change and Delta Equelo where available.
+changes context
+  declared change/comparison values such as BP movement, Divisional movement and
+  Delta Equelo where available.
 ```
 
 A record's Context contains non-result values. It includes Skill, where BP is
@@ -411,8 +412,14 @@ order.
 
 Result values are logically decomposed into wins, losses, absences and prizes.
 Compact producer result strings may remain a transitional input shape, but the
-public PA model treats the visible result fields as distinct. Division Change is
-not a result field; it is a comparison value.
+public PA model treats the visible result fields as distinct. Movement/change
+values are not result fields.
+
+The Changes context contains change values for the selected row. BP movement
+indicates whether selected BP context moved up/down relative to successor BP
+context. Divisional movement indicates whether selected broad rank/division
+context moved up/down relative to successor broad rank/division context; for this
+purpose Y, O, S and K are treated as distinct rank-level divisions.
 
 `reference.shikona` is a rikishi identity value and may render as a link to the
 corresponding public rikishi record when a valid rikishi id is supplied.
@@ -466,10 +473,11 @@ claim that promotion rules, rank-holding conventions, sanyaku vacancies,
 committee judgment or other real banzuke constraints would produce that result.
 They express how the official BP order differs from the selected rating order.
 
-Equelo Ratings and Analysis are distinct projections. Selecting Equelo Ratings
-shall not itself expose the whole Analysis subtree. The current Analysis
-projection is monolithic: when selected, it shows BZ Error direction, BZ Error
-magnitude and RBBP together.
+Changes, Equelo Ratings and Analysis are distinct projections. The Changes
+projection is default-on. Selecting Equelo Ratings shall not itself expose the
+whole Analysis subtree. Selecting Equelo Ratings shall show Delta Equelo only
+when Changes is also selected. The current Analysis projection is monolithic:
+when selected, it shows BZ Error direction, BZ Error magnitude and RBBP together.
 
 ### 9.5 Sorting
 
