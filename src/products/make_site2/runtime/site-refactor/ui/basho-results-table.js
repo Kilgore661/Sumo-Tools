@@ -1,7 +1,7 @@
 import { escapeHtml } from "../utils/html.js";
 
 const BASHO_RESULTS_TABLE_ID = "basho_results_browser";
-const DEFAULT_BASHO_RESULTS_SORT_PATH = "state.rba.bp";
+const DEFAULT_BASHO_RESULTS_SORT_PATH = "selected.skill.bp";
 const bashoResultsSortStates = new Map();
 
 const TRANSITIONAL_TABLE_SPEC = [
@@ -9,45 +9,47 @@ const TRANSITIONAL_TABLE_SPEC = [
     column("row_number", "#", { sort_kind: "none" }),
     column("shikona", "Shikona", { sort_kind: "text" }),
   ]),
-  group("before", "Before Basho", [
-    group("rba", "", [
-      column("bp", "BP", { sort_kind: "chii_ordinal", sort_path: "bp_ordinal" }),
-      group("result", "Result", [
-        column("wins", "W", { sort_kind: "numeric" }),
-        column("losses", "L", { sort_kind: "numeric" }),
-        column("absences", "A", { sort_kind: "numeric" }),
-        column("prizes", "\u{1F4E6}", { sort_kind: "text" }),
-        column("division_change", "Div", { sort_kind: "text" }),
-      ]),
-      column("equelo", "Equelo", { sort_kind: "numeric" }),
-    ]),
-  ]),
-  group("state", "Current/After", [
-    group("rba", "", [
-      column("bp", "BP", { sort_kind: "chii_ordinal", sort_path: "bp_ordinal" }),
-      group("result", "Result", [
-        column("wins", "W", { sort_kind: "numeric" }),
-        column("losses", "L", { sort_kind: "numeric" }),
-        column("absences", "A", { sort_kind: "numeric" }),
-        column("prizes", "\u{1F4E6}", { sort_kind: "text" }),
-        column("division_change", "Div", { sort_kind: "text" }),
-      ]),
-      column("equelo", "Equelo", { sort_kind: "numeric" }),
-      column("next_bp", "nuChii", { sort_kind: "chii_ordinal", sort_path: "next_bp_ordinal" }),
-    ]),
+  group("before", "Before Basho", recordSpec()),
+  group("selected", "Current/After", [
+    ...recordSpec(),
+    column("next_bp", "nuChii", { sort_kind: "chii_ordinal", sort_path: "next_bp_ordinal" }),
   ]),
   group("comparison", "Comparison", [
     column("delta_equelo", "Delta Equelo", { sort_kind: "numeric" }),
   ]),
 ];
 
+function recordSpec() {
+  return [
+    group("skill", "Skill", [
+      column("bp", "BP", { sort_kind: "chii_ordinal", sort_path: "bp_ordinal" }),
+      column("equelo", "Equelo", { sort_kind: "numeric" }),
+      group("analysis", "Analysis", [
+        group("banzuke_error", "BZ Error", [
+          column("direction", "Dir", { sort_kind: "text" }),
+          column("magnitude", "Mag", { sort_kind: "numeric" }),
+        ]),
+        column("rbbp", "RBBP", { sort_kind: "chii_ordinal", sort_path: "rbbp_ordinal" }),
+      ]),
+    ]),
+    group("result", "Result", [
+      column("wins", "W", { sort_kind: "numeric" }),
+      column("losses", "L", { sort_kind: "numeric" }),
+      column("absences", "A", { sort_kind: "numeric" }),
+      column("prizes", "\u{1F4E6}", { sort_kind: "text" }),
+      column("division_change", "Div", { sort_kind: "text" }),
+    ]),
+  ];
+}
+
 function buildBashoResultsPresentationModel({ rows, state, entry, title }) {
   const visiblePaths = bashoResultsVisiblePaths(state);
+  const analyses = buildRecordAnalyses(rows || []);
   return {
     id: BASHO_RESULTS_TABLE_ID,
     header: bashoResultsHeader(title, entry),
-    table_spec: resolveStateHeading(TRANSITIONAL_TABLE_SPEC, entry),
-    values: rows.map((row, index) => transitionalRowValues(row, index)),
+    table_spec: resolveSelectedHeading(TRANSITIONAL_TABLE_SPEC, entry),
+    values: (rows || []).map((row, index) => transitionalRowValues(row, index, analyses)),
     projection: { visible_paths: visiblePaths },
   };
 }
@@ -107,69 +109,162 @@ function bashoResultsSubheading(entry) {
   return "Final";
 }
 
-function resolveStateHeading(spec, entry) {
-  const stateHeading = Number(entry?.latest_day) && Number(entry.latest_day) < 15
+function resolveSelectedHeading(spec, entry) {
+  const selectedHeading = Number(entry?.latest_day) && Number(entry.latest_day) < 15
     ? "Current"
     : "After Basho";
-  return spec.map(node => node.key === "state" ? { ...node, label: stateHeading } : node);
+  return spec.map(node => node.key === "selected" ? { ...node, label: selectedHeading } : node);
 }
 
 function bashoResultsVisiblePaths(state) {
   const visible = [
     "reference.row_number",
     "reference.shikona",
-    "state.rba.bp",
-    "state.rba.result.wins",
-    "state.rba.result.losses",
-    "state.rba.result.absences",
-    "state.rba.result.prizes",
-    "state.rba.result.division_change",
+    "selected.skill.bp",
+    "selected.result.wins",
+    "selected.result.losses",
+    "selected.result.absences",
+    "selected.result.prizes",
+    "selected.result.division_change",
   ];
   if (state.previous_context) {
     visible.push(
-      "before.rba.bp",
-      "before.rba.result.wins",
-      "before.rba.result.losses",
-      "before.rba.result.absences",
-      "before.rba.result.prizes",
-      "before.rba.result.division_change",
+      "before.skill.bp",
+      "before.result.wins",
+      "before.result.losses",
+      "before.result.absences",
+      "before.result.prizes",
+      "before.result.division_change",
     );
   }
   if (state.rating_context) {
-    if (state.previous_context) visible.push("before.rba.equelo");
-    visible.push("state.rba.equelo", "comparison.delta_equelo");
+    if (state.previous_context) {
+      visible.push(
+        "before.skill.equelo",
+        "before.skill.analysis.banzuke_error.direction",
+        "before.skill.analysis.banzuke_error.magnitude",
+        "before.skill.analysis.rbbp",
+      );
+    }
+    visible.push(
+      "selected.skill.equelo",
+      "selected.skill.analysis.banzuke_error.direction",
+      "selected.skill.analysis.banzuke_error.magnitude",
+      "selected.skill.analysis.rbbp",
+      "comparison.delta_equelo",
+    );
   }
   if (state.nu_chii) {
-    visible.push("state.rba.next_bp");
+    visible.push("selected.next_bp");
   }
   return visible;
 }
 
-function transitionalRowValues(row, index) {
+function buildRecordAnalyses(rows) {
+  return {
+    before: buildRecordAnalysis(rows, {
+      bpField: "previous_chii",
+      bpOrdinalField: "previous_chii_ordinal",
+      ratingField: "previous_equelo",
+    }),
+    selected: buildRecordAnalysis(rows, {
+      bpField: "chii",
+      bpOrdinalField: "chii_ordinal",
+      ratingField: "equelo",
+    }),
+  };
+}
+
+function buildRecordAnalysis(rows, fields) {
+  const candidates = rows.map((row, index) => {
+    const bpOrdinal = numericValue(row[fields.bpOrdinalField]);
+    const rating = numericValue(row[fields.ratingField]);
+    if (bpOrdinal === null || rating === null) return null;
+    return {
+      index,
+      bp: row[fields.bpField] || "",
+      bpOrdinal,
+      rating,
+    };
+  }).filter(Boolean);
+
+  const byBanzuke = [...candidates].sort((left, right) =>
+    compareValues(left.bpOrdinal, right.bpOrdinal) || compareValues(left.rating, right.rating)
+  );
+  const byRating = [...candidates].sort((left, right) =>
+    compareValues(right.rating, left.rating) || compareValues(left.bpOrdinal, right.bpOrdinal)
+  );
+  const banzukePositions = new Map();
+  const ratingPositions = new Map();
+  byBanzuke.forEach((item, index) => banzukePositions.set(item.index, index + 1));
+  byRating.forEach((item, index) => ratingPositions.set(item.index, index + 1));
+
+  const values = rows.map(() => emptyRecordAnalysis());
+  for (const item of candidates) {
+    const banzukePosition = banzukePositions.get(item.index);
+    const ratingPosition = ratingPositions.get(item.index);
+    const rbbpSlot = byBanzuke[ratingPosition - 1];
+    if (!banzukePosition || !ratingPosition || !rbbpSlot) continue;
+    const signedDelta = banzukePosition - ratingPosition;
+    values[item.index] = {
+      direction: signedDelta > 0 ? "\u2191" : signedDelta < 0 ? "\u2193" : "",
+      magnitude: signedDelta === 0 ? "" : String(Math.abs(signedDelta)),
+      rbbp: rbbpSlot.bp,
+      rbbpOrdinal: String(rbbpSlot.bpOrdinal),
+    };
+  }
+  return values;
+}
+
+function emptyRecordAnalysis() {
+  return {
+    direction: "",
+    magnitude: "",
+    rbbp: "",
+    rbbpOrdinal: "",
+  };
+}
+
+function numericValue(value) {
+  const number = Number(value);
+  return Number.isNaN(number) ? null : number;
+}
+
+function transitionalRowValues(row, index, analyses) {
   const beforeResult = parseResult(row.previous_result);
-  const stateResult = parseResult(row.score);
+  const selectedResult = parseResult(row.score);
+  const beforeAnalysis = analyses.before[index] || emptyRecordAnalysis();
+  const selectedAnalysis = analyses.selected[index] || emptyRecordAnalysis();
   return {
     "reference.row_number": String(index + 1),
     "reference.shikona": row.shikona || "",
     "reference.rikishi_id": row.rikishi_id || "",
-    "before.rba.bp": row.previous_chii || "",
-    "before.rba.bp_ordinal": row.previous_chii_ordinal || "",
-    "before.rba.result.wins": beforeResult.wins,
-    "before.rba.result.losses": beforeResult.losses,
-    "before.rba.result.absences": beforeResult.absences,
-    "before.rba.result.prizes": beforeResult.prizes,
-    "before.rba.result.division_change": rankLevelMovementMarker(row.previous_rank_level_movement),
-    "before.rba.equelo": row.previous_equelo || "",
-    "state.rba.bp": row.chii || "",
-    "state.rba.bp_ordinal": row.chii_ordinal || "",
-    "state.rba.result.wins": stateResult.wins,
-    "state.rba.result.losses": stateResult.losses,
-    "state.rba.result.absences": stateResult.absences,
-    "state.rba.result.prizes": stateResult.prizes,
-    "state.rba.result.division_change": rankLevelMovementBetween(row.chii, row.nu_chii),
-    "state.rba.equelo": row.equelo || "",
-    "state.rba.next_bp": row.nu_chii || "",
-    "state.rba.next_bp_ordinal": row.nu_chii_ordinal || "",
+    "before.skill.bp": row.previous_chii || "",
+    "before.skill.bp_ordinal": row.previous_chii_ordinal || "",
+    "before.skill.equelo": row.previous_equelo || "",
+    "before.skill.analysis.banzuke_error.direction": beforeAnalysis.direction,
+    "before.skill.analysis.banzuke_error.magnitude": beforeAnalysis.magnitude,
+    "before.skill.analysis.rbbp": beforeAnalysis.rbbp,
+    "before.skill.analysis.rbbp_ordinal": beforeAnalysis.rbbpOrdinal,
+    "before.result.wins": beforeResult.wins,
+    "before.result.losses": beforeResult.losses,
+    "before.result.absences": beforeResult.absences,
+    "before.result.prizes": beforeResult.prizes,
+    "before.result.division_change": rankLevelMovementMarker(row.previous_rank_level_movement),
+    "selected.skill.bp": row.chii || "",
+    "selected.skill.bp_ordinal": row.chii_ordinal || "",
+    "selected.skill.equelo": row.equelo || "",
+    "selected.skill.analysis.banzuke_error.direction": selectedAnalysis.direction,
+    "selected.skill.analysis.banzuke_error.magnitude": selectedAnalysis.magnitude,
+    "selected.skill.analysis.rbbp": selectedAnalysis.rbbp,
+    "selected.skill.analysis.rbbp_ordinal": selectedAnalysis.rbbpOrdinal,
+    "selected.result.wins": selectedResult.wins,
+    "selected.result.losses": selectedResult.losses,
+    "selected.result.absences": selectedResult.absences,
+    "selected.result.prizes": selectedResult.prizes,
+    "selected.result.division_change": rankLevelMovementBetween(row.chii, row.nu_chii),
+    "selected.next_bp": row.nu_chii || "",
+    "selected.next_bp_ordinal": row.nu_chii_ordinal || "",
     "comparison.delta_equelo": row.delta_equelo || "",
   };
 }
