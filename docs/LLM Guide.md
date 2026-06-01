@@ -130,20 +130,13 @@ RawPageDefinition -> PlannedPageWithRoute (carrying Route, not Optional[Route])
 
 > Design top-down by contract. Trust your inputs. Eliminate defensive noise, let the language crash natively on internal logic errors, and handle only the explicit uncertainties admitted by the project requirements.
 
-
-
 # Results of conversation about LLM's environment
 
 Here is what I’ve learned about this working environment.
 
 `X:\Sumo-Tools` is the current usable Codex workspace. I can read/write there and Git works well enough for history, diffs, and normal repo archaeology.
 
-The project is firmly back on `X:` after a bad hiatus caused by trying to use
-Git on Google Drive. Any reference to `G:` anywhere in docs, code, comments,
-commands, logs, or remembered context is wrong for current work. If an LLM sees
-or is tempted to use a `G:` path, it must stop and alert the user immediately
-instead of treating it as a fallback, archive, source of truth, or plausible
-workspace.
+
 
 Mapped/cloud drives are not generally usable from this session. `A:` is the LAN/local web-root mapped drive and I cannot see it. `H:` is not visible.
 
