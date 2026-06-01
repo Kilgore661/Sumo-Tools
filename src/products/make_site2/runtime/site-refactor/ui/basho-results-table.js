@@ -15,7 +15,7 @@ const PRESENTATION = {
   COMPACT_TEXT: "compact_text",
 };
 
-const PRIZE_SORT_ORDER = ["G", "S", "K", "J", "D", "Y"];
+const PRIZE_DISPLAY_ORDER = ["Y", "D", "J", "K", "S", "G"];
 
 const TRANSITIONAL_TABLE_SPEC = [
   group("reference", "Reference", [
@@ -552,9 +552,11 @@ function prizeSortValue(value) {
   // HACK: current Basho Results output serializes Result as a compact display
   // string, so the runtime has to derive prize ordering from parsed display
   // text. See Open Issues: Structured Result emitter shape.
+  // The string display order is most-to-least valuable; shifting left through
+  // that order leaves the least valuable prize as bit 0.
   const awarded = new Set(String(value ?? "").trim().split(""));
-  return PRIZE_SORT_ORDER.reduce((total, prize, index) =>
-    total + (awarded.has(prize) ? 2 ** index : 0), 0
+  return PRIZE_DISPLAY_ORDER.reduce((total, prize) =>
+    (total << 1) | (awarded.has(prize) ? 1 : 0), 0
   );
 }
 
