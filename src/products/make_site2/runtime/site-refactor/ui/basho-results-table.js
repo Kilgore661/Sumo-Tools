@@ -15,6 +15,8 @@ const PRESENTATION = {
   COMPACT_TEXT: "compact_text",
 };
 
+const PRIZE_SORT_ORDER = ["G", "S", "K", "J", "D", "Y"];
+
 const TRANSITIONAL_TABLE_SPEC = [
   group("reference", "Reference", [
     column("row_number", "#", { sort_kind: "none", presentation: PRESENTATION.NUMERIC_MAGNITUDE }),
@@ -65,7 +67,7 @@ function recordSpec() {
       column("wins", "W", { sort_kind: "numeric", presentation: PRESENTATION.COMPACT_COUNT }),
       column("losses", "L", { sort_kind: "numeric", presentation: PRESENTATION.COMPACT_COUNT }),
       column("absences", "A", { sort_kind: "numeric", presentation: PRESENTATION.COMPACT_COUNT }),
-      column("prizes", "\u{1F4E6}", { sort_kind: "text", presentation: PRESENTATION.COMPACT_TEXT }),
+      column("prizes", "\u{1F4E6}", { sort_kind: "prize_set", presentation: PRESENTATION.COMPACT_TEXT }),
     ]),
   ];
 }
@@ -505,6 +507,7 @@ function sortMultiplierForLeaf(leaf, direction) {
 function sortValueForLeaf(leaf, row) {
   const value = row[leaf.sort_path || leaf.path];
   if (leaf.sort_kind === "record") return recordWins(value);
+  if (leaf.sort_kind === "prize_set") return prizeSortValue(value);
   if (leaf.sort_kind === "numeric" || leaf.sort_kind === "chii_ordinal") {
     const number = Number(value);
     return Number.isNaN(number) ? null : number;
@@ -545,9 +548,19 @@ function toggledSortDirection(direction) {
   return direction === "ascending" ? "descending" : "ascending";
 }
 
+function prizeSortValue(value) {
+  // HACK: current Basho Results output serializes Result as a compact display
+  // string, so the runtime has to derive prize ordering from parsed display
+  // text. See Open Issues: Structured Result emitter shape.
+  const awarded = new Set(String(value ?? "").trim().split(""));
+  return PRIZE_SORT_ORDER.reduce((total, prize, index) =>
+    total + (awarded.has(prize) ? 2 ** index : 0), 0
+  );
+}
+
 function recordWins(value) {
   // Warning! Warning! Dr. Smith! This parses compact result strings because
-  // TBD "Producer result-field shape" has not been resolved.
+  // the structured Result emitter shape open issue has not been resolved.
   const match = String(value ?? "").match(/^\s*(\d+)\s*-/);
   return match ? Number(match[1]) : null;
 }
