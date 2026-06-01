@@ -239,6 +239,7 @@ This defect does not reopen the canonical-link correction.
 | Structural hider implementation | Implemented; verification outstanding | NavigationBar and Notes now use the same pattern: a first-class hider strip remains visible while the controlled content region collapses. NavigationBar controls NavigationContent; Notes controls NotesContent. |
 | Table chrome/body split as explicit PA model | Deferred / TBD | Runtime now implements table-body-only scrolling for ordinary table PAs. Consider a richer producer-facing PA model only if future pressure requires explicit non-scrolling chrome and scrolling data-region semantics. |
 | Stress-test 7.1 Basho Results redesign | Open | The settled 7.1 record/context/analysis/changes model is now specified in `02 Specification.md`, designed in `04.5 Basho Results Model.md`, and rendered in the transitional runtime. The remaining work is stress-testing and hardening: move compact-result, Analysis and movement derivations toward producer/site-facing fields where appropriate, check in-progress and no-successor-banzuke cases, verify sorting on the new terminal paths, and decide how much transitional parsing may remain. |
+| BRB kyujo rating continuity | Implemented; verification outstanding | Basho Results now has a local display-continuity workaround for banzuke rikishi whose persisted fixed_v2 day-end rating is missing, typically because a whole-basho kyujo rikishi was absent from the Oracle-cleaned simulation universe. The workaround is intentionally isolated in `src.analysis.sumo_history.basho_results.kyujo_hack`: it does not change fixed_v2 artefacts, the Oracle, or the simulator. It resolves selected/current `Eq` by using the stored rating if present, otherwise carrying forward the last known actual rating for known rikishi, or using the entrant initial rating only for genuine first appearances. Future design work should decide whether this remains a BRB display rule or is replaced by a principled rating/universe policy. |
 | General table presentation model | Deferred | Do not generalise the 7.1 recursive table model into a universal table model now. The apparent commonality is real: flat tables can be treated as depth-one recursive tables, and grouped tables resemble shallow hierarchical tables. However, unification would require settled semantics for projection, hidden leaves, whether group headings collapse or persist when only one child remains visible, view-specific table specs, sort identity across projected leaves, and section/custom-table boundaries. That is too much model work for the current pressure. Keep 7.1 recursive tables and ordinary/non-7.1 table renderers separate for now. Prefer shared CSS/helper/rendering policy for genuinely common concerns such as alignment, typography, padding, row treatment, link styling and sortable-heading presentation. Reopen model unification only if repeated styling or behavioural divergence becomes worse than the cost of defining the general table theory. |
 | Non-7.1 table alignment policy | Deferred / TBD | Basho Results now has a documented local role-plus-semantic-kind alignment policy for headings and values. Whether ordinary/non-7.1 tables should adopt the same policy is not yet decided. If they do, share the alignment vocabulary/policy without casting ordinary tables into the 7.1 recursive table model. |
 | nuChii meaning cleanup | Deferred / TBD | The implementation assumes `nuChii` means "new Chii", i.e. the Chii/BP in the next banzuke. This is internally consistent and does not require a code change. Remaining documentation references that use `nuChii` to mean something else can be ignored or removed during cleanup. (Originally `nuChii` was an estimate of what the new chii would be, but the algorithm for that is WIP). |
@@ -276,6 +277,7 @@ Completed
   canonical single-shell Navigation/runtime links, implemented and verified
   QuickLinks model and rendering in NavigationBar
   settled Basho Results (7.1) model folded into 04.5
+  BRB kyujo rating continuity workaround implemented in the producer path
 
 Immediate decided patch
   add conspicuous development warning to Banzuke Changes while its present
@@ -333,6 +335,12 @@ are complete and verified. The settled Basho Results (7.1) model is now folded
 into the main spine as `04.5 Basho Results Model.md`, with the current record,
 Context, Skill, Analysis, Result and Changes shape rendered by the transitional
 runtime.
+
+Basho Results now includes a local kyujo-rating continuity workaround for
+selected/current Equelo display. The workaround is documented as **BRB kyujo
+rating continuity** and isolated in `src.analysis.sumo_history.basho_results.kyujo_hack`
+so that it is clear this is a BRB producer/display rule, not a change to
+fixed_v2, the Oracle, or the simulator.
 
 The active publication-coherence issue is now more accurately defined. Banzuke
 Changes is a Page for a newly published successor banzuke before results enter
