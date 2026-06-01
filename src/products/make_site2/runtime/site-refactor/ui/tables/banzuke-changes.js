@@ -1,3 +1,5 @@
+// Banzuke Changes table renderers and scan-table sort values.
+
 import { escapeHtml } from "../../utils/html.js";
 import {
   compareNullableSortValues,
@@ -11,6 +13,7 @@ import {
   tableSortStates,
 } from "./shared.js";
 
+// Render Banzuke Changes in either banzuke-style or scan-table form.
 function renderBanzukeChangesTable(artifact, rows, state, config) {
   const title = config.title || artifact.heading;
   const table = state.banzuke_style
@@ -24,6 +27,7 @@ function renderBanzukeChangesTable(artifact, rows, state, config) {
   ].join("");
 }
 
+// Render the East/West banzuke-shaped report view.
 function renderBanzukeStyleTable(rows, state) {
   const eastColumns = banzukeSideColumns("east", state);
   const westColumns = banzukeSideColumns("west", state);
@@ -53,6 +57,7 @@ function renderBanzukeStyleTable(rows, state) {
   ].join("");
 }
 
+// Render the sortable row-scan report view.
 function renderBanzukeScanTable(artifact, rows, state) {
   const columns = banzukeScanColumns(state);
   const sortState = currentBanzukeScanSortState(artifact, columns);
@@ -133,6 +138,7 @@ function currentBanzukeScanSortState(artifact, columns) {
   };
 }
 
+// Sort flattened East/West scan rows using Banzuke Changes column semantics.
 function sortBanzukeScanRows(rows, columns, sortState) {
   const column = columns.find(item => item.id === sortState?.columnId);
   if (!isSortableColumn(column)) return [...rows];

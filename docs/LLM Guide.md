@@ -116,6 +116,16 @@ RawPageDefinition -> PlannedPageWithRoute (carrying Route, not Optional[Route])
 
 * **Controlled Vocabulary:** Once a term is rejected from the formal model, do not use it in the code or design documents. Use acronyms only when they are genuine domain terms, never to arbitrarily shorten names.
 
+## 5.1 Module Documentation
+
+* Every new Python or JavaScript module must have a top-level orientation
+  docstring/comment.
+* Add short docstrings/comments to major constructs: public entry points,
+  model transformations, renderers, state transitions, sort/value derivations
+  and other functions a maintainer would naturally look for first.
+* Keep these comments semantic and architectural. Do not add line-by-line
+  narration or comments that merely restate the code.
+
 ---
 
 ## 6. UI Model Principle

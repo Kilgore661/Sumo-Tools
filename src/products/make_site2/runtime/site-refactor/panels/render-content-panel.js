@@ -1,3 +1,5 @@
+// ContentPanel orchestration by published artifact kind.
+
 import { contentPanel } from "../core/dom.js";
 import { getRuntimeManifest } from "../core/manifest-store.js";
 import { readFilterUrlState, writePanelUrl } from "../core/url-state.js";
@@ -10,6 +12,7 @@ import { renderNotes, wireNotesPanel } from "../ui/notes.js";
 import { banzukeScanColumns, renderBanzukeChangesTable, renderIndexedTable, renderSectionedTable, renderStandingsTable, standingsRowsForState, wireTableSorting } from "../ui/tables.js";
 import { escapeHtml } from "../utils/html.js";
 
+// Dispatch a manifest-declared ContentPanel to the renderer for its PA kind.
 async function renderContentPanel(panel, overrideState = null) {
   const artifactId = panel.contents.pa_panel.pa.artifact_id;
   const declaredArtifact = getRuntimeManifest().artifacts[artifactId];
@@ -37,6 +40,7 @@ async function renderContentPanel(panel, overrideState = null) {
   }
   throw new Error(`Unsupported artifact kind: ${artifact.kind}`);
 }
+// Restrict artifact notes to the note ids owned by the current PAPanel.
 function artifactForPAPanel(panel, artifact) {
   const noteIds = new Set(panel.contents.pa_panel.notes.note_ids || []);
   return {
@@ -49,6 +53,7 @@ function renderContentSummary(summary) {
   return `<h3 class="content-summary">${summary}</h3>`;
 }
 
+// Render indexed-table panels, including the specialized Basho Results table.
 async function renderIndexedTableContentPanel(panel, artifact, overrideState = null) {
   const filters = panel.contents.filter_section.filters;
   const state = overrideState || resolveFilterState(filters, readFilterUrlState(filters));
@@ -99,6 +104,7 @@ async function renderIndexedTableContentPanel(panel, artifact, overrideState = n
   wireNotesPanel();
   wirePAPanelLayout();
 }
+// Render the Banzuke Changes panel from config and row data.
 async function renderBanzukeChangesContentPanel(panel, artifact, overrideState = null) {
   const filters = panel.contents.filter_section.filters;
   const state = overrideState || resolveFilterState(filters, readFilterUrlState(filters));
@@ -152,6 +158,7 @@ async function renderSectionedTableContentPanel(panel, artifact) {
   wireNotesPanel();
   wirePAPanelLayout();
 }
+// Render the Standings panel with source, window and division filters.
 async function renderStandingsContentPanel(panel, artifact, overrideState = null) {
   const filters = panel.contents.filter_section.filters;
   const state = overrideState || resolveFilterState(filters, readFilterUrlState(filters));
@@ -183,6 +190,7 @@ async function renderStandingsContentPanel(panel, artifact, overrideState = null
   wireNotesPanel();
   wirePAPanelLayout();
 }
+// Dispatch chart panels to the chart-family renderer selected by artifact metadata.
 async function renderChartContentPanel(panel, artifact, overrideState = null) {
   if (artifact.renderer === "stacked_bar_chart") {
     await renderStackedBarChartContentPanel(panel, artifact);
@@ -386,6 +394,7 @@ async function renderCategoryBarChartContentPanel(panel, artifact) {
   wireNotesPanel();
   wirePAPanelLayout();
 }
+// Load all CSV sources declared by an artifact data binding.
 async function fetchArtifactCsvSet(artifact) {
   const entries = await Promise.all(
     artifact.data_sources.map(async source => [source.id, await fetchCsv(source.path)])

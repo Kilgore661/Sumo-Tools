@@ -1,3 +1,5 @@
+// Generic indexed and sectioned table renderers.
+
 import { escapeHtml } from "../../utils/html.js";
 import {
   currentTableSortState,
@@ -6,6 +8,7 @@ import {
   tableCellAttributes,
 } from "./shared.js";
 
+// Render a table artifact as independent section tables.
 function renderSectionedTable(artifact, rows) {
   const sortState = currentTableSortState(artifact);
   return [
@@ -51,6 +54,7 @@ function renderTableSection(section, rows, columns, sortState = null) {
   ].join("");
 }
 
+// Render a flat indexed-table artifact with filter-controlled column visibility.
 function renderIndexedTable(artifact, rows, state) {
   const groups = new Map(artifact.column_groups.map(group => [group.id, group]));
   const visibleColumns = artifact.columns.filter(column => isColumnVisible(column, groups, state));
@@ -72,6 +76,7 @@ function renderIndexedTable(artifact, rows, state) {
   ].join("");
 }
 
+// Apply generic column/group visibility rules from the runtime manifest.
 function isColumnVisible(column, groups, state) {
   if (column.always_visible) return true;
   const group = groups.get(column.group);

@@ -1,7 +1,10 @@
+// Finish by Chii chart rendering and Plotly trace setup.
+
 import { divisionId, filterValueLabel } from "../filters.js";
 import { escapeHtml } from "../../utils/html.js";
 import { PLOTLY_CONFIG } from "./shared.js";
 
+// Render the static HTML host for the selected Finish by Chii chart.
 function renderFinishByChiiChart(artifact, state, filters, rowsBySource) {
   const rows = finishByChiiRows(artifact, state, rowsBySource);
   if (!rows.length) {
@@ -22,6 +25,7 @@ function renderFinishByChiiChart(artifact, state, filters, rowsBySource) {
   ].join("");
 }
 
+// Populate the Finish by Chii host with its Plotly bar chart.
 function renderFinishByChiiPlot(artifact, state, rowsBySource) {
   const host = document.getElementById("finish-by-chii-chart");
   if (!host) return;
@@ -75,6 +79,7 @@ function renderFinishByChiiPlot(artifact, state, rowsBySource) {
   Plotly.react(host, [trace], layout, PLOTLY_CONFIG);
 }
 
+// Select the threshold rows matching the active division, Chii and direction.
 function finishByChiiRows(artifact, state, rowsBySource) {
   const sourceId = state.direction === "bottom" ? "bottom_thresholds" : "top_thresholds";
   return [...(rowsBySource[sourceId] || [])]

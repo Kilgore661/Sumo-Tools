@@ -1,3 +1,5 @@
+// Shared chart runtime helpers used by the chart-family modules.
+
 const PLOTLY_CONFIG = {
   displayModeBar: true,
   displaylogo: false,

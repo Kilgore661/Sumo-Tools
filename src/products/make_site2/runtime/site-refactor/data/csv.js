@@ -1,8 +1,12 @@
+// Minimal CSV parser for generated runtime data files.
+
+// Parse CSV text into objects keyed by header names.
 function parseCsv(text) {
   const rows = csvRows(text.trim());
   const headers = rows.shift() || [];
   return rows.map(row => Object.fromEntries(headers.map((header, index) => [header, row[index] || ""])));
 }
+// Parse CSV text into raw rows while respecting quoted fields.
 function csvRows(text) {
   const rows = [];
   let row = [];

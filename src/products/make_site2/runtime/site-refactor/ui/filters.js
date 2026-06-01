@@ -1,3 +1,5 @@
+// Filter state, rendering and event wiring.
+
 import { contentPanel } from "../core/dom.js";
 import { writePanelUrl } from "../core/url-state.js";
 import { escapeHtml } from "../utils/html.js";
@@ -7,12 +9,14 @@ function filterValueLabel(filters, filterId, value) {
   const option = (filter?.values || []).find(candidate => candidate.value === value);
   return option?.label || "";
 }
+// Resolve URL filter values into a complete state object with defaults.
 function resolveFilterState(filters, urlState) {
   return Object.fromEntries(filters.map(filter => [
     filter.id,
     coerceFilterValue(filter, urlState[filter.id] ?? filter.default)
   ]));
 }
+// Coerce string URL values according to filter value types.
 function coerceFilterValue(filter, value) {
   if (filter.control === "checkbox") return value === true || value === "true";
   if (value === null || value === undefined || value === "") return filter.default;
@@ -46,6 +50,7 @@ function selectedStandingsSource(artifact, state) {
     String(source.filter_value) === String(state[artifact.selector_filter_id])
   );
 }
+// Attach filter controls and rerender the panel on change.
 function wireFilterSection(panel, state, renderPanel) {
   const form = contentPanel.querySelector(".filter-section");
   if (!form) return;
@@ -65,6 +70,7 @@ function wireFilterSection(panel, state, renderPanel) {
     });
   });
 }
+// Select the requested indexed payload entry, resolving "latest" if needed.
 function selectedIndexEntry(index, selected) {
   const entries = index.entries || [];
   if (selected && selected !== "latest") {
@@ -81,6 +87,7 @@ function bashoSelectorValues(index) {
     .sort((left, right) => String(right.basho).localeCompare(String(left.basho)))
     .map(entry => ({ value: entry.basho, label: entry.label || entry.basho }));
 }
+// Render all controls for a panel FilterSection.
 function renderFilterSection(filterSection, state, index, rowsBySource = {}) {
   if (!filterSection.filters.length) return "";
   return [
@@ -149,6 +156,7 @@ function renderDropdownChoice(filter, values, selected) {
     '</label>'
   ].join("");
 }
+// Derive selector values from a loaded data source field.
 function dataSelectorValues(filter, state, rowsBySource) {
   const source = filter.values_source;
   const rows = rowsBySource[source.source] || [];

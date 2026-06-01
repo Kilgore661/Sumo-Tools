@@ -1,3 +1,5 @@
+// Public chart runtime facade.
+
 export {
   renderFinishByChiiChart,
   renderFinishByChiiPlot,

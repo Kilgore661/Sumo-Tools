@@ -1,3 +1,5 @@
+// Basho Results presentation model construction.
+
 import { BASHO_RESULTS_TABLE_ID } from "./shared.js";
 import { TRANSITIONAL_TABLE_SPEC } from "./table-spec.js";
 import {
@@ -5,6 +7,7 @@ import {
   transitionalRowValues,
 } from "./values.js";
 
+// Build the complete UI model consumed by the Basho Results recursive renderer.
 function buildBashoResultsPresentationModel({ rows, state, entry, title }) {
   const visiblePaths = bashoResultsVisiblePaths(state);
   const analyses = buildRecordAnalyses(rows || []);
@@ -30,6 +33,7 @@ function bashoResultsSubheading(entry) {
   return "Final";
 }
 
+// Adjust the selected-context heading for in-progress versus final basho output.
 function resolveSelectedHeading(spec, entry) {
   const selectedHeading = Number(entry?.latest_day) && Number(entry.latest_day) < 15
     ? "Current"
@@ -37,6 +41,7 @@ function resolveSelectedHeading(spec, entry) {
   return spec.map(node => node.key === "selected" ? { ...node, label: selectedHeading } : node);
 }
 
+// Project filter state into the terminal table paths that should be visible.
 function bashoResultsVisiblePaths(state) {
   const visible = [
     "reference.row_number",

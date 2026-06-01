@@ -1,3 +1,5 @@
+// HTML escaping helpers for runtime-rendered strings.
+
 function escapeHtml(value) {
   return String(value)
     .replaceAll("&", "&amp;")

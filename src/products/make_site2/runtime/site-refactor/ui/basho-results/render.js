@@ -1,3 +1,5 @@
+// Basho Results recursive table rendering.
+
 import { escapeHtml } from "../../utils/html.js";
 import { PRESENTATION } from "./table-spec.js";
 import {
@@ -8,6 +10,7 @@ import {
   toggledSortDirection,
 } from "./sorting.js";
 
+// Render the full Basho Results presentation model as a recursive table.
 function renderBashoResultsPresentationTable(model) {
   const visiblePaths = new Set(model.projection?.visible_paths || []);
   const leaves = terminalNodes(model.table_spec || [], [], visiblePaths);
@@ -38,6 +41,7 @@ function renderBashoResultsHeader(header) {
   ].join("");
 }
 
+// Render multi-row table headings from the recursive table specification.
 function renderNestedHead(nodes, visiblePaths, leaves = null, sortState = null) {
   const rows = headerRows(nodes, visiblePaths);
   const leafByPath = new Map((leaves || terminalNodes(nodes, [], visiblePaths)).map(leaf => [leaf.path, leaf]));
@@ -80,6 +84,7 @@ function renderNestedHeaderCell(cell, leaf, sortState) {
   ].join("");
 }
 
+// Convert recursive header nodes into concrete table header rows.
 function headerRows(nodes, visiblePaths) {
   const depth = maxDepth(nodes, visiblePaths);
   const rows = Array.from({ length: depth }, () => []);
@@ -121,6 +126,7 @@ function maxDepth(nodes, visiblePaths, path = [], level = 1) {
   return Math.max(level, ...depths);
 }
 
+// Return visible leaf columns with resolved terminal and sort paths.
 function terminalNodes(nodes, path, visiblePaths) {
   return (nodes || []).flatMap(node => {
     const nextPath = [...path, node.key];
@@ -142,6 +148,7 @@ function isVisiblePath(path, visiblePaths) {
   return !visiblePaths.size || visiblePaths.has(path);
 }
 
+// Render a terminal-path value, including the special rikishi link cell.
 function renderBashoResultsCell(row, path, index) {
   if (path === "reference.row_number") return escapeHtml(String(index + 1));
   if (path === "reference.shikona") {

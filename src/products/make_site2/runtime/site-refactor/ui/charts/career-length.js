@@ -1,7 +1,10 @@
+// Career Length chart/table runtime view handling.
+
 import { decimal, renderRikishiLink } from "../tables.js";
 import { escapeHtml } from "../../utils/html.js";
 import { PLOTLY_CONFIG } from "./shared.js";
 
+// Render the selected Career Length view, which may be a table or Plotly host.
 function renderCareerLengthArtifact(artifact, state, rowsBySource) {
   const view = careerLengthView(artifact, state.view);
   if (view.kind === "table") {
@@ -19,6 +22,7 @@ function renderCareerLengthArtifact(artifact, state, rowsBySource) {
   ].join("");
 }
 
+// Render the tabular Career Length view.
 function renderCareerLengthTable(view, rows) {
   const columns = view.columns || [];
   return [
@@ -42,6 +46,7 @@ function renderCareerLengthTable(view, rows) {
   ].join("");
 }
 
+// Populate the Career Length chart host when the selected view is graphical.
 function renderCareerLengthPlot(artifact, state, rowsBySource) {
   const view = careerLengthView(artifact, state.view);
   if (view.kind === "table") return;
@@ -59,6 +64,7 @@ function renderCareerLengthPlot(artifact, state, rowsBySource) {
   );
 }
 
+// Convert a Career Length chart view into Plotly traces.
 function careerLengthTraces(view, rows) {
   if (view.kind === "stacked_bar") {
     return view.y.map((field, index) => ({

@@ -1,7 +1,10 @@
+// Standing Win Probability chart rendering, trace grouping and legend behaviour.
+
 import { compareValues } from "../tables.js";
 import { escapeHtml } from "../../utils/html.js";
 import { PLOTLY_CONFIG, axisRange } from "./shared.js";
 
+// Render the title and Plotly host for the selected standing win probability source.
 function renderStandingWinProbabilityChart(artifact, state, rowsBySource) {
   const source = selectedStandingSource(artifact, state);
   const rows = rowsBySource[source.id] || [];
@@ -17,6 +20,7 @@ function renderStandingWinProbabilityChart(artifact, state, rowsBySource) {
   ].join("");
 }
 
+// Populate the Standing Win Probability host and attach Plotly legend behaviour.
 function renderStandingWinProbabilityPlot(artifact, state, rowsBySource) {
   const host = document.getElementById("standing-win-probability-chart");
   if (!host) return;
@@ -54,6 +58,7 @@ function renderStandingWinProbabilityPlot(artifact, state, rowsBySource) {
   });
 }
 
+// Build the visible/legendonly Plotly traces for the selected source and division.
 function standingWinProbabilityTraces(artifact, state, source, rows) {
   const trace = artifact.traces[0];
   const groups = standingWinProbabilityGroups(artifact, state, rows, trace);
@@ -62,6 +67,7 @@ function standingWinProbabilityTraces(artifact, state, source, rows) {
     .map(group => standingWinProbabilityTrace(artifact, state, source, group, trace, selectedTraceKey));
 }
 
+// Group source rows by selected Chii and filter them to the active division.
 function standingWinProbabilityGroups(artifact, state, rows, trace) {
   const groups = new Map();
   for (const row of rows) {
@@ -253,6 +259,7 @@ function divisionForStandingChii(chii) {
   return "Other";
 }
 
+// Derive the x-axis category order from currently visible Plotly traces.
 function visibleStandingCategories(traces) {
   const entries = new Map();
   const visibleTraces = traces.filter(trace =>

@@ -1,3 +1,5 @@
+// Application boot, URL routing and page selection.
+
 import { bootSiteContext, siteContext } from "./core/context.js";
 import { contentPanel } from "./core/dom.js";
 import { getRuntimeManifest, setRuntimeManifest } from "./core/manifest-store.js";
@@ -13,6 +15,7 @@ boot().catch(error => {
   contentPanel.innerHTML = `<p>${escapeHtml(error.message)}</p>`;
 });
 
+// Load the runtime manifest and wire browser navigation state.
 async function boot() {
   setRuntimeManifest(await fetchJson("runtime/site-manifest.json"));
   const navLinks = [...document.querySelectorAll(".nav-link[data-page-id]")];
@@ -29,6 +32,7 @@ async function boot() {
 function isInPlaceNavigationClick(event) {
   return event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey;
 }
+// Read browser URL state and render either the landing panel or selected page.
 function loadStateFromUrl() {
   const params = new URLSearchParams(window.location.search);
   const pageId = params.get(PAGE_PARAM) || "";
@@ -47,6 +51,7 @@ function renderLandingPanel() {
     '</section>'
   ].join("");
 }
+// Resolve a page id to a content panel and render it with canonical URL state.
 function selectPage(
   pageId,
   { pushDefaultView = false, canonicalizeUnfilteredView = false } = {},

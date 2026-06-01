@@ -1,3 +1,5 @@
+// Public Basho Results table runtime facade.
+
 export {
   buildBashoResultsPresentationModel,
 } from "./basho-results/model.js";

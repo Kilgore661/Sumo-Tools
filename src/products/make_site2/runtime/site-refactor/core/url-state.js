@@ -1,5 +1,8 @@
+// Browser URL state helpers for page and filter selection.
+
 export const PAGE_PARAM = "page";
 
+// Build the canonical public view URL for a page/filter state.
 function publicViewUrl(pageId, filters = [], state = {}) {
   const params = new URLSearchParams();
   if (pageId) params.set(PAGE_PARAM, pageId);
@@ -14,6 +17,7 @@ function serializeFilterValue(value) {
   if (typeof value === "boolean") return value ? "true" : "false";
   return String(value);
 }
+// Write a canonical view URL using history push or replace semantics.
 function writeCanonicalViewUrl(pageId, filters = [], state = {}, { replace }) {
   const next = publicViewUrl(pageId, filters, state);
   const current = `${window.location.pathname}${window.location.search}${window.location.hash}`;
@@ -27,6 +31,7 @@ function writeCanonicalViewUrl(pageId, filters = [], state = {}, { replace }) {
 function writePanelUrl(pageId, filters, state, options) {
   writeCanonicalViewUrl(pageId, filters, state, options);
 }
+// Read the filter subset of the current browser URL.
 function readFilterUrlState(filters) {
   const params = new URLSearchParams(window.location.search);
   return Object.fromEntries(filters.map(filter => [

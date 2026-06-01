@@ -1,3 +1,5 @@
+// Standings table rendering and standings-specific row projection.
+
 import { escapeHtml } from "../../utils/html.js";
 import {
   compareValues,
@@ -10,6 +12,7 @@ import {
 } from "./shared.js";
 import { cellValue } from "./generic.js";
 
+// Render the Standings table with metric-preset columns and competition ranks.
 function renderStandingsTable(artifact, rows, filteredRows, state) {
   const visibleColumns = standingsVisibleColumns(artifact, state);
   const meanPositions = competitionPositions(filteredRows, "selected_average_credited_wins");
@@ -35,6 +38,7 @@ function renderStandingsTable(artifact, rows, filteredRows, state) {
   ].join("");
 }
 
+// Select visible Standings columns for the active metric preset.
 function standingsVisibleColumns(artifact, state) {
   const visibleGroups = standingsVisibleGroups(state);
   return artifact.columns.filter(column =>
@@ -77,6 +81,7 @@ function standingsCellValue(column, row, index, meanPositions, percentPositions)
   return escapeHtml(cellValue(column, row, index));
 }
 
+// Apply current-only and division filters to Standings rows.
 function standingsRowsForState(rows, state) {
   return rows.filter(row =>
     (state.division === "all" || standingsDivisionMatches(row.chii_ordinal, state.division)) &&
@@ -108,6 +113,7 @@ function defaultStandingsSortColumn(state) {
     : "win_percent";
 }
 
+// Compute competition ranks, preserving ties at the same position.
 function competitionPositions(rows, field) {
   const ordered = [...rows].sort((left, right) => compareValues(right[field], left[field]));
   const positions = new Map();

@@ -1,3 +1,5 @@
+// Site context derived from generated shell data attributes.
+
 function bootSiteContext() {
   const context = siteContext();
   document.body.classList.add(`site-context-${context.id}`);
@@ -5,6 +7,7 @@ function bootSiteContext() {
     document.title = `${context.titlePrefix} ${document.title}`;
   }
 }
+// Return the shell-provided site context used by runtime rendering.
 function siteContext() {
   const hostname = window.location.hostname.toLowerCase();
   if (hostname === "68.66.241.105" || hostname === "www.661.org.uk" || hostname === "661.org.uk") {

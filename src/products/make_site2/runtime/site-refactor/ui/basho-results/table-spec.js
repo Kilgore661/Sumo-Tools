@@ -1,3 +1,5 @@
+// Recursive Basho Results table specification and presentation vocabulary.
+
 const PRESENTATION = {
   DEFAULT: "default",
   NAME: "name",

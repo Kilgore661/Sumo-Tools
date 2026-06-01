@@ -1,3 +1,5 @@
+// Shared table sorting, heading and cell-link helpers.
+
 import { escapeHtml } from "../../utils/html.js";
 
 const tableSortStates = new Map();
@@ -15,6 +17,7 @@ function compareValues(left, right) {
   return String(left).localeCompare(String(right));
 }
 
+// Resolve the current sort state for an artifact, creating its default state.
 function currentTableSortState(artifact, fallbackColumnId = null) {
   const existing = tableSortStates.get(artifact.id);
   if (existing) return existing;
@@ -41,6 +44,7 @@ function sortDefaultDirection(column) {
   return "descending";
 }
 
+// Sort table rows using column metadata and null-last behaviour.
 function sortRows(rows, columns, sortState) {
   const column = columns.find(item => item.id === sortState?.columnId);
   if (!isSortableColumn(column)) return [...rows];
@@ -78,6 +82,7 @@ function recordWins(value) {
   return match ? Number(match[1]) : null;
 }
 
+// Render a sortable or static table heading cell.
 function renderTableHeading(column, sortState) {
   const attributes = tableCellAttributes(column);
   if (!isSortableColumn(column)) return `<th ${attributes}>${escapeHtml(column.heading)}</th>`;
@@ -94,6 +99,7 @@ function renderTableHeading(column, sortState) {
   ].join("");
 }
 
+// Attach click handlers for ordinary table heading sort buttons.
 function wireTableSorting(panel, artifact, renderPanel, columns = null) {
   const sortableColumns = columns || artifact.columns || [];
   document.querySelectorAll(".table-sort-button").forEach(button => {
@@ -120,6 +126,7 @@ function tableCellAttributes(column) {
   return `data-column-id="${escapeHtml(column.id)}"`;
 }
 
+// Render the standard external SumoDB rikishi link.
 function renderRikishiLink(shikona, rikishiId) {
   if (!rikishiId) return "";
   return [

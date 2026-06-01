@@ -1,8 +1,11 @@
+// PA-local note rendering and collapse behaviour.
+
 import { updateStickyArtifactHeaders } from "./layout.js";
 import { escapeHtml } from "../utils/html.js";
 
 const NOTES_COLLAPSED_STORAGE_KEY = "gaspodeSumoLab.makeSite2.notesCollapsed";
 
+// Render notes that apply to the current artifact and filter state.
 function renderNotes(artifact, state) {
   const notes = (artifact.notes || []).filter(note => noteApplies(note, state));
   if (!notes.length) return "";
@@ -20,6 +23,7 @@ function renderNotes(artifact, state) {
     '</aside>'
   ].join("");
 }
+// Attach collapse behaviour to the rendered Notes panel.
 function wireNotesPanel() {
   const panel = document.querySelector("[data-notes-panel]");
   if (!panel) return;
@@ -54,6 +58,7 @@ function resizePlotlyCharts() {
     });
   });
 }
+// Decide whether a note applies under the current filter state.
 function noteApplies(note, state) {
   const applies = note.applies_to || ["all"];
   if (applies.includes("all")) return true;

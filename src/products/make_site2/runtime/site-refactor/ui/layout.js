@@ -1,5 +1,8 @@
+// PA-panel layout hooks for sticky headings and scrollable table shells.
+
 let resizeListenerAttached = false;
 
+// Apply layout upgrades after a panel render.
 function wirePAPanelLayout() {
   upgradeScrollableTables();
   updateStickyArtifactHeaders();
@@ -16,6 +19,7 @@ function upgradeScrollableTables() {
   });
 }
 
+// Split a table into fixed header and scrollable body tables.
 function upgradeScrollableTable(table) {
   if (table.dataset.scrollRegion === "upgraded") return;
   const thead = table.querySelector(":scope > thead");
@@ -51,10 +55,12 @@ function upgradeScrollableTable(table) {
   table.replaceWith(shell);
 }
 
+// Keep artifact titles below the sticky content title.
 function updateStickyArtifactHeaders() {
   document.querySelectorAll(".artifact-table-shell").forEach(syncTableShellColumns);
 }
 
+// Synchronize header/body column widths in a scrollable table shell.
 function syncTableShellColumns(shell) {
   const headerTable = shell.querySelector(":scope > .artifact-table-header-region > table");
   const bodyTable = shell.querySelector(":scope > .artifact-table-body-region > table");

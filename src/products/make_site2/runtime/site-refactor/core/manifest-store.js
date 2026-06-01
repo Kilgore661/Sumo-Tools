@@ -1,3 +1,5 @@
+// In-memory runtime manifest store.
+
 let runtimeManifest = null;
 
 export function setRuntimeManifest(manifest) {

@@ -1,3 +1,5 @@
+// Public table runtime facade.
+
 export {
   renderSectionedTable,
   renderTableSection,

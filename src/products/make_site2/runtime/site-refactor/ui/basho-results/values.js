@@ -1,3 +1,6 @@
+// Basho Results row value derivation and compact-result parsing.
+
+// Derive before/selected rating-order analysis for all displayed rows.
 function buildRecordAnalyses(rows) {
   return {
     before: buildRecordAnalysis(rows, {
@@ -13,6 +16,7 @@ function buildRecordAnalyses(rows) {
   };
 }
 
+// Compare banzuke order with rating order for one record context.
 function buildRecordAnalysis(rows, fields) {
   const candidates = rows.map((row, index) => {
     const bpOrdinal = numericValue(row[fields.bpOrdinalField]);
@@ -68,6 +72,7 @@ function numericValue(value) {
   return Number.isNaN(number) ? null : number;
 }
 
+// Flatten a producer row into terminal-path values for the recursive table.
 function transitionalRowValues(row, index, analyses) {
   const beforeResult = parseResult(row.previous_result);
   const selectedResult = parseResult(row.score);
@@ -107,6 +112,7 @@ function transitionalRowValues(row, index, analyses) {
   };
 }
 
+// Parse compact result text into wins, losses, absences and prize display text.
 function parseResult(value) {
   const text = String(value || "").trim();
   const missing = { wins: "", losses: "", absences: "", prizes: "" };

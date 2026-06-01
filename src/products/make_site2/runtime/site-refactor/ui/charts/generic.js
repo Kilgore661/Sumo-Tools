@@ -1,3 +1,5 @@
+// Generic artifact-driven Plotly chart renderers.
+
 import { escapeHtml } from "../../utils/html.js";
 import {
   PLOTLY_CONFIG,
@@ -8,6 +10,7 @@ import {
   sparseTickText,
 } from "./shared.js";
 
+// Render the common title and Plotly host for a stacked bar chart.
 function renderStackedBarChart(artifact, rowsBySource) {
   const rows = stackedBarRows(artifact, rowsBySource);
   if (!rows.length) {
@@ -21,6 +24,7 @@ function renderStackedBarChart(artifact, rowsBySource) {
   ].join("");
 }
 
+// Render the common title and Plotly host for a grouped line chart.
 function renderGroupedLineChart(artifact, rowsBySource) {
   const rows = chartRows(artifact, rowsBySource);
   if (!rows.length) {
@@ -34,6 +38,7 @@ function renderGroupedLineChart(artifact, rowsBySource) {
   ].join("");
 }
 
+// Render the common title and Plotly host for an ordered bar chart.
 function renderOrderedBarChart(artifact, rowsBySource) {
   const rows = chartRows(artifact, rowsBySource);
   if (!rows.length) {
@@ -47,6 +52,7 @@ function renderOrderedBarChart(artifact, rowsBySource) {
   ].join("");
 }
 
+// Render the common title and Plotly host for a category bar chart.
 function renderCategoryBarChart(artifact, rowsBySource) {
   const rows = chartRows(artifact, rowsBySource);
   if (!rows.length) {
@@ -144,6 +150,7 @@ function orderedBarTraceSpec(artifact) {
   return trace;
 }
 
+// Convert grouped source rows into Plotly stacked-bar traces.
 function stackedBarTraces(artifact, rowsBySource) {
   const rows = stackedBarRows(artifact, rowsBySource);
   const trace = stackedBarTraceSpec(artifact);
@@ -165,6 +172,7 @@ function stackedBarTraces(artifact, rowsBySource) {
   });
 }
 
+// Convert grouped source rows into Plotly line traces.
 function groupedLineTraces(artifact, rowsBySource) {
   const rows = chartRows(artifact, rowsBySource);
   const trace = groupedLineTraceSpec(artifact);

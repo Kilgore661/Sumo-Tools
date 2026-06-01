@@ -1,3 +1,5 @@
+// NavigationBar collapse/expand behaviour.
+
 function bootNavigationToggle() {
   const shell = document.querySelector("[data-nav-shell]");
   const panel = document.querySelector("[data-nav-panel]");
@@ -16,6 +18,7 @@ function bootNavigationToggle() {
     resizePlotlyCharts();
   });
 }
+// Apply the collapsed state to shell classes, ARIA state and Plotly sizing.
 function applyNavigationCollapsedState(shell, panel, content, toggle, collapsed) {
   shell.classList.toggle("nav-collapsed", collapsed);
   panel.classList.toggle("site-nav-collapsed", collapsed);

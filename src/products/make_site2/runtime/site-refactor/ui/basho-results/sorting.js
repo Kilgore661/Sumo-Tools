@@ -1,3 +1,5 @@
+// Basho Results recursive table sorting state and sort value derivation.
+
 import {
   BASHO_RESULTS_TABLE_ID,
   DEFAULT_BASHO_RESULTS_SORT_PATH,
@@ -11,6 +13,7 @@ import { terminalNodes } from "./render.js";
 
 const bashoResultsSortStates = new Map();
 
+// Attach click handlers for recursive Basho Results table heading sort buttons.
 function wireBashoResultsPresentationSorting(panel, model, renderPanel) {
   const visiblePaths = new Set(model.projection?.visible_paths || []);
   const leaves = terminalNodes(model.table_spec || [], [], visiblePaths);
@@ -33,6 +36,7 @@ function wireBashoResultsPresentationSorting(panel, model, renderPanel) {
   });
 }
 
+// Resolve the active sort state, falling back to the default visible Chii column.
 function currentBashoResultsSortState(model, leaves) {
   const existing = bashoResultsSortStates.get(model.id || BASHO_RESULTS_TABLE_ID);
   if (existing && leaves.some(leaf => leaf.path === existing.path && isSortableLeaf(leaf))) {
@@ -54,6 +58,7 @@ function isSortableLeaf(leaf) {
   return Boolean(leaf) && leaf.sort_kind !== "none";
 }
 
+// Sort flattened terminal-path rows according to the active leaf column.
 function sortBashoResultsRows(rows, leaves, sortState) {
   const leaf = leaves.find(item => item.path === sortState?.path);
   if (!isSortableLeaf(leaf)) return [...rows];
@@ -75,6 +80,7 @@ function sortMultiplierForLeaf(leaf, direction) {
   return direction === "descending" ? -1 : 1;
 }
 
+// Convert a terminal cell value into the type-specific value used for sorting.
 function sortValueForLeaf(leaf, row) {
   const value = row[leaf.sort_path || leaf.path];
   if (leaf.sort_kind === "record") return recordWins(value);
