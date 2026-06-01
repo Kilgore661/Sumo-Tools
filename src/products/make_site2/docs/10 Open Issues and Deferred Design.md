@@ -240,6 +240,7 @@ This defect does not reopen the canonical-link correction.
 | Table chrome/body split as explicit PA model | Deferred / TBD | Runtime now implements table-body-only scrolling for ordinary table PAs. Consider a richer producer-facing PA model only if future pressure requires explicit non-scrolling chrome and scrolling data-region semantics. |
 | Stress-test 7.1 Basho Results redesign | Open | The settled 7.1 record/context/analysis/changes model is now specified in `02 Specification.md`, designed in `04.5 Basho Results Model.md`, and rendered in the transitional runtime. The remaining work is stress-testing and hardening: move compact-result, Analysis and movement derivations toward producer/site-facing fields where appropriate, check in-progress and no-successor-banzuke cases, verify sorting on the new terminal paths, and decide how much transitional parsing may remain. |
 | BRB kyujo rating continuity | Implemented; verification outstanding | Basho Results now has a local display-continuity workaround for banzuke rikishi whose persisted fixed_v2 day-end rating is missing, typically because a whole-basho kyujo rikishi was absent from the Oracle-cleaned simulation universe. The workaround is intentionally isolated in `src.analysis.sumo_history.basho_results.kyujo_hack`: it does not change fixed_v2 artefacts, the Oracle, or the simulator. It resolves selected/current `Eq` by using the stored rating if present, otherwise carrying forward the last known actual rating for known rikishi, or using the entrant initial rating only for genuine first appearances. Future design work should decide whether this remains a BRB display rule or is replaced by a principled rating/universe policy. |
+| get_bios status and lifecycle semantics | Open | Investigate the status of the `get_bios` package as a source of biographical lifecycle data. It should probably be used to determine career length, the question of when a rikishi should have an Equelo rating (see Open Issue: BRB kyujo rating continuity), and perhaps other lifecycle-sensitive outputs. The test/audit command `src.infra.get_bios.integrity` seems to reveal issues, but some may be fixable sufficiently to make the bio data useful. For example, a missing retirement date is not necessarily a block to answering whether a rikishi had started by a given basho, or to using Hatsu Dohyo for start-of-career reasoning. Decide what integrity level is required, which fields are reliable enough for which consumers, and whether career-length and rating-continuity logic should move from banzuke-appearance proxies toward bio-derived lifecycle predicates. |
 | Tracker daily-results stale-file validation | Open | The tracker downloader currently treats any existing daily-results file as reusable via the early return in `src.infra.tracker.scraper.downloader._ensure_daily_results`, before running even its minimal `_looks_like_daily_results` check. This allowed a stale pre-results page such as `files/output/HTML results/2026 01/15.html` to persist with full torikumi rows but blank outcome cells; parser2 then omitted Day 15, causing Basho Results to display `After Day 14`. Resolve whether daily-results files need refresh policy comparable to current standings, semantic validation for completed basho days, a forced repair mode for isolated stale files, or removal of the speed hack. Also account for read-only tracker-written files so refresh attempts do not fail with permission errors. |
 | General table presentation model | Deferred | Do not generalise the 7.1 recursive table model into a universal table model now. The apparent commonality is real: flat tables can be treated as depth-one recursive tables, and grouped tables resemble shallow hierarchical tables. However, unification would require settled semantics for projection, hidden leaves, whether group headings collapse or persist when only one child remains visible, view-specific table specs, sort identity across projected leaves, and section/custom-table boundaries. That is too much model work for the current pressure. Keep 7.1 recursive tables and ordinary/non-7.1 table renderers separate for now. Prefer shared CSS/helper/rendering policy for genuinely common concerns such as alignment, typography, padding, row treatment, link styling and sortable-heading presentation. Reopen model unification only if repeated styling or behavioural divergence becomes worse than the cost of defining the general table theory. |
 | Non-7.1 table alignment policy | Deferred / TBD | Basho Results now has a documented local role-plus-semantic-kind alignment policy for headings and values. Whether ordinary/non-7.1 tables should adopt the same policy is not yet decided. If they do, share the alignment vocabulary/policy without casting ordinary tables into the 7.1 recursive table model. |
@@ -297,6 +298,9 @@ Next independent observed defects requiring triage
   establish scope/cause and promote priority if reproducible on promoted Pages
   Tracker daily-results retrieval can preserve stale existing files whose HTML
   is long enough but semantically incomplete; decide refresh/validation policy
+  get_bios may be the right source for career length and rating-lifecycle
+  questions, but its integrity/status needs investigation before consumers rely
+  on it
 
 Deferred model follow-up
   decide later whether the runtime table chrome/body split needs promotion into
@@ -344,6 +348,13 @@ selected/current Equelo display. The workaround is documented as **BRB kyujo
 rating continuity** and isolated in `src.analysis.sumo_history.basho_results.kyujo_hack`
 so that it is clear this is a BRB producer/display rule, not a change to
 fixed_v2, the Oracle, or the simulator.
+
+The `get_bios` package may be the right source for biographical lifecycle
+semantics such as career length and whether a rikishi should have an Equelo
+rating at a given basho, but its current integrity/status needs investigation.
+The audit command `src.infra.get_bios.integrity` exists to compare parsed bio
+career dates against History banzuke appearances and should inform whether the
+bio data can replace banzuke-appearance proxies for lifecycle-sensitive logic.
 
 The tracker/downloader has an open stale daily-results validation issue: an
 existing daily-results file may be reused without semantic validation, so a
