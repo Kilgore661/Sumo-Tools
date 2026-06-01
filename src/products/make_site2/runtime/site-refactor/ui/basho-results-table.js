@@ -34,8 +34,16 @@ const TRANSITIONAL_TABLE_SPEC = [
   group("changes", "Changes", [
     column("delta_equelo", "ΔEq", { sort_kind: "numeric", presentation: PRESENTATION.RATING }),
     group("movement", "⇅", [
-      column("bp", "Chii", { sort_kind: "text", presentation: PRESENTATION.MOVEMENT_SYMBOL }),
-      column("division", "Div", { sort_kind: "text", presentation: PRESENTATION.MOVEMENT_SYMBOL }),
+      column("bp", "Chii", {
+        sort_kind: "movement_symbol",
+        sort_default_direction: "descending",
+        presentation: PRESENTATION.MOVEMENT_SYMBOL,
+      }),
+      column("division", "Div", {
+        sort_kind: "movement_symbol",
+        sort_default_direction: "descending",
+        presentation: PRESENTATION.MOVEMENT_SYMBOL,
+      }),
     ]),
   ]),
 ];
@@ -53,7 +61,11 @@ function recordSpec() {
       ]),
       group("analysis", "Analysis", [
         group("banzuke_error", "ΔBZ", [
-          column("direction", "Dir", { sort_kind: "text", presentation: PRESENTATION.MOVEMENT_SYMBOL }),
+          column("direction", "Dir", {
+            sort_kind: "movement_symbol",
+            sort_default_direction: "descending",
+            presentation: PRESENTATION.MOVEMENT_SYMBOL,
+          }),
           column("magnitude", "Mag", { sort_kind: "numeric", presentation: PRESENTATION.NUMERIC_MAGNITUDE }),
         ]),
         column("rbbp", "Eq Chii", {
@@ -512,6 +524,7 @@ function sortValueForLeaf(leaf, row) {
   const value = row[leaf.sort_path || leaf.path];
   if (leaf.sort_kind === "record") return recordWins(value);
   if (leaf.sort_kind === "prize_set") return prizeSortValue(value);
+  if (leaf.sort_kind === "movement_symbol") return movementSortValue(value);
   if (leaf.sort_kind === "numeric" || leaf.sort_kind === "chii_ordinal") {
     const number = Number(value);
     return Number.isNaN(number) ? null : number;
@@ -562,6 +575,13 @@ function prizeSortValue(value) {
   return PRIZE_DISPLAY_ORDER.reduce((total, prize) =>
     (total << 1) | (awarded.has(prize) ? 1 : 0), 0
   );
+}
+
+function movementSortValue(value) {
+  const movement = rankLevelMovementMarker(value);
+  if (movement === "\u2191") return 2;
+  if (movement === "\u2193") return 0;
+  return 1;
 }
 
 function recordWins(value) {
