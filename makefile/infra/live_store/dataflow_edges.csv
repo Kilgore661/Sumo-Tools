@@ -1,0 +1,12 @@
+source_id,source_type,target_id,target_type,artifact,edge_type,evidence_file,evidence_line,notes
+external,external,src.infra.live_store.LiveStore,module,History object,input,src/infra/live_store/LiveStore.py,85,publish accepts supplied History
+external,external,src.infra.live_store.LiveStore,module,files/output/Historys/{EPOCH}_01 to {current_year}_11,input,src/infra/live_store/LiveStore.py,76,bootstrap loads canonical History zip path
+src.infra.live_store.LiveStore,module,external,external,named shared-memory segment history{VERSION},output,src/infra/live_store/LiveStore.py,110,replaces shared-memory segment
+external,external,src.infra.live_store.LiveStore,module,named shared-memory segment {name},input,src/infra/live_store/LiveStore.py,47,connect reads shared-memory segment
+src.infra.live_store.LiveStore,module,external,external,History object,returns,src/infra/live_store/LiveStore.py,56,connect returns unpickled History
+external,external,src.infra.live_store.api,module,files/output/store_name.txt,input,src/infra/live_store/api.py,59,reads published shared-memory name
+src.infra.live_store.api,module,external,external,files/output/store_name.txt,output,src/infra/live_store/api.py,88,writes published shared-memory name
+src.infra.live_store.api,module,external,external,files/output/store_name.txt,output,src/infra/live_store/api.py,80,deletes published shared-memory name
+src.infra.live_store.api,module,src.infra.live_store.LiveStore,module,shared-memory segment name,input,src/infra/live_store/api.py,66,constructs LiveStore from published name
+src.infra.live_store.LiveStore,module,src.infra.live_store.api,module,History object,returns,src/infra/live_store/api.py,67,api receives History from store
+src.infra.live_store.api,module,external,external,History object,returns,src/infra/live_store/api.py,44,get_history returns current History

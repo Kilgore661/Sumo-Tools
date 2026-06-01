@@ -1,0 +1,4 @@
+output_family_id,path_template,layer,producer_id,data_instance,regeneration_command,provenance_status,notes
+live_store_shared_memory,named shared-memory segment history{VERSION},runtime_view,live_store_bootstrap,canonical History or supplied History,python -m src.infra.live_store.LiveStore,implicit,runtime shared-memory History payload
+live_store_name_file,files/output/store_name.txt,producer_output,live_store_write_published_name,shared-memory segment name,call write_published_name(name),absent,runtime control file for current store name
+live_store_history_object,History object,runtime_view,live_store_get_history,current shared-memory payload,call get_history(),implicit,in-memory returned History

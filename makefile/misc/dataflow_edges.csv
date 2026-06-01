@@ -1,0 +1,27 @@
+source_id,source_type,target_id,target_type,artifact,edge_type,evidence_file,evidence_line,notes
+history_from_connect,virtual_input,src.misc.banzuke_by_era,module,History from connect(start,end,use_zip),virtual_input,src/misc/banzuke_by_era.py,661,main history input
+src.misc.banzuke_by_era,module,external,external,files/output/banzuke_division_era_chart.csv,output,src/misc/banzuke_by_era.py,112,default diagnostic CSV
+src.misc.banzuke_by_era,module,external,external,files/output/banzuke_division_era_chart.html,output,src/misc/banzuke_by_era.py,108,default standalone HTML chart
+src.misc.banzuke_by_era,module,external,external,files/output/banzuke_division_era/site/banzuke_division_by_era/{divisions.csv,page.json,metadata.json},output,src/misc/banzuke_by_era.py,678,site bundle
+history_from_connect,virtual_input,src.misc.makuuchi_by_era,module,History from connect(start,end,use_zip),virtual_input,src/misc/makuuchi_by_era.py,550,main history input
+src.misc.makuuchi_by_era,module,external,external,files/output/rank_era_chart.csv,output,src/misc/makuuchi_by_era.py,93,default diagnostic CSV
+src.misc.makuuchi_by_era,module,external,external,files/output/rank_era_chart.html,output,src/misc/makuuchi_by_era.py,89,default standalone HTML chart
+src.misc.makuuchi_by_era,module,external,external,files/output/rank_era/site/makuuchi_rank_by_era/{ranks.csv,page.json,metadata.json},output,src/misc/makuuchi_by_era.py,563,site bundle
+history_from_connect,virtual_input,src.misc.division_churn,module,History from connect(start,end,use_zip),virtual_input,src/misc/division_churn.py,370,main history input
+src.misc.division_churn,module,external,external,files/output/division_churn.html,output,src/misc/division_churn.py,61,default standalone HTML chart
+history_from_connect,virtual_input,src.misc.first_appearance,module,History from connect(start,end,use_zip),virtual_input,src/misc/first_appearance.py,541,main history input
+src.misc.first_appearance,module,external,external,files/output/first_app.csv,output,src/misc/first_appearance.py,82,default diagnostic CSV
+src.misc.first_appearance,module,external,external,files/output/first_app.html,output,src/misc/first_appearance.py,86,default standalone HTML chart
+src.misc.first_appearance,module,external,external,files/output/first_app/site/first_chii_appearance/{appearances.csv,page.json,metadata.json},output,src/misc/first_appearance.py,552,site bundle
+history_from_connect,virtual_input,src.misc.finish_by_chii,module,History from connect(start,end,use_zip),virtual_input,src/misc/finish_by_chii.py,367,main history input
+src.misc.finish_by_chii,module,external,external,files/output/misc/finish_by_chii_{start}_{end}_summary.csv,output,src/misc/finish_by_chii.py,387,summary CSV
+src.misc.finish_by_chii,module,external,external,files/output/misc/finish_by_chii_{start}_{end}_top_thresholds.csv,output,src/misc/finish_by_chii.py,392,top thresholds CSV
+src.misc.finish_by_chii,module,external,external,files/output/misc/finish_by_chii_{start}_{end}_bottom_thresholds.csv,output,src/misc/finish_by_chii.py,397,bottom thresholds CSV
+src.misc.finish_by_chii,module,src.misc.finish_by_chii_charting,module,summary/top/bottom rows plus caller-supplied HTML paths,input,src/misc/finish_by_chii.py,416,direct helper call
+src.misc.finish_by_chii_charting,module,external,external,caller-supplied finish_by_chii HTML path,output,src/misc/finish_by_chii_charting.py,11,writes finish chart HTML
+src.misc.finish_by_chii_charting,module,external,external,caller-supplied average finish_by_chii HTML path,output,src/misc/finish_by_chii_charting.py,26,writes average chart HTML
+external,external,src.misc.finish_by_chii_deploy,module,A:/local/html/finish_by_chii/index.html,input,src/misc/finish_by_chii_deploy.py,13,local chart expected by deployer
+external,external,src.misc.finish_by_chii_deploy,module,A:/local/html/finish_by_chii/average.html,input,src/misc/finish_by_chii_deploy.py,14,local average chart expected by deployer
+GEOLOCATION,env_var,src.misc.finish_by_chii_deploy,module,GEOLOCATION,manual_input,src/misc/finish_by_chii_deploy.py,34,password environment variable
+src.misc.finish_by_chii_deploy,module,external,external,/var/www/html/finish_by_chii/index.html,output,src/misc/finish_by_chii_deploy.py,17,remote deployed chart
+src.misc.finish_by_chii_deploy,module,external,external,/var/www/html/finish_by_chii/average.html,output,src/misc/finish_by_chii_deploy.py,18,remote deployed average chart

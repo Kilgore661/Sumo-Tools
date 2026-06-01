@@ -1,0 +1,7 @@
+entry_point_id,module_id,command,kind,inputs,outputs,network_access,notes
+misc_banzuke_by_era,src.misc.banzuke_by_era,python -m src.misc.banzuke_by_era,python_module,History from connect,CSV HTML and site bundle,false,banzuke division era producer
+misc_makuuchi_by_era,src.misc.makuuchi_by_era,python -m src.misc.makuuchi_by_era,python_module,History from connect,CSV HTML and site bundle,false,makuuchi rank era producer
+misc_division_churn,src.misc.division_churn,python -m src.misc.division_churn,python_module,History from connect,HTML chart,false,division retention producer
+misc_first_appearance,src.misc.first_appearance,python -m src.misc.first_appearance,python_module,History from connect,CSV HTML and site bundle,false,first Chii appearance producer
+misc_finish_by_chii,src.misc.finish_by_chii,python -m src.misc.finish_by_chii,python_module,History from connect,CSV and HTML outputs,true if upload enabled,finish distribution producer
+misc_finish_by_chii_deploy,src.misc.finish_by_chii_deploy,python -m src.misc.finish_by_chii_deploy,python_module,local HTML files and GEOLOCATION env var,remote HTML files,true,SFTP deployment helper

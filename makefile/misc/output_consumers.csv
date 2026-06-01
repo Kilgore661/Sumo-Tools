@@ -1,0 +1,14 @@
+output_family_id,consumer_id,consumer_type,edge_type,evidence_file,evidence_line,status,notes
+banzuke_division_era_chart_csv,human_review,manual,output,src/misc/banzuke_by_era.py,676,unknown_manual_use,package-local leaf pending reconciliation
+banzuke_division_era_chart_html,human_review,manual,output,src/misc/banzuke_by_era.py,677,unknown_manual_use,chart view likely on-demand
+banzuke_division_era_site_bundle,unreconciled,external,output,src/misc/banzuke_by_era.py,678,pending_reconciliation,site-facing bundle pending broader audit
+makuuchi_rank_era_chart_csv,human_review,manual,output,src/misc/makuuchi_by_era.py,561,unknown_manual_use,package-local leaf pending reconciliation
+makuuchi_rank_era_chart_html,human_review,manual,output,src/misc/makuuchi_by_era.py,562,unknown_manual_use,chart view likely on-demand
+makuuchi_rank_era_site_bundle,unreconciled,external,output,src/misc/makuuchi_by_era.py,563,pending_reconciliation,site-facing bundle pending broader audit
+division_churn_html,human_review,manual,output,src/misc/division_churn.py,382,unknown_manual_use,possibly superseded by persistence package
+first_app_csv,human_review,manual,output,src/misc/first_appearance.py,550,unknown_manual_use,package-local leaf pending reconciliation
+first_app_html,human_review,manual,output,src/misc/first_appearance.py,551,unknown_manual_use,chart view likely on-demand
+first_chii_appearance_site_bundle,unreconciled,external,output,src/misc/first_appearance.py,552,pending_reconciliation,site-facing bundle pending broader audit
+finish_by_chii_csvs,unreconciled,external,output,src/misc/finish_by_chii.py,412,pending_reconciliation,CSV outputs pending broader audit
+finish_by_chii_html,unreconciled,external,output,src/misc/finish_by_chii_charting.py,11,pending_reconciliation,may feed deployment but not reconciled here
+finish_by_chii_remote,external_site,external,output,src/misc/finish_by_chii_deploy.py,54,external_publication,remote deployment

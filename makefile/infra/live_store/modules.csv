@@ -1,0 +1,4 @@
+module_id,package_id,path,kind,has_main,is_entry_point,status,notes
+src.infra.live_store.LiveStore,src.infra.live_store,src/infra/live_store/LiveStore.py,module,true,true,reviewed,shared-memory History store
+src.infra.live_store.api,src.infra.live_store,src/infra/live_store/api.py,module,false,false,reviewed,client-facing get_history API and name-file helpers
+src.infra.live_store.config,src.infra.live_store,src/infra/live_store/config.py,module,false,false,reviewed,version and published name-file constants

@@ -1,0 +1,15 @@
+source_module,target_module,scope,import_form,evidence_file,evidence_line,notes
+src.infra.get_bios.api,src.infra.get_bios.parser,intra_package,from import,src/infra/get_bios/api.py,18,imports OUTPUT_JSON
+src.infra.get_bios.integrity,src.infra.get_bios.api,intra_package,from import,src/infra/get_bios/integrity.py,14,uses typed bio API
+src.infra.get_bios.__main__,src.infra.live_store.api,package_external_exports,from import,src/infra/get_bios/__main__.py,8,imports get_history
+src.infra.get_bios.__main__,src.infra.parser.parser2,package_external_exports,from import,src/infra/get_bios/__main__.py,9,imports OUTPUT_DIR
+src.infra.get_bios.parser,src.infra.parser.parser2,package_external_exports,from import,src/infra/get_bios/parser.py,11,imports OUTPUT_DIR
+src.infra.get_bios.bmi,src.infra.parser.parser2,package_external_exports,from import,src/infra/get_bios/bmi.py,8,imports OUTPUT_DIR
+src.infra.get_bios.hw_distr,src.infra.parser.parser2,package_external_exports,from import,src/infra/get_bios/hw_distr.py,7,imports OUTPUT_DIR
+src.infra.get_bios.probe,src.infra.parser.parser2,package_external_exports,from import,src/infra/get_bios/probe.py,8,imports OUTPUT_DIR
+src.infra.get_bios.integrity,src.infra.persistence.new_sumo_serialiser,package_external_exports,from import,src/infra/get_bios/integrity.py,9,imports load_history_with_annotations
+src.infra.get_bios.integrity,src.infra.parser.parser2,package_external_exports,from import,src/infra/get_bios/integrity.py,10,imports OUTPUT_DIR
+src.infra.get_bios.integrity,src.sumo_core.BasicPrimitives,package_external_exports,from import,src/infra/get_bios/integrity.py,11,imports RikId
+src.infra.get_bios.integrity,src.sumo_core.History,package_external_exports,from import,src/infra/get_bios/integrity.py,12,imports Date
+src.infra.get_bios.api,src.sumo_core.BasicPrimitives,package_external_exports,from import,src/infra/get_bios/api.py,15,imports RikId and Shikona
+src.infra.get_bios.api,src.sumo_core.History,package_external_exports,from import,src/infra/get_bios/api.py,16,imports Date

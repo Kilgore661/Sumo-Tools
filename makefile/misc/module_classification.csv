@@ -1,0 +1,8 @@
+module_id,classification,produces_outputs,imported_by_nonlegacy,has_nonlegacy_dataflow,proposed_action,human_decision_needed,notes
+src.misc.banzuke_by_era,active producer,true,false,pending_reconciliation,ASK_HUMAN,true,site-facing bundle may be active
+src.misc.makuuchi_by_era,active producer,true,false,pending_reconciliation,ASK_HUMAN,true,site-facing bundle may be active
+src.misc.division_churn,unknown,true,false,pending_reconciliation,ASK_HUMAN,true,possible legacy/superseded chart
+src.misc.first_appearance,active producer,true,false,pending_reconciliation,ASK_HUMAN,true,site-facing bundle may be active
+src.misc.finish_by_chii,active producer,true,false,pending_reconciliation,ASK_HUMAN,true,CSV and chart producer
+src.misc.finish_by_chii_charting,support module,true,true,pending_reconciliation,KEEP,false,helper imported by finish_by_chii
+src.misc.finish_by_chii_deploy,unknown,true,true,pending_reconciliation,ASK_HUMAN,true,deployment helper coupled to finish_by_chii

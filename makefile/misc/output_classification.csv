@@ -1,0 +1,14 @@
+output_family_id,classification,layer,consumer_status,leaf_output,proposed_action,human_decision_needed,notes
+banzuke_division_era_chart_csv,unknown pending reconciliation,producer_output,manual_or_unknown,true,ASK_HUMAN,true,diagnostic CSV
+banzuke_division_era_chart_html,on-demand view,producer_output,manual_or_unknown,true,ASK_HUMAN,true,chart likely on-demand
+banzuke_division_era_site_bundle,unknown pending reconciliation,producer_output,pending_reconciliation,unknown,ASK_HUMAN,true,site-facing bundle
+makuuchi_rank_era_chart_csv,unknown pending reconciliation,producer_output,manual_or_unknown,true,ASK_HUMAN,true,diagnostic CSV
+makuuchi_rank_era_chart_html,on-demand view,producer_output,manual_or_unknown,true,ASK_HUMAN,true,chart likely on-demand
+makuuchi_rank_era_site_bundle,unknown pending reconciliation,producer_output,pending_reconciliation,unknown,ASK_HUMAN,true,site-facing bundle
+division_churn_html,unknown pending reconciliation,producer_output,manual_or_unknown,true,ASK_HUMAN,true,possibly legacy chart
+first_app_csv,unknown pending reconciliation,producer_output,manual_or_unknown,true,ASK_HUMAN,true,diagnostic CSV
+first_app_html,on-demand view,producer_output,manual_or_unknown,true,ASK_HUMAN,true,chart likely on-demand
+first_chii_appearance_site_bundle,unknown pending reconciliation,producer_output,pending_reconciliation,unknown,ASK_HUMAN,true,site-facing bundle
+finish_by_chii_csvs,unknown pending reconciliation,producer_output,pending_reconciliation,unknown,ASK_HUMAN,true,likely active but needs broader reconciliation
+finish_by_chii_html,on-demand view,producer_output,pending_reconciliation,unknown,ASK_HUMAN,true,local chart output
+finish_by_chii_remote,publication_output,publication_output,external_publication,false,ASK_HUMAN,true,remote deployed output

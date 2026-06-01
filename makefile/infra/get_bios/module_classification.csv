@@ -1,0 +1,8 @@
+module_id,classification,produces_outputs,imported_by_nonlegacy,has_nonlegacy_dataflow,proposed_action,human_decision_needed,notes
+src.infra.get_bios.__main__,active producer,true,false,pending_reconciliation,KEEP,false,source-capture producer
+src.infra.get_bios.parser,active producer,true,true,pending_reconciliation,KEEP,false,core parser producer
+src.infra.get_bios.api,support module,false,true,pending_reconciliation,KEEP,false,typed access layer
+src.infra.get_bios.integrity,research module,true,false,pending_reconciliation,ASK_HUMAN,true,decide whether diagnostic gate or research check
+src.infra.get_bios.bmi,research module,false,false,pending_reconciliation,ASK_HUMAN,true,stdout-only probe
+src.infra.get_bios.hw_distr,research module,true,false,pending_reconciliation,ASK_HUMAN,true,diagnostic/probe status unclear
+src.infra.get_bios.probe,research module,true,false,pending_reconciliation,ASK_HUMAN,true,diagnostic/probe status unclear

@@ -1,0 +1,7 @@
+entry_point_id,module_id,command,kind,inputs,outputs,network_access,notes
+get_bios_download,src.infra.get_bios.__main__,python -m src.infra.get_bios,python_module,live History and SumoDB Rikishi pages,OUTPUT_DIR/infra/rikishi/{rikid:05d}.html,true,raw HTML downloader
+get_bios_parse,src.infra.get_bios.parser,python -m src.infra.get_bios.parser,python_module,OUTPUT_DIR/infra/rikishi/*.html,OUTPUT_DIR/infra/rikishi_bios.json,false,structured JSON parser
+get_bios_integrity,src.infra.get_bios.integrity,python -m src.infra.get_bios.integrity,python_module,OUTPUT_DIR/infra/rikishi_bios.json and History zip,OUTPUT_DIR/infra/rikishi_bio_history_integrity.csv,false,bio/history integrity check
+get_bios_bmi,src.infra.get_bios.bmi,python -m src.infra.get_bios.bmi,python_module,OUTPUT_DIR/infra/rikishi_bios.json,stdout,false,BMI probe
+get_bios_hw_distr,src.infra.get_bios.hw_distr,python -m src.infra.get_bios.hw_distr,python_module,OUTPUT_DIR/infra/rikishi_bios.json,OUTPUT_DIR/infra/height_support_bins.csv,false,height support probe
+get_bios_probe,src.infra.get_bios.probe,python -m src.infra.get_bios.probe,python_module,OUTPUT_DIR/infra/rikishi_bios.json,OUTPUT_DIR/infra/shusshin_bins.csv,false,shusshin probe

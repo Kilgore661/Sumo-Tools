@@ -1,0 +1,7 @@
+output_family_id,consumer_id,consumer_type,edge_type,evidence_file,evidence_line,status,notes
+rikishi_bio_html,unreconciled,external,input,makefile/get_bios/dataflow_edges.csv,,pending_reconciliation,package-local audit records writer and reader separately
+rikishi_bios_json,unreconciled,external,input,makefile/get_bios/dataflow_edges.csv,,pending_reconciliation,package-local audit records writer and readers separately
+rikishi_bio_missing_fields,human_review,manual,diagnostic_output,src/infra/get_bios/parser.py,448,unknown_manual_use,diagnostic CSV
+height_support_bins,human_review,manual,diagnostic_output,src/infra/get_bios/hw_distr.py,55,unknown_manual_use,diagnostic CSV
+shusshin_bins,human_review,manual,diagnostic_output,src/infra/get_bios/probe.py,45,unknown_manual_use,diagnostic CSV
+rikishi_bio_history_integrity,human_review,manual,diagnostic_output,src/infra/get_bios/integrity.py,432,unknown_manual_use,diagnostic CSV

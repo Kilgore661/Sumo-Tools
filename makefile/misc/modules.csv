@@ -1,0 +1,8 @@
+module_id,package_id,path,kind,has_main,is_entry_point,status,notes
+src.misc.banzuke_by_era,src.misc,src/misc/banzuke_by_era.py,module,true,true,reviewed,banzuke division era producer
+src.misc.makuuchi_by_era,src.misc,src/misc/makuuchi_by_era.py,module,true,true,reviewed,makuuchi rank era producer
+src.misc.division_churn,src.misc,src/misc/division_churn.py,module,true,true,reviewed,division retention chart producer
+src.misc.first_appearance,src.misc,src/misc/first_appearance.py,module,true,true,reviewed,first Chii appearance producer
+src.misc.finish_by_chii,src.misc,src/misc/finish_by_chii.py,module,true,true,reviewed,finish distribution producer
+src.misc.finish_by_chii_charting,src.misc,src/misc/finish_by_chii_charting.py,module,false,false,reviewed,finish_by_chii chart helper
+src.misc.finish_by_chii_deploy,src.misc,src/misc/finish_by_chii_deploy.py,module,true,true,reviewed,finish_by_chii deployment helper

@@ -1,0 +1,4 @@
+output_family_id,classification,layer,consumer_status,leaf_output,proposed_action,human_decision_needed,notes
+live_store_shared_memory,used by non-legacy consumer,runtime_view,package_local,false,KEEP,false,consumed by api and tracker/runtime users pending reconciliation
+live_store_name_file,used by non-legacy consumer,producer_output,package_local,false,KEEP,false,runtime control file
+live_store_history_object,unknown pending reconciliation,runtime_view,pending_reconciliation,unknown,KEEP,false,virtual output consumed by many packages after reconciliation

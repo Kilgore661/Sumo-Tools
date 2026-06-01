@@ -1,0 +1,5 @@
+entry_point_id,module_id,command,kind,inputs,outputs,network_access,notes
+live_store_bootstrap,src.infra.live_store.LiveStore,python -m src.infra.live_store.LiveStore,python_module,canonical History zip,named shared-memory segment history{VERSION},false,manual/bootstrap check entry point
+live_store_get_history,src.infra.live_store.api,call src.infra.live_store.api.get_history,function,files/output/store_name.txt and shared-memory segment,History object,false,client-facing API
+live_store_write_published_name,src.infra.live_store.api,call write_published_name(name),function,name string,files/output/store_name.txt,false,name publication helper
+live_store_clear_published_name,src.infra.live_store.api,call clear_published_name(),function,files/output/store_name.txt,deletes name file,false,name cleanup helper

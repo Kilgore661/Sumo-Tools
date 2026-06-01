@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>live_store Import Graph</title>
+  <style>
+    body { margin: 0; font-family: system-ui, sans-serif; background: #f7f7f4; color: #202124; }
+    header { padding: 16px 20px 8px; border-bottom: 1px solid #d7d7cf; background: #fff; }
+    h1 { margin: 0; font-size: 20px; }
+    main { padding: 20px; overflow: auto; }
+    .mermaid { min-width: 900px; padding: 16px; background: #fff; border: 1px solid #d7d7cf; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <header><h1>src/infra/live_store Import Graph</h1></header>
+  <main>
+    <pre class="mermaid">
+flowchart LR
+    subgraph pkg["src.infra.live_store"]
+      api["api.py"]
+      live["LiveStore.py"]
+      config["config.py"]
+    end
+
+    package_external_exports["package-external exports"]
+    package_external_imports["package-external imports"]
+
+    api -->|"internal: LiveStore"| live
+    api -->|"internal: PUBLISHED_NAME_FILE"| config
+    live -->|"internal: VERSION"| config
+
+    api -->|"imports"| package_external_exports
+    live -->|"imports"| package_external_exports
+
+    package_external_imports -->|"imports get_history/write_published_name"| api
+    package_external_imports -->|"imports LiveStore/get_store"| live
+    </pre>
+  </main>
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+    mermaid.initialize({ startOnLoad: true, theme: "default" });
+  </script>
+</body>
+</html>

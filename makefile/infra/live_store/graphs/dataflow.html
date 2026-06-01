@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>live_store Dataflow Graph</title>
+  <style>
+    body { margin: 0; font-family: system-ui, sans-serif; background: #f7f7f4; color: #202124; }
+    header { padding: 16px 20px 8px; border-bottom: 1px solid #d7d7cf; background: #fff; }
+    h1 { margin: 0; font-size: 20px; }
+    main { padding: 20px; overflow: auto; }
+    .mermaid { min-width: 1100px; padding: 16px; background: #fff; border: 1px solid #d7d7cf; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <header><h1>src/infra/live_store Dataflow Graph</h1></header>
+  <main>
+    <pre class="mermaid">
+flowchart LR
+    external["external"]
+    api["api.py"]
+    live["LiveStore.py"]
+
+    external -->|"files/output/Historys/{EPOCH}_01 to {current_year}_11"| live
+    external -->|"History object"| live
+    live -->|"named shared-memory segment history{VERSION}"| external
+    external -->|"named shared-memory segment {name}"| live
+    live -->|"History object"| api
+
+    external -->|"files/output/store_name.txt"| api
+    api -->|"shared-memory segment name"| live
+    api -->|"files/output/store_name.txt"| external
+    api -->|"History object"| external
+    </pre>
+  </main>
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: "default",
+      flowchart: { curve: "basis", htmlLabels: true, nodeSpacing: 55, rankSpacing: 95 }
+    });
+  </script>
+</body>
+</html>

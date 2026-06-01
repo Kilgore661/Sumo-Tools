@@ -1,0 +1,4 @@
+module_id,classification,produces_outputs,imported_by_nonlegacy,has_nonlegacy_dataflow,proposed_action,human_decision_needed,notes
+src.infra.live_store.LiveStore,active producer,true,true,pending_reconciliation,KEEP,false,shared-memory History publisher/connector
+src.infra.live_store.api,support module,true,true,pending_reconciliation,KEEP,false,central get_history API and name-file helpers
+src.infra.live_store.config,support module,false,true,true,KEEP,false,constants used by package

@@ -1,0 +1,26 @@
+source_module,target_module,scope,import_form,evidence_file,evidence_line,notes
+src.misc.finish_by_chii,src.misc.finish_by_chii_charting,intra_package,from import,src/misc/finish_by_chii.py,16,imports chart writer helpers
+src.misc.finish_by_chii,src.misc.finish_by_chii_deploy,intra_package,from import,src/misc/finish_by_chii.py,20,imports local paths and upload function
+src.misc.banzuke_by_era,src.infra.config,package_external_exports,from import,src/misc/banzuke_by_era.py,10,imports EPOCH
+src.misc.banzuke_by_era,src.infra.connect,package_external_exports,from import,src/misc/banzuke_by_era.py,11,imports connect
+src.misc.banzuke_by_era,src.sumo_core.BasicEnums,package_external_exports,from import,src/misc/banzuke_by_era.py,12,imports MSD and Division
+src.misc.banzuke_by_era,src.sumo_core.History,package_external_exports,from import,src/misc/banzuke_by_era.py,13,imports History
+src.misc.makuuchi_by_era,src.infra.config,package_external_exports,from import,src/misc/makuuchi_by_era.py,10,imports EPOCH
+src.misc.makuuchi_by_era,src.infra.connect,package_external_exports,from import,src/misc/makuuchi_by_era.py,11,imports connect
+src.misc.makuuchi_by_era,src.sumo_core.BasicEnums,package_external_exports,from import,src/misc/makuuchi_by_era.py,12,imports MSD and Division
+src.misc.makuuchi_by_era,src.sumo_core.History,package_external_exports,from import,src/misc/makuuchi_by_era.py,13,imports History
+src.misc.division_churn,src.infra.config,package_external_exports,from import,src/misc/division_churn.py,10,imports EPOCH
+src.misc.division_churn,src.infra.connect,package_external_exports,from import,src/misc/division_churn.py,11,imports connect
+src.misc.division_churn,src.sumo_core.BasicEnums,package_external_exports,from import,src/misc/division_churn.py,12,imports Division and MSD
+src.misc.division_churn,src.sumo_core.History,package_external_exports,from import,src/misc/division_churn.py,13,imports Date and History
+src.misc.first_appearance,src.infra.config,package_external_exports,from import,src/misc/first_appearance.py,9,imports EPOCH
+src.misc.first_appearance,src.infra.connect,package_external_exports,from import,src/misc/first_appearance.py,10,imports connect
+src.misc.first_appearance,src.sumo_core.BasicPrimitives,package_external_exports,from import,src/misc/first_appearance.py,11,imports Day
+src.misc.first_appearance,src.sumo_core.Chii,package_external_exports,from import,src/misc/first_appearance.py,12,imports Chii
+src.misc.first_appearance,src.sumo_core.History,package_external_exports,from import,src/misc/first_appearance.py,13,imports Date and History
+src.misc.finish_by_chii,src.infra.config,package_external_exports,from import,src/misc/finish_by_chii.py,11,imports EPOCH
+src.misc.finish_by_chii,src.infra.connect,package_external_exports,from import,src/misc/finish_by_chii.py,12,imports connect
+src.misc.finish_by_chii,src.sumo_core.BasicEnums,package_external_exports,from import,src/misc/finish_by_chii.py,13,imports Division MSD Outcome
+src.misc.finish_by_chii,src.sumo_core.Chii,package_external_exports,from import,src/misc/finish_by_chii.py,14,imports Chii
+src.misc.finish_by_chii,src.sumo_core.History,package_external_exports,from import,src/misc/finish_by_chii.py,15,imports History
+src.misc.finish_by_chii_deploy,paramiko,installed_library_exports,import,src/misc/finish_by_chii_deploy.py,6,uses SFTP transport

@@ -1,0 +1,8 @@
+module_id,package_id,path,kind,has_main,is_entry_point,status,notes
+src.infra.get_bios.__main__,src.infra.get_bios,src/infra/get_bios/__main__.py,module,true,true,reviewed,downloads missing raw bio HTML
+src.infra.get_bios.parser,src.infra.get_bios,src/infra/get_bios/parser.py,module,true,true,reviewed,parses raw bio HTML into JSON
+src.infra.get_bios.api,src.infra.get_bios,src/infra/get_bios/api.py,module,false,false,reviewed,typed access layer over parsed JSON
+src.infra.get_bios.integrity,src.infra.get_bios,src/infra/get_bios/integrity.py,module,true,true,reviewed,bio/history integrity checker
+src.infra.get_bios.bmi,src.infra.get_bios,src/infra/get_bios/bmi.py,module,true,true,reviewed,BMI distribution probe
+src.infra.get_bios.hw_distr,src.infra.get_bios,src/infra/get_bios/hw_distr.py,module,true,true,reviewed,height history support probe
+src.infra.get_bios.probe,src.infra.get_bios,src/infra/get_bios/probe.py,module,true,true,reviewed,shusshin frequency probe

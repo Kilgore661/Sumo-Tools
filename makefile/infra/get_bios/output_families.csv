@@ -1,0 +1,7 @@
+output_family_id,path_template,layer,producer_id,data_instance,regeneration_command,provenance_status,notes
+rikishi_bio_html,OUTPUT_DIR/infra/rikishi/{rikid:05d}.html,source_capture,get_bios_download,live History rikishi set,python -m src.infra.get_bios,absent,raw downloaded SumoDB bio HTML
+rikishi_bios_json,OUTPUT_DIR/infra/rikishi_bios.json,producer_output,get_bios_parse,all downloaded bio HTML,python -m src.infra.get_bios.parser,absent,structured biography data
+rikishi_bio_missing_fields,OUTPUT_DIR/infra/rikishi_bio_missing_fields.csv,diagnostic,get_bios_parse,all downloaded bio HTML,python -m src.infra.get_bios.parser,absent,parser missing-field diagnostic
+height_support_bins,OUTPUT_DIR/infra/height_support_bins.csv,diagnostic,get_bios_hw_distr,rikishi_bios_json,python -m src.infra.get_bios.hw_distr,absent,height history support distribution
+shusshin_bins,OUTPUT_DIR/infra/shusshin_bins.csv,diagnostic,get_bios_probe,rikishi_bios_json,python -m src.infra.get_bios.probe,absent,shusshin frequency bins
+rikishi_bio_history_integrity,OUTPUT_DIR/infra/rikishi_bio_history_integrity.csv,diagnostic,get_bios_integrity,rikishi_bios_json plus History zip,python -m src.infra.get_bios.integrity,absent,bio/history lifecycle findings

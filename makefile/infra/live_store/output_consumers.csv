@@ -1,0 +1,4 @@
+output_family_id,consumer_id,consumer_type,edge_type,evidence_file,evidence_line,status,notes
+live_store_shared_memory,src.infra.live_store.api,module,input,src/infra/live_store/api.py,66,package_local,api reads named shared-memory store
+live_store_name_file,src.infra.live_store.api,module,input,src/infra/live_store/api.py,59,package_local,api reads current published name
+live_store_history_object,unreconciled,external,returns,src/infra/live_store/api.py,44,pending_reconciliation,downstream get_history consumers handled in their package audits

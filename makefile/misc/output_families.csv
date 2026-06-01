@@ -1,0 +1,14 @@
+output_family_id,path_template,layer,producer_id,data_instance,regeneration_command,provenance_status,notes
+banzuke_division_era_chart_csv,files/output/banzuke_division_era_chart.csv,producer_output,misc_banzuke_by_era,History range parameters,python -m src.misc.banzuke_by_era,absent,diagnostic matrix CSV
+banzuke_division_era_chart_html,files/output/banzuke_division_era_chart.html,producer_output,misc_banzuke_by_era,History range parameters,python -m src.misc.banzuke_by_era,absent,standalone chart view
+banzuke_division_era_site_bundle,files/output/banzuke_division_era/site/banzuke_division_by_era/{divisions.csv,page.json,metadata.json},producer_output,misc_banzuke_by_era,History range parameters,python -m src.misc.banzuke_by_era,partial,site-facing bundle
+makuuchi_rank_era_chart_csv,files/output/rank_era_chart.csv,producer_output,misc_makuuchi_by_era,History range parameters,python -m src.misc.makuuchi_by_era,absent,diagnostic matrix CSV
+makuuchi_rank_era_chart_html,files/output/rank_era_chart.html,producer_output,misc_makuuchi_by_era,History range parameters,python -m src.misc.makuuchi_by_era,absent,standalone chart view
+makuuchi_rank_era_site_bundle,files/output/rank_era/site/makuuchi_rank_by_era/{ranks.csv,page.json,metadata.json},producer_output,misc_makuuchi_by_era,History range parameters,python -m src.misc.makuuchi_by_era,partial,site-facing bundle
+division_churn_html,files/output/division_churn.html,producer_output,misc_division_churn,History range parameters,python -m src.misc.division_churn,absent,standalone chart view
+first_app_csv,files/output/first_app.csv,producer_output,misc_first_appearance,History range parameters,python -m src.misc.first_appearance,absent,diagnostic CSV
+first_app_html,files/output/first_app.html,producer_output,misc_first_appearance,History range parameters,python -m src.misc.first_appearance,absent,standalone chart view
+first_chii_appearance_site_bundle,files/output/first_app/site/first_chii_appearance/{appearances.csv,page.json,metadata.json},producer_output,misc_first_appearance,History range parameters,python -m src.misc.first_appearance,partial,site-facing bundle
+finish_by_chii_csvs,files/output/misc/finish_by_chii_{start}_{end}_{summary|top_thresholds|bottom_thresholds}.csv,producer_output,misc_finish_by_chii,History range parameters,python -m src.misc.finish_by_chii --no-upload,absent,finish distribution CSVs
+finish_by_chii_html,caller-supplied finish_by_chii HTML paths,producer_output,misc_finish_by_chii,History range parameters,python -m src.misc.finish_by_chii --no-upload,absent,HTML charts written by charting helper
+finish_by_chii_remote,/var/www/html/finish_by_chii/{index.html,average.html},publication_output,misc_finish_by_chii_deploy,local HTML files,python -m src.misc.finish_by_chii_deploy,absent,remote deployment output

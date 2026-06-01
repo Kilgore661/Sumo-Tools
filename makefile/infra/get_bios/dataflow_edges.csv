@@ -1,0 +1,19 @@
+source_id,source_type,target_id,target_type,artifact,edge_type,evidence_file,evidence_line,notes
+live_history,virtual_input,src.infra.get_bios.__main__,module,get_history(),virtual_input,src/infra/get_bios/__main__.py,36,discovers all rikishi ids in live History
+sumodb_rikishi_page,url,src.infra.get_bios.__main__,module,https://sumodb.sumogames.de/Rikishi.aspx?r={rikid},downloads,src/infra/get_bios/__main__.py,18,downloads bio page bytes
+external,external,src.infra.get_bios.__main__,module,OUTPUT_DIR/infra/rikishi/*.html,reads_existing,src/infra/get_bios/__main__.py,23,discovers existing raw bio HTML
+src.infra.get_bios.__main__,module,external,external,OUTPUT_DIR/infra/rikishi/{rikid:05d}.html,output,src/infra/get_bios/__main__.py,84,writes downloaded bio HTML
+external,external,src.infra.get_bios.parser,module,OUTPUT_DIR/infra/rikishi/*.html,input,src/infra/get_bios/parser.py,388,reads raw bio HTML files
+src.infra.get_bios.parser,module,external,external,OUTPUT_DIR/infra/rikishi_bios.json,output,src/infra/get_bios/parser.py,453,writes parsed bio JSON
+src.infra.get_bios.parser,module,external,external,OUTPUT_DIR/infra/rikishi_bio_missing_fields.csv,diagnostic_output,src/infra/get_bios/parser.py,448,writes missing-field diagnostic
+external,external,src.infra.get_bios.api,module,OUTPUT_DIR/infra/rikishi_bios.json,input,src/infra/get_bios/api.py,129,loads typed BioStore
+external,external,src.infra.get_bios.bmi,module,OUTPUT_DIR/infra/rikishi_bios.json,input,src/infra/get_bios/bmi.py,21,reads parsed bio JSON
+external,external,src.infra.get_bios.hw_distr,module,OUTPUT_DIR/infra/rikishi_bios.json,input,src/infra/get_bios/hw_distr.py,14,reads parsed bio JSON
+external,external,src.infra.get_bios.probe,module,OUTPUT_DIR/infra/rikishi_bios.json,input,src/infra/get_bios/probe.py,13,reads parsed bio JSON
+external,external,src.infra.get_bios.integrity,module,OUTPUT_DIR/infra/rikishi_bios.json,input,src/infra/get_bios/integrity.py,425,loads via load_bio_store
+src.infra.get_bios.api,module,external,external,BioStore / RikishiBio objects,returns,src/infra/get_bios/api.py,129,in-memory typed API
+src.infra.get_bios.bmi,module,stdout,external,BMI summary and bins,returns,src/infra/get_bios/bmi.py,57,prints BMI statistics
+src.infra.get_bios.hw_distr,module,external,external,OUTPUT_DIR/infra/height_support_bins.csv,output,src/infra/get_bios/hw_distr.py,55,writes height support distribution
+src.infra.get_bios.probe,module,external,external,OUTPUT_DIR/infra/shusshin_bins.csv,output,src/infra/get_bios/probe.py,45,writes shusshin frequency bins
+external,external,src.infra.get_bios.integrity,module,OUTPUT_DIR/Historys/1958_01 to 2026_11,input,src/infra/get_bios/integrity.py,17,default History zip path without suffix
+src.infra.get_bios.integrity,module,external,external,OUTPUT_DIR/infra/rikishi_bio_history_integrity.csv,output,src/infra/get_bios/integrity.py,432,writes integrity findings

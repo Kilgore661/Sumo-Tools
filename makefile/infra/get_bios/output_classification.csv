@@ -1,0 +1,7 @@
+output_family_id,classification,layer,consumer_status,leaf_output,proposed_action,human_decision_needed,notes
+rikishi_bio_html,unknown pending reconciliation,source_capture,pending_reconciliation,unknown,KEEP,false,writer and reader are recorded separately
+rikishi_bios_json,unknown pending reconciliation,producer_output,pending_reconciliation,unknown,PROMOTE_TO_CONTRACT,true,likely central package artifact but not reconciled in package-local pass
+rikishi_bio_missing_fields,diagnostic,diagnostic,manual_or_unknown,true,ASK_HUMAN,true,parser diagnostic
+height_support_bins,diagnostic,diagnostic,manual_or_unknown,true,ASK_HUMAN,true,probe output
+shusshin_bins,diagnostic,diagnostic,manual_or_unknown,true,ASK_HUMAN,true,probe output
+rikishi_bio_history_integrity,diagnostic,diagnostic,manual_or_unknown,true,ASK_HUMAN,true,integrity check output
