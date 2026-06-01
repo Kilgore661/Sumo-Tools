@@ -1,0 +1,124 @@
+import { escapeHtml } from "../../utils/html.js";
+import {
+  currentTableSortState,
+  renderTableHeading,
+  sortRows,
+  tableCellAttributes,
+} from "./shared.js";
+
+function renderSectionedTable(artifact, rows) {
+  const sortState = currentTableSortState(artifact);
+  return [
+    '<div class="artifact-title-block">',
+    `<h4>${escapeHtml(artifact.heading)}</h4>`,
+    '</div>',
+    '<div class="sectioned-table-grid">',
+    ...artifact.sections.map(section =>
+      renderTableSection(section, rows, artifact.columns || [], sortState)
+    ),
+    '</div>',
+  ].join("");
+}
+
+function renderTableSection(section, rows, columns, sortState = null) {
+  const sectionRows = sortRows(
+    [...rows]
+    .filter(row => String(row[section.source_field]) === String(section.source_value))
+    .sort((left, right) =>
+      compareValues(Number(left[section.order_by]) || 0, Number(right[section.order_by]) || 0)
+    ),
+    columns,
+    sortState
+  );
+  return [
+    '<section class="table-section">',
+    `<h5>${escapeHtml(section.heading)}</h5>`,
+    '<table class="artifact-table sectioned-table">',
+    '<thead><tr>',
+    ...columns.map(column => renderTableHeading(column, sortState)),
+    '</tr></thead>',
+    '<tbody>',
+    ...sectionRows.map((row, index) => [
+      '<tr>',
+      ...columns.map(column =>
+        `<td ${tableCellAttributes(column)}>${escapeHtml(cellValue(column, row, index))}</td>`
+      ),
+      '</tr>'
+    ].join("")),
+    '</tbody>',
+    '</table>',
+    '</section>',
+  ].join("");
+}
+
+function renderIndexedTable(artifact, rows, state) {
+  const groups = new Map(artifact.column_groups.map(group => [group.id, group]));
+  const visibleColumns = artifact.columns.filter(column => isColumnVisible(column, groups, state));
+  const sortState = currentTableSortState(artifact);
+  const sortedRows = sortRows(rows, visibleColumns, sortState);
+  return [
+    '<table class="artifact-table brb-table">',
+    '<thead><tr>',
+    ...visibleColumns.map(column => renderTableHeading(column, sortState)),
+    '</tr></thead>',
+    '<tbody>',
+    ...sortedRows.map((row, index) => [
+      '<tr>',
+      ...visibleColumns.map(column => `<td ${tableCellAttributes(column)}>${escapeHtml(cellValue(column, row, index))}</td>`),
+      '</tr>'
+    ].join("")),
+    '</tbody>',
+    '</table>'
+  ].join("");
+}
+
+function isColumnVisible(column, groups, state) {
+  if (column.always_visible) return true;
+  const group = groups.get(column.group);
+  if (!group) return false;
+  if (group.always_visible) {
+    if (column.id === "equelo" || column.id === "delta_equelo") return Boolean(state.rating_context);
+    if (column.id === "nu_chii") return Boolean(state.nu_chii);
+    return true;
+  }
+  if (group.controlling_filter_id) return Boolean(state[group.controlling_filter_id]);
+  return false;
+}
+
+function cellValue(column, row, index) {
+  if (column.id === "row_number") return String(index + 1);
+  if (column.id === "previous_result") return resultWithMovement(
+    row[column.source_field || column.id],
+    row.previous_rank_level_movement,
+  );
+  return row[column.source_field || column.id] || "";
+}
+
+function resultWithMovement(result, movement) {
+  const marker = rankLevelMovementMarker(movement);
+  return [result || "", marker].filter(Boolean).join(" ");
+}
+
+function rankLevelMovementMarker(value) {
+  if (value === "\u2191" || value === "\u2193") return value;
+  return "";
+}
+
+function compareValues(left, right) {
+  const leftNumber = Number(left);
+  const rightNumber = Number(right);
+  if (!Number.isNaN(leftNumber) && !Number.isNaN(rightNumber)) {
+    return leftNumber - rightNumber;
+  }
+  return String(left).localeCompare(String(right));
+}
+
+export {
+  renderSectionedTable,
+  renderTableSection,
+  renderIndexedTable,
+  isColumnVisible,
+  cellValue,
+  resultWithMovement,
+  rankLevelMovementMarker,
+};

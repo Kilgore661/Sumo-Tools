@@ -47,8 +47,16 @@ build exposes changed runtime code without stale imported modules being reused.
   explicit `PAPanel` rendering relationship.
 - `ui/layout.js`: shared PA-panel layout hooks such as sticky artifact title
   and table-heading offset calculation.
-- `ui/tables.js`: table renderers and table-only data shaping.
-- `ui/charts.js`: Plotly views, chart trace construction and chart layouts.
+- `ui/tables.js`: table facade preserving the public import surface.
+- `ui/tables/`: generic, Banzuke Changes and Standings table renderers plus
+  shared sorting/cell helpers.
+- `ui/basho-results-table.js`: Basho Results table facade preserving the public
+  import surface.
+- `ui/basho-results/`: Basho Results recursive table model, value derivation,
+  rendering and sorting modules.
+- `ui/charts.js`: chart facade preserving the public import surface.
+- `ui/charts/`: Plotly views, chart trace construction and chart layouts by
+  chart family.
 - `ui/notes.js`: conditional Note display within `PAPanel`.
 - `utils/html.js`: HTML escaping.
 

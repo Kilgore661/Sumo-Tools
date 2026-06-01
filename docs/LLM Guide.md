@@ -176,16 +176,42 @@ inspection rather than pretending that source review or pytest proves it.
 
 I can see environment variable names available to the Codex shell, but not your broader interactive shell environment. I should not assume secrets or mapped-drive credentials are available.
 
-The `node` on `PATH` is blocked with access denied, but bundled runtime Node works at:
+Node.js LTS is installed normally at:
 
 ```text
-C:\Users\kilgo\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe
+C:\Program Files\nodejs\node.exe
 ```
 
-Use that explicit executable for JavaScript checks, for example:
+Plain `node` should resolve to this normal install and currently reports
+`v24.16.0`. The Codex app also ships its own bundled Node, and it may still
+appear later in `Get-Command node -All`, but project checks should use the
+normal Node install when available.
+
+PowerShell may choose `npm.ps1` / `npx.ps1` and block them under the execution
+policy. Use the `.cmd` shims instead:
 
 ```powershell
-& "C:\Users\kilgo\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe" --check ".\src\products\make_site2\runtime\site-refactor\ui\charts.js"
+npm.cmd --version
+npx.cmd playwright --version
+```
+
+Playwright is installed as a project-local dependency under:
+
+```text
+X:\Sumo-Tools\node_modules\playwright
+```
+
+Use normal Node for JavaScript checks:
+
+```powershell
+node --check ".\src\products\make_site2\runtime\site-refactor\ui\charts.js"
+```
+
+Use project-local Playwright for browser smoke checks against the shared preview.
+For example:
+
+```powershell
+node -e "const { chromium } = require('playwright'); (async () => { const browser = await chromium.launch(); const page = await browser.newPage(); const errors = []; page.on('console', msg => { if (msg.type() === 'error') errors.push(msg.text()); }); page.on('pageerror', error => errors.push(error.message)); await page.goto('http://localhost:8766/', { waitUntil: 'networkidle' }); console.log(await page.title()); console.log('errors=' + errors.length); if (errors.length) console.log(errors.join('\n')); await browser.close(); })().catch(error => { console.error(error); process.exit(1); });"
 ```
 
 Python works from the workspace. For local static preview, the command is:
