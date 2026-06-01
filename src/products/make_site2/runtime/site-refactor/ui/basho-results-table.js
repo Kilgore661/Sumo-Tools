@@ -67,7 +67,11 @@ function recordSpec() {
       column("wins", "W", { sort_kind: "numeric", presentation: PRESENTATION.COMPACT_COUNT }),
       column("losses", "L", { sort_kind: "numeric", presentation: PRESENTATION.COMPACT_COUNT }),
       column("absences", "A", { sort_kind: "numeric", presentation: PRESENTATION.COMPACT_COUNT }),
-      column("prizes", "\u{1F4E6}", { sort_kind: "prize_set", presentation: PRESENTATION.COMPACT_TEXT }),
+      column("prizes", "\u{1F4E6}", {
+        sort_kind: "prize_set",
+        sort_default_direction: "descending",
+        presentation: PRESENTATION.COMPACT_TEXT,
+      }),
     ]),
   ];
 }
