@@ -23,16 +23,20 @@ class HistoryAppearances:
     first_seen: Date
     last_seen: Date
     count: int
+    first_seen_shikona: str
+    last_seen_shikona: str
 
 
 @dataclass(frozen=True)
 class IntegrityFinding:
     kind: str
     rikid: RikId
+    shikona: str
     first_seen: Date | None
     last_seen: Date | None
     hatsu_dohyo: BioBashoDate | None
     intai: BioBashoDate | None
+    represented_basho_offset: int | None
     detail: str
 
 
@@ -60,6 +64,18 @@ def format_optional(value) -> str:
     return str(value)
 
 
+def shikona_for_finding(
+    *,
+    bio: RikishiBio | None,
+    appearances: HistoryAppearances | None,
+) -> str:
+    if bio is not None and bio.shikona_history:
+        return str(bio.latest_shikona())
+    if appearances is not None:
+        return appearances.last_seen_shikona
+    return ""
+
+
 def build_appearances_by_rikishi(history) -> dict[RikId, HistoryAppearances]:
     dates_by_rikishi: dict[RikId, list[Date]] = defaultdict(list)
 
@@ -72,6 +88,8 @@ def build_appearances_by_rikishi(history) -> dict[RikId, HistoryAppearances]:
             first_seen=dates[0],
             last_seen=dates[-1],
             count=len(dates),
+            first_seen_shikona=str(history[dates[0]].banzuke.get_shik(rikid)),
+            last_seen_shikona=str(history[dates[-1]].banzuke.get_shik(rikid)),
         )
         for rikid, dates in dates_by_rikishi.items()
     }
@@ -110,16 +128,19 @@ def check_hatsu_dohyo(
 ) -> list[IntegrityFinding]:
     findings: list[IntegrityFinding] = []
     hatsu = bio.hatsu_dohyo
+    shikona = shikona_for_finding(bio=bio, appearances=appearances)
 
     if hatsu is None:
         findings.append(
             IntegrityFinding(
                 kind="bio_missing_hatsu_dohyo",
                 rikid=rikid,
+                shikona=shikona,
                 first_seen=appearances.first_seen if appearances else None,
                 last_seen=appearances.last_seen if appearances else None,
                 hatsu_dohyo=None,
                 intai=bio.intai,
+                represented_basho_offset=None,
                 detail="Bio has no Hatsu Dohyo value.",
             )
         )
@@ -130,10 +151,12 @@ def check_hatsu_dohyo(
             IntegrityFinding(
                 kind="bio_present_but_never_seen_in_history",
                 rikid=rikid,
+                shikona=shikona,
                 first_seen=None,
                 last_seen=None,
                 hatsu_dohyo=hatsu,
                 intai=bio.intai,
+                represented_basho_offset=None,
                 detail="Bio exists, but rikishi never appears on any parsed History banzuke.",
             )
         )
@@ -144,10 +167,12 @@ def check_hatsu_dohyo(
             IntegrityFinding(
                 kind="history_seen_before_bio_hatsu",
                 rikid=rikid,
+                shikona=shikona,
                 first_seen=appearances.first_seen,
                 last_seen=appearances.last_seen,
                 hatsu_dohyo=hatsu,
                 intai=bio.intai,
+                represented_basho_offset=None,
                 detail="Rikishi appears in History before Bio Hatsu Dohyo.",
             )
         )
@@ -167,13 +192,15 @@ def check_hatsu_dohyo(
             IntegrityFinding(
                 kind="bio_hatsu_long_before_first_history_appearance",
                 rikid=rikid,
+                shikona=shikona,
                 first_seen=appearances.first_seen,
                 last_seen=appearances.last_seen,
                 hatsu_dohyo=hatsu,
                 intai=bio.intai,
+                represented_basho_offset=delay,
                 detail=(
                     "Bio Hatsu Dohyo is within represented History, but first "
-                    f"banzuke appearance is {delay} represented basho later."
+                    "banzuke appearance is later."
                 ),
             )
         )
@@ -195,16 +222,19 @@ def check_intai(
     if appearances is None or intai is None:
         return findings
 
+    shikona = shikona_for_finding(bio=bio, appearances=appearances)
     last_allowed_index = last_history_index_on_or_before(history_dates, intai)
     if last_allowed_index is None:
         findings.append(
             IntegrityFinding(
                 kind="bio_intai_before_history_but_seen",
                 rikid=rikid,
+                shikona=shikona,
                 first_seen=appearances.first_seen,
                 last_seen=appearances.last_seen,
                 hatsu_dohyo=bio.hatsu_dohyo,
                 intai=intai,
+                represented_basho_offset=None,
                 detail="Bio Intai is before represented History, but rikishi appears in History.",
             )
         )
@@ -218,14 +248,13 @@ def check_intai(
             IntegrityFinding(
                 kind="history_seen_after_bio_intai",
                 rikid=rikid,
+                shikona=shikona,
                 first_seen=appearances.first_seen,
                 last_seen=appearances.last_seen,
                 hatsu_dohyo=bio.hatsu_dohyo,
                 intai=intai,
-                detail=(
-                    "Rikishi appears on a History banzuke "
-                    f"{overrun} represented basho after Bio Intai."
-                ),
+                represented_basho_offset=overrun,
+                detail="Rikishi appears on a History banzuke after Bio Intai.",
             )
         )
 
@@ -247,10 +276,12 @@ def check_history_ids_have_bios(
             IntegrityFinding(
                 kind="history_seen_but_no_bio",
                 rikid=rikid,
+                shikona=shikona_for_finding(bio=None, appearances=appearances),
                 first_seen=appearances.first_seen,
                 last_seen=appearances.last_seen,
                 hatsu_dohyo=None,
                 intai=None,
+                represented_basho_offset=None,
                 detail="Rikishi appears in History, but has no parsed Bio record.",
             )
         )
@@ -310,10 +341,12 @@ def write_csv(path: Path, findings: list[IntegrityFinding]) -> None:
             fieldnames=[
                 "kind",
                 "rikid",
+                "shikona",
                 "first_seen",
                 "last_seen",
                 "hatsu_dohyo",
                 "intai",
+                "represented_basho_offset",
                 "detail",
             ],
         )
@@ -323,10 +356,12 @@ def write_csv(path: Path, findings: list[IntegrityFinding]) -> None:
                 {
                     "kind": finding.kind,
                     "rikid": str(int(finding.rikid)),
+                    "shikona": finding.shikona,
                     "first_seen": format_optional(finding.first_seen),
                     "last_seen": format_optional(finding.last_seen),
                     "hatsu_dohyo": format_optional(finding.hatsu_dohyo),
                     "intai": format_optional(finding.intai),
+                    "represented_basho_offset": format_optional(finding.represented_basho_offset),
                     "detail": finding.detail,
                 }
             )
