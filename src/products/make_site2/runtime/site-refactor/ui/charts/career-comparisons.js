@@ -229,7 +229,6 @@ function renderCareerComparisonsPlot(artifact, state, data) {
   }
   Plotly.react(host, traces, careerComparisonLayout(artifact, state, data, traces), PLOTLY_CONFIG)
     .then(() => {
-      alignChiiAxisLabels(host, state);
       attachCareerComparisonLegendHandler(host);
     });
 }
@@ -316,6 +315,7 @@ function careerComparisonLayout(artifact, state, data, traces = null) {
     margin: { l: state.skill === "chii" ? 92 : 76, r: 40, t: 18, b: 70 },
     xaxis: {
       title: state.x_base === "basho" ? "Basho from hatsu" : "Date",
+      ...(state.x_base === "date" ? dateAxisCategoryOrder(traces || []) : {}),
       automargin: true,
       gridcolor: "rgba(127,149,192,0.18)",
       zerolinecolor: "rgba(127,149,192,0.35)",
@@ -337,6 +337,19 @@ function careerComparisonLayout(artifact, state, data, traces = null) {
       color: "#ffffff",
     },
   };
+}
+
+function dateAxisCategoryOrder(traces) {
+  return {
+    type: "category",
+    categoryorder: "array",
+    categoryarray: sortedTraceDates(traces),
+  };
+}
+
+function sortedTraceDates(traces) {
+  return [...new Set(traces.flatMap(trace => trace.x || []))]
+    .sort((left, right) => String(left).localeCompare(String(right)));
 }
 
 function chiiAxisLayout(artifact, state, data, traces = null) {
@@ -439,16 +452,14 @@ function compressedChiiScale(labels, topProp) {
   const topLabels = labels.filter(label => isSekitoriHumanChii(label));
   const bottomLabels = labels.filter(label => !isSekitoriHumanChii(label));
   const valuesByHuman = new Map();
+  const boundary = 1 - topProp;
   topLabels.forEach((label, index) => {
-    valuesByHuman.set(label, interpolate(1, 1 - topProp, index, topLabels.length));
+    valuesByHuman.set(label, interpolate(1, boundary, index, topLabels.length));
   });
   bottomLabels.forEach((label, index) => {
-    valuesByHuman.set(label, interpolate(1 - topProp, 0, index, bottomLabels.length));
+    valuesByHuman.set(label, interpolate(boundary, 0, index, bottomLabels.length));
   });
-  const ticks = [
-    ...sparseChiiTicks(topLabels, 32),
-    ...sparseChiiTicks(bottomLabels, 16),
-  ];
+  const ticks = spacedChiiTicks(labels, valuesByHuman, 0.026);
   return {
     valuesByHuman,
     kind: "compressed",
@@ -465,6 +476,32 @@ function interpolate(start, end, index, count) {
 function sparseChiiTicks(labels, maxLabels) {
   const step = Math.max(1, Math.ceil(labels.length / maxLabels));
   return labels.filter((_, index) => index % step === 0);
+}
+
+function spacedChiiTicks(labels, valuesByHuman, minimumGap) {
+  const ticks = [];
+  let previousValue = Number.POSITIVE_INFINITY;
+  for (const label of labels) {
+    const value = valuesByHuman.get(label);
+    if (value === undefined) continue;
+    if (previousValue - value >= minimumGap || ticks.length === 0) {
+      ticks.push(label);
+      previousValue = value;
+    }
+  }
+  const finalLabel = labels[labels.length - 1];
+  if (finalLabel && !ticks.includes(finalLabel)) {
+    const finalValue = valuesByHuman.get(finalLabel);
+    const previousFinalValue = valuesByHuman.get(ticks[ticks.length - 1]);
+    if (
+      finalValue !== undefined &&
+      previousFinalValue !== undefined &&
+      previousFinalValue - finalValue >= minimumGap
+    ) {
+      ticks.push(finalLabel);
+    }
+  }
+  return ticks;
 }
 
 function isSekitoriHumanChii(label) {
@@ -559,14 +596,6 @@ function attachCareerComparisonLegendHandler(host) {
   });
 }
 
-function alignChiiAxisLabels(host, state) {
-  if (state.skill !== "chii") return;
-  host.querySelectorAll(".yaxislayer-above text").forEach(label => {
-    label.setAttribute("text-anchor", "start");
-    label.setAttribute("dx", "-8");
-  });
-}
-
 function resetCareerComparisonsState() {
   careerComparisonsState = { ...DEFAULT_STATE };
 }
@@ -581,6 +610,8 @@ export {
   careerComparisonTrace,
   careerComparisonYValue,
   careerComparisonLayout,
+  dateAxisCategoryOrder,
+  sortedTraceDates,
   chiiAxisLayout,
   equeloAxisLayout,
   numericTraceRange,
@@ -592,10 +623,10 @@ export {
   compressedChiiScale,
   humanChii,
   humanChiiSortKey,
+  spacedChiiTicks,
   parseChii,
   careerComparisonRikishiOptions,
   readCareerComparisonSelectionFromUrl,
   writeCareerComparisonSelectionToUrl,
-  alignChiiAxisLabels,
   resetCareerComparisonsState,
 };
