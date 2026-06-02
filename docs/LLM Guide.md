@@ -184,6 +184,17 @@ and docs but cannot prove localhost browser behaviour. In that case, state
 plainly that the behaviour needs Codex/local-preview access or human browser
 inspection rather than pretending that source review or pytest proves it.
 
+The user's normal development environment may also provide a LAN-served preview
+URL after `make_site2 --local-only`, for example:
+
+```text
+http://192.168.0.6/sumo-tools2/
+```
+
+When the user has already produced such a URL, treat it as a valid shared
+browser target. Use repo-local Playwright against that URL rather than assuming
+the mapped deployment path must be visible to Codex.
+
 I can see environment variable names available to the Codex shell, but not your broader interactive shell environment. I should not assume secrets or mapped-drive credentials are available.
 
 Node.js LTS is installed normally at:
@@ -218,6 +229,8 @@ node --check ".\src\products\make_site2\runtime\site-refactor\ui\charts.js"
 ```
 
 Use project-local Playwright for browser smoke checks against the shared preview.
+This applies to either `localhost:8766` or a user-supplied LAN preview URL such
+as `http://192.168.0.6/sumo-tools2/`.
 For example:
 
 ```powershell
