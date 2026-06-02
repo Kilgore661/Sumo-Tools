@@ -783,8 +783,35 @@ presentation are rendering choices unless a particular feature carries declared
 analytical meaning. Chart Notes remain Notes in the PAPanel rather than ad hoc
 Filter help or unrelated footer text.
 
-Shared chart presentation rules shall be added as real promoted chart cases
-require them and are agreed.
+### 17.1 Shared Plotly Chart Presentation
+
+When a chart PA is rendered with Plotly, it shall use the shared chart runtime
+configuration unless a declared PA-specific exception is required.
+
+Shared Plotly chart presentation includes:
+
+- Plotly charts shall be responsive.
+- Plotly charts shall resize after ordinary layout changes that alter the PA
+  slot, including Notes-panel show/hide changes and NavigationBar
+  hide/restore changes.
+- Plotly mode bars shall be available without showing the Plotly logo.
+- Long x-axis tick labels may be rotated, with `-45` degrees as the normal
+  first candidate when horizontal labels are not legible.
+- X-axis tick rotation is a chart artifact/layout property, not an ad hoc local
+  renderer decision.
+- Legend interaction that changes analytical visibility should use a shared
+  runtime handler where default Plotly behaviour is not the intended public
+  interaction.
+
+The current runtime implements the shared Plotly configuration in
+`runtime/site-refactor/ui/charts/shared.js`. Current generic chart layouts read
+`x_tickangle` from artifact provenance. Standing Win Probability currently has
+PA-specific legend behaviour; if the same legend interaction is wanted by more
+chart PAs, it should be promoted into a shared chart helper rather than copied
+locally.
+
+Shared chart presentation rules shall continue to be added as real promoted
+chart cases require them and are agreed.
 
 ---
 

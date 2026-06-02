@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from src.products.make_site2.data_output import (
+    build_career_comparisons_data_output,
     copy_banzuke_changes_data_output,
     copy_banzuke_division_by_era_data_output,
     copy_career_length_data_output,
@@ -12,6 +13,7 @@ from src.products.make_site2.data_output import (
     copy_typical_equelo_values_data_output,
     copy_win_probability_by_standing_data_output,
 )
+from src.products.make_site2.perf_chart.build import MasterDataOutput
 
 
 def test_copy_banzuke_changes_data_output_stages_producer_files(
@@ -367,3 +369,43 @@ def test_copy_win_probability_by_standing_data_output_stages_csv_set(
     ) == "equelo"
     assert not (route_data_root / "page.json").exists()
     assert not (route_data_root / "metadata.json").exists()
+
+
+def test_build_career_comparisons_data_output_writes_producer_then_stages(
+    monkeypatch,
+    tmp_path: Path,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    selected_history = object()
+    producer_root = Path("files") / "output" / "perf_chart" / "career_comparisons"
+
+    def fake_write_master_data(*, history, output_root):
+        assert history is selected_history
+        assert output_root == producer_root
+        output_root.mkdir(parents=True)
+        data_path = output_root / "trajectory_master.json"
+        report_path = output_root / "trajectory_master_report.json"
+        data_path.write_text("data", encoding="utf-8")
+        report_path.write_text("report", encoding="utf-8")
+        return MasterDataOutput(data_path=data_path, report_path=report_path)
+
+    monkeypatch.setattr(
+        "src.products.make_site2.data_output.write_master_data",
+        fake_write_master_data,
+    )
+
+    output = build_career_comparisons_data_output(
+        history=selected_history,
+        output_root=tmp_path / "site",
+    )
+
+    route_data_root = tmp_path / "site" / "rikishi" / "career-comparisons" / "data"
+    absolute_producer_root = tmp_path / producer_root
+    assert (absolute_producer_root / "trajectory_master.json").read_text(encoding="utf-8") == "data"
+    assert (absolute_producer_root / "trajectory_master_report.json").read_text(
+        encoding="utf-8"
+    ) == "report"
+    assert output.data_path == route_data_root / "trajectory_master.json"
+    assert output.report_path == route_data_root / "trajectory_master_report.json"
+    assert output.data_path.read_text(encoding="utf-8") == "data"
+    assert output.report_path.read_text(encoding="utf-8") == "report"

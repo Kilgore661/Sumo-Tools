@@ -16,8 +16,11 @@ from src.analysis.sumo_history.basho_results.reports import write_index, write_p
 from src.infra.persistence.annotated_serialiser import load_history_with_annotations
 from src.sumo_core.History import History
 
+from .perf_chart.build import MasterDataOutput, write_master_data
+
 
 BASHO_RESULTS_ROUTE_DATA_DIR = Path("sumo-history") / "basho-results" / "data"
+CAREER_COMPARISONS_ROUTE_DATA_DIR = Path("rikishi") / "career-comparisons" / "data"
 FINISH_BY_CHII_ROUTE_DATA_DIR = Path("performance") / "finish-by-chii" / "data"
 DIVISION_STABILITY_ROUTE_DATA_DIR = (
     Path("banzuke-rank") / "division-stability" / "data"
@@ -111,6 +114,7 @@ MAKUUCHI_RANK_BY_ERA_SOURCE_ROOT = (
 )
 STANDINGS_ROUTE_DATA_DIR = Path("current-sumo") / "standings-by-wins" / "data"
 STANDINGS_SOURCE_ROOT = Path("files") / "output" / "standings" / "publisher" / "latest_data"
+PERF_CHART_SOURCE_ROOT = Path("files") / "output" / "perf_chart" / "career_comparisons"
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -208,6 +212,31 @@ def build_basho_results_data_output(
         index_path=index_path,
         payload_paths=payload_paths,
     )
+
+
+def build_career_comparisons_data_output(
+    *,
+    history: History,
+    output_root: Path,
+) -> MasterDataOutput:
+    """Build the Career Comparisons master trajectory data file."""
+
+    if PERF_CHART_SOURCE_ROOT.exists():
+        shutil.rmtree(PERF_CHART_SOURCE_ROOT)
+    producer_output = write_master_data(
+        history=history,
+        output_root=PERF_CHART_SOURCE_ROOT,
+    )
+
+    route_data_root = output_root / CAREER_COMPARISONS_ROUTE_DATA_DIR
+    if route_data_root.exists():
+        shutil.rmtree(route_data_root)
+    route_data_root.mkdir(parents=True, exist_ok=True)
+    data_path = route_data_root / producer_output.data_path.name
+    report_path = route_data_root / producer_output.report_path.name
+    shutil.copy2(producer_output.data_path, data_path)
+    shutil.copy2(producer_output.report_path, report_path)
+    return MasterDataOutput(data_path=data_path, report_path=report_path)
 
 
 def copy_finish_by_chii_data_output(*, output_root: Path) -> FinishByChiiDataOutput:
