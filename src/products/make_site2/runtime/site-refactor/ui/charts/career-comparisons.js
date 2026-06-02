@@ -7,6 +7,7 @@ const POINT_DATE = 0;
 const POINT_SHIKONA = 1;
 const POINT_CHII = 2;
 const POINT_EQUELO = 3;
+const FLOAT_DP = 2;
 const CHII_LEVELS = ["Y", "O", "S", "K", "M", "J", "Ms", "Sd", "Jd", "Jk"];
 const DEFAULT_STATE = {
   selectedRikishiIds: [],
@@ -56,7 +57,6 @@ function renderCareerComparisonsControls(state) {
     '</label>',
     '<datalist id="career-comparison-candidates"></datalist>',
     '<ul class="career-comparison-selected" aria-label="Selected rikishi"></ul>',
-    '<button type="submit" class="career-comparison-go">Go</button>',
     '</div>',
     '</form>',
   ].join("");
@@ -104,6 +104,13 @@ function wireCareerComparisonsControls(panel, artifact, state, data, writeState)
   const input = form.elements.rikishi_search;
   const datalist = form.querySelector("#career-comparison-candidates");
   const selectedList = form.querySelector(".career-comparison-selected");
+  const applyState = () => {
+    const nextState = careerComparisonControlState(form, state);
+    Object.assign(state, nextState);
+    writeState(panel, nextState);
+    writeCareerComparisonSelectionToUrl();
+    renderCareerComparisonsPlot(artifact, nextState, data);
+  };
 
   updateCareerComparisonCandidates(input, datalist, options);
   renderSelectedRikishiList(selectedList, optionsById);
@@ -111,12 +118,15 @@ function wireCareerComparisonsControls(panel, artifact, state, data, writeState)
 
   input.addEventListener("input", () => {
     if (consumeExactRikishiSelection(input, optionsByLabel, datalist, selectedList, options, optionsById)) {
+      applyState();
       return;
     }
     updateCareerComparisonCandidates(input, datalist, options);
   });
   input.addEventListener("change", () => {
-    consumeExactRikishiSelection(input, optionsByLabel, datalist, selectedList, options, optionsById);
+    if (consumeExactRikishiSelection(input, optionsByLabel, datalist, selectedList, options, optionsById)) {
+      applyState();
+    }
   });
   selectedList.addEventListener("click", event => {
     const button = event.target.closest("button[data-rikishi-id]");
@@ -124,13 +134,17 @@ function wireCareerComparisonsControls(panel, artifact, state, data, writeState)
     careerComparisonsState.selectedRikishiIds = careerComparisonsState.selectedRikishiIds
       .filter(id => id !== button.dataset.rikishiId);
     renderSelectedRikishiList(selectedList, optionsById);
+    applyState();
+  });
+  form.addEventListener("change", event => {
+    const control = event.target;
+    if (control.name === "career_comparison_mode" || control.name === "log") {
+      applyState();
+    }
   });
   form.addEventListener("submit", event => {
     event.preventDefault();
-    const nextState = careerComparisonControlState(form, state);
-    writeState(panel, nextState);
-    writeCareerComparisonSelectionToUrl();
-    renderCareerComparisonsPlot(artifact, nextState, data);
+    applyState();
   });
 }
 
@@ -197,13 +211,14 @@ function renderCareerComparisonsPlot(artifact, state, data) {
   const host = document.getElementById("career-comparisons-chart");
   if (!host) return;
   if (!careerComparisonsState.selectedRikishiIds.length) {
-    host.innerHTML = '<p class="career-comparison-empty">Select one or more rikishi, then click Go.</p>';
+    host.innerHTML = '<p class="career-comparison-empty">Select one or more rikishi.</p>';
     return;
   }
   if (!window.Plotly) {
     host.innerHTML = "<p>Plotly is not available.</p>";
     return;
   }
+  host.classList.toggle("career-comparisons-chii-axis", state.skill === "chii");
   const traces = careerComparisonTraces(artifact, state, data);
   if (!traces.length) {
     host.innerHTML = '<p class="career-comparison-empty">No plottable points are available for the selected rikishi and chart options.</p>';
@@ -212,8 +227,11 @@ function renderCareerComparisonsPlot(artifact, state, data) {
   if (host.querySelector(".career-comparison-empty")) {
     host.innerHTML = "";
   }
-  Plotly.react(host, traces, careerComparisonLayout(artifact, state, data), PLOTLY_CONFIG)
-    .then(() => attachCareerComparisonLegendHandler(host));
+  Plotly.react(host, traces, careerComparisonLayout(artifact, state, data, traces), PLOTLY_CONFIG)
+    .then(() => {
+      alignChiiAxisLabels(host, state);
+      attachCareerComparisonLegendHandler(host);
+    });
 }
 
 function careerComparisonTraces(artifact, state, data) {
@@ -238,7 +256,7 @@ function careerComparisonTrace(rikishiId, artifact, state, data, chiiScale) {
       point[POINT_SHIKONA],
       point[POINT_DATE],
       point[POINT_CHII],
-      point[POINT_EQUELO],
+      formatOptionalFloat(point[POINT_EQUELO]),
     ]);
   });
   if (!x.length) return null;
@@ -269,32 +287,33 @@ function careerComparisonHoverTemplate(state) {
   const yLabel = state.skill === "equelo"
     ? (state.log ? "log(Equelo)" : "Equelo")
     : "Chii position";
+  const yFormat = `:.${FLOAT_DP}f`;
   const xLabel = state.x_base === "basho" ? "Basho from hatsu" : "Date";
-  return [
+  const lines = [
     "Shikona=%{customdata[0]}",
     `${xLabel}=%{x}`,
+  ];
+  if (state.x_base === "basho") {
+    lines.push("Date=%{customdata[1]}");
+  }
+  lines.push(
     "Chii=%{customdata[2]}",
     "Equelo=%{customdata[3]}",
-    `${yLabel}=%{y}`,
+    `${yLabel}=%{y${yFormat}}`,
     "<extra></extra>",
-  ].join("<br>");
+  );
+  return lines.join("<br>");
 }
 
-function careerComparisonLayout(artifact, state, data) {
+function careerComparisonLayout(artifact, state, data, traces = null) {
   const yAxis = state.skill === "chii"
-    ? chiiAxisLayout(artifact, state, data)
-    : {
-      title: state.log ? "log(Equelo)" : "Equelo",
-      automargin: true,
-      gridcolor: "rgba(127,149,192,0.22)",
-      zerolinecolor: "rgba(127,149,192,0.35)",
-      color: "#c9d4ee",
-    };
+    ? chiiAxisLayout(artifact, state, data, traces || careerComparisonTraces(artifact, state, data))
+    : equeloAxisLayout(state, traces || careerComparisonTraces(artifact, state, data));
   return {
     autosize: true,
     paper_bgcolor: "rgba(0,0,0,0)",
     plot_bgcolor: "rgba(0,0,0,0)",
-    margin: { l: 76, r: 40, t: 18, b: 70 },
+    margin: { l: state.skill === "chii" ? 92 : 76, r: 40, t: 18, b: 70 },
     xaxis: {
       title: state.x_base === "basho" ? "Basho from hatsu" : "Date",
       automargin: true,
@@ -320,10 +339,13 @@ function careerComparisonLayout(artifact, state, data) {
   };
 }
 
-function chiiAxisLayout(artifact, state, data) {
+function chiiAxisLayout(artifact, state, data, traces = null) {
   const scale = buildChiiScale(artifact, state, data);
+  const range = numericTraceRange(traces || [], chiiRangePadding(scale));
   return {
     title: state.log ? "Chii position (compressed)" : "Chii position",
+    autorange: range ? false : undefined,
+    range,
     automargin: true,
     gridcolor: "rgba(127,149,192,0.22)",
     zerolinecolor: "rgba(127,149,192,0.35)",
@@ -332,6 +354,51 @@ function chiiAxisLayout(artifact, state, data) {
     tickvals: scale.tickValues,
     ticktext: scale.tickLabels,
   };
+}
+
+function equeloAxisLayout(state, traces) {
+  const range = numericTraceRange(traces, null);
+  return {
+    title: state.log ? "log(Equelo)" : "Equelo",
+    autorange: range ? false : undefined,
+    range,
+    tickformat: ".0f",
+    automargin: true,
+    gridcolor: "rgba(127,149,192,0.22)",
+    zerolinecolor: "rgba(127,149,192,0.35)",
+    color: "#c9d4ee",
+  };
+}
+
+function numericTraceRange(traces, fixedPadding = null) {
+  const values = traces
+    .flatMap(trace => trace.y || [])
+    .map(value => Number(value))
+    .filter(value => Number.isFinite(value));
+  if (!values.length) return undefined;
+  const minimum = Math.min(...values);
+  const maximum = Math.max(...values);
+  if (minimum === maximum) {
+    const padding = fixedPadding ?? Math.max(1, Math.abs(minimum) * 0.02);
+    return [minimum - padding, maximum + padding];
+  }
+  const padding = fixedPadding ?? (maximum - minimum) * 0.05;
+  return [minimum - padding, maximum + padding];
+}
+
+function chiiRangePadding(scale) {
+  if (scale.kind === "compressed") return 0.02;
+  return 0.5;
+}
+
+function formatFloatLabel(value) {
+  return Number(value).toFixed(FLOAT_DP);
+}
+
+function formatOptionalFloat(value) {
+  if (value === null || value === undefined || value === "") return "-";
+  const number = Number(value);
+  return Number.isFinite(number) ? number.toFixed(FLOAT_DP) : String(value);
 }
 
 function buildChiiScale(artifact, state, data) {
@@ -362,6 +429,7 @@ function linearChiiScale(labels) {
   const ticks = sparseChiiTicks(labels, 48);
   return {
     valuesByHuman,
+    kind: "linear",
     tickValues: ticks.map(label => valuesByHuman.get(label)),
     tickLabels: ticks,
   };
@@ -383,6 +451,7 @@ function compressedChiiScale(labels, topProp) {
   ];
   return {
     valuesByHuman,
+    kind: "compressed",
     tickValues: ticks.map(label => valuesByHuman.get(label)),
     tickLabels: ticks,
   };
@@ -490,6 +559,14 @@ function attachCareerComparisonLegendHandler(host) {
   });
 }
 
+function alignChiiAxisLabels(host, state) {
+  if (state.skill !== "chii") return;
+  host.querySelectorAll(".yaxislayer-above text").forEach(label => {
+    label.setAttribute("text-anchor", "start");
+    label.setAttribute("dx", "-8");
+  });
+}
+
 function resetCareerComparisonsState() {
   careerComparisonsState = { ...DEFAULT_STATE };
 }
@@ -505,6 +582,11 @@ export {
   careerComparisonYValue,
   careerComparisonLayout,
   chiiAxisLayout,
+  equeloAxisLayout,
+  numericTraceRange,
+  chiiRangePadding,
+  formatFloatLabel,
+  formatOptionalFloat,
   buildChiiScale,
   linearChiiScale,
   compressedChiiScale,
@@ -514,5 +596,6 @@ export {
   careerComparisonRikishiOptions,
   readCareerComparisonSelectionFromUrl,
   writeCareerComparisonSelectionToUrl,
+  alignChiiAxisLabels,
   resetCareerComparisonsState,
 };

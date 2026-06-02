@@ -37,14 +37,14 @@ necessarily the famous Hakuho.
 
 ## 3. Two-Rikishi Comparison
 
-Select two rikishi, then click **Go**.
+Select two rikishi.
 
 Expected:
 
 - Both traces appear.
 - The x-axis range covers both careers.
-- Adding the second rikishi after plotting the first should recalculate the
-  visible x/y ranges.
+- Adding the second rikishi after plotting the first should immediately
+  recalculate the visible x/y ranges.
 - Hover text shows shikona, date, full chii and Equelo.
 - The legend names identify the selected rikishi clearly enough to notice
   shikona collisions.
@@ -66,8 +66,8 @@ Expected:
 - Basho mode starts at zero for each rikishi.
 - Chii mode uses human chii labels and keeps full chii in hover text.
 - Equelo mode omits points with no rating rather than inventing a value.
-- Switching modes and pressing **Go** should redraw the chart, not preserve a
-  stale axis range from the previous view.
+- Switching modes should redraw the chart immediately, not preserve a stale axis
+  range from the previous view.
 
 ## 5. Chii Compression
 
@@ -94,7 +94,7 @@ Expected:
   and clears/closes the search box.
 - The selected list can grow without moving the chart-mode controls.
 - `X` removes the intended rikishi.
-- The **Go** button is the action that redraws the chart.
+- Adding or removing a rikishi redraws the chart immediately.
 
 ## 7. Link Sharing
 

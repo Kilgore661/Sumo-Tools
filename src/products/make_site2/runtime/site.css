@@ -330,14 +330,17 @@ h3 {
   white-space: nowrap;
 }
 
-.career-comparison-selected button,
-.career-comparison-go {
+.career-comparison-selected button {
   cursor: pointer;
 }
 
 .career-comparison-empty {
   align-self: center;
   margin: 2rem 1rem;
+}
+
+#career-comparisons-chart.career-comparisons-chii-axis .yaxislayer-above text {
+  text-anchor: start !important;
 }
 
 
