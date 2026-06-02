@@ -28,8 +28,8 @@ const TRANSITIONAL_TABLE_SPEC = [
     }),
   ]),
   group("changes", "Changes", [
-    column("delta_equelo", "Î”Eq", { sort_kind: "numeric", presentation: PRESENTATION.RATING }),
-    group("movement", "â‡…", [
+    column("delta_equelo", "\u0394Eq", { sort_kind: "numeric", presentation: PRESENTATION.RATING }),
+    group("movement", "\u21C5", [
       column("bp", "Chii", {
         sort_kind: "movement_symbol",
         sort_default_direction: "descending",
@@ -56,7 +56,7 @@ function recordSpec() {
         column("equelo", "Eq", { sort_kind: "numeric", presentation: PRESENTATION.RATING }),
       ]),
       group("analysis", "Analysis", [
-        group("banzuke_error", "Î”BZ", [
+        group("banzuke_error", "\u0394BZ", [
           column("direction", "Dir", {
             sort_kind: "movement_symbol",
             sort_default_direction: "descending",

@@ -795,7 +795,7 @@ Shared Plotly chart presentation includes:
   slot, including Notes-panel show/hide changes and NavigationBar
   hide/restore changes.
 - Plotly mode bars shall be available without showing the Plotly logo.
-- Long x-axis tick labels may be rotated, with `-45` degrees as the normal
+- Long x-axis tick labels may be rotated, with `45` degrees as the normal
   first candidate when horizontal labels are not legible.
 - X-axis tick rotation is a chart artifact/layout property, not an ad hoc local
   renderer decision.

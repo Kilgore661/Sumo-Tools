@@ -88,7 +88,7 @@ function renderTableHeading(column, sortState) {
   if (!isSortableColumn(column)) return `<th ${attributes}>${escapeHtml(column.heading)}</th>`;
   const active = sortState?.columnId === column.id;
   const direction = active ? sortState.direction : "none";
-  const indicator = active ? (sortState.direction === "ascending" ? " â–²" : " â–¼") : "";
+  const indicator = active ? (sortState.direction === "ascending" ? " \u25B2" : " \u25BC") : "";
   return [
     `<th ${attributes} aria-sort="${direction}">`,
     `<button type="button" class="table-sort-button" data-sort-column="${escapeHtml(column.id)}">`,

@@ -19,6 +19,7 @@ from ..artifact_model import (
     TableColumn,
     TableSection,
 )
+from ..perf_chart.config import EQUELO_LOG_BASE, TOP_CHART_PROP
 from .filters import STANDINGS_WINDOW_VALUES
 
 
@@ -184,6 +185,25 @@ CAREER_LENGTH_ARTIFACT = ChartArtifact(
     notes=(
         Note(id="observed_career_length", applies_to=("all",), text="Years is the observed career length: the elapsed time between the first and last banzuke appearances in the prepared history."),
         Note(id="bg_count", applies_to=("longest",), text="Bg is the number of basho for which the rikishi was absent."),
+    ),
+)
+
+CAREER_COMPARISONS_ARTIFACT = ChartArtifact(
+    id="career_comparisons", heading="Career Comparisons", kind="chart", renderer="career_comparisons",
+    data_binding=DataBinding(kind="json", sources=("trajectory_master",)),
+    data_sources=(
+        DataSource(id="trajectory_master", label="Trajectory Master", path="rikishi/career-comparisons/data/trajectory_master.json", media_type="application/json"),
+    ),
+    provenance={
+        "equelo_log_base": EQUELO_LOG_BASE,
+        "top_chart_prop": TOP_CHART_PROP,
+        "default_skill": "chii",
+        "default_x_base": "date",
+        "default_log": True,
+        "legend_title": "Rikishi",
+    },
+    notes=(
+        Note(id="missing_equelo", applies_to=("all",), text="Some obscure pre-1989 lower-division chii are outside the Equelo bout-data rating domain; Equelo traces omit points without a rating."),
     ),
 )
 

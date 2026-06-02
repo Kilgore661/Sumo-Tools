@@ -70,9 +70,9 @@ function renderNestedHeaderCell(cell, leaf, sortState) {
   }
   const active = sortState?.path === leaf.path;
   const direction = active ? sortState.direction : "none";
-  const indicator = active ? (sortState.direction === "ascending" ? " â–²" : " â–¼") : "";
+  const indicator = active ? (sortState.direction === "ascending" ? " \u25B2" : " \u25BC") : "";
   const escapedLabel = escapeHtml(cell.label);
-  const reservedSortText = `${escapedLabel} â–¼`;
+  const reservedSortText = `${escapedLabel} \u25BC`;
   const visibleSortText = `${escapedLabel}${indicator}`;
   return [
     `<th ${attributes.join(" ")} aria-sort="${direction}">`,

@@ -9,7 +9,6 @@ import {
   renderRikishiLink,
   renderTableHeading,
   sortDefaultDirection,
-  tableCellAttributes,
   tableSortStates,
 } from "./shared.js";
 
@@ -87,7 +86,7 @@ function renderBanzukeScanTable(artifact, rows, state) {
 
 function banzukeSideColumns(side, state) {
   const identity = { id: "shikona", heading: "Shikona", side };
-  const direction = { id: "direction", heading: "â‡…", side };
+  const direction = { id: "direction", heading: "\u21C5", side };
   const columns = [];
 
   if (state.equelo) columns.push({ id: "equelo", heading: "Equelo", side });
@@ -106,7 +105,7 @@ function banzukeScanColumns(state) {
   const columns = [
     { id: "chii", heading: "Chii", sort_kind: "chii_ordinal" },
     { id: "shikona", heading: "Shikona", sort_kind: "text" },
-    { id: "direction", heading: "â‡…", sort_kind: "text" },
+    { id: "direction", heading: "\u21C5", sort_kind: "text" },
   ];
   if (state.delta) columns.push({ id: "delta", heading: "Delta", sort_kind: "numeric" });
   if (state.context) {
@@ -184,8 +183,8 @@ function banzukeCellAttributes(columnId) {
 }
 
 function movementDirection(value) {
-  if (String(value).startsWith("+")) return "â†‘";
-  if (String(value).startsWith("-")) return "â†“";
+  if (String(value).startsWith("+")) return "\u2191";
+  if (String(value).startsWith("-")) return "\u2193";
   return "";
 }
 

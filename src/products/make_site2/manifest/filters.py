@@ -146,6 +146,32 @@ CAREER_LENGTH_FILTERS = (
     ),
 )
 
+CAREER_COMPARISONS_FILTERS = (
+    Filter(
+        id="skill",
+        label="Skill",
+        control="select",
+        default="chii",
+        url_key="skill",
+        values=(
+            FilterValue(value="chii", label="Chii"),
+            FilterValue(value="equelo", label="Equelo"),
+        ),
+    ),
+    Filter(
+        id="x_base",
+        label="X",
+        control="select",
+        default="date",
+        url_key="x",
+        values=(
+            FilterValue(value="date", label="Date"),
+            FilterValue(value="basho", label="Basho from Hatsu"),
+        ),
+    ),
+    Filter(id="log", label="Log", control="checkbox", default=True, url_key="log"),
+)
+
 WIN_PROBABILITY_BY_STANDING_FILTERS = (
     Filter(
         id="source",

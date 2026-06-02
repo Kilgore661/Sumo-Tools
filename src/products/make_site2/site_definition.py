@@ -81,6 +81,17 @@ PAGES = PageRegistry(
             status=PageStatus.PROMOTED,
             artifact=artifact("first_chii_appearance", "chart"),
         ),
+        "career_comparisons": PageDefinition(
+            id="career_comparisons",
+            title="Career Comparisons",
+            summary="Compare rikishi career trajectories by chii or Equelo.",
+            status=PageStatus.PROMOTED,
+            artifact=artifact(
+                "career_comparisons",
+                "chart",
+                producer="make_site2.perf_chart",
+            ),
+        ),
         "win_probability_by_standing": PageDefinition(
             id="win_probability_by_standing",
             title="Win Probability by Standing",

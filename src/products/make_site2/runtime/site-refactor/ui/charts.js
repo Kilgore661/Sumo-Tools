@@ -46,6 +46,27 @@ export {
 } from "./charts/career-length.js";
 
 export {
+  renderCareerComparisonsPanel,
+  renderCareerComparisonsControls,
+  renderCareerComparisonsChart,
+  wireCareerComparisonsControls,
+  renderCareerComparisonsPlot,
+  careerComparisonTraces,
+  careerComparisonTrace,
+  careerComparisonYValue,
+  careerComparisonLayout,
+  chiiAxisLayout,
+  buildChiiScale,
+  linearChiiScale,
+  compressedChiiScale,
+  humanChii,
+  humanChiiSortKey,
+  parseChii,
+  careerComparisonRikishiOptions,
+  resetCareerComparisonsState,
+} from "./charts/career-comparisons.js";
+
+export {
   renderStandingWinProbabilityChart,
   renderStandingWinProbabilityPlot,
   standingWinProbabilityTraces,

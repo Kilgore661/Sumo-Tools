@@ -82,6 +82,10 @@ PANEL_DECLARATIONS: dict[str, PanelDeclaration] = {
         filters=f.CAREER_LENGTH_FILTERS,
         artifact=a.CAREER_LENGTH_ARTIFACT,
     ),
+    "career_comparisons": PanelDeclaration(
+        filters=f.CAREER_COMPARISONS_FILTERS,
+        artifact=a.CAREER_COMPARISONS_ARTIFACT,
+    ),
     "typical_equelo_values": PanelDeclaration(
         filters=(),
         artifact=a.TYPICAL_EQUELO_VALUES_ARTIFACT,

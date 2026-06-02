@@ -92,7 +92,12 @@ NAVIGATION = NavigationTree(
                 nav("combined_chii_rating_view", "Combined chii + rating view", "combined-chii-rating-view"),
                 nav("daily_bout_rating_movement", "Daily / bout-level rating movement", "daily-bout-rating-movement"),
             ),
-            nav("career_comparisons", "Career Comparisons", "career-comparisons"),
+            nav(
+                "career_comparisons",
+                "Career Comparisons",
+                "career-comparisons",
+                page_id="career_comparisons",
+            ),
         ),
         nav(
             "banzuke_rank",

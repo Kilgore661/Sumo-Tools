@@ -129,8 +129,8 @@ function parseResult(value) {
 
 function rankLevelMovementMarker(value) {
   if (value === "\u2191" || value === "\u2193") return value;
-  if (value === "Ã¢â€ â€˜") return "\u2191";
-  if (value === "Ã¢â€ â€œ") return "\u2193";
+  if (value === "\u00C3\u00A2\u00E2\u20AC\u00A0\u00E2\u20AC\u02DC") return "\u2191";
+  if (value === "\u00C3\u00A2\u00E2\u20AC\u00A0\u00E2\u20AC\u0153") return "\u2193";
   return "";
 }
 
