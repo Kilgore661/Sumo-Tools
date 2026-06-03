@@ -144,6 +144,7 @@ def parse_bio_records(raw: object) -> list[BioRecord]:
         latest_shikona, latest_shikona_first_used = latest_shikona_from_history(
             record["Shikona"]
         )
+        latest_shikona = latest_shikona.split( " " )[0]
 
         records.append(
             BioRecord(
@@ -234,6 +235,7 @@ def parse_intai_from_search_page(record: BioRecord, text: str) -> FixResult:
 
 def fix_intai(record: BioRecord, output_dir: Path) -> FixResult:
     assert record.latest_shikona is not None
+    print( record )
 
     text = read_or_download_search_page(record, output_dir)
     if text is None:
