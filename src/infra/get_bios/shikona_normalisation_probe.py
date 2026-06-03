@@ -22,6 +22,7 @@ import argparse
 import csv
 import json
 import re
+import socket
 from collections import Counter, defaultdict
 from dataclasses import dataclass, replace
 from html import unescape
@@ -39,6 +40,7 @@ DEFAULT_OUTPUT_DIR = OUTPUT_ROOT / "shikona_normalisation_probe"
 
 SEARCH_BASE_URL = "https://sumodb.sumogames.de/Rikishi.aspx"
 DOWNLOAD_TIMEOUT_SECONDS = 10
+TIMEOUT_RETRY_SECONDS = 30 * 60
 REQUEST_PAUSE_SECONDS = 1
 MINIMUM_FILE_SIZE_BYTES = 512
 
@@ -132,6 +134,14 @@ def optional_text(value: object) -> str | None:
     return value
 
 
+def normalise_rikid(value: object) -> str:
+    if not isinstance(value, str):
+        raise TypeError(f"rikid must be a string, got {type(value).__name__}")
+    if not value.isdigit():
+        raise ValueError(f"rikid must contain only digits: {value!r}")
+    return str(int(value))
+
+
 def public_shikona_key(value: str | None) -> str | None:
     """
     Return the prototype public shikona key used for collision probing.
@@ -177,8 +187,6 @@ def parse_bio_records(raw: object) -> list[BioRecord]:
     records = []
 
     for rikid, record in sorted(raw.items()):
-        if not isinstance(rikid, str):
-            raise TypeError(f"rikid key must be a string, got {type(rikid).__name__}")
         if not isinstance(record, dict):
             raise TypeError(f"record for {rikid} must be an object")
 
@@ -188,7 +196,7 @@ def parse_bio_records(raw: object) -> list[BioRecord]:
 
         records.append(
             BioRecord(
-                rikid=rikid,
+                rikid=normalise_rikid(rikid),
                 latest_shikona=public_shikona_key(latest_shikona),
                 latest_shikona_first_used=latest_shikona_first_used,
                 hatsu_dohyo=optional_text(record["Hatsu Dohyo"]),
@@ -220,24 +228,61 @@ def search_page_path(output_dir: Path, shikona: str) -> Path:
     return output_dir / "intai_search_pages" / f"{quote(shikona, safe='')}.html"
 
 
-def download_search_page(shikona: str) -> str | None:
+def is_timeout_exception(exc: BaseException) -> bool:
+    if isinstance(exc, (TimeoutError, socket.timeout)):
+        return True
+    if isinstance(exc, URLError):
+        reason = getattr(exc, "reason", None)
+        return isinstance(reason, (TimeoutError, socket.timeout))
+    return False
+
+
+def download_diagnostic(*, shikona: str, url: str, detail: str) -> str:
+    return (
+        "Intai fix download failed.\n"
+        f"  shikona: {shikona}\n"
+        f"  url: {url}\n"
+        f"  detail: {detail}"
+    )
+
+
+def download_search_page(shikona: str) -> str:
     url = search_url(shikona)
 
-    try:
-        with urlopen(url, timeout=DOWNLOAD_TIMEOUT_SECONDS) as response:
-            data = response.read()
-    except (HTTPError, URLError, TimeoutError, OSError) as exc:
-        print(f"{shikona}: Intai fix download glitch: {exc}")
-        return None
+    while True:
+        try:
+            with urlopen(url, timeout=DOWNLOAD_TIMEOUT_SECONDS) as response:
+                data = response.read()
+        except (HTTPError, URLError, TimeoutError, socket.timeout, OSError) as exc:
+            if is_timeout_exception(exc):
+                print(
+                    f"{shikona}: Intai fix download timed out; "
+                    f"retrying in {TIMEOUT_RETRY_SECONDS // 60} minutes."
+                )
+                sleep(TIMEOUT_RETRY_SECONDS)
+                continue
 
-    if len(data) < MINIMUM_FILE_SIZE_BYTES:
-        print(f"{shikona}: Intai fix download glitch: too small: {len(data)} bytes")
-        return None
+            raise RuntimeError(
+                download_diagnostic(
+                    shikona=shikona,
+                    url=url,
+                    detail=f"{type(exc).__name__}: {exc}",
+                )
+            ) from exc
 
-    return data.decode("utf-8", errors="replace")
+        if len(data) < MINIMUM_FILE_SIZE_BYTES:
+            raise RuntimeError(
+                download_diagnostic(
+                    shikona=shikona,
+                    url=url,
+                    detail=f"response too small: {len(data)} bytes",
+                )
+            )
+
+        return data.decode("utf-8", errors="replace")
 
 
-def read_or_download_search_page(record: BioRecord, output_dir: Path) -> str | None:
+def read_or_download_search_page(record: BioRecord, output_dir: Path) -> str:
     assert record.latest_shikona is not None
 
     path = search_page_path(output_dir, record.latest_shikona)
@@ -246,8 +291,6 @@ def read_or_download_search_page(record: BioRecord, output_dir: Path) -> str | N
         return path.read_text(encoding="utf-8")
 
     text = download_search_page(record.latest_shikona)
-    if text is None:
-        return None
 
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text, encoding="utf-8")
@@ -283,7 +326,7 @@ def search_row_rikid(shikona_cell_html: str) -> str | None:
             continue
 
         try:
-            return f"{int(rikid_values[0]):05d}"
+            return normalise_rikid(rikid_values[0])
         except ValueError:
             return None
 
@@ -326,7 +369,7 @@ def parse_intai_from_result_table(
         cells = row_cells(row_match.group(1))
         if len(cells) != len(header_map):
             continue
-        if str(int(search_row_rikid(cells[shikona_index]))) == record.rikid:
+        if search_row_rikid(cells[shikona_index]) == record.rikid:
             matching_rows.append(cells)
 
     if not matching_rows:
@@ -410,19 +453,6 @@ def fix_intai(record: BioRecord, output_dir: Path) -> FixResult:
     )
 
     text = read_or_download_search_page(record, output_dir)
-    if text is None:
-        return FixResult(
-            intai=None,
-            findings=(
-                Finding(
-                    kind="intai_fix_download_failed",
-                    latest_shikona=record.latest_shikona,
-                    rikid=record.rikid,
-                    detail="Could not read or download the SumoDB shikona-search page needed to investigate missing Intai.",
-                ),
-            ),
-        )
-
     return parse_intai_from_search_page(record, text)
 
 
