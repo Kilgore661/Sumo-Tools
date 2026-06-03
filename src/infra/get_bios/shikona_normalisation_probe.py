@@ -11,6 +11,7 @@ The candidate rule is:
 * where that shikona is unique, use the bare shikona;
 * where that shikona is not unique, give the latest holder the bare shikona;
 * give earlier retired holders ``Shikona (IntaiYear)``;
+* use ``Shikona (IntaiYear/IntaiMonth)`` only when the year is not enough;
 * report data/model pressure rather than inventing fallbacks.
 """
 
@@ -45,6 +46,17 @@ class BioRecord:
         if len(self.intai) < 4 or not self.intai[:4].isdigit():
             return None
         return self.intai[:4]
+
+    @property
+    def intai_month_label(self) -> str | None:
+        if self.intai is None:
+            return None
+        if len(self.intai) < 7:
+            return None
+        year, separator, month = self.intai[:4], self.intai[4], self.intai[5:7]
+        if not year.isdigit() or separator != "/" or not month.isdigit():
+            return None
+        return f"{year}/{month}"
 
     @property
     def is_active(self) -> bool:
@@ -218,6 +230,36 @@ def build_label_row(
     )
 
 
+def suffix_label_for_earlier_holder(
+    *,
+    latest_shikona: str,
+    record: BioRecord,
+    intai_year_counts: Counter[str],
+) -> tuple[str, str, Finding | None]:
+    intai_year = record.intai_year
+    if intai_year is None:
+        return "", "unresolved", Finding(
+            kind="missing_intai_year_for_suffix",
+            latest_shikona=latest_shikona,
+            rikid=record.rikid,
+            detail="Earlier/non-bare holder needs an Intai year suffix, but no usable Intai year exists.",
+        )
+
+    if intai_year_counts[intai_year] == 1:
+        return f"{latest_shikona} ({intai_year})", "intai_year_suffix", None
+
+    intai_month_label = record.intai_month_label
+    if intai_month_label is None:
+        return "", "unresolved", Finding(
+            kind="missing_intai_month_for_suffix",
+            latest_shikona=latest_shikona,
+            rikid=record.rikid,
+            detail="Earlier/non-bare holder shares an Intai year and needs YYYY/MM, but no usable Intai month exists.",
+        )
+
+    return f"{latest_shikona} ({intai_month_label})", "intai_month_suffix", None
+
+
 def analyse(records: list[BioRecord]) -> tuple[list[LabelRow], list[LabelRow], list[Finding]]:
     findings: list[Finding] = []
     records_with_shikona = []
@@ -261,6 +303,17 @@ def analyse(records: list[BioRecord]) -> tuple[list[LabelRow], list[LabelRow], l
         bare_holder, group_findings = choose_bare_holder(ordered_group)
         findings.extend(group_findings)
 
+        earlier_holders = [
+            record
+            for record in ordered_group
+            if bare_holder is None or record.rikid != bare_holder.rikid
+        ]
+        intai_year_counts = Counter(
+            record.intai_year
+            for record in earlier_holders
+            if record.intai_year is not None
+        )
+
         for record in ordered_group:
             if bare_holder is not None and record.rikid == bare_holder.rikid:
                 row = build_label_row(
@@ -270,21 +323,13 @@ def analyse(records: list[BioRecord]) -> tuple[list[LabelRow], list[LabelRow], l
                     proposed_label=latest_shikona,
                 )
             else:
-                intai_year = record.intai_year
-                if intai_year is None:
-                    findings.append(
-                        Finding(
-                            kind="missing_intai_year_for_suffix",
-                            latest_shikona=latest_shikona,
-                            rikid=record.rikid,
-                            detail="Earlier/non-bare holder needs an Intai year suffix, but no usable Intai year exists.",
-                        )
-                    )
-                    proposed_label = ""
-                    label_kind = "unresolved"
-                else:
-                    proposed_label = f"{latest_shikona} ({intai_year})"
-                    label_kind = "intai_year_suffix"
+                proposed_label, label_kind, finding = suffix_label_for_earlier_holder(
+                    latest_shikona=latest_shikona,
+                    record=record,
+                    intai_year_counts=intai_year_counts,
+                )
+                if finding is not None:
+                    findings.append(finding)
 
                 row = build_label_row(
                     record=record,
@@ -361,7 +406,13 @@ def write_finding_csv(path: Path, findings: list[Finding]) -> None:
             writer.writerow(finding.__dict__)
 
 
-def write_summary(path: Path, records: list[BioRecord], collision_rows: list[LabelRow], findings: list[Finding]) -> None:
+def write_summary(
+    path: Path,
+    records: list[BioRecord],
+    all_rows: list[LabelRow],
+    collision_rows: list[LabelRow],
+    findings: list[Finding],
+) -> None:
     records_with_shikona = [record for record in records if record.latest_shikona is not None]
     latest_shikona_counts = Counter(record.latest_shikona for record in records_with_shikona)
     collision_groups = {
@@ -370,6 +421,7 @@ def write_summary(path: Path, records: list[BioRecord], collision_rows: list[Lab
         if count > 1
     }
     finding_counts = Counter(finding.kind for finding in findings)
+    label_kind_counts = Counter(row.label_kind for row in all_rows)
 
     lines = [
         "Shikona normalisation probe summary",
@@ -383,8 +435,16 @@ def write_summary(path: Path, records: list[BioRecord], collision_rows: list[Lab
         f"rikishi in collision groups: {len(collision_rows)}",
         f"unresolved findings: {len(findings)}",
         "",
-        "Findings by kind:",
+        "Labels by kind:",
     ]
+
+    if label_kind_counts:
+        for kind, count in sorted(label_kind_counts.items()):
+            lines.append(f"  {kind}: {count}")
+    else:
+        lines.append("  none")
+
+    lines.extend(["", "Findings by kind:"])
 
     if finding_counts:
         for kind, count in sorted(finding_counts.items()):
@@ -423,7 +483,7 @@ def main() -> None:
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    write_summary(output_dir / "summary.txt", records, collision_labels, findings)
+    write_summary(output_dir / "summary.txt", records, all_labels, collision_labels, findings)
     write_label_csv(output_dir / "proposed_labels.csv", all_labels)
     write_label_csv(output_dir / "latest_shikona_collisions.csv", collision_labels)
     write_finding_csv(output_dir / "unresolved_findings.csv", findings)
