@@ -326,7 +326,7 @@ def parse_intai_from_result_table(
         cells = row_cells(row_match.group(1))
         if len(cells) != len(header_map):
             continue
-        if search_row_rikid(cells[shikona_index]) == record.rikid:
+        if str(int(search_row_rikid(cells[shikona_index]))) == record.rikid:
             matching_rows.append(cells)
 
     if not matching_rows:
