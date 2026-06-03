@@ -109,6 +109,24 @@ def optional_text(value: object) -> str | None:
     return value
 
 
+def public_shikona_key(value: str | None) -> str | None:
+    """
+    Return the prototype public shikona key used for collision probing.
+
+    SumoDB shikona values may contain more than one word.  This probe currently
+    groups on the first token because the public-label problem being tested is
+    the leading shikona element, not the full parsed string.
+    """
+    if value is None:
+        return None
+
+    parts = value.split()
+    if not parts:
+        return None
+
+    return parts[0]
+
+
 def latest_shikona_from_history(raw: object) -> tuple[str | None, str | None]:
     if raw is None:
         return None, None
@@ -144,12 +162,11 @@ def parse_bio_records(raw: object) -> list[BioRecord]:
         latest_shikona, latest_shikona_first_used = latest_shikona_from_history(
             record["Shikona"]
         )
-        latest_shikona = latest_shikona.split( " " )[0]
 
         records.append(
             BioRecord(
                 rikid=rikid,
-                latest_shikona=latest_shikona,
+                latest_shikona=public_shikona_key(latest_shikona),
                 latest_shikona_first_used=latest_shikona_first_used,
                 hatsu_dohyo=optional_text(record["Hatsu Dohyo"]),
                 intai=optional_text(record["Intai"]),
@@ -235,7 +252,13 @@ def parse_intai_from_search_page(record: BioRecord, text: str) -> FixResult:
 
 def fix_intai(record: BioRecord, output_dir: Path) -> FixResult:
     assert record.latest_shikona is not None
-    print( record )
+
+    print(
+        "Intai fix needed: "
+        f"rikid={record.rikid} "
+        f"shikona={record.latest_shikona!r} "
+        f"hatsu={empty_if_none(record.hatsu_dohyo)}"
+    )
 
     text = read_or_download_search_page(record, output_dir)
     if text is None:
