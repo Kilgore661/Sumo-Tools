@@ -8,7 +8,7 @@ from pathlib import Path
 from ..parser.parser2 import OUTPUT_DIR
 
 
-INPUT_JSON = Path(OUTPUT_DIR) / "infra" / "rikishi_bios.json"
+INPUT_JSON = Path(OUTPUT_DIR) / "infra" / "get_bios" / "rikishi_bios.json"
 NUM_BINS = 20
 
 
@@ -21,7 +21,7 @@ def bmi_from_height_weight(height_cm: str, weight_kg: str) -> float:
 def main() -> None:
     if not INPUT_JSON.exists():
         print(f"Input JSON does not exist: {INPUT_JSON}")
-        print("Run: py -m src.infra.get_bios.parse")
+        print("Run: py -m src.infra.get_bios.parser")
         return
 
     with open(INPUT_JSON, "r", encoding="utf-8") as f:
