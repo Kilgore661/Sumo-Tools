@@ -10,7 +10,7 @@ from html import escape
 from urllib.parse import urlencode
 
 from .publication_model import NavigationItem
-from .ui_model import NavigationBar, PublicSiteShell
+from .ui_model import NavigationBar, NavigationQuickLink, PublicSiteShell
 
 
 def render_site_shell(
@@ -122,16 +122,22 @@ def render_quick_links(navigation_bar: NavigationBar) -> str:
             '<section class="quick-links" aria-labelledby="quick-links-heading">',
             '<h2 id="quick-links-heading">Quick Links</h2>',
             '<ol class="quick-links-list">',
-            *[
-                (
-                    f'<li><a class="quick-link nav-link" href="{escape(link.href)}" '
-                    f'data-page-id="{escape(link.page_id)}">{escape(link.label)}</a></li>'
-                )
-                for link in navigation_bar.quick_links
-            ],
+            *[render_quick_link(link) for link in navigation_bar.quick_links],
             "</ol>",
             "</section>",
         )
+    )
+
+
+def render_quick_link(link: NavigationQuickLink) -> str:
+    page_attr = (
+        f' data-page-id="{escape(link.page_id)}"'
+        if getattr(link, "page_id", None) is not None
+        else ""
+    )
+    return (
+        f'<li><a class="quick-link nav-link" href="{escape(link.href)}"'
+        f'{page_attr}>{escape(link.label)}</a></li>'
     )
 
 

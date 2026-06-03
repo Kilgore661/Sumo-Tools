@@ -63,3 +63,18 @@ def test_page_summary_can_carry_trusted_inline_html() -> None:
         '<a href="https://sumodb.sumogames.de/">SumoDB</a> for each chii.'
         in panel.heading.summary
     )
+
+
+def test_goats_quick_link_uses_deep_link_href_without_page_intercept() -> None:
+    shell = build_public_site_shell(build_publication_plan(SITE))
+    html = render_site_shell(shell)
+
+    href = (
+        "http://192.168.0.6/sumo-tools2/?"
+        "page=career_comparisons&amp;skill=equelo&amp;x=date&amp;log=true&amp;"
+        "rikishi=1123%2C3987%2C1354%2C2%2C3%2C4080"
+    )
+    assert (
+        f'<a class="quick-link nav-link" href="{href}">GOATs</a>'
+        in html
+    )

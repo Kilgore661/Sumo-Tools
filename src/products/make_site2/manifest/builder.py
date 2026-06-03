@@ -24,9 +24,27 @@ from ..ui_model import (
 from . import artifacts as a
 from . import filters as f
 
-QUICK_LINKS: tuple[tuple[str, str], ...] = (
-    ("basho_results_browser", "Basho Results"),
-    ("banzuke_changes", "Banzuke Changes"),
+
+@dataclass(frozen=True, kw_only=True)
+class QuickLinkDeclaration:
+    """Builder-facing declaration for a curated NavigationBar quick link."""
+
+    label: str
+    page_id: str | None = None
+    href: str | None = None
+
+
+QUICK_LINKS: tuple[QuickLinkDeclaration, ...] = (
+    QuickLinkDeclaration(page_id="basho_results_browser", label="Basho Results"),
+    QuickLinkDeclaration(page_id="banzuke_changes", label="Banzuke Changes"),
+    QuickLinkDeclaration(
+        label="GOATs",
+        href=(
+            "http://192.168.0.6/sumo-tools2/?"
+            "page=career_comparisons&skill=equelo&x=date&log=true&"
+            "rikishi=1123%2C3987%2C1354%2C2%2C3%2C4080"
+        ),
+    ),
 )
 
 LANDING_NAVIGATION_NODE_ID = "home"
@@ -171,19 +189,31 @@ def serialize_filter_value(value: str | bool) -> str:
 
 
 def renderable_quick_links(
-    quick_links: tuple[tuple[str, str], ...],
+    quick_links: tuple[QuickLinkDeclaration, ...],
     renderable_page_ids: frozenset[str],
     declaration_by_page_id: dict[str, PanelDeclaration],
 ) -> tuple[NavigationQuickLink, ...]:
     resolved = []
-    for page_id, label in quick_links:
+    for quick_link in quick_links:
+        if quick_link.href is not None:
+            resolved.append(
+                NavigationQuickLink(
+                    page_id=quick_link.page_id,
+                    label=quick_link.label,
+                    href=quick_link.href,
+                )
+            )
+            continue
+        page_id = quick_link.page_id
+        if page_id is None:
+            continue
         declaration = declaration_by_page_id.get(page_id)
         if page_id not in renderable_page_ids or declaration is None:
             continue
         resolved.append(
             NavigationQuickLink(
                 page_id=page_id,
-                label=label,
+                label=quick_link.label,
                 href=canonical_default_view_href(page_id, declaration.filters),
             )
         )

@@ -9,12 +9,32 @@ const POINT_CHII = 2;
 const POINT_EQUELO = 3;
 const FLOAT_DP = 2;
 const CHII_LEVELS = ["Y", "O", "S", "K", "M", "J", "Ms", "Sd", "Jd", "Jk"];
+const CAREER_COMPARISON_TRACE_COLOURS = [
+  "#1f77b4",
+  "#ff7f0e",
+  "#2ca02c",
+  "#d62728",
+  "#9467bd",
+  "#8c564b",
+  "#e377c2",
+  "#7f7f7f",
+  "#bcbd22",
+  "#17becf",
+];
 const DEFAULT_STATE = {
   selectedRikishiIds: [],
   candidateLimit: 12,
 };
 
 let careerComparisonsState = { ...DEFAULT_STATE };
+let careerComparisonSession = createCareerComparisonSession();
+
+function createCareerComparisonSession() {
+  return {
+    traceColoursByRikishiId: new Map(),
+    nextTraceColourIndex: 0,
+  };
+}
 
 function renderCareerComparisonsPanel(artifact, state, data) {
   const options = careerComparisonRikishiOptions(data);
@@ -263,11 +283,24 @@ function careerComparisonTrace(rikishiId, artifact, state, data, chiiScale) {
     type: "scatter",
     mode: "lines+markers",
     name: displayNameForRikishi(rikishiId, data),
+    line: { color: careerComparisonTraceColour(rikishiId) },
+    marker: { color: careerComparisonTraceColour(rikishiId) },
     x,
     y,
     customdata,
     hovertemplate: careerComparisonHoverTemplate(state),
   };
+}
+
+function careerComparisonTraceColour(rikishiId) {
+  if (!careerComparisonSession.traceColoursByRikishiId.has(rikishiId)) {
+    const colour = CAREER_COMPARISON_TRACE_COLOURS[
+      careerComparisonSession.nextTraceColourIndex % CAREER_COMPARISON_TRACE_COLOURS.length
+    ];
+    careerComparisonSession.traceColoursByRikishiId.set(rikishiId, colour);
+    careerComparisonSession.nextTraceColourIndex += 1;
+  }
+  return careerComparisonSession.traceColoursByRikishiId.get(rikishiId);
 }
 
 function careerComparisonYValue(point, artifact, state, chiiScale) {
@@ -312,10 +345,10 @@ function careerComparisonLayout(artifact, state, data, traces = null) {
     autosize: true,
     paper_bgcolor: "rgba(0,0,0,0)",
     plot_bgcolor: "rgba(0,0,0,0)",
-    margin: { l: state.skill === "chii" ? 92 : 76, r: 40, t: 18, b: 70 },
+    margin: { l: state.skill === "chii" ? 132 : 116, r: 40, t: 18, b: 70 },
     xaxis: {
       title: state.x_base === "basho" ? "Basho from hatsu" : "Date",
-      ...(state.x_base === "date" ? dateAxisCategoryOrder(traces || []) : {}),
+      ...(state.x_base === "date" ? dateAxisCategoryOrder(traces || []) : bashoAxisTickSettings(traces || [])),
       automargin: true,
       gridcolor: "rgba(127,149,192,0.18)",
       zerolinecolor: "rgba(127,149,192,0.35)",
@@ -329,8 +362,8 @@ function careerComparisonLayout(artifact, state, data, traces = null) {
       orientation: "v",
       yanchor: "top",
       y: 1,
-      xanchor: "left",
-      x: 1.02,
+      xanchor: "right",
+      x: -0.04,
     },
     font: {
       family: "Arial, Helvetica, sans-serif",
@@ -350,6 +383,30 @@ function dateAxisCategoryOrder(traces) {
 function sortedTraceDates(traces) {
   return [...new Set(traces.flatMap(trace => trace.x || []))]
     .sort((left, right) => String(left).localeCompare(String(right)));
+}
+
+function bashoAxisTickSettings(traces) {
+  return {
+    tick0: 0,
+    dtick: integerTickStep(traces.flatMap(trace => trace.x || [])),
+    tickformat: "d",
+  };
+}
+
+function integerTickStep(values) {
+  const numbers = values
+    .map(value => Number(value))
+    .filter(value => Number.isFinite(value));
+  if (!numbers.length) return 1;
+  const span = Math.max(...numbers) - Math.min(...numbers);
+  if (span <= 10) return 1;
+  const roughStep = Math.ceil(span / 10);
+  const magnitude = 10 ** Math.floor(Math.log10(roughStep));
+  for (const multiplier of [1, 2, 5, 10]) {
+    const step = multiplier * magnitude;
+    if (step >= roughStep) return step;
+  }
+  return magnitude * 10;
 }
 
 function chiiAxisLayout(artifact, state, data, traces = null) {
@@ -375,12 +432,23 @@ function equeloAxisLayout(state, traces) {
     title: state.log ? "log(Equelo)" : "Equelo",
     autorange: range ? false : undefined,
     range,
-    tickformat: ".0f",
+    tickformat: equeloTickFormat(state, range),
     automargin: true,
     gridcolor: "rgba(127,149,192,0.22)",
     zerolinecolor: "rgba(127,149,192,0.35)",
     color: "#c9d4ee",
   };
+}
+
+function equeloTickFormat(state, range) {
+  if (!state.log) return ".0f";
+  if (!range) return ".2f";
+  const span = Math.abs(Number(range[1]) - Number(range[0]));
+  if (!Number.isFinite(span)) return ".2f";
+  if (span >= 10) return ".0f";
+  if (span >= 1) return ".1f";
+  if (span >= 0.1) return ".2f";
+  return ".3f";
 }
 
 function numericTraceRange(traces, fixedPadding = null) {
@@ -598,6 +666,7 @@ function attachCareerComparisonLegendHandler(host) {
 
 function resetCareerComparisonsState() {
   careerComparisonsState = { ...DEFAULT_STATE };
+  careerComparisonSession = createCareerComparisonSession();
 }
 
 export {
@@ -609,6 +678,7 @@ export {
   careerComparisonTraces,
   careerComparisonTrace,
   careerComparisonYValue,
+  careerComparisonTraceColour,
   careerComparisonLayout,
   dateAxisCategoryOrder,
   sortedTraceDates,

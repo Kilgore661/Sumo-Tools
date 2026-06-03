@@ -24,7 +24,7 @@ class NavigationCollapseControl:
 @dataclass(frozen=True, kw_only=True)
 class NavigationQuickLink:
     label: str
-    page_id: str
+    page_id: str | None
     href: str
 
 
