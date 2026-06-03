@@ -3,7 +3,7 @@
 """
 Probe the proposed public shikona normalisation rule.
 
-This is exploratory code, not the production normalisation API.
+This is exploratory prototype code, not the production normalisation API.
 
 The candidate rule is:
 
@@ -12,6 +12,7 @@ The candidate rule is:
 * where that shikona is not unique, give the latest holder the bare shikona;
 * give earlier retired holders ``Shikona (IntaiYear)``;
 * use ``Shikona (IntaiYear/IntaiMonth)`` only when the year is not enough;
+* when Intai is missing, try an on-demand cached SumoDB search-page fix;
 * report data/model pressure rather than inventing fallbacks.
 """
 
@@ -21,14 +22,23 @@ import argparse
 import csv
 import json
 from collections import Counter, defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
+from time import sleep
 from typing import Any
+from urllib.error import HTTPError, URLError
+from urllib.parse import quote, urlencode
+from urllib.request import urlopen
 
 
 OUTPUT_ROOT = Path("files") / "output" / "infra" / "get_bios"
 DEFAULT_INPUT_JSON = OUTPUT_ROOT / "rikishi_bios.json"
 DEFAULT_OUTPUT_DIR = OUTPUT_ROOT / "shikona_normalisation_probe"
+
+SEARCH_BASE_URL = "https://sumodb.sumogames.de/Rikishi.aspx"
+DOWNLOAD_TIMEOUT_SECONDS = 10
+REQUEST_PAUSE_SECONDS = 1
+MINIMUM_FILE_SIZE_BYTES = 512
 
 
 @dataclass(frozen=True)
@@ -81,6 +91,12 @@ class Finding:
     latest_shikona: str
     rikid: str
     detail: str
+
+
+@dataclass(frozen=True)
+class FixResult:
+    intai: str | None
+    findings: tuple[Finding, ...]
 
 
 def optional_text(value: object) -> str | None:
@@ -140,6 +156,130 @@ def parse_bio_records(raw: object) -> list[BioRecord]:
         )
 
     return records
+
+
+def search_url(shikona: str) -> str:
+    query = urlencode(
+        {
+            "shikona": shikona,
+            "heya": "-1",
+            "shusshin": "-1",
+            "b": "-1",
+            "high": "-1",
+            "hd": "-1",
+            "entry": "-1",
+            "intai": "-1",
+            "sort": "1",
+        }
+    )
+    return f"{SEARCH_BASE_URL}?{query}"
+
+
+def search_page_path(output_dir: Path, shikona: str) -> Path:
+    return output_dir / "intai_search_pages" / f"{quote(shikona, safe='')}.html"
+
+
+def download_search_page(shikona: str) -> str | None:
+    url = search_url(shikona)
+
+    try:
+        with urlopen(url, timeout=DOWNLOAD_TIMEOUT_SECONDS) as response:
+            data = response.read()
+    except (HTTPError, URLError, TimeoutError, OSError) as exc:
+        print(f"{shikona}: Intai fix download glitch: {exc}")
+        return None
+
+    if len(data) < MINIMUM_FILE_SIZE_BYTES:
+        print(f"{shikona}: Intai fix download glitch: too small: {len(data)} bytes")
+        return None
+
+    return data.decode("utf-8", errors="replace")
+
+
+def read_or_download_search_page(record: BioRecord, output_dir: Path) -> str | None:
+    assert record.latest_shikona is not None
+
+    path = search_page_path(output_dir, record.latest_shikona)
+
+    if path.exists():
+        return path.read_text(encoding="utf-8")
+
+    text = download_search_page(record.latest_shikona)
+    if text is None:
+        return None
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text, encoding="utf-8")
+    sleep(REQUEST_PAUSE_SECONDS)
+    return text
+
+
+def parse_intai_from_search_page(record: BioRecord, text: str) -> FixResult:
+    assert record.latest_shikona is not None
+
+    # Prototype stub.  The next step is to inspect real cached search pages and
+    # teach this function to find the row for record.rikid and extract Intai.
+    return FixResult(
+        intai=None,
+        findings=(
+            Finding(
+                kind="intai_fix_parser_stub",
+                latest_shikona=record.latest_shikona,
+                rikid=record.rikid,
+                detail="Cached/downloaded SumoDB search page was available, but the Intai parser is still a stub.",
+            ),
+        ),
+    )
+
+
+def fix_intai(record: BioRecord, output_dir: Path) -> FixResult:
+    assert record.latest_shikona is not None
+
+    text = read_or_download_search_page(record, output_dir)
+    if text is None:
+        return FixResult(
+            intai=None,
+            findings=(
+                Finding(
+                    kind="intai_fix_download_failed",
+                    latest_shikona=record.latest_shikona,
+                    rikid=record.rikid,
+                    detail="Could not read or download the SumoDB shikona-search page needed to investigate missing Intai.",
+                ),
+            ),
+        )
+
+    return parse_intai_from_search_page(record, text)
+
+
+def try_fix_missing_intai(
+    records: list[BioRecord],
+    output_dir: Path,
+) -> tuple[list[BioRecord], list[Finding]]:
+    by_latest_shikona: dict[str, list[BioRecord]] = defaultdict(list)
+
+    for record in records:
+        if record.latest_shikona is not None:
+            by_latest_shikona[record.latest_shikona].append(record)
+
+    fixed_records_by_rikid = {record.rikid: record for record in records}
+    findings: list[Finding] = []
+
+    for group in by_latest_shikona.values():
+        if len(group) <= 1:
+            continue
+
+        for record in group:
+            if record.intai is not None:
+                continue
+
+            result = fix_intai(record, output_dir)
+            findings.extend(result.findings)
+
+            if result.intai is not None:
+                fixed_records_by_rikid[record.rikid] = replace(record, intai=result.intai)
+
+    return [fixed_records_by_rikid[record.rikid] for record in records], findings
 
 
 def choose_bare_holder(records: list[BioRecord]) -> tuple[BioRecord | None, list[Finding]]:
@@ -479,7 +619,9 @@ def main() -> None:
 
     raw: Any = json.loads(input_json.read_text(encoding="utf-8"))
     records = parse_bio_records(raw)
+    records, fix_findings = try_fix_missing_intai(records, output_dir)
     all_labels, collision_labels, findings = analyse(records)
+    findings = [*fix_findings, *findings]
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
