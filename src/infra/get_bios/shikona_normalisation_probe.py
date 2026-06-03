@@ -21,13 +21,15 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import re
 from collections import Counter, defaultdict
 from dataclasses import dataclass, replace
+from html import unescape
 from pathlib import Path
 from time import sleep
 from typing import Any
 from urllib.error import HTTPError, URLError
-from urllib.parse import quote, urlencode
+from urllib.parse import parse_qs, quote, urlencode, urlparse
 from urllib.request import urlopen
 
 
@@ -39,6 +41,23 @@ SEARCH_BASE_URL = "https://sumodb.sumogames.de/Rikishi.aspx"
 DOWNLOAD_TIMEOUT_SECONDS = 10
 REQUEST_PAUSE_SECONDS = 1
 MINIMUM_FILE_SIZE_BYTES = 512
+
+ROW_PAT = re.compile(r"<tr\b[^>]*>\s*(.*?)\s*</tr>", re.DOTALL | re.IGNORECASE)
+CELL_PAT = re.compile(r"<t[dh]\b[^>]*>\s*(.*?)\s*</t[dh]>", re.DOTALL | re.IGNORECASE)
+LINK_PAT = re.compile(r"<a\b[^>]*href=['\"]([^'\"]+)['\"][^>]*>(.*?)</a>", re.DOTALL | re.IGNORECASE)
+TAG_PAT = re.compile(r"<.*?>", re.DOTALL)
+BASHO_DATE_PAT = re.compile(r"(\d{4})\.(\d{2})")
+
+EXPECTED_SEARCH_HEADERS = [
+    "Shikona",
+    "Heya",
+    "Shusshin",
+    "Birth Date",
+    "Highest Rank",
+    "Hatsu Dohyo",
+    "Intai",
+    "Last Shikona",
+]
 
 
 @dataclass(frozen=True)
@@ -232,22 +251,131 @@ def read_or_download_search_page(record: BioRecord, output_dir: Path) -> str | N
     return text
 
 
+def clean_html_text(text: str) -> str:
+    text = TAG_PAT.sub("", text)
+    text = unescape(text)
+    text = text.replace("\xa0", " ")
+    return " ".join(text.split())
+
+
+def normalize_search_basho_date(value: str) -> str | None:
+    value = value.strip()
+    if not value:
+        return None
+
+    match = BASHO_DATE_PAT.search(value)
+    if match is None:
+        return None
+
+    return f"{match.group(1)}/{match.group(2)}"
+
+
+def search_row_rikid(shikona_cell_html: str) -> str | None:
+    for link_match in LINK_PAT.finditer(shikona_cell_html):
+        href = unescape(link_match.group(1))
+        query = parse_qs(urlparse(href).query)
+        rikid_values = query.get("r")
+        if not rikid_values:
+            continue
+
+        try:
+            return f"{int(rikid_values[0]):05d}"
+        except ValueError:
+            return None
+
+    return None
+
+
+def row_cells(row_html: str) -> list[str]:
+    return [match.group(1) for match in CELL_PAT.finditer(row_html)]
+
+
+def row_headers(cells: list[str]) -> list[str]:
+    return [clean_html_text(cell) for cell in cells]
+
+
+def search_header_map(headers: list[str]) -> dict[str, int] | None:
+    if headers != EXPECTED_SEARCH_HEADERS:
+        return None
+    return {header: index for index, header in enumerate(headers)}
+
+
 def parse_intai_from_search_page(record: BioRecord, text: str) -> FixResult:
     assert record.latest_shikona is not None
 
-    # Prototype stub.  The next step is to inspect real cached search pages and
-    # teach this function to find the row for record.rikid and extract Intai.
-    return FixResult(
-        intai=None,
-        findings=(
-            Finding(
-                kind="intai_fix_parser_stub",
-                latest_shikona=record.latest_shikona,
-                rikid=record.rikid,
-                detail="Cached/downloaded SumoDB search page was available, but the Intai parser is still a stub.",
+    header_map = None
+    matching_rows: list[list[str]] = []
+
+    for row_match in ROW_PAT.finditer(text):
+        cells = row_cells(row_match.group(1))
+        if not cells:
+            continue
+
+        if header_map is None:
+            header_map = search_header_map(row_headers(cells))
+            continue
+
+        shikona_index = header_map["Shikona"]
+        if search_row_rikid(cells[shikona_index]) == record.rikid:
+            matching_rows.append(cells)
+
+    if header_map is None:
+        return FixResult(
+            intai=None,
+            findings=(
+                Finding(
+                    kind="intai_fix_search_header_not_found",
+                    latest_shikona=record.latest_shikona,
+                    rikid=record.rikid,
+                    detail="Cached/downloaded SumoDB search page does not have the expected shikona search-result header.",
+                ),
             ),
-        ),
-    )
+        )
+
+    if not matching_rows:
+        return FixResult(
+            intai=None,
+            findings=(
+                Finding(
+                    kind="intai_fix_rikid_not_found",
+                    latest_shikona=record.latest_shikona,
+                    rikid=record.rikid,
+                    detail="Expected shikona search-result table was found, but no row matched this rikid.",
+                ),
+            ),
+        )
+
+    if len(matching_rows) > 1:
+        return FixResult(
+            intai=None,
+            findings=(
+                Finding(
+                    kind="intai_fix_duplicate_rikid_rows",
+                    latest_shikona=record.latest_shikona,
+                    rikid=record.rikid,
+                    detail=f"Expected one search-result row for this rikid, found {len(matching_rows)}.",
+                ),
+            ),
+        )
+
+    row = matching_rows[0]
+    intai_index = header_map["Intai"]
+    intai = normalize_search_basho_date(clean_html_text(row[intai_index]))
+
+    if intai is None:
+        return FixResult(
+            intai=None,
+            findings=(
+                Finding(
+                    kind="intai_fix_missing_intai_in_row",
+                    latest_shikona=record.latest_shikona,
+                    rikid=record.rikid,
+                    detail="Search-result row matched this rikid, but the Intai cell was empty or not a YYYY.MM basho date.",
+                ),
+            ),
+        )
+
+    return FixResult(intai=intai, findings=())
 
 
 def fix_intai(record: BioRecord, output_dir: Path) -> FixResult:
