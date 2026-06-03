@@ -14,8 +14,9 @@ from src.sumo_core.History import Date
 from .api import BioBashoDate, BioStore, RikishiBio, load_bio_store
 
 
+OUTPUT_ROOT = Path(OUTPUT_DIR) / "infra" / "get_bios"
 DEFAULT_HISTORY = Path(OUTPUT_DIR) / "Historys" / "1958_01 to 2026_11"
-DEFAULT_OUTPUT_CSV = Path(OUTPUT_DIR) / "infra" / "rikishi_bio_history_integrity.csv"
+DEFAULT_OUTPUT_CSV = OUTPUT_ROOT / "rikishi_bio_history_integrity.csv"
 
 
 @dataclass(frozen=True)
