@@ -39,3 +39,20 @@ git merge origin/chatgpt/syntax-fix
 git push origin dev
 git push origin --delete chatgpt/syntax-fix
 
+
+
+---
+
+To see what has changed:
+
+
+
+`git diff --name-status HEAD..origin/dev`
+
+
+
+To get the changes without conflicts:
+
+`git pull --ff-only`
+
+
