@@ -42,6 +42,10 @@ DOWNLOAD_TIMEOUT_SECONDS = 10
 REQUEST_PAUSE_SECONDS = 1
 MINIMUM_FILE_SIZE_BYTES = 512
 
+RESULT_TABLE_PAT = re.compile(
+    r"<thead\b[^>]*>\s*(.*?)\s*</thead>\s*<tbody\b[^>]*>\s*(.*?)\s*</tbody>",
+    re.DOTALL | re.IGNORECASE,
+)
 ROW_PAT = re.compile(r"<tr\b[^>]*>\s*(.*?)\s*</tr>", re.DOTALL | re.IGNORECASE)
 CELL_PAT = re.compile(r"<t[dh]\b[^>]*>\s*(.*?)\s*</t[dh]>", re.DOTALL | re.IGNORECASE)
 LINK_PAT = re.compile(r"<a\b[^>]*href=['\"]([^'\"]+)['\"][^>]*>(.*?)</a>", re.DOTALL | re.IGNORECASE)
@@ -132,7 +136,7 @@ def public_shikona_key(value: str | None) -> str | None:
     """
     Return the prototype public shikona key used for collision probing.
 
-    SumoDB shikona values may contain more than one word.  This probe currently
+    SumoDB shikona values may contain more than one word. This probe currently
     groups on the first token because the public-label problem being tested is
     the leading shikona element, not the full parsed string.
     """
@@ -300,37 +304,30 @@ def search_header_map(headers: list[str]) -> dict[str, int] | None:
     return {header: index for index, header in enumerate(headers)}
 
 
-def parse_intai_from_search_page(record: BioRecord, text: str) -> FixResult:
+def parse_intai_from_result_table(
+    record: BioRecord,
+    header_html: str,
+    body_html: str,
+) -> FixResult | None:
     assert record.latest_shikona is not None
 
-    header_map = None
+    header_rows = list(ROW_PAT.finditer(header_html))
+    if len(header_rows) != 1:
+        return None
+
+    header_map = search_header_map(row_headers(row_cells(header_rows[0].group(1))))
+    if header_map is None:
+        return None
+
     matching_rows: list[list[str]] = []
+    shikona_index = header_map["Shikona"]
 
-    for row_match in ROW_PAT.finditer(text):
+    for row_match in ROW_PAT.finditer(body_html):
         cells = row_cells(row_match.group(1))
-        if not cells:
+        if len(cells) != len(header_map):
             continue
-
-        if header_map is None:
-            header_map = search_header_map(row_headers(cells))
-            continue
-
-        shikona_index = header_map["Shikona"]
         if search_row_rikid(cells[shikona_index]) == record.rikid:
             matching_rows.append(cells)
-
-    if header_map is None:
-        return FixResult(
-            intai=None,
-            findings=(
-                Finding(
-                    kind="intai_fix_search_header_not_found",
-                    latest_shikona=record.latest_shikona,
-                    rikid=record.rikid,
-                    detail="Cached/downloaded SumoDB search page does not have the expected shikona search-result header.",
-                ),
-            ),
-        )
 
     if not matching_rows:
         return FixResult(
@@ -358,9 +355,8 @@ def parse_intai_from_search_page(record: BioRecord, text: str) -> FixResult:
             ),
         )
 
-    row = matching_rows[0]
     intai_index = header_map["Intai"]
-    intai = normalize_search_basho_date(clean_html_text(row[intai_index]))
+    intai = normalize_search_basho_date(clean_html_text(matching_rows[0][intai_index]))
 
     if intai is None:
         return FixResult(
@@ -376,6 +372,31 @@ def parse_intai_from_search_page(record: BioRecord, text: str) -> FixResult:
         )
 
     return FixResult(intai=intai, findings=())
+
+
+def parse_intai_from_search_page(record: BioRecord, text: str) -> FixResult:
+    assert record.latest_shikona is not None
+
+    for table_match in RESULT_TABLE_PAT.finditer(text):
+        result = parse_intai_from_result_table(
+            record,
+            table_match.group(1),
+            table_match.group(2),
+        )
+        if result is not None:
+            return result
+
+    return FixResult(
+        intai=None,
+        findings=(
+            Finding(
+                kind="intai_fix_search_header_not_found",
+                latest_shikona=record.latest_shikona,
+                rikid=record.rikid,
+                detail="Cached/downloaded SumoDB search page does not have the expected shikona search-result table.",
+            ),
+        ),
+    )
 
 
 def fix_intai(record: BioRecord, output_dir: Path) -> FixResult:
