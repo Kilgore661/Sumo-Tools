@@ -86,3 +86,31 @@ cases where required bio or shikona-history data is absent or contradictory
 ```
 
 If `Shikona (YYYY)` is not sufficient to produce unique public labels for all relevant rikishi identities, the requirement shall be revised before implementation rather than patched with an ad hoc fallback.
+
+---
+
+# 2. Status
+
+A pre-specification probe now exists:
+
+```text
+src/infra/get_bios/shikona_normalisation_probe.py
+```
+
+The probe explores whether the proposed public-label rule works against the existing parsed `get_bios` data before the rule is promoted to a specification.
+
+The first probe pass found that `Shikona (YYYY)` is almost sufficient, but not quite. Some rikishi share the same last/current shikona and the same retirement year. The working rule has therefore been refined to use retirement month only when year-level disambiguation is not sufficient:
+
+```text
+Shikona (YYYY/MM)
+```
+
+The preferred month form uses a zero-padded month number, for example:
+
+```text
+Kawakami (1988/03)
+```
+
+The remaining unresolved problem is missing `Intai` data. Some records that collide by last/current shikona do not have a parsed retirement date, so the probe cannot yet determine whether they are genuinely active/current holders or earlier holders requiring a retirement-date suffix.
+
+The missing-`Intai` cases must be understood or repaired before this requirement can advance cleanly to specification.
