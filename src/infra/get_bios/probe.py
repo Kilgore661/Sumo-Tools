@@ -7,13 +7,15 @@ from pathlib import Path
 
 from ..parser.parser2 import OUTPUT_DIR
 
-INPUT_JSON = Path(OUTPUT_DIR) / "infra" / "rikishi_bios.json"
-OUTPUT_CSV = Path(OUTPUT_DIR) / "infra" / "shusshin_bins.csv"
+OUTPUT_ROOT = Path(OUTPUT_DIR) / "infra" / "get_bios"
+INPUT_JSON = OUTPUT_ROOT / "rikishi_bios.json"
+OUTPUT_CSV = OUTPUT_ROOT / "shusshin_bins.csv"
+
 
 def main() -> None:
     if not INPUT_JSON.exists():
         print(f"Input JSON does not exist: {INPUT_JSON}")
-        print("Run: py -m src.infra.get_bios.parse")
+        print("Run: py -m src.infra.get_bios.parser")
         return
 
     with open(INPUT_JSON, "r", encoding="utf-8") as f:
