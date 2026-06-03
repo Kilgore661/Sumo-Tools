@@ -19,7 +19,7 @@ This module connects to the live `History` store, discovers all rikishi IDs pres
 Downloaded pages are stored as:
 
 ```text
-files/output/infra/rikishi/{rikid}.html
+files/output/infra/get_bios/rikishi/{rikid}.html
 ```
 
 The downloader skips files that already exist, treats failed or very small downloads as glitches, and stops after repeated consecutive glitches to avoid continuing when the network or SumoDB is likely unavailable.
@@ -54,13 +54,13 @@ Weight_by_Date
 The main output is written to:
 
 ```text
-files/output/infra/rikishi_bios.json
+files/output/infra/get_bios/rikishi_bios.json
 ```
 
 The parser also writes a missing-field diagnostic table:
 
 ```text
-files/output/infra/rikishi_bio_missing_fields.csv
+files/output/infra/get_bios/rikishi_bio_missing_fields.csv
 ```
 
 `Shikona` is reconstructed from the career table, using each shikona heading and the first following basho date to infer the first use of that name.
@@ -116,7 +116,7 @@ This module reads `rikishi_bios.json` and creates frequency distributions for se
 It writes outputs such as:
 
 ```text
-files/output/infra/shusshin_bins.csv
+files/output/infra/get_bios/shusshin_bins.csv
 ```
 
 This is exploratory rather than core persistence logic.
