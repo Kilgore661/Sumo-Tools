@@ -9,7 +9,8 @@ from ..live_store.api import get_history
 from ..parser.parser2 import OUTPUT_DIR
 
 
-BIO_DIR = Path(OUTPUT_DIR) / "infra" / "rikishi"
+OUTPUT_ROOT = Path(OUTPUT_DIR) / "infra" / "get_bios"
+BIO_DIR = OUTPUT_ROOT / "rikishi"
 
 DOWNLOAD_TIMEOUT_SECONDS = 1
 MINIMUM_FILE_SIZE_BYTES = 6 * 1024
