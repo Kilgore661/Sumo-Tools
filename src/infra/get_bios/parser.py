@@ -11,10 +11,11 @@ from pathlib import Path
 from ..parser.parser2 import OUTPUT_DIR
 
 
-BIO_DIR = Path(OUTPUT_DIR) / "infra" / "rikishi"
+OUTPUT_ROOT = Path(OUTPUT_DIR) / "infra" / "get_bios"
+BIO_DIR = OUTPUT_ROOT / "rikishi"
 
-MISSING_FIELDS_CSV = Path(OUTPUT_DIR) / "infra" / "rikishi_bio_missing_fields.csv"
-OUTPUT_JSON = Path(OUTPUT_DIR) / "infra" / "rikishi_bios.json"
+MISSING_FIELDS_CSV = OUTPUT_ROOT / "rikishi_bio_missing_fields.csv"
+OUTPUT_JSON = OUTPUT_ROOT / "rikishi_bios.json"
 
 EXPECTED_FIELDS = [
     "Highest Rank",
@@ -347,6 +348,7 @@ def check_height_weight_against_top_field(
         )
 
     return diagnostics
+
 
 def build_persisted_record(
     fields: dict[str, str],
