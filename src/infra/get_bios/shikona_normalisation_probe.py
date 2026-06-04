@@ -91,9 +91,7 @@ class BioRecord:
 
     @property
     def intai_month_label(self) -> str | None:
-        if self.intai is None:
-            return None
-        if len(self.intai) < 7:
+        if self.intai is None or len(self.intai) < 7:
             return None
         year, separator, month = self.intai[:4], self.intai[4], self.intai[5:7]
         if not year.isdigit() or separator != "/" or not month.isdigit():
@@ -781,18 +779,18 @@ def find_label_collisions(rows: list[LabelRow]) -> list[Finding]:
         if len(label_rows) <= 1:
             continue
 
-    latest_shikona = label_rows[0].latest_shikona
-    rikids = " ".join(row.rikid for row in label_rows)
+        latest_shikona = label_rows[0].latest_shikona
+        rikids = " ".join(row.rikid for row in label_rows)
 
-    for row in label_rows:
-        findings.append(
-            Finding(
-                kind="proposed_label_collision",
-                latest_shikona=latest_shikona,
-                rikid=row.rikid,
-                detail=f"Proposed label {proposed_label!r} is shared by rikids {rikids}.",
+        for row in label_rows:
+            findings.append(
+                Finding(
+                    kind="proposed_label_collision",
+                    latest_shikona=latest_shikona,
+                    rikid=row.rikid,
+                    detail=f"Proposed label {proposed_label!r} is shared by rikids {rikids}.",
+                )
             )
-        )
 
     return findings
 
