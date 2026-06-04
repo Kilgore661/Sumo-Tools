@@ -14,6 +14,7 @@ The candidate rule is:
 * use ``Shikona (IntaiYear/IntaiMonth)`` only when the year is not enough;
 * when Intai is missing, try an on-demand cached SumoDB search-page fix;
 * require blank SumoDB Intai rows to be confirmed by latest-basho presence;
+* allow first-token or full-recorded-shikona collision probes;
 * report data/model pressure rather than inventing fallbacks.
 """
 
@@ -148,13 +149,14 @@ def normalise_rikid(value: object) -> str:
     return str(int(value))
 
 
-def public_shikona_key(value: str | None) -> str | None:
+def public_shikona_key(value: str | None, *, full_shikona: bool = False) -> str | None:
     """
     Return the prototype public shikona key used for collision probing.
 
-    SumoDB shikona values may contain more than one word. This probe currently
-    groups on the first token because the public-label problem being tested is
-    the leading shikona element, not the full parsed string.
+    By default this probe groups on the first token because the public-label
+    problem being tested may be the leading shikona element, not the full parsed
+    string. Pass ``full_shikona=True`` to probe using the complete normalised
+    latest shikona string instead.
     """
     if value is None:
         return None
@@ -162,6 +164,9 @@ def public_shikona_key(value: str | None) -> str | None:
     parts = value.split()
     if not parts:
         return None
+
+    if full_shikona:
+        return " ".join(parts)
 
     return parts[0]
 
@@ -186,7 +191,7 @@ def latest_shikona_from_history(raw: object) -> tuple[str | None, str | None]:
     return latest, latest_date
 
 
-def parse_bio_records(raw: object) -> list[BioRecord]:
+def parse_bio_records(raw: object, *, full_shikona: bool = False) -> list[BioRecord]:
     if not isinstance(raw, dict):
         raise TypeError(f"top-level JSON must be an object, got {type(raw).__name__}")
 
@@ -203,7 +208,10 @@ def parse_bio_records(raw: object) -> list[BioRecord]:
         records.append(
             BioRecord(
                 rikid=normalise_rikid(rikid),
-                latest_shikona=public_shikona_key(latest_shikona),
+                latest_shikona=public_shikona_key(
+                    latest_shikona,
+                    full_shikona=full_shikona,
+                ),
                 latest_shikona_first_used=latest_shikona_first_used,
                 hatsu_dohyo=optional_text(record["Hatsu Dohyo"]),
                 intai=optional_text(record["Intai"]),
@@ -773,18 +781,18 @@ def find_label_collisions(rows: list[LabelRow]) -> list[Finding]:
         if len(label_rows) <= 1:
             continue
 
-        latest_shikona = label_rows[0].latest_shikona
-        rikids = " ".join(row.rikid for row in label_rows)
+    latest_shikona = label_rows[0].latest_shikona
+    rikids = " ".join(row.rikid for row in label_rows)
 
-        for row in label_rows:
-            findings.append(
-                Finding(
-                    kind="proposed_label_collision",
-                    latest_shikona=latest_shikona,
-                    rikid=row.rikid,
-                    detail=f"Proposed label {proposed_label!r} is shared by rikids {rikids}.",
-                )
+    for row in label_rows:
+        findings.append(
+            Finding(
+                kind="proposed_label_collision",
+                latest_shikona=latest_shikona,
+                rikid=row.rikid,
+                detail=f"Proposed label {proposed_label!r} is shared by rikids {rikids}.",
             )
+        )
 
     return findings
 
@@ -829,6 +837,7 @@ def write_summary(
     *,
     latest_basho: str,
     latest_basho_rikid_count: int,
+    full_shikona: bool,
 ) -> None:
     records_with_shikona = [record for record in records if record.latest_shikona is not None]
     latest_shikona_counts = Counter(record.latest_shikona for record in records_with_shikona)
@@ -839,6 +848,7 @@ def write_summary(
     }
     finding_counts = Counter(finding.kind for finding in findings)
     label_kind_counts = Counter(row.label_kind for row in all_rows)
+    shikona_key_mode = "full recorded latest shikona" if full_shikona else "first token"
 
     lines = [
         "Shikona normalisation probe summary",
@@ -847,6 +857,7 @@ def write_summary(
         f"bio records read: {len(records)}",
         f"records with shikona history: {len(records_with_shikona)}",
         f"records missing shikona history: {len(records) - len(records_with_shikona)}",
+        f"shikona key mode: {shikona_key_mode}",
         f"latest represented basho: {latest_basho}",
         f"rikishi in latest represented basho: {latest_basho_rikid_count}",
         f"distinct latest shikona: {len(latest_shikona_counts)}",
@@ -889,6 +900,11 @@ def parse_args() -> argparse.Namespace:
         help="Optional zip-backed History serialisation. If absent, use the live store.",
     )
     parser.add_argument(
+        "--full-shikona",
+        action="store_true",
+        help="Use the full recorded latest shikona string instead of the default first-token key.",
+    )
+    parser.add_argument(
         "--output-dir",
         default=str(DEFAULT_OUTPUT_DIR),
         help=f"Output directory (default: {DEFAULT_OUTPUT_DIR})",
@@ -909,7 +925,7 @@ def main() -> None:
     )
 
     raw: Any = json.loads(input_json.read_text(encoding="utf-8"))
-    records = parse_bio_records(raw)
+    records = parse_bio_records(raw, full_shikona=args.full_shikona)
     records, fix_findings = try_fix_missing_intai(
         records,
         output_dir,
@@ -929,6 +945,7 @@ def main() -> None:
         findings,
         latest_basho=latest_basho,
         latest_basho_rikid_count=len(latest_basho_rikids_set),
+        full_shikona=args.full_shikona,
     )
     write_label_csv(output_dir / "proposed_labels.csv", all_labels)
     write_label_csv(output_dir / "latest_shikona_collisions.csv", collision_labels)
