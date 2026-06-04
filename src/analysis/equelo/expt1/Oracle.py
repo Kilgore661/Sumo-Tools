@@ -201,7 +201,8 @@ def make_oracle(
 
     Rules:
         * skip pre-1958 data
-        * before 1989, keep only bouts with at least one sekitori
+        * before 1989, keep only bouts with at least one sekitori, while
+          retaining all raw-banzuke sekitori in the rating universe
         * from 1989 onward, keep only bouts consistent with the banzuke
         * apply the requested chii collapse before the Elo layer sees ordinals
 

@@ -5,12 +5,12 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+from src.analysis.equelo.api import EqueloLookup
 from src.analysis.sumo_history.basho_results.build import (
     build_index,
     build_payload_rows,
 )
 from src.analysis.sumo_history.basho_results.dates import represented_dates
-from src.analysis.sumo_history.basho_results.ratings import RatingLookup
 from src.analysis.sumo_history.basho_results.reports import OUTPUT_ROOT, write_index, write_payload
 from src.infra.live_store.api import get_history
 from src.sumo_core.BasicPrimitives import Month, Year
@@ -21,7 +21,7 @@ def main() -> None:
     args = parse_args()
     output_root = args.output_root
     history = get_history()
-    ratings = RatingLookup.load()
+    ratings = EqueloLookup.load(history)
 
     dates = represented_dates(history)
     payload_dates = dates

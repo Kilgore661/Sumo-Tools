@@ -6,12 +6,12 @@ import shutil
 from dataclasses import dataclass
 from pathlib import Path
 
+from src.analysis.equelo.api import EqueloLookup
 from src.analysis.sumo_history.basho_results.build import (
     build_index,
     build_payload_rows,
 )
 from src.analysis.sumo_history.basho_results.dates import represented_dates
-from src.analysis.sumo_history.basho_results.ratings import RatingLookup
 from src.analysis.sumo_history.basho_results.reports import write_index, write_payload
 from src.infra.persistence.annotated_serialiser import load_history_with_annotations
 from src.sumo_core.History import History
@@ -198,7 +198,7 @@ def build_basho_results_data_output(
     else:
         payload_dates = dates
 
-    ratings = RatingLookup.load()
+    ratings = EqueloLookup.load(history)
     payload_paths = tuple(
         write_payload(
             date,

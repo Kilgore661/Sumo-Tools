@@ -52,13 +52,17 @@ Key rules applied:
 - discard data before 1958
 - before 1989:
   - retain only bouts with at least one sekitori
+  - retain all raw-banzuke sekitori in the rating banzuke, even when they
+    have no retained bouts in that basho
 - from 1989 onward:
   - retain only bouts consistent with the banzuke
 - collapse rank representation (`Chii`) according to a chosen mode
   - default: remove annotations only
 
-This stage determines **which bouts are visible to the simulator** and therefore
-defines the effective dataset.
+This stage determines **which bouts are visible to the simulator** and which
+rikishi are in the active rating universe. The two are deliberately distinct:
+whole-basho absent sekitori have no bout updates, but they remain in the rating
+universe instead of being treated as departures and later fresh entrants.
 
 ---
 

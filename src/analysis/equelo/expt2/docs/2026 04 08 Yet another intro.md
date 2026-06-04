@@ -15,12 +15,20 @@ The system resolves these explicitly, yielding a single, internally consistent r
 
 Equelo operates on a **cleaned oracle history**, not raw records. This is not ad hoc preprocessing; it defines the domain on which the rating system is constructed.
 
-The model is defined on the set of **banzuke-listed rikishi (jonokuchi and above)**. Competitors outside this domain (mae-zumo) are not represented in the system.
+The model is defined on the cleaned rating universe produced by the Oracle. From
+1989 onward this is the represented banzuke domain. Before 1989, when full
+lower-division bout data is unavailable, the rating universe retains all
+raw-banzuke sekitori and lower-division rikishi who participate in retained
+sekitori-involving bouts. Competitors outside this domain (mae-zumo, and some
+unobserved early lower-division banzuke positions) are not represented in the
+system.
 
 The oracle is constructed as follows:
 
 * Pre-1958 data is excluded
 * Before 1989, only bouts involving at least one sekitori are retained
+* Before 1989, all raw-banzuke sekitori remain in the rating universe even if
+  they have no retained bouts
 * From 1989 onward, only bouts between rikishi in the modelled banzuke domain are retained
 * Rank annotations are collapsed to canonical `chii` values
 
@@ -186,4 +194,3 @@ Equelo resolves the main ambiguities of historical Elo rating:
 Together, these yield:
 
 > A stable, interpretable, and cross-era comparable rating system for a changing competitive pool.
-

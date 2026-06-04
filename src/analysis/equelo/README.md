@@ -35,5 +35,6 @@ domain, the rating is `None`.
 
 ## Current Scope
 
-This API is additive. Existing consumers such as Basho Results continue to use
-their current rating paths until their semantics are reviewed and migrated.
+Basho Results uses this API for before/after rating display. Other consumers
+should migrate only after their timing and public-display semantics are
+reviewed.

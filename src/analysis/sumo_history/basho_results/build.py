@@ -25,17 +25,8 @@ from src.analysis.sumo_history.basho_results.dates import (
     represented_dates,
     status_for_date,
 )
-from src.analysis.sumo_history.basho_results.kyujo_hack import (
-    KyujoRatingContext,
-    build_context_before,
-    resolve_display_end_rating,
-    resolve_display_start_rating,
-)
-from src.analysis.sumo_history.basho_results.ratings import (
-    RatingLookup,
-    format_delta,
-    format_rating,
-)
+from src.analysis.equelo.api import EqueloLookup, EqueloTiming
+from src.analysis.sumo_history.basho_results.ratings import format_delta, format_rating
 from src.analysis.sumo_history.basho_results.records import (
     format_result,
     format_result_with_prizes,
@@ -96,17 +87,9 @@ def build_payload_rows(
     *,
     history: History,
     date: Date,
-    ratings: RatingLookup,
-    rating_context: KyujoRatingContext | None = None,
+    ratings: EqueloLookup,
 ) -> tuple[BashoResultsRow, ...]:
     dates = represented_dates(history)
-    if rating_context is None:
-        rating_context = build_context_before(
-            history=history,
-            ratings=ratings,
-            dates=dates,
-            target_date=date,
-        )
     previous_date = previous_represented_date(dates, date)
     next_date = next_history_date(history, date)
     current_state = history(date)
@@ -137,8 +120,6 @@ def build_payload_rows(
                 chii=chii,
                 division=division,
                 ratings=ratings,
-                rating_context=rating_context,
-                previous_date=previous_date,
                 previous_state=previous_state,
                 next_state=next_state,
                 previous_delta=previous_deltas.get(rikishi_id),
@@ -154,9 +135,7 @@ def build_row(
     rikishi_id: RikId,
     chii: Chii,
     division: Division,
-    ratings: RatingLookup,
-    rating_context: KyujoRatingContext,
-    previous_date: Date | None,
+    ratings: EqueloLookup,
     previous_state,
     next_state,
     previous_delta: float | None,
@@ -167,32 +146,9 @@ def build_row(
         if previous_state is not None and rikishi_id in previous_state.banzuke
         else None
     )
-    previous_equelo = (
-        ratings.end_rating(
-            history=history,
-            date=previous_date,
-            rikishi_id=rikishi_id,
-        )
-        if previous_date is not None
-        else None
-    )
-    # Kyujo fallback is deliberately limited to the selected/current Equelo
-    # display path.  See make_site2 Outstanding Issues: "BRB kyujo rating
-    # continuity" and src.analysis.sumo_history.basho_results.kyujo_hack.
-    start_equelo = resolve_display_start_rating(
-        ratings=ratings,
-        rikishi_id=rikishi_id,
-        chii=chii,
-        context=rating_context,
-    )
-    equelo = resolve_display_end_rating(
-        ratings=ratings,
-        history=history,
-        date=date,
-        rikishi_id=rikishi_id,
-        chii=chii,
-        context=rating_context,
-    )
+    start_equelo = ratings.get_equelo(rikishi_id, date, EqueloTiming.BEFORE)
+    previous_equelo = start_equelo
+    equelo = ratings.get_equelo(rikishi_id, date, EqueloTiming.AFTER)
     delta_equelo = (
         equelo - start_equelo
         if equelo is not None and start_equelo is not None

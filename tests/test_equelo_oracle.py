@@ -1,9 +1,12 @@
+from src.analysis.equelo.api import EqueloLookup
 from src.analysis.equelo.expt1.Oracle import _filter_basho_pre_1989
+from src.analysis.sumo_history.basho_results.build import build_payload_rows
 from src.sumo_core.BasicEnums import Outcome, Symbol
-from src.sumo_core.BasicPrimitives import Day, Pair, RikId, Riks, Shikona, Torikumi
+from src.sumo_core.BasicPrimitives import Day, Month, Pair, RikId, Riks, Shikona, Torikumi, Year
 from src.sumo_core.Banzuke import Banzuke, RikChii, RikShikona
 from src.sumo_core.BashoState import BashoState
 from src.sumo_core.Chii import Chii
+from src.sumo_core.History import Date, History
 from src.sumo_core.Summary import BoutResult, DailyResults, ResultLookup, Summary
 
 
@@ -74,3 +77,50 @@ def test_pre_1989_oracle_keeps_zenkyujo_sekitori_in_rating_banzuke() -> None:
     assert active_sekitori in cleaned.banzuke.riks
     assert retained_lower_opponent in cleaned.banzuke.riks
     assert unobserved_lower_rikishi not in cleaned.banzuke.riks
+
+
+def test_basho_results_uses_equelo_api_continuity_for_missing_day_end_rating() -> None:
+    rikishi_id = RikId(1)
+    first_date = Date(Year(1980), Month(1))
+    second_date = Date(Year(1980), Month(3))
+    history = History(
+        {
+            first_date: _single_rikishi_basho_state(rikishi_id, "Test Rikishi", "J1e"),
+            second_date: _single_rikishi_basho_state(rikishi_id, "Test Rikishi", "J1e"),
+        }
+    )
+    ratings = EqueloLookup.build(
+        history=history,
+        day_end_ratings={
+            "1980/01": {"1": {"1": 2000.0}},
+            "1980/03": {"1": {}},
+        },
+        entrant_initial_ratings={
+            str(Chii.from_str("J1e").ordinal()): 1900.0,
+        },
+    )
+
+    rows = build_payload_rows(history=history, date=second_date, ratings=ratings)
+
+    assert len(rows) == 1
+    assert rows[0].previous_equelo == "2000"
+    assert rows[0].equelo == "2000"
+    assert rows[0].delta_equelo == "+0"
+
+
+def _single_rikishi_basho_state(rikishi_id: RikId, shikona: str, chii: str) -> BashoState:
+    return BashoState(
+        banzuke=Banzuke(
+            riks=Riks({rikishi_id}),
+            rikchii=RikChii({rikishi_id: Chii.from_str(chii)}),
+            rikshik=RikShikona({rikishi_id: Shikona(shikona)}),
+        ),
+        summary=Summary(
+            {
+                Day(1): DailyResults(
+                    torikumi=Torikumi(),
+                    results_lookup=ResultLookup(),
+                )
+            }
+        ),
+    )
