@@ -108,10 +108,15 @@ def _filter_basho_pre_1989(
     """Apply the pre-1989 observability policy.
 
     Retain only bouts in which at least one participant is sekitori, then
-    rebuild the banzuke from the participants in the retained bouts.
+    rebuild the rating banzuke from all raw-banzuke sekitori plus the
+    participants in retained bouts.
     """
     filtered_days: dict = {}
-    relevant_rikishi: set[RikId] = set()
+    relevant_rikishi: set[RikId] = {
+        rikid
+        for rikid, chii in basho.banzuke.rikchii.items()
+        if _is_sekitori(chii)
+    }
 
     for day, daily_results in basho.summary.items():
         filtered_lookup = ResultLookup()
