@@ -16,6 +16,8 @@ another chart module.
 - `career-length.js`: Career Length table/chart view handling.
 - `standing-win-probability.js`: Standing Win Probability traces, layout,
   source handling and Plotly legend behaviour.
+- `career-comparisons.js`: Career Comparisons selector, URL state, chii/Equelo
+  trace construction and dual-axis Both view.
 
 ## Refactor Rule
 

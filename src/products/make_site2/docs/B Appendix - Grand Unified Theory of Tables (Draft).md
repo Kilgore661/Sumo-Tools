@@ -123,13 +123,15 @@ The chart view projects the logical table into Plotly traces:
 ```text
 trace = rikishi_id
 x = date | basho_index_from_first_appearance
-y = equelo | chii_value
+y = equelo | chii_value | both as paired y/y2 series
 transform = linear | log/compressed
 hover = shikona, date, full_chii, rating
 ```
 
-Plotly handles one presentation dimension as multiple traces. Other dimensions
-are handled by selector controls and options. Bells and whistles are handled by
+Plotly handles one presentation dimension as multiple traces. In the Both view,
+one logical selected rikishi becomes two presentation traces: solid chii on the
+primary y-axis and dotted Equelo on the secondary y-axis. Other dimensions are
+handled by selector controls and options. Bells and whistles are handled by
 filters/checks/toggles. The present UI vocabulary is messy: the panel may be
 called `FilterPanel`, the heading may say `Options`, and the widgets may mix
 projection controls and filters. This appendix does not try to settle that.

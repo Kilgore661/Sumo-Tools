@@ -57,7 +57,7 @@ function renderCareerComparisonsControls(state) {
     '<table class="career-comparison-mode-table">',
     '<thead><tr><th></th><th scope="col">Date</th><th scope="col">Hatsu</th></tr></thead>',
     '<tbody>',
-    ...["chii", "equelo"].map(skill => [
+    ...["chii", "equelo", "both"].map(skill => [
       '<tr>',
       `<th scope="row">${escapeHtml(skillLabel(skill))}</th>`,
       ...["date", "basho"].map(xBase => `<td>${renderModeChoice(skill, xBase, state)}</td>`),
@@ -100,6 +100,7 @@ function modeLabel(skill, xBase) {
 }
 
 function skillLabel(skill) {
+  if (skill === "both") return "Both";
   return skill === "equelo" ? "Equelo" : "Chii";
 }
 
@@ -238,7 +239,7 @@ function renderCareerComparisonsPlot(artifact, state, data) {
     host.innerHTML = "<p>Plotly is not available.</p>";
     return;
   }
-  host.classList.toggle("career-comparisons-chii-axis", state.skill === "chii");
+  host.classList.toggle("career-comparisons-chii-axis", usesChiiAxis(state));
   const traces = careerComparisonTraces(artifact, state, data);
   if (!traces.length) {
     host.innerHTML = '<p class="career-comparison-empty">No plottable points are available for the selected rikishi and chart options.</p>';
@@ -254,20 +255,41 @@ function renderCareerComparisonsPlot(artifact, state, data) {
 }
 
 function careerComparisonTraces(artifact, state, data) {
-  const chiiScale = state.skill === "chii" ? buildChiiScale(artifact, state, data) : null;
+  const chiiScale = usesChiiAxis(state) ? buildChiiScale(artifact, state, data) : null;
+  const seriesSpecs = careerComparisonSeriesSpecs(state);
   return careerComparisonsState.selectedRikishiIds
-    .map(rikishiId => careerComparisonTrace(rikishiId, artifact, state, data, chiiScale))
+    .flatMap(rikishiId => seriesSpecs
+      .map(series => careerComparisonTrace(rikishiId, artifact, state, data, chiiScale, series))
+    )
     .filter(Boolean);
 }
 
-function careerComparisonTrace(rikishiId, artifact, state, data, chiiScale) {
+function careerComparisonSeriesSpecs(state) {
+  if (state.skill === "both") {
+    return [
+      { skill: "chii", suffix: "Chii", yaxis: "y", dash: "solid" },
+      { skill: "equelo", suffix: "Equelo", yaxis: "y2", dash: "dot" },
+    ];
+  }
+  return [
+    {
+      skill: state.skill,
+      suffix: null,
+      yaxis: "y",
+      dash: "solid",
+    },
+  ];
+}
+
+function careerComparisonTrace(rikishiId, artifact, state, data, chiiScale, series = null) {
+  const resolvedSeries = series || careerComparisonSeriesSpecs(state)[0];
   const points = data.points_by_rikishi[rikishiId] || [];
   if (!points.length) return null;
   const x = [];
   const y = [];
   const customdata = [];
   points.forEach((point, index) => {
-    const yValue = careerComparisonYValue(point, artifact, state, chiiScale);
+    const yValue = careerComparisonYValue(point, artifact, state, chiiScale, resolvedSeries.skill);
     if (yValue === null || yValue === undefined || Number.isNaN(yValue)) return;
     x.push(state.x_base === "basho" ? index : point[POINT_DATE]);
     y.push(yValue);
@@ -281,15 +303,20 @@ function careerComparisonTrace(rikishiId, artifact, state, data, chiiScale) {
   if (!x.length) return null;
   return {
     type: "scatter",
-    mode: "lines+markers",
-    name: displayNameForRikishi(rikishiId, data),
-    line: { color: careerComparisonTraceColour(rikishiId) },
-    marker: { color: careerComparisonTraceColour(rikishiId) },
+    mode: "lines",
+    name: careerComparisonTraceName(rikishiId, data, resolvedSeries),
+    yaxis: resolvedSeries.yaxis,
+    line: { color: careerComparisonTraceColour(rikishiId), dash: resolvedSeries.dash },
     x,
     y,
     customdata,
-    hovertemplate: careerComparisonHoverTemplate(state),
+    hovertemplate: careerComparisonHoverTemplate(state, resolvedSeries.skill),
   };
+}
+
+function careerComparisonTraceName(rikishiId, data, series) {
+  const displayName = displayNameForRikishi(rikishiId, data);
+  return series.suffix ? `${displayName} - ${series.suffix}` : displayName;
 }
 
 function careerComparisonTraceColour(rikishiId) {
@@ -303,8 +330,8 @@ function careerComparisonTraceColour(rikishiId) {
   return careerComparisonSession.traceColoursByRikishiId.get(rikishiId);
 }
 
-function careerComparisonYValue(point, artifact, state, chiiScale) {
-  if (state.skill === "equelo") {
+function careerComparisonYValue(point, artifact, state, chiiScale, skill = state.skill) {
+  if (skill === "equelo") {
     const rating = point[POINT_EQUELO];
     if (rating === null || rating === undefined) return null;
     const value = Number(rating);
@@ -315,8 +342,8 @@ function careerComparisonYValue(point, artifact, state, chiiScale) {
   return chiiScale.valuesByHuman.get(human);
 }
 
-function careerComparisonHoverTemplate(state) {
-  const yLabel = state.skill === "equelo"
+function careerComparisonHoverTemplate(state, skill = state.skill) {
+  const yLabel = skill === "equelo"
     ? (state.log ? "log(Equelo)" : "Equelo")
     : "Chii position";
   const yFormat = `:.${FLOAT_DP}f`;
@@ -338,14 +365,13 @@ function careerComparisonHoverTemplate(state) {
 }
 
 function careerComparisonLayout(artifact, state, data, traces = null) {
-  const yAxis = state.skill === "chii"
-    ? chiiAxisLayout(artifact, state, data, traces || careerComparisonTraces(artifact, state, data))
-    : equeloAxisLayout(state, traces || careerComparisonTraces(artifact, state, data));
+  const resolvedTraces = traces || careerComparisonTraces(artifact, state, data);
+  const yAxes = careerComparisonYAxes(artifact, state, data, resolvedTraces);
   return {
     autosize: true,
     paper_bgcolor: "rgba(0,0,0,0)",
     plot_bgcolor: "rgba(0,0,0,0)",
-    margin: { l: state.skill === "chii" ? 132 : 116, r: 40, t: 18, b: 70 },
+    margin: { l: usesChiiAxis(state) ? 132 : 116, r: state.skill === "both" ? 76 : 40, t: 18, b: 70 },
     xaxis: {
       title: state.x_base === "basho" ? "Basho from hatsu" : "Date",
       ...(state.x_base === "date" ? dateAxisCategoryOrder(traces || []) : bashoAxisTickSettings(traces || [])),
@@ -355,7 +381,7 @@ function careerComparisonLayout(artifact, state, data, traces = null) {
       color: "#c9d4ee",
       tickangle: state.x_base === "date" ? 45 : 0,
     },
-    yaxis: yAxis,
+    ...yAxes,
     hovermode: "closest",
     legend: {
       title: { text: artifact.provenance.legend_title || "" },
@@ -370,6 +396,30 @@ function careerComparisonLayout(artifact, state, data, traces = null) {
       color: "#ffffff",
     },
   };
+}
+
+function careerComparisonYAxes(artifact, state, data, traces) {
+  if (state.skill === "both") {
+    const chiiTraces = traces.filter(trace => trace.yaxis === "y");
+    const equeloTraces = traces.filter(trace => trace.yaxis === "y2");
+    return {
+      yaxis: chiiAxisLayout(artifact, state, data, chiiTraces),
+      yaxis2: {
+        ...equeloAxisLayout(state, equeloTraces),
+        overlaying: "y",
+        side: "right",
+      },
+    };
+  }
+  return {
+    yaxis: state.skill === "chii"
+      ? chiiAxisLayout(artifact, state, data, traces)
+      : equeloAxisLayout(state, traces),
+  };
+}
+
+function usesChiiAxis(state) {
+  return state.skill === "chii" || state.skill === "both";
 }
 
 function dateAxisCategoryOrder(traces) {

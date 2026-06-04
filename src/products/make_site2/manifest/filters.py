@@ -156,6 +156,7 @@ CAREER_COMPARISONS_FILTERS = (
         values=(
             FilterValue(value="chii", label="Chii"),
             FilterValue(value="equelo", label="Equelo"),
+            FilterValue(value="both", label="Both"),
         ),
     ),
     Filter(

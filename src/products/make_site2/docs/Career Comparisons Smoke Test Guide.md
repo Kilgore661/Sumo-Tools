@@ -51,12 +51,14 @@ Expected:
 
 ## 4. Chart-Mode Matrix
 
-For the same selected rikishi, check all four mode choices:
+For the same selected rikishi, check all six mode choices:
 
 - `Chii / Date`
 - `Chii / Basho`
 - `Equelo / Date`
 - `Equelo / Basho`
+- `Both / Date`
+- `Both / Basho`
 
 For each mode, toggle `Log`.
 
@@ -66,6 +68,10 @@ Expected:
 - Basho mode starts at zero for each rikishi.
 - Chii mode uses human chii labels and keeps full chii in hover text.
 - Equelo mode omits points with no rating rather than inventing a value.
+- Both mode draws chii on the primary left y-axis and Equelo on the secondary
+  right y-axis.
+- In Both mode, each rikishi has a solid chii line and a dotted Equelo line in
+  the same colour.
 - Switching modes should redraw the chart immediately, not preserve a stale axis
   range from the previous view.
 
@@ -98,10 +104,9 @@ Expected:
 
 ## 7. Link Sharing
 
-This is a priority follow-up once the chart is visibly sane.
-
-Expected eventual behaviour:
+Expected:
 
 - The URL encodes `skill`, `x_base`, `log` and selected rikishi ids.
 - Opening the URL reconstructs the same chart.
 - The selector list and Plotly traces agree with the URL state.
+- `skill=both` URLs reconstruct the dual-axis Both view.
