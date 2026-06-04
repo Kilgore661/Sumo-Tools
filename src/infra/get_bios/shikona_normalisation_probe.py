@@ -13,6 +13,7 @@ The candidate rule is:
 * give earlier retired holders ``Shikona (IntaiYear)``;
 * use ``Shikona (IntaiYear/IntaiMonth)`` only when the year is not enough;
 * when Intai is missing, try an on-demand cached SumoDB search-page fix;
+* require blank SumoDB Intai rows to be confirmed by latest-basho presence;
 * report data/model pressure rather than inventing fallbacks.
 """
 
@@ -32,6 +33,11 @@ from typing import Any
 from urllib.error import HTTPError, URLError
 from urllib.parse import parse_qs, quote, urlencode, urlparse
 from urllib.request import urlopen
+
+from src.analysis.sumo_history.basho_results.dates import represented_dates
+from src.infra.live_store.api import get_history
+from src.products.make_site2.data_output import load_history_from_zip
+from src.sumo_core.History import History
 
 
 OUTPUT_ROOT = Path("files") / "output" / "infra" / "get_bios"
@@ -207,6 +213,24 @@ def parse_bio_records(raw: object) -> list[BioRecord]:
     return records
 
 
+def load_probe_history(history_zip: Path | None) -> History:
+    if history_zip is not None:
+        return load_history_from_zip(history_zip)
+    return get_history()
+
+
+def latest_basho_rikids(history: History) -> tuple[str, set[str]]:
+    dates = represented_dates(history)
+    if not dates:
+        raise ValueError("No represented basho dates found")
+
+    latest_date = dates[-1]
+    return str(latest_date), {
+        normalise_rikid(str(int(rikid)))
+        for rikid in history(latest_date).banzuke.riks
+    }
+
+
 def search_url(shikona: str) -> str:
     query = urlencode(
         {
@@ -351,6 +375,9 @@ def parse_intai_from_result_table(
     record: BioRecord,
     header_html: str,
     body_html: str,
+    *,
+    latest_basho: str,
+    latest_basho_rikids_set: set[str],
 ) -> FixResult | None:
     assert record.latest_shikona is not None
 
@@ -399,17 +426,33 @@ def parse_intai_from_result_table(
         )
 
     intai_index = header_map["Intai"]
-    intai = normalize_search_basho_date(clean_html_text(matching_rows[0][intai_index]))
+    intai_text = clean_html_text(matching_rows[0][intai_index])
+    intai = normalize_search_basho_date(intai_text)
+
+    if intai is None and not intai_text:
+        if record.rikid in latest_basho_rikids_set:
+            return FixResult(intai=None, findings=())
+        return FixResult(
+            intai=None,
+            findings=(
+                Finding(
+                    kind="intai_fix_blank_intai_absent_from_latest_basho",
+                    latest_shikona=record.latest_shikona,
+                    rikid=record.rikid,
+                    detail=f"Search-result row has blank Intai, but this rikid is absent from latest represented basho {latest_basho}.",
+                ),
+            ),
+        )
 
     if intai is None:
         return FixResult(
             intai=None,
             findings=(
                 Finding(
-                    kind="intai_fix_missing_intai_in_row",
+                    kind="intai_fix_bad_intai_in_row",
                     latest_shikona=record.latest_shikona,
                     rikid=record.rikid,
-                    detail="Search-result row matched this rikid, but the Intai cell was empty or not a YYYY.MM basho date.",
+                    detail=f"Search-result row matched this rikid, but the Intai cell is not a YYYY.MM basho date: {intai_text!r}.",
                 ),
             ),
         )
@@ -417,7 +460,13 @@ def parse_intai_from_result_table(
     return FixResult(intai=intai, findings=())
 
 
-def parse_intai_from_search_page(record: BioRecord, text: str) -> FixResult:
+def parse_intai_from_search_page(
+    record: BioRecord,
+    text: str,
+    *,
+    latest_basho: str,
+    latest_basho_rikids_set: set[str],
+) -> FixResult:
     assert record.latest_shikona is not None
 
     for table_match in RESULT_TABLE_PAT.finditer(text):
@@ -425,6 +474,8 @@ def parse_intai_from_search_page(record: BioRecord, text: str) -> FixResult:
             record,
             table_match.group(1),
             table_match.group(2),
+            latest_basho=latest_basho,
+            latest_basho_rikids_set=latest_basho_rikids_set,
         )
         if result is not None:
             return result
@@ -442,7 +493,13 @@ def parse_intai_from_search_page(record: BioRecord, text: str) -> FixResult:
     )
 
 
-def fix_intai(record: BioRecord, output_dir: Path) -> FixResult:
+def fix_intai(
+    record: BioRecord,
+    output_dir: Path,
+    *,
+    latest_basho: str,
+    latest_basho_rikids_set: set[str],
+) -> FixResult:
     assert record.latest_shikona is not None
 
     print(
@@ -453,12 +510,20 @@ def fix_intai(record: BioRecord, output_dir: Path) -> FixResult:
     )
 
     text = read_or_download_search_page(record, output_dir)
-    return parse_intai_from_search_page(record, text)
+    return parse_intai_from_search_page(
+        record,
+        text,
+        latest_basho=latest_basho,
+        latest_basho_rikids_set=latest_basho_rikids_set,
+    )
 
 
 def try_fix_missing_intai(
     records: list[BioRecord],
     output_dir: Path,
+    *,
+    latest_basho: str,
+    latest_basho_rikids_set: set[str],
 ) -> tuple[list[BioRecord], list[Finding]]:
     by_latest_shikona: dict[str, list[BioRecord]] = defaultdict(list)
 
@@ -477,7 +542,12 @@ def try_fix_missing_intai(
             if record.intai is not None:
                 continue
 
-            result = fix_intai(record, output_dir)
+            result = fix_intai(
+                record,
+                output_dir,
+                latest_basho=latest_basho,
+                latest_basho_rikids_set=latest_basho_rikids_set,
+            )
             findings.extend(result.findings)
 
             if result.intai is not None:
@@ -756,6 +826,9 @@ def write_summary(
     all_rows: list[LabelRow],
     collision_rows: list[LabelRow],
     findings: list[Finding],
+    *,
+    latest_basho: str,
+    latest_basho_rikid_count: int,
 ) -> None:
     records_with_shikona = [record for record in records if record.latest_shikona is not None]
     latest_shikona_counts = Counter(record.latest_shikona for record in records_with_shikona)
@@ -774,6 +847,8 @@ def write_summary(
         f"bio records read: {len(records)}",
         f"records with shikona history: {len(records_with_shikona)}",
         f"records missing shikona history: {len(records) - len(records_with_shikona)}",
+        f"latest represented basho: {latest_basho}",
+        f"rikishi in latest represented basho: {latest_basho_rikid_count}",
         f"distinct latest shikona: {len(latest_shikona_counts)}",
         f"latest-shikona collision groups: {len(collision_groups)}",
         f"rikishi in collision groups: {len(collision_rows)}",
@@ -809,6 +884,11 @@ def parse_args() -> argparse.Namespace:
         help=f"Parsed get_bios JSON input path (default: {DEFAULT_INPUT_JSON})",
     )
     parser.add_argument(
+        "--history-zip",
+        type=Path,
+        help="Optional zip-backed History serialisation. If absent, use the live store.",
+    )
+    parser.add_argument(
         "--output-dir",
         default=str(DEFAULT_OUTPUT_DIR),
         help=f"Output directory (default: {DEFAULT_OUTPUT_DIR})",
@@ -821,15 +901,35 @@ def main() -> None:
     input_json = Path(args.input_json)
     output_dir = Path(args.output_dir)
 
+    history = load_probe_history(args.history_zip)
+    latest_basho, latest_basho_rikids_set = latest_basho_rikids(history)
+    print(
+        f"Latest represented basho is {latest_basho} "
+        f"with {len(latest_basho_rikids_set)} rikishi."
+    )
+
     raw: Any = json.loads(input_json.read_text(encoding="utf-8"))
     records = parse_bio_records(raw)
-    records, fix_findings = try_fix_missing_intai(records, output_dir)
+    records, fix_findings = try_fix_missing_intai(
+        records,
+        output_dir,
+        latest_basho=latest_basho,
+        latest_basho_rikids_set=latest_basho_rikids_set,
+    )
     all_labels, collision_labels, findings = analyse(records)
     findings = [*fix_findings, *findings]
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    write_summary(output_dir / "summary.txt", records, all_labels, collision_labels, findings)
+    write_summary(
+        output_dir / "summary.txt",
+        records,
+        all_labels,
+        collision_labels,
+        findings,
+        latest_basho=latest_basho,
+        latest_basho_rikid_count=len(latest_basho_rikids_set),
+    )
     write_label_csv(output_dir / "proposed_labels.csv", all_labels)
     write_label_csv(output_dir / "latest_shikona_collisions.csv", collision_labels)
     write_finding_csv(output_dir / "unresolved_findings.csv", findings)
