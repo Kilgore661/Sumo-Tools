@@ -18,7 +18,7 @@ from collections import Counter
 
 from src.infra.get_bios.api import BioStore, load_bio_store
 from src.infra.live_store.api import get_history
-from src.sumo_core.BasicPrimitives import RikId, Shikona
+from src.sumo_core.BasicPrimitives import RikId, Riks, Shikona
 from src.sumo_core.History import History
 
 
@@ -34,12 +34,17 @@ def make_public_shikona(history: History, bios: BioStore) -> dict[RikId, Shikona
     is retired, the public shikona is the full latest shikona from BioStore.
     """
     history_shikona_by_rikid = make_history_shikona_by_rikid(history)
+    latest_represented_rikids = make_latest_represented_rikids(history)
     history_shikona_counts = Counter(history_shikona_by_rikid.values())
 
     public_shikona_by_rikid: dict[RikId, Shikona] = {}
 
     for rikid, history_shikona in history_shikona_by_rikid.items():
         if history_shikona_counts[history_shikona] == 1:
+            public_shikona_by_rikid[rikid] = history_shikona
+            continue
+
+        if rikid in latest_represented_rikids:
             public_shikona_by_rikid[rikid] = history_shikona
             continue
 
@@ -68,6 +73,12 @@ def make_history_shikona_by_rikid(history: History) -> dict[RikId, Shikona]:
             history_shikona_by_rikid[rikid] = banzuke.rikshik[rikid]
 
     return history_shikona_by_rikid
+
+
+def make_latest_represented_rikids(history: History) -> Riks:
+    """Return the rikishi represented in the latest basho in History."""
+    latest_basho_date = sorted(history)[-1]
+    return history[latest_basho_date].banzuke.riks
 
 
 def main() -> None:
