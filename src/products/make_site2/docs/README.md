@@ -149,6 +149,11 @@ Full build using the live store:
 py -m src.products.make_site2 --build-only
 ```
 
+To inspect structural whitespace, add `debug_layout=true` to a site URL. This
+enables a development-only layout overlay that tints and labels the main
+Navigation, ContentPanel, FilterSection, PAPanel, PA, table/chart and Notes
+regions.
+
 Avoid `--local-only` from Codex unless the local deployment target is visible.
 The user's local web root may be on mapped drive `A:`, which Codex normally
 cannot access.
