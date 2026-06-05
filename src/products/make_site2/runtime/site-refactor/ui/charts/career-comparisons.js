@@ -410,7 +410,7 @@ function careerComparisonLayout(artifact, state, data, traces = null) {
     autosize: true,
     paper_bgcolor: "rgba(0,0,0,0)",
     plot_bgcolor: "rgba(0,0,0,0)",
-    margin: { l: usesChiiAxis(state) ? 132 : 116, r: state.skill === "both" ? 76 : 40, t: 18, b: 70 },
+    margin: { l: usesChiiAxis(state) ? 156 : 116, r: 150, t: 18, b: 70 },
     xaxis: {
       title: state.x_base === "basho" ? "Number of Basho since Hatsu Dohyo" : "Date",
       ...(state.x_base === "date" ? dateAxisCategoryOrder(traces || []) : bashoAxisTickSettings(traces || [])),
@@ -427,8 +427,8 @@ function careerComparisonLayout(artifact, state, data, traces = null) {
       orientation: "v",
       yanchor: "top",
       y: 1,
-      xanchor: "right",
-      x: -0.04,
+      xanchor: "left",
+      x: 1.02,
     },
     font: {
       family: "Arial, Helvetica, sans-serif",
@@ -512,6 +512,7 @@ function chiiAxisLayout(artifact, state, data, traces = null) {
     tickmode: "array",
     tickvals: scale.tickValues,
     ticktext: scale.tickLabels,
+    ticklabelstandoff: 24,
   };
 }
 
