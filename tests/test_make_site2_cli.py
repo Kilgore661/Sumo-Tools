@@ -1,10 +1,12 @@
 import pytest
 
 from src.products.make_site2.__main__ import (
+    SHORT_HISTORY_ZIP,
     build_parser,
     reject_conflicting_modes,
     resolve_cache_mode,
     resolve_basho_results_payload_mode,
+    resolve_history_zip,
 )
 
 
@@ -14,6 +16,10 @@ def payload_mode_for(*args: str) -> str:
 
 def cache_mode_for(*args: str) -> str:
     return resolve_cache_mode(build_parser().parse_args(args))
+
+
+def history_zip_for(*args: str):
+    return resolve_history_zip(build_parser().parse_args(args))
 
 
 def test_make_site2_builds_all_basho_payloads_by_default() -> None:
@@ -41,6 +47,19 @@ def test_make_site2_prod_disables_development_cache_busting() -> None:
     assert cache_mode_for("--prod") == "prod"
 
 
+def test_make_site2_short_uses_standard_short_history_zip() -> None:
+    assert history_zip_for("--short") == SHORT_HISTORY_ZIP
+
+
+def test_make_site2_accepts_explicit_history_zip() -> None:
+    assert history_zip_for("--history-zip", "custom.zip").as_posix() == "custom.zip"
+
+
+def test_make_site2_rejects_short_with_explicit_history_zip() -> None:
+    with pytest.raises(SystemExit):
+        history_zip_for("--short", "--history-zip", "custom.zip")
+
+
 def test_make_site2_accepts_no_build_local_only_deployment() -> None:
     args = build_parser().parse_args(["--no-build", "--local-only"])
 
@@ -57,3 +76,8 @@ def test_make_site2_rejects_no_build_build_only() -> None:
 def test_make_site2_rejects_build_options_with_no_build() -> None:
     with pytest.raises(SystemExit):
         reject_conflicting_modes(build_parser().parse_args(["--no-build", "--prod"]))
+
+
+def test_make_site2_rejects_short_with_no_build() -> None:
+    with pytest.raises(SystemExit):
+        reject_conflicting_modes(build_parser().parse_args(["--no-build", "--short"]))

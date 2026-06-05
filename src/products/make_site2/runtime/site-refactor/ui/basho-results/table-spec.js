@@ -61,7 +61,7 @@ function recordSpec() {
         }),
         column("equelo", "Eq", { help: "Equelo rating.", sort_kind: "numeric", presentation: PRESENTATION.RATING }),
       ]),
-      group("analysis", "Analysis", [
+      group("analysis", "Ratings Fit", [
         group("banzuke_error", "\u0394BZ", [
           column("direction", "Dir", {
             sort_kind: "movement_symbol",
@@ -75,7 +75,7 @@ function recordSpec() {
           sort_path: "rbbp_ordinal",
           presentation: PRESENTATION.RANK_CODE,
         }),
-      ]),
+      ], { help: "See TBD" }),
     ]),
     group("result", "Result", [
       column("wins", "W", { sort_kind: "numeric", presentation: PRESENTATION.COMPACT_COUNT }),

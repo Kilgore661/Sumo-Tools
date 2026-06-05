@@ -132,13 +132,14 @@ as an active authority competing with the spine.
 Quick build from the small local History zip:
 
 ```powershell
-py -m src.products.make_site2 --build-only --history-zip ".\files\output\Historys\1978_01 to 1980_11.zip"
+py -m src.products.make_site2 --build-only --short
 ```
 
-This is useful for fast inspection. Until the Selected-History policy is
-implemented, remember that some copied Pages may still represent current/full
-producer output rather than the selected zip. Banzuke Changes is the known
-example.
+This is useful for fast inspection. `--short` is an alias for the standard small
+History zip at `files/output/Historys/1978_01 to 1980_11.zip`. Until the
+Selected-History policy is implemented, remember that some copied Pages may
+still represent current/full producer output rather than the selected zip.
+Banzuke Changes is the known example.
 
 Full build using the live store:
 

@@ -250,8 +250,8 @@ The branch now contains a transitional 7.1 presentation-model renderer.
 
 Implemented outcomes:
 
-- Basho Results uses a nested header structure for `Reference`, `Before
-  Basho`, `Current`/`After Basho`, and `Comparison`.
+- Basho Results uses a nested header structure for reference columns, `Before
+  Basho`, `Current`/`After Basho`, and `Next Basho`.
 - Result values are displayed as separate terminal cells for wins, losses,
   absences, prizes, and Division Change.
 - Prize heading uses the package glyph.
@@ -281,4 +281,3 @@ Examples:
 - decide how much transitional compact-result parsing may remain.
 
 The active open issues are tracked in `10 Open Issues and Deferred Design.md`.
-

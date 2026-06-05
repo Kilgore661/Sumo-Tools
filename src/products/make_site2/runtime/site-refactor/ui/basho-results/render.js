@@ -102,7 +102,7 @@ function appendHeaderCells(rows, nodes, path, visiblePaths, depth, level) {
       if (!childLeaves.length) continue;
       rows[level].push({
         colspan: childLeaves.length,
-        label: node.label || node.key,
+        label: node.label ?? node.key,
         help: node.help || "",
         path: pathText,
         rowspan: 1,
@@ -111,7 +111,7 @@ function appendHeaderCells(rows, nodes, path, visiblePaths, depth, level) {
     } else if (isVisiblePath(pathText, visiblePaths)) {
       rows[level].push({
         colspan: 1,
-        label: node.label || node.key,
+        label: node.label ?? node.key,
         help: node.help || "",
         path: pathText,
         rowspan: depth - level,

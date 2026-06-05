@@ -211,7 +211,7 @@ TYPICAL_EQUELO_VALUES_ARTIFACT = SectionedTableArtifact(
     ),
     columns=(
         TableColumn(id="label", heading="Rank", source_field="label", sort_kind="none", align="left"),
-        TableColumn(id="rating", heading="Equelo", source_field="rating", sort_kind="numeric", align="right"),
+        TableColumn(id="rating", heading="Equelo", source_field="rating", sort_kind="none", align="right"),
     ),
     notes=(
         Note(id="typical_equelo_values", applies_to=("all",), text="Equelo Ratings are typical rating landmarks, not promises about every rikishi at a rank. Sideless labels such as M3 use the average of the east and west rank slots."),

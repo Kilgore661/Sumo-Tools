@@ -466,6 +466,7 @@ def test_runtime_manifest_declares_typical_equelo_values_sectioned_table() -> No
         "other",
     ]
     assert [column["id"] for column in artifact["columns"]] == ["label", "rating"]
+    assert [column["sort_kind"] for column in artifact["columns"]] == ["none", "none"]
 
 
 def test_brb_filter_defaults_and_url_keys_match_current_public_site() -> None:
@@ -493,6 +494,8 @@ def test_brb_filter_defaults_and_url_keys_match_current_public_site() -> None:
     assert filters["analysis_context"]["default"] is False
     assert filters["analysis_context"]["control"] == "checkbox"
     assert filters["analysis_context"]["url_key"] == "analysis"
+    assert filters["analysis_context"]["label"] == "Ratings Fit"
+    assert filters["analysis_context"]["help"] == "See TBD"
     assert filters["nu_chii"]["default"] is False
     assert filters["nu_chii"]["control"] == "checkbox"
     assert filters["nu_chii"]["url_key"] == "nu_chii"

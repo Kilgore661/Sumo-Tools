@@ -24,7 +24,14 @@ def assert_cell(html: str, path: str, value: str) -> None:
     assert f">{value}<" in html
 
 
-def render_case(*, latest_day: int, previous_context: bool, rating_context: bool, nu_chii: bool) -> str:
+def render_case(
+    *,
+    latest_day: int,
+    previous_context: bool,
+    rating_context: bool,
+    nu_chii: bool,
+    analysis_context: bool = False,
+) -> str:
     script = f"""
 import {{ buildBashoResultsPresentationModel, renderBashoResultsPresentationTable }} from {json.dumps(MODULE.as_uri())};
 
@@ -47,7 +54,7 @@ const model = buildBashoResultsPresentationModel({{
     previous_context: {json.dumps(previous_context)},
     changes_context: true,
     rating_context: {json.dumps(rating_context)},
-    analysis_context: false,
+    analysis_context: {json.dumps(analysis_context)},
     nu_chii: {json.dumps(nu_chii)},
   }},
   entry: {{ latest_day: {latest_day} }},
@@ -78,6 +85,9 @@ def test_transitional_basho_results_renderer_shows_projected_context() -> None:
     assert "Before Basho" in html
     assert "After Basho" in html
     assert "Next Basho" in html
+    assert ">reference<" not in html
+    assert 'data-column-path="reference.row_number"' in html
+    assert 'data-column-path="reference.shikona"' in html
     assert "\U0001f4e6" in html
     assert_cell(html, "before.result.wins", "10")
     assert_cell(html, "before.result.losses", "5")
@@ -90,6 +100,19 @@ def test_transitional_basho_results_renderer_shows_projected_context() -> None:
     assert_cell(html, "changes.movement.division", "\u2193")
     assert "\u0394Eq" in html
     assert "K1e" in html
+
+
+def test_transitional_basho_results_renderer_labels_analysis_as_ratings_fit() -> None:
+    html = render_case(
+        latest_day=15,
+        previous_context=False,
+        rating_context=True,
+        nu_chii=False,
+        analysis_context=True,
+    )
+
+    assert "Ratings Fit" in html
+    assert "See TBD" in html
 
 
 def test_transitional_basho_results_renderer_hides_unprojected_context() -> None:

@@ -18,9 +18,20 @@ from .deploy import (
 )
 
 
+SHORT_HISTORY_ZIP = Path("files/output/Historys/1978_01 to 1980_11.zip")
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
     parser.add_argument("--history-zip", type=Path)
+    parser.add_argument(
+        "--short",
+        action="store_true",
+        help=(
+            "Use the standard short History zip for a faster development build "
+            f"({SHORT_HISTORY_ZIP})."
+        ),
+    )
     parser.add_argument(
         "--output",
         type=Path,
@@ -91,11 +102,23 @@ def resolve_cache_mode(args: argparse.Namespace) -> str:
     return "prod" if args.prod else "dev"
 
 
+def resolve_history_zip(args: argparse.Namespace) -> Path | None:
+    if args.short and args.history_zip is not None:
+        raise SystemExit("--short and --history-zip cannot be used together")
+    if args.short:
+        return SHORT_HISTORY_ZIP
+    return args.history_zip
+
+
 def reject_conflicting_modes(args: argparse.Namespace) -> None:
     if args.no_build and args.build_only:
         raise SystemExit("--no-build and --build-only cannot be used together")
     if args.no_build and args.history_zip is not None:
         raise SystemExit("--history-zip does not apply with --no-build")
+    if args.no_build and args.short:
+        raise SystemExit("--short does not apply with --no-build")
+    if args.short and args.history_zip is not None:
+        raise SystemExit("--short and --history-zip cannot be used together")
     if args.no_build and args.prod:
         raise SystemExit("--prod does not apply with --no-build")
     if args.no_build and args.no_basho:
@@ -124,8 +147,9 @@ def main() -> None:
             "basho_results_payload_mode": resolve_basho_results_payload_mode(args),
             "cache_mode": resolve_cache_mode(args),
         }
-        if args.history_zip is not None:
-            kwargs["history_zip"] = args.history_zip
+        history_zip = resolve_history_zip(args)
+        if history_zip is not None:
+            kwargs["history_zip"] = history_zip
         build_output = build_site(**kwargs)
         print(f"built {build_output.root}")
     if args.build_only:

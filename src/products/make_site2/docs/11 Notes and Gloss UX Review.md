@@ -28,7 +28,7 @@ page headings, option labels, PA captions and chart/table captions.
 | `5.1` | `Wins: Finish Chances` / `Finish Chances by Wins` | `How often rikishi at a selected chii finished near the top or bottom of their division by wins.` | `{Division} {Chii}: {Top|Bottom} Finish Chances` | `Historical probability of finishing at position N = 1,...,10 by wins; sample size n = {n}.` | x-axis uses `Finish Position N, no worse than` or `Finish Position N, no better than` |
 | `6.2.1` | `Typical Equelo Ratings` | existing framing is acceptable | `Typical Equelo Ratings` | no caption change | columns should not be sortable in a later behaviour pass |
 | `6.3.1` | `Win Probability by Ranks` | `How likely is one rikishi to beat another based on rank?` | `Win Probability ({Observed|Predicted})` | no subheading; axes carry selected/opponent roles | `Equelo` source label -> `Predicted`; x-axis `Opponent Rank`; y-axis `P(selected rikishi wins)`; legend `Selected Rank` |
-| `7.1` | `Basho Results` | existing framing acceptable | existing dynamic results heading | delete `Final` PA subheading | `Changes` -> `Next Basho`; leave further Analysis/nuChii changes for the behaviour/gloss pass |
+| `7.1` | `Basho Results` | existing framing acceptable | existing dynamic results heading | delete `Final` PA subheading | `Changes` -> `Next Basho`; `Analysis` -> `Ratings Fit`; leave `nuChii` in place for now |
 
 ---
 
@@ -423,6 +423,18 @@ the movement column, which shows movement up or down in the banzuke slot order.
 The compact 2.1 `Result` string is a pragmatic presentation, not the preferred
 general result model. The 7.1 table separates result into subcolumns, which is
 currently preferred where the table structure can support it.
+
+2.1 follow-up:
+
+```text
+Make the 2.1 `Result` presentation follow the 7.1 pattern where possible:
+separate wins, losses, absences and prizes into compact terminal columns rather
+than presenting a single compact result string.
+```
+
+The same rule should be applied to any other table PA that exposes a `Result`
+column: prefer the 7.1 decomposed result shape unless the specific table has a
+strong reason to stay compact.
 
 ### 7.5 Delta
 
@@ -910,9 +922,9 @@ Next Basho
 
 `Equelo Ratings` is obvious enough as an option label.
 
-`nuChii` is legacy and should be deleted.
+`nuChii` is legacy, but should be left in place for now.
 
-`Analysis` is a placeholder and should not remain as public wording. The
+`Analysis` was a placeholder and should not remain as public wording. The
 feature is research-level, but valuable and fun for readers who know what it is
 about. It opens the door to deeper questions such as:
 
@@ -933,17 +945,21 @@ See <research section/page>.
 ```
 
 The target should be a research/methodology section that explains the
-calculation and interpretation. `Analysis` also needs a better label. A full
-description such as `Reconciliation of Banzuke with Ratings` is too long for an
-option label, but captures the direction of meaning.
+calculation and interpretation. A full description such as `Reconciliation of
+Banzuke with Ratings` is too long for an option label, but captures the
+direction of meaning.
 
-Open question:
+Settled public label for the option and table heading:
 
 ```text
-What short public label should replace Analysis?
+Ratings Fit
 ```
 
-More domain detail is needed before settling this.
+Settled gloss:
+
+```text
+See TBD
+```
 
 The underlying idea is already documented in the Basho Results specification
 and model docs as rating-order analysis, `BZ Error` / `DeltaBZ`, and `RBBP`.
@@ -992,11 +1008,9 @@ structure, promotion rules, rank-holding conventions, vacancies and committee
 judgement. The feature should point to a research guide rather than trying to
 explain all of this in an option popover.
 
-Candidate replacement labels for `Analysis` should be judged against this
-meaning. Possible directions include:
+Superseded candidate labels:
 
 ```text
-Rating Fit
 Rating Order
 Rating Reorder
 Banzuke vs Rating
@@ -1023,7 +1037,7 @@ Candidate table gloss and Notes:
 | `DeltaEq` | `Difference in rating.` |
 | up/down movement heading | `See Notes.` |
 
-`nuChii` should be deleted, together with its heading and Note.
+`nuChii` is left in place for now, despite being legacy.
 
 The `Result` subheadings can remain supercompact:
 

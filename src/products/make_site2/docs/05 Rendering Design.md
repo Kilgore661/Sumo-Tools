@@ -739,9 +739,10 @@ PA-specific model declares single-column sort meaning for them.
 `04.5 Basho Results Model.md`.
 
 **Rule:** Basho Results may render a specialised recursive table with grouped
-Reference, Before Basho, Current/After Basho and Comparison headings. The
-renderer shall remain inside the PA region of its PAPanel and shall not redefine
-Page Heading, FilterSection, Notes placement or shell layout.
+Before Basho, Current/After Basho and Next Basho headings. Reference columns
+remain present without a visible group caption. The renderer shall remain inside
+the PA region of its PAPanel and shall not redefine Page Heading, FilterSection,
+Notes placement or shell layout.
 
 Basho Results result values are logically decomposed into wins, losses,
 absences, prizes and Division Change. Rendering may still bridge from compact
