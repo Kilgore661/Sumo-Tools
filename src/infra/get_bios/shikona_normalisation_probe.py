@@ -1,21 +1,42 @@
 # src/infra/get_bios/shikona_normalisation_probe.py
 
 """
-Probe the proposed public shikona normalisation rule.
+Probe for public shikona disambiguation.
 
-This is exploratory prototype code, not the production normalisation API.
+This is prototype/reference code, not production resolver logic.
 
-The candidate rule is:
+It investigates whether retired rikishi with non-unique public shikona can be
+disambiguated acceptably by an Intai-based suffix scheme, and compares that
+with using the full recorded latest shikona as the collision key.
 
-* identify rikishi by latest/current shikona;
-* where that shikona is unique, use the bare shikona;
-* where that shikona is not unique, give the latest holder the bare shikona;
-* give earlier retired holders ``Shikona (IntaiYear)``;
-* use ``Shikona (IntaiYear/IntaiMonth)`` only when the year is not enough;
-* when Intai is missing, try an on-demand cached SumoDB search-page fix;
-* require blank SumoDB Intai rows to be confirmed by latest-basho presence;
-* allow first-token or full-recorded-shikona collision probes;
-* report data/model pressure rather than inventing fallbacks.
+Run from the repository root:
+
+    python -m src.infra.get_bios.shikona_normalisation_probe
+    python -m src.infra.get_bios.shikona_normalisation_probe --full-shikona
+
+The first command uses the default first-token shikona key and tries the old
+Intai suffix scheme:
+
+    Shikona
+    Shikona (YYYY)
+    Shikona (YYYY/MM)
+
+Use its summary and unresolved_findings.csv to see why the Intai scheme is not
+good enough. In particular, missing Intai values and duplicate Intai year/month
+cases show up as findings.
+
+The second command uses the full recorded latest shikona string as the
+collision key. Use its summary, proposed_labels.csv, and unresolved_findings.csv
+to check that full shikona is the viable public-facing disambiguator.
+
+Outputs are written by default to:
+
+    files/output/infra/get_bios/shikona_normalisation_probe/
+
+The production rule is recorded in "Shikona Resolution.md":
+
+    If History shikona is non-unique and the rikishi is retired,
+    use full shikona; otherwise use the History shikona.
 """
 
 from __future__ import annotations
