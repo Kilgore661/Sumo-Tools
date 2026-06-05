@@ -39,9 +39,12 @@ def make_public_shikona(history: History, bios: BioStore) -> dict[RikId, Shikona
     public_shikona_by_rikid: dict[RikId, Shikona] = {}
 
     for rikid, history_shikona in history_shikona_by_rikid.items():
-        bio = bios[rikid]
+        if history_shikona_counts[history_shikona] == 1:
+            public_shikona_by_rikid[rikid] = history_shikona
+            continue
 
-        if history_shikona_counts[history_shikona] > 1 and bio.intai is not None:
+        bio = bios[rikid]
+        if bio.intai is not None:
             public_shikona_by_rikid[rikid] = bio.latest_shikona()
         else:
             public_shikona_by_rikid[rikid] = history_shikona
