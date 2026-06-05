@@ -14,11 +14,13 @@ The central principle is conservative:
 
 > The normal public shikona is the shikona recorded in History.
 
-That History shikona should be preserved unless it is not sufficient to identify the rikishi unambiguously under the system’s publication assumptions.
+That History shikona should be preserved unless it is not sufficient to identify the rikishi unambiguously.
 
 ## Current requirement
 
-Let `H` be the rikishi’s shikona as recorded in History.
+Let `H` be the rikishi's shikona as recorded in History.
+
+History currently records single-word shikona. That is the context problem this work addresses: public output sometimes needs a fuller public name without changing History itself.
 
 The public shikona rule is:
 
@@ -26,10 +28,10 @@ The public shikona rule is:
 If H is unique:
     public shikona = H
 
-If H is not unique and the rikishi has not retired:
+If H is not unique and the rikishi is the latest holder of H:
     public shikona = H
 
-If H is not unique and the rikishi has retired:
+If H is not unique and the rikishi is an earlier holder of H:
     public shikona = full shikona
 ```
 
@@ -38,21 +40,25 @@ Equivalently:
 ```python
 public_shikona = history_shikona
 
-if history_shikona_is_non_unique and rikishi_is_retired:
+if history_shikona_is_non_unique and rikishi_is_not_latest_holder_of_that_shikona:
     public_shikona = full_shikona
 ```
 
-The earlier formulation included the phrase “when disambiguation is needed”. We have decided not to implement a separate catalogue-specific ambiguity test. For the purposes of this system, a retired rikishi with a non-unique History shikona is treated as needing disambiguation.
+The important interpretation is that retirement is not the deciding condition. The latest rikishi to use a History shikona keeps the handle, whether or not that rikishi has retired.
 
-## Why active rikishi keep the History shikona
+For example, Hakuho Sho is the latest holder of the History shikona `Hakuho`. Even though he has retired, he remains the public `Hakuho`. Earlier holders of `Hakuho` need disambiguation, not him.
 
-If a History shikona is non-unique, active rikishi still keep the History shikona.
+## Why the latest holder keeps the History shikona
 
-This preserves the normal contemporary public name for current rikishi. The disambiguation burden is placed on retired rikishi instead, because duplicate historical names are mainly a problem when identifying past rikishi in public catalogue output.
+If a History shikona is non-unique, the latest holder is the rikishi most users will expect to be identified by the bare handle.
+
+This preserves the normal public meaning of the shikona. The disambiguation burden is placed on earlier holders instead.
+
+The earlier retired-vs-active formulation was a useful approximation, but it was not the real rule. A retired rikishi can still be the latest holder of a shikona.
 
 ## Chosen disambiguator
 
-When a retired rikishi with a non-unique History shikona needs disambiguating, the system shall use the rikishi’s full shikona.
+When an earlier holder of a non-unique History shikona needs disambiguating, the system shall use the rikishi's full shikona.
 
 This is the chosen production behaviour.
 
@@ -80,20 +86,13 @@ Conclusion: reject as public disambiguator.
 
 The hatsu date was considered as a possible historical disambiguator.
 
-It has two problems:
-
-1. It is incomplete for the data we need to support.
-2. It is not especially natural for users reading public-facing output.
-
-Even where available, a hatsu date is not the form most users would expect as part of a rikishi display name.
+It was rejected because it did not provide a suitable public disambiguator. It is incomplete for the data we need to support and is not especially natural for users reading public-facing output.
 
 Conclusion: reject as public disambiguator.
 
 ### Intai date
 
-The intai date is more meaningful than hatsu for retired rikishi, because retirement is directly related to the population being disambiguated.
-
-However, the probe showed that intai date is not sufficient.
+The intai date is meaningful for retired rikishi, but the probe showed that it is not sufficient.
 
 Important findings to preserve:
 
@@ -101,7 +100,7 @@ Important findings to preserve:
 2. Some rikishi with the same History shikona retired in the same year.
 3. In at least one case, rikishi with the same History shikona retired in the same year and month.
 
-This matters because it means that even a year-month intai disambiguator is not guaranteed to distinguish all relevant duplicate-name retired rikishi. It is also sometimes ugly in public output.
+This matters because even a year-month intai disambiguator is not guaranteed to distinguish all relevant duplicate-name rikishi. It is also sometimes ugly in public output.
 
 Conclusion: reject as public disambiguator.
 
@@ -109,7 +108,7 @@ Conclusion: reject as public disambiguator.
 
 Full shikona is user-facing, name-like, and natural in public output.
 
-The probe validated it as an effective disambiguator for the duplicate retired-shikona cases under consideration. It avoids exposing internal identifiers and avoids relying on incomplete or insufficient dates.
+The probe validated it as an effective disambiguator for the duplicate History shikona cases under consideration. It avoids exposing internal identifiers and avoids relying on incomplete or insufficient dates.
 
 Conclusion: use full shikona as the production disambiguator.
 
@@ -121,9 +120,13 @@ The production resolver needs reliable access to the following data:
 rikid
 History shikona
 full shikona
-retirement status
+latest holder of each History shikona
 whether the History shikona is unique
 ```
+
+History owns the normal shikona and the latest-holder calculation.
+
+`get_bios` / `BioStore` owns the full shikona used for disambiguation.
 
 The duplicate test should be global over History shikona values, not local to a single output page.
 
@@ -132,111 +135,84 @@ The duplicate test should be global over History shikona values, not local to a 
 The production implementation should expose a deterministic resolver, for example:
 
 ```python
-def public_shikona_for(rikid: Rikid) -> str:
+def make_public_shikona(history: History, bios: BioStore) -> dict[RikId, Shikona]:
     ...
 ```
 
-or a precomputed mapping:
-
-```python
-dict[rikid, public_shikona]
-```
-
-The implementation should be pure or effectively pure: given the same source data, it should always produce the same public shikona mapping.
+The implementation should be pure or effectively pure: given the same History and BioStore inputs, it should always produce the same public shikona mapping.
 
 ## Pseudocode
 
 ```python
-def build_public_shikona_map(rikishi_records):
-    history_name_counts = Counter(
-        record.history_shikona
-        for record in rikishi_records
-    )
+def build_public_shikona_map(history, bios):
+    history_shikona_by_rikid = make_history_shikona_by_rikid(history)
+    latest_holder_by_history_shikona = make_latest_holder_by_history_shikona(history)
+    history_name_counts = Counter(history_shikona_by_rikid.values())
 
     public_shikona_by_rikid = {}
 
-    for record in rikishi_records:
-        history_shikona = record.history_shikona
+    for rikid, history_shikona in history_shikona_by_rikid.items():
         is_duplicate = history_name_counts[history_shikona] > 1
+        is_latest_holder = latest_holder_by_history_shikona[history_shikona] == rikid
 
-        if is_duplicate and record.is_retired:
-            public_shikona = record.full_shikona
+        if is_duplicate and not is_latest_holder:
+            public_shikona = bios[rikid].latest_shikona()
         else:
             public_shikona = history_shikona
 
-        public_shikona_by_rikid[record.rikid] = public_shikona
+        public_shikona_by_rikid[rikid] = public_shikona
 
     return public_shikona_by_rikid
 ```
 
-## Open implementation questions
+## Useful tests
 
-The rule is settled, but the implementation still needs to decide:
-
-1. Where the resolver should live.
-2. Which existing data model owns `history_shikona`, `full_shikona`, and `is_retired`.
-3. Whether the mapping is computed at build time, loaded from an artefact, or exposed through an API.
-4. What tests should lock down duplicate-name retired cases.
-5. Whether missing `full_shikona` should be treated as a hard data error.
-
-## Recommended tests
-
-The implementation should include tests for at least the following cases:
+The implementation should include tests for at least the following cases.
 
 ### Unique History shikona
 
 ```text
 H is unique
-rikishi may be active or retired
 result = H
 ```
 
-### Duplicate History shikona, active rikishi
+### Duplicate History shikona, latest holder
 
 ```text
 H is shared
-rikishi is active
+rikishi is the latest holder of H
 result = H
 ```
 
-### Duplicate History shikona, retired rikishi
+This should hold whether the latest holder is active or retired.
+
+### Duplicate History shikona, earlier holder
 
 ```text
 H is shared
-rikishi is retired
+rikishi is an earlier holder of H
 result = full shikona
 ```
 
-### Duplicate retired rikishi with same intai year
+### Latest holder is retired
 
-This case records why intai year is not an acceptable disambiguator.
+This case records the corrected interpretation.
 
 ```text
-same H
-both retired
-same intai year
-result = full shikona for each retired rikishi
+H is shared
+latest holder of H is retired
+latest holder result = H
+earlier holder result = full shikona
 ```
 
-### Duplicate retired rikishi with same intai year and month
+### Intai-date failures remain documented
 
-This case records the strongest known failure of intai-date disambiguation.
-
-```text
-same H
-both retired
-same intai year and month
-result = full shikona for each retired rikishi
-```
-
-### Missing intai date
-
-This case records why intai date cannot be required.
+These cases record why intai date is not an acceptable disambiguator.
 
 ```text
 same H
-retired rikishi has missing intai date
-result = full shikona
+missing intai date, or same intai year, or same intai year and month
+result = full shikona for earlier holders; intai date is not used
 ```
 
 ## Non-goals
@@ -248,14 +224,24 @@ The production resolver should not:
 3. Use intai date as the public disambiguator.
 4. Re-run the legacy probe workflow during normal publication.
 5. Implement page-specific or catalogue-specific ambiguity checks.
+6. Modify History directly to store full shikona.
 
 ## Current status
 
-The investigation phase is complete enough to choose the production rule.
+The investigation phase is complete enough to choose the production rule and the first production implementation exists.
 
 The chosen rule is:
 
-> Preserve the History shikona by default. If the History shikona is non-unique and the rikishi is retired, use full shikona.
+> Preserve the History shikona by default. If the History shikona is non-unique, the latest holder keeps the History shikona and earlier holders use full shikona.
 
-The next task is implementation: add a small deterministic resolver, wire it into public-facing output generation, and add regression tests for the duplicate retired-shikona cases identified by the probe.
+The implementation lives in:
 
+```text
+src/infra/get_bios/make_public_shikona.py
+```
+
+The module can be run directly for a small manual check:
+
+```bash
+python -m src.infra.get_bios.make_public_shikona
+```
