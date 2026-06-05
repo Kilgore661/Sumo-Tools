@@ -146,6 +146,14 @@ def read_or_download_search_page(record: BioRecord, output_dir: Path) -> str:
     if path.exists():
         return path.read_text(encoding="utf-8")
 
+    print(
+        "Intai fix downloading: "
+        f"rikid={record.rikid} "
+        f"shikona={record.latest_shikona!r} "
+        f"sumodb_search_shikona={shikona!r} "
+        f"hatsu={empty_if_none(record.hatsu_dohyo)} "
+        f"path={path}"
+    )
     text = download_search_page(shikona)
 
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -333,14 +341,6 @@ def fix_intai(
     latest_basho_rikids_set: set[str],
 ) -> FixResult:
     assert record.latest_shikona is not None
-
-    print(
-        "Intai fix needed: "
-        f"rikid={record.rikid} "
-        f"shikona={record.latest_shikona!r} "
-        f"sumodb_search_shikona={intai_search_shikona(record)!r} "
-        f"hatsu={empty_if_none(record.hatsu_dohyo)}"
-    )
 
     text = read_or_download_search_page(record, output_dir)
     return parse_intai_from_search_page(
