@@ -411,13 +411,42 @@ replace page structure.
 The site caption and selected Page main heading shall have modest top spacing
 so they do not sit directly against the viewport edge.
 
-### 9.3 Current Typography Issue
+### 9.3 Caption Typography and Spacing
 
-A final heading-typography ownership rule is not yet incorporated into this
-Rendering Design. Current implementation may contain provisional size rules.
-The decision whether typography is governed by role-specific rendering classes,
-HTML heading levels, or an explicit combination shall be carried into
-`06 Rendering Audit and Changes.md` until agreed.
+**Status:** Provisional implementation rule under review.
+
+**Rule:** HTML heading levels used for page and PA captions express the visible
+hierarchy of captions. They are not requests for browser-default heading
+styling.
+
+The current hierarchy is:
+
+- `h2`: ContentPanel main caption
+- `h3`: ContentPanel sub-caption
+- `h4`: PAPanel/PA main caption
+- `h5`: PAPanel/PA sub-caption
+
+All headings at the same level should share the same base visual treatment.
+Named selectors such as `content-title`, `content-summary`,
+`artifact-title-block` or PA-specific ids are role hooks and exception points;
+they should not become the normal source of unrelated typography.
+
+Caption text itself shall not create leading vertical space. Space above a
+caption belongs to the container that owns the edge above it, for example the
+ContentPanel top inset or PA slot headroom below a dividing rule.
+
+Each caption/sub-caption shall create proportional trailing space before the
+next caption level or content. The current trial uses approximately half the
+caption text height as the following gap:
+
+- after `h2`: `0.625rem`
+- after `h3`: `0.5625rem`
+- after `h4`: `0.5rem`
+- after `h5`: `0.4375rem`
+
+The boundary line below the ContentPanel caption belongs to the content/body
+boundary, not to the optional `h3`; pages with and without sub-captions should
+therefore receive the same structural separation.
 
 ---
 
@@ -518,6 +547,10 @@ Within that space, the PAPanel is a vertical region containing a flexible PA
 slot followed by its Notes panel when relevant. The PA slot is the scrollable
 artifact region; the surrounding content column shall not require page-level
 vertical scrolling for ordinary PA overflow.
+
+The PA slot owns a small top inset so PA captions do not sit directly against
+the ContentPanel/body boundary line. PA captions should not carry their own
+leading whitespace to solve that container-edge problem.
 
 ### 12.3 Notes-Panel Dimension and Toggle Policy
 

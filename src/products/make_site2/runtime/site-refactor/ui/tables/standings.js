@@ -23,7 +23,7 @@ function renderStandingsTable(artifact, rows, filteredRows, state) {
   return [
     '<div class="artifact-title-block">',
     `<h4>${escapeHtml(standingsHeading(state))}</h4>`,
-    `<p>${escapeHtml(standingsSubheading(state))}</p>`,
+    `<h5>${escapeHtml(standingsSubheading(state))}</h5>`,
     '</div>',
     '<table class="artifact-table standings-table">',
     renderStandingsTableHead(artifact, visibleColumns, sortState),
@@ -42,12 +42,12 @@ function renderStandingsTable(artifact, rows, filteredRows, state) {
 
 function standingsHeading(state) {
   const division = standingsDivisionLabel(state.division);
-  if (state.division === "all") return "Rolling Wins-Based Ranking for All Divisions";
-  return `Rolling Wins-Based Ranking for the ${division} Division`;
+  const divisionText = state.division === "all" ? "All Divisions" : division;
+  return `Ranking of ${divisionText} Rikishi by Wins Count`;
 }
 
 function standingsSubheading(state) {
-  return `Over the last ${state.current_num_basho} basho`;
+  return `(Rolling ${state.current_num_basho}-Basho Window)`;
 }
 
 function standingsDivisionLabel(division) {

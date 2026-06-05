@@ -16,7 +16,7 @@ function renderFinishByChiiChart(artifact, state, filters, rowsBySource) {
   return [
     '<div class="artifact-title-block">',
     `<h4>${escapeHtml(divisionLabel)} ${escapeHtml(state.chii)}: ${escapeHtml(directionLabel)} Finish Chances</h4>`,
-    `<p>Historical probability of finishing at position N = 1,...,10 by wins; sample size n = ${escapeHtml(sampleSize)}.</p>`,
+    `<h5>Historical probability of finishing at position N = 1,...,10 by wins; sample size n = ${escapeHtml(sampleSize)}.</h5>`,
     '</div>',
     '<div id="finish-by-chii-chart" class="plotly-chart"></div>'
   ].join("");

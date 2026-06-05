@@ -198,13 +198,15 @@ scrolling or additional framing.
 
 ### 8.1 Heading Typography Ownership
 
-**Status:** Open decision; implementation currently provisional.
+**Status:** Provisional rule implemented; continue reviewing visually.
 
-**Visible fact:** Typography is applied partly by a role-specific `.site-title`
-selector and partly through generic `h2`/`h3` selectors.
+**Visible fact:** Page and PA captions now use heading levels as semantic
+hierarchy markers: `h2`/`h3` for ContentPanel captions and `h4`/`h5` for PA
+captions. PA sub-captions that were previously ordinary paragraphs are being
+moved to `h5`.
 
 **Owner:** `NavigationBar -> <site caption>` and
-`Heading -> <main heading> . <sub heading>?`.
+`Heading -> <main heading> . <sub heading>?`, plus PA caption rendering.
 
 **Classification:** Semantic-presentation concern.
 
@@ -214,12 +216,18 @@ selector and partly through generic `h2`/`h3` selectors.
 .site-title { font-size: 24px; }
 h2 { font-size: 20px; }
 h3 { font-size: 18px; }
+h4 { font-size: 16px; }
+h5 { font-size: 14px; }
 ```
 
-**Decision required:** Choose whether intentional heading typography is owned by
-HTML hierarchy, modelled rendered roles, or an explicit documented combination.
+Caption leading space is owned by the relevant container. Caption following
+space is proportional to the caption level, currently about half the text
+height. The ContentPanel/body separator is not owned by the optional subheading;
+it appears below both title-only and title-plus-subtitle caption areas.
 
-**Destination:** `05 Rendering Design.md`, once resolved.
+**Remaining review:** Confirm the proportional spacing works across title-only
+pages, title-plus-subtitle pages, table PAs and chart PAs. Charts have Plotly
+modebar/top chrome that may affect perceived spacing.
 
 ### 8.2 Banzuke Changes Rank-Cell Semantics and Weight
 

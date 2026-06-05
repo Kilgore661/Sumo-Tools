@@ -74,7 +74,7 @@ function renderCareerComparisonsControls(state) {
     '<div class="career-comparison-selector">',
     '<label class="filter-control career-comparison-search">',
     '<span>Rikishi</span>',
-    '<input type="search" name="rikishi_search" autocomplete="off" list="career-comparison-candidates">',
+    '<input type="text" name="rikishi_search" autocomplete="off" list="career-comparison-candidates" autofocus tabindex="0">',
     '</label>',
     '<datalist id="career-comparison-candidates"></datalist>',
     '<ul class="career-comparison-selected" aria-label="Selected rikishi"></ul>',
@@ -117,7 +117,7 @@ function renderCareerComparisonsChart(artifact, data, options = null) {
   return [
     '<div class="artifact-title-block">',
     `<h4 id="career-comparisons-pa-heading">${escapeHtml(artifact.heading)}</h4>`,
-    '<p id="career-comparisons-pa-subheading" hidden></p>',
+    '<h5 id="career-comparisons-pa-subheading" hidden></h5>',
     '</div>',
     '<div id="career-comparisons-chart" class="plotly-chart"></div>',
   ].join("");
@@ -144,8 +144,10 @@ function wireCareerComparisonsControls(panel, artifact, state, data, writeState)
   updateCareerComparisonCandidates(input, datalist, options);
   renderSelectedRikishiList(selectedList, optionsById);
   renderCareerComparisonsPlot(artifact, state, data);
+  focusCareerComparisonSearch(input);
 
   input.addEventListener("input", () => {
+    enableCareerComparisonDatalist(input);
     if (consumeExactRikishiSelection(input, optionsByLabel, datalist, selectedList, options, optionsById)) {
       applyState();
       return;
@@ -153,6 +155,7 @@ function wireCareerComparisonsControls(panel, artifact, state, data, writeState)
     updateCareerComparisonCandidates(input, datalist, options);
   });
   input.addEventListener("change", () => {
+    enableCareerComparisonDatalist(input);
     if (consumeExactRikishiSelection(input, optionsByLabel, datalist, selectedList, options, optionsById)) {
       applyState();
     }
@@ -175,6 +178,22 @@ function wireCareerComparisonsControls(panel, artifact, state, data, writeState)
     event.preventDefault();
     applyState();
   });
+}
+
+function focusCareerComparisonSearch(input) {
+  const focus = () => {
+    if (document.activeElement === input) return;
+    input.focus();
+    try {
+      input.setSelectionRange(input.value.length, input.value.length);
+    } catch {
+      // Search inputs can reject selection APIs in some browser states.
+    }
+  };
+  requestAnimationFrame(focus);
+  for (const delay of [50, 150, 400]) {
+    setTimeout(focus, delay);
+  }
 }
 
 function careerComparisonControlState(form, state) {
@@ -205,10 +224,17 @@ function consumeExactRikishiSelection(input, optionsByLabel, datalist, selectedL
   if (!optionsByLabel.has(label)) return false;
   addSelectedRikishi(label, optionsByLabel);
   input.value = "";
-  input.blur();
+  input.removeAttribute("list");
+  datalist.innerHTML = "";
   updateCareerComparisonCandidates(input, datalist, options);
   renderSelectedRikishiList(selectedList, optionsById);
   return true;
+}
+
+function enableCareerComparisonDatalist(input) {
+  if (!input.hasAttribute("list")) {
+    input.setAttribute("list", "career-comparison-candidates");
+  }
 }
 
 function addSelectedRikishi(label, optionsByLabel) {

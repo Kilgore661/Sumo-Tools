@@ -72,7 +72,7 @@ function renderCategoryBarChart(artifact, rowsBySource) {
 
 function renderArtifactSubheading(artifact) {
   const subheading = artifact.provenance?.subheading || "";
-  return subheading ? `<p>${escapeHtml(subheading)}</p>` : "";
+  return subheading ? `<h5>${escapeHtml(subheading)}</h5>` : "";
 }
 
 function renderCategoryBarPlot(artifact, rowsBySource) {

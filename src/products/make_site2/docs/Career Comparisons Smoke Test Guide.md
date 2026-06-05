@@ -19,6 +19,10 @@ Expected:
 - The page should not render an empty Plotly chart with invented axes.
 - It should show a simple prompt to select one or more rikishi.
 - The filter/options panel should remain stable.
+- The Rikishi text box should receive focus when the page opens.
+- Selecting a rikishi from suggestions should add that rikishi, clear the text
+  box, close the suggestion popup and leave the text box ready for another
+  entry.
 
 ## 2. Known-Rikishi Sanity Checks
 

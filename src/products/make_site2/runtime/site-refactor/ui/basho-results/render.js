@@ -37,7 +37,7 @@ function renderBashoResultsHeader(header) {
   return [
     '<div class="artifact-title-block">',
     `<h4>${escapeHtml(header.heading || "")}</h4>`,
-    header.subheading ? `<p>${escapeHtml(header.subheading)}</p>` : "",
+    header.subheading ? `<h5>${escapeHtml(header.subheading)}</h5>` : "",
     '</div>',
   ].join("");
 }

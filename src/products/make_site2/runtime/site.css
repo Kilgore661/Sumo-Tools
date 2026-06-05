@@ -130,17 +130,13 @@ select {
 }
 
 .content-panel {
+  padding-top: 0.5rem;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   height: 100%;
   min-height: 0;
   width: 100%;
-}
-
-.content-panel h4 {
-  margin-top: 0.25rem;
-  margin-bottom: 0.25rem;
 }
 
 #content-panel {
@@ -150,14 +146,19 @@ select {
 }
 
 #content-title {
-  margin: 0.5rem 0 0;
-  padding-left: 1rem;
+  padding: 0 0 0.625rem 1rem;
 }
 
 .content-summary {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
-  margin-bottom: 0;
-  padding: 0 0 0.5rem 1rem;
+  padding: 0 0 0.5625rem 1rem;
+}
+
+#content-title + .content-body {
+  margin-top: 0.625rem;
+}
+
+.content-summary + .content-body {
+  margin-top: 0;
 }
 
 .nav-toggle {
@@ -225,11 +226,23 @@ select {
 }
 
 h2 {
-    font-size: 20px;
+  font-size: 20px;
+  margin: 0;
 }
 
 h3 {
-    font-size: 18px;
+  font-size: 18px;
+  margin: 0;
+}
+
+h4 {
+  font-size: 16px;
+  margin: 0;
+}
+
+h5 {
+  font-size: 14px;
+  margin: 0;
 }
 
 .nav-list .nav-list {
@@ -384,6 +397,7 @@ h3 {
 
 
 .content-body {
+  border-top: 1px solid rgba(255, 255, 255, 0.5);
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   flex: 1 1 auto;
@@ -432,6 +446,7 @@ h3 {
   min-height: 0;
   min-width: 0;
   overflow: auto;
+  padding-top: 0.5rem;
 }
 
 .plotly-chart {
@@ -502,8 +517,17 @@ h3 {
 .artifact-title-block {
   align-self: stretch;
   background: var(--content-bg);
+  margin-bottom: 0.5rem;
   text-align: center;
   z-index: 2;
+}
+
+.artifact-title-block h4 + h5 {
+  margin-top: 0.5rem;
+}
+
+.artifact-title-block:has(h5) {
+  margin-bottom: 0.4375rem;
 }
 
 .artifact-table {
