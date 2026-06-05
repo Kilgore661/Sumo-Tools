@@ -18,8 +18,8 @@ from collections import Counter
 
 from src.infra.get_bios.api import BioStore, load_bio_store
 from src.infra.live_store.api import get_history
-from src.sumo_core.BasicPrimitives import RikId, Riks, Shikona
-from src.sumo_core.History import History
+from src.sumo_core.BasicPrimitives import RikId, Shikona
+from src.sumo_core.History import Date, History
 
 
 DEMO_RIKIDS = (RikId(1123), RikId(12231))
@@ -30,11 +30,12 @@ def make_public_shikona(history: History, bios: BioStore) -> dict[RikId, Shikona
     Return the public-facing shikona for every rikishi represented in History.
 
     The normal public shikona is the latest shikona recorded for the rikishi in
-    the supplied History.  If that History shikona is non-unique and the rikishi
-    is retired, the public shikona is the full latest shikona from BioStore.
+    the supplied History.  If that History shikona is non-unique, the latest
+    holder keeps the History shikona and earlier holders use their full latest
+    shikona from BioStore.
     """
     history_shikona_by_rikid = make_history_shikona_by_rikid(history)
-    latest_represented_rikids = make_latest_represented_rikids(history)
+    latest_holder_by_history_shikona = make_latest_holder_by_history_shikona(history)
     history_shikona_counts = Counter(history_shikona_by_rikid.values())
 
     public_shikona_by_rikid: dict[RikId, Shikona] = {}
@@ -44,15 +45,11 @@ def make_public_shikona(history: History, bios: BioStore) -> dict[RikId, Shikona
             public_shikona_by_rikid[rikid] = history_shikona
             continue
 
-        if rikid in latest_represented_rikids:
+        if latest_holder_by_history_shikona[history_shikona] == rikid:
             public_shikona_by_rikid[rikid] = history_shikona
             continue
 
-        bio = bios[rikid]
-        if bio.intai is not None:
-            public_shikona_by_rikid[rikid] = bio.latest_shikona()
-        else:
-            public_shikona_by_rikid[rikid] = history_shikona
+        public_shikona_by_rikid[rikid] = bios[rikid].latest_shikona()
 
     return public_shikona_by_rikid
 
@@ -75,10 +72,35 @@ def make_history_shikona_by_rikid(history: History) -> dict[RikId, Shikona]:
     return history_shikona_by_rikid
 
 
-def make_latest_represented_rikids(history: History) -> Riks:
-    """Return the rikishi represented in the latest basho in History."""
-    latest_basho_date = sorted(history)[-1]
-    return history[latest_basho_date].banzuke.riks
+def make_latest_history_date_by_rikid(history: History) -> dict[RikId, Date]:
+    """Return each represented rikishi's latest represented date in History."""
+    latest_history_date_by_rikid: dict[RikId, Date] = {}
+
+    for basho_date in sorted(history):
+        for rikid in history[basho_date].banzuke.riks:
+            latest_history_date_by_rikid[rikid] = basho_date
+
+    return latest_history_date_by_rikid
+
+
+def make_latest_holder_by_history_shikona(history: History) -> dict[Shikona, RikId]:
+    """Return the latest holder of each History shikona."""
+    history_shikona_by_rikid = make_history_shikona_by_rikid(history)
+    latest_history_date_by_rikid = make_latest_history_date_by_rikid(history)
+
+    latest_holder_by_history_shikona: dict[Shikona, RikId] = {}
+
+    for rikid, history_shikona in history_shikona_by_rikid.items():
+        latest_holder = latest_holder_by_history_shikona.get(history_shikona)
+
+        if latest_holder is None:
+            latest_holder_by_history_shikona[history_shikona] = rikid
+            continue
+
+        if latest_history_date_by_rikid[latest_holder] < latest_history_date_by_rikid[rikid]:
+            latest_holder_by_history_shikona[history_shikona] = rikid
+
+    return latest_holder_by_history_shikona
 
 
 def main() -> None:
