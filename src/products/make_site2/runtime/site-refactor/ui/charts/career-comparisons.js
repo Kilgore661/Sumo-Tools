@@ -728,11 +728,9 @@ function careerComparisonRikishiOptions(data) {
     const lastPoint = points[points.length - 1] || [];
     return { id, shikona: String(lastPoint[POINT_SHIKONA] || id) };
   });
-  const counts = new Map();
-  rows.forEach(row => counts.set(row.shikona, (counts.get(row.shikona) || 0) + 1));
   return rows
     .map(row => {
-      const label = counts.get(row.shikona) > 1 ? `${row.shikona} (${row.id})` : row.shikona;
+      const label = row.shikona;
       return {
         ...row,
         label,

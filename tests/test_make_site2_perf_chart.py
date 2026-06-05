@@ -8,10 +8,13 @@ from src.sumo_core.BasicPrimitives import Day, Month, RikId, Riks, Shikona, Year
 from src.sumo_core.Chii import Chii
 from src.sumo_core.History import Date, History
 from src.sumo_core.Summary import Summary
-from src.products.make_site2.perf_chart.build import write_master_data
+from src.products.make_site2.perf_chart.build import make_js_input, write_master_data
 
 
-def test_write_master_data_builds_all_rikishi_points_and_size_report(tmp_path: Path) -> None:
+def test_write_master_data_builds_all_rikishi_points_and_size_report(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
     history = History(
         {
             Date(Year(1980), Month(1)): basho_state(
@@ -40,6 +43,13 @@ def test_write_master_data_builds_all_rikishi_points_and_size_report(tmp_path: P
             str(Chii.from_str("Jd1e").ordinal()): 902.0,
             str(Chii.from_str("Jd2w").ordinal()): 903.0,
             str(Chii.from_str("Ms60w").ordinal()): 1200.0,
+        },
+    )
+    monkeypatch.setattr(
+        "src.products.make_site2.perf_chart.build.make_public_shikona",
+        lambda history: {
+            RikId(1): Shikona("Alpha"),
+            RikId(2): Shikona("Beta"),
         },
     )
 
@@ -71,6 +81,42 @@ def test_write_master_data_builds_all_rikishi_points_and_size_report(tmp_path: P
     assert report["max_points_per_rikishi"] == 2
     assert report["raw_bytes"] == output.data_path.stat().st_size
     assert report["gzip_bytes"] < report["raw_bytes"]
+
+
+def test_make_js_input_keeps_rikishi_id_and_public_shikona_separate() -> None:
+    date = Date(Year(1980), Month(1))
+    history = History(
+        {
+            date: basho_state(
+                {
+                    RikId(7701): ("Fred", "J1e"),
+                    RikId(7702): ("Fred", "J1w"),
+                }
+            ),
+        }
+    )
+    equelo_lookup = EqueloLookup.build(
+        history=history,
+        day_end_ratings={},
+        entrant_initial_ratings={
+            str(Chii.from_str("J1e").ordinal()): 1100.0,
+            str(Chii.from_str("J1w").ordinal()): 1101.0,
+        },
+    )
+    public_shikona_by_rikid = {
+        RikId(7701): Shikona("Fred Senior"),
+        RikId(7702): Shikona("Fred Junior"),
+    }
+
+    assert make_js_input(
+        history=history,
+        dates=(date,),
+        equelo_lookup=equelo_lookup,
+        public_shikona_by_rikid=public_shikona_by_rikid,
+    ) == {
+        "7701": [["1980/01", "Fred Senior", "J1e", 1100.0]],
+        "7702": [["1980/01", "Fred Junior", "J1w", 1101.0]],
+    }
 
 
 def test_equelo_lookup_returns_before_and_after_ratings_without_optional_gap() -> None:

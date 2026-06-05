@@ -8,6 +8,8 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from src.analysis.equelo.api import EqueloLookup, EqueloTiming
+from src.infra.get_bios.make_public_shikona import make_public_shikona
+from src.sumo_core.BasicPrimitives import RikId, Shikona
 from src.sumo_core.History import Date, History
 
 
@@ -54,13 +56,35 @@ def build_master_payload(
     """Return compact all-rikishi trajectory rows keyed by rikishi id."""
 
     dates = tuple(sorted(history.keys()))
+    return {
+        "schema_version": 1,
+        "columns": ("date", "shikona", "chii", "equelo"),
+        "date_range": date_range(dates),
+        "points_by_rikishi": make_js_input(
+            history=history,
+            dates=dates,
+            equelo_lookup=equelo_lookup,
+            public_shikona_by_rikid=make_public_shikona(history),
+        ),
+    }
+
+
+def make_js_input(
+    *,
+    history: History,
+    dates: tuple[Date, ...],
+    equelo_lookup: EqueloLookup,
+    public_shikona_by_rikid: dict[RikId, Shikona],
+) -> dict[str, list[list[object]]]:
+    """Return the browser trajectory input expected by Career Comparisons."""
+
     points_by_rikishi: dict[str, list[list[object]]] = {}
 
-    for index, date in enumerate(dates):
+    for date in dates:
         basho = history(date)
         for rikishi_id in sorted(basho.banzuke.riks, key=int):
             chii = basho.banzuke.rikchii[rikishi_id]
-            shikona = basho.banzuke.rikshik[rikishi_id]
+            shikona = public_shikona_by_rikid[rikishi_id]
             rating = equelo_lookup.get_equelo(
                 rikid=rikishi_id,
                 date=date,
@@ -71,12 +95,7 @@ def build_master_payload(
                 [str(date), str(shikona), str(chii), rating]
             )
 
-    return {
-        "schema_version": 1,
-        "columns": ("date", "shikona", "chii", "equelo"),
-        "date_range": date_range(dates),
-        "points_by_rikishi": points_by_rikishi,
-    }
+    return points_by_rikishi
 
 
 def date_range(dates: tuple[Date, ...]) -> dict[str, str]:

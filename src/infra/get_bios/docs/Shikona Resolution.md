@@ -135,11 +135,13 @@ The duplicate test should be global over History shikona values, not local to a 
 The production implementation should expose a deterministic resolver, for example:
 
 ```python
-def make_public_shikona(history: History, bios: BioStore) -> dict[RikId, Shikona]:
+def make_public_shikona(history: History) -> dict[RikId, Shikona]:
     ...
 ```
 
-The implementation should be pure or effectively pure: given the same History and BioStore inputs, it should always produce the same public shikona mapping.
+The public API should hide `BioStore` from publication callers. `get_bios` owns
+the cache read. Given the same History and the same parsed `get_bios` cache, it
+should always produce the same public shikona mapping.
 
 ## Pseudocode
 
@@ -164,6 +166,9 @@ def build_public_shikona_map(history, bios):
 
     return public_shikona_by_rikid
 ```
+
+The production module may keep an explicit-BioStore helper for tests or cache
+checks, but normal consumers should call `make_public_shikona(history)`.
 
 ## Useful tests
 

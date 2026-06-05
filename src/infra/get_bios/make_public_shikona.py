@@ -5,7 +5,7 @@ This module is the production counterpart to the exploratory shikona
 normalisation probe.  The probe is evidence for the rule; this module owns the
 small deterministic transformation needed by the application:
 
-    History + BioStore -> dict[RikId, Shikona]
+    History -> dict[RikId, Shikona]
 
 History owns the normal public shikona value.  BioStore owns the facts that are
 not part of History: whether a rikishi has retired, and the rikishi's full
@@ -25,14 +25,27 @@ from src.sumo_core.History import Date, History
 DEMO_RIKIDS = (RikId(1123), RikId(12231))
 
 
-def make_public_shikona(history: History, bios: BioStore) -> dict[RikId, Shikona]:
+def make_public_shikona(history: History) -> dict[RikId, Shikona]:
     """
     Return the public-facing shikona for every rikishi represented in History.
 
     The normal public shikona is the latest shikona recorded for the rikishi in
     the supplied History.  If that History shikona is non-unique, the latest
     holder keeps the History shikona and earlier holders use their full latest
-    shikona from BioStore.
+    shikona from the get_bios cache.
+    """
+    return make_public_shikona_from_bios(history, load_bio_store())
+
+
+def make_public_shikona_from_bios(
+    history: History,
+    bios: BioStore,
+) -> dict[RikId, Shikona]:
+    """
+    Return public-facing shikona using an explicit BioStore.
+
+    This helper keeps the transformation testable while leaving publication
+    callers with the simpler History-only API.
     """
     history_shikona_by_rikid = make_history_shikona_by_rikid(history)
     latest_holder_by_history_shikona = make_latest_holder_by_history_shikona(history)
@@ -105,7 +118,7 @@ def make_latest_holder_by_history_shikona(history: History) -> dict[Shikona, Rik
 
 def main() -> None:
     """Print sample public shikona values for manual inspection."""
-    public_shikona_by_rikid = make_public_shikona(get_history(), load_bio_store())
+    public_shikona_by_rikid = make_public_shikona(get_history())
 
     for rikid in DEMO_RIKIDS:
         print(f"{rikid}: {public_shikona_by_rikid[rikid]}")
