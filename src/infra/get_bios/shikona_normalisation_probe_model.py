@@ -16,6 +16,7 @@ from dataclasses import dataclass
 class BioRecord:
     rikid: str
     latest_shikona: str | None
+    sumodb_search_shikona: str | None
     latest_shikona_first_used: str | None
     hatsu_dohyo: str | None
     intai: str | None
@@ -149,6 +150,7 @@ def parse_bio_records(raw: object, *, full_shikona: bool = False) -> list[BioRec
                     latest_shikona,
                     full_shikona=full_shikona,
                 ),
+                sumodb_search_shikona=public_shikona_key(latest_shikona),
                 latest_shikona_first_used=latest_shikona_first_used,
                 hatsu_dohyo=optional_text(record["Hatsu Dohyo"]),
                 intai=optional_text(record["Intai"]),
