@@ -56,13 +56,13 @@ NAVIGATION = NavigationTree(
             "current-sumo",
             nav(
                 "banzuke_changes",
-                "Banzuke Changes",
+                "Most Recent Banzuke",
                 "banzuke-changes",
                 page_id="banzuke_changes",
             ),
             nav(
                 "standings_by_wins",
-                "Standings by Wins",
+                "Rolling Wins-Based Ranking",
                 "standings-by-wins",
                 page_id="standings_by_wins",
             ),
@@ -94,7 +94,7 @@ NAVIGATION = NavigationTree(
             ),
             nav(
                 "career_comparisons",
-                "Career Comparisons",
+                "Rikishi History",
                 "career-comparisons",
                 page_id="career_comparisons",
             ),
@@ -111,20 +111,20 @@ NAVIGATION = NavigationTree(
                 "banzuke-structure-over-time",
                 nav(
                     "banzuke_division_by_era",
-                    "Banzuke Division by Era",
+                    "Banzuke Structure by Era",
                     "banzuke-division-by-era",
                     page_id="banzuke_division_by_era",
                 ),
                 nav(
                     "makuuchi_rank_by_era",
-                    "Makuuchi Rank by Era",
+                    "Makuuchi Structure by Era",
                     "makuuchi-rank-by-era",
                     page_id="makuuchi_rank_by_era",
                 ),
             ),
             nav(
                 "division_stability",
-                "Division Stability",
+                "Division Persistence",
                 "division-stability",
                 page_id="division_stability",
             ),
@@ -148,11 +148,11 @@ NAVIGATION = NavigationTree(
             "performance",
             nav(
                 "finish_by_chii",
-                "Finish by Chii",
+                "Wins: Finish Chances",
                 "finish-by-chii",
                 page_id="finish_by_chii",
             ),
-            nav("win_probability_by_standing_observed", "Win Probability by Standing", "win-probability-by-standing"),
+            nav("win_probability_by_standing_observed", "Win Probability by Ranks", "win-probability-by-standing"),
             nav(
                 "career_outcomes",
                 "Career Outcomes",
@@ -210,7 +210,7 @@ NAVIGATION = NavigationTree(
                 "observed-vs-modelled",
                 nav(
                     "win_probability_by_standing",
-                    "Win Probability by Standing",
+                    "Win Probability by Ranks",
                     "win-probability-by-standing",
                     page_id="win_probability_by_standing",
                 ),

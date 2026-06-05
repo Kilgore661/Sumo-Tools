@@ -8,18 +8,15 @@ import { PLOTLY_CONFIG } from "./shared.js";
 function renderFinishByChiiChart(artifact, state, filters, rowsBySource) {
   const rows = finishByChiiRows(artifact, state, rowsBySource);
   if (!rows.length) {
-    return '<p>No Finish by Chii data matches the selected options.</p>';
+    return '<p>No Finish Chances data matches the selected options.</p>';
   }
   const divisionLabel = filterValueLabel(filters, "division", state.division) || rows[0].division;
   const directionLabel = state.direction === "bottom" ? "Bottom" : "Top";
-  const probabilityLabel = state.direction === "bottom"
-    ? "No better than nth-worst"
-    : "No worse than nth";
   const sampleSize = rows[0].n || "";
   return [
     '<div class="artifact-title-block">',
-    `<h4>${escapeHtml(divisionLabel)} ${escapeHtml(state.chii)}: ${escapeHtml(directionLabel)} finish</h4>`,
-    `<div>${escapeHtml(probabilityLabel)} by wins, sample size ${escapeHtml(sampleSize)}</div>`,
+    `<h4>${escapeHtml(divisionLabel)} ${escapeHtml(state.chii)}: ${escapeHtml(directionLabel)} Finish Chances</h4>`,
+    `<p>Historical probability of finishing at position N = 1,...,10 by wins; sample size n = ${escapeHtml(sampleSize)}.</p>`,
     '</div>',
     '<div id="finish-by-chii-chart" class="plotly-chart"></div>'
   ].join("");
@@ -56,7 +53,9 @@ function renderFinishByChiiPlot(artifact, state, rowsBySource) {
     plot_bgcolor: "rgba(0,0,0,0)",
     margin: { l: 64, r: 26, t: 18, b: 58 },
     xaxis: {
-      title: state.direction === "top" ? "No worse than n" : "No better than nth-worst",
+      title: state.direction === "top"
+        ? "Finish Position N, no worse than"
+        : "Finish Position N, no better than",
       tickmode: "linear",
       dtick: 1,
       gridcolor: "rgba(127,149,192,0.22)",

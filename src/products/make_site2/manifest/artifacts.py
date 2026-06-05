@@ -36,7 +36,7 @@ def standings_source(window: str) -> SelectedTableDataSource:
 
 
 BANZUKE_CHANGES_ARTIFACT = BanzukeChangesArtifact(
-    id="banzuke_changes", heading="Banzuke Changes", kind="banzuke_changes", renderer="banzuke_changes_table",
+    id="banzuke_changes", heading="Most Recent Banzuke", kind="banzuke_changes", renderer="banzuke_changes_table",
     config_source=DataSource(id="site_config", label="Site Config", path="current-sumo/banzuke-changes/site_config.json", media_type="application/json"),
     rows_source=DataSource(id="banzuke_change_report", label="Banzuke Change Report", path="current-sumo/banzuke-changes/data/banzuke_change_report.csv", media_type="text/csv"),
     notes=(
@@ -47,7 +47,7 @@ BANZUKE_CHANGES_ARTIFACT = BanzukeChangesArtifact(
 )
 
 STANDINGS_BY_WINS_ARTIFACT = StandingsArtifact(
-    id="standings_by_wins", heading="Standings by Wins", kind="standings", renderer="standings_table", selector_filter_id="current_num_basho",
+    id="standings_by_wins", heading="Rolling Wins-Based Ranking", kind="standings", renderer="standings_table", selector_filter_id="current_num_basho",
     config_source=DataSource(id="site_config", label="Site Config", path="current-sumo/standings-by-wins/data/site_config.json", media_type="application/json"),
     data_sources=tuple(standings_source(value.value) for value in STANDINGS_WINDOW_VALUES),
     column_groups=(
@@ -57,8 +57,8 @@ STANDINGS_BY_WINS_ARTIFACT = StandingsArtifact(
     ),
     columns=(
         TableColumn(id="row_number", heading="#", group="identity", always_visible=True, sort_kind="none", align="center"),
-        TableColumn(id="shikona", heading="Shikona", source_field="shikona", group="identity", always_visible=True, sort_key="shikona", sort_kind="text", note_id="note_identity"),
-        TableColumn(id="chii", heading="Chii", source_field="chii", group="identity", always_visible=True, sort_key="chii_ordinal", sort_kind="chii_ordinal", note_id="note_identity"),
+        TableColumn(id="shikona", heading="Shikona", source_field="shikona", group="identity", help="Current rikishi. See Notes.", always_visible=True, sort_key="shikona", sort_kind="text", note_id="note_identity"),
+        TableColumn(id="chii", heading="Chii", source_field="chii", group="identity", help="Current rikishi. See Notes.", always_visible=True, sort_key="chii_ordinal", sort_kind="chii_ordinal", note_id="note_identity"),
         TableColumn(id="credited_wins", heading="Wins", source_field="credited_wins", group="identity", always_visible=True, sort_key="credited_wins", sort_kind="numeric", align="right", note_id="note_wins"),
         TableColumn(id="selected_average_credited_wins", heading="Average", source_field="selected_average_credited_wins", group="wins_per_basho", sort_key="selected_average_credited_wins", sort_kind="numeric", align="right"),
         TableColumn(id="selected_average_rank", heading="#", source_field="selected_average_credited_wins", group="wins_per_basho", sort_key="selected_average_credited_wins", sort_kind="numeric", align="right"),
@@ -107,7 +107,7 @@ BASHO_RESULTS_ARTIFACT = IndexedTableArtifact(
 )
 
 FINISH_BY_CHII_ARTIFACT = ChartArtifact(
-    id="finish_by_chii", heading="Finish by Chii", kind="chart", renderer="finish_by_chii_chart",
+    id="finish_by_chii", heading="Finish Chances by Wins", kind="chart", renderer="finish_by_chii_chart",
     data_binding=DataBinding(kind="csv_set", sources=("top_thresholds", "bottom_thresholds")),
     data_sources=(
         DataSource(id="top_thresholds", label="Top finish thresholds", path="performance/finish-by-chii/data/top_thresholds.csv", media_type="text/csv"),
@@ -116,33 +116,33 @@ FINISH_BY_CHII_ARTIFACT = ChartArtifact(
 )
 
 BANZUKE_DIVISION_BY_ERA_ARTIFACT = ChartArtifact(
-    id="banzuke_division_by_era", heading="Banzuke Division by Era", kind="chart", renderer="stacked_bar_chart",
+    id="banzuke_division_by_era", heading="Average Banzuke Composition by Era", kind="chart", renderer="stacked_bar_chart",
     data_binding=DataBinding(kind="csv", sources=("divisions",)),
     data_sources=(DataSource(id="divisions", label="Average banzuke composition by era", path="banzuke-rank/banzuke-structure-over-time/banzuke-division-by-era/data/divisions.csv", media_type="text/csv"),),
     traces=(ChartTrace(id="division_average", label="Division average", kind="stacked_bar", x="era", y="average_rikishi", group_by="division"),),
     x_axis=ChartAxis(id="x", source_field="era", label="Era", order_values=("1958-1967", "1968-1977", "1978-1987", "1988-1997", "1998-2007", "2008-2017", "2018-2026")),
     y_axis=ChartAxis(id="y", source_field="average_rikishi", label="Average rikishi per basho", minimum=0),
-    provenance={"legend_title": "Division", "stack_order": ("Jonokuchi", "Jonidan", "Sandanme", "Makushita", "Juryo", "Makuuchi"), "x_tickangle": -45, "group_colours": {"Makuuchi": "#6D597A", "Juryo": "#355C7D", "Makushita": "#457B9D", "Sandanme": "#2A9D8F", "Jonidan": "#8D6A9F", "Jonokuchi": "#BC6C25"}},
+    provenance={"subheading": "Average rikishi per basho, grouped by division.", "legend_title": "Division", "stack_order": ("Jonokuchi", "Jonidan", "Sandanme", "Makushita", "Juryo", "Makuuchi"), "x_tickangle": -45, "group_colours": {"Makuuchi": "#6D597A", "Juryo": "#355C7D", "Makushita": "#457B9D", "Sandanme": "#2A9D8F", "Jonidan": "#8D6A9F", "Jonokuchi": "#BC6C25"}},
 )
 
 MAKUUCHI_RANK_BY_ERA_ARTIFACT = ChartArtifact(
-    id="makuuchi_rank_by_era", heading="Makuuchi Rank by Era", kind="chart", renderer="stacked_bar_chart",
+    id="makuuchi_rank_by_era", heading="Makuuchi Rank Appearances by Era", kind="chart", renderer="stacked_bar_chart",
     data_binding=DataBinding(kind="csv", sources=("ranks",)),
     data_sources=(DataSource(id="ranks", label="Rank appearances by era", path="banzuke-rank/banzuke-structure-over-time/makuuchi-rank-by-era/data/ranks.csv", media_type="text/csv"),),
     traces=(ChartTrace(id="era_counts", label="Era counts", kind="stacked_bar", x="rank", y="count", group_by="era"),),
     x_axis=ChartAxis(id="x", source_field="rank", label="Rank"),
     y_axis=ChartAxis(id="y", source_field="count", label="Appearances", minimum=0),
-    provenance={"legend_title": "Era", "group_order": ("1958-1967", "1968-1977", "1978-1987", "1988-1997", "1998-2007", "2008-2017", "2018-2026"), "x_tickangle": -45},
+    provenance={"subheading": "Count of banzuke appearances at each Makuuchi rank.", "legend_title": "Era", "group_order": ("1958-1967", "1968-1977", "1978-1987", "1988-1997", "1998-2007", "2008-2017", "2018-2026"), "x_tickangle": -45},
 )
 
 DIVISION_STABILITY_ARTIFACT = ChartArtifact(
-    id="division_stability", heading="Division Stability", kind="chart", renderer="grouped_line_chart",
+    id="division_stability", heading="Division Persistence", kind="chart", renderer="grouped_line_chart",
     data_binding=DataBinding(kind="csv", sources=("persistence",)),
     data_sources=(DataSource(id="persistence", label="Division persistence", path="banzuke-rank/division-stability/data/persistence.csv", media_type="text/csv"),),
     traces=(ChartTrace(id="mean_persistence", label="Mean persistence", kind="scatter", x="date", y="mean_persistence", group_by="division"),),
     x_axis=ChartAxis(id="x", source_field="date", label="Basho"),
     y_axis=ChartAxis(id="y", source_field="mean_persistence", label="Mean persistence", minimum=0, maximum=1, tickformat=".0%"),
-    provenance={"legend_title": "Division", "default_visible": ("Makuuchi",), "group_order": ("Makuuchi", "Juryo", "Makushita", "Sandanme", "Jonidan", "Jonokuchi"), "hover_fields": ("num_basho", "frequency", "stdev_persistence"), "x_tickangle": -45},
+    provenance={"subheading": "How consistently each basho's division members stayed in the same division across that basho and the previous 10.", "legend_title": "Division", "default_visible": ("Makuuchi",), "group_order": ("Makuuchi", "Juryo", "Makushita", "Sandanme", "Jonidan", "Jonokuchi"), "hover_fields": ("num_basho", "frequency", "stdev_persistence"), "x_tickangle": -45},
 )
 
 FIRST_CHII_APPEARANCE_ARTIFACT = ChartArtifact(
@@ -189,7 +189,7 @@ CAREER_LENGTH_ARTIFACT = ChartArtifact(
 )
 
 CAREER_COMPARISONS_ARTIFACT = ChartArtifact(
-    id="career_comparisons", heading="Career Comparisons", kind="chart", renderer="career_comparisons",
+    id="career_comparisons", heading="Rikishi History", kind="chart", renderer="career_comparisons",
     data_binding=DataBinding(kind="json", sources=("trajectory_master",)),
     data_sources=(
         DataSource(id="trajectory_master", label="Trajectory Master", path="rikishi/career-comparisons/data/trajectory_master.json", media_type="application/json"),
@@ -226,14 +226,14 @@ TYPICAL_EQUELO_VALUES_ARTIFACT = SectionedTableArtifact(
 )
 
 WIN_PROBABILITY_BY_STANDING_ARTIFACT = ChartArtifact(
-    id="win_probability_by_standing", heading="Win Probability by Standing", kind="chart", renderer="standing_win_probability_chart",
+    id="win_probability_by_standing", heading="Win Probability by Ranks", kind="chart", renderer="standing_win_probability_chart",
     data_binding=DataBinding(kind="selected_csv", sources=("observed", "equelo")),
     data_sources=(
         DataSource(id="observed", label="Observed", path="ratings-models/observed-vs-modelled/win-probability-by-standing/data/observed_trace_points.csv", media_type="text/csv"),
-        DataSource(id="equelo", label="Equelo", path="ratings-models/observed-vs-modelled/win-probability-by-standing/data/equelo_trace_points.csv", media_type="text/csv"),
+        DataSource(id="equelo", label="Predicted", path="ratings-models/observed-vs-modelled/win-probability-by-standing/data/equelo_trace_points.csv", media_type="text/csv"),
     ),
-    traces=(ChartTrace(id="standing_trace", label="Standing", kind="scatter", x="opponent_chii", y="p_selected_wins", group_by="selected_chii", error_y=("ci95_lower", "ci95_upper")),),
-    x_axis=ChartAxis(id="x", source_field="opponent_chii", label="Opponent sideless chii"),
-    y_axis=ChartAxis(id="y", source_field="p_selected_wins", label="P(selected standing wins)", minimum=0, maximum=1, tickformat=".0%"),
-    provenance={"default_display_trace": "Y1", "sanyaku_display": ("Y1", "O1", "S1", "K1"), "x_order_field": "opponent_ordinal", "selected_order_field": "selected_ordinal", "legend_title": "Selected chii"},
+    traces=(ChartTrace(id="standing_trace", label="Rank", kind="scatter", x="opponent_chii", y="p_selected_wins", group_by="selected_chii", error_y=("ci95_lower", "ci95_upper")),),
+    x_axis=ChartAxis(id="x", source_field="opponent_chii", label="Opponent Rank"),
+    y_axis=ChartAxis(id="y", source_field="p_selected_wins", label="P(selected rikishi wins)", minimum=0, maximum=1, tickformat=".0%"),
+    provenance={"default_display_trace": "Y1", "sanyaku_display": ("Y1", "O1", "S1", "K1"), "x_order_field": "opponent_ordinal", "selected_order_field": "selected_ordinal", "legend_title": "Selected Rank"},
 )

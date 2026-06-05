@@ -19,8 +19,8 @@ PAGES = PageRegistry(
     pages={
         "banzuke_changes": PageDefinition(
             id="banzuke_changes",
-            title="Banzuke Changes",
-            summary="New-banzuke change report.",
+            title="Most Recent Banzuke",
+            summary="",
             status=PageStatus.PROMOTED,
             artifact=artifact(
                 "banzuke_changes",
@@ -30,8 +30,8 @@ PAGES = PageRegistry(
         ),
         "standings_by_wins": PageDefinition(
             id="standings_by_wins",
-            title="Standings by Wins",
-            summary="Rolling recent-performance standings by wins.",
+            title="Rolling Wins-Based Ranking",
+            summary="Rikishi ranked by average wins over a selected number of recent basho.",
             status=PageStatus.PROMOTED,
             artifact=artifact(
                 "standings_by_wins",
@@ -41,8 +41,11 @@ PAGES = PageRegistry(
         ),
         "finish_by_chii": PageDefinition(
             id="finish_by_chii",
-            title="Finish by Chii",
-            summary="Historical finishing outcomes grouped by chii.",
+            title="Finish Chances by Wins",
+            summary=(
+                "How often rikishi at a selected chii finished near the top or "
+                "bottom of their division by wins."
+            ),
             status=PageStatus.PROMOTED,
             artifact=artifact(
                 "finish_by_chii",
@@ -52,22 +55,25 @@ PAGES = PageRegistry(
         ),
         "banzuke_division_by_era": PageDefinition(
             id="banzuke_division_by_era",
-            title="Banzuke Division by Era",
-            summary="Historical banzuke division structure by era.",
+            title="Banzuke Structure by Era",
+            summary="How the size and division makeup of the banzuke changed over time.",
             status=PageStatus.PROMOTED,
             artifact=artifact("banzuke_division_by_era", "chart"),
         ),
         "makuuchi_rank_by_era": PageDefinition(
             id="makuuchi_rank_by_era",
-            title="Makuuchi Rank by Era",
-            summary="Historical Makuuchi rank structure by era.",
+            title="Makuuchi Structure by Era",
+            summary="How the lower edge of the top division changed over time.",
             status=PageStatus.PROMOTED,
             artifact=artifact("makuuchi_rank_by_era", "chart"),
         ),
         "division_stability": PageDefinition(
             id="division_stability",
-            title="Division Stability",
-            summary="Historical continuity within divisions.",
+            title="Division Persistence",
+            summary=(
+                "How consistently each basho's division members stayed in the "
+                "same division across that basho and the previous 10."
+            ),
             status=PageStatus.PROMOTED,
             artifact=artifact("division_stability", "chart"),
         ),
@@ -83,8 +89,8 @@ PAGES = PageRegistry(
         ),
         "career_comparisons": PageDefinition(
             id="career_comparisons",
-            title="Career Comparisons",
-            summary="Compare rikishi career trajectories by chii or Equelo.",
+            title="Rikishi History",
+            summary="Progress from hatsu dohyo to current date/intai.",
             status=PageStatus.PROMOTED,
             artifact=artifact(
                 "career_comparisons",
@@ -94,8 +100,8 @@ PAGES = PageRegistry(
         ),
         "win_probability_by_standing": PageDefinition(
             id="win_probability_by_standing",
-            title="Win Probability by Standing",
-            summary="Probability of winning as a function of standing.",
+            title="Win Probability by Ranks",
+            summary="How likely is one rikishi to beat another based on rank?",
             status=PageStatus.PROMOTED,
             artifact=artifact(
                 "win_probability_by_standing",

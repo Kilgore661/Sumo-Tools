@@ -1,6 +1,7 @@
 // Basho Results recursive table rendering.
 
 import { escapeHtml } from "../../utils/html.js";
+import { renderLabelWithHelp } from "../help.js";
 import { PRESENTATION } from "./table-spec.js";
 import {
   currentBashoResultsSortState,
@@ -66,14 +67,14 @@ function renderNestedHeaderCell(cell, leaf, sortState) {
     `style="text-align: ${alignment};"`,
   ];
   if (!isSortableLeaf(leaf)) {
-    return `<th ${attributes.join(" ")}>${escapeHtml(cell.label)}</th>`;
+    return `<th ${attributes.join(" ")}>${renderLabelWithHelp(cell.label, cell.help)}</th>`;
   }
   const active = sortState?.path === leaf.path;
   const direction = active ? sortState.direction : "none";
   const indicator = active ? (sortState.direction === "ascending" ? " \u25B2" : " \u25BC") : "";
   const escapedLabel = escapeHtml(cell.label);
   const reservedSortText = `${escapedLabel} \u25BC`;
-  const visibleSortText = `${escapedLabel}${indicator}`;
+  const visibleSortText = `${renderLabelWithHelp(cell.label, cell.help)}${indicator}`;
   return [
     `<th ${attributes.join(" ")} aria-sort="${direction}">`,
     `<button type="button" class="table-sort-button" data-basho-results-sort-path="${escapeHtml(leaf.path)}" style="display: inline-grid; place-items: center; ${buttonMarginStyle(alignment)} text-align: ${alignment};">`,
@@ -102,6 +103,7 @@ function appendHeaderCells(rows, nodes, path, visiblePaths, depth, level) {
       rows[level].push({
         colspan: childLeaves.length,
         label: node.label || node.key,
+        help: node.help || "",
         path: pathText,
         rowspan: 1,
       });
@@ -110,6 +112,7 @@ function appendHeaderCells(rows, nodes, path, visiblePaths, depth, level) {
       rows[level].push({
         colspan: 1,
         label: node.label || node.key,
+        help: node.help || "",
         path: pathText,
         rowspan: depth - level,
       });

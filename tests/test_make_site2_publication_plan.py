@@ -157,7 +157,7 @@ def test_navigation_bar_uses_canonical_default_view_links_without_rendering_page
     assert basho_results.included
     assert basho_results.href == (
         "?page=basho_results_browser&basho=latest&division=makuuchi"
-        "&previous=false&ratings=false&nu_chii=false"
+        "&previous=false&changes=true&ratings=false&analysis=false&nu_chii=false"
     )
     assert rank_at_retirement.included
     assert rank_at_retirement.href == "?page=rank_at_retirement"
@@ -242,7 +242,9 @@ def test_runtime_manifest_declares_brb_ui_and_artifact_semantics() -> None:
         "basho_date",
         "division",
         "previous_context",
+        "changes_context",
         "rating_context",
+        "analysis_context",
         "nu_chii",
     ]
     assert filters[0]["control"] == "select"
@@ -482,9 +484,15 @@ def test_brb_filter_defaults_and_url_keys_match_current_public_site() -> None:
     assert filters["previous_context"]["default"] is False
     assert filters["previous_context"]["control"] == "checkbox"
     assert filters["previous_context"]["url_key"] == "previous"
+    assert filters["changes_context"]["default"] is True
+    assert filters["changes_context"]["control"] == "checkbox"
+    assert filters["changes_context"]["url_key"] == "changes"
     assert filters["rating_context"]["default"] is False
     assert filters["rating_context"]["control"] == "checkbox"
     assert filters["rating_context"]["url_key"] == "ratings"
+    assert filters["analysis_context"]["default"] is False
+    assert filters["analysis_context"]["control"] == "checkbox"
+    assert filters["analysis_context"]["url_key"] == "analysis"
     assert filters["nu_chii"]["default"] is False
     assert filters["nu_chii"]["control"] == "checkbox"
     assert filters["nu_chii"]["url_key"] == "nu_chii"

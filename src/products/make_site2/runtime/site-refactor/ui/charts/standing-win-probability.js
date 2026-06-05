@@ -4,7 +4,7 @@ import { compareValues } from "../tables.js";
 import { escapeHtml } from "../../utils/html.js";
 import { PLOTLY_CONFIG, axisRange } from "./shared.js";
 
-// Render the title and Plotly host for the selected standing win probability source.
+// Render the title and Plotly host for the selected rank win probability source.
 function renderStandingWinProbabilityChart(artifact, state, rowsBySource) {
   const source = selectedStandingSource(artifact, state);
   const rows = rowsBySource[source.id] || [];
@@ -13,8 +13,7 @@ function renderStandingWinProbabilityChart(artifact, state, rowsBySource) {
   }
   return [
     '<div class="artifact-title-block">',
-    `<h4>${escapeHtml(artifact.heading)}</h4>`,
-    `<div>${escapeHtml(source.label)} source</div>`,
+    `<h4>Win Probability (${escapeHtml(source.label)})</h4>`,
     '</div>',
     '<div id="standing-win-probability-chart" class="plotly-chart"></div>',
   ].join("");
@@ -159,18 +158,18 @@ function standingWinProbabilityCustomData(source, row) {
 function standingWinProbabilityHoverTemplate(source) {
   if (source.id === "observed") {
     return [
-      "Selected=%{customdata[0]}",
-      "Opponent=%{customdata[1]}",
-      "P(selected wins)=%{y:.3f}",
+      "Selected Rank=%{customdata[0]}",
+      "Opponent Rank=%{customdata[1]}",
+      "P(selected rikishi wins)=%{y:.3f}",
       "CI95=[%{customdata[5]:.3f}, %{customdata[6]:.3f}]",
       "Wins=%{customdata[4]:,} / %{customdata[3]:,}",
       "<extra></extra>",
     ].join("<br>");
   }
   return [
-    "Selected=%{customdata[0]}",
-    "Opponent=%{customdata[1]}",
-    "P(selected wins)=%{y:.3f}",
+    "Selected Rank=%{customdata[0]}",
+    "Opponent Rank=%{customdata[1]}",
+    "P(selected rikishi wins)=%{y:.3f}",
     "Selected rating=%{customdata[3]:.1f}",
     "Opponent rating=%{customdata[4]:.1f}",
     "<extra></extra>",

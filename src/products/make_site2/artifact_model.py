@@ -56,6 +56,7 @@ class ChartAxis:
     id: str
     source_field: str
     label: str
+    help: str = ""
     order_values: tuple[str, ...] = ()
     minimum: float | None = None
     maximum: float | None = None
@@ -67,6 +68,7 @@ class ColumnGroup:
     id: str
     heading: str
     columns: tuple[str, ...]
+    help: str = ""
     always_visible: bool = False
     controlling_filter_id: str | None = None
 
@@ -77,6 +79,7 @@ class TableColumn:
     heading: str
     source_field: str | None = None
     group: str | None = None
+    help: str = ""
     always_visible: bool = False
     sort_key: str | None = None
     sort_kind: str = "text"

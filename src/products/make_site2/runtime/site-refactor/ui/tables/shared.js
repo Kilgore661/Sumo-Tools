@@ -1,6 +1,7 @@
 // Shared table sorting, heading and cell-link helpers.
 
 import { escapeHtml } from "../../utils/html.js";
+import { renderLabelWithHelp } from "../help.js";
 
 const tableSortStates = new Map();
 
@@ -85,14 +86,14 @@ function recordWins(value) {
 // Render a sortable or static table heading cell.
 function renderTableHeading(column, sortState) {
   const attributes = tableCellAttributes(column);
-  if (!isSortableColumn(column)) return `<th ${attributes}>${escapeHtml(column.heading)}</th>`;
+  if (!isSortableColumn(column)) return `<th ${attributes}>${renderLabelWithHelp(column.heading, column.help)}</th>`;
   const active = sortState?.columnId === column.id;
   const direction = active ? sortState.direction : "none";
   const indicator = active ? (sortState.direction === "ascending" ? " \u25B2" : " \u25BC") : "";
   return [
     `<th ${attributes} aria-sort="${direction}">`,
     `<button type="button" class="table-sort-button" data-sort-column="${escapeHtml(column.id)}">`,
-    escapeHtml(column.heading),
+    renderLabelWithHelp(column.heading, column.help),
     `<span class="table-sort-indicator" aria-hidden="true">${indicator}</span>`,
     '</button>',
     '</th>',

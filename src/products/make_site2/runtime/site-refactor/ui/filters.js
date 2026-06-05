@@ -3,6 +3,7 @@
 import { contentPanel } from "../core/dom.js";
 import { writePanelUrl } from "../core/url-state.js";
 import { escapeHtml } from "../utils/html.js";
+import { renderLabelWithHelp } from "./help.js";
 
 function filterValueLabel(filters, filterId, value) {
   const filter = filters.find(candidate => candidate.id === filterId);
@@ -104,7 +105,7 @@ function renderFilter(filter, state, index, rowsBySource = {}) {
     return [
       '<label class="checkbox-control">',
       `<input type="checkbox" name="${escapeHtml(filter.id)}"${state[filter.id] ? " checked" : ""}>`,
-      `<span>${escapeHtml(filter.label)}</span>`,
+      `<span>${renderLabelWithHelp(filter.label, filter.help)}</span>`,
       '</label>'
     ].join("");
   }
@@ -129,13 +130,13 @@ function selectedFilterValue(filter, state, index) {
 function renderRadioChoice(filter, values, selected) {
   return [
     `<div class="choice-control" role="group" aria-label="${escapeHtml(filter.label)}">`,
-    `<span class="choice-label">${escapeHtml(filter.label)}</span>`,
+    `<span class="choice-label">${renderLabelWithHelp(filter.label, filter.help)}</span>`,
     '<ul class="choice-list">',
     ...values.map(value => [
       '<li>',
       '<label class="radio-control">',
       `<input type="radio" name="${escapeHtml(filter.id)}" value="${escapeHtml(value.value)}"${value.value === selected ? " checked" : ""}>`,
-      `<span>${escapeHtml(value.label)}</span>`,
+      `<span>${renderLabelWithHelp(value.label, value.help, `${filter.label} ${value.label}`)}</span>`,
       '</label>',
       '</li>',
     ].join("")),
@@ -146,7 +147,7 @@ function renderRadioChoice(filter, values, selected) {
 function renderDropdownChoice(filter, values, selected) {
   return [
     '<label class="filter-control">',
-    `<span>${escapeHtml(filter.label)}</span>`,
+    `<span>${renderLabelWithHelp(filter.label, filter.help)}</span>`,
     `<select name="${escapeHtml(filter.id)}">`,
     ...values.map(value => {
       const selectedAttr = value.value === selected ? " selected" : "";

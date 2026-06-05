@@ -30,7 +30,7 @@ function bashoResultsHeader(title, entry) {
 function bashoResultsSubheading(entry) {
   const latestDay = Number(entry?.latest_day);
   if (latestDay && latestDay < 15) return `After Day ${latestDay}`;
-  return "Final";
+  return "";
 }
 
 // Adjust the selected-context heading for in-progress versus final basho output.

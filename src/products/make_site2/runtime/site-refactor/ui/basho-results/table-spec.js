@@ -14,7 +14,7 @@ const PRESENTATION = {
 const PRIZE_DISPLAY_ORDER = ["Y", "D", "J", "K", "S", "G"];
 
 const TRANSITIONAL_TABLE_SPEC = [
-  group("reference", "Reference", [
+  group("reference", "", [
     column("row_number", "#", { sort_kind: "none", presentation: PRESENTATION.NUMERIC_MAGNITUDE }),
     column("shikona", "Shikona", { sort_kind: "text", presentation: PRESENTATION.NAME }),
   ]),
@@ -27,20 +27,26 @@ const TRANSITIONAL_TABLE_SPEC = [
       presentation: PRESENTATION.RANK_CODE,
     }),
   ]),
-  group("changes", "Changes", [
-    column("delta_equelo", "\u0394Eq", { sort_kind: "numeric", presentation: PRESENTATION.RATING }),
+  group("changes", "Next Basho", [
+    column("delta_equelo", "\u0394Eq", {
+      help: "Difference in rating.",
+      sort_kind: "numeric",
+      presentation: PRESENTATION.RATING,
+    }),
     group("movement", "\u21C5", [
       column("bp", "Chii", {
+        help: "See Notes.",
         sort_kind: "movement_symbol",
         sort_default_direction: "descending",
         presentation: PRESENTATION.MOVEMENT_SYMBOL,
       }),
       column("division", "Div", {
+        help: "See Notes.",
         sort_kind: "movement_symbol",
         sort_default_direction: "descending",
         presentation: PRESENTATION.MOVEMENT_SYMBOL,
       }),
-    ]),
+    ], { help: "See Notes." }),
   ]),
 ];
 
@@ -53,7 +59,7 @@ function recordSpec() {
           sort_path: "bp_ordinal",
           presentation: PRESENTATION.RANK_CODE,
         }),
-        column("equelo", "Eq", { sort_kind: "numeric", presentation: PRESENTATION.RATING }),
+        column("equelo", "Eq", { help: "Equelo rating.", sort_kind: "numeric", presentation: PRESENTATION.RATING }),
       ]),
       group("analysis", "Analysis", [
         group("banzuke_error", "\u0394BZ", [
@@ -80,12 +86,12 @@ function recordSpec() {
         sort_default_direction: "descending",
         presentation: PRESENTATION.COMPACT_TEXT,
       }),
-    ]),
+    ], { help: "See Notes." }),
   ];
 }
 
-function group(key, label, children) {
-  return { key, label, children };
+function group(key, label, children, options = {}) {
+  return { key, label, children, ...options };
 }
 
 function column(key, label, options = {}) {

@@ -36,7 +36,7 @@ class QuickLinkDeclaration:
 
 QUICK_LINKS: tuple[QuickLinkDeclaration, ...] = (
     QuickLinkDeclaration(page_id="basho_results_browser", label="Basho Results"),
-    QuickLinkDeclaration(page_id="banzuke_changes", label="Banzuke Changes"),
+    QuickLinkDeclaration(page_id="banzuke_changes", label="Most Recent Banzuke"),
     QuickLinkDeclaration(
         label="GOATs",
         href=(

@@ -1,6 +1,7 @@
 // Banzuke Changes table renderers and scan-table sort values.
 
 import { escapeHtml } from "../../utils/html.js";
+import { renderLabelWithHelp } from "../help.js";
 import {
   compareNullableSortValues,
   firstSortableColumn,
@@ -14,7 +15,7 @@ import {
 
 // Render Banzuke Changes in either banzuke-style or scan-table form.
 function renderBanzukeChangesTable(artifact, rows, state, config) {
-  const title = config.title || artifact.heading;
+  const title = banzukeTitle(config) || artifact.heading;
   const table = state.banzuke_style
     ? renderBanzukeStyleTable(rows, state)
     : renderBanzukeScanTable(artifact, rows, state);
@@ -24,6 +25,17 @@ function renderBanzukeChangesTable(artifact, rows, state, config) {
     '</div>',
     table,
   ].join("");
+}
+
+function banzukeTitle(config) {
+  if (!config.current_date) return config.title || "";
+  const [yearText, monthText] = String(config.current_date).split("/");
+  const year = Number(yearText);
+  const month = Number(monthText);
+  if (!year || !month) return config.title || "";
+  const monthName = new Date(year, month - 1, 1)
+    .toLocaleString("en-GB", { month: "long" });
+  return `The ${monthName} ${year} Banzuke`;
 }
 
 // Render the East/West banzuke-shaped report view.
@@ -39,8 +51,8 @@ function renderBanzukeStyleTable(rows, state) {
     `<th colspan="${westColumns.length}">West</th>`,
     '</tr>',
     '<tr>',
-    ...eastColumns.map(column => `<th>${escapeHtml(column.heading)}</th>`),
-    ...westColumns.map(column => `<th>${escapeHtml(column.heading)}</th>`),
+    ...eastColumns.map(column => `<th>${renderLabelWithHelp(column.heading, column.help)}</th>`),
+    ...westColumns.map(column => `<th>${renderLabelWithHelp(column.heading, column.help)}</th>`),
     '</tr>',
     '</thead>',
     '<tbody>',
@@ -85,17 +97,17 @@ function renderBanzukeScanTable(artifact, rows, state) {
 }
 
 function banzukeSideColumns(side, state) {
-  const identity = { id: "shikona", heading: "Shikona", side };
-  const direction = { id: "direction", heading: "\u21C5", side };
+  const identity = { id: "shikona", heading: "Shikona", help: "Rikishi fighting name.", side };
+  const direction = { id: "direction", heading: "\u21C5", help: "Banzuke movement.", side };
   const columns = [];
 
-  if (state.equelo) columns.push({ id: "equelo", heading: "Equelo", side });
+  if (state.equelo) columns.push({ id: "equelo", heading: "Equelo", help: "Model rating. See Ratings & Models.", side });
   if (state.context) {
     columns.push({ id: "old_chii", heading: "Previous Chii", side });
-    columns.push({ id: "result", heading: "Result", side });
+    columns.push({ id: "result", heading: "Result", help: "Result movement means rank-group movement. See Notes.", side });
   }
   columns.push(direction);
-  if (state.delta) columns.push({ id: "delta", heading: "Delta", side });
+  if (state.delta) columns.push({ id: "delta", heading: "Delta", help: "Size of movement. See Notes.", side });
 
   if (side === "east") return [...columns, identity];
   return [identity, ...columns.reverse()];
@@ -104,15 +116,15 @@ function banzukeSideColumns(side, state) {
 function banzukeScanColumns(state) {
   const columns = [
     { id: "chii", heading: "Chii", sort_kind: "chii_ordinal" },
-    { id: "shikona", heading: "Shikona", sort_kind: "text" },
-    { id: "direction", heading: "\u21C5", sort_kind: "text" },
+    { id: "shikona", heading: "Shikona", help: "Rikishi fighting name.", sort_kind: "text" },
+    { id: "direction", heading: "\u21C5", help: "Banzuke movement.", sort_kind: "text" },
   ];
-  if (state.delta) columns.push({ id: "delta", heading: "Delta", sort_kind: "numeric" });
+  if (state.delta) columns.push({ id: "delta", heading: "Delta", help: "Size of movement. See Notes.", sort_kind: "numeric" });
   if (state.context) {
-    columns.push({ id: "result", heading: "Result", sort_kind: "record" });
+    columns.push({ id: "result", heading: "Result", help: "Result movement means rank-group movement. See Notes.", sort_kind: "record" });
     columns.push({ id: "old_chii", heading: "Previous Chii", sort_kind: "chii_ordinal" });
   }
-  if (state.equelo) columns.push({ id: "equelo", heading: "Equelo", sort_kind: "numeric" });
+  if (state.equelo) columns.push({ id: "equelo", heading: "Equelo", help: "Model rating. See Ratings & Models.", sort_kind: "numeric" });
   return columns;
 }
 
@@ -209,6 +221,7 @@ function banzukeSideValue(row, side, columnId) {
 
 export {
   renderBanzukeChangesTable,
+  banzukeTitle,
   renderBanzukeStyleTable,
   renderBanzukeScanTable,
   banzukeSideColumns,

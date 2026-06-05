@@ -40,6 +40,7 @@ class NavigationBar:
 class FilterValue:
     value: str
     label: str
+    help: str = ""
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -60,6 +61,7 @@ class Filter:
     control: ControlKind
     default: str | bool
     url_key: str
+    help: str = ""
     values: tuple[FilterValue, ...] = ()
     values_source: FilterValuesSource | None = None
 

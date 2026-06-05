@@ -19,6 +19,7 @@ function renderStackedBarChart(artifact, rowsBySource) {
   return [
     '<div class="artifact-title-block">',
     `<h4>${escapeHtml(artifact.heading)}</h4>`,
+    renderArtifactSubheading(artifact),
     '</div>',
     `<div id="${escapeHtml(chartElementId(artifact))}" class="plotly-chart"></div>`,
   ].join("");
@@ -33,6 +34,7 @@ function renderGroupedLineChart(artifact, rowsBySource) {
   return [
     '<div class="artifact-title-block">',
     `<h4>${escapeHtml(artifact.heading)}</h4>`,
+    renderArtifactSubheading(artifact),
     '</div>',
     `<div id="${escapeHtml(chartElementId(artifact))}" class="plotly-chart"></div>`,
   ].join("");
@@ -47,6 +49,7 @@ function renderOrderedBarChart(artifact, rowsBySource) {
   return [
     '<div class="artifact-title-block">',
     `<h4>${escapeHtml(artifact.heading)}</h4>`,
+    renderArtifactSubheading(artifact),
     '</div>',
     `<div id="${escapeHtml(chartElementId(artifact))}" class="plotly-chart"></div>`,
   ].join("");
@@ -61,9 +64,15 @@ function renderCategoryBarChart(artifact, rowsBySource) {
   return [
     '<div class="artifact-title-block">',
     `<h4>${escapeHtml(artifact.heading)}</h4>`,
+    renderArtifactSubheading(artifact),
     '</div>',
     `<div id="${escapeHtml(chartElementId(artifact))}" class="plotly-chart"></div>`,
   ].join("");
+}
+
+function renderArtifactSubheading(artifact) {
+  const subheading = artifact.provenance?.subheading || "";
+  return subheading ? `<p>${escapeHtml(subheading)}</p>` : "";
 }
 
 function renderCategoryBarPlot(artifact, rowsBySource) {
@@ -450,6 +459,7 @@ export {
   renderGroupedLineChart,
   renderOrderedBarChart,
   renderCategoryBarChart,
+  renderArtifactSubheading,
   renderCategoryBarPlot,
   renderOrderedBarPlot,
   renderGroupedLinePlot,

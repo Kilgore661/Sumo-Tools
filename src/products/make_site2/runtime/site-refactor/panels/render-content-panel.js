@@ -50,6 +50,7 @@ function artifactForPAPanel(panel, artifact) {
 }
 
 function renderContentSummary(summary) {
+  if (!summary) return "";
   return `<h3 class="content-summary">${summary}</h3>`;
 }
 

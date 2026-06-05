@@ -35,7 +35,7 @@ BRB_FILTERS = (
         values=DIVISION_FILTER_VALUES,
     ),
     Filter(id="previous_context", label="Previous Basho", control="checkbox", default=False, url_key="previous"),
-    Filter(id="changes_context", label="Changes", control="checkbox", default=True, url_key="changes"),
+    Filter(id="changes_context", label="Next Basho", control="checkbox", default=True, url_key="changes"),
     Filter(id="rating_context", label="Equelo Ratings", control="checkbox", default=False, url_key="ratings"),
     Filter(id="analysis_context", label="Analysis", control="checkbox", default=False, url_key="analysis"),
     Filter(id="nu_chii", label="nuChii", control="checkbox", default=False, url_key="nu_chii"),
@@ -51,7 +51,7 @@ STANDINGS_FILTERS = (
         values=(
             FilterValue(value="standard", label="Wins per Basho"),
             FilterValue(value="percentages", label="Wins per Bout"),
-            FilterValue(value="combined", label="Combined"),
+            FilterValue(value="combined", label="Both"),
         ),
     ),
     Filter(
@@ -62,7 +62,14 @@ STANDINGS_FILTERS = (
         url_key="num_basho",
         values=STANDINGS_WINDOW_VALUES,
     ),
-    Filter(id="current_only", label="Active Rikishi Only", control="checkbox", default=True, url_key="current_only"),
+    Filter(
+        id="current_only",
+        label="Active Rikishi Only",
+        control="checkbox",
+        default=True,
+        url_key="current_only",
+        help="When off, longer windows may include retired rikishi.",
+    ),
     Filter(
         id="division",
         label="Division",
@@ -84,8 +91,15 @@ BANZUKE_CHANGES_FILTERS = (
     ),
     Filter(id="context", label="Previous Basho", control="checkbox", default=False, url_key="context"),
     Filter(id="banzuke_style", label="Banzuke Style", control="checkbox", default=True, url_key="banzuke_style"),
-    Filter(id="delta", label="Delta", control="checkbox", default=False, url_key="delta"),
-    Filter(id="equelo", label="Equelo Ratings", control="checkbox", default=False, url_key="equelo"),
+    Filter(id="delta", label="Delta", control="checkbox", default=False, url_key="delta", help="Size of movement. See Notes."),
+    Filter(
+        id="equelo",
+        label="Equelo Ratings",
+        control="checkbox",
+        default=False,
+        url_key="equelo",
+        help="Model ratings. See Ratings & Models.",
+    ),
 )
 
 FINISH_BY_CHII_FILTERS = (
@@ -154,9 +168,9 @@ CAREER_COMPARISONS_FILTERS = (
         default="chii",
         url_key="skill",
         values=(
-            FilterValue(value="chii", label="Chii"),
-            FilterValue(value="equelo", label="Equelo"),
-            FilterValue(value="both", label="Both"),
+            FilterValue(value="chii", label="Chii", help="Show chii achieved."),
+            FilterValue(value="equelo", label="Equelo", help="Show rating achieved."),
+            FilterValue(value="both", label="Both", help="Show chii and rating together."),
         ),
     ),
     Filter(
@@ -166,11 +180,11 @@ CAREER_COMPARISONS_FILTERS = (
         default="date",
         url_key="x",
         values=(
-            FilterValue(value="date", label="Date"),
-            FilterValue(value="basho", label="Basho from Hatsu"),
+            FilterValue(value="date", label="Date", help="Use calendar date on the x-axis."),
+            FilterValue(value="basho", label="Hatsu", help="Use basho since first appearance on the x-axis."),
         ),
     ),
-    Filter(id="log", label="Log", control="checkbox", default=True, url_key="log"),
+    Filter(id="log", label="Compress", control="checkbox", default=True, url_key="log", help="Compress lower banzuke divisions."),
 )
 
 WIN_PROBABILITY_BY_STANDING_FILTERS = (
@@ -182,7 +196,7 @@ WIN_PROBABILITY_BY_STANDING_FILTERS = (
         url_key="source",
         values=(
             FilterValue(value="observed", label="Observed"),
-            FilterValue(value="equelo", label="Equelo"),
+            FilterValue(value="equelo", label="Predicted", help="Prediction based on Equelo rating."),
         ),
     ),
     Filter(

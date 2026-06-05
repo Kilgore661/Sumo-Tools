@@ -1,6 +1,7 @@
 // Standings table rendering and standings-specific row projection.
 
 import { escapeHtml } from "../../utils/html.js";
+import { renderLabelWithHelp } from "../help.js";
 import {
   compareValues,
   currentTableSortState,
@@ -21,7 +22,8 @@ function renderStandingsTable(artifact, rows, filteredRows, state) {
   const sortedRows = sortRows(rows, visibleColumns, sortState);
   return [
     '<div class="artifact-title-block">',
-    `<h4>${escapeHtml(artifact.heading)}</h4>`,
+    `<h4>${escapeHtml(standingsHeading(state))}</h4>`,
+    `<p>${escapeHtml(standingsSubheading(state))}</p>`,
     '</div>',
     '<table class="artifact-table standings-table">',
     renderStandingsTableHead(artifact, visibleColumns, sortState),
@@ -36,6 +38,29 @@ function renderStandingsTable(artifact, rows, filteredRows, state) {
     '</tbody>',
     '</table>',
   ].join("");
+}
+
+function standingsHeading(state) {
+  const division = standingsDivisionLabel(state.division);
+  if (state.division === "all") return "Rolling Wins-Based Ranking for All Divisions";
+  return `Rolling Wins-Based Ranking for the ${division} Division`;
+}
+
+function standingsSubheading(state) {
+  return `Over the last ${state.current_num_basho} basho`;
+}
+
+function standingsDivisionLabel(division) {
+  const labels = {
+    all: "All",
+    makuuchi: "Makuuchi",
+    juryo: "Juryo",
+    makushita: "Makushita",
+    sandanme: "Sandanme",
+    jonidan: "Jonidan",
+    jonokuchi: "Jonokuchi",
+  };
+  return labels[division] || division;
 }
 
 // Select visible Standings columns for the active metric preset.
@@ -61,7 +86,7 @@ function renderStandingsTableHead(artifact, visibleColumns, sortState = null) {
     '<tr>',
     ...groups.map(group => {
       const count = visibleColumns.filter(column => column.group === group.id).length;
-      return `<th colspan="${count}">${escapeHtml(group.heading)}</th>`;
+      return `<th colspan="${count}">${renderLabelWithHelp(group.heading, group.help)}</th>`;
     }),
     '</tr>',
     '<tr>',
@@ -133,6 +158,9 @@ function competitionPositions(rows, field) {
 
 export {
   renderStandingsTable,
+  standingsHeading,
+  standingsSubheading,
+  standingsDivisionLabel,
   standingsVisibleColumns,
   standingsVisibleGroups,
   renderStandingsTableHead,

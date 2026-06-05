@@ -6,11 +6,13 @@ import { getRuntimeManifest, setRuntimeManifest } from "./core/manifest-store.js
 import { PAGE_PARAM, writeCanonicalViewUrl } from "./core/url-state.js";
 import { fetchJson } from "./data/http.js";
 import { renderContentPanel } from "./panels/render-content-panel.js";
+import { installHelpPopovers } from "./ui/help.js";
 import { bootNavigationToggle } from "./ui/navigation-toggle.js";
 import { escapeHtml } from "./utils/html.js";
 
 bootSiteContext();
 bootNavigationToggle();
+installHelpPopovers();
 boot().catch(error => {
   contentPanel.innerHTML = `<p>${escapeHtml(error.message)}</p>`;
 });

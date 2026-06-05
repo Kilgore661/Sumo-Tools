@@ -1,6 +1,7 @@
 // Career Comparisons chart controls, selector and Plotly rendering.
 
 import { escapeHtml } from "../../utils/html.js";
+import { renderLabelWithHelp } from "../help.js";
 import { PLOTLY_CONFIG } from "./shared.js";
 
 const POINT_DATE = 0;
@@ -55,11 +56,11 @@ function renderCareerComparisonsControls(state) {
     '<fieldset class="career-comparison-mode-fieldset">',
     '<legend class="visually-hidden">Chart</legend>',
     '<table class="career-comparison-mode-table">',
-    '<thead><tr><th></th><th scope="col">Date</th><th scope="col">Hatsu</th></tr></thead>',
+    `<thead><tr><th></th><th scope="col">${renderLabelWithHelp("Date", "Use calendar date on the x-axis.")}</th><th scope="col">${renderLabelWithHelp("Hatsu", "Use basho since first appearance on the x-axis.")}</th></tr></thead>`,
     '<tbody>',
     ...["chii", "equelo", "both"].map(skill => [
       '<tr>',
-      `<th scope="row">${escapeHtml(skillLabel(skill))}</th>`,
+      `<th scope="row">${renderLabelWithHelp(skillLabel(skill), skillHelp(skill))}</th>`,
       ...["date", "basho"].map(xBase => `<td>${renderModeChoice(skill, xBase, state)}</td>`),
       '</tr>',
     ].join("")),
@@ -68,7 +69,7 @@ function renderCareerComparisonsControls(state) {
     '</fieldset>',
     '<label class="checkbox-control career-comparison-log-control">',
     `<input type="checkbox" name="log"${state.log ? " checked" : ""}>`,
-    '<span>Log</span>',
+    `<span>${renderLabelWithHelp("Compress", "Compress lower banzuke divisions.")}</span>`,
     '</label>',
     '<div class="career-comparison-selector">',
     '<label class="filter-control career-comparison-search">',
@@ -95,7 +96,7 @@ function renderModeChoice(skill, xBase, state) {
 
 function modeLabel(skill, xBase) {
   const skillText = skillLabel(skill);
-  const xLabel = xBase === "basho" ? "Basho" : "Date";
+  const xLabel = xBase === "basho" ? "Hatsu" : "Date";
   return `${skillText} / ${xLabel}`;
 }
 
@@ -104,12 +105,19 @@ function skillLabel(skill) {
   return skill === "equelo" ? "Equelo" : "Chii";
 }
 
+function skillHelp(skill) {
+  if (skill === "both") return "Show chii and rating together.";
+  if (skill === "equelo") return "Show rating achieved.";
+  return "Show chii achieved.";
+}
+
 function renderCareerComparisonsChart(artifact, data, options = null) {
   const resolvedOptions = options || careerComparisonRikishiOptions(data);
-  if (!resolvedOptions.length) return "<p>No Career Comparisons data is available.</p>";
+  if (!resolvedOptions.length) return "<p>No Rikishi History data is available.</p>";
   return [
     '<div class="artifact-title-block">',
-    `<h4>${escapeHtml(artifact.heading)}</h4>`,
+    `<h4 id="career-comparisons-pa-heading">${escapeHtml(artifact.heading)}</h4>`,
+    '<p id="career-comparisons-pa-subheading" hidden></p>',
     '</div>',
     '<div id="career-comparisons-chart" class="plotly-chart"></div>',
   ].join("");
@@ -231,6 +239,7 @@ function renderSelectedRikishiList(selectedList, optionsById) {
 function renderCareerComparisonsPlot(artifact, state, data) {
   const host = document.getElementById("career-comparisons-chart");
   if (!host) return;
+  updateCareerComparisonCaption(artifact, data);
   if (!careerComparisonsState.selectedRikishiIds.length) {
     host.innerHTML = '<p class="career-comparison-empty">Select one or more rikishi.</p>';
     return;
@@ -252,6 +261,36 @@ function renderCareerComparisonsPlot(artifact, state, data) {
     .then(() => {
       attachCareerComparisonLegendHandler(host);
     });
+}
+
+function updateCareerComparisonCaption(artifact, data) {
+  const heading = document.getElementById("career-comparisons-pa-heading");
+  const subheading = document.getElementById("career-comparisons-pa-subheading");
+  if (!heading || !subheading) return;
+  const caption = careerComparisonCaption(artifact, data);
+  heading.textContent = caption.heading;
+  subheading.textContent = caption.subheading;
+  subheading.hidden = !caption.subheading;
+}
+
+function careerComparisonCaption(artifact, data) {
+  const selectedIds = careerComparisonsState.selectedRikishiIds;
+  if (!selectedIds.length) return { heading: artifact.heading, subheading: "" };
+  const names = selectedIds.map(id => displayNameForRikishi(id, data));
+  const dates = selectedIds
+    .flatMap(id => data.points_by_rikishi[id] || [])
+    .map(point => String(point[POINT_DATE] || ""))
+    .filter(Boolean)
+    .sort();
+  return {
+    heading: `Career History for ${formatNameList(names)}`,
+    subheading: dates.length ? `(${dates[0]} to ${dates[dates.length - 1]})` : "",
+  };
+}
+
+function formatNameList(names) {
+  if (names.length <= 2) return names.join(" and ");
+  return `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
 }
 
 function careerComparisonTraces(artifact, state, data) {
@@ -345,9 +384,9 @@ function careerComparisonYValue(point, artifact, state, chiiScale, skill = state
 function careerComparisonHoverTemplate(state, skill = state.skill) {
   const yLabel = skill === "equelo"
     ? (state.log ? "log(Equelo)" : "Equelo")
-    : "Chii position";
+    : (state.log ? "Chii (Compressed)" : "Chii");
   const yFormat = `:.${FLOAT_DP}f`;
-  const xLabel = state.x_base === "basho" ? "Basho from hatsu" : "Date";
+  const xLabel = state.x_base === "basho" ? "Number of Basho since Hatsu Dohyo" : "Date";
   const lines = [
     "Shikona=%{customdata[0]}",
     `${xLabel}=%{x}`,
@@ -373,7 +412,7 @@ function careerComparisonLayout(artifact, state, data, traces = null) {
     plot_bgcolor: "rgba(0,0,0,0)",
     margin: { l: usesChiiAxis(state) ? 132 : 116, r: state.skill === "both" ? 76 : 40, t: 18, b: 70 },
     xaxis: {
-      title: state.x_base === "basho" ? "Basho from hatsu" : "Date",
+      title: state.x_base === "basho" ? "Number of Basho since Hatsu Dohyo" : "Date",
       ...(state.x_base === "date" ? dateAxisCategoryOrder(traces || []) : bashoAxisTickSettings(traces || [])),
       automargin: true,
       gridcolor: "rgba(127,149,192,0.18)",
@@ -463,7 +502,7 @@ function chiiAxisLayout(artifact, state, data, traces = null) {
   const scale = buildChiiScale(artifact, state, data);
   const range = numericTraceRange(traces || [], chiiRangePadding(scale));
   return {
-    title: state.log ? "Chii position (compressed)" : "Chii position",
+    title: state.log ? "Chii (Compressed)" : "Chii",
     autorange: range ? false : undefined,
     range,
     automargin: true,

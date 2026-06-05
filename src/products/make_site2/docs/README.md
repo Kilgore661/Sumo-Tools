@@ -32,6 +32,7 @@ Then read the detailed model/design document for the area being changed:
 | Build output, runtime state, data staging | `07 Build, Output and Runtime Design.md` |
 | Producer boundaries and migration | `08 Producer Integration and Migration.md` |
 | Local/remote deployment | `09 Deployment and Operations.md` |
+| Notes, popovers and gloss UX research | `11 Notes and Gloss UX Review.md` |
 
 ## Document Authority
 
@@ -42,6 +43,7 @@ Then read the detailed model/design document for the area being changed:
 | Current issue register | `10` | Records known gaps and deferred decisions. |
 | Supporting audit | `06`, `10.1` | Records evidence and verification details; settled rules should move into normative docs. |
 | Supporting outcome notes | `Basho Results (7.1) Outcome.md` | Historical/supporting account of the 7.1 redesign now folded into `04.5`. |
+| Supporting UX research | `11 Notes and Gloss UX Review.md` | Captures current Notes/gloss review evidence; settled rules should move into model/rendering docs. |
 | Background / style | `A Appendix - Better Models.md`, `House Style.md` | Useful context, not the main contract. |
 | Historical | `archive/` | Evidence only; do not treat as current unless active docs say so. |
 
