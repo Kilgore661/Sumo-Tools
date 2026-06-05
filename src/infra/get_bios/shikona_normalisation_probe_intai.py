@@ -79,6 +79,12 @@ def search_page_path(output_dir: Path, shikona: str) -> Path:
     return output_dir / "intai_search_pages" / f"{quote(shikona, safe='')}.html"
 
 
+def intai_search_shikona(record: BioRecord) -> str:
+    if record.sumodb_search_shikona is None:
+        raise ValueError(f"Record {record.rikid} has no SumoDB search shikona")
+    return record.sumodb_search_shikona
+
+
 def is_timeout_exception(exc: BaseException) -> bool:
     if isinstance(exc, (TimeoutError, socket.timeout)):
         return True
@@ -134,14 +140,13 @@ def download_search_page(shikona: str) -> str:
 
 
 def read_or_download_search_page(record: BioRecord, output_dir: Path) -> str:
-    assert record.latest_shikona is not None
-
-    path = search_page_path(output_dir, record.latest_shikona)
+    shikona = intai_search_shikona(record)
+    path = search_page_path(output_dir, shikona)
 
     if path.exists():
         return path.read_text(encoding="utf-8")
 
-    text = download_search_page(record.latest_shikona)
+    text = download_search_page(shikona)
 
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text, encoding="utf-8")
@@ -333,6 +338,7 @@ def fix_intai(
         "Intai fix needed: "
         f"rikid={record.rikid} "
         f"shikona={record.latest_shikona!r} "
+        f"sumodb_search_shikona={intai_search_shikona(record)!r} "
         f"hatsu={empty_if_none(record.hatsu_dohyo)}"
     )
 
