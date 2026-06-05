@@ -16,9 +16,13 @@ from __future__ import annotations
 
 from collections import Counter
 
-from src.infra.get_bios.api import BioStore
+from src.infra.get_bios.api import BioStore, load_bio_store
+from src.infra.live_store.api import get_history
 from src.sumo_core.BasicPrimitives import RikId, Shikona
 from src.sumo_core.History import History
+
+
+DEMO_RIKIDS = (RikId(1123), RikId(12231))
 
 
 def make_public_shikona(history: History, bios: BioStore) -> dict[RikId, Shikona]:
@@ -61,3 +65,15 @@ def make_history_shikona_by_rikid(history: History) -> dict[RikId, Shikona]:
             history_shikona_by_rikid[rikid] = banzuke.rikshik[rikid]
 
     return history_shikona_by_rikid
+
+
+def main() -> None:
+    """Print sample public shikona values for manual inspection."""
+    public_shikona_by_rikid = make_public_shikona(get_history(), load_bio_store())
+
+    for rikid in DEMO_RIKIDS:
+        print(f"{rikid}: {public_shikona_by_rikid[rikid]}")
+
+
+if __name__ == "__main__":
+    main()
