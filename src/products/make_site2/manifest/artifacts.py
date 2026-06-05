@@ -40,8 +40,8 @@ BANZUKE_CHANGES_ARTIFACT = BanzukeChangesArtifact(
     config_source=DataSource(id="site_config", label="Site Config", path="current-sumo/banzuke-changes/site_config.json", media_type="application/json"),
     rows_source=DataSource(id="banzuke_change_report", label="Banzuke Change Report", path="current-sumo/banzuke-changes/data/banzuke_change_report.csv", media_type="text/csv"),
     notes=(
-        Note(id="note_result", applies_to=("context",), text="Result gives wins, losses and absences followed by prizes if any. A trailing up/down marker indicates promotion or demotion into the current broad rank level."),
-        Note(id="note_delta", applies_to=("delta",), text="Delta indicates the size of movement from the previous basho's position, measured in banzuke rows."),
+        Note(id="note_result", applies_to=("context",), text="In Result, arrows show movement between rank groups such as Maegashira, Komusubi, Sekiwake, Ozeki, Yokozuna or the lower divisions. This differs from the movement column, which shows movement up or down in banzuke slot order."),
+        Note(id="note_delta", applies_to=("delta",), text="Delta measures how many east/west banzuke slots a rikishi moved. A full numbered rank change, such as M2e to M3e, counts as two slots."),
         Note(id="note_banzuke_style_sorting", applies_to=("banzuke_style",), text="Sorting is not available in banzuke-style view because the layout preserves the East/West banzuke structure. Disable banzuke-style view to sort."),
     ),
 )
@@ -57,8 +57,8 @@ STANDINGS_BY_WINS_ARTIFACT = StandingsArtifact(
     ),
     columns=(
         TableColumn(id="row_number", heading="#", group="identity", always_visible=True, sort_kind="none", align="center"),
-        TableColumn(id="shikona", heading="Shikona", source_field="shikona", group="identity", help="Current rikishi. See Notes.", always_visible=True, sort_key="shikona", sort_kind="text", note_id="note_identity"),
-        TableColumn(id="chii", heading="Chii", source_field="chii", group="identity", help="Current rikishi. See Notes.", always_visible=True, sort_key="chii_ordinal", sort_kind="chii_ordinal", note_id="note_identity"),
+        TableColumn(id="shikona", heading="Shikona", source_field="shikona", group="identity", help="Name disambiguation. See Notes.", always_visible=True, sort_key="shikona", sort_kind="text", note_id="note_identity"),
+        TableColumn(id="chii", heading="Chii", source_field="chii", group="identity", always_visible=True, sort_key="chii_ordinal", sort_kind="chii_ordinal"),
         TableColumn(id="credited_wins", heading="Wins", source_field="credited_wins", group="identity", always_visible=True, sort_key="credited_wins", sort_kind="numeric", align="right", note_id="note_wins"),
         TableColumn(id="selected_average_credited_wins", heading="Average", source_field="selected_average_credited_wins", group="wins_per_basho", sort_key="selected_average_credited_wins", sort_kind="numeric", align="right"),
         TableColumn(id="selected_average_rank", heading="#", source_field="selected_average_credited_wins", group="wins_per_basho", sort_key="selected_average_credited_wins", sort_kind="numeric", align="right"),
@@ -67,10 +67,9 @@ STANDINGS_BY_WINS_ARTIFACT = StandingsArtifact(
         TableColumn(id="win_percent_rank", heading="#", source_field="win_percent", group="wins_per_bout", sort_key="win_percent", sort_kind="numeric", align="right"),
     ),
     notes=(
-        Note(id="note_identity", applies_to=("all",), text="The reported Shikona and Chii are those that pertain to the rikishi in the latest basho."),
+        Note(id="note_identity", applies_to=("all",), text="Shikona values followed by a number identify rikishi who have shared the same fighting name."),
         Note(id="note_wins", applies_to=("all",), text="Wins include fusensho."),
-        Note(id="note_active", applies_to=("all",), text="An Active rikishi is one that is listed on the banzuke for the latest basho."),
-        Note(id="note_bouts", applies_to=("percentages", "combined"), text="Bouts is the expected number of scheduled bouts in the selected window."),
+        Note(id="note_bouts", applies_to=("percentages", "combined"), text="Bouts means the expected number of scheduled bouts in the selected window."),
     ),
 )
 
@@ -85,24 +84,19 @@ BASHO_RESULTS_ARTIFACT = IndexedTableArtifact(
     ),
     columns=(
         TableColumn(id="row_number", heading="#", group="identity", always_visible=True, sort_kind="none", align="center"),
-        TableColumn(id="shikona", heading="Shikona", source_field="shikona", group="identity", always_visible=True, sort_kind="text", note_id="note_shikona"),
-        TableColumn(id="chii", heading="Chii", source_field="chii", group="identity", always_visible=True, sort_key="chii_ordinal", sort_kind="chii_ordinal", note_id="note_chii"),
-        TableColumn(id="previous_result", heading="Result", source_field="previous_result", group="previous_basho", sort_kind="record", align="center", note_id="note_previous_result"),
+        TableColumn(id="shikona", heading="Shikona", source_field="shikona", group="identity", always_visible=True, sort_kind="text"),
+        TableColumn(id="chii", heading="Chii", source_field="chii", group="identity", always_visible=True, sort_key="chii_ordinal", sort_kind="chii_ordinal"),
+        TableColumn(id="previous_result", heading="Result", source_field="previous_result", group="previous_basho", sort_kind="record", align="center"),
         TableColumn(id="previous_chii", heading="Chii", source_field="previous_chii", group="previous_basho", sort_key="previous_chii_ordinal", sort_kind="chii_ordinal", align="center"),
-        TableColumn(id="score", heading="Score", source_field="score", group="result_state", always_visible=True, sort_kind="record", align="center", note_id="note_score"),
-        TableColumn(id="equelo", heading="Equelo", source_field="equelo", group="result_state", sort_kind="numeric", align="center", note_id="note_equelo"),
-        TableColumn(id="delta_equelo", heading="Delta Equelo", source_field="delta_equelo", group="result_state", sort_kind="numeric", align="right", note_id="note_delta_equelo"),
-        TableColumn(id="nu_chii", heading="nuChii", source_field="nu_chii", group="result_state", sort_key="nu_chii_ordinal", sort_kind="chii_ordinal", note_id="note_nu_chii"),
+        TableColumn(id="score", heading="Score", source_field="score", group="result_state", always_visible=True, sort_kind="record", align="center"),
+        TableColumn(id="equelo", heading="Equelo", source_field="equelo", group="result_state", sort_kind="numeric", align="center"),
+        TableColumn(id="delta_equelo", heading="Delta Equelo", source_field="delta_equelo", group="result_state", sort_kind="numeric", align="right"),
+        TableColumn(id="nu_chii", heading="nuChii", source_field="nu_chii", group="result_state", sort_key="nu_chii_ordinal", sort_kind="chii_ordinal"),
     ),
     default_sort_column="chii",
     notes=(
-        Note(id="note_shikona", applies_to=("all",), text="Shikona is the name used by the rikishi for the selected basho."),
-        Note(id="note_chii", applies_to=("all",), text="Chii is the official rank slot at the start of the selected basho."),
-        Note(id="note_previous_result", applies_to=("previous_basho",), text="Previous Result gives wins, losses and absences followed by prizes if any. A trailing up/down marker indicates promotion or demotion into the selected basho's broad rank level."),
-        Note(id="note_score", applies_to=("all",), text="Score gives wins, losses and absences for the selected basho. For an in-progress basho it is the score through the latest published day."),
-        Note(id="note_equelo", applies_to=("rating_context",), text="Equelo is the fixed_v2 process rating at the represented point."),
-        Note(id="note_delta_equelo", applies_to=("rating_context",), text="Delta Equelo is the rating change from the start of the selected basho."),
-        Note(id="note_nu_chii", applies_to=("nu_chii",), text="nuChii is the after/during chii value for the selected state. It may be actual, estimated, or unavailable depending on what is known when the page data is produced."),
+        Note(id="note_result", applies_to=("all",), text="Result shows the number of wins, losses, absences and prizes."),
+        Note(id="note_movement", applies_to=("changes_context",), text="Chii movement follows banzuke slot order. Div movement shows significant movement: transitions between sanyaku levels and between banzuke divisions."),
     ),
 )
 

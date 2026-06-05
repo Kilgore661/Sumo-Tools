@@ -503,8 +503,6 @@ def test_brb_notes_cover_current_context_columns() -> None:
     brb_artifact = manifest["artifacts"]["basho_results_browser"]
 
     assert {item["id"] for item in brb_artifact["notes"]} >= {
-        "note_previous_result",
-        "note_equelo",
-        "note_delta_equelo",
-        "note_nu_chii",
+        "note_result",
+        "note_movement",
     }
