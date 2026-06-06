@@ -1,0 +1,157 @@
+{
+  "schema": "sumo-tools.table-page-bundle.v0",
+  "page": {
+    "id": "banzuke_changes",
+    "title": "Banzuke Changes",
+    "summary": "New-banzuke change report.",
+    "status": "candidate"
+  },
+  "producer": {
+    "module": "src.analysis.banzuke_compare",
+    "legacy_app_shell": "src/analysis/banzuke_compare/files/index.html",
+    "public_ui_owner": "make_site"
+  },
+  "view": {
+    "kind": "table",
+    "layout": "tool",
+    "default_rendering": "banzuke_style",
+    "supported_renderings": [
+      "banzuke_style",
+      "one_column"
+    ]
+  },
+  "data": {
+    "site_config": "site_config.json",
+    "rows": "data/banzuke_change_report.csv"
+  },
+  "options": [
+    {
+      "id": "division",
+      "kind": "enum",
+      "default": "makuuchi",
+      "values": [
+        {
+          "value": "makuuchi",
+          "label": "Makuuchi"
+        },
+        {
+          "value": "juryo",
+          "label": "Juryo"
+        },
+        {
+          "value": "makushita",
+          "label": "Makushita"
+        },
+        {
+          "value": "sandanme",
+          "label": "Sandanme"
+        },
+        {
+          "value": "jonidan",
+          "label": "Jonidan"
+        },
+        {
+          "value": "jonokuchi",
+          "label": "Jonokuchi"
+        }
+      ]
+    },
+    {
+      "id": "context",
+      "kind": "boolean",
+      "label": "Previous Basho Context",
+      "default": false
+    },
+    {
+      "id": "banzuke_style",
+      "kind": "boolean",
+      "label": "Banzuke Style",
+      "default": true
+    },
+    {
+      "id": "delta",
+      "kind": "boolean",
+      "label": "Show Delta",
+      "default": false
+    },
+    {
+      "id": "equelo",
+      "kind": "boolean",
+      "label": "Equelo Ratings",
+      "default": false
+    }
+  ],
+  "columns": [
+    {
+      "id": "equelo",
+      "label": "Equelo",
+      "group": "equelo",
+      "visible_when": "equelo"
+    },
+    {
+      "id": "old_chii",
+      "label": "Chii",
+      "group": "context",
+      "visible_when": "context"
+    },
+    {
+      "id": "result",
+      "label": "Result",
+      "group": "context",
+      "visible_when": "context",
+      "note": "note-result"
+    },
+    {
+      "id": "delta_direction",
+      "label": "Direction",
+      "group": "delta",
+      "visible_when": "delta",
+      "note": "note-direction"
+    },
+    {
+      "id": "delta",
+      "label": "Delta",
+      "group": "delta",
+      "visible_when": "delta",
+      "note": "note-delta"
+    },
+    {
+      "id": "shikona",
+      "label": "Shikona",
+      "link": "rikishi",
+      "always_visible": true
+    },
+    {
+      "id": "bz_chii",
+      "label": "Rank",
+      "always_visible": true
+    }
+  ],
+  "notes": [
+    {
+      "id": "note-result",
+      "for": "context",
+      "text": "Result gives wins, losses and absences followed by prizes if any. A trailing up/down marker is rendered from the separate result-movement field and indicates promotion or demotion into the current broad rank level."
+    },
+    {
+      "id": "note-direction",
+      "for": "all",
+      "text": "Direction indicates a better or worse position than in the previous basho."
+    },
+    {
+      "id": "note-delta",
+      "for": "delta",
+      "text": "Delta indicates the size of movement from the previous basho's position, measured in banzuke rows."
+    }
+  ],
+  "provenance": {
+    "current_date": "2026/05",
+    "previous_date": "2026/03"
+  },
+  "behaviour": {
+    "url_state": true,
+    "rikishi_links": true,
+    "note_popovers": true,
+    "option_sensitive_notes": true
+  }
+}

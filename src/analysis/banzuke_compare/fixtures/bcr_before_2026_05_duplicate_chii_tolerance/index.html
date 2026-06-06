@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Banzuke Change Report</title>
+  <link rel="icon" type="image/x-icon" href="../Sumo/meep.png">
+  <link rel="stylesheet" href="../../common/files/site-wide.css">
+  <link rel="stylesheet" href="../../common/files/tool-layout.css">
+  <link rel="stylesheet" href="banzuke_change_report.css">
+</head>
+<body>
+  <main class="tool-shell">
+    <header class="tool-title-bar">
+      <div id="page-title">The November 2026 Banzuke</div>
+    </header>
+
+    <div class="tool-layout">
+      <aside class="tool-options">
+        <h2>Options</h2>
+
+        <div class="control-group">
+          <label for="division-select">Division</label>
+          <select name="division" id="division-select">
+            <option value="makuuchi" selected>Makuuchi</option>
+            <option value="juryo">Juryo</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label class="checkbox-option">
+            Previous Basho
+            <input type="checkbox" id="context-columns">
+          </label>
+        </div>
+
+        <div class="control-group">
+          <label class="checkbox-option">
+            Banzuke Style
+            <input type="checkbox" id="banzuke-style" checked>
+          </label>
+        </div>
+
+        <hr>
+
+        <div class="control-group">
+          <label class="checkbox-option">
+            Show Delta
+            <input type="checkbox" id="delta-columns">
+          </label>
+        </div>
+
+        <div class="control-group">
+          <label class="checkbox-option">
+            Equelo Ratings
+            <input type="checkbox" id="equelo-columns">
+          </label>
+        </div>
+      </aside>
+
+      <section class="tool-content">
+        <div class="tool-content-inner">
+          <div class="table-wrap">
+            <table class="banzuke-table" id="banzuke-table">
+              <colgroup>
+                <col class="equelo-col equelo-col-toggle">
+                <col class="old-col context-col">
+                <col class="score-col context-col">
+                <col class="direction-col">
+                <col class="delta-value-col delta-value-col-toggle">
+                <col class="shikona-col">
+                <col class="bz-col">
+                <col class="shikona-col">
+                <col class="direction-col">
+                <col class="delta-value-col delta-value-col-toggle">
+                <col class="score-col context-col">
+                <col class="old-col context-col">
+                <col class="equelo-col equelo-col-toggle">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th scope="colgroup" colspan="6" data-side-head>East</th>
+                  <th scope="col" rowspan="2" class="bz-head">Rank</th>
+                  <th scope="colgroup" colspan="6" data-side-head>West</th>
+                </tr>
+                <tr>
+                  <th scope="col" class="equelo-head">Equelo</th>
+                  <th scope="col" class="context-head">Chii</th>
+                  <th scope="col" class="context-head" data-note-target="note-result">Result</th>
+                  <th scope="col" class="delta-head" data-note-target="note-direction">⇅</th>
+                  <th scope="col" class="delta-value-head" data-note-target="note-delta">Δ</th>
+                  <th scope="col">Shikona</th>
+                  <th scope="col">Shikona</th>
+                  <th scope="col" class="delta-head" data-note-target="note-direction">⇅</th>
+                  <th scope="col" class="delta-value-head" data-note-target="note-delta">Δ</th>
+                  <th scope="col" class="context-head" data-note-target="note-result">Result</th>
+                  <th scope="col" class="context-head">Chii</th>
+                  <th scope="col" class="equelo-head">Equelo</th>
+                </tr>
+              </thead>
+              <tbody id="banzuke-body">
+                <tr>
+                  <td class="equelo-cell">2538</td>
+                  <td class="context-cell">Y1w</td>
+                  <td class="context-cell"><span class="score">11-4 J</span></td>
+                  <td class="delta-cell neutral"><span class="delta-direction">&nbsp;</span></td>
+                  <td class="delta-cell delta-value-cell neutral"><span class="delta">0</span></td>
+                  <td class="rikishi east">Hoshoryu</td>
+                  <th scope="row" class="bz-chii">Y1</th>
+                  <td class="rikishi west">Onosato</td>
+                  <td class="delta-cell neutral"><span class="delta-direction">&nbsp;</span></td>
+                  <td class="delta-cell delta-value-cell neutral"><span class="delta">0</span></td>
+                  <td class="context-cell"><span class="score">9-3-3</span></td>
+                  <td class="context-cell">Y1e</td>
+                  <td class="equelo-cell">2519</td>
+                </tr>
+                <tr>
+                  <td class="equelo-cell">2360</td>
+                  <td class="context-cell">O1e</td>
+                  <td class="context-cell"><span class="score">8-7</span></td>
+                  <td class="delta-cell up low"><span class="delta-direction">↑</span></td>
+                  <td class="delta-cell delta-value-cell up low"><span class="delta">0.5</span></td>
+                  <td class="rikishi east">Kotozakura</td>
+                  <th scope="row" class="bz-chii">O1</th>
+                  <td class="rikishi west">Aonishiki</td>
+                  <td class="delta-cell down low"><span class="delta-direction">↓</span></td>
+                  <td class="delta-cell delta-value-cell down low"><span class="delta">0.5</span></td>
+                  <td class="context-cell"><span class="score">12-3 K</span></td>
+                  <td class="context-cell">S1w</td>
+                  <td class="equelo-cell">2294</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="notes" id="notes">
+            <h3>Notes</h3>
+            <ol>
+              <li id="note-result" data-note-for="context">
+                <strong>Result</strong> Wins, losses and absences followed by prizes (if any). A trailing ↑ indicates the rikishi was promoted into the current division, a trailing ↓ indicates demotion into that division.
+              </li>
+              <li id="note-direction" data-note-for="all">
+                <strong>Direction (⇅)</strong> Indicates a better (↑) or worse (↓) position than in the previous basho.
+              </li>
+              <li id="note-delta" data-note-for="delta">
+                <strong>Delta (Δ)</strong> Indication of size of movement from previous basho's position, measured in banzuke rows. Eg the difference between M3e and M7e is 4 rows and between M3e and M3w it is 0.5 rows.
+              </li>
+            </ol>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="banzuke_change_report.js"></script>
+</body>
+</html>

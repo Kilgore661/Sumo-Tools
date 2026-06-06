@@ -1,0 +1,302 @@
+division_id,division_label,bz_chii,east_rikishi_id,east_chii,east_shikona,east_graph_shikona,east_old_chii,east_result,east_result_movement,east_delta,east_delta_class,east_equelo,west_rikishi_id,west_chii,west_shikona,west_graph_shikona,west_old_chii,west_result,west_result_movement,west_delta,west_delta_class,west_equelo
+makuuchi,Makuuchi,Y1,12451,Y1e,Hoshoryu,Hoshoryu,Y1e,11-4 J,,0,neutral,2197,12836,Y1w,Onosato,Onosato,Y1w,0-4-11,,0,neutral,2122
+makuuchi,Makuuchi,O1,12270,O1e,Kotozakura,Kotozakura (2015),O1w,10-5,,+0.5,up low,2061,12839,O1w,Aonishiki,Aonishiki,O1e,7-8,,-0.5,down low,1983
+makuuchi,Makuuchi,O2,12231,O2e,Kirishima,Kirishima (2015),S1e,12-3 YS,↑,+0.5,up low,2094,,,,,,,,,,
+makuuchi,Makuuchi,S1,12664,S1e,Atamifuji,Atamifuji,K1w,9-6,↑,+1.5,up low,1895,12449,S1w,Kotoshoho,Kotoshoho,M5w,11-4 JK,↑,+6.0,up high,1793
+makuuchi,Makuuchi,K1,12370,K1e,Wakatakakage,Wakatakakage,M1e,8-6-1,↑,+1.0,up low,2058,6480,K1w,Takayasu,Takayasu,S1w,7-8,↓,-1.0,down low,1998
+makuuchi,Makuuchi,M1,12800,M1e,Fujinokawa,Fujinokawa (2023),M2e,8-7 G,,+1.0,up low,1766,11855,M1w,Takanosho,Takanosho (2010),M4w,9-6,,+3.0,up mid,1838
+makuuchi,Makuuchi,M2,12884,M2e,Yoshinofuji,Yoshinofuji (2024),M1w,7-8,,-0.5,down low,1829,12362,M2w,Ichiyamamoto,Ichiyamamoto,M6e,9-6,,+3.5,up high,1770
+makuuchi,Makuuchi,M3,12314,M3e,Hiradoumi,Hiradoumi,M3e,7-8,,0,neutral,1838,12453,M3w,Oho,Oho,M3w,7-8,,0,neutral,1855
+makuuchi,Makuuchi,M4,11985,M4e,Daieisho,Daieisho,M4e,7-8,,0,neutral,1942,12688,M4w,Gonoyama,Gonoyama,M10e,10-5,,+5.5,up high,1796
+makuuchi,Makuuchi,M5,11980,M5e,Wakamotoharu,Wakamotoharu,K1e,3-12,↓,-5.0,down high,1903,12130,M5w,Shodai,Shodai,M8w,8-7,,+3.0,up mid,1722
+makuuchi,Makuuchi,M6,12320,M6e,Churanoumi,Churanoumi,M2w,4-11,,-3.5,down high,1716,12702,M6w,Fujiseiun,Fujiseiun,M13w,10-5 K,,+7.0,up high,1752
+makuuchi,Makuuchi,M7,11785,M7e,Chiyoshoma,Chiyoshoma,M14e,10-5,,+7.0,up high,1737,12710,M7w,Asakoryu,Asakoryu,M12e,9-6,,+4.5,up high,1700
+makuuchi,Makuuchi,M8,12717,M8e,Oshoma,Oshoma,M7e,6-9,,-1.0,down low,1722,12784,M8w,Asahakuryu,Asahakuryu,M16e,10-5,,+7.5,up high,1773
+makuuchi,Makuuchi,M9,12094,M9e,Abi,Abi,M5e,4-6-5,,-4.0,down high,1854,12351,M9w,Nishikifuji,Nishikifuji,M14w,9-6,,+5.0,up high,1780
+makuuchi,Makuuchi,M10,12291,M10e,Asanoyama,Asanoyama,M12w,8-7,,+2.5,up mid,2068,12796,M10w,Hakunofuji,Hakunofuji,M7w,5-6-4,,-3.0,down mid,1828
+makuuchi,Makuuchi,M11,12226,M11e,Ura,Ura,M8e,5-10,,-3.0,down mid,1761,12721,M11w,Kinbozan,Kinbozan,M16w,9-6,,+5.0,up high,1730
+makuuchi,Makuuchi,M12,12599,M12e,Shishi,Shishi,M11e,6-9,,-1.0,down low,1705,12542,M12w,Tokihayate,Tokihayate,M9e,5-10,,-3.5,down high,1676
+makuuchi,Makuuchi,M13,12729,M13e,Kotoeiho,Kotoeiho,M17w,9-6,,+4.5,up high,1684,5944,M13w,Tamawashi,Tamawashi,M9w,5-10,,-4.0,down high,1751
+makuuchi,Makuuchi,M14,12210,M14e,Mitakeumi,Mitakeumi,M15w,8-7,,+1.5,up low,1692,12516,M14w,Roga,Roga,M10w,5-10,,-4.0,down high,1681
+makuuchi,Makuuchi,M15,12203,M15e,Tobizaru,Tobizaru,M13e,6-9,,-2.0,down mid,1710,12634,M15w,Oshoumi,Oshoumi,M11w,5-10,,-4.0,down high,1661
+makuuchi,Makuuchi,M16,12730,M16e,Wakanosho,Wakanosho (2022),J3w,11-4 D,↑,+4.5,up high,1715,6594,M16w,Ryuden,Ryuden,J1e,9-6,↑,+1.5,up low,1678
+makuuchi,Makuuchi,M17,12945,M17e,Fujiryoga,Fujiryoga,M17e,7-8,,0,neutral,1687,,,,,,,,,,
+juryo,Juryo,J1,12840,J1e,Onokatsu,Onokatsu,M6w,1-6-8,↓,-11.5,down high,1731,12725,J1w,Daiseizan,Daiseizan,J3e,8-7,,+1.5,up low,1606
+juryo,Juryo,J2,2879,J2e,Sadanoumi,Sadanoumi (2003),J1w,7-8,,-0.5,down low,1612,12780,J2w,Takerufuji,Takerufuji,J4w,8-7,,+2.0,up mid,1763
+juryo,Juryo,J3,12592,J3e,Dewanoryu,Dewanoryu,J10e,11-4 Y,,+7.0,up high,1660,12732,J3w,Hatsuyama,Hatsuyama,J9w,10-5,,+6.0,up high,1650
+juryo,Juryo,J4,12841,J4e,Kyokukaiyu,Kyokukaiyu,J7w,9-6,,+3.5,up high,1621,12894,J4w,Asasuiryu,Asasuiryu,J2e,6-9,,-2.5,down mid,1594
+juryo,Juryo,J5,12427,J5e,Tomokaze,Tomokaze,J2w,6-9,,-2.5,down mid,1583,12548,J5w,Kitanowaka,Kitanowaka (2019),J8w,9-6,,+3.0,up mid,1611
+juryo,Juryo,J6,12896,J6e,Kazuma,Kazuma,J11e,10-5,,+5.0,up high,1630,11946,J6w,Meisei,Meisei,J7e,8-7,,+0.5,up low,1627
+juryo,Juryo,J7,11845,J7e,Kagayaki,Kagayaki,J5e,7-8,,-2.0,down mid,1555,12852,J7w,Toshinofuji,Toshinofuji (2024),J11w,10-5,,+4.0,up high,1551
+juryo,Juryo,J8,12162,J8e,Shonannoumi,Shonannoumi,J8e,8-7,,0,neutral,1561,12773,J8w,Shirokuma,Shirokuma,J5w,7-8,,-3.0,down mid,1544
+juryo,Juryo,J9,12523,J9e,Nishinoryu,Nishinoryu,J4e,6-9,,-5.0,down high,1548,12774,J9w,Kayo,Kayo,J6w,7-8,,-3.0,down mid,1536
+juryo,Juryo,J10,12575,J10e,Tohakuryu,Tohakuryu,J10w,8-7,,+0.5,up low,1479,12352,J10w,Midorifuji,Midorifuji,M15e,0-0-15,↓,-12.5,down high,1686
+juryo,Juryo,J11,12767,J11e,Kazekeno,Kazekeno,J14e,9-6,,+3.0,up mid,1502,6596,J11w,Nishikigi,Nishikigi,J12e,8-7,,+0.5,up low,1498
+juryo,Juryo,J12,12704,J12e,Hitoshi,Hitoshi,J6e,5-10,,-6.0,down high,1474,11976,J12w,Tamashoho,Tamashoho,J9e,6-9,,-3.5,down high,1457
+juryo,Juryo,J13,12885,J13e,Okaryu,Okaryu,Ms2w,6-1,↑,+3.5,up high,1565,11943,J13w,Hakuyozan,Hakuyozan,Ms2e,5-2,↑,+2.5,up mid,1424
+juryo,Juryo,J14,12448,J14e,Tochitaikai,Tochitaikai (2017),Ms1w,4-3,↑,+1.5,up low,1515,12412,J14w,Enho,Enho,Ms4e,5-2,↑,+3.5,up high,1666
+makushita,Makushita,Ms1,12114,Ms1e,Takakento,Takakento,Ms3e,4-3,,+2.0,up mid,1530,12946,Ms1w,Fujitensei,Fujitensei,J13w,5-10,↓,-2.0,down mid,1434
+makushita,Makushita,Ms2,12876,Ms2e,Arashifuji,Arashifuji (2024),Ms7e,5-2,,+5.0,up high,1472,12024,Ms2w,Shimanoumi,Shimanoumi,Ms5e,4-3,,+2.5,up mid,1390
+makushita,Makushita,Ms3,12970,Ms3e,Wakanofuji,Wakanofuji (2025),Ms28e,7-0 Y,,+25.0,up high,1451,11809,Ms3w,Kotokuzan,Kotokuzan,J14w,4-11,↓,-3.0,down mid,1398
+makushita,Makushita,Ms4,12795,Ms4e,Himukamaru,Himukamaru,Ms1e,3-4,,-3.0,down mid,1431,12733,Ms4w,Gojinyu,Gojinyu,Ms10e,5-2,,+5.5,up high,1462
+makushita,Makushita,Ms5,12536,Ms5e,Tokifudo,Yoshii,Ms8e,4-3,,+3.0,up mid,1445,12858,Ms5w,Daikosho,Daikosho,Ms17w,6-1,,+12.0,up high,1398
+makushita,Makushita,Ms6,12751,Ms6e,Tanji,Tanji,Ms12w,5-2,,+6.5,up high,1465,12956,Ms6w,Hanaoka,Hanaoka (2025),Ms9e,4-3,,+2.5,up mid,1422
+makushita,Makushita,Ms7,12561,Ms7e,Otsuji,Otsuji,Ms4w,3-4,,-2.5,down mid,1449,12868,Ms7w,Fujisodai,Fujisodai,Ms5w,3-4,,-2.0,down mid,1359
+makushita,Makushita,Ms8,12526,Ms8e,Daikisho,Daikisho (2019),Ms14w,5-2,,+6.5,up high,1476,12585,Ms8w,Hokutenkai,Hokutenkai,Ms12e,4-3,,+3.5,up high,1428
+makushita,Makushita,Ms9,12013,Ms9e,Shimazuumi,Shimazuumi,J13e,2-9-4,↓,-10.0,down high,1500,12708,Ms9w,Nobehara,Nobehara,Ms6e,3-4,,-3.5,down high,1362
+makushita,Makushita,Ms10,12225,Ms10e,Sazanami,Sazanami (2015),Ms16w,5-2,,+6.5,up high,1373,12597,Ms10w,Nabatame,Nabatame,Sd3w,7-0 Y,↑,+53.5,up high,1596
+makushita,Makushita,Ms11,12113,Ms11e,Tsurugisho,Tsurugisho,J12w,0-15,↓,-12.5,down high,1288,12962,Ms11w,Ryusho,Ryusho,Ms15w,4-3,,+4.0,up high,1426
+makushita,Makushita,Ms12,12776,Ms12e,Kazuto,Kazuto,Ms16e,4-3,,+4.0,up high,1396,12515,Ms12w,Kurohimeyama,Kurohimeyama (2018),Ms23e,5-2,,+10.5,up high,1449
+makushita,Makushita,Ms13,12333,Ms13e,Tokunomusashi,Tokunomusashi,Ms23w,5-2,,+10.5,up high,1382,12165,Ms13w,Yuma,Yuma,Ms24e,5-2,,+10.5,up high,1381
+makushita,Makushita,Ms14,12373,Ms14e,Tochikodai,Tochikodai,Ms19e,4-3,,+5.0,up high,1348,12137,Ms14w,Kaiseijo,Kaiseijo,Ms19w,4-3,,+5.0,up high,1338
+makushita,Makushita,Ms15,12593,Ms15e,Mudoho,Mudoho,Ms10w,3-4,,-4.5,down high,1317,12671,Ms15w,Hogasho,Hogasho,Sd21e,7-0 D,↑,+66.0,up high,1188
+makushita,Makushita,Ms16,12727,Ms16e,Hananoumi,Hananoumi (2022),Ms39w,6-1,,+23.5,up high,1362,12189,Ms16w,Shohoryu,Shohoryu,Ms21w,4-3,,+5.0,up high,1347
+makushita,Makushita,Ms17,12798,Ms17e,Gonoumi,Gonoumi (2023),Ms14e,3-4,,-3.0,down mid,1408,12851,Ms17w,Inami,Inami,Ms7w,2-5,,-10.0,down high,1363
+makushita,Makushita,Ms18,12782,Ms18e,Kazenoumi,Kazenoumi,Ms8w,2-5,,-9.5,down high,1363,12862,Ms18w,Uzumasa,Uzumasa,Ms31e,5-2,,+12.5,up high,1290
+makushita,Makushita,Ms19,12699,Ms19e,Osanai,Osanai,Ms32w,5-2,,+13.5,up high,1359,12737,Ms19w,Kyokumizuno,Kyokumizuno,Ms27e,4-3,,+7.5,up high,1257
+makushita,Makushita,Ms20,12955,Ms20e,Kakueizan,Kakueizan,Ms48e,6-1,,+28.0,up high,1437,12911,Ms20w,Ikarigata,Ikarigata,Ms35e,5-2,,+14.5,up high,1356
+makushita,Makushita,Ms21,12466,Ms21e,Daiyusho,Daiyusho,Ms29e,4-3,,+8.0,up high,1403,12530,Ms21w,Awanokuni,Awanokuni,Ms18e,3-4,,-3.5,down high,1306
+makushita,Makushita,Ms22,12416,Ms22e,Kamito,Kamito,Ms30e,4-3,,+8.0,up high,1400,11918,Ms22w,Akua,Akua,Ms39e,5-2,,+16.5,up high,1376
+makushita,Makushita,Ms23,12601,Ms23e,Tendozan,Tendozan,Ms20e,3-4,,-3.0,down mid,1281,12604,Ms23w,Kirinryu,Kirinryu,Ms44e,5-2,,+20.5,up high,1261
+makushita,Makushita,Ms24,12155,Ms24e,Kitadaichi,Kitadaichi,Ms20w,3-4,,-3.5,down high,1313,12587,Ms24w,Oshoryu,Oshoryu,Ms45e,5-2,,+20.5,up high,1435
+makushita,Makushita,Ms25,12006,Ms25e,Dewataikai,Dewataikai,Ms33w,4-3,,+8.5,up high,1303,11965,Ms25w,Tochimaru,Tochimaru,Ms6w,2-6--1,,-19.0,down high,1429
+makushita,Makushita,Ms26,12488,Ms26e,Kaigo,Kaigo (2018),Ms34e,4-3,,+8.0,up high,1256,12557,Ms26w,Mineyaiba,Mineyaiba,Ms13e,2-5,,-13.5,down high,1433
+makushita,Makushita,Ms27,12458,Ms27e,Asonoyama,Asonoyama,Ms13w,2-5,,-13.5,down high,1308,12869,Ms27w,Seiyu,Seiyu (2024),Ms22e,3-4,,-5.5,down high,1240
+makushita,Makushita,Ms28,12833,Ms28e,Shiroma,Shiroma (2023),Ms37w,4-3,,+9.5,up high,1283,12965,Ms28w,Ryuho,Ryuho (2025),Ms49e,5-2,,+20.5,up high,1339
+makushita,Makushita,Ms29,12425,Ms29e,Yago,Yago,Ms38e,4-3,,+9.0,up high,1402,12610,Ms29w,Asanoryu,Fukai,Ms22w,3-4,,-7.0,down high,1356
+makushita,Makushita,Ms30,12739,Ms30e,Gyokuozan,Gyokuozan,Ms40e,4-3,,+10.0,up high,1219,12779,Ms30w,Hananofuji,Hananofuji (2022),Ms15e,2-5,,-15.5,down high,1563
+makushita,Makushita,Ms31,11755,Ms31e,Tsurubayashi,Tsurubayashi,Ms50w,5-2,,+19.5,up high,1238,12635,Ms31w,Mikazuchiyama,Mikazuchiyama,Ms25w,3-4,,-6.0,down high,1243
+makushita,Makushita,Ms32,12813,Ms32e,Higonomaru,Higonomaru,Ms51e,5-2,,+19.0,up high,1178,12849,Ms32w,Daimasakari,Daimasakari,Sd6e,6-1,↑,+34.0,up high,1256
+makushita,Makushita,Ms33,12555,Ms33e,Kiyota,Kiyota,Ms43e,4-3,,+10.0,up high,1216,12576,Ms33w,Chiyotora,Chiyotora,Ms18w,2-5,,-15.0,down high,1255
+makushita,Makushita,Ms34,12342,Ms34e,Tsushimanada,Tsushimanada,Ms44w,4-3,,+10.5,up high,1268,12075,Ms34w,Kaisho,Kaisho (2013),Ms57e,5-2,,+22.5,up high,1308
+makushita,Makushita,Ms35,12948,Ms35e,Kaki,Kaki,Ms11w,1-6,,-23.5,down high,1291,12803,Ms35w,Yumenofuji,Yumenofuji,Ms45w,4-3,,+10.0,up high,1118
+makushita,Makushita,Ms36,12772,Ms36e,Ikazuchido,Ikazuchido,Ms59e,5-2,,+23.0,up high,1252,12594,Ms36w,Nihonyanagi,Nihonyanagi,Ms46e,4-3,,+9.5,up high,1336
+makushita,Makushita,Ms37,12793,Ms37e,Satorufuji,Satorufuji,Ms26w,3-4,,-10.5,down high,1329,12844,Ms37w,Anhibiki,Anhibiki,Ms47w,4-3,,+10.0,up high,1244
+makushita,Makushita,Ms38,12731,Ms38e,Toseiryu,Toseiryu,Ms28w,3-4,,-9.5,down high,1315,12220,Ms38w,Obara,Obara,Ms29w,3-4,,-9.0,down high,1314
+makushita,Makushita,Ms39,12951,Ms39e,Tatsubayama,Tatsubayama (2025),Sd17e,6-1,↑,+38.5,up high,1339,12834,Ms39w,Anosho,Anosho,Ms50e,4-3,,+10.5,up high,1249
+makushita,Makushita,Ms40,12947,Ms40e,Koseiryu,Koseiryu,Sd3e,5-2,↑,+23.5,up high,1258,1241,Ms40w,Kitaharima,Kitaharima,Ms31w,3-4,,-9.0,down high,1237
+makushita,Makushita,Ms41,12227,Ms41e,Higonoumi,Higonoumi (2015),Ms24w,2-5,,-16.5,down high,1301,12954,Ms41w,Gyotoku,Gyotoku,Sd5w,5-2,↑,+24.5,up high,1391
+makushita,Makushita,Ms42,12132,Ms42e,Tochiseiryu,Tochiseiryu (2014),Ms53e,4-3,,+11.0,up high,1265,12559,Ms42w,Aratakayama,Aratakayama (2019),Ms27w,2-5,,-15.0,down high,1208
+makushita,Makushita,Ms43,12888,Ms43e,Yonezawaryu,Yonezawaryu,Ms35w,3-4,,-7.5,down high,1197,12697,Ms43w,Kassho,Kassho,Sd8e,5-2,↑,+25.0,up high,1139
+makushita,Makushita,Ms44,12904,Ms44e,Okada,Okada,Ms55e,4-3,,+11.0,up high,1206,12771,Ms44w,Toshunryu,Toshunryu,Sd23w,6-1,↑,+39.5,up high,1310
+makushita,Makushita,Ms45,12285,Ms45e,Asagyokusei,Asagyokusei,Ms36e,3-4,,-9.0,down high,1232,12879,Ms45w,Tokitenran,Tokitenran,Ms36w,3-4,,-9.0,down high,1220
+makushita,Makushita,Ms46,12901,Ms46e,Tenrosei,Tenrosei,Ms56e,4-3,,+10.0,up high,1200,12709,Ms46w,Mienofuji,Mienofuji,Ms11e,0-3-4,,-35.5,down high,1331
+makushita,Makushita,Ms47,12400,Ms47e,Kaishin,Kaishin (2017),Sd9w,5-2,↑,+23.0,up high,1356,12753,Ms47w,Tatsuosho,Tatsuosho,Ms56w,4-3,,+9.0,up high,1270
+makushita,Makushita,Ms48,12964,Ms48e,Takahara,Takahara,Sd31e,6-1,↑,+43.5,up high,1228,12166,Ms48w,Sadanohikari,Sadanohikari,Ms38w,3-4,,-10.0,down high,1217
+makushita,Makushita,Ms49,12775,Ms49e,Oyamada,Oyamada,Ms33e,2-5,,-16.0,down high,1204,12674,Ms49w,Tochimusashi,Tochimusashi (2021),Ms9w,0-0-7,,-40.0,down high,1482
+makushita,Makushita,Ms50,12985,Ms50e,Fudoho,Fudoho,Ms60eTD,4-3,,+11.0,up high,1262,11741,Ms50w,Tochinobori,Tochinobori (2009),Ms41e,3-4,,-9.5,down high,1152
+makushita,Makushita,Ms51,12393,Ms51e,Seigo,Seigo (2017),Sd15w,5-2,↑,+25.0,up high,1232,12666,Ms51w,Goosho,Goosho,Ms42e,3-4,,-9.5,down high,1170
+makushita,Makushita,Ms52,12479,Ms52e,Chiyooga,Chiyooga,Ms25e,1-6,,-27.0,down high,1187,11814,Ms52w,Wakatakamoto,Wakatakamoto,Ms26e,1-3-3,,-26.5,down high,1287
+makushita,Makushita,Ms53,12890,Ms53e,Shimizuumi,Shimizuumi,Ms37e,2-5,,-16.0,down high,1210,12195,Ms53w,Kiyonoumi,Kiyonoumi (2014),Sd4w,4-3,↑,+11.5,up high,1136
+makushita,Makushita,Ms54,12579,Ms54e,Marusho,Marusho,Sd18w,5-2,↑,+25.0,up high,1180,12534,Ms54w,Fujinoyama,Fujinoyama (2019),Ms48w,3-4,,-6.0,down high,1176
+makushita,Makushita,Ms55,12895,Ms55e,Furuta,Furuta (2024),Sd42e,6-1,↑,+47.5,up high,1232,12064,Ms55w,Chiyonokatsu,Chiyonokatsu,Ms49w,3-4,,-6.0,down high,1153
+makushita,Makushita,Ms56,12633,Ms56e,Ieshima,Ieshima,Ms40w,2-5,,-15.5,down high,1123,12902,Ms56w,Gonosho,Gonosho,Sd44w,6-1,↑,+48.5,up high,1152
+makushita,Makushita,Ms57,12528,Ms57e,Hodaka,Hodaka (2019),Sd7e,4-3,↑,+10.5,up high,1126,12832,Ms57w,Haruyama,Haruyama,Ms17e,0-1-6,,-40.5,down high,1348
+makushita,Makushita,Ms58,12641,Ms58e,Nishiomoto,Nishiomoto,Sd7w,4-3,↑,+10.0,up high,1138,12698,Ms58w,Daishoryu,Daishoryu (2021),Ms42w,2-5,,-16.0,down high,1171
+makushita,Makushita,Ms59,2851,Ms59e,Fujiazuma,Fujiazuma (2003),Sd8w,4-3,↑,+10.0,up high,1170,12712,Ms59w,Shunrai,Shunrai,Ms43w,2-4-1,,-16.0,down high,1178
+makushita,Makushita,Ms60,12192,Ms60e,Ohata,Ohata,Ms53w,3-4,,-6.5,down high,1171,12736,Ms60w,Wakamiyabi,Wakamiyabi,Ms34w,1-6,,-26.0,down high,1151
+sandanme,Sandanme,Sd1,12571,Sd1e,Koki,Koki (2019),Sd13e,4-3,,+12.0,up high,1118,12828,Sd1w,Ryuji,Ryuji,Ms54w,3-4,↓,-7.5,down high,1147
+sandanme,Sandanme,Sd2,12889,Sd2e,Goseizan,Goseizan,Sd14e,4-3,,+12.0,up high,1154,12943,Sd2w,Matsuda,Matsuda (2025),Sd27e,5-2,,+24.5,up high,1184
+sandanme,Sandanme,Sd3,12086,Sd3e,Okinohama,Okinohama,Sd15e,4-3,,+12.0,up high,1183,12744,Sd3w,Yamato,Yamato (2022),Ms57w,3-4,↓,-6.5,down high,1116
+sandanme,Sandanme,Sd4,12855,Sd4e,Suzunofuji,Suzunofuji,Sd16e,4-3,,+12.0,up high,1082,12236,Sd4w,Oyamatoumi,Oyamatoumi,Sd29e,5-2,,+24.5,up high,1309
+sandanme,Sandanme,Sd5,12461,Sd5e,Tenshoma,Tenshoma,Sd29w,5-2,,+24.5,up high,1113,12374,Sd5w,Hakuomaru,Hakuomaru,Sd17w,4-3,,+12.0,up high,1034
+sandanme,Sandanme,Sd6,12967,Sd6e,Asahifuji,Asahifuji (2025),Jd8w,7-0 Y,↑,+83.0,up high,1193,12817,Sd6w,Soma,Soma,Ms60e,3-4,↓,-7.0,down high,1127
+sandanme,Sandanme,Sd7,12791,Sd7e,Gohakuun,Gohakuun,Ms60w,3-4,↓,-7.0,down high,1076,12455,Sd7w,Hinataryu,Hinataryu,Ms51w,2-5,↓,-16.5,down high,1157
+sandanme,Sandanme,Sd8,7143,Sd8e,Amakaze,Amakaze,Sd62e,6-1,,+54.0,up high,1075,12144,Sd8w,Daishomaru,Daishomaru,Sd34w,5-2,,+26.0,up high,1177
+sandanme,Sandanme,Sd9,12527,Sd9e,Kotodaishin,Kotodaishin (2019),Sd22w,4-3,,+13.5,up high,1094,12758,Sd9w,Rinko,Rinko,Sd35e,5-2,,+25.5,up high,1098
+sandanme,Sandanme,Sd10,12794,Sd10e,Agora,Agora,Ms54e,2-5,↓,-16.5,down high,1031,12713,Sd10w,Miyanokaze,Miyanokaze,Ms30w,0-0-7,↓,-40.5,down high,1368
+sandanme,Sandanme,Sd11,12960,Sd11e,Yabugasaki,Yabugasaki,Ms55w,2-5,↓,-16.0,down high,1187,12565,Sd11w,Ienoshima,Ienoshima,Sd24e,4-3,,+12.5,up high,1147
+sandanme,Sandanme,Sd12,12611,Sd12e,Naya,Naya,Sd24w,4-3,,+12.5,up high,1105,12117,Sd12w,Bushozan,Bushozan,Ms32e,0-0-7,↓,-41.0,down high,1429
+sandanme,Sandanme,Sd13,7164,Sd13e,Kototsubasa,Kototsubasa,Sd25w,4-3,,+12.5,up high,1107,12263,Sd13w,Tosamidori,Tosamidori,Ms47e,1-6,↓,-27.0,down high,1137
+sandanme,Sandanme,Sd14,12905,Sd14e,Wakaikazuchi,Wakaikazuchi,Sd2e,3-4,,-12.0,down high,1123,12656,Sd14w,Hoshuzan,Hoshuzan,Ms58e,2-5,↓,-17.0,down high,1087
+sandanme,Sandanme,Sd15,12535,Sd15e,Daihisho,Daihisho (2019),Sd4e,3-4,,-11.0,down high,1116,12687,Sd15w,Asakiryu,Asakiryu,Sd30e,4-3,,+14.5,up high,1079
+sandanme,Sandanme,Sd16,7160,Sd16e,Ebisumaru,Ebisumaru,Sd71w,6-1,,+55.5,up high,1077,1266,Sd16w,Nionoumi,Nionoumi,Sd5e,3-4,,-11.5,down high,1130
+sandanme,Sandanme,Sd17,12785,Sd17e,Kototaiko,Kototaiko (2022),Sd43w,5-2,,+26.5,up high,1142,12338,Sd17w,Wakenokaze,Wakenokaze,Ms52e,1-6,↓,-26.0,down high,1088
+sandanme,Sandanme,Sd18,12446,Sd18e,Tenei,Tenei,Sd74w,6-1,,+56.5,up high,1078,12681,Sd18w,Taniguchi,Taniguchi (2021),Sd45w,5-2,,+27.0,up high,1031
+sandanme,Sandanme,Sd19,12507,Sd19e,Kawamura,Kawamura (2018),Sd33e,4-3,,+14.0,up high,1118,12510,Sd19w,Chiyotaiyo,Chiyotaiyo,Sd9e,3-4,,-10.5,down high,1052
+sandanme,Sandanme,Sd20,12241,Sd20e,Akitoba,Akitoba,Sd34e,4-3,,+14.0,up high,1114,12375,Sd20w,Hamanoumi,Hamanoumi,Sd10w,3-4,,-10.0,down high,1058
+sandanme,Sandanme,Sd21,12752,Sd21e,Dairinzan,Dairinzan,Sd36e,4-3,,+15.0,up high,1085,12898,Sd21w,Mita,Mita,Ms41w,0-0-7,↓,-40.5,down high,1618
+sandanme,Sandanme,Sd22,12552,Sd22e,Yokomaru,Yokomaru,Sd11e,3-4,,-11.0,down high,1078,12882,Sd22w,Sekimoto,Sekimoto,Sd38e,4-3,,+15.5,up high,1043
+sandanme,Sandanme,Sd23,12777,Sd23e,Sachinofuji,Sachinofuji,Sd51e,5-2,,+28.0,up high,1052,11829,Sd23w,Oginohama,Oginohama,Sd39e,4-3,,+15.5,up high,1090
+sandanme,Sandanme,Sd24,12299,Sd24e,Hokutoryu,Hokutoryu (2016),Sd11w,3-4,,-12.5,down high,1102,12074,Sd24w,Toshoyama,Toshoyama,Sd39w,4-3,,+15.0,up high,1010
+sandanme,Sandanme,Sd25,11953,Sd25e,Oka,Oka (2011),Sd1e,2-5,,-24.0,down high,1069,12438,Sd25w,Harunishiki,Harunishiki,Sd2w,2-5,,-23.0,down high,1038
+sandanme,Sandanme,Sd26,12636,Sd26e,Teraosho,Teraosho (2020),Sd41e,4-3,,+15.0,up high,951,12544,Sd26w,Nishikikuni,Nishikikuni,Sd12e,3-4,,-14.5,down high,1086
+sandanme,Sandanme,Sd27,11743,Sd27e,Asakoki,Asakoki,Sd41w,4-3,,+14.5,up high,1118,12684,Sd27w,Kiyonohana,Kiyonohana (2021),Sd13w,3-4,,-14.0,down high,1082
+sandanme,Sandanme,Sd28,12968,Sd28e,Kazemitsuki,Kazemitsuki,Sd56e,5-2,,+28.0,up high,1188,12654,Sd28w,Chiyoyamato,Chiyoyamato,Sd57e,5-2,,+28.5,up high,970
+sandanme,Sandanme,Sd29,12545,Sd29e,Daishinkai,Daishinkai,Sd6w,2-5,,-22.5,down high,1057,11993,Sd29w,Tsugaruumi,Tsugaruumi (2012),Sd46w,4-3,,+17.0,up high,1040
+sandanme,Sandanme,Sd30,12379,Sd30e,Yoshiyasu,Yoshiyasu,Sd58e,5-2,,+28.0,up high,1103,6618,Sd30w,Chiyoraizan,Chiyoraizan,Sd20w,3-4,,-10.0,down high,1086
+sandanme,Sandanme,Sd31,12173,Sd31e,Ryuma,Ryuma (2014),Sd60e,5-2,,+29.0,up high,1015,12537,Sd31w,Denuma,Denuma,Sd48w,4-3,,+17.0,up high,1074
+sandanme,Sandanme,Sd32,12881,Sd32e,Imamura,Imamura (2024),Sd21w,3-4,,-10.5,down high,1046,12346,Sd32w,Chiyodaigo,Chiyodaigo,Ms52w,0-0-7,↓,-40.5,down high,1279
+sandanme,Sandanme,Sd33,12680,Sd33e,Amao,Amao,Sd49w,4-3,,+16.5,up high,1014,9066,Sd33w,Akinoyama,Akinoyama,Ms58w,0-7,↓,-35.5,down high,1022
+sandanme,Sandanme,Sd34,12509,Sd34e,Awanoumi,Awanoumi,Sd22e,3-4,,-12.0,down high,1026,12369,Sd34w,Asashiyu,Asashiyu,Ms59w,0-2-5,↓,-35.5,down high,1221
+sandanme,Sandanme,Sd35,12663,Sd35e,Kyoda,Kyoda,Jd15w,6-1,↑,+61.0,up high,1236,12842,Sd35w,Daigoyama,Daigoyama,Sd62w,5-2,,+27.0,up high,1024
+sandanme,Sandanme,Sd36,12765,Sd36e,Izumifuji,Izumifuji,Sd50e,4-3,,+14.0,up high,1054,12388,Sd36w,Chiyotaiho,Chiyotaiho,Sd53e,4-3,,+16.5,up high,1079
+sandanme,Sandanme,Sd37,11936,Sd37e,Hamayutaka,Hamayutaka,Sd12w,2-5,,-24.5,down high,1102,12628,Sd37w,Takanoryu,Takanoryu (2020),Sd54w,4-2-1,,+17.0,up high,1081
+sandanme,Sandanme,Sd38,12437,Sd38e,Yurikisho,Yurikisho,Sd23e,3-4,,-15.0,down high,1095,12506,Sd38w,Tokinohira,Tokinohira,Sd70e,5-2,,+31.5,up high,1042
+sandanme,Sandanme,Sd39,12418,Sd39e,Taranami,Taranami,Sd57w,4-3,,+18.5,up high,979,12661,Sd39w,Minorufuji,Minorufuji,Sd71e,5-2,,+31.5,up high,1059
+sandanme,Sandanme,Sd40,11988,Sd40e,Kanpuzan,Kanpuzan,Sd26e,3-4,,-14.0,down high,1091,12792,Sd40w,Gonowaka,Gonowaka,Sd59w,4-3,,+19.0,up high,1071
+sandanme,Sandanme,Sd41,12539,Sd41e,Inaba,Inaba,Sd72w,5-2,,+31.5,up high,959,12139,Sd41w,Shuji,Shuji,Sd26w,3-4,,-15.0,down high,1052
+sandanme,Sandanme,Sd42,12151,Sd42e,Tokiryu,Tokiryu (2014),Sd61w,4-3,,+19.5,up high,971,12306,Sd42w,Akatora,Akatora,Sd18e,2-5,,-24.5,down high,948
+sandanme,Sandanme,Sd43,12484,Sd43e,Asazenshin,Asazenshin,Sd75e,5-2,,+32.0,up high,1026,12655,Sd43w,Akiyoshi,Akiyoshi,Sd19w,2-5,,-24.0,down high,1081
+sandanme,Sandanme,Sd44,12468,Sd44e,Kotakiyama,Kotakiyama,Sd64e,4-3,,+20.0,up high,981,11840,Sd44w,Chiyonoo,Chiyonoo,Sd20e,2-5,,-24.5,down high,1151
+sandanme,Sandanme,Sd45,12615,Sd45e,Asaobora,Asaobora,Jd26w,6-1,↑,+62.0,up high,953,12909,Sd45w,Sunasaka,Sunasaka,Sd65w,4-3,,+20.0,up high,1000
+sandanme,Sandanme,Sd46,12385,Sd46e,Kototaiga,Kototaiga,Sd77w,5-2,,+31.5,up high,994,12787,Sd46w,Kazeeidai,Kazeeidai,Sd10e,1-6,,-36.5,down high,1063
+sandanme,Sandanme,Sd47,12613,Sd47e,Kotetsu,Kotetsu (2020),Sd30w,3-4,,-16.5,down high,1107,12294,Sd47w,Asashinjo,Asashinjo,Sd66e,4-3,,+18.5,up high,1039
+sandanme,Sandanme,Sd48,12989,Sd48e,Kaida,Kaida (2026),Sd80eTD,5-2,,+33.0,up high,1130,12327,Sd48w,Oshozan,Oshozan,Sd67w,4-3,,+19.0,up high,991
+sandanme,Sandanme,Sd49,12692,Sd49e,Takashoki,Takashoki,Sd69e,4-3,,+20.0,up high,1068,12755,Sd49w,Rakanji,Rakanji,Sd32w,3-4,,-17.0,down high,1038
+sandanme,Sandanme,Sd50,335,Sd50e,Shoketsu,Shoketsu,Jd4w,5-2,↑,+35.0,up high,917,12566,Sd50w,Shimanishiki,Shimanishiki (2019),Jd5e,5-2,↑,+35.0,up high,926
+sandanme,Sandanme,Sd51,12103,Sd51e,Dogo,Dogo,Sd25e,2-5,,-26.0,down high,956,12414,Sd51w,Churafuji,Churafuji,Sd14w,1-6,,-37.0,down high,986
+sandanme,Sandanme,Sd52,12326,Sd52e,Tsugunohana,Tsugunohana,Sd72e,4-3,,+20.0,up high,933,12169,Sd52w,Kuranofuji,Kuranofuji (2014),Sd35w,3-4,,-17.0,down high,1038
+sandanme,Sandanme,Sd53,12564,Sd53e,Hakuonada,Hakuonada,Sd37e,3-4,,-16.0,down high,1002,12363,Sd53w,Wakaterumoto,Wakaterumoto,Sd37w,3-4,,-16.0,down high,1015
+sandanme,Sandanme,Sd54,11767,Sd54e,Oginosho,Oginosho,Jd37w,6-1,↑,+64.0,up high,921,12134,Sd54w,Tochimitsuru,Tochimitsuru,Sd74e,4-3,,+19.5,up high,948
+sandanme,Sandanme,Sd55,12966,Sd55e,Tenshoyama,Tenshoyama (2025),Jd39e,6-1,↑,+64.5,up high,1145,12321,Sd55w,Hatooka,Hatooka,Sd28e,2-5,,-27.5,down high,1080
+sandanme,Sandanme,Sd56,12847,Sd56e,Kyokutairyu,Kyokutairyu,Sd75w,4-3,,+19.5,up high,964,12584,Sd56w,Araoyama,Araoyama,Sd28w,2-5,,-28.0,down high,988
+sandanme,Sandanme,Sd57,12848,Sd57e,Kyokutendo,Kyokutendo,Jd10w,5-2,↑,+34.0,up high,1096,12769,Sd57w,Suyama,Suyama,Sd19e,1-2-4,,-38.5,down high,1051
+sandanme,Sandanme,Sd58,12838,Sd58e,Karino,Karino,Sd40e,3-4,,-18.0,down high,1029,12209,Sd58w,Kenshin,Kenshin,Sd44e,3-4,,-14.5,down high,1014
+sandanme,Sandanme,Sd59,12574,Sd59e,Kisenoumi,Kisenoumi,Sd45e,3-4,,-14.0,down high,997,12762,Sd59w,Daishimatsu,Daishimatsu,Sd33w,2-5,,-26.0,down high,946
+sandanme,Sandanme,Sd60,12837,Sd60e,Kikunoshiro,Kikunoshiro,Sd80e,4-3,,+20.0,up high,912,12883,Sd60w,Shoryu,Shoryu (2024),Jd16w,5-2,↑,+36.5,up high,975
+sandanme,Sandanme,Sd61,12456,Sd61e,Sakabayashi,Sakabayashi,Sd80w,4-3,,+19.5,up high,876,12475,Sd61w,Wakazakura,Wakazakura (2018),Sd46e,3-4,,-15.5,down high,986
+sandanme,Sandanme,Sd62,12686,Sd62e,Asasorai,Asasorai,Jd2e,4-3,↑,+20.5,up high,911,12810,Sd62w,Fujiso,Fujiso,Sd47w,3-4,,-15.0,down high,976
+sandanme,Sandanme,Sd63,12087,Sd63e,Yutakasho,Yutakasho,Sd27w,1-6,,-35.5,down high,957,12058,Sd63w,Daishoki,Daishoki (2013),Jd2w,4-3,↑,+19.5,up high,954
+sandanme,Sandanme,Sd64,12567,Sd64e,Hakuda,Hakuda (2019),Sd48e,3-4,,-16.0,down high,1030,12860,Sd64w,Tochiaoi,Tochiaoi,Sd38w,2-5,,-26.0,down high,950
+sandanme,Sandanme,Sd65,12814,Sd65e,Keiga,Keiga,Jd20e,5-2,↑,+35.5,up high,932,12481,Sd65w,Kotohaguro,Kotohaguro,Sd50w,3-4,,-15.0,down high,969
+sandanme,Sandanme,Sd66,12689,Sd66e,Kumanoryu,Kumanoryu,Sd51w,3-4,,-14.5,down high,998,12650,Sd66w,Otsuna,Otsuna (2020),Jd6w,4-3,↑,+20.5,up high,949
+sandanme,Sandanme,Sd67,12541,Sd67e,Tomiyutaka,Tomiyutaka,Jd23e,5-2,↑,+36.5,up high,993,12637,Sd67w,Tsukubayama,Tsukubayama,Jd7w,4-3,↑,+20.5,up high,928
+sandanme,Sandanme,Sd68,12921,Sd68e,Shunta,Shunta,Jd24e,5-2,↑,+36.5,up high,937,12929,Sd68w,Kazekodai,Kazekodai,Sd52w,3-4,,-16.0,down high,981
+sandanme,Sandanme,Sd69,12825,Sd69e,Kazeyuki,Kazeyuki,Sd42w,2-5,,-26.5,down high,969,300,Sd69w,Dairaido,Dairaido,Sd32e,1-6,,-37.5,down high,913
+sandanme,Sandanme,Sd70,12384,Sd70e,Kotonofuji,Kotonofuji (2017),Sd43e,2-5,,-27.0,down high,1014,12941,Sd70w,Uchima,Uchima,Sd55e,3-4,,-15.5,down high,1047
+sandanme,Sandanme,Sd71,11955,Sd71e,Takataisho,Takataisho,Jd11e,4-3,↑,+20.5,up high,892,12007,Sd71w,Dewanojo,Dewanojo,Jd12e,4-3,↑,+21.0,up high,944
+sandanme,Sandanme,Sd72,12524,Sd72e,Terutaka,Terutaka,Jd60w,6-1,↑,+69.0,up high,870,1062,Sd72w,Hagane,Hagane,Jd28e,5-2,↑,+36.0,up high,900
+sandanme,Sandanme,Sd73,12670,Sd73e,Kyokutaiga,Kyokutaiga,Sd47e,2-5,,-26.0,down high,899,12562,Sd73w,Tokazan,Tokazan,Sd58w,3-4,,-15.0,down high,953
+sandanme,Sandanme,Sd74,11874,Sd74e,Fukutsuumi,Fukutsuumi,Sd49e,2-5,,-25.0,down high,929,7124,Sd74w,Kayatoiwa,Kayatoiwa,Sd60w,3-4,,-14.0,down high,887
+sandanme,Sandanme,Sd75,12728,Sd75e,Satsumasho,Satsumasho,Jd63e,6-1,↑,+68.5,up high,917,12763,Sd75w,Tokikenryu,Tokikenryu,Sd40w,1-6,,-35.0,down high,942
+sandanme,Sandanme,Sd76,12624,Sd76e,Fujimusashi,Fujimusashi,Jd15e,4-3,↑,+19.5,up high,856,12504,Sd76w,Soga,Soga,Jd32e,5-2,↑,+36.0,up high,929
+sandanme,Sandanme,Sd77,12711,Sd77e,Kiryuko,Kiryuko,Jd100w,7-0 D,↑,+104.0,up high,1501,12959,Sd77w,Tanaka,Tanaka (2025),Jd17w,4-3,↑,+20.5,up high,1020
+sandanme,Sandanme,Sd78,12788,Sd78e,Fujinoshin,Fujinoshin (2022),Sd61e,3-4,,-17.0,down high,993,12295,Sd78w,Asahanshin,Asahanshin,Jd18e,4-3,↑,+20.0,up high,867
+sandanme,Sandanme,Sd79,12907,Sd79e,Goseimaru,Goseimaru,Jd68e,6-1,↑,+69.5,up high,912,12891,Sd79w,Musubiyama,Musubiyama,Jd34e,5-2,↑,+35.0,up high,935
+sandanme,Sandanme,Sd80,7171,Sd80e,Ryuseiyama,Ryuseiyama (2007),Sd52e,2-5,,-28.0,down high,865,12582,Sd80w,Yamane,Yamane (2019),Jd36e,5-2,↑,+36.0,up high,901
+jonidan,Jonidan,Jd1,12741,Jd1e,Daikinryu,Daikinryu,Jd71w,6-1,,+70.5,up high,1126,12640,Jd1w,Mikinosato,Mikinosato,Jd22e,4-3,,+20.5,up high,820
+jonidan,Jonidan,Jd2,12971,Jd2e,Seki,Seki,Jd72e,6-1,,+70.0,up high,1126,12667,Jd2w,Nagata,Nagata,Jd72w,6-1,,+70.0,up high,997
+jonidan,Jonidan,Jd3,12432,Jd3e,Shoji,Shoji (2017),Sd53w,2-5,↓,-30.0,down high,929,12799,Jd3w,Daitengu,Daitengu,Jd22w,4-3,,+19.0,up high,812
+jonidan,Jonidan,Jd4,12899,Jd4e,Hikarumusashi,Hikarumusashi,Sd63w,3-4,↓,-21.0,down high,953,12657,Jd4w,Ibuki,Ibuki,Jd23w,4-3,,+19.0,up high,858
+jonidan,Jonidan,Jd5,12389,Jd5e,Suio,Suio,Sd66w,3-4,↓,-19.0,down high,980,12856,Jd5w,Ayanofuji,Ayanofuji (2024),Sd67e,3-4,↓,-19.0,down high,928
+jonidan,Jonidan,Jd6,12005,Jd6e,Seido,Seido,Jd25w,4-3,,+19.5,up high,871,12690,Jd6w,Goseiryu,Goseiryu,Jd44e,5-2,,+37.5,up high,1081
+jonidan,Jonidan,Jd7,12723,Jd7e,Masakifuji,Masakifuji,Sd68w,3-4,↓,-19.0,down high,912,12705,Jd7w,Daitensho,Daitensho (2021),Jd29w,4-3,,+22.0,up high,735
+jonidan,Jonidan,Jd8,12146,Jd8e,Sakai,Sakai (2014),Jd30w,4-3,,+22.5,up high,863,12071,Jd8w,Sekizuka,Sekizuka,Jd31w,4-3,,+23.0,up high,874
+jonidan,Jonidan,Jd9,12336,Jd9e,Kaiyuma,Kaiyuma,Sd59e,2-5,↓,-30.5,down high,867,12533,Jd9w,Fujiyuho,Fujiyuho,Jd47e,5-2,,+37.5,up high,943
+jonidan,Jonidan,Jd10,12452,Jd10e,Asaazuma,Asaazuma,Jd33w,4-3,,+23.5,up high,821,2836,Jd10w,Katsunofuji,Katsunofuji,Sd63e,2-5,↓,-28.0,down high,925
+jonidan,Jonidan,Jd11,12486,Jd11e,Akinishiki,Akinishiki,Jd49e,5-2,,+38.0,up high,732,11949,Jd11w,Kotodaigo,Kotodaigo,Sd31w,0-0-7,↓,-60.5,down high,1352
+jonidan,Jonidan,Jd12,12922,Jd12e,Ikazuchishu,Ikazuchishu,Jd36w,4-3,,+24.5,up high,958,5964,Jd12w,Hitachigo,Hitachigo,Sd73w,3-4,↓,-19.5,down high,871
+jonidan,Jonidan,Jd13,11744,Jd13e,Hokuyozan,Hokuyozan,Jd37e,4-3,,+24.0,up high,831,12931,Jd13w,Tsurunosato,Tsurunosato (2025),Sd64w,2-5,↓,-29.5,down high,946
+jonidan,Jonidan,Jd14,5954,Jd14e,Asanojo,Asanojo,Sd65e,2-5,↓,-29.5,down high,893,12696,Jd14w,Harimao,Harimao (2021),Jd39w,4-3,,+25.0,up high,842
+jonidan,Jonidan,Jd15,12164,Jd15e,Kaishinmaru,Kaishinmaru,Sd55w,1-6,↓,-40.0,down high,918,12926,Jd15w,Kakusho,Kakusho,Jd52w,5-2,,+37.0,up high,932
+jonidan,Jonidan,Jd16,12463,Jd16e,Kinotsukasa,Kinotsukasa,Sd76e,3-4,↓,-20.5,down high,1003,12201,Jd16w,Ryutsukasa,Ryutsukasa,Sd36w,0-0-7,↓,-60.5,down high,1070
+jonidan,Jonidan,Jd17,12816,Jd17e,Togyokuko,Togyokuko,Jd41w,4-3,,+24.5,up high,760,12829,Jd17w,Kikuryuho,Kikuryuho,Jd42w,4-3,,+25.0,up high,802
+jonidan,Jonidan,Jd18,12378,Jd18e,Amane,Amane,Sd76w,3-4,↓,-22.0,down high,908,1046,Jd18w,Asatenmai,Asatenmai,Jd43e,4-3,,+24.5,up high,800
+jonidan,Jonidan,Jd19,12310,Jd19e,Furanshisu,Furanshisu,Jd53w,5-2,,+34.5,up high,870,12863,Jd19w,Hakuryu,Hakuryu (2024),Sd77e,3-4,↓,-23.0,down high,961
+jonidan,Jonidan,Jd20,12749,Jd20e,Shoran,Shoran,Sd78e,3-4,↓,-22.5,down high,914,12936,Jd20w,Kazeoka,Kazeoka,Jd54e,5-2,,+33.5,up high,980
+jonidan,Jonidan,Jd21,12152,Jd21e,Ishiazuma,Ishiazuma,Jd47w,4-3,,+26.5,up high,854,12707,Jd21w,Daitenshin,Daitenshin,Jd48e,4-3,,+26.5,up high,791
+jonidan,Jonidan,Jd22,12272,Jd22e,Buomaru,Buomaru,Sd69w,2-5,↓,-33.0,down high,1071,9087,Jd22w,Kanryu,Kanryu,Jd61w,5-2,,+39.0,up high,882
+jonidan,Jonidan,Jd23,12254,Jd23e,Tosashimizu,Tosashimizu,Sd68e,1-6,↓,-35.5,down high,861,12495,Jd23w,Hokutosakae,Hokutosakae,Sd54e,0-5-2,↓,-50.0,down high,901
+jonidan,Jonidan,Jd24,6002,Jd24e,Ryuseio,Ryuseio,Jd50w,4-3,,+26.5,up high,837,12875,Jd24w,Kaihakusho,Kaihakusho,Jd65e,5-2,,+40.5,up high,806
+jonidan,Jonidan,Jd25,12754,Jd25e,Kotofuno,Kotofuno,Jd51e,4-3,,+26.0,up high,678,12554,Jd25w,Kototaiho,Kototaiho,Jd1e,3-4,,-24.5,down high,916
+jonidan,Jonidan,Jd26,12323,Jd26e,Takabayama,Takabayama (2016),Sd78w,2-5,↓,-28.0,down high,911,12768,Jd26w,Najima,Najima,Sd79e,2-5,↓,-28.0,down high,827
+jonidan,Jonidan,Jd27,12121,Jd27e,Kukio,Kukio,Jd55w,4-3,,+28.5,up high,732,12230,Jd27w,Dewanosora,Dewanosora,Jd56w,4-3,,+29.0,up high,796
+jonidan,Jonidan,Jd28,12812,Jd28e,Kiyonoyama,Kiyonoyama,Jd5w,3-4,,-22.5,down high,894,12551,Jd28w,Asahabataki,Asahabataki,Jd7e,3-4,,-21.5,down high,892
+jonidan,Jonidan,Jd29,12726,Jd29e,Aoifuji,Aoifuji,Jd8e,3-4,,-21.0,down high,939,12298,Jd29w,Hokutoyoshi,Hokutoyoshi,Jd58w,4-3,,+29.0,up high,819
+jonidan,Jonidan,Jd30,9126,Jd30e,Hirose,Hirose,Jd75e,5-2,,+45.0,up high,744,12644,Jd30w,Kaihiryu,Kaihiryu,Jd9w,3-4,,-21.0,down high,864
+jonidan,Jonidan,Jd31,12490,Jd31e,Kojikara,Kojikara,Jk12e,6-1 D,↑,+83.0,up high,1123,12700,Jd31w,Aron,Aron,Jk12w,6-1 Y,↑,+83.0,up high,1180
+jonidan,Jonidan,Jd32,12942,Jd32e,Asarikimaru,Asarikimaru,Jd10e,3-4,,-22.0,down high,958,12498,Jd32w,Biganzan,Biganzan,Jd60e,4-3,,+27.5,up high,811
+jonidan,Jonidan,Jd33,12402,Jd33e,Ojiyama,Ojiyama,Jd77w,5-2,,+44.5,up high,842,12630,Jd33w,Boshuyama,Boshuyama,Jd61e,4-3,,+27.5,up high,722
+jonidan,Jonidan,Jd34,11981,Jd34e,Hidano,Hidano,Jd63w,4-3,,+29.5,up high,813,12109,Jd34w,Shinyashiki,Shinyashiki,Jd12w,3-4,,-22.0,down high,902
+jonidan,Jonidan,Jd35,12914,Jd35e,Umeyama,Umeyama,Jd65w,4-3,,+30.5,up high,825,11886,Jd35w,Fujinowaka,Fujinowaka,Jd3e,2-5,,-32.5,down high,858
+jonidan,Jonidan,Jd36,12340,Jd36e,Sawayaka,Sawayaka,Jd66e,4-3,,+30.0,up high,748,12743,Jd36w,Takaarashi,Takaarashi (2022),Sd56w,0-0-7,↓,-60.5,down high,1003
+jonidan,Jonidan,Jd37,12789,Jd37e,Anzakura,Anzakura,Jd82e,5-2,,+45.0,up high,741,12973,Jd37w,Shosei,Shosei (2026),Jk18e,6-1 D,↑,+82.5,up high,1082
+jonidan,Jonidan,Jd38,12874,Jd38e,Kaiso,Kaiso,Jd69e,4-3,,+31.0,up high,705,12160,Jd38w,Takakurayama,Takakurayama,Sd79w,1-6,↓,-39.5,down high,763
+jonidan,Jonidan,Jd39,12919,Jd39e,Komanofuji,Komanofuji,Jd70e,4-3,,+31.0,up high,812,12259,Jd39w,Fukuazuma,Fukuazuma,Jd70w,4-3,,+31.0,up high,744
+jonidan,Jonidan,Jd40,12757,Jd40e,Onbashira,Onbashira,Jd83e,5-2,,+43.0,up high,986,11996,Jd40w,Hokutoshu,Hokutoshu,Jd14e,3-3-1,,-26.5,down high,966
+jonidan,Jonidan,Jd41,7167,Jd41e,Hamadayama,Hamadayama,Jd14w,3-4,,-26.5,down high,860,12906,Jd41w,Ikazuchihayate,Ikazuchihayate,Jd6e,2-5,,-35.5,down high,885
+jonidan,Jonidan,Jd42,296,Jd42e,Yoshiazuma,Yoshiazuma (1996),Jd86e,5-2,,+44.0,up high,823,1260,Jd42w,Mimurodake,Mimurodake,Jd18w,3-4,,-24.0,down high,773
+jonidan,Jonidan,Jd43,12027,Jd43e,Mihamaumi,Mihamaumi,Jd19e,3-4,,-24.0,down high,879,12626,Jd43w,Matsugi,Matsugi,Jd19w,3-4,,-24.0,down high,850
+jonidan,Jonidan,Jd44,6628,Jd44e,Wakahizen,Wakahizen,Jd20w,3-4,,-23.5,down high,790,12176,Jd44w,Ryubumaru,Ryubumaru,Jd11w,2-5,,-33.0,down high,857
+jonidan,Jonidan,Jd45,12653,Jd45e,Chiyofuku,Chiyofuku,Jd77e,4-3,,+32.0,up high,664,12408,Jd45w,Hokutoshin,Hokutoshin (2017),Jd13e,2-5,,-32.5,down high,727
+jonidan,Jonidan,Jd46,12569,Jd46e,Tsurunoumi,Tsurunoumi (2019),Jd90w,5-2,,+44.5,up high,721,916,Jd46w,Tochikasuga,Tochikasuga,Jd4e,1-6,,-42.5,down high,744
+jonidan,Jonidan,Jd47,12177,Jd47e,Fubu,Fubu,Jd92e,5-2,,+45.0,up high,762,12606,Jd47w,Kirinohana,Kirinohana (2020),Jd79w,4-3,,+32.0,up high,703
+jonidan,Jonidan,Jd48,12940,Jd48e,Sumiyoshi,Sumiyoshi,Jd80w,4-3,,+32.5,up high,801,12893,Jd48w,Kosei,Kosei (2024),Jd93w,5-2,,+45.0,up high,908
+jonidan,Jonidan,Jd49,12871,Jd49e,Amidaishin,Amidaishin,Jd26e,3-4,,-23.0,down high,813,6009,Jd49w,Sadanokuni,Sadanokuni,Jd27e,3-4,,-22.5,down high,835
+jonidan,Jonidan,Jd50,12303,Jd50e,Tokio,Tokio (2016),Jd82w,4-3,,+32.5,up high,709,12691,Jd50w,Zuitenryu,Zuitenryu,Sd70w,0-0-7,↓,-60.5,down high,891
+jonidan,Jonidan,Jd51,12873,Jd51e,Kaigyokusei,Kaigyokusei,Jd96e,5-2,,+45.0,up high,679,12878,Jd51w,Hamada,Hamada,Jd83w,4-3,,+32.0,up high,739
+jonidan,Jonidan,Jd52,12715,Jd52e,Shotaimu,Shotaimu,Jd17e,2-5,,-35.0,down high,759,12939,Jd52w,Hokutonada,Hokutonada (2025),Jd86w,4-3,,+34.0,up high,834
+jonidan,Jonidan,Jd53,11912,Jd53e,Urutora,Urutora,Jd98w,5-2,,+45.5,up high,585,12609,Jd53w,Tsukioka,Tsukioka,Jd9e,1-6,,-44.5,down high,758
+jonidan,Jonidan,Jd54,12345,Jd54e,Satsumao,Satsumao,Jd87e,4-3,,+33.0,up high,803,12257,Jd54w,Watatani,Watatani,Jd87w,4-3,,+33.0,up high,668
+jonidan,Jonidan,Jd55,12172,Jd55e,Wakaikki,Wakaikki,Jk2e,5-2,↑,+49.0,up high,671,12903,Jd55w,Ideno,Ideno,Jk3e,5-2,↑,+49.5,up high,891
+jonidan,Jonidan,Jd56,12718,Jd56e,Shinseido,Shinseido,Jd28w,3-4,,-27.5,down high,700,12809,Jd56w,Datenomori,Datenomori,Jd88w,4-3,,+32.0,up high,636
+jonidan,Jonidan,Jd57,179,Jd57e,Tenichi,Tenichi,Jd89e,4-3,,+32.0,up high,502,12845,Jd57w,Anryukai,Anryukai,Jd30e,3-4,,-27.5,down high,836
+jonidan,Jonidan,Jd58,12588,Jd58e,Chiyotsurugi,Chiyotsurugi (2019),Jd90e,4-3,,+32.0,up high,725,12046,Jd58w,Kyokushori,Kyokushori,Jd21e,2-5,,-37.5,down high,892
+jonidan,Jonidan,Jd59,12807,Jd59e,Soseizan,Soseizan,Jd35w,3-4,,-23.5,down high,807,550,Jd59w,Musashiumi,Musashiumi (1997),Jd25e,2-5,,-34.5,down high,735
+jonidan,Jonidan,Jd60,12679,Jd60e,Matsuzawa,Matsuzawa,Jd38w,3-4,,-21.5,down high,674,12802,Jd60w,Daibasho,Daibasho,Jd29e,2-5,,-31.5,down high,891
+jonidan,Jonidan,Jd61,11832,Jd61e,Tochigidake,Tochigidake,Jd40e,3-4,,-21.0,down high,835,12614,Jd61w,Asashorei,Asashorei,Jd40w,3-4,,-21.0,down high,716
+jonidan,Jonidan,Jd62,12886,Jd62e,Kikuchi,Kikuchi (2024),Jd97e,4-3,,+35.0,up high,772,12866,Jd62w,Daigozakura,Daigozakura,Jd41e,3-4,,-21.5,down high,762
+jonidan,Jonidan,Jd63,12872,Jd63e,Seiseigo,Seiseigo,Jd98e,4-3,,+35.0,up high,728,12972,Jd63w,Asasubaru,Asasubaru,Jk17w,5-2,↑,+56.0,up high,1051
+jonidan,Jonidan,Jd64,12857,Jd64e,Daishisho,Daishisho,Jd99e,4-3,,+35.0,up high,601,12801,Jd64w,Daishoheki,Daishoheki,Jd31e,2-5,,-33.5,down high,648
+jonidan,Jonidan,Jd65,12642,Jd65e,Chiyotaisei,Chiyotaisei,Jd42e,3-4,,-23.0,down high,818,12976,Jd65w,Kyokurenma,Kyokurenma,Jk19w,5-2,↑,+56.0,up high,1062
+jonidan,Jonidan,Jd66,12240,Jd66e,Fukushoryu,Fukushoryu,Jd34w,2-5,,-31.5,down high,752,12119,Jd66w,Genbumaru,Genbumaru,Jd24w,1-6,,-42.0,down high,717
+jonidan,Jonidan,Jd67,12627,Jd67e,Takasu,Takasu,Jd35e,2-5,,-32.0,down high,762,11869,Jd67w,Tochihayate,Tochihayate,Jd27w,1-6,,-40.0,down high,712
+jonidan,Jonidan,Jd68,12499,Jd68e,Ai,Ai (2018),Jd46w,3-4,,-21.5,down high,716,12938,Jd68w,Yamauchi,Yamauchi (2025),Jk4e,4-3,↑,+37.5,up high,863
+jonidan,Jonidan,Jd69,12651,Jd69e,Chiyoaoi,Chiyoaoi,Jd48w,3-4,,-20.5,down high,730,12673,Jd69w,Tamanotora,Tamanotora,Jk5e,4-3,↑,+37.5,up high,489
+jonidan,Jonidan,Jd70,12910,Jd70e,Tsurunofuji,Tsurunofuji (2025),Jd33e,1-6,,-37.0,down high,780,12950,Jd70w,Shimogama,Shimogama,Jd51w,3-4,,-19.0,down high,924
+jonidan,Jonidan,Jd71,12920,Jd71e,Kazeoki,Kazeoki,Jk6w,4-3,↑,+37.5,up high,684,12783,Jd71w,Kitanosho,Kitanosho (2022),Jd1w,0-0-7,,-70.0,down high,975
+jonidan,Jonidan,Jd72,12070,Jd72e,Yukiamami,Yukiamami,Jd52e,3-4,,-20.0,down high,794,12808,Jd72w,Datenoumi,Datenoumi (2023),Jd53e,3-4,,-19.5,down high,754
+jonidan,Jonidan,Jd73,12631,Jd73e,Sadanojo,Sadanojo,Jk8e,4-1-2,↑,+37.0,up high,560,12608,Jd73w,Suigafuji,Suigafuji,Jd13w,0-1-6,,-60.0,down high,822
+jonidan,Jonidan,Jd74,11913,Jd74e,Okuni,Okuni,Jk8w,4-3,↑,+36.5,up high,415,12932,Jd74w,Satomatsunaga,Satomatsunaga,Jd44w,2-5,,-30.0,down high,825
+jonidan,Jonidan,Jd75,12806,Jd75e,Miyatani,Miyatani,Jd46e,2-5,,-29.0,down high,622,12897,Jd75w,Kumanishiki,Kumanishiki,Jd57e,3-4,,-18.5,down high,625
+jonidan,Jonidan,Jd76,12286,Jd76e,Daisho,Daisho (2016),Jd59e,3-4,,-17.0,down high,718,12638,Jd76w,Wakaonehara,Wakaonehara,Jd59w,3-4,,-17.0,down high,669
+jonidan,Jonidan,Jd77,12865,Jd77e,Tsurugifuji,Tsurugifuji,Jd38e,1-6,,-39.0,down high,698,12228,Jd77w,Oatari,Oatari,Jd49w,2-5,,-28.0,down high,719
+jonidan,Jonidan,Jd78,12969,Jd78e,Takeda,Takeda (2025),Jk13e,4-3,↑,+37.0,up high,967,12421,Jd78w,Tsuyasato,Tsuyasato,Jd54w,2-5,,-24.0,down high,753
+jonidan,Jonidan,Jd79,12577,Jd79e,Chiyokozan,Chiyokozan,Jd45e,1-3-3,,-34.0,down high,779,12632,Jd79w,Hishuyama,Hishuyama,Jd66w,3-4,,-13.0,down high,618
+jonidan,Jonidan,Jd80,12933,Jd80e,Yamanobe,Yamanobe,Jd67w,3-4,,-12.5,down high,806,12824,Jd80w,Asasakurai,Asasakurai,Jd57w,2-5,,-23.0,down high,589
+jonidan,Jonidan,Jd81,12853,Jd81e,Kato,Kato (2024),Jd68w,3-4,,-12.5,down high,698,12918,Jd81w,Mitsurufuji,Mitsurufuji,Jd69w,3-4,,-12.0,down high,812
+jonidan,Jonidan,Jd82,12963,Jd82e,Sato,Sato (2025),Jd50e,1-6,,-32.0,down high,855,12500,Jd82w,Matsugashima,Matsugashima,Jd73e,3-4,,-9.5,down high,694
+jonidan,Jonidan,Jd83,12974,Jd83e,Kyokugosei,Kyokugosei,Jk18w,4-3,↑,+37.5,up high,983,12867,Jd83w,Sanukiryu,Sanukiryu,Jd73w,3-4,,-10.0,down high,700
+jonidan,Jonidan,Jd84,12395,Jd84e,Bakukoshin,Bakukoshin,Jd62e,2-5,,-22.0,down high,462,12305,Jd84w,Reonmaru,Reonmaru,Jd62w,2-5,,-22.0,down high,728
+jonidan,Jonidan,Jd85,12975,Jd85e,Kyokutaiyo,Kyokutaiyo,Jk20e,4-3,↑,+37.0,up high,1067,12861,Jd85w,Ikazuchiarashi,Ikazuchiarashi,Jd16e,0-0-7,,-69.5,down high,936
+jonidan,Jonidan,Jd86,12822,Jd86e,Chiyonoteru,Chiyonoteru,Jk21w,4-3,↑,+37.5,up high,1052,12819,Jd86w,Sachinoyama,Sachinoyama,Jd64e,2-5,,-22.5,down high,493
+jonidan,Jonidan,Jd87,12930,Jd87e,Wakahasegawa,Wakahasegawa,Jd64w,2-4-1,,-22.5,down high,768,12553,Jd87w,Naniwamusashi,Naniwamusashi,Jd76w,3-4,,-11.0,down high,615
+jonidan,Jonidan,Jd88,12949,Jd88e,Azuma,Azuma (2025),Jd67e,2-5,,-21.0,down high,893,12560,Jd88w,Maniwayama,Maniwayama,Jd78e,3-4,,-10.5,down high,618
+jonidan,Jonidan,Jd89,12805,Jd89e,Masarufuji,Masarufuji,Jd80e,3-4,,-9.0,down high,616,5606,Jd89w,Azumanami,Azumanami (2007),Jd81e,3-4,,-8.5,down high,382
+jonidan,Jonidan,Jd90,12161,Jd90e,Fujinoteru,Fujinoteru,Jd81w,3-4,,-8.5,down high,581,12489,Jd90w,Shishimaru,Shishimaru (2018),Jd71e,2-5,,-19.5,down high,390
+jonidan,Jonidan,Jd91,12297,Jd91e,Hokutoizumi,Hokutoizumi (2016),Jd84e,3-4,,-7.0,down high,560,12864,Jd91w,Fukufukumaru,Fukufukumaru,Jd74e,2-5,,-17.5,down high,494
+jonidan,Jonidan,Jd92,12854,Jd92e,Shibuya,Shibuya,Jd88e,3-4,,-4.0,down high,710,12157,Jd92w,Kokuryunami,Kokuryunami,Jd91e,3-4,,-1.5,down low,567
+jonidan,Jonidan,Jd93,12719,Jd93e,Koga,Koga (2021),Jd91w,3-4,,-1.5,down low,413,12925,Jd93w,Tensei,Tensei,Jd92w,3-4,,-1.0,down low,881
+jonidan,Jonidan,Jd94,12473,Jd94e,Fujinonami,Fujinonami,Jd84w,2-5,,-9.5,down high,498,12701,Jd94w,Sonoshun,Sonoshun,Jd85e,2-5,,-9.5,down high,563
+jonidan,Jonidan,Jd95,12759,Jd95e,Aratobi,Aratobi (2022),Jd85w,2-5,,-9.5,down high,369,12693,Jd95w,Takatairiku,Takatairiku,Jd74w,1-6,,-21.0,down high,319
+jonidan,Jonidan,Jd96,6598,Jd96e,Tochinoshima,Tochinoshima,Jd75w,1-2-4,,-20.5,down high,695,12760,Jd96w,Jokoki,Jokoki,Jd32w,0-0-7,,-64.0,down high,869
+jonidan,Jonidan,Jd97,12937,Jd97e,Ryugi,Ryugi (2025),Jd95w,3-4,,-1.5,down low,735,12935,Jd97w,Futagawa,Futagawa,Jd96w,3-4,,-1.0,down low,794
+jonidan,Jonidan,Jd98,12915,Jd98e,Kototerao,Kototerao,Jd79e,1-6,,-19.0,down high,702,12924,Jd98w,Kido,Kido,Jd99w,3-4,,+1.0,up low,774
+jonidan,Jonidan,Jd99,9109,Jd99e,Motoazuma,Motoazuma,Jd100e,3-4,,+1.0,up low,625,12908,Jd99w,Asakawasumi,Asakawasumi,Jd93e,2-5,,-6.5,down high,574
+jonidan,Jonidan,Jd100,12821,Jd100e,Kakuho,Kakuho,Jd43w,0-0-7,,-56.5,down high,882,12797,Jd100w,Kobayashi,Kobayashi (2023),Jd45w,0-0-7,,-55.0,down high,1311
+jonidan,Jonidan,Jd101,9063,Jd101e,Okuniyama,Okuniyama,Jd94w,2-5,,-6.5,down high,390,12957,Jd101w,Tosoumi,Tosoumi,Jd58e,0-7,,-43.5,down high,799
+jonidan,Jonidan,Jd102,12371,Jd102e,Gokishin,Gokishin,Jk1w,3-4,↑,+1.5,up low,551,12958,Jd102w,Suetomi,Suetomi,Jk2w,3-4,↑,+2.0,up mid,799
+jonokuchi,Jonokuchi,Jk1,12900,Jk1e,Daiko,Daiko (2024),Jd97w,2-5,↓,-5.5,down high,596,11877,Jk1w,Azumayama,Azumayama (2010),Jk6e,3-4,,+4.5,up high,304
+jonokuchi,Jonokuchi,Jk2,12928,Jk2e,Kazenohana,Kazenohana,Jk7e,3-4,,+5.0,up high,702,12478,Jk2w,Wakaarata,Wakaarata,Jk9e,3-4,,+6.5,up high,434
+jonokuchi,Jonokuchi,Jk3,12916,Jk3e,Usagifuji,Usagifuji,Jk10w,3-4,,+7.5,up high,718,12927,Jk3w,Toranomaru,Toranomaru,Jd94e,1-6,↓,-11.5,down high,679
+jonokuchi,Jonokuchi,Jk4,800,Jk4e,Hienriki,Hienriki,Jd55e,0-0-7,↓,-51.0,down high,810,12818,Jk4w,Shimabukuro,Shimabukuro,Jd56e,0-0-7,↓,-50.5,down high,865
+jonokuchi,Jonokuchi,Jk5,12912,Jk5e,Akenoyama,Akenoyama,Jk11e,3-4,,+6.0,up high,616,399,Jk5w,Terunosato,Terunosato,Jk14e,3-4,,+8.5,up high,232
+jonokuchi,Jonokuchi,Jk6,6001,Jk6e,Chiyooume,Chiyooume,Jk3w,2-5,,-2.5,down mid,417,12923,Jk6w,Ikazuchiarata,Ikazuchiarata,Jk4w,2-5,,-2.0,down mid,675
+jonokuchi,Jonokuchi,Jk7,12880,Jk7e,Hara,Hara (2024),Jk10e,2-5,,+3.0,up mid,243,12953,Jk7w,Minami,Minami,Jk13w,3-5--1,,+6.0,up high,673
+jonokuchi,Jonokuchi,Jk8,12815,Jk8e,Katsunonishiki,Katsunonishiki,Jk11w,2-2-3,,+3.5,up high,389,2926,Jk8w,Moriurara,Moriurara,Jk14w,2-5,,+6.0,up high,145
+jonokuchi,Jonokuchi,Jk9,677,Jk9e,Itakozakura,Itakozakura,Jk20w,2-5,,+11.5,up high,74,12892,Jk9w,Yamada,Yamada (2024),Jd76e,0-7,↓,-35.5,down high,364
+jonokuchi,Jonokuchi,Jk10,12224,Jk10e,Kyonosato,Kyonosato,Jk7w,1-6,,-2.5,down mid,203,12612,Jk10w,Suzaki,Suzaki,Jk15e,1-0-6,,+4.5,up high,1160
+jonokuchi,Jonokuchi,Jk11,12877,Jk11e,Wakasasaki,Wakasasaki,Jk15w,1-5-1,,+4.5,up high,248,12977,Jk11w,Teruyutaka,Teruyutaka,Jk19e,1-0-6,,+7.5,up high,1026
+jonokuchi,Jonokuchi,Jk12,12811,Jk12e,Kuwae,Kuwae,Jd89w,0-0-7,↓,-24.5,down high,914,12887,Jk12w,Miyafuji,Miyafuji,Jd95e,0-0-7,↓,-19.5,down high,824
+jonokuchi,Jonokuchi,Jk13,12983,Jk13e,Kawazoe,Kawazoe,,,,,,976,12992,Jk13w,Goto,Goto,,,,,,969
+jonokuchi,Jonokuchi,Jk14,12998,Jk14e,Nojima,Nojima,,,,,,1023,12997,Jk14w,Setonoryu,Setonoryu,,,,,,979
+jonokuchi,Jonokuchi,Jk15,12979,Jk15e,Hakugetsuro,Hakugetsuro,,,,,,984,12982,Jk15w,Hanenoyama,Hanenoyama,,,,,,994
+jonokuchi,Jonokuchi,Jk16,12994,Jk16e,Fukuda,Fukuda,,,,,,1020,12991,Jk16w,Ryusei,Ryusei,,,,,,1021
+jonokuchi,Jonokuchi,Jk17,12986,Jk17e,Kotohiranuma,Kotohiranuma,,,,,,1017,12981,Jk17w,Nakazawa,Nakazawa,,,,,,1020
+jonokuchi,Jonokuchi,Jk18,12996,Jk18e,Kokubo,Kokubo,,,,,,1005,12995,Jk18w,Kishimoto,Kishimoto,,,,,,1011
+jonokuchi,Jonokuchi,Jk19,12987,Jk19e,Kotokawabuchi,Kotokawabuchi,,,,,,1008,12988,Jk19w,Kotoishida,Kotoishida,,,,,,1044
+jonokuchi,Jonokuchi,Jk20,12999,Jk20e,Kotoyoshino,Kotoyoshino,,,,,,1089,12980,Jk20w,Shimano,Shimano,,,,,,1072
+jonokuchi,Jonokuchi,Jk21,12917,Jk21e,Asahirai,Asahirai,Jk1e,0-4-3,,-20.0,down high,635,6005,Jk21w,Higonoryu,Higonoryu (2004),Jk9w,0-2-5,,-12.0,down high,325
+jonokuchi,Jonokuchi,Jk22,12978,Jk22e,Chiyoshinzan,Chiyoshinzan,Jk21e,0-7,,-1.0,down low,907,12984,Jk22w,Honda,Honda,,,,,,1081
+jonokuchi,Jonokuchi,Jk23,12990,Jk23e,Mifune,Mifune,,,,,,1051,,,,,,,,,,

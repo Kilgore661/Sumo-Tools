@@ -1,0 +1,362 @@
+:root {
+  --panel: var(--site-panel, #0d1f47);
+  --panel-strong: var(--site-panel-strong, #132b5c);
+  --ink: var(--site-text, #ffffff);
+  --muted: var(--site-muted, #c9d4ee);
+  --line: var(--site-line, #7f95c0);
+  --line-soft: var(--site-line-soft, rgba(127, 149, 192, 0.55));
+  --row-even: var(--site-row-even, rgba(255, 255, 255, 0.06));
+  --row-odd: var(--site-row-odd, rgba(255, 255, 255, 0.02));
+  --up-low-bg: #193d31;
+  --up-low-fg: #8fe1bd;
+  --up-mid-bg: #12523e;
+  --up-mid-fg: #a8ffd7;
+  --up-high-bg: #08724d;
+  --up-high-fg: #e4fff0;
+  --down-low-bg: #44242a;
+  --down-low-fg: #efa5ad;
+  --down-mid-bg: #65232e;
+  --down-mid-fg: #ffc3ca;
+  --down-high-bg: #842434;
+  --down-high-fg: #ffe3e7;
+  --neutral-bg: #28313d;
+  --neutral-fg: #c1c9d0;
+}
+
+body {
+  min-width: 320px;
+  padding: 20px;
+  overflow-x: auto;
+  line-height: 1.35;
+}
+
+.control-group {
+  margin-bottom: 14px;
+}
+
+.control-group label {
+  display: inline-block;
+  margin-right: 6px;
+  font-weight: bold;
+}
+
+.checkbox-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.checkbox-option input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+
+  width: 14px;
+  height: 14px;
+  margin: 0;
+
+  border: 1px solid #9cb1d8;
+  border-radius: 3px;
+  background: #d7e0ef;
+
+  position: relative;
+  cursor: pointer;
+}
+
+.checkbox-option input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 4px;
+  height: 8px;
+  border: solid black;
+  border-width: 0 2px 2px 0;
+  transform: translate(-50%, -58%) rotate(45deg) scale(0.72);
+  transform-origin: center;
+}
+
+.checkbox-option input[type="checkbox"]:focus {
+  outline: 1px solid rgba(201, 212, 238, 0.45);
+  outline-offset: 1px;
+}
+
+select {
+  background: #d7e0ef;
+  color: #10264f;
+  border: 1px solid #aebddb;
+  border-radius: 4px;
+  padding: 0;
+  font-size: 14px;
+}
+
+select:focus {
+  outline: 1px solid #c9d4ee;
+  outline-offset: 1px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.tool-content-inner {
+  min-width: 600px;
+}
+
+.banzuke-table {
+  width: max-content;
+  margin: 0 auto;
+  border-collapse: collapse;
+  table-layout: auto;
+}
+
+th,
+td {
+  height: 25px;
+  padding: 2px 7px;
+  border-bottom: 1px solid var(--line-soft);
+  color: var(--ink);
+  font-family: var(--site-font);
+  font-weight: 400;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+  vertical-align: middle;
+}
+
+thead th {
+  height: 25px;
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: 700;
+  background: var(--site-table-head-bg, rgba(255, 255, 255, 0.1));
+}
+
+thead tr:first-child th {
+  height: 27px;
+  font-size: 1rem;
+}
+
+tbody tr:nth-child(odd) {
+  background: var(--row-odd);
+}
+
+tbody tr:nth-child(even) {
+  background: var(--row-even);
+}
+
+tbody tr:hover {
+  background: var(--site-row-hover, rgba(255, 255, 255, 0.09));
+}
+
+.rikishi {
+  color: var(--ink);
+  font-weight: 400;
+}
+
+.rikishi a,
+.rikishi a:visited,
+.rikishi a:hover,
+.rikishi a:active {
+  color: inherit;
+  text-decoration: none;
+}
+
+.rikishi a:focus {
+  outline: 1px dotted currentColor;
+  outline-offset: 1px;
+}
+
+.east {
+  text-align: left;
+}
+
+.west {
+  text-align: left;
+}
+
+.bz-head,
+.bz-chii {
+  color: var(--ink);
+  border-left: 1px solid var(--line);
+  border-right: 1px solid var(--line);
+}
+
+.bz-chii {
+  font-size: 1rem;
+  font-weight: 400;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.bz-chii.annotated {
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.score {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.context-head,
+.context-cell,
+.context-cell .score,
+.equelo-head,
+.equelo-cell {
+  color: #7f95b8;
+}
+
+.equelo-cell {
+  font-variant-numeric: tabular-nums;
+}
+
+.banzuke-table.hide-context .context-col,
+.banzuke-table.hide-context .context-head,
+.banzuke-table.hide-context .context-cell {
+  display: none;
+}
+
+.banzuke-table.hide-delta .delta-value-col-toggle,
+.banzuke-table.hide-delta .delta-value-head,
+.banzuke-table.hide-delta .delta-value-cell {
+  display: none;
+}
+
+.banzuke-table.hide-equelo .equelo-col-toggle,
+.banzuke-table.hide-equelo .equelo-head,
+.banzuke-table.hide-equelo .equelo-cell {
+  display: none;
+}
+
+.delta {
+  display: inline-block;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+.delta-direction {
+  display: inline-block;
+  font-weight: 700;
+}
+
+.delta-cell.up.low {
+  color: var(--up-low-fg);
+  background: var(--up-low-bg);
+}
+
+.delta-cell.up.mid {
+  color: var(--up-mid-fg);
+  background: var(--up-mid-bg);
+}
+
+.delta-cell.up.high {
+  color: var(--up-high-fg);
+  background: var(--up-high-bg);
+}
+
+.delta-cell.down.low {
+  color: var(--down-low-fg);
+  background: var(--down-low-bg);
+}
+
+.delta-cell.down.mid {
+  color: var(--down-mid-fg);
+  background: var(--down-mid-bg);
+}
+
+.delta-cell.down.high {
+  color: var(--down-high-fg);
+  background: var(--down-high-bg);
+}
+
+.delta-cell.neutral {
+  color: var(--neutral-fg);
+  background: var(--neutral-bg);
+}
+
+.empty {
+  color: transparent;
+}
+
+.notes {
+  margin-top: 16px;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 14px;
+  color: var(--muted);
+  text-align: left;
+  max-width: 600px;
+}
+
+.notes h3 {
+  margin: 0 0 8px 0;
+  color: var(--ink);
+}
+
+.notes ol {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.notes li {
+  margin-bottom: 8px;
+}
+
+.notes li[hidden] {
+  display: none;
+}
+
+.notes li:target {
+  background: rgba(201, 212, 238, 0.14);
+  outline: 1px solid rgba(201, 212, 238, 0.35);
+  outline-offset: 3px;
+}
+
+.notes-popover {
+  position: absolute;
+  z-index: 1000;
+
+  max-width: 220px;
+  padding: 6px 9px;
+
+  background: #f7f9ff;
+  color: #10264f;
+  border: 1px solid #9cb1d8;
+  border-radius: 5px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.28);
+
+  font-size: 13px;
+  line-height: 1.35;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.notes-popover[hidden] {
+  display: none;
+}
+
+.notes-popover a,
+.notes-popover a:visited,
+.notes-popover a:hover,
+.notes-popover a:active {
+  color: #224f9f;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.notes-popover a:focus {
+  outline: 1px solid #224f9f;
+  outline-offset: 2px;
+}
+
+@media (max-width: 780px) {
+  body {
+    padding: 10px;
+  }
+
+  .tool-shell {
+    width: 100%;
+  }
+}

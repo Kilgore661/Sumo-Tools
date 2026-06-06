@@ -1,0 +1,33 @@
+{
+  "title": "The 2026/05 Banzuke",
+  "current_date": "2026/05",
+  "previous_date": "2026/03",
+  "default_division": "makuuchi",
+  "data_file": "data/banzuke_change_report.csv",
+  "divisions": [
+    {
+      "id": "makuuchi",
+      "label": "Makuuchi"
+    },
+    {
+      "id": "juryo",
+      "label": "Juryo"
+    },
+    {
+      "id": "makushita",
+      "label": "Makushita"
+    },
+    {
+      "id": "sandanme",
+      "label": "Sandanme"
+    },
+    {
+      "id": "jonidan",
+      "label": "Jonidan"
+    },
+    {
+      "id": "jonokuchi",
+      "label": "Jonokuchi"
+    }
+  ]
+}
