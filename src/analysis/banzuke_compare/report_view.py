@@ -14,7 +14,9 @@ from .banzuke_diff import rank_level_movement_marker
 from .equelo_ratings import EqueloSnapshot, load_latest_equelo_snapshot_before
 from .results import format_previous_result
 from .shikona_links import graph_shikona_for
+from src.infra.get_bios.make_public_shikona import make_public_shikona
 from src.sumo_core.BasicEnums import Division, Side
+from src.sumo_core.BasicPrimitives import RikId, Shikona
 
 
 DIVISION_ORDER = (
@@ -55,12 +57,14 @@ def build_bcr_report(diff: BanzukeDiff) -> BcrReport:
     """
 
     equelo_snapshot = load_latest_equelo_snapshot_before(diff.source.current_date)
+    public_shikona_by_rikid = make_public_shikona(diff.source.history)
 
     divisions = tuple(
         build_division_report(
             diff=diff,
             division=division,
             equelo_snapshot=equelo_snapshot,
+            public_shikona_by_rikid=public_shikona_by_rikid,
         )
         for division in DIVISION_ORDER
         if any(change.current_division == division for change in diff.changes)
@@ -76,6 +80,7 @@ def build_division_report(
     diff: BanzukeDiff,
     division: Division,
     equelo_snapshot: EqueloSnapshot,
+    public_shikona_by_rikid: dict[RikId, Shikona],
 ) -> BcrDivisionReport:
     """
     Contract:
@@ -98,6 +103,7 @@ def build_division_report(
             diff=diff,
             changes=changes,
             equelo_snapshot=equelo_snapshot,
+            public_shikona_by_rikid=public_shikona_by_rikid,
         ),
     )
 
@@ -106,6 +112,7 @@ def build_division_rows(
     diff: BanzukeDiff,
     changes: tuple[BanzukeChange, ...],
     equelo_snapshot: EqueloSnapshot,
+    public_shikona_by_rikid: dict[RikId, Shikona],
 ) -> tuple[BcrReportRow, ...]:
     """
     Contract:
@@ -134,6 +141,7 @@ def build_division_rows(
             diff=diff,
             change=change,
             equelo_snapshot=equelo_snapshot,
+            public_shikona_by_rikid=public_shikona_by_rikid,
         )
 
         if change.current_side == Side.EAST:
@@ -178,6 +186,7 @@ def build_report_side(
     diff: BanzukeDiff,
     change: BanzukeChange,
     equelo_snapshot: EqueloSnapshot,
+    public_shikona_by_rikid: dict[RikId, Shikona],
 ) -> BcrReportSide:
     """
     Contract:
@@ -189,7 +198,7 @@ def build_report_side(
     return BcrReportSide(
         rikishi_id=change.rikishi_id,
         chii=str(change.current_chii),
-        shikona=change.current_shikona,
+        shikona=public_shikona_by_rikid[change.rikishi_id],
         graph_shikona=graph_shikona_for(change.rikishi_id, change.current_shikona),
         old_chii="" if change.previous_chii is None else str(change.previous_chii),
         previous_result=format_previous_result(change, diff.source.previous_summary),
@@ -202,13 +211,18 @@ def build_report_side(
     )
 
 
-def format_equelo(rating: float) -> str:
+def format_equelo(rating: float | None) -> str:
     """
     Contract:
-        rating is a fixed_v1 Equelo rating.
+        rating is a fixed_v2 Equelo rating, or None where Equelo has no rating
+        for the represented observable-domain chii.
 
-        Returns the browser display value rounded to the nearest integer.
+        Returns the browser display value rounded to the nearest integer, or a
+        blank cell value for no-rating territory.
     """
+
+    if rating is None:
+        return ""
 
     return f"{rating:.0f}"
 
