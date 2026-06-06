@@ -81,7 +81,22 @@ open policy question is how often full-shikona collisions occur, what kinds of
 cases they represent, and what non-`rikid` public disambiguator should be used
 when full shikona is not enough.
 
-Two plausible next candidates are already available from `get_bios`:
+The strongest new theory is that the ambiguity is partly a romanisation
+problem. If a shikona is treated as the kanji string used to write it, then:
+
+1. The first romanised shikona word, represented as kanji, should be unique
+   within a single basho.
+2. The full shikona, represented as kanji, may be unique across the whole
+   catalogue.
+3. Where the first-word kanji is not unique across basho, the second-word kanji
+   may provide the natural disambiguator.
+
+This should be tested before adopting a suffix-like residual disambiguator. It
+may require extending the `get_bios` scrape/parser contract: the current parsed
+bio cache stores romanised `Shikona` values, and does not expose a kanji
+shikona field.
+
+Other plausible candidates are already available from `get_bios`:
 
 1. `Shusshin`, the rikishi's region of origin.
 2. Former shikona from the rikishi's parsed shikona history.
@@ -149,6 +164,31 @@ as latest holder, while the earlier `RikId(8206)` also has full shikona
 Conclusion: full shikona is the current implemented disambiguator, but it is
 not a complete policy. Research the frequency and shape of full-shikona
 collisions before choosing the next public disambiguator.
+
+### Kanji shikona
+
+Kanji shikona is the strongest current candidate for repairing the policy
+without exposing internal ids or adding artificial suffixes.
+
+The theory is that much of the ambiguity exists in the romanised label, not in
+the name as written. A public shikona could be understood as the kanji string
+used to write it:
+
+```text
+first-word kanji
+full-shikona kanji
+first-word kanji plus second-word kanji where needed
+```
+
+This may solve both the per-basho identity problem and the cross-catalogue
+disambiguation problem more naturally than `Shusshin`, former names, or dates.
+
+The immediate practical question is data availability. The current
+`get_bios` parser persists romanised `Shikona` history only. Test whether the
+raw SumoDB `Rikishi.aspx` pages expose kanji shikona reliably, then extend the
+parser/cache if they do.
+
+Conclusion: investigate before choosing any residual suffix policy.
 
 ### Shusshin
 

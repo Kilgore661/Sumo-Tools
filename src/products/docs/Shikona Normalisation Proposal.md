@@ -15,9 +15,13 @@ Later work moved the active implementation discussion to
 full shikona for earlier holders of a non-unique History shikona, but that rule
 is known not to be complete: Hakuho Sho, `RikId(1123)`, remains public
 `Hakuho`, while the earlier Hakuho, `RikId(8206)`, also has full shikona
-`Hakuho`. The residual policy question is open; current candidate
-disambiguators include `Shusshin` and former shikona history, not public
-`rikid` suffixes.
+`Hakuho`. The residual policy question is open. The current leading theory is
+to test kanji shikona: the first romanised word as kanji should be unique
+within a basho, full shikona as kanji may be unique across the catalogue, and
+second-word kanji may naturally disambiguate cross-basho duplicates. This may
+require extending `get_bios`, because the current parsed cache stores romanised
+`Shikona` only. Other candidate disambiguators include `Shusshin` and former
+shikona history, not public `rikid` suffixes.
 
 ---
 
