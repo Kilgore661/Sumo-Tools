@@ -10,6 +10,15 @@ disambiguation. It is not an implementation plan. It belongs in
 settled, the relevant contract should be integrated into
 `src/products/make_site2/docs`.
 
+Later work moved the active implementation discussion to
+`src/infra/get_bios/docs/Shikona Resolution.md`. The implemented rule now uses
+full shikona for earlier holders of a non-unique History shikona, but that rule
+is known not to be complete: Hakuho Sho, `RikId(1123)`, remains public
+`Hakuho`, while the earlier Hakuho, `RikId(8206)`, also has full shikona
+`Hakuho`. The residual policy question is open; current candidate
+disambiguators include `Shusshin` and former shikona history, not public
+`rikid` suffixes.
+
 ---
 
 ## 1. Problem
@@ -150,4 +159,3 @@ If the assumption is false, the normalisation policy needs further design.
 - What exact integrity-checker command should audit persisted normalised
   shikona?
 - Has any pair of active rikishi ever shared the same shikona at the same time?
-

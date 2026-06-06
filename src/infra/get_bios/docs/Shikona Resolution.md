@@ -60,7 +60,37 @@ The earlier retired-vs-active formulation was a useful approximation, but it was
 
 When an earlier holder of a non-unique History shikona needs disambiguating, the system shall use the rikishi's full shikona.
 
-This is the chosen production behaviour.
+This is the current implemented behaviour, but it is now known not to be a
+complete disambiguation policy.
+
+## Update: full shikona is not sufficient
+
+The full-shikona rule has a counterexample.
+
+Hakuho Sho, `RikId(1123)`, is the latest holder of the History shikona
+`Hakuho`, so under the latest-holder rule he remains public `Hakuho`.
+
+The earlier Hakuho, `RikId(8206)`, retired in 1975. His full shikona is also
+just `Hakuho`. Therefore the current rule cannot distinguish these two rikishi:
+the earlier holder's "full" shikona collapses back to the same public label as
+the latest holder's bare History shikona.
+
+This does not mean the system should fall back to public `rikid` suffixes.
+`rikid` remains an internal identity key and an ugly public disambiguator. The
+open policy question is how often full-shikona collisions occur, what kinds of
+cases they represent, and what non-`rikid` public disambiguator should be used
+when full shikona is not enough.
+
+Two plausible next candidates are already available from `get_bios`:
+
+1. `Shusshin`, the rikishi's region of origin.
+2. Former shikona from the rikishi's parsed shikona history.
+
+Both are public-facing biographical facts rather than internal keys. Neither
+should be adopted without a probe: `Shusshin` values can be long, foreign,
+historical or shared, and former-shikona labels may be absent, unfamiliar, or
+still non-unique. The next investigation should measure these candidates across
+the full cache and inspect their public readability.
 
 ## Status of the normalisation/probe code
 
@@ -108,9 +138,47 @@ Conclusion: reject as public disambiguator.
 
 Full shikona is user-facing, name-like, and natural in public output.
 
-The probe validated it as an effective disambiguator for the duplicate History shikona cases under consideration. It avoids exposing internal identifiers and avoids relying on incomplete or insufficient dates.
+The original probe validated it as an effective disambiguator for the duplicate
+History shikona cases then under consideration. It avoids exposing internal
+identifiers and avoids relying on incomplete or insufficient dates.
 
-Conclusion: use full shikona as the production disambiguator.
+Later review found the Hakuho counterexample: `RikId(1123)` is public `Hakuho`
+as latest holder, while the earlier `RikId(8206)` also has full shikona
+`Hakuho`.
+
+Conclusion: full shikona is the current implemented disambiguator, but it is
+not a complete policy. Research the frequency and shape of full-shikona
+collisions before choosing the next public disambiguator.
+
+### Shusshin
+
+`Shusshin` is a plausible residual disambiguator for cases where full shikona
+does not distinguish rikishi.
+
+It has attractive properties: it is public, biographical, and already parsed in
+`get_bios`. It may read naturally in labels such as:
+
+```text
+Hakuho (Yamagata-ken)
+```
+
+The cost is that `Shusshin` is not a simple controlled vocabulary. Values may be
+long, may include historical/current municipality chains, and may still collide.
+
+Conclusion: investigate as a candidate residual disambiguator.
+
+### Former shikona
+
+A rikishi's shikona history is another plausible residual disambiguator.
+
+It has attractive properties when a former name is distinctive and familiar. It
+also stays within the naming domain rather than introducing dates or geography.
+
+The cost is that some rikishi may have no useful former shikona, a former
+shikona may be less recognizable than an origin, and former names may themselves
+collide.
+
+Conclusion: investigate as a candidate residual disambiguator.
 
 ## Required production inputs
 
@@ -127,6 +195,8 @@ whether the History shikona is unique
 History owns the normal shikona and the latest-holder calculation.
 
 `get_bios` / `BioStore` owns the full shikona used for disambiguation.
+It also owns candidate residual disambiguators such as `Shusshin` and former
+shikona history.
 
 The duplicate test should be global over History shikona values, not local to a single output page.
 
@@ -199,6 +269,26 @@ rikishi is an earlier holder of H
 result = full shikona
 ```
 
+This is the current implemented behaviour, not a uniqueness guarantee.
+
+### Full-shikona collision
+
+This case records the known gap in the current policy.
+
+```text
+H is shared
+latest holder result = H
+earlier holder full shikona is also H
+result = unresolved policy issue
+```
+
+Known example:
+
+```text
+RikId(1123): Hakuho Sho, latest holder, public Hakuho
+RikId(8206): earlier Hakuho, full shikona Hakuho
+```
+
 ### Latest holder is retired
 
 This case records the corrected interpretation.
@@ -231,13 +321,24 @@ The production resolver should not:
 5. Implement page-specific or catalogue-specific ambiguity checks.
 6. Modify History directly to store full shikona.
 
+The current non-goal on hatsu/intai dates does not settle the residual
+full-shikona collision policy. It only records that date suffixes have already
+been rejected as the general public disambiguator.
+
 ## Current status
 
-The investigation phase is complete enough to choose the production rule and the first production implementation exists.
+The first production implementation exists, but the policy is no longer
+considered settled.
 
-The chosen rule is:
+The implemented rule is:
 
 > Preserve the History shikona by default. If the History shikona is non-unique, the latest holder keeps the History shikona and earlier holders use full shikona.
+
+This rule is known to fail when an earlier holder's full shikona is identical
+to the latest holder's public History shikona, as in the Hakuho `1123` / `8206`
+case. The next policy step is to research how often this occurs and decide on a
+public, non-`rikid` disambiguator for those residual collisions. Current
+candidates include `Shusshin` and former shikona history.
 
 The implementation lives in:
 
