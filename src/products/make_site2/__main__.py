@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
+from time import perf_counter
 
 from .build import DEFAULT_OUTPUT_ROOT, build_site
 from .deploy import (
@@ -130,6 +131,7 @@ def reject_conflicting_modes(args: argparse.Namespace) -> None:
 
 
 def main() -> None:
+    start_time = perf_counter()
     args = build_parser().parse_args()
     reject_conflicting_modes(args)
     deployment_config = DeploymentConfig(
@@ -153,6 +155,7 @@ def main() -> None:
         build_output = build_site(**kwargs)
         print(f"built {build_output.root}")
     if args.build_only:
+        print_elapsed_time(start_time)
         return
     local_result = deploy_local(build_output, deployment_config)
     print(
@@ -161,6 +164,7 @@ def main() -> None:
     )
     print(local_result.public_url)
     if args.local_only:
+        print_elapsed_time(start_time)
         return
     remote_result = deploy_remote(build_output, deployment_config)
     print(
@@ -168,6 +172,12 @@ def main() -> None:
         f"{HOST}:{remote_result.target_root}"
     )
     print(remote_result.public_url)
+    print_elapsed_time(start_time)
+
+
+def print_elapsed_time(start_time: float) -> None:
+    elapsed = perf_counter() - start_time
+    print(f"completed in {elapsed:.1f} seconds")
 
 
 if __name__ == "__main__":

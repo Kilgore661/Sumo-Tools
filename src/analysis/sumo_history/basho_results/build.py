@@ -11,6 +11,7 @@ from src.analysis.banzuke_compare.banzuke_diff import (
 )
 from src.analysis.banzuke_compare.report_view import format_delta as format_bcr_delta
 from src.analysis.banzuke_compare.shikona_links import graph_shikona_for
+from src.infra.get_bios.make_public_shikona import make_public_shikona
 from src.analysis.sumo_history.basho_results.classes import (
     MISSING,
     BashoResultsIndex,
@@ -32,7 +33,7 @@ from src.analysis.sumo_history.basho_results.records import (
     format_result_with_prizes,
 )
 from src.sumo_core.BasicEnums import Division
-from src.sumo_core.BasicPrimitives import RikId
+from src.sumo_core.BasicPrimitives import RikId, Shikona
 from src.sumo_core.Chii import Chii
 from src.sumo_core.History import Date, History
 
@@ -88,6 +89,7 @@ def build_payload_rows(
     history: History,
     date: Date,
     ratings: EqueloLookup,
+    public_shikona_by_rikid: dict[RikId, Shikona] | None = None,
 ) -> tuple[BashoResultsRow, ...]:
     dates = represented_dates(history)
     previous_date = previous_represented_date(dates, date)
@@ -95,6 +97,8 @@ def build_payload_rows(
     current_state = history(date)
     previous_state = history(previous_date) if previous_date is not None else None
     next_state = history(next_date) if next_date is not None else None
+    if public_shikona_by_rikid is None:
+        public_shikona_by_rikid = make_public_shikona(history)
 
     previous_deltas = (
         calculate_local_deltas(
@@ -123,6 +127,7 @@ def build_payload_rows(
                 previous_state=previous_state,
                 next_state=next_state,
                 previous_delta=previous_deltas.get(rikishi_id),
+                public_shikona_by_rikid=public_shikona_by_rikid,
             )
         )
     return tuple(rows)
@@ -139,6 +144,7 @@ def build_row(
     previous_state,
     next_state,
     previous_delta: float | None,
+    public_shikona_by_rikid: dict[RikId, Shikona],
 ) -> BashoResultsRow:
     current_state = history(date)
     previous_chii = (
@@ -159,14 +165,14 @@ def build_row(
         if next_state is not None and rikishi_id in next_state.banzuke
         else None
     )
-    shikona = current_state.banzuke.get_shik(rikishi_id)
+    shikona = str(public_shikona_by_rikid[rikishi_id])
 
     return BashoResultsRow(
         basho=str(date),
         division_id=DIVISION_IDS[division],
         division_label=DIVISION_LABELS[division],
         rikishi_id=str(int(rikishi_id)),
-        shikona=str(shikona),
+        shikona=shikona,
         graph_shikona=graph_shikona_for(rikishi_id, shikona),
         chii=str(chii),
         chii_ordinal=str(chii.ordinal()),

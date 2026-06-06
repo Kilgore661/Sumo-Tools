@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from src.products.make_site2.data_output import (
+    build_basho_results_data_output,
     build_career_comparisons_data_output,
     copy_banzuke_changes_data_output,
     copy_banzuke_division_by_era_data_output,
@@ -43,6 +44,74 @@ def test_copy_banzuke_changes_data_output_stages_producer_files(
         / "banzuke-changes"
         / "data"
         / "banzuke_change_report.csv"
+    )
+
+
+def test_build_basho_results_data_output_reuses_public_shikona_map(
+    monkeypatch,
+    tmp_path: Path,
+) -> None:
+    history = object()
+    ratings = object()
+    public_shikona_by_rikid = object()
+    dates = ("1980/01", "1980/03")
+    seen_maps = []
+    make_public_calls = []
+
+    monkeypatch.setattr(
+        "src.products.make_site2.data_output.represented_dates",
+        lambda history: dates,
+    )
+    monkeypatch.setattr(
+        "src.products.make_site2.data_output.build_index",
+        lambda history: object(),
+    )
+    monkeypatch.setattr(
+        "src.products.make_site2.data_output.write_index",
+        lambda index, route_data_root: route_data_root / "basho_results_index.json",
+    )
+    monkeypatch.setattr(
+        "src.products.make_site2.data_output.EqueloLookup.load",
+        lambda supplied_history: ratings,
+    )
+
+    def fake_make_public_shikona(supplied_history):
+        make_public_calls.append(supplied_history)
+        return public_shikona_by_rikid
+
+    def fake_build_payload_rows(
+        *,
+        history,
+        date,
+        ratings,
+        public_shikona_by_rikid,
+    ):
+        seen_maps.append(public_shikona_by_rikid)
+        return (f"row:{date}",)
+
+    monkeypatch.setattr(
+        "src.products.make_site2.data_output.make_public_shikona",
+        fake_make_public_shikona,
+    )
+    monkeypatch.setattr(
+        "src.products.make_site2.data_output.build_payload_rows",
+        fake_build_payload_rows,
+    )
+    monkeypatch.setattr(
+        "src.products.make_site2.data_output.write_payload",
+        lambda date, rows, route_data_root: route_data_root / f"{date}.csv",
+    )
+
+    output = build_basho_results_data_output(
+        history=history,
+        output_root=tmp_path,
+    )
+
+    assert make_public_calls == [history]
+    assert seen_maps == [public_shikona_by_rikid, public_shikona_by_rikid]
+    assert output.payload_paths == (
+        tmp_path / "sumo-history" / "basho-results" / "data" / "1980/01.csv",
+        tmp_path / "sumo-history" / "basho-results" / "data" / "1980/03.csv",
     )
 
 

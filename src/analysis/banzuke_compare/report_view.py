@@ -146,11 +146,11 @@ def build_division_rows(
 
         if change.current_side == Side.EAST:
             if east is not None:
-                raise ValueError(f"Duplicate east rikishi for {change.current_bz_chii}")
+                warn_duplicate_side("east", change)
             east = side
         elif change.current_side == Side.WEST:
             if west is not None:
-                raise ValueError(f"Duplicate west rikishi for {change.current_bz_chii}")
+                warn_duplicate_side("west", change)
             west = side
         else:
             raise ValueError(f"Current BCR row has no east/west side: {change.current_chii}")
@@ -158,6 +158,16 @@ def build_division_rows(
     rows.append(make_row(pending_bz_chii, east, west))
 
     return tuple(rows)
+
+
+def warn_duplicate_side(side: str, change: BanzukeChange) -> None:
+    # Temporary tolerance while the 2026/05 Ms60TD parser/chii anomaly is open.
+    # See docs/2026-05 Duplicate Chii Containment Plan.md.
+    print(
+        "WARNING: BCR duplicate "
+        f"{side} rikishi for {change.current_bz_chii}; "
+        f"overwriting prior side with RikId({int(change.rikishi_id)})."
+    )
 
 
 def make_row(
