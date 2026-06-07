@@ -2,7 +2,7 @@
 
 Given a module id, this evidence-first analyser reports file-like artifacts read
 or written by the named module and by transitive project modules reachable through
-internal imports.  It is intended to support Makefile discovery, not to prove
+internal imports. It is intended to support Makefile discovery, not to prove
 complete Python semantics.
 """
 
@@ -23,6 +23,16 @@ READ_METHODS = {"read_text", "read_bytes"}
 WRITE_METHODS = {"write_text", "write_bytes"}
 GLOB_METHODS = {"glob", "rglob"}
 WRITE_MODE_CHARS = {"w", "a", "x", "+"}
+SYMBOLIC_ARTIFACT_NAMES = {
+    "path",
+    "fn",
+    "config_path",
+    "source_path",
+    "destination",
+    "data_path",
+    "report_path",
+    "output_path",
+}
 
 
 @dataclass(frozen=True)
@@ -54,9 +64,23 @@ class ArtifactUse:
     scope: str
     action: str
     artifact: str
+    artifact_kind: str
     evidence: str
     line_number: int
     confidence: str
+
+
+@dataclass(frozen=True)
+class ArtifactSummary:
+    """Aggregated evidence for one artifact."""
+
+    artifact: str
+    artifact_kind: str
+    read_count: int
+    write_count: int
+    glob_count: int
+    producer_modules: tuple[str, ...]
+    consumer_modules: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -92,6 +116,50 @@ class DataFlowGraph:
 
         return tuple(sorted({use.artifact for use in self.artifact_uses if use.action == "write"}))
 
+    @property
+    def concrete_input_artifacts(self) -> tuple[str, ...]:
+        """Return concrete read/glob artifacts."""
+
+        return tuple(
+            sorted(
+                {
+                    use.artifact
+                    for use in self.artifact_uses
+                    if use.action in {"read", "glob"} and use.artifact_kind == "concrete"
+                }
+            )
+        )
+
+    @property
+    def concrete_output_artifacts(self) -> tuple[str, ...]:
+        """Return concrete written artifacts."""
+
+        return tuple(
+            sorted(
+                {
+                    use.artifact
+                    for use in self.artifact_uses
+                    if use.action == "write" and use.artifact_kind == "concrete"
+                }
+            )
+        )
+
+    @property
+    def artifact_summaries(self) -> tuple[ArtifactSummary, ...]:
+        """Return producer/consumer summaries for each artifact."""
+
+        return tuple(build_artifact_summaries(self.artifact_uses))
+
+    @property
+    def generated_prerequisites(self) -> tuple[ArtifactSummary, ...]:
+        """Return artifacts that are both produced and consumed in reachable code."""
+
+        return tuple(
+            summary
+            for summary in self.artifact_summaries
+            if summary.write_count > 0 and (summary.read_count > 0 or summary.glob_count > 0)
+        )
+
     def to_dict(self) -> dict[str, object]:
         """Return a JSON-serialisable representation."""
 
@@ -100,8 +168,14 @@ class DataFlowGraph:
             "modules": [module_ref_to_dict(module) for module in self.modules],
             "imports": [import_ref_to_dict(import_ref) for import_ref in self.imports],
             "artifact_uses": [artifact_use_to_dict(use) for use in self.artifact_uses],
+            "artifacts": [artifact_summary_to_dict(summary) for summary in self.artifact_summaries],
+            "generated_prerequisites": [
+                artifact_summary_to_dict(summary) for summary in self.generated_prerequisites
+            ],
             "input_artifacts": list(self.input_artifacts),
             "output_artifacts": list(self.output_artifacts),
+            "concrete_input_artifacts": list(self.concrete_input_artifacts),
+            "concrete_output_artifacts": list(self.concrete_output_artifacts),
         }
 
 
@@ -133,9 +207,24 @@ def artifact_use_to_dict(use: ArtifactUse) -> dict[str, object]:
         "scope": use.scope,
         "action": use.action,
         "artifact": use.artifact,
+        "artifact_kind": use.artifact_kind,
         "evidence": use.evidence,
         "line_number": use.line_number,
         "confidence": use.confidence,
+    }
+
+
+def artifact_summary_to_dict(summary: ArtifactSummary) -> dict[str, object]:
+    """Return a JSON-serialisable artifact summary row."""
+
+    return {
+        "artifact": summary.artifact,
+        "artifact_kind": summary.artifact_kind,
+        "read_count": summary.read_count,
+        "write_count": summary.write_count,
+        "glob_count": summary.glob_count,
+        "producer_modules": ";".join(summary.producer_modules),
+        "consumer_modules": ";".join(summary.consumer_modules),
     }
 
 
@@ -149,13 +238,19 @@ def build_data_flow_graph(module_id: str, import_root: Path = Path(".")) -> Data
 
     parsed_trees: dict[str, ast.AST] = {}
     imports_by_module: dict[str, tuple[ImportRef, ...]] = {}
+    local_constants_by_module: dict[str, dict[str, str]] = {}
     for module_name, module_ref in module_index.items():
         tree = parse_python(module_ref.path)
         if tree is None:
             continue
         parsed_trees[module_name] = tree
         imports_by_module[module_name] = tuple(import_refs_for_tree(module_name, tree, module_index))
+        local_constants_by_module[module_name] = collect_path_constants(tree, {})
 
+    constants_by_module = build_visible_constants_by_module(
+        local_constants_by_module,
+        imports_by_module,
+    )
     distances = reachable_module_distances(module_id, imports_by_module)
     modules = tuple(
         module_index[module_name]
@@ -170,7 +265,12 @@ def build_data_flow_graph(module_id: str, import_root: Path = Path(".")) -> Data
     artifact_uses = tuple(
         use
         for module_name in sorted(distances, key=lambda name: (distances[name], name))
-        for use in artifact_uses_for_module(module_name, parsed_trees[module_name], distances[module_name])
+        for use in artifact_uses_for_module(
+            module_name,
+            parsed_trees[module_name],
+            distances[module_name],
+            constants_by_module.get(module_name, {}),
+        )
     )
 
     return DataFlowGraph(
@@ -227,7 +327,7 @@ def import_refs_for_tree(
                             importer_module=module_name,
                             imported_module=imported_module,
                             imported_name="",
-                            alias=alias.asname or "",
+                            alias=alias.asname or alias.name.split(".")[-1],
                             import_style="import",
                             line_number=node.lineno,
                         )
@@ -243,7 +343,7 @@ def import_refs_for_tree(
                         importer_module=module_name,
                         imported_module=imported_module,
                         imported_name=alias.name,
-                        alias=alias.asname or "",
+                        alias=alias.asname or alias.name,
                         import_style="from",
                         line_number=node.lineno,
                     )
@@ -294,6 +394,28 @@ def resolve_imported_symbol(
     return base_module
 
 
+def build_visible_constants_by_module(
+    local_constants_by_module: dict[str, dict[str, str]],
+    imports_by_module: dict[str, tuple[ImportRef, ...]],
+) -> dict[str, dict[str, str]]:
+    """Return local constants plus simple imported module constants."""
+
+    result: dict[str, dict[str, str]] = {}
+    for module_name, local_constants in local_constants_by_module.items():
+        constants = dict(local_constants)
+        for import_ref in imports_by_module.get(module_name, ()):
+            imported_constants = local_constants_by_module.get(import_ref.imported_module, {})
+            if not imported_constants:
+                continue
+            if import_ref.import_style == "from" and import_ref.imported_name in imported_constants:
+                constants[import_ref.alias or import_ref.imported_name] = imported_constants[import_ref.imported_name]
+            module_alias = import_ref.alias or import_ref.imported_module.split(".")[-1]
+            for const_name, const_value in imported_constants.items():
+                constants[f"{module_alias}.{const_name}"] = const_value
+        result[module_name] = constants
+    return result
+
+
 def reachable_module_distances(
     root_module: str,
     imports_by_module: dict[str, tuple[ImportRef, ...]],
@@ -318,10 +440,10 @@ def artifact_uses_for_module(
     module_name: str,
     tree: ast.AST,
     distance_from_root: int,
+    constants: dict[str, str],
 ) -> list[ArtifactUse]:
     """Return file-like artifact evidence for one module."""
 
-    constants = collect_path_constants(tree)
     parent_by_child = parent_map(tree)
     uses: list[ArtifactUse] = []
 
@@ -336,23 +458,23 @@ def artifact_uses_for_module(
     return sorted(uses, key=lambda use: (use.line_number, use.action, use.artifact))
 
 
-def collect_path_constants(tree: ast.AST) -> dict[str, str]:
+def collect_path_constants(tree: ast.AST, constants: dict[str, str]) -> dict[str, str]:
     """Collect simple module-level path/string constants."""
 
-    constants: dict[str, str] = {}
+    result = dict(constants)
     for node in getattr(tree, "body", []):
         if isinstance(node, ast.Assign):
-            value = resolve_path_expr(node.value, constants)
+            value = resolve_path_expr(node.value, result)
             if not value:
                 continue
             for target in node.targets:
                 if isinstance(target, ast.Name):
-                    constants[target.id] = value
+                    result[target.id] = value
         elif isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
-            value = resolve_path_expr(node.value, constants) if node.value is not None else ""
+            value = resolve_path_expr(node.value, result) if node.value is not None else ""
             if value:
-                constants[node.target.id] = value
-    return constants
+                result[node.target.id] = value
+    return result
 
 
 def artifact_use_for_call(
@@ -380,7 +502,7 @@ def artifact_use_for_call(
                 if node.args:
                     pattern = resolve_path_expr(node.args[0], constants) or ast.unparse(node.args[0])
                     artifact = f"{artifact}/{pattern}"
-            return ArtifactUse(
+            return make_artifact_use(
                 module_name=module_name,
                 distance_from_root=distance_from_root,
                 scope=scope,
@@ -388,14 +510,13 @@ def artifact_use_for_call(
                 artifact=artifact,
                 evidence=f"{method_name}()",
                 line_number=line_number,
-                confidence="high" if artifact else "low",
             )
 
     if isinstance(node.func, ast.Name) and node.func.id == "open" and node.args:
         artifact = resolve_path_expr(node.args[0], constants) or ast.unparse(node.args[0])
         mode = resolve_open_mode(node)
         action = "write" if any(char in mode for char in WRITE_MODE_CHARS) else "read"
-        return ArtifactUse(
+        return make_artifact_use(
             module_name=module_name,
             distance_from_root=distance_from_root,
             scope=scope,
@@ -403,10 +524,58 @@ def artifact_use_for_call(
             artifact=artifact,
             evidence=f"open(..., mode={mode!r})",
             line_number=line_number,
-            confidence="medium",
         )
 
     return None
+
+
+def make_artifact_use(
+    module_name: str,
+    distance_from_root: int,
+    scope: str,
+    action: str,
+    artifact: str,
+    evidence: str,
+    line_number: int,
+) -> ArtifactUse:
+    """Create an artifact use with kind and confidence classification."""
+
+    artifact_kind = classify_artifact(artifact)
+    if artifact_kind == "concrete":
+        confidence = "high"
+    elif artifact_kind == "symbolic":
+        confidence = "low"
+    else:
+        confidence = "medium"
+    return ArtifactUse(
+        module_name=module_name,
+        distance_from_root=distance_from_root,
+        scope=scope,
+        action=action,
+        artifact=artifact,
+        artifact_kind=artifact_kind,
+        evidence=evidence,
+        line_number=line_number,
+        confidence=confidence,
+    )
+
+
+def classify_artifact(artifact: str) -> str:
+    """Classify artifact strings as concrete, symbolic, or expression."""
+
+    if not artifact:
+        return "symbolic"
+    if artifact in SYMBOLIC_ARTIFACT_NAMES:
+        return "symbolic"
+    if re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", artifact) and not artifact.isupper():
+        return "symbolic"
+    if any(token in artifact for token in ("(", ")", "{", "}", "[", "]")):
+        return "expression"
+    if "/" in artifact or "\\" in artifact or "." in Path(artifact).name or "*" in artifact:
+        return "concrete"
+    if artifact.isupper():
+        return "expression"
+    return "symbolic"
 
 
 def resolve_open_mode(node: ast.Call) -> str:
@@ -429,6 +598,11 @@ def resolve_path_expr(node: ast.AST | None, constants: dict[str, str]) -> str:
         return node.value
     if isinstance(node, ast.Name):
         return constants.get(node.id, node.id if node.id.isupper() else "")
+    if isinstance(node, ast.Attribute):
+        dotted = dotted_name(node)
+        if dotted in constants:
+            return constants[dotted]
+        return dotted if dotted and dotted.split(".")[-1].isupper() else ""
     if isinstance(node, ast.Call) and path_constructor_name(node.func) and node.args:
         parts = [resolve_path_expr(arg, constants) or ast.unparse(arg) for arg in node.args]
         return "/".join(part.strip("/\\") for part in parts if part)
@@ -438,6 +612,17 @@ def resolve_path_expr(node: ast.AST | None, constants: dict[str, str]) -> str:
         return f"{left.rstrip('/\\')}/{right.strip('/\\')}"
     if isinstance(node, ast.JoinedStr):
         return ast.unparse(node)
+    return ""
+
+
+def dotted_name(node: ast.AST) -> str:
+    """Return dotted name for simple attribute expressions."""
+
+    if isinstance(node, ast.Name):
+        return node.id
+    if isinstance(node, ast.Attribute):
+        parent = dotted_name(node.value)
+        return f"{parent}.{node.attr}" if parent else node.attr
     return ""
 
 
@@ -468,6 +653,34 @@ def enclosing_scope(node: ast.AST, parents: dict[ast.AST, ast.AST]) -> str:
         if isinstance(current, ast.ClassDef):
             return current.name
     return "<module>"
+
+
+def build_artifact_summaries(uses: Iterable[ArtifactUse]) -> list[ArtifactSummary]:
+    """Aggregate artifact uses into producer/consumer summaries."""
+
+    by_artifact: dict[str, list[ArtifactUse]] = {}
+    for use in uses:
+        by_artifact.setdefault(use.artifact, []).append(use)
+
+    summaries: list[ArtifactSummary] = []
+    for artifact, artifact_uses in sorted(by_artifact.items()):
+        read_uses = [use for use in artifact_uses if use.action == "read"]
+        write_uses = [use for use in artifact_uses if use.action == "write"]
+        glob_uses = [use for use in artifact_uses if use.action == "glob"]
+        kinds = {use.artifact_kind for use in artifact_uses}
+        artifact_kind = "concrete" if kinds == {"concrete"} else ";".join(sorted(kinds))
+        summaries.append(
+            ArtifactSummary(
+                artifact=artifact,
+                artifact_kind=artifact_kind,
+                read_count=len(read_uses),
+                write_count=len(write_uses),
+                glob_count=len(glob_uses),
+                producer_modules=tuple(sorted({use.module_name for use in write_uses})),
+                consumer_modules=tuple(sorted({use.module_name for use in read_uses + glob_uses})),
+            )
+        )
+    return summaries
 
 
 def safe_name(name: str) -> str:
@@ -503,6 +716,7 @@ def write_data_flow_reports(graph: DataFlowGraph, output_dir: Path) -> None:
             "scope",
             "action",
             "artifact",
+            "artifact_kind",
             "evidence",
             "line_number",
             "confidence",
@@ -510,10 +724,38 @@ def write_data_flow_reports(graph: DataFlowGraph, output_dir: Path) -> None:
         [artifact_use_to_dict(use) for use in graph.artifact_uses],
     )
     write_csv(
+        output_dir / "artifacts.csv",
+        [
+            "artifact",
+            "artifact_kind",
+            "read_count",
+            "write_count",
+            "glob_count",
+            "producer_modules",
+            "consumer_modules",
+        ],
+        [artifact_summary_to_dict(summary) for summary in graph.artifact_summaries],
+    )
+    write_csv(
+        output_dir / "generated_prerequisites.csv",
+        [
+            "artifact",
+            "artifact_kind",
+            "read_count",
+            "write_count",
+            "glob_count",
+            "producer_modules",
+            "consumer_modules",
+        ],
+        [artifact_summary_to_dict(summary) for summary in graph.generated_prerequisites],
+    )
+    write_csv(
         output_dir / "summary.csv",
         ["kind", "artifact"],
         [{"kind": "input", "artifact": artifact} for artifact in graph.input_artifacts]
-        + [{"kind": "output", "artifact": artifact} for artifact in graph.output_artifacts],
+        + [{"kind": "output", "artifact": artifact} for artifact in graph.output_artifacts]
+        + [{"kind": "concrete_input", "artifact": artifact} for artifact in graph.concrete_input_artifacts]
+        + [{"kind": "concrete_output", "artifact": artifact} for artifact in graph.concrete_output_artifacts],
     )
 
 
@@ -553,12 +795,15 @@ def main() -> None:
     print(f"Wrote {output_dir / 'modules.csv'}")
     print(f"Wrote {output_dir / 'imports.csv'}")
     print(f"Wrote {output_dir / 'artifact_uses.csv'}")
+    print(f"Wrote {output_dir / 'artifacts.csv'}")
+    print(f"Wrote {output_dir / 'generated_prerequisites.csv'}")
     print(f"Wrote {output_dir / 'summary.csv'}")
     print(f"Modules: {len(graph.modules)}")
     print(f"Imports: {len(graph.imports)}")
     print(f"Artifact uses: {len(graph.artifact_uses)}")
     print(f"Inputs: {len(graph.input_artifacts)}")
     print(f"Outputs: {len(graph.output_artifacts)}")
+    print(f"Generated prerequisites: {len(graph.generated_prerequisites)}")
 
 
 if __name__ == "__main__":
