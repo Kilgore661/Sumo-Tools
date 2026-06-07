@@ -117,6 +117,67 @@ def build_outgoing_neighbours(
     return outgoing
 
 
+def build_directed_neighbours(
+    module_names: set[str],
+    edges: set[GraphEdge],
+) -> tuple[dict[str, set[str]], dict[str, set[str]]]:
+    """Return outgoing and incoming maps restricted to the supplied modules."""
+
+    outgoing: dict[str, set[str]] = {module_name: set() for module_name in module_names}
+    incoming: dict[str, set[str]] = {module_name: set() for module_name in module_names}
+
+    for edge in edges:
+        if edge.importer_module not in module_names or edge.imported_module not in module_names:
+            continue
+        outgoing[edge.importer_module].add(edge.imported_module)
+        incoming[edge.imported_module].add(edge.importer_module)
+
+    return outgoing, incoming
+
+
+def build_weak_neighbours(
+    module_names: set[str],
+    edges: set[GraphEdge],
+) -> dict[str, set[str]]:
+    """Return weak neighbours restricted to the supplied modules."""
+
+    neighbours: dict[str, set[str]] = {module_name: set() for module_name in module_names}
+    for edge in edges:
+        if edge.importer_module not in module_names or edge.imported_module not in module_names:
+            continue
+        neighbours[edge.importer_module].add(edge.imported_module)
+        neighbours[edge.imported_module].add(edge.importer_module)
+    return neighbours
+
+
+def connected_components(module_names: set[str], edges: set[GraphEdge]) -> list[list[str]]:
+    """Return weakly connected components restricted to the supplied modules."""
+
+    neighbours = build_weak_neighbours(module_names, edges)
+    unseen = set(module_names)
+    components: list[list[str]] = []
+
+    while unseen:
+        start = min(unseen)
+        stack = [start]
+        component: set[str] = set()
+
+        while stack:
+            module_name = stack.pop()
+            if module_name in component:
+                continue
+            component.add(module_name)
+            unseen.discard(module_name)
+
+            for neighbour in sorted(neighbours[module_name], reverse=True):
+                if neighbour not in component:
+                    stack.append(neighbour)
+
+        components.append(sorted(component))
+
+    return sorted(components, key=lambda component: (-len(component), component[0]))
+
+
 def shortest_reachability(
     entry_point: str,
     outgoing: dict[str, set[str]],
@@ -158,6 +219,40 @@ def path_from_entry(
     return " -> ".join(reversed(path))
 
 
+def reached_by_any_entry(
+    nodes: dict[str, GraphNode],
+    entry_points: list[str],
+    outgoing: dict[str, set[str]],
+) -> tuple[dict[str, set[str]], dict[str, list[int]]]:
+    """Return entry-point coverage and distances for each module."""
+
+    reached_by_entry: dict[str, set[str]] = {module_name: set() for module_name in nodes}
+    distances: dict[str, list[int]] = {module_name: [] for module_name in nodes}
+
+    for entry_point in entry_points:
+        reached = shortest_reachability(entry_point, outgoing)
+        for module_name, (distance, _parent) in reached.items():
+            reached_by_entry[module_name].add(entry_point)
+            distances[module_name].append(distance)
+
+    return reached_by_entry, distances
+
+
+def unreachable_module_names(
+    nodes: dict[str, GraphNode],
+    entry_points: list[str],
+    outgoing: dict[str, set[str]],
+) -> set[str]:
+    """Return modules not reachable from any supplied entry point."""
+
+    reached_by_entry, _distances = reached_by_any_entry(nodes, entry_points, outgoing)
+    return {
+        module_name
+        for module_name in nodes
+        if not reached_by_entry[module_name]
+    }
+
+
 def reachability_rows(
     nodes: dict[str, GraphNode],
     entry_points: list[str],
@@ -193,14 +288,7 @@ def unreachable_rows(
 ) -> list[dict[str, object]]:
     """Build compact rows for modules not reached by any supplied entry point."""
 
-    reached_by_entry: dict[str, set[str]] = {module_name: set() for module_name in nodes}
-    distances: dict[str, list[int]] = {module_name: [] for module_name in nodes}
-
-    for entry_point in entry_points:
-        reached = shortest_reachability(entry_point, outgoing)
-        for module_name, (distance, _parent) in reached.items():
-            reached_by_entry[module_name].add(entry_point)
-            distances[module_name].append(distance)
+    reached_by_entry, _distances = reached_by_any_entry(nodes, entry_points, outgoing)
 
     rows: list[dict[str, object]] = []
     for module_name in sorted(nodes):
@@ -224,14 +312,7 @@ def coverage_rows(
 ) -> list[dict[str, object]]:
     """Build one coverage row per module across all supplied entry points."""
 
-    reached_by_entry: dict[str, set[str]] = {module_name: set() for module_name in nodes}
-    distances: dict[str, list[int]] = {module_name: [] for module_name in nodes}
-
-    for entry_point in entry_points:
-        reached = shortest_reachability(entry_point, outgoing)
-        for module_name, (distance, _parent) in reached.items():
-            reached_by_entry[module_name].add(entry_point)
-            distances[module_name].append(distance)
+    reached_by_entry, distances = reached_by_any_entry(nodes, entry_points, outgoing)
 
     rows: list[dict[str, object]] = []
     for module_name in sorted(nodes):
@@ -248,10 +329,88 @@ def coverage_rows(
     return rows
 
 
+def unreachable_component_maps(
+    unreachable: set[str],
+    edges: set[GraphEdge],
+) -> tuple[list[list[str]], dict[str, int], dict[int, int]]:
+    """Return components plus lookup maps for the unreachable induced subgraph."""
+
+    components = connected_components(unreachable, edges)
+    component_id_by_module: dict[str, int] = {}
+    component_size_by_id: dict[int, int] = {}
+
+    for component_id, component in enumerate(components, start=1):
+        component_size_by_id[component_id] = len(component)
+        for module_name in component:
+            component_id_by_module[module_name] = component_id
+
+    return components, component_id_by_module, component_size_by_id
+
+
+def unreachable_node_rows(
+    nodes: dict[str, GraphNode],
+    unreachable: set[str],
+    edges: set[GraphEdge],
+) -> list[dict[str, object]]:
+    """Build node rows for the unreachable induced subgraph."""
+
+    outgoing, incoming = build_directed_neighbours(unreachable, edges)
+    _components, component_ids, component_sizes = unreachable_component_maps(unreachable, edges)
+
+    rows: list[dict[str, object]] = []
+    for module_name in sorted(unreachable):
+        component_id = component_ids[module_name]
+        component_size = component_sizes[component_id]
+        rows.append(
+            {
+                "module_name": module_name,
+                "module_path": nodes[module_name].module_path,
+                "indegree_within_unreachable": len(incoming[module_name]),
+                "outdegree_within_unreachable": len(outgoing[module_name]),
+                "is_source_within_unreachable": len(incoming[module_name]) == 0,
+                "is_sink_within_unreachable": len(outgoing[module_name]) == 0,
+                "imports_within_unreachable": ";".join(sorted(outgoing[module_name])),
+                "imported_by_within_unreachable": ";".join(sorted(incoming[module_name])),
+                "component_id": component_id,
+                "component_size": component_size,
+                "is_singleton_component": component_size == 1,
+            }
+        )
+    return rows
+
+
+def unreachable_component_rows(
+    unreachable: set[str],
+    edges: set[GraphEdge],
+) -> list[dict[str, object]]:
+    """Build component rows for the unreachable induced subgraph."""
+
+    outgoing, incoming = build_directed_neighbours(unreachable, edges)
+    components = connected_components(unreachable, edges)
+
+    rows: list[dict[str, object]] = []
+    for component_id, component in enumerate(components, start=1):
+        source_count = sum(1 for module_name in component if not incoming[module_name])
+        sink_count = sum(1 for module_name in component if not outgoing[module_name])
+        rows.append(
+            {
+                "component_id": component_id,
+                "component_size": len(component),
+                "source_count": source_count,
+                "sink_count": sink_count,
+                "is_singleton_component": len(component) == 1,
+                "module_names": ";".join(component),
+            }
+        )
+    return rows
+
+
 def summary_rows(
     nodes: dict[str, GraphNode],
     entry_points: list[str],
     outgoing: dict[str, set[str]],
+    unreachable: set[str],
+    unreachable_components: list[list[str]],
 ) -> list[dict[str, object]]:
     """Build summary metric rows for reachability analysis."""
 
@@ -277,10 +436,17 @@ def summary_rows(
             }
         )
 
+    singleton_count = sum(1 for component in unreachable_components if len(component) == 1)
     rows.extend(
         [
             {"metric": "reachable_from_any_entry", "value": len(reached_any)},
-            {"metric": "unreachable_from_all_entries", "value": len(nodes) - len(reached_any)},
+            {"metric": "unreachable_from_all_entries", "value": len(unreachable)},
+            {"metric": "unreachable_component_count", "value": len(unreachable_components)},
+            {"metric": "unreachable_singleton_component_count", "value": singleton_count},
+            {
+                "metric": "unreachable_non_singleton_component_count",
+                "value": len(unreachable_components) - singleton_count,
+            },
         ]
     )
     return rows
@@ -314,6 +480,8 @@ def run_reachability(input_dir: Path, output_dir: Path, entry_points: list[str])
     validate_entry_points(entry_points, nodes)
     edges = load_edges(edges_csv, set(nodes))
     outgoing = build_outgoing_neighbours(nodes, edges)
+    unreachable = unreachable_module_names(nodes, entry_points, outgoing)
+    unreachable_components = connected_components(unreachable, edges)
 
     write_csv(
         output_dir / "python_reachability.csv",
@@ -350,17 +518,50 @@ def run_reachability(input_dir: Path, output_dir: Path, entry_points: list[str])
         coverage_rows(nodes, entry_points, outgoing),
     )
     write_csv(
+        output_dir / "python_unreachable_nodes.csv",
+        [
+            "module_name",
+            "module_path",
+            "indegree_within_unreachable",
+            "outdegree_within_unreachable",
+            "is_source_within_unreachable",
+            "is_sink_within_unreachable",
+            "imports_within_unreachable",
+            "imported_by_within_unreachable",
+            "component_id",
+            "component_size",
+            "is_singleton_component",
+        ],
+        unreachable_node_rows(nodes, unreachable, edges),
+    )
+    write_csv(
+        output_dir / "python_unreachable_components.csv",
+        [
+            "component_id",
+            "component_size",
+            "source_count",
+            "sink_count",
+            "is_singleton_component",
+            "module_names",
+        ],
+        unreachable_component_rows(unreachable, edges),
+    )
+    write_csv(
         output_dir / "python_reachability_summary.csv",
         ["metric", "value"],
-        summary_rows(nodes, entry_points, outgoing),
+        summary_rows(nodes, entry_points, outgoing, unreachable, unreachable_components),
     )
 
     print(f"Wrote {output_dir / 'python_reachability.csv'}")
     print(f"Wrote {output_dir / 'python_unreachable_from_entry.csv'}")
     print(f"Wrote {output_dir / 'python_entry_coverage.csv'}")
+    print(f"Wrote {output_dir / 'python_unreachable_nodes.csv'}")
+    print(f"Wrote {output_dir / 'python_unreachable_components.csv'}")
     print(f"Wrote {output_dir / 'python_reachability_summary.csv'}")
     print(f"Modules: {len(nodes)}")
     print(f"Entry points: {len(entry_points)}")
+    print(f"Unreachable modules: {len(unreachable)}")
+    print(f"Unreachable components: {len(unreachable_components)}")
 
 
 def build_parser() -> argparse.ArgumentParser:
