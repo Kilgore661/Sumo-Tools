@@ -6,7 +6,7 @@ import ast
 import re
 from pathlib import Path
 
-from src.introspection.data_flow_model import ImportRef
+from src.introspection.data_flow_model import ImportRef, ModuleRef
 
 
 SYMBOLIC_ARTIFACT_NAMES = {
@@ -21,10 +21,18 @@ SYMBOLIC_ARTIFACT_NAMES = {
 }
 
 
-def build_local_constants_by_module(trees: dict[str, ast.AST]) -> dict[str, dict[str, str]]:
+def build_local_constants_by_module(
+    trees: dict[str, ast.AST],
+    module_index: dict[str, ModuleRef],
+) -> dict[str, dict[str, str]]:
     """Return local path constants for each module."""
 
-    return {module_name: collect_path_constants(tree, {}) for module_name, tree in trees.items()}
+    result: dict[str, dict[str, str]] = {}
+    for module_name, tree in trees.items():
+        module_ref = module_index[module_name]
+        seed_constants = {"__file__": module_ref.path.as_posix()}
+        result[module_name] = collect_path_constants(tree, seed_constants)
+    return result
 
 
 def build_visible_constants_by_module(
@@ -47,6 +55,11 @@ def build_visible_constants_by_module(
             local_constants_by_module,
             imports_by_module,
         )
+        seed_constants.update({
+            key: value
+            for key, value in local_constants_by_module.get(module_name, {}).items()
+            if key == "__file__"
+        })
         constants = collect_path_constants(tree, seed_constants)
         result[module_name] = constants
     return result
@@ -73,7 +86,7 @@ def imported_constants_for_module(
 
 
 def collect_path_constants(tree: ast.AST, constants: dict[str, str]) -> dict[str, str]:
-    """Collect simple module-level path/string constants."""
+    """Collect simple assignment path/string constants from a module or function body."""
 
     result = dict(constants)
     for node in getattr(tree, "body", []):
@@ -101,19 +114,43 @@ def resolve_path_expr(node: ast.AST | None, constants: dict[str, str]) -> str:
     if isinstance(node, ast.Name):
         return constants.get(node.id, node.id if node.id.isupper() else "")
     if isinstance(node, ast.Attribute):
+        resolved_attribute = resolve_path_attribute(node, constants)
+        if resolved_attribute:
+            return resolved_attribute
         dotted = dotted_name(node)
         if dotted in constants:
             return constants[dotted]
         return dotted if dotted and dotted.split(".")[-1].isupper() else ""
-    if isinstance(node, ast.Call) and path_constructor_name(node.func) and node.args:
-        parts = [resolve_path_expr(arg, constants) or ast.unparse(arg) for arg in node.args]
-        return "/".join(part.strip("/\\") for part in parts if part)
+    if isinstance(node, ast.Call):
+        resolved_call = resolve_path_call(node, constants)
+        if resolved_call:
+            return resolved_call
     if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Div):
         left = resolve_path_expr(node.left, constants) or ast.unparse(node.left)
         right = resolve_path_expr(node.right, constants) or ast.unparse(node.right)
         return f"{left.rstrip('/\\')}/{right.strip('/\\')}"
     if isinstance(node, ast.JoinedStr):
         return ast.unparse(node)
+    return ""
+
+
+def resolve_path_call(node: ast.Call, constants: dict[str, str]) -> str:
+    """Resolve simple path-oriented calls."""
+
+    if path_constructor_name(node.func) and node.args:
+        parts = [resolve_path_expr(arg, constants) or ast.unparse(arg) for arg in node.args]
+        return "/".join(part.strip("/\\") for part in parts if part)
+    if isinstance(node.func, ast.Attribute) and node.func.attr in {"resolve", "absolute"}:
+        return resolve_path_expr(node.func.value, constants)
+    return ""
+
+
+def resolve_path_attribute(node: ast.Attribute, constants: dict[str, str]) -> str:
+    """Resolve simple path attributes such as ``some_path.parent``."""
+
+    if node.attr == "parent":
+        value = resolve_path_expr(node.value, constants)
+        return Path(value).parent.as_posix() if value else ""
     return ""
 
 
