@@ -1,9 +1,8 @@
 """Build and persist a directed forest of Python module imports.
 
-The forest is the internal import digraph induced by a folder of Python files.  Edges
-use the convention ``importer -> imported``.  Weakly connected components are
-valid when they are trees or recursively valid forests.  A tree has one source
-module, where a source has indegree zero.
+The forest is the internal import digraph induced by a folder of Python files.
+Edges use the convention ``importer -> imported``.  Weakly connected components
+are classified as trees, forests, degenerate trees, or zero-source knots.
 """
 
 from __future__ import annotations
@@ -21,8 +20,8 @@ from src.introspection.python_import_parser import import_edges_for_tree, inspec
 from src.introspection.python_module_discovery import module_name_for_path
 
 
-OUTPUT_SUFFIX = "import_forest"
-VALID_COMPONENT_STATUSES = {"valid_tree", "valid_forest", "degenerate_tree"}
+DEFAULT_OUTPUT_DIR = Path("output") / "introspection"
+VALID_COMPONENT_STATUSES = {"tree", "forest", "degenerate_tree"}
 INVALID_COMPONENT_STATUSES = {"zero_sources"}
 
 
@@ -55,9 +54,9 @@ class ForestEdge:
 
 @dataclass(frozen=True)
 class ForestComponent:
-    """One weakly connected component of the import forest."""
+    """One component or recursive subcomponent of the import forest."""
 
-    component_id: int
+    component_id: str
     module_names: tuple[str, ...]
     source_modules: tuple[str, ...]
     sink_modules: tuple[str, ...]
@@ -82,14 +81,20 @@ class ForestComponent:
         return len(self.sink_modules)
 
     @property
-    def is_valid_tree(self) -> bool:
+    def is_tree(self) -> bool:
         """Return true when the component is a tree, including a degenerate tree."""
 
-        return self.status in {"valid_tree", "degenerate_tree"}
+        return self.status in {"tree", "degenerate_tree"}
 
     @property
-    def is_valid_forest(self) -> bool:
-        """Return true when the component is valid under the recursive forest rule."""
+    def is_forest(self) -> bool:
+        """Return true when the component is a recursive forest."""
+
+        return self.status == "forest"
+
+    @property
+    def is_valid(self) -> bool:
+        """Return true when the component satisfies the recursive forest rule."""
 
         return self.status in VALID_COMPONENT_STATUSES
 
@@ -131,8 +136,8 @@ class PythonImportForest:
         return tuple(component for component in self.components if component.status in INVALID_COMPONENT_STATUSES)
 
     @property
-    def isolated_components(self) -> tuple[ForestComponent, ...]:
-        """Return one-node degenerate-tree components with no internal imports."""
+    def degenerate_tree_components(self) -> tuple[ForestComponent, ...]:
+        """Return one-node tree components with no internal imports."""
 
         return tuple(component for component in self.components if component.status == "degenerate_tree")
 
@@ -153,14 +158,15 @@ class PythonImportForest:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(self.to_dict(), indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
-    def write_csvs(self, output_dir: Path, output_stem: str | None = None) -> None:
-        """Persist node, edge, component, and summary CSV files.
+    def write_reports(self, output_dir: Path) -> None:
+        """Persist JSON and CSV projections into ``output_dir``."""
 
-        When ``output_stem`` is omitted, filenames are derived from the input
-        folder, for example ``src_import_forest_nodes.csv``.
-        """
+        write_forest_reports(output_dir, self)
 
-        write_forest_csvs(output_dir, self, output_stem)
+    def write_recursive_reports(self, output_dir: Path) -> None:
+        """Persist this forest and recursively persist forest components."""
+
+        write_recursive_forest_reports(output_dir, self)
 
 
 def node_to_dict(node: ForestNode) -> dict[str, Any]:
@@ -205,7 +211,7 @@ def component_to_dict(component: ForestComponent) -> dict[str, Any]:
         "source_modules": list(component.source_modules),
         "sink_modules": list(component.sink_modules),
     }
-    if component.status == "valid_forest":
+    if component.status == "forest":
         result["subforest_roots"] = list(component.source_modules)
     return result
 
@@ -242,7 +248,7 @@ def read_python_import_forest(path: Path) -> PythonImportForest:
     outgoing, incoming = build_directed_neighbours(nodes.keys(), edges)
     components = tuple(
         ForestComponent(
-            component_id=int(row["component_id"]),
+            component_id=str(row["component_id"]),
             module_names=tuple(row["module_names"]),
             source_modules=tuple(row["source_modules"]),
             sink_modules=tuple(row["sink_modules"]),
@@ -456,12 +462,12 @@ def build_forest_components(
 
     components = connected_components(module_names, edges)
     result: list[ForestComponent] = []
-    for component_id, component in enumerate(components, start=1):
+    for component_number, component in enumerate(components, start=1):
         source_modules = tuple(module_name for module_name in component if not incoming[module_name])
         sink_modules = tuple(module_name for module_name in component if not outgoing[module_name])
         result.append(
             ForestComponent(
-                component_id=component_id,
+                component_id=str(component_number),
                 module_names=component,
                 source_modules=source_modules,
                 sink_modules=sink_modules,
@@ -481,10 +487,77 @@ def component_status(
     if len(module_names) == 1 and len(source_modules) == 1 and len(sink_modules) == 1:
         return "degenerate_tree"
     if len(source_modules) == 1:
-        return "valid_tree"
+        return "tree"
     if not source_modules:
         return "zero_sources"
-    return "valid_forest"
+    return "forest"
+
+
+def source_reachable_modules(
+    source_module: str,
+    allowed_modules: set[str],
+    outgoing: dict[str, frozenset[str]],
+) -> tuple[str, ...]:
+    """Return modules reachable from ``source_module`` within ``allowed_modules``."""
+
+    seen: set[str] = set()
+    stack = [source_module]
+    while stack:
+        module_name = stack.pop()
+        if module_name in seen or module_name not in allowed_modules:
+            continue
+        seen.add(module_name)
+        for imported_module in sorted(outgoing[module_name], reverse=True):
+            if imported_module in allowed_modules and imported_module not in seen:
+                stack.append(imported_module)
+    return tuple(sorted(seen))
+
+
+def decompose_forest_component(
+    forest: PythonImportForest,
+    component: ForestComponent,
+) -> PythonImportForest:
+    """Return a recursive forest view for a multi-source component."""
+
+    allowed_modules = set(component.module_names)
+    child_components: list[ForestComponent] = []
+
+    for child_number, source_module in enumerate(component.source_modules, start=1):
+        child_id = f"{component.component_id}.{child_number}"
+        child_modules = source_reachable_modules(source_module, allowed_modules, forest.outgoing)
+        child_module_set = set(child_modules)
+        child_sinks = tuple(
+            module_name
+            for module_name in child_modules
+            if not any(imported in child_module_set for imported in forest.outgoing[module_name])
+        )
+        child_components.append(
+            ForestComponent(
+                component_id=child_id,
+                module_names=child_modules,
+                source_modules=(source_module,),
+                sink_modules=child_sinks,
+                status="degenerate_tree" if len(child_modules) == 1 else "tree",
+            )
+        )
+
+    nodes = {module_name: forest.nodes[module_name] for module_name in component.module_names}
+    edges = frozenset(
+        edge
+        for edge in forest.edges
+        if edge.importer_module in allowed_modules and edge.imported_module in allowed_modules
+    )
+    outgoing, incoming = build_directed_neighbours(nodes.keys(), edges)
+
+    return PythonImportForest(
+        folder=forest.folder,
+        import_root=forest.import_root,
+        nodes=nodes,
+        edges=edges,
+        outgoing=outgoing,
+        incoming=incoming,
+        components=tuple(child_components),
+    )
 
 
 def sorted_edges(edges: Iterable[ForestEdge]) -> list[ForestEdge]:
@@ -503,29 +576,28 @@ def sorted_edges(edges: Iterable[ForestEdge]) -> list[ForestEdge]:
 
 
 def safe_output_name(path: Path) -> str:
-    """Return a filesystem-safe output base name derived from an input path."""
+    """Return a filesystem-safe output folder name derived from an input path."""
 
     name = path.resolve().name or "root"
     safe = re.sub(r"[^A-Za-z0-9_.-]+", "_", name).strip("._-")
     return safe or "root"
 
 
-def forest_output_stem(folder: Path) -> str:
-    """Return the default output stem for a forest built from ``folder``."""
+def default_forest_output_dir(folder: Path) -> Path:
+    """Return the default output directory for an input folder."""
 
-    return f"{safe_output_name(folder)}_{OUTPUT_SUFFIX}"
+    return DEFAULT_OUTPUT_DIR / safe_output_name(folder)
 
 
-def forest_output_paths(output_dir: Path, folder: Path, output_stem: str | None = None) -> dict[str, Path]:
-    """Return all default output paths for a forest input folder."""
+def forest_output_paths(output_dir: Path) -> dict[str, Path]:
+    """Return report paths inside one forest output directory."""
 
-    stem = output_stem or forest_output_stem(folder)
     return {
-        "json": output_dir / f"{stem}.json",
-        "nodes": output_dir / f"{stem}_nodes.csv",
-        "edges": output_dir / f"{stem}_edges.csv",
-        "components": output_dir / f"{stem}_components.csv",
-        "summary": output_dir / f"{stem}_summary.csv",
+        "json": output_dir / "forest.json",
+        "nodes": output_dir / "nodes.csv",
+        "edges": output_dir / "edges.csv",
+        "components": output_dir / "components.csv",
+        "summary": output_dir / "summary.csv",
     }
 
 
@@ -539,14 +611,11 @@ def write_csv(path: Path, fieldnames: list[str], rows: list[dict[str, object]]) 
         writer.writerows(rows)
 
 
-def write_forest_csvs(
-    output_dir: Path,
-    forest: PythonImportForest,
-    output_stem: str | None = None,
-) -> None:
-    """Write CSV projections of an import forest."""
+def write_forest_reports(output_dir: Path, forest: PythonImportForest) -> None:
+    """Write JSON and CSV projections of an import forest."""
 
-    paths = forest_output_paths(output_dir, forest.folder, output_stem)
+    paths = forest_output_paths(output_dir)
+    forest.write_json(paths["json"])
     write_csv(
         paths["nodes"],
         [
@@ -558,9 +627,8 @@ def write_forest_csvs(
             "is_sink",
             "imports",
             "imported_by",
-            "component_id",
-            "component_size",
-            "component_status",
+            "component_ids",
+            "component_statuses",
             "has_main_guard",
             "defines_main",
             "parse_status",
@@ -604,24 +672,36 @@ def write_forest_csvs(
     )
 
 
-def component_by_module(forest: PythonImportForest) -> dict[str, ForestComponent]:
-    """Return a component lookup for every module in the forest."""
+def write_recursive_forest_reports(output_dir: Path, forest: PythonImportForest) -> None:
+    """Write this forest and recurse into components classified as forests."""
 
-    return {
-        module_name: component
-        for component in forest.components
-        for module_name in component.module_names
-    }
+    write_forest_reports(output_dir, forest)
+    for component in forest.components:
+        if component.status != "forest":
+            continue
+        child_dir = output_dir / component.component_id
+        child_forest = decompose_forest_component(forest, component)
+        write_recursive_forest_reports(child_dir, child_forest)
+
+
+def components_by_module(forest: PythonImportForest) -> dict[str, list[ForestComponent]]:
+    """Return component memberships for every module in the forest."""
+
+    result: dict[str, list[ForestComponent]] = {module_name: [] for module_name in forest.nodes}
+    for component in forest.components:
+        for module_name in component.module_names:
+            result[module_name].append(component)
+    return result
 
 
 def forest_node_rows(forest: PythonImportForest) -> list[dict[str, object]]:
     """Return node rows for CSV persistence."""
 
-    components = component_by_module(forest)
+    memberships = components_by_module(forest)
     rows: list[dict[str, object]] = []
     for module_name in sorted(forest.nodes):
         node = forest.nodes[module_name]
-        component = components[module_name]
+        module_components = memberships[module_name]
         rows.append(
             {
                 "module_name": module_name,
@@ -632,9 +712,8 @@ def forest_node_rows(forest: PythonImportForest) -> list[dict[str, object]]:
                 "is_sink": not forest.outgoing[module_name],
                 "imports": ";".join(sorted(forest.outgoing[module_name])),
                 "imported_by": ";".join(sorted(forest.incoming[module_name])),
-                "component_id": component.component_id,
-                "component_size": component.component_size,
-                "component_status": component.status,
+                "component_ids": ";".join(component.component_id for component in module_components),
+                "component_statuses": ";".join(component.status for component in module_components),
                 "has_main_guard": node.has_main_guard,
                 "defines_main": node.defines_main,
                 "parse_status": node.parse_status,
@@ -683,7 +762,7 @@ def forest_summary_rows(forest: PythonImportForest) -> list[dict[str, object]]:
         {"metric": "component_count", "value": len(forest.components)},
         {"metric": "valid_component_count", "value": len(forest.valid_components)},
         {"metric": "invalid_component_count", "value": len(forest.invalid_components)},
-        {"metric": "degenerate_tree_component_count", "value": len(forest.isolated_components)},
+        {"metric": "degenerate_tree_component_count", "value": len(forest.degenerate_tree_components)},
     ]
     rows.extend(
         {"metric": f"component_status:{status}", "value": count}
@@ -709,17 +788,6 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Path that dotted module names are relative to. Defaults to folder.",
     )
-    parser.add_argument(
-        "--output-dir",
-        type=Path,
-        default=Path("files") / "output" / "introspection",
-        help="Directory for JSON and CSV outputs.",
-    )
-    parser.add_argument(
-        "--output-stem",
-        default=None,
-        help="Output filename stem. Defaults to '<input-folder>_import_forest'.",
-    )
     return parser
 
 
@@ -729,12 +797,10 @@ def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
     forest = build_python_import_forest(args.folder, args.import_root)
-    output_dir = args.output_dir.resolve()
-    output_stem = args.output_stem or forest_output_stem(args.folder)
-    paths = forest_output_paths(output_dir, args.folder, output_stem)
+    output_dir = default_forest_output_dir(args.folder).resolve()
+    paths = forest_output_paths(output_dir)
 
-    forest.write_json(paths["json"])
-    forest.write_csvs(output_dir, output_stem)
+    forest.write_recursive_reports(output_dir)
 
     print(f"Wrote {paths['json']}")
     print(f"Wrote {paths['nodes']}")
