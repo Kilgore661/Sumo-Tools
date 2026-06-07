@@ -2,7 +2,8 @@
 
 The forest is the internal import digraph induced by a folder of Python files.  Edges
 use the convention ``importer -> imported``.  Weakly connected components are
-expected to have exactly one source module, where a source has indegree zero.
+valid when they are trees or recursively valid forests.  A tree has one source
+module, where a source has indegree zero.
 """
 
 from __future__ import annotations
@@ -21,6 +22,8 @@ from src.introspection.python_module_discovery import module_name_for_path
 
 
 OUTPUT_SUFFIX = "import_forest"
+VALID_COMPONENT_STATUSES = {"valid_tree", "valid_forest", "degenerate_tree"}
+INVALID_COMPONENT_STATUSES = {"zero_sources"}
 
 
 @dataclass(frozen=True)
@@ -80,9 +83,15 @@ class ForestComponent:
 
     @property
     def is_valid_tree(self) -> bool:
-        """Return true when the component satisfies the one-source invariant."""
+        """Return true when the component is a tree, including a degenerate tree."""
 
-        return self.status == "valid_tree"
+        return self.status in {"valid_tree", "degenerate_tree"}
+
+    @property
+    def is_valid_forest(self) -> bool:
+        """Return true when the component is valid under the recursive forest rule."""
+
+        return self.status in VALID_COMPONENT_STATUSES
 
 
 @dataclass(frozen=True)
@@ -111,25 +120,21 @@ class PythonImportForest:
 
     @property
     def valid_components(self) -> tuple[ForestComponent, ...]:
-        """Return components satisfying the one-source invariant."""
+        """Return components satisfying the recursive forest invariant."""
 
-        return tuple(component for component in self.components if component.status == "valid_tree")
+        return tuple(component for component in self.components if component.status in VALID_COMPONENT_STATUSES)
 
     @property
     def invalid_components(self) -> tuple[ForestComponent, ...]:
-        """Return components that do not satisfy the one-source invariant."""
+        """Return components that do not satisfy the recursive forest invariant."""
 
-        return tuple(
-            component
-            for component in self.components
-            if component.status in {"zero_sources", "multiple_sources"}
-        )
+        return tuple(component for component in self.components if component.status in INVALID_COMPONENT_STATUSES)
 
     @property
     def isolated_components(self) -> tuple[ForestComponent, ...]:
-        """Return one-node components with no internal imports."""
+        """Return one-node degenerate-tree components with no internal imports."""
 
-        return tuple(component for component in self.components if component.status == "isolated")
+        return tuple(component for component in self.components if component.status == "degenerate_tree")
 
     def to_dict(self) -> dict[str, Any]:
         """Return a JSON-serialisable representation of the forest."""
@@ -190,7 +195,7 @@ def edge_to_dict(edge: ForestEdge) -> dict[str, Any]:
 def component_to_dict(component: ForestComponent) -> dict[str, Any]:
     """Return a JSON-serialisable component dictionary."""
 
-    return {
+    result = {
         "component_id": component.component_id,
         "component_size": component.component_size,
         "source_count": component.source_count,
@@ -200,6 +205,9 @@ def component_to_dict(component: ForestComponent) -> dict[str, Any]:
         "source_modules": list(component.source_modules),
         "sink_modules": list(component.sink_modules),
     }
+    if component.status == "valid_forest":
+        result["subforest_roots"] = list(component.source_modules)
+    return result
 
 
 def read_python_import_forest(path: Path) -> PythonImportForest:
@@ -468,15 +476,15 @@ def component_status(
     source_modules: tuple[str, ...],
     sink_modules: tuple[str, ...],
 ) -> str:
-    """Classify one weak component against the forest invariant."""
+    """Classify one weak component against the recursive forest invariant."""
 
     if len(module_names) == 1 and len(source_modules) == 1 and len(sink_modules) == 1:
-        return "isolated"
+        return "degenerate_tree"
     if len(source_modules) == 1:
         return "valid_tree"
     if not source_modules:
         return "zero_sources"
-    return "multiple_sources"
+    return "valid_forest"
 
 
 def sorted_edges(edges: Iterable[ForestEdge]) -> list[ForestEdge]:
@@ -675,7 +683,7 @@ def forest_summary_rows(forest: PythonImportForest) -> list[dict[str, object]]:
         {"metric": "component_count", "value": len(forest.components)},
         {"metric": "valid_component_count", "value": len(forest.valid_components)},
         {"metric": "invalid_component_count", "value": len(forest.invalid_components)},
-        {"metric": "isolated_component_count", "value": len(forest.isolated_components)},
+        {"metric": "degenerate_tree_component_count", "value": len(forest.isolated_components)},
     ]
     rows.extend(
         {"metric": f"component_status:{status}", "value": count}
