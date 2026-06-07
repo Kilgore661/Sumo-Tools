@@ -104,6 +104,12 @@ def edge_rows(edges: list[ImportEdge]) -> list[dict[str, object]]:
     ]
 
 
+def is_package_init_row(row: dict[str, object]) -> bool:
+    """Return true when a module-summary row represents an ``__init__.py`` file."""
+
+    return str(row["module_path"]).endswith("/__init__.py")
+
+
 def candidate_role(row: dict[str, object]) -> str:
     """Return a first-pass role label from import summary facts."""
 
@@ -137,10 +143,12 @@ def needs_review(row: dict[str, object]) -> bool:
 
 
 def entry_candidate_rows(module_summary_rows: list[dict[str, object]]) -> list[dict[str, object]]:
-    """Return compact rows for modules that expose a ``__main__`` execution surface."""
+    """Return compact rows for non-package modules with a ``__main__`` surface."""
 
     rows: list[dict[str, object]] = []
     for row in module_summary_rows:
+        if is_package_init_row(row):
+            continue
         if row["has_main_guard"] is not True:
             continue
         rows.append(
