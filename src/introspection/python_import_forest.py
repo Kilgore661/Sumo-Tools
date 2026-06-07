@@ -20,7 +20,7 @@ from src.introspection.python_import_parser import import_edges_for_tree, inspec
 from src.introspection.python_module_discovery import module_name_for_path
 
 
-DEFAULT_OUTPUT_DIR = Path("output") / "introspection"
+DEFAULT_OUTPUT_DIR = Path("files") / "output" / "introspection"
 VALID_COMPONENT_STATUSES = {"tree", "forest", "degenerate_tree"}
 INVALID_COMPONENT_STATUSES = {"zero_sources"}
 
