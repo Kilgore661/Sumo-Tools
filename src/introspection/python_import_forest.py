@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable
@@ -19,7 +20,7 @@ from src.introspection.python_import_parser import import_edges_for_tree, inspec
 from src.introspection.python_module_discovery import module_name_for_path
 
 
-DEFAULT_JSON_NAME = "python_import_forest.json"
+OUTPUT_SUFFIX = "import_forest"
 
 
 @dataclass(frozen=True)
@@ -147,10 +148,14 @@ class PythonImportForest:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(self.to_dict(), indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
-    def write_csvs(self, output_dir: Path) -> None:
-        """Persist node, edge, component, and summary CSV files."""
+    def write_csvs(self, output_dir: Path, output_stem: str | None = None) -> None:
+        """Persist node, edge, component, and summary CSV files.
 
-        write_forest_csvs(output_dir, self)
+        When ``output_stem`` is omitted, filenames are derived from the input
+        folder, for example ``src_import_forest_nodes.csv``.
+        """
+
+        write_forest_csvs(output_dir, self, output_stem)
 
 
 def node_to_dict(node: ForestNode) -> dict[str, Any]:
@@ -489,6 +494,33 @@ def sorted_edges(edges: Iterable[ForestEdge]) -> list[ForestEdge]:
     )
 
 
+def safe_output_name(path: Path) -> str:
+    """Return a filesystem-safe output base name derived from an input path."""
+
+    name = path.resolve().name or "root"
+    safe = re.sub(r"[^A-Za-z0-9_.-]+", "_", name).strip("._-")
+    return safe or "root"
+
+
+def forest_output_stem(folder: Path) -> str:
+    """Return the default output stem for a forest built from ``folder``."""
+
+    return f"{safe_output_name(folder)}_{OUTPUT_SUFFIX}"
+
+
+def forest_output_paths(output_dir: Path, folder: Path, output_stem: str | None = None) -> dict[str, Path]:
+    """Return all default output paths for a forest input folder."""
+
+    stem = output_stem or forest_output_stem(folder)
+    return {
+        "json": output_dir / f"{stem}.json",
+        "nodes": output_dir / f"{stem}_nodes.csv",
+        "edges": output_dir / f"{stem}_edges.csv",
+        "components": output_dir / f"{stem}_components.csv",
+        "summary": output_dir / f"{stem}_summary.csv",
+    }
+
+
 def write_csv(path: Path, fieldnames: list[str], rows: list[dict[str, object]]) -> None:
     """Write dictionaries to a UTF-8 CSV file with a stable header."""
 
@@ -499,11 +531,16 @@ def write_csv(path: Path, fieldnames: list[str], rows: list[dict[str, object]]) 
         writer.writerows(rows)
 
 
-def write_forest_csvs(output_dir: Path, forest: PythonImportForest) -> None:
+def write_forest_csvs(
+    output_dir: Path,
+    forest: PythonImportForest,
+    output_stem: str | None = None,
+) -> None:
     """Write CSV projections of an import forest."""
 
+    paths = forest_output_paths(output_dir, forest.folder, output_stem)
     write_csv(
-        output_dir / "python_import_forest_nodes.csv",
+        paths["nodes"],
         [
             "module_name",
             "module_path",
@@ -524,7 +561,7 @@ def write_forest_csvs(output_dir: Path, forest: PythonImportForest) -> None:
         forest_node_rows(forest),
     )
     write_csv(
-        output_dir / "python_import_forest_edges.csv",
+        paths["edges"],
         [
             "importer_module",
             "imported_module",
@@ -539,7 +576,7 @@ def write_forest_csvs(output_dir: Path, forest: PythonImportForest) -> None:
         forest_edge_rows(forest),
     )
     write_csv(
-        output_dir / "python_import_forest_components.csv",
+        paths["components"],
         [
             "component_id",
             "component_size",
@@ -553,7 +590,7 @@ def write_forest_csvs(output_dir: Path, forest: PythonImportForest) -> None:
         forest_component_rows(forest),
     )
     write_csv(
-        output_dir / "python_import_forest_summary.csv",
+        paths["summary"],
         ["metric", "value"],
         forest_summary_rows(forest),
     )
@@ -671,9 +708,9 @@ def build_parser() -> argparse.ArgumentParser:
         help="Directory for JSON and CSV outputs.",
     )
     parser.add_argument(
-        "--json-name",
-        default=DEFAULT_JSON_NAME,
-        help=f"JSON output filename. Defaults to {DEFAULT_JSON_NAME}.",
+        "--output-stem",
+        default=None,
+        help="Output filename stem. Defaults to '<input-folder>_import_forest'.",
     )
     return parser
 
@@ -685,15 +722,17 @@ def main() -> None:
     args = parser.parse_args()
     forest = build_python_import_forest(args.folder, args.import_root)
     output_dir = args.output_dir.resolve()
-    json_path = output_dir / args.json_name
-    forest.write_json(json_path)
-    forest.write_csvs(output_dir)
+    output_stem = args.output_stem or forest_output_stem(args.folder)
+    paths = forest_output_paths(output_dir, args.folder, output_stem)
 
-    print(f"Wrote {json_path}")
-    print(f"Wrote {output_dir / 'python_import_forest_nodes.csv'}")
-    print(f"Wrote {output_dir / 'python_import_forest_edges.csv'}")
-    print(f"Wrote {output_dir / 'python_import_forest_components.csv'}")
-    print(f"Wrote {output_dir / 'python_import_forest_summary.csv'}")
+    forest.write_json(paths["json"])
+    forest.write_csvs(output_dir, output_stem)
+
+    print(f"Wrote {paths['json']}")
+    print(f"Wrote {paths['nodes']}")
+    print(f"Wrote {paths['edges']}")
+    print(f"Wrote {paths['components']}")
+    print(f"Wrote {paths['summary']}")
     print(f"Modules: {len(forest.nodes)}")
     print(f"Edges: {len(forest.edges)}")
     print(f"Components: {len(forest.components)}")
