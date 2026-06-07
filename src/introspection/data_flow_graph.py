@@ -14,7 +14,7 @@ from src.introspection.data_flow_imports import (
     parse_python,
     reachable_module_distances,
 )
-from src.introspection.data_flow_model import DataFlowGraph
+from src.introspection.data_flow_model import DataFlowGraph, ModuleRef
 from src.introspection.data_flow_paths import (
     build_local_constants_by_module,
     build_visible_constants_by_module,
@@ -38,7 +38,7 @@ def build_data_flow_graph(module_id: str, import_root: Path = Path(".")) -> Data
         module_name: tuple(import_refs_for_tree(module_name, tree, module_index))
         for module_name, tree in parsed_trees.items()
     }
-    local_constants_by_module = build_local_constants_by_module(parsed_trees)
+    local_constants_by_module = build_local_constants_by_module(parsed_trees, module_index)
     constants_by_module = build_visible_constants_by_module(
         local_constants_by_module,
         imports_by_module,
@@ -73,7 +73,7 @@ def build_data_flow_graph(module_id: str, import_root: Path = Path(".")) -> Data
     )
 
 
-def parse_modules(module_index: dict[str, object]) -> dict[str, ast.AST]:
+def parse_modules(module_index: dict[str, ModuleRef]) -> dict[str, ast.AST]:
     """Parse every module in ``module_index`` that can be parsed."""
 
     parsed_trees: dict[str, ast.AST] = {}
