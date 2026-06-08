@@ -78,9 +78,9 @@ def cross_module_function_seed_constants(
 
     for caller_module, tree in trees.items():
         import_refs = imports_by_module.get(caller_module, ())
-        caller_constants = constants_by_module.get(caller_module, {})
-        if not import_refs or not caller_constants:
+        if not import_refs:
             continue
+        caller_constants = constants_by_module.get(caller_module, {})
         parent_by_child = parent_map(tree)
         caller_function_constants = constants_by_function_scope(
             tree,
@@ -339,7 +339,7 @@ def resolve_open_mode(node: ast.Call) -> str:
         return node.args[1].value
     for keyword in node.keywords:
         if keyword.arg == "mode" and isinstance(keyword.value, ast.Constant) and isinstance(keyword.value.value, str):
-            return keyword.value.value
+        	return keyword.value.value
     return "r"
 
 
