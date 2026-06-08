@@ -196,6 +196,12 @@ def is_makefile_ready_artifact(artifact: str) -> bool:
     return True
 
 
+def is_makefile_target_artifact(artifact: str) -> bool:
+    """Return true when an artifact should be emitted as a Make target."""
+
+    return is_makefile_ready_artifact(artifact) and "*" not in normalised_artifact(artifact)
+
+
 def root_output_uses(graph: DataFlowGraph) -> tuple[ArtifactUse, ...]:
     """Return concrete writes that look owned by the root command package."""
 
@@ -206,7 +212,26 @@ def root_output_uses(graph: DataFlowGraph) -> tuple[ArtifactUse, ...]:
                 for use in graph.artifact_uses
                 if use.action == "write"
                 and use.artifact_kind == "concrete"
+                and is_makefile_target_artifact(use.artifact)
+                and is_root_module(graph, use.module_name)
+            ),
+            key=lambda use: (use.artifact, use.module_name, use.line_number),
+        )
+    )
+
+
+def root_output_pattern_uses(graph: DataFlowGraph) -> tuple[ArtifactUse, ...]:
+    """Return root-package writes that are output patterns, not concrete targets."""
+
+    return tuple(
+        sorted(
+            (
+                use
+                for use in graph.artifact_uses
+                if use.action == "write"
+                and use.artifact_kind == "concrete"
                 and is_makefile_ready_artifact(use.artifact)
+                and not is_makefile_target_artifact(use.artifact)
                 and is_root_module(graph, use.module_name)
             ),
             key=lambda use: (use.artifact, use.module_name, use.line_number),
@@ -419,7 +444,7 @@ def upstream_rule_outputs_for_module(graph: DataFlowGraph, module_name: str) -> 
             if use.module_name == module_name
             and use.action == "write"
             and use.artifact_kind == "concrete"
-            and is_makefile_ready_artifact(use.artifact)
+            and is_makefile_target_artifact(use.artifact)
         ),
     )
 
@@ -519,6 +544,13 @@ def root_artifact_rows(graph: DataFlowGraph) -> list[dict[str, object]]:
     append_use_rows(
         graph,
         rows,
+        "root_output_pattern",
+        root_output_pattern_uses(graph),
+        "by root package; not emitted as a Make target",
+    )
+    append_use_rows(
+        graph,
+        rows,
         "unresolved_root_output",
         unresolved_root_output_uses(graph),
         "by root package but path contains unresolved variable-like prefix",
@@ -564,6 +596,7 @@ def makefile_candidate(graph: DataFlowGraph) -> str:
     inputs = rule_inputs(graph)
     upstream_prerequisites = upstream_generated_prerequisites(graph)
     state_inputs = state_artifacts(graph)
+    output_patterns = display_artifacts(graph, use.artifact for use in root_output_pattern_uses(graph))
 
     lines = [
         f"# Candidate Makefile rules inferred from data flow for {graph.root_module}.",
@@ -584,6 +617,10 @@ def makefile_candidate(graph: DataFlowGraph) -> str:
     if state_inputs:
         lines.extend(["#", "# State artifacts read by reachable code:"])
         lines.extend(f"#   {artifact}" for artifact in state_inputs)
+
+    if output_patterns:
+        lines.extend(["#", "# Root output patterns not emitted as Make targets:"])
+        lines.extend(f"#   {artifact}" for artifact in output_patterns)
 
     lines.extend(
         [
