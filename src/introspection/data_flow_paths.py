@@ -40,41 +40,46 @@ def build_visible_constants_by_module(
     imports_by_module: dict[str, tuple[ImportRef, ...]],
     trees: dict[str, ast.AST],
 ) -> dict[str, dict[str, str]]:
-    """Return imported constants plus constants resolved with those imports.
+    """Return imported constants plus constants resolved with those imports."""
 
-    This is deliberately shallow but handles the common pattern:
-
-    ``from src.infra.config import OUTPUT_DIR``
-    ``BIO_DIR = OUTPUT_DIR / "infra" / "get_bios"``
-    """
-
-    result: dict[str, dict[str, str]] = {}
-    for module_name, tree in trees.items():
-        seed_constants = imported_constants_for_module(
-            module_name,
-            local_constants_by_module,
-            imports_by_module,
-        )
-        seed_constants.update({
-            key: value
-            for key, value in local_constants_by_module.get(module_name, {}).items()
-            if key == "__file__"
-        })
-        constants = collect_path_constants(tree, seed_constants)
-        result[module_name] = constants
-    return result
+    visible_constants = {
+        module_name: dict(constants)
+        for module_name, constants in local_constants_by_module.items()
+    }
+    for _ in range(max(1, len(trees))):
+        changed = False
+        next_visible_constants = dict(visible_constants)
+        for module_name, tree in trees.items():
+            seed_constants = imported_constants_for_module(
+                module_name,
+                visible_constants,
+                imports_by_module,
+            )
+            seed_constants.update({
+                key: value
+                for key, value in local_constants_by_module.get(module_name, {}).items()
+                if key == "__file__"
+            })
+            constants = collect_path_constants(tree, seed_constants)
+            if constants != visible_constants.get(module_name, {}):
+                changed = True
+                next_visible_constants[module_name] = constants
+        visible_constants = next_visible_constants
+        if not changed:
+            break
+    return visible_constants
 
 
 def imported_constants_for_module(
     module_name: str,
-    local_constants_by_module: dict[str, dict[str, str]],
+    constants_by_module: dict[str, dict[str, str]],
     imports_by_module: dict[str, tuple[ImportRef, ...]],
 ) -> dict[str, str]:
     """Return visible constants introduced by direct imports."""
 
     constants: dict[str, str] = {}
     for import_ref in imports_by_module.get(module_name, ()):
-        imported_constants = local_constants_by_module.get(import_ref.imported_module, {})
+        imported_constants = constants_by_module.get(import_ref.imported_module, {})
         if not imported_constants:
             continue
         if import_ref.import_style == "from" and import_ref.imported_name in imported_constants:
