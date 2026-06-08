@@ -78,15 +78,6 @@ def build_timed_data_flow_graph(
         for import_ref in imports_by_module.get(module_name, ())
         if import_ref.imported_module in distances
     )
-    record_timing(timings, "compute reachability", phase_start)
-
-    phase_start = perf_counter()
-    local_constants_by_module = build_local_constants_by_module(parsed_trees, module_index)
-    constants_by_module = build_visible_constants_by_module(
-        local_constants_by_module,
-        imports_by_module,
-        parsed_trees,
-    )
     reachable_parsed_trees = {
         module_name: parsed_trees[module_name]
         for module_name in sorted_module_names
@@ -96,6 +87,15 @@ def build_timed_data_flow_graph(
         module_name: imports_by_module.get(module_name, ())
         for module_name in reachable_parsed_trees
     }
+    record_timing(timings, "compute reachability", phase_start)
+
+    phase_start = perf_counter()
+    local_constants_by_module = build_local_constants_by_module(reachable_parsed_trees, module_index)
+    constants_by_module = build_visible_constants_by_module(
+        local_constants_by_module,
+        reachable_imports_by_module,
+        reachable_parsed_trees,
+    )
     function_seed_constants_by_module = build_cross_module_function_seed_constants(
         reachable_parsed_trees,
         reachable_imports_by_module,
