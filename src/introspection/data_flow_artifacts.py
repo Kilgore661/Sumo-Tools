@@ -5,7 +5,7 @@ from __future__ import annotations
 import ast
 
 from src.introspection.data_flow_model import ArtifactUse
-from src.introspection.data_flow_paths import classify_artifact, resolve_path_expr
+from src.introspection.data_flow_paths import classify_artifact, collect_path_constants, resolve_path_expr
 
 
 READ_METHODS = {"read_text", "read_bytes"}
@@ -23,17 +23,51 @@ def artifact_uses_for_module(
     """Return file-like artifact evidence for one module."""
 
     parent_by_child = parent_map(tree)
+    function_constants = constants_by_function_scope(tree, constants)
     uses: list[ArtifactUse] = []
 
     for node in ast.walk(tree):
         if not isinstance(node, ast.Call):
             continue
         scope = enclosing_scope(node, parent_by_child)
-        use = artifact_use_for_call(module_name, distance_from_root, scope, node, constants)
+        scope_constants = function_constants.get(scope, constants)
+        use = artifact_use_for_call(module_name, distance_from_root, scope, node, scope_constants)
         if use is not None:
             uses.append(use)
 
     return sorted(uses, key=lambda use: (use.line_number, use.action, use.artifact))
+
+
+def constants_by_function_scope(tree: ast.AST, module_constants: dict[str, str]) -> dict[str, dict[str, str]]:
+    """Return constants visible within each function scope."""
+
+    result = {"<module>": module_constants}
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            result[node.name] = constants_for_function(node, module_constants)
+    return result
+
+
+def constants_for_function(
+    node: ast.FunctionDef | ast.AsyncFunctionDef,
+    module_constants: dict[str, str],
+) -> dict[str, str]:
+    """Return constants visible in a function, including simple default arguments."""
+
+    constants = dict(module_constants)
+    positional_defaults = list(node.args.defaults)
+    positional_args = node.args.args[-len(positional_defaults):] if positional_defaults else []
+    for arg, default in zip(positional_args, positional_defaults, strict=False):
+        value = resolve_path_expr(default, constants)
+        if value:
+            constants[arg.arg] = value
+    for arg, default in zip(node.args.kwonlyargs, node.args.kw_defaults, strict=False):
+        if default is None:
+            continue
+        value = resolve_path_expr(default, constants)
+        if value:
+            constants[arg.arg] = value
+    return collect_path_constants(node, constants)
 
 
 def artifact_use_for_call(
