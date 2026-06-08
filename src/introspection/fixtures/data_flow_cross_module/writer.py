@@ -10,4 +10,6 @@ INDEX_FILE_NAME = "index.txt"
 
 
 def write_index(output_dir: Path = DEFAULT_DIR) -> Path:
-    return output_dir / INDEX_FILE_NAME
+    path = output_dir / INDEX_FILE_NAME
+    path.write_text("fixture", encoding="utf-8")
+    return path
