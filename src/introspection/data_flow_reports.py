@@ -90,6 +90,11 @@ def write_data_flow_reports(graph: DataFlowGraph, output_dir: Path) -> None:
         root_artifact_rows(graph),
     )
     write_csv(
+        output_dir / "upstream_rules.csv",
+        ["producer_module", "command", "inputs", "outputs", "satisfies_prerequisites"],
+        upstream_rule_rows(graph),
+    )
+    write_csv(
         output_dir / "root_rule.csv",
         ["root_module", "command", "inputs", "outputs", "upstream_generated_prerequisites"],
         [root_rule_row(graph)],
@@ -124,6 +129,12 @@ def root_command(graph: DataFlowGraph) -> str:
     """Return the command that invokes the analysed root module."""
 
     return f"python -m {graph.root_module}"
+
+
+def module_command(module_name: str) -> str:
+    """Return the command that invokes a producer module."""
+
+    return f"python -m {module_name}"
 
 
 def root_package(graph: DataFlowGraph) -> str:
@@ -166,6 +177,12 @@ def display_artifact(graph: DataFlowGraph, artifact: str) -> str:
     if repo_root and normalised.startswith(f"{repo_root}/"):
         return normalised[len(repo_root) + 1 :]
     return normalised
+
+
+def display_artifacts(graph: DataFlowGraph, artifacts: Iterable[str]) -> tuple[str, ...]:
+    """Return sorted, display-ready artifact paths."""
+
+    return tuple(sorted({display_artifact(graph, artifact) for artifact in artifacts}))
 
 
 def is_makefile_ready_artifact(artifact: str) -> bool:
@@ -224,7 +241,7 @@ def raw_rule_outputs(graph: DataFlowGraph) -> tuple[str, ...]:
 def rule_outputs(graph: DataFlowGraph) -> tuple[str, ...]:
     """Return display-ready candidate Makefile targets for the root command."""
 
-    return tuple(display_artifact(graph, artifact) for artifact in raw_rule_outputs(graph))
+    return display_artifacts(graph, raw_rule_outputs(graph))
 
 
 def has_same_producer_and_consumer(summary: ArtifactSummary) -> bool:
@@ -263,7 +280,7 @@ def raw_upstream_generated_prerequisites(graph: DataFlowGraph) -> tuple[str, ...
 def upstream_generated_prerequisites(graph: DataFlowGraph) -> tuple[str, ...]:
     """Return display-ready artifact names for upstream generated prerequisites."""
 
-    return tuple(display_artifact(graph, artifact) for artifact in raw_upstream_generated_prerequisites(graph))
+    return display_artifacts(graph, raw_upstream_generated_prerequisites(graph))
 
 
 def raw_state_artifacts(graph: DataFlowGraph) -> tuple[str, ...]:
@@ -275,7 +292,7 @@ def raw_state_artifacts(graph: DataFlowGraph) -> tuple[str, ...]:
 def state_artifacts(graph: DataFlowGraph) -> tuple[str, ...]:
     """Return display-ready artifact names for state files consumed by the root command."""
 
-    return tuple(display_artifact(graph, artifact) for artifact in raw_state_artifacts(graph))
+    return display_artifacts(graph, raw_state_artifacts(graph))
 
 
 def producer_modules_for_artifact(graph: DataFlowGraph, artifact: str) -> tuple[str, ...]:
@@ -378,6 +395,57 @@ def unresolved_input_uses(graph: DataFlowGraph) -> tuple[ArtifactUse, ...]:
     )
 
 
+def upstream_rule_inputs_for_module(graph: DataFlowGraph, module_name: str) -> tuple[str, ...]:
+    """Return display-ready inputs for one upstream producer module."""
+
+    return display_artifacts(
+        graph,
+        use.artifact
+        for use in upstream_input_uses(graph)
+        if use.module_name == module_name
+    )
+
+
+def upstream_rule_outputs_for_module(graph: DataFlowGraph, module_name: str) -> tuple[str, ...]:
+    """Return display-ready outputs for one upstream producer module."""
+
+    return display_artifacts(
+        graph,
+        use.artifact
+        for use in graph.artifact_uses
+        if use.module_name == module_name
+        and use.action == "write"
+        and use.artifact_kind == "concrete"
+        and is_makefile_ready_artifact(use.artifact)
+    )
+
+
+def upstream_rule_prerequisites_for_module(graph: DataFlowGraph, module_name: str) -> tuple[str, ...]:
+    """Return generated prerequisites satisfied by one upstream producer module."""
+
+    return display_artifacts(
+        graph,
+        summary.artifact
+        for summary in upstream_generated_summaries(graph)
+        if module_name in summary.producer_modules
+    )
+
+
+def upstream_rule_rows(graph: DataFlowGraph) -> list[dict[str, object]]:
+    """Return one candidate Makefile rule row per upstream producer module."""
+
+    return [
+        {
+            "producer_module": module_name,
+            "command": module_command(module_name),
+            "inputs": ";".join(upstream_rule_inputs_for_module(graph, module_name)),
+            "outputs": ";".join(upstream_rule_outputs_for_module(graph, module_name)),
+            "satisfies_prerequisites": ";".join(upstream_rule_prerequisites_for_module(graph, module_name)),
+        }
+        for module_name in upstream_producer_modules(graph)
+    ]
+
+
 def raw_rule_inputs(graph: DataFlowGraph) -> tuple[str, ...]:
     """Return raw candidate Makefile prerequisites for the root command."""
 
@@ -390,7 +458,7 @@ def raw_rule_inputs(graph: DataFlowGraph) -> tuple[str, ...]:
 def rule_inputs(graph: DataFlowGraph) -> tuple[str, ...]:
     """Return display-ready candidate Makefile prerequisites for the root command."""
 
-    return tuple(display_artifact(graph, artifact) for artifact in raw_rule_inputs(graph))
+    return display_artifacts(graph, raw_rule_inputs(graph))
 
 
 def append_use_rows(
@@ -492,10 +560,10 @@ def makefile_candidate(graph: DataFlowGraph) -> str:
     state_inputs = state_artifacts(graph)
 
     lines = [
-        f"# Candidate Makefile rule inferred from data flow for {graph.root_module}.",
+        f"# Candidate Makefile rules inferred from data flow for {graph.root_module}.",
         "# Review before use: this is evidence-backed, not authoritative.",
         "#",
-        f"# Command: {root_command(graph)}",
+        f"# Root command: {root_command(graph)}",
         f"# Root package: {root_package(graph)}",
         f"# Reachable modules: {len(graph.modules)}",
         f"# Artifact uses: {len(graph.artifact_uses)}",
@@ -514,11 +582,18 @@ def makefile_candidate(graph: DataFlowGraph) -> str:
     lines.extend(
         [
             "#",
-            "# See root_artifacts.csv for the classification behind this rule.",
+            "# See root_artifacts.csv and upstream_rules.csv for the classification behind these rules.",
             "",
         ]
     )
 
+    upstream_lines = upstream_makefile_rule_lines(graph)
+    if upstream_lines:
+        lines.extend(["# Upstream generated-prerequisite rules", ""])
+        lines.extend(upstream_lines)
+        lines.append("")
+
+    lines.extend(["# Root product rule", ""])
     if not outputs:
         lines.extend(
             [
@@ -530,9 +605,22 @@ def makefile_candidate(graph: DataFlowGraph) -> str:
         )
         return "\n".join(lines)
 
-    target_lines = make_rule_lines(outputs, inputs, root_command(graph))
-    lines.extend(target_lines)
+    lines.extend(make_rule_lines(outputs, inputs, root_command(graph)))
     return "\n".join(lines) + "\n"
+
+
+def upstream_makefile_rule_lines(graph: DataFlowGraph) -> list[str]:
+    """Return Makefile lines for upstream generated-prerequisite producers."""
+
+    lines: list[str] = []
+    for row in upstream_rule_rows(graph):
+        outputs = tuple(str(row["outputs"]).split(";")) if row["outputs"] else ()
+        inputs = tuple(str(row["inputs"]).split(";")) if row["inputs"] else ()
+        if not outputs:
+            continue
+        lines.extend([f"# {row['producer_module']}"])
+        lines.extend(make_rule_lines(outputs, inputs, str(row["command"])))
+    return lines
 
 
 def make_rule_lines(outputs: tuple[str, ...], inputs: tuple[str, ...], command: str) -> list[str]:
