@@ -125,6 +125,10 @@ def resolve_path_expr(node: ast.AST | None, constants: dict[str, str]) -> str:
         resolved_call = resolve_path_call(node, constants)
         if resolved_call:
             return resolved_call
+    if isinstance(node, ast.Subscript):
+        resolved_subscript = resolve_path_subscript(node, constants)
+        if resolved_subscript:
+            return resolved_subscript
     if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Div):
         left = resolve_path_expr(node.left, constants) or ast.unparse(node.left)
         right = resolve_path_expr(node.right, constants) or ast.unparse(node.right)
@@ -152,6 +156,31 @@ def resolve_path_attribute(node: ast.Attribute, constants: dict[str, str]) -> st
         value = resolve_path_expr(node.value, constants)
         return Path(value).parent.as_posix() if value else ""
     return ""
+
+
+def resolve_path_subscript(node: ast.Subscript, constants: dict[str, str]) -> str:
+    """Resolve simple path subscript expressions such as ``some_path.parents[2]``."""
+
+    if not isinstance(node.value, ast.Attribute) or node.value.attr != "parents":
+        return ""
+    path_value = resolve_path_expr(node.value.value, constants)
+    if not path_value:
+        return ""
+    index = integer_literal(node.slice)
+    if index is None or index < 0:
+        return ""
+    parents = Path(path_value).parents
+    if index >= len(parents):
+        return ""
+    return parents[index].as_posix()
+
+
+def integer_literal(node: ast.AST) -> int | None:
+    """Return integer literal value, if ``node`` is an integer literal."""
+
+    if isinstance(node, ast.Constant) and isinstance(node.value, int):
+        return node.value
+    return None
 
 
 def dotted_name(node: ast.AST) -> str:
