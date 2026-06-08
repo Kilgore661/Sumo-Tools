@@ -59,6 +59,7 @@ def cross_module_function_seed_constants(
     trees: dict[str, ast.AST],
     imports_by_module: dict[str, tuple[ImportRef, ...]],
     constants_by_module: dict[str, dict[str, str]],
+    existing_function_seed_constants: dict[str, dict[str, dict[str, str]]] | None = None,
 ) -> dict[str, dict[str, dict[str, str]]]:
     """Return callee function constants inferred from imported call sites.
 
@@ -72,13 +73,21 @@ def cross_module_function_seed_constants(
         module_name: function_defs_by_name(tree)
         for module_name, tree in trees.items()
     }
-    result: dict[str, dict[str, dict[str, str]]] = {}
+    existing_seeds = existing_function_seed_constants or {}
+    result = copy_function_seed_constants(existing_seeds)
 
     for caller_module, tree in trees.items():
         import_refs = imports_by_module.get(caller_module, ())
         caller_constants = constants_by_module.get(caller_module, {})
         if not import_refs or not caller_constants:
             continue
+        parent_by_child = parent_map(tree)
+        caller_function_constants = constants_by_function_scope(
+            tree,
+            caller_constants,
+            function_defs_by_module.get(caller_module, {}),
+            existing_seeds.get(caller_module, {}),
+        )
         for call_node in ast.walk(tree):
             if not isinstance(call_node, ast.Call):
                 continue
@@ -89,10 +98,12 @@ def cross_module_function_seed_constants(
             function_node = function_defs_by_module.get(target_module, {}).get(target_function)
             if function_node is None:
                 continue
+            caller_scope = enclosing_scope(call_node, parent_by_child)
+            scope_constants = caller_function_constants.get(caller_scope, caller_constants)
             argument_constants = constants_from_call_arguments(
                 call_node,
                 function_node,
-                caller_constants,
+                scope_constants,
             )
             if not argument_constants:
                 continue
@@ -101,6 +112,20 @@ def cross_module_function_seed_constants(
             function_constants.update(argument_constants)
 
     return result
+
+
+def copy_function_seed_constants(
+    function_seed_constants: dict[str, dict[str, dict[str, str]]],
+) -> dict[str, dict[str, dict[str, str]]]:
+    """Deep-copy function seed constants."""
+
+    return {
+        module_name: {
+            function_name: dict(constants)
+            for function_name, constants in function_constants.items()
+        }
+        for module_name, function_constants in function_seed_constants.items()
+    }
 
 
 def imported_function_target(
