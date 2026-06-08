@@ -608,6 +608,7 @@ def makefile_candidate(graph: DataFlowGraph) -> str:
         graph,
         (use.artifact for use in root_output_pattern_uses(graph)),
     )
+    root_target = make_target_name(graph.root_module)
 
     lines = [
         f"# Candidate Makefile rules inferred from data flow for {graph.root_module}.",
@@ -641,6 +642,25 @@ def makefile_candidate(graph: DataFlowGraph) -> str:
         ]
     )
 
+    if outputs:
+        lines.extend(
+            [
+                f".PHONY: {root_target}",
+                f"{root_target}: {make_continuation(outputs)}".rstrip(),
+                "",
+            ]
+        )
+    else:
+        lines.extend(
+            [
+                f".PHONY: {root_target}",
+                f"{root_target}: {make_continuation(inputs)}".rstrip(),
+                f"\t{root_command(graph)}",
+                "",
+            ]
+        )
+        return "\n".join(lines)
+
     upstream_lines = upstream_makefile_rule_lines(graph)
     if upstream_lines:
         lines.extend(["# Upstream generated-prerequisite rules", ""])
@@ -648,17 +668,6 @@ def makefile_candidate(graph: DataFlowGraph) -> str:
         lines.append("")
 
     lines.extend(["# Root product rule", ""])
-    if not outputs:
-        lines.extend(
-            [
-                f".PHONY: {make_target_name(graph.root_module)}",
-                f"{make_target_name(graph.root_module)}: {make_continuation(inputs)}".rstrip(),
-                f"\t{root_command(graph)}",
-                "",
-            ]
-        )
-        return "\n".join(lines)
-
     lines.extend(make_rule_lines(outputs, inputs, root_command(graph)))
     return "\n".join(lines) + "\n"
 
