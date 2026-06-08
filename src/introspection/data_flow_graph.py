@@ -9,7 +9,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from time import perf_counter
 
-from src.introspection.data_flow_artifacts import artifact_uses_for_module
+from src.introspection.data_flow_artifacts import (
+    artifact_uses_for_module,
+    cross_module_function_seed_constants,
+)
 from src.introspection.data_flow_imports import (
     build_module_index,
     import_refs_for_tree,
@@ -72,6 +75,11 @@ def build_timed_data_flow_graph(
         imports_by_module,
         parsed_trees,
     )
+    function_seed_constants_by_module = cross_module_function_seed_constants(
+        parsed_trees,
+        imports_by_module,
+        constants_by_module,
+    )
     record_timing(timings, "resolve constants", phase_start)
 
     phase_start = perf_counter()
@@ -95,6 +103,7 @@ def build_timed_data_flow_graph(
             parsed_trees[module_name],
             distances[module_name],
             constants_by_module.get(module_name, {}),
+            function_seed_constants_by_module.get(module_name, {}),
         )
     )
     record_timing(timings, "extract artifacts", phase_start)
