@@ -169,6 +169,7 @@ def main() -> None:
     print(f"Wrote {output_dir / 'artifacts.csv'}")
     print(f"Wrote {output_dir / 'generated_prerequisites.csv'}")
     print(f"Wrote {output_dir / 'root_artifacts.csv'}")
+    print(f"Wrote {output_dir / 'upstream_rules.csv'}")
     print(f"Wrote {output_dir / 'root_rule.csv'}")
     print(f"Wrote {output_dir / 'Makefile.candidate'}")
     print(f"Wrote {output_dir / 'summary.csv'}")
