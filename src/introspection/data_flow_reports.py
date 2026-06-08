@@ -141,10 +141,31 @@ def is_root_module(graph: DataFlowGraph, module_name: str) -> bool:
     return module_name == package or module_name.startswith(f"{package}.")
 
 
+def repository_root(graph: DataFlowGraph) -> str:
+    """Return the inferred repository root as a slash-normalised absolute path."""
+
+    for module in graph.modules:
+        path = module.path.as_posix()
+        marker = "/src/"
+        if marker in path:
+            return path.split(marker, 1)[0]
+    return ""
+
+
 def normalised_artifact(artifact: str) -> str:
     """Return a slash-normalised artifact path/expression."""
 
     return artifact.replace("\\", "/")
+
+
+def display_artifact(graph: DataFlowGraph, artifact: str) -> str:
+    """Return an artifact path suitable for human-facing Makefile reports."""
+
+    normalised = normalised_artifact(artifact)
+    repo_root = repository_root(graph)
+    if repo_root and normalised.startswith(f"{repo_root}/"):
+        return normalised[len(repo_root) + 1 :]
+    return normalised
 
 
 def is_makefile_ready_artifact(artifact: str) -> bool:
@@ -194,10 +215,16 @@ def unresolved_root_output_uses(graph: DataFlowGraph) -> tuple[ArtifactUse, ...]
     )
 
 
-def rule_outputs(graph: DataFlowGraph) -> tuple[str, ...]:
-    """Return conservative candidate Makefile targets for the root command."""
+def raw_rule_outputs(graph: DataFlowGraph) -> tuple[str, ...]:
+    """Return raw candidate targets for the root command."""
 
     return tuple(sorted({use.artifact for use in root_output_uses(graph)}))
+
+
+def rule_outputs(graph: DataFlowGraph) -> tuple[str, ...]:
+    """Return display-ready candidate Makefile targets for the root command."""
+
+    return tuple(display_artifact(graph, artifact) for artifact in raw_rule_outputs(graph))
 
 
 def has_same_producer_and_consumer(summary: ArtifactSummary) -> bool:
@@ -227,16 +254,28 @@ def state_artifact_summaries(graph: DataFlowGraph) -> tuple[ArtifactSummary, ...
     )
 
 
-def upstream_generated_prerequisites(graph: DataFlowGraph) -> tuple[str, ...]:
-    """Return artifact names for upstream generated prerequisites."""
+def raw_upstream_generated_prerequisites(graph: DataFlowGraph) -> tuple[str, ...]:
+    """Return raw artifact names for upstream generated prerequisites."""
 
     return tuple(summary.artifact for summary in upstream_generated_summaries(graph))
 
 
-def state_artifacts(graph: DataFlowGraph) -> tuple[str, ...]:
-    """Return artifact names for state files consumed by the root command."""
+def upstream_generated_prerequisites(graph: DataFlowGraph) -> tuple[str, ...]:
+    """Return display-ready artifact names for upstream generated prerequisites."""
+
+    return tuple(display_artifact(graph, artifact) for artifact in raw_upstream_generated_prerequisites(graph))
+
+
+def raw_state_artifacts(graph: DataFlowGraph) -> tuple[str, ...]:
+    """Return raw artifact names for state files consumed by the root command."""
 
     return tuple(summary.artifact for summary in state_artifact_summaries(graph))
+
+
+def state_artifacts(graph: DataFlowGraph) -> tuple[str, ...]:
+    """Return display-ready artifact names for state files consumed by the root command."""
+
+    return tuple(display_artifact(graph, artifact) for artifact in raw_state_artifacts(graph))
 
 
 def producer_modules_for_artifact(graph: DataFlowGraph, artifact: str) -> tuple[str, ...]:
@@ -254,15 +293,9 @@ def producer_modules_for_artifact(graph: DataFlowGraph, artifact: str) -> tuple[
 
 
 def is_root_output_artifact(graph: DataFlowGraph, artifact: str) -> bool:
-    """Return true when ``artifact`` is one of the candidate root outputs."""
+    """Return true when ``artifact`` is one of the raw candidate root outputs."""
 
-    return artifact in set(rule_outputs(graph))
-
-
-def is_upstream_generated_artifact(graph: DataFlowGraph, artifact: str) -> bool:
-    """Return true when ``artifact`` is produced outside the root package and consumed within reach."""
-
-    return artifact in set(upstream_generated_prerequisites(graph))
+    return artifact in set(raw_rule_outputs(graph))
 
 
 def upstream_producer_modules(graph: DataFlowGraph) -> tuple[str, ...]:
@@ -283,7 +316,7 @@ def is_root_output_self_inspection(graph: DataFlowGraph, use: ArtifactUse) -> bo
     """Return true when a read/glob appears to inspect the root output directory."""
 
     artifact = normalised_artifact(use.artifact).removesuffix("*").rstrip("/")
-    return any(normalised_artifact(output).startswith(f"{artifact}/") for output in rule_outputs(graph))
+    return any(normalised_artifact(output).startswith(f"{artifact}/") for output in raw_rule_outputs(graph))
 
 
 def external_input_uses(graph: DataFlowGraph) -> tuple[ArtifactUse, ...]:
@@ -345,20 +378,52 @@ def unresolved_input_uses(graph: DataFlowGraph) -> tuple[ArtifactUse, ...]:
     )
 
 
-def rule_inputs(graph: DataFlowGraph) -> tuple[str, ...]:
-    """Return conservative candidate Makefile prerequisites for the root command."""
+def raw_rule_inputs(graph: DataFlowGraph) -> tuple[str, ...]:
+    """Return raw candidate Makefile prerequisites for the root command."""
 
     external_inputs = {use.artifact for use in external_input_uses(graph)}
-    upstream_inputs = set(upstream_generated_prerequisites(graph))
-    state_inputs = set(state_artifacts(graph))
+    upstream_inputs = set(raw_upstream_generated_prerequisites(graph))
+    state_inputs = set(raw_state_artifacts(graph))
     return tuple(sorted(external_inputs | upstream_inputs | state_inputs))
+
+
+def rule_inputs(graph: DataFlowGraph) -> tuple[str, ...]:
+    """Return display-ready candidate Makefile prerequisites for the root command."""
+
+    return tuple(display_artifact(graph, artifact) for artifact in raw_rule_inputs(graph))
+
+
+def append_use_rows(
+    graph: DataFlowGraph,
+    rows: list[dict[str, object]],
+    role: str,
+    uses: tuple[ArtifactUse, ...],
+    reason_suffix: str,
+) -> None:
+    """Append de-duplicated use rows grouped by artifact and module."""
+
+    grouped: dict[tuple[str, str], set[str]] = {}
+    for use in uses:
+        key = (display_artifact(graph, use.artifact), use.module_name)
+        grouped.setdefault(key, set()).add(use.action)
+
+    for artifact, module_name in sorted(grouped):
+        actions = "/".join(sorted(grouped[(artifact, module_name)]))
+        rows.append(
+            {
+                "role": role,
+                "artifact": artifact,
+                "modules": module_name,
+                "reason": f"{actions} {reason_suffix}",
+            }
+        )
 
 
 def root_artifact_rows(graph: DataFlowGraph) -> list[dict[str, object]]:
     """Return Makefile-facing artifact classification rows."""
 
     rows: list[dict[str, object]] = []
-    for artifact in rule_outputs(graph):
+    for artifact in raw_rule_outputs(graph):
         modules = tuple(
             sorted(
                 {
@@ -371,27 +436,25 @@ def root_artifact_rows(graph: DataFlowGraph) -> list[dict[str, object]]:
         rows.append(
             {
                 "role": "root_output",
-                "artifact": artifact,
+                "artifact": display_artifact(graph, artifact),
                 "modules": ";".join(modules),
                 "reason": "concrete write by module in root package",
             }
         )
 
-    for use in unresolved_root_output_uses(graph):
-        rows.append(
-            {
-                "role": "unresolved_root_output",
-                "artifact": use.artifact,
-                "modules": use.module_name,
-                "reason": "root-package write but path contains unresolved variable-like prefix",
-            }
-        )
+    append_use_rows(
+        graph,
+        rows,
+        "unresolved_root_output",
+        unresolved_root_output_uses(graph),
+        "by root package but path contains unresolved variable-like prefix",
+    )
 
     for summary in upstream_generated_summaries(graph):
         rows.append(
             {
                 "role": "upstream_generated_prerequisite",
-                "artifact": summary.artifact,
+                "artifact": display_artifact(graph, summary.artifact),
                 "modules": ";".join(summary.producer_modules),
                 "reason": "consumed by reachable code but produced outside root package",
             }
@@ -401,41 +464,21 @@ def root_artifact_rows(graph: DataFlowGraph) -> list[dict[str, object]]:
         rows.append(
             {
                 "role": "state_artifact",
-                "artifact": summary.artifact,
+                "artifact": display_artifact(graph, summary.artifact),
                 "modules": ";".join(summary.producer_modules),
                 "reason": "same reachable module reads and writes this artifact",
             }
         )
 
-    for use in external_input_uses(graph):
-        rows.append(
-            {
-                "role": "external_input",
-                "artifact": use.artifact,
-                "modules": use.module_name,
-                "reason": f"{use.action} with no reachable producer",
-            }
-        )
-
-    for use in upstream_input_uses(graph):
-        rows.append(
-            {
-                "role": "upstream_input",
-                "artifact": use.artifact,
-                "modules": use.module_name,
-                "reason": f"{use.action} by upstream prerequisite producer",
-            }
-        )
-
-    for use in unresolved_input_uses(graph):
-        rows.append(
-            {
-                "role": "unresolved_input",
-                "artifact": use.artifact,
-                "modules": use.module_name,
-                "reason": f"{use.action} path contains unresolved variable-like prefix",
-            }
-        )
+    append_use_rows(graph, rows, "external_input", external_input_uses(graph), "with no reachable producer")
+    append_use_rows(graph, rows, "upstream_input", upstream_input_uses(graph), "by upstream prerequisite producer")
+    append_use_rows(
+        graph,
+        rows,
+        "unresolved_input",
+        unresolved_input_uses(graph),
+        "path contains unresolved variable-like prefix",
+    )
 
     return sorted(rows, key=lambda row: (str(row["role"]), str(row["artifact"]), str(row["modules"])))
 
