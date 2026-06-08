@@ -163,9 +163,10 @@ def constants_by_function_scope(
     result = {"<module>": module_constants}
     seed_constants = function_seed_constants or {}
     for name, node in function_defs.items():
-        constants = dict(module_constants)
+        constants = constants_for_function(node, module_constants)
         constants.update(seed_constants.get(name, {}))
-        result[name] = constants_for_function(node, constants)
+        constants = collect_path_constants(node, constants)
+        result[name] = constants
 
     parent_by_child = parent_map(tree)
     for _ in range(max(1, len(function_defs))):
@@ -186,7 +187,7 @@ def constants_by_function_scope(
             )
             if not argument_constants:
                 continue
-            callee_constants = dict(result.get(callee_name, module_constants))
+            callee_constants = constants_for_function(function_defs[callee_name], module_constants)
             callee_constants.update(argument_constants)
             callee_constants = collect_path_constants(function_defs[callee_name], callee_constants)
             if callee_constants != result.get(callee_name, {}):
@@ -339,7 +340,7 @@ def resolve_open_mode(node: ast.Call) -> str:
         return node.args[1].value
     for keyword in node.keywords:
         if keyword.arg == "mode" and isinstance(keyword.value, ast.Constant) and isinstance(keyword.value.value, str):
-        	return keyword.value.value
+            return keyword.value.value
     return "r"
 
 
