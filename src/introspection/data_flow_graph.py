@@ -19,7 +19,7 @@ from src.introspection.data_flow_imports import (
     parse_python,
     reachable_module_distances,
 )
-from src.introspection.data_flow_model import DataFlowGraph, ModuleRef
+from src.introspection.data_flow_model import DataFlowGraph, ImportRef, ModuleRef
 from src.introspection.data_flow_paths import (
     build_local_constants_by_module,
     build_visible_constants_by_module,
@@ -69,20 +69,6 @@ def build_timed_data_flow_graph(
     record_timing(timings, "parse modules and imports", phase_start)
 
     phase_start = perf_counter()
-    local_constants_by_module = build_local_constants_by_module(parsed_trees, module_index)
-    constants_by_module = build_visible_constants_by_module(
-        local_constants_by_module,
-        imports_by_module,
-        parsed_trees,
-    )
-    function_seed_constants_by_module = build_cross_module_function_seed_constants(
-        parsed_trees,
-        imports_by_module,
-        constants_by_module,
-    )
-    record_timing(timings, "resolve constants", phase_start)
-
-    phase_start = perf_counter()
     distances = reachable_module_distances(module_id, imports_by_module)
     sorted_module_names = sorted(distances, key=lambda name: (distances[name], name))
     modules = tuple(module_index[module_name] for module_name in sorted_module_names)
@@ -93,6 +79,29 @@ def build_timed_data_flow_graph(
         if import_ref.imported_module in distances
     )
     record_timing(timings, "compute reachability", phase_start)
+
+    phase_start = perf_counter()
+    local_constants_by_module = build_local_constants_by_module(parsed_trees, module_index)
+    constants_by_module = build_visible_constants_by_module(
+        local_constants_by_module,
+        imports_by_module,
+        parsed_trees,
+    )
+    reachable_parsed_trees = {
+        module_name: parsed_trees[module_name]
+        for module_name in sorted_module_names
+        if module_name in parsed_trees
+    }
+    reachable_imports_by_module = {
+        module_name: imports_by_module.get(module_name, ())
+        for module_name in reachable_parsed_trees
+    }
+    function_seed_constants_by_module = build_cross_module_function_seed_constants(
+        reachable_parsed_trees,
+        reachable_imports_by_module,
+        constants_by_module,
+    )
+    record_timing(timings, "resolve constants", phase_start)
 
     phase_start = perf_counter()
     artifact_uses = tuple(
@@ -120,7 +129,7 @@ def build_timed_data_flow_graph(
 
 def build_cross_module_function_seed_constants(
     parsed_trees: dict[str, ast.AST],
-    imports_by_module: dict[str, tuple],
+    imports_by_module: dict[str, tuple[ImportRef, ...]],
     constants_by_module: dict[str, dict[str, str]],
 ) -> dict[str, dict[str, dict[str, str]]]:
     """Iteratively infer path constants passed across imported function calls."""
