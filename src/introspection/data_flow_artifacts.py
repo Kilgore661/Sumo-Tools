@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import ast
 
-from src.introspection.data_flow_model import ArtifactUse
+from src.introspection.data_flow_model import ArtifactUse, ImportRef
 from src.introspection.data_flow_paths import classify_artifact, collect_path_constants, resolve_path_expr
 
 
@@ -19,12 +19,18 @@ def artifact_uses_for_module(
     tree: ast.AST,
     distance_from_root: int,
     constants: dict[str, str],
+    function_seed_constants: dict[str, dict[str, str]] | None = None,
 ) -> list[ArtifactUse]:
     """Return file-like artifact evidence for one module."""
 
     parent_by_child = parent_map(tree)
     function_defs = function_defs_by_name(tree)
-    function_constants = constants_by_function_scope(tree, constants, function_defs)
+    function_constants = constants_by_function_scope(
+        tree,
+        constants,
+        function_defs,
+        function_seed_constants or {},
+    )
     uses: list[ArtifactUse] = []
 
     for node in ast.walk(tree):
@@ -49,16 +55,92 @@ def function_defs_by_name(tree: ast.AST) -> dict[str, ast.FunctionDef | ast.Asyn
     }
 
 
+def cross_module_function_seed_constants(
+    trees: dict[str, ast.AST],
+    imports_by_module: dict[str, tuple[ImportRef, ...]],
+    constants_by_module: dict[str, dict[str, str]],
+) -> dict[str, dict[str, dict[str, str]]]:
+    """Return callee function constants inferred from imported call sites.
+
+    The result is ``module_name -> function_name -> constants``.  It handles the
+    common case where module A imports function ``f`` from module B and calls
+    ``f(output_root=SOME_PATH)``.  The function-level extractor in module B can
+    then resolve paths such as ``output_root / "file.json"``.
+    """
+
+    function_defs_by_module = {
+        module_name: function_defs_by_name(tree)
+        for module_name, tree in trees.items()
+    }
+    result: dict[str, dict[str, dict[str, str]]] = {}
+
+    for caller_module, tree in trees.items():
+        import_refs = imports_by_module.get(caller_module, ())
+        caller_constants = constants_by_module.get(caller_module, {})
+        if not import_refs or not caller_constants:
+            continue
+        for call_node in ast.walk(tree):
+            if not isinstance(call_node, ast.Call):
+                continue
+            target = imported_function_target(call_node.func, import_refs)
+            if target is None:
+                continue
+            target_module, target_function = target
+            function_node = function_defs_by_module.get(target_module, {}).get(target_function)
+            if function_node is None:
+                continue
+            argument_constants = constants_from_call_arguments(
+                call_node,
+                function_node,
+                caller_constants,
+            )
+            if not argument_constants:
+                continue
+            module_constants = result.setdefault(target_module, {})
+            function_constants = module_constants.setdefault(target_function, {})
+            function_constants.update(argument_constants)
+
+    return result
+
+
+def imported_function_target(
+    func: ast.expr,
+    import_refs: tuple[ImportRef, ...],
+) -> tuple[str, str] | None:
+    """Return ``(module, function)`` for a call through an imported symbol."""
+
+    if isinstance(func, ast.Name):
+        for import_ref in import_refs:
+            if import_ref.import_style != "from" or import_ref.alias != func.id:
+                continue
+            if not import_ref.imported_name:
+                continue
+            return import_ref.imported_module, import_ref.imported_name
+
+    if isinstance(func, ast.Attribute) and isinstance(func.value, ast.Name):
+        module_alias = func.value.id
+        for import_ref in import_refs:
+            if import_ref.alias != module_alias:
+                continue
+            return import_ref.imported_module, func.attr
+
+    return None
+
+
 def constants_by_function_scope(
     tree: ast.AST,
     module_constants: dict[str, str],
     function_defs: dict[str, ast.FunctionDef | ast.AsyncFunctionDef],
+    function_seed_constants: dict[str, dict[str, str]] | None = None,
 ) -> dict[str, dict[str, str]]:
     """Return constants visible within each function scope."""
 
     result = {"<module>": module_constants}
+    seed_constants = function_seed_constants or {}
     for name, node in function_defs.items():
-        result[name] = constants_for_function(node, module_constants)
+        constants = dict(module_constants)
+        constants.update(seed_constants.get(name, {}))
+        result[name] = constants_for_function(node, constants)
 
     parent_by_child = parent_map(tree)
     for _ in range(max(1, len(function_defs))):
