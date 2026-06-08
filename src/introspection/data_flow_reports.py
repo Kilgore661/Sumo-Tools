@@ -400,9 +400,11 @@ def upstream_rule_inputs_for_module(graph: DataFlowGraph, module_name: str) -> t
 
     return display_artifacts(
         graph,
-        use.artifact
-        for use in upstream_input_uses(graph)
-        if use.module_name == module_name
+        (
+            use.artifact
+            for use in upstream_input_uses(graph)
+            if use.module_name == module_name
+        ),
     )
 
 
@@ -411,12 +413,14 @@ def upstream_rule_outputs_for_module(graph: DataFlowGraph, module_name: str) -> 
 
     return display_artifacts(
         graph,
-        use.artifact
-        for use in graph.artifact_uses
-        if use.module_name == module_name
-        and use.action == "write"
-        and use.artifact_kind == "concrete"
-        and is_makefile_ready_artifact(use.artifact)
+        (
+            use.artifact
+            for use in graph.artifact_uses
+            if use.module_name == module_name
+            and use.action == "write"
+            and use.artifact_kind == "concrete"
+            and is_makefile_ready_artifact(use.artifact)
+        ),
     )
 
 
@@ -425,9 +429,11 @@ def upstream_rule_prerequisites_for_module(graph: DataFlowGraph, module_name: st
 
     return display_artifacts(
         graph,
-        summary.artifact
-        for summary in upstream_generated_summaries(graph)
-        if module_name in summary.producer_modules
+        (
+            summary.artifact
+            for summary in upstream_generated_summaries(graph)
+            if module_name in summary.producer_modules
+        ),
     )
 
 
