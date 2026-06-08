@@ -296,6 +296,8 @@ def classify_artifact(artifact: str) -> str:
         return "symbolic"
     if artifact in SYMBOLIC_ARTIFACT_NAMES:
         return "symbolic"
+    if artifact.replace("\\", "/").startswith("tmp_path/"):
+        return "expression"
     if re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", artifact) and not artifact.isupper():
         return "symbolic"
     if any(token in artifact for token in ("(", ")", "{", "}", "[", "]")):
