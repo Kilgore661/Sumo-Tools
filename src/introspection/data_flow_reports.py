@@ -609,6 +609,7 @@ def makefile_candidate(graph: DataFlowGraph) -> str:
         (use.artifact for use in root_output_pattern_uses(graph)),
     )
     root_target = make_target_name(graph.root_module)
+    stamp_target = make_stamp_target(graph.root_module)
 
     lines = [
         f"# Candidate Makefile rules inferred from data flow for {graph.root_module}.",
@@ -639,27 +640,11 @@ def makefile_candidate(graph: DataFlowGraph) -> str:
             "#",
             "# See root_artifacts.csv and upstream_rules.csv for the classification behind these rules.",
             "",
+            f".PHONY: {root_target}",
+            f"{root_target}: {make_path_token(stamp_target)}",
+            "",
         ]
     )
-
-    if outputs:
-        lines.extend(
-            [
-                f".PHONY: {root_target}",
-                f"{root_target}: {make_continuation(outputs)}".rstrip(),
-                "",
-            ]
-        )
-    else:
-        lines.extend(
-            [
-                f".PHONY: {root_target}",
-                f"{root_target}: {make_continuation(inputs)}".rstrip(),
-                f"\t{root_command(graph)}",
-                "",
-            ]
-        )
-        return "\n".join(lines)
 
     upstream_lines = upstream_makefile_rule_lines(graph)
     if upstream_lines:
@@ -667,8 +652,8 @@ def makefile_candidate(graph: DataFlowGraph) -> str:
         lines.extend(upstream_lines)
         lines.append("")
 
-    lines.extend(["# Root product rule", ""])
-    lines.extend(make_rule_lines(outputs, inputs, root_command(graph)))
+    lines.extend(["# Root product stamp rule", ""])
+    lines.extend(make_stamp_rule_lines(stamp_target, inputs, root_command(graph)))
     return "\n".join(lines) + "\n"
 
 
@@ -699,6 +684,22 @@ def make_rule_lines(outputs: tuple[str, ...], inputs: tuple[str, ...], command: 
     return [first_line.rstrip(), f"\t{command}", ""]
 
 
+def make_stamp_rule_lines(stamp_target: str, inputs: tuple[str, ...], command: str) -> list[str]:
+    """Return Makefile lines for a single stamp target that runs one command once."""
+
+    escaped_inputs = tuple(make_path_token(path) for path in inputs)
+    stamp = make_path_token(stamp_target)
+    first_line = f"{stamp}:"
+    if escaped_inputs:
+        first_line += f" {make_continuation(escaped_inputs)}"
+    return [
+        first_line.rstrip(),
+        f"\t{command}",
+        f"\t{stamp_touch_command(stamp_target)}",
+        "",
+    ]
+
+
 def make_continuation(paths: tuple[str, ...]) -> str:
     """Return Makefile path list with readable continuations."""
 
@@ -719,6 +720,23 @@ def make_target_name(module_name: str) -> str:
     """Return a simple phony target name for a root module."""
 
     return module_name.replace(".", "-")
+
+
+def make_stamp_target(module_name: str) -> str:
+    """Return the stamp path for the root command target."""
+
+    return f"files/output/introspection/data_flow/stamps/{make_target_name(module_name)}.stamp"
+
+
+def stamp_touch_command(stamp_target: str) -> str:
+    """Return a portable Python command to create/update a stamp file."""
+
+    return (
+        "python -c \"from pathlib import Path; "
+        f"p=Path('{stamp_target}'); "
+        "p.parent.mkdir(parents=True, exist_ok=True); "
+        "p.write_text('ok\\n', encoding='utf-8')\""
+    )
 
 
 def write_csv(path: Path, fieldnames: list[str], rows: Iterable[dict[str, object]]) -> None:
