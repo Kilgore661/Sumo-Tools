@@ -75,7 +75,7 @@ def build_timed_data_flow_graph(
         imports_by_module,
         parsed_trees,
     )
-    function_seed_constants_by_module = cross_module_function_seed_constants(
+    function_seed_constants_by_module = build_cross_module_function_seed_constants(
         parsed_trees,
         imports_by_module,
         constants_by_module,
@@ -116,6 +116,27 @@ def build_timed_data_flow_graph(
     )
     timings.append(("total build", perf_counter() - total_start))
     return TimedDataFlowGraph(graph=graph, timings=tuple(timings))
+
+
+def build_cross_module_function_seed_constants(
+    parsed_trees: dict[str, ast.AST],
+    imports_by_module: dict[str, tuple],
+    constants_by_module: dict[str, dict[str, str]],
+) -> dict[str, dict[str, dict[str, str]]]:
+    """Iteratively infer path constants passed across imported function calls."""
+
+    result: dict[str, dict[str, dict[str, str]]] = {}
+    for _ in range(max(1, len(parsed_trees))):
+        next_result = cross_module_function_seed_constants(
+            parsed_trees,
+            imports_by_module,
+            constants_by_module,
+            result,
+        )
+        if next_result == result:
+            break
+        result = next_result
+    return result
 
 
 def record_timing(timings: list[tuple[str, float]], label: str, start: float) -> None:
