@@ -94,19 +94,81 @@ def collect_path_constants(tree: ast.AST, constants: dict[str, str]) -> dict[str
     """Collect simple assignment path/string constants from a module or function body."""
 
     result = dict(constants)
-    for node in getattr(tree, "body", []):
-        if isinstance(node, ast.Assign):
-            value = resolve_path_expr(node.value, result)
+    for _ in range(3):
+        changed = False
+        for target_name, value in loop_target_constants(tree, result).items():
+            if result.get(target_name) != value:
+                result[target_name] = value
+                changed = True
+        for node in assignment_nodes(tree):
+            value = resolve_path_expr(assignment_value(node), result)
             if not value:
                 continue
-            for target in node.targets:
-                if isinstance(target, ast.Name):
-                    result[target.id] = value
-        elif isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
-            value = resolve_path_expr(node.value, result) if node.value is not None else ""
-            if value:
-                result[node.target.id] = value
+            for target_name in assignment_target_names(node):
+                if result.get(target_name) != value:
+                    result[target_name] = value
+                    changed = True
+        if not changed:
+            break
     return result
+
+
+def assignment_nodes(tree: ast.AST) -> list[ast.Assign | ast.AnnAssign]:
+    """Return assignment nodes in source order."""
+
+    nodes = [
+        node
+        for node in ast.walk(tree)
+        if isinstance(node, (ast.Assign, ast.AnnAssign))
+    ]
+    return sorted(nodes, key=lambda node: getattr(node, "lineno", 0))
+
+
+def assignment_value(node: ast.Assign | ast.AnnAssign) -> ast.AST | None:
+    """Return the value expression for an assignment node."""
+
+    return node.value
+
+
+def assignment_target_names(node: ast.Assign | ast.AnnAssign) -> list[str]:
+    """Return simple assigned target names."""
+
+    if isinstance(node, ast.Assign):
+        return [target.id for target in node.targets if isinstance(target, ast.Name)]
+    if isinstance(node.target, ast.Name):
+        return [node.target.id]
+    return []
+
+
+def loop_target_constants(tree: ast.AST, constants: dict[str, str]) -> dict[str, str]:
+    """Return simple loop target path approximations.
+
+    ``for source_path in ROOT.rglob("*")`` becomes ``source_path = ROOT/*``.
+    """
+
+    result: dict[str, str] = {}
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.For) or not isinstance(node.target, ast.Name):
+            continue
+        value = loop_iter_path(node.iter, constants)
+        if value:
+            result[node.target.id] = value
+    return result
+
+
+def loop_iter_path(node: ast.AST, constants: dict[str, str]) -> str:
+    """Return path approximation for simple glob/rglob loop iterators."""
+
+    if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Attribute):
+        return ""
+    if node.func.attr not in {"glob", "rglob"}:
+        return ""
+    base = resolve_path_expr(node.func.value, constants)
+    if not base:
+        return ""
+    pattern = resolve_path_expr(node.args[0], constants) if node.args else "*"
+    pattern = pattern or "*"
+    return f"{base.rstrip('/\\')}/{pattern.strip('/\\')}"
 
 
 def resolve_path_expr(node: ast.AST | None, constants: dict[str, str]) -> str:
@@ -151,6 +213,24 @@ def resolve_path_call(node: ast.Call, constants: dict[str, str]) -> str:
         return "/".join(part.strip("/\\") for part in parts if part)
     if isinstance(node.func, ast.Attribute) and node.func.attr in {"resolve", "absolute"}:
         return resolve_path_expr(node.func.value, constants)
+    if isinstance(node.func, ast.Attribute) and node.func.attr == "relative_to" and node.args:
+        return resolve_relative_to(node, constants)
+    return ""
+
+
+def resolve_relative_to(node: ast.Call, constants: dict[str, str]) -> str:
+    """Resolve a simple ``path.relative_to(root)`` expression."""
+
+    path_value = resolve_path_expr(node.func.value, constants)
+    root_value = resolve_path_expr(node.args[0], constants)
+    if not path_value or not root_value:
+        return ""
+    normalized_path = path_value.replace("\\", "/").rstrip("/")
+    normalized_root = root_value.replace("\\", "/").rstrip("/")
+    if normalized_path == normalized_root:
+        return ""
+    if normalized_path.startswith(normalized_root + "/"):
+        return normalized_path[len(normalized_root) + 1:]
     return ""
 
 
