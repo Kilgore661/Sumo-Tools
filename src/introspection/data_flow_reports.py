@@ -596,7 +596,10 @@ def makefile_candidate(graph: DataFlowGraph) -> str:
     inputs = rule_inputs(graph)
     upstream_prerequisites = upstream_generated_prerequisites(graph)
     state_inputs = state_artifacts(graph)
-    output_patterns = display_artifacts(graph, use.artifact for use in root_output_pattern_uses(graph))
+    output_patterns = display_artifacts(
+        graph,
+        (use.artifact for use in root_output_pattern_uses(graph)),
+    )
 
     lines = [
         f"# Candidate Makefile rules inferred from data flow for {graph.root_module}.",
