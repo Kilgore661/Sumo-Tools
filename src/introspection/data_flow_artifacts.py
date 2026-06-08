@@ -23,7 +23,8 @@ def artifact_uses_for_module(
     """Return file-like artifact evidence for one module."""
 
     parent_by_child = parent_map(tree)
-    function_constants = constants_by_function_scope(tree, constants)
+    function_defs = function_defs_by_name(tree)
+    function_constants = constants_by_function_scope(tree, constants, function_defs)
     uses: list[ArtifactUse] = []
 
     for node in ast.walk(tree):
@@ -38,14 +39,85 @@ def artifact_uses_for_module(
     return sorted(uses, key=lambda use: (use.line_number, use.action, use.artifact))
 
 
-def constants_by_function_scope(tree: ast.AST, module_constants: dict[str, str]) -> dict[str, dict[str, str]]:
+def function_defs_by_name(tree: ast.AST) -> dict[str, ast.FunctionDef | ast.AsyncFunctionDef]:
+    """Return top-level function definitions by name."""
+
+    return {
+        node.name: node
+        for node in getattr(tree, "body", [])
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    }
+
+
+def constants_by_function_scope(
+    tree: ast.AST,
+    module_constants: dict[str, str],
+    function_defs: dict[str, ast.FunctionDef | ast.AsyncFunctionDef],
+) -> dict[str, dict[str, str]]:
     """Return constants visible within each function scope."""
 
     result = {"<module>": module_constants}
-    for node in ast.walk(tree):
-        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-            result[node.name] = constants_for_function(node, module_constants)
+    for name, node in function_defs.items():
+        result[name] = constants_for_function(node, module_constants)
+
+    parent_by_child = parent_map(tree)
+    for _ in range(max(1, len(function_defs))):
+        changed = False
+        next_result = dict(result)
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Name):
+                continue
+            callee_name = node.func.id
+            if callee_name not in function_defs:
+                continue
+            caller_scope = enclosing_scope(node, parent_by_child)
+            caller_constants = result.get(caller_scope, module_constants)
+            argument_constants = constants_from_call_arguments(
+                node,
+                function_defs[callee_name],
+                caller_constants,
+            )
+            if not argument_constants:
+                continue
+            callee_constants = dict(result.get(callee_name, module_constants))
+            callee_constants.update(argument_constants)
+            callee_constants = collect_path_constants(function_defs[callee_name], callee_constants)
+            if callee_constants != result.get(callee_name, {}):
+                next_result[callee_name] = callee_constants
+                changed = True
+        result = next_result
+        if not changed:
+            break
     return result
+
+
+def constants_from_call_arguments(
+    call_node: ast.Call,
+    function_node: ast.FunctionDef | ast.AsyncFunctionDef,
+    caller_constants: dict[str, str],
+) -> dict[str, str]:
+    """Map callee parameter names to path-like argument values from one call site."""
+
+    constants: dict[str, str] = {}
+    positional_args = list(function_node.args.args)
+    if positional_args and positional_args[0].arg == "self":
+        positional_args = positional_args[1:]
+
+    for parameter, argument in zip(positional_args, call_node.args, strict=False):
+        value = resolve_path_expr(argument, caller_constants)
+        if value:
+            constants[parameter.arg] = value
+
+    keyword_parameters = {argument.arg for argument in positional_args}
+    keyword_parameters.update(argument.arg for argument in function_node.args.kwonlyargs)
+    for keyword in call_node.keywords:
+        if keyword.arg is None or keyword.arg not in keyword_parameters:
+            continue
+        value = resolve_path_expr(keyword.value, caller_constants)
+        if value:
+            constants[keyword.arg] = value
+
+    return constants
 
 
 def constants_for_function(
