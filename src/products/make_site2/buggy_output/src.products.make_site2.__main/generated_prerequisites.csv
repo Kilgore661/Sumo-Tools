@@ -1,0 +1,3 @@
+artifact,artifact_kind,read_count,write_count,glob_count,producer_modules,consumer_modules
+files/output/infra/get_bios/rikishi_bios.json,concrete,1,1,0,src.infra.get_bios.parser,src.infra.get_bios.api
+files/output/store_name.txt,concrete,1,1,0,src.infra.live_store.api,src.infra.live_store.api

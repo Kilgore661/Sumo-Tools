@@ -1,0 +1,2 @@
+producer_module,command,inputs,outputs,satisfies_prerequisites
+src.infra.get_bios.parser,python -m src.infra.get_bios.parser,files/output/infra/get_bios/rikishi/*.html,files/output/infra/get_bios/rikishi_bio_missing_fields.csv;files/output/infra/get_bios/rikishi_bios.json,files/output/infra/get_bios/rikishi_bios.json

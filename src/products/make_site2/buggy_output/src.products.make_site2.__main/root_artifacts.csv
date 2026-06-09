@@ -1,0 +1,14 @@
+role,artifact,modules,reason
+external_input,files/input/elo_fide.json,src.analysis.equelo.expt1.params,read with no reachable producer
+external_input,src/products/make_site2/runtime/site-refactor/*,src.products.make_site2.build,glob/read with no reachable producer
+root_output,files/output/make_site2/index.html,src.products.make_site2.build,concrete write produced by the root command
+root_output,files/output/make_site2/runtime/site-manifest.json,src.products.make_site2.build,concrete write produced by the root command
+root_output,files/output/make_site2/sumo-history/basho-results/data/basho_results_index.json,src.analysis.sumo_history.basho_results.reports,concrete write produced by the root command
+root_output,files/output/perf_chart/career_comparisons/trajectory_master.json,src.products.make_site2.perf_chart.build,concrete write produced by the root command
+root_output,files/output/perf_chart/career_comparisons/trajectory_master_report.json,src.products.make_site2.perf_chart.build,concrete write produced by the root command
+root_output_pattern,files/output/make_site2/runtime/*,src.products.make_site2.build,write by root command; not emitted as a Make target
+state_artifact,files/output/store_name.txt,src.infra.live_store.api,same reachable module reads and writes this artifact
+unresolved_input,build_output.root/*,src.products.make_site2.deploy,glob path contains unresolved variable-like prefix
+unresolved_input,root/*,src.products.make_site2.deploy,glob path contains unresolved variable-like prefix
+upstream_generated_prerequisite,files/output/infra/get_bios/rikishi_bios.json,src.infra.get_bios.parser,consumed by reachable code but produced outside root package
+upstream_input,files/output/infra/get_bios/rikishi/*.html,src.infra.get_bios.parser,glob by upstream prerequisite producer
