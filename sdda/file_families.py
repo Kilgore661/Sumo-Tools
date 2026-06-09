@@ -88,6 +88,7 @@ def _family_pattern(use: FileUseRecord, constants: PathConstantMap) -> str:
     expression = _normalise_os_path_join(expression)
     expression = _normalise_join_operator(expression)
     expression = _resolve_path_constants(use.module, expression, constants)
+    expression = _normalise_quoted_path_segments(expression)
     expression = _normalise_numeric_ids(expression)
     expression = _qualify_simple_local_name(use, expression)
     return expression
@@ -176,6 +177,11 @@ def _replace_constant_token(expression: str, name: str, value: str) -> str:
     if expression.startswith(f"{name}/"):
         return f"{value}{expression[len(name):]}"
     return expression
+
+
+def _normalise_quoted_path_segments(expression: str) -> str:
+    parts = [_strip_quotes(part) for part in expression.split("/")]
+    return "/".join(parts)
 
 
 def _normalise_numeric_ids(expression: str) -> str:
