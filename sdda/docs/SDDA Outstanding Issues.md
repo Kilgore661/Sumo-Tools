@@ -54,3 +54,53 @@ module.function(...)
 Other call forms should be reported in `unresolved.csv` rather than silently ignored or aggressively inferred.
 
 This is a deliberate implementation boundary for v1 so that SDDA can produce useful evidence quickly without pretending to solve all Python call semantics.
+
+## OI-003: SDDA test location and test data naming
+
+SDDA tests should live alongside the SDDA code, under the top-level `sdda` project.
+
+The preferred future shape is:
+
+```text
+sdda/
+  tests/
+    test_*.py
+    testdata/
+      ...
+```
+
+The term `testdata` is preferred over `fixtures` for SDDA because it is more explicit.
+
+No SDDA testdata directory is required until artificial test inputs are actually needed. During early development, the main regression runs are against real repo modules:
+
+```text
+src.products.make_site2.__main__
+src.infra.get_bios.__main__
+```
+
+Generated SDDA reports should normally remain under:
+
+```text
+files/output/sdda/
+```
+
+Checked-in snapshots should be rare and explicitly documented.
+
+## OI-004: Deferred make_site2 test/fixture cleanup
+
+There is existing make_site2-specific testing material in the repository, including tests placed under the repo-level `tests` directory and fixture-like material near `make_site2`.
+
+This should not be fixed while implementing SDDA.
+
+After SDDA is complete enough to replace the old `makefile` and `src/introspection` work, revisit make_site2 testing layout.
+
+The likely cleanup is to make make_site2 tests and their test data local to the make_site2 product, or otherwise organise them under a clear product-specific test location.
+
+Questions to resolve later include:
+
+```text
+which existing make_site2 fixtures/testdata are still useful regression inputs
+whether any temporary fixtures can be deleted
+whether test code and test data should be colocated under src/products/make_site2/tests/
+whether any checked-in buggy-output snapshots should remain as documented regression evidence
+```
