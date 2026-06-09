@@ -108,6 +108,11 @@ def _file_uses_from_call(module_name: str, scope: ScopeRecord, node: ast.Call) -
     if func_name in {"Path", "PurePath"}:
         return []
 
+    dotted = _dotted_name(node.func)
+    dotted_records = _file_uses_from_dotted_call(module_name, scope, node, dotted)
+    if dotted_records:
+        return dotted_records
+
     method = _attribute_name(node.func)
     receiver = _receiver(node.func)
     if method == "open":
@@ -124,11 +129,15 @@ def _file_uses_from_call(module_name: str, scope: ScopeRecord, node: ast.Call) -
         return [_record(module_name, scope, node, "may_create_directory", receiver, f"path_method:{method}")]
     if method in DELETE_METHODS:
         return [_record(module_name, scope, node, "may_delete", receiver, f"path_method:{method}")]
+    return []
 
-    dotted = _dotted_name(node.func)
+
+def _file_uses_from_dotted_call(
+    module_name: str, scope: ScopeRecord, node: ast.Call, dotted: str
+) -> list[FileUseRecord]:
     if dotted in {"glob.glob", "glob.iglob"}:
         return [_record(module_name, scope, node, "may_observe", _arg(node, 0), dotted)]
-    if dotted in {"os.makedirs"}:
+    if dotted == "os.makedirs":
         return [_record(module_name, scope, node, "may_create_directory", _arg(node, 0), dotted)]
     if dotted in {"os.remove", "os.rmdir"}:
         return [_record(module_name, scope, node, "may_delete", _arg(node, 0), dotted)]
@@ -142,7 +151,7 @@ def _file_uses_from_call(module_name: str, scope: ScopeRecord, node: ast.Call) -
         return [_record(module_name, scope, node, "may_download", _arg(node, 0), dotted)]
     if dotted in {"urllib.request.urlopen", "urlopen"}:
         return [_record(module_name, scope, node, "may_download", _arg(node, 0), dotted)]
-    if dotted in {"os.getenv"}:
+    if dotted == "os.getenv":
         return [_record(module_name, scope, node, "may_read_environment", _arg(node, 0), dotted)]
     return []
 
