@@ -14,6 +14,8 @@ def write_reports(result: AnalysisResult) -> None:
     _write_module_graph(result.output_dir / "module_graph.csv", result.imports)
     _write_csv(result.output_dir / "scopes.csv", result.scopes)
     _write_csv(result.output_dir / "file_uses.csv", result.file_uses)
+    _write_csv(result.output_dir / "file_families.csv", result.file_families)
+    _write_csv(result.output_dir / "file_family_evidence.csv", result.file_family_evidence)
     _write_csv(result.output_dir / "unresolved.csv", result.unresolved)
     _write_summary(result)
 
@@ -65,6 +67,8 @@ def _write_summary(result: AnalysisResult) -> None:
         f"Import records: {len(result.imports)}",
         f"Scopes: {len(result.scopes)}",
         f"File uses: {len(result.file_uses)}",
+        f"File families: {len(result.file_families)}",
+        f"File family evidence rows: {len(result.file_family_evidence)}",
         f"Unresolved records: {len(result.unresolved)}",
         "",
         "## Reports",
@@ -75,6 +79,8 @@ def _write_summary(result: AnalysisResult) -> None:
         "module_graph.csv",
         "scopes.csv",
         "file_uses.csv",
+        "file_families.csv",
+        "file_family_evidence.csv",
         "unresolved.csv",
         "summary.md",
         "```",
