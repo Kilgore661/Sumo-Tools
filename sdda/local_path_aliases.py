@@ -55,18 +55,14 @@ def _aliases_from_scope(
     output: dict[str, str] = {}
     for node in scope_node.body:
         target, value = _assignment_parts(node)
-        if target is not None and value is not None:
-            resolved = _eval_path_expression(value, aliases)
-            if resolved is not None:
-                aliases[target] = resolved
-                if not target.isupper():
-                    output[target] = resolved
+        if target is None or value is None:
             continue
-
-        if isinstance(node, ast.For):
-            loop_aliases = _loop_aliases(node, aliases)
-            aliases.update(loop_aliases)
-            output.update(loop_aliases)
+        resolved = _eval_path_expression(value, aliases)
+        if resolved is None:
+            continue
+        aliases[target] = resolved
+        if not target.isupper():
+            output[target] = resolved
     return output
 
 
@@ -80,28 +76,7 @@ def _assignment_parts(node: ast.stmt) -> tuple[str | None, ast.AST | None]:
     return None, None
 
 
-def _loop_aliases(node: ast.For, aliases: dict[str, str]) -> dict[str, str]:
-    choices = _eval_choice_expression(node.iter, aliases)
-    if choices is None:
-        return {}
-    targets = _loop_target_names(node.target)
-    if not targets:
-        return {}
-    return {targets[0]: choices}
-
-
-def _loop_target_names(target: ast.AST) -> list[str]:
-    if isinstance(target, ast.Name):
-        return [target.id]
-    if isinstance(target, (ast.Tuple, ast.List)):
-        return [element.id for element in target.elts if isinstance(element, ast.Name)]
-    return []
-
-
 def _eval_path_expression(node: ast.AST, aliases: dict[str, str]) -> str | None:
-    choices = _eval_choice_expression(node, aliases)
-    if choices is not None:
-        return choices
     if isinstance(node, ast.Constant) and isinstance(node.value, str):
         return node.value
     if isinstance(node, ast.Name):
@@ -116,23 +91,6 @@ def _eval_path_expression(node: ast.AST, aliases: dict[str, str]) -> str | None:
         return _eval_call(node, aliases)
     if isinstance(node, ast.Attribute):
         return _eval_attribute(node, aliases)
-    return None
-
-
-def _eval_choice_expression(node: ast.AST, aliases: dict[str, str]) -> str | None:
-    if isinstance(node, ast.Name):
-        value = aliases.get(node.id)
-        if value is not None and value.startswith("{") and value.endswith("}"):
-            return value
-    if isinstance(node, (ast.Tuple, ast.List)):
-        values = []
-        for element in node.elts:
-            if not isinstance(element, ast.Constant) or not isinstance(element.value, str):
-                return None
-            values.append(element.value)
-        return _choice_pattern(values)
-    if isinstance(node, ast.Call) and _call_name(node.func) == "zip" and node.args:
-        return _eval_choice_expression(node.args[0], aliases)
     return None
 
 
@@ -152,15 +110,3 @@ def _eval_attribute(node: ast.Attribute, aliases: dict[str, str]) -> str | None:
         parts = [part for part in value.split("/") if part]
         return "/".join(parts[:-1])
     return None
-
-
-def _call_name(node: ast.AST) -> str:
-    if isinstance(node, ast.Name):
-        return node.id
-    return ""
-
-
-def _choice_pattern(values: list[str]) -> str | None:
-    if not values:
-        return None
-    return "{" + ",".join(values) + "}"
