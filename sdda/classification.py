@@ -83,6 +83,8 @@ def _read_only_classification(
 ) -> tuple[str, str, str]:
     if "may_download" in actions:
         return "internet_source", "medium", "download_action"
+    if _has_unresolved_variable_path_segment(family.family_pattern):
+        return "unknown_review_needed", "medium", "unresolved_variable_path_segment"
     if _is_non_root_main_local(family.family_pattern):
         return "unknown_review_needed", "medium", "non_root_main_scope_read"
     if _is_scoped_local_or_parameter(family.family_pattern):
@@ -117,6 +119,13 @@ def _is_constant_glob(pattern: str) -> bool:
 def _is_deploy_module_only(family: FileFamilyRecord) -> bool:
     modules = {module for module in family.modules.split(";") if module}
     return modules == {DEPLOY_MODULE}
+
+
+def _has_unresolved_variable_path_segment(pattern: str) -> bool:
+    if "/" not in pattern:
+        return False
+    dynamic_names = {"filename", "name", "source", "source_path", "target", "target_path"}
+    return any(segment in dynamic_names for segment in pattern.split("/"))
 
 
 def _is_non_root_main_local(pattern: str) -> bool:
