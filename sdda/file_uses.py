@@ -17,11 +17,16 @@ DELETE_FUNCTIONS = {"rmtree", "remove"}
 
 BENIGN_METHODS = {
     "add",
+    "add_argument",
     "append",
+    "as_posix",
     "close",
     "compile",
+    "dirname",
     "dumps",
     "end",
+    "endswith",
+    "error",
     "exit",
     "extend",
     "findall",
@@ -31,20 +36,31 @@ BENIGN_METHODS = {
     "group",
     "groups",
     "items",
+    "join",
     "keys",
     "load",
     "loads",
+    "now",
     "parse",
+    "parse_args",
     "relative_to",
     "replace",
+    "resolve",
     "search",
+    "sort",
     "split",
     "start",
     "startswith",
+    "strftime",
     "strip",
+    "strptime",
     "time",
     "update",
     "values",
+    "write",
+    "writeheader",
+    "writerow",
+    "writerows",
 }
 KNOWN_MODULE_RECEIVERS = {
     "argparse",
@@ -55,7 +71,9 @@ KNOWN_MODULE_RECEIVERS = {
     "json",
     "logging",
     "object",
+    "os",
     "pickle",
+    "posixpath",
     "re",
     "shared_memory",
     "sys",
@@ -117,6 +135,12 @@ def _file_use_from_call(
     dotted = _dotted_name(node.func)
     if dotted in {"glob.glob", "glob.iglob"}:
         return _record(module_name, scope, node, "may_observe", _arg(node, 0), dotted)
+    if dotted in {"os.makedirs"}:
+        return _record(module_name, scope, node, "may_create_directory", _arg(node, 0), dotted)
+    if dotted in {"os.remove", "os.rmdir"}:
+        return _record(module_name, scope, node, "may_delete", _arg(node, 0), dotted)
+    if dotted in {"os.path.exists", "os.path.isfile", "os.path.isdir"}:
+        return _record(module_name, scope, node, "may_existence_check", _arg(node, 0), dotted)
     if dotted in {f"shutil.{name}" for name in COPY_FUNCTIONS}:
         return _record(module_name, scope, node, "may_copy", node, dotted)
     if dotted in {f"shutil.{name}" for name in DELETE_FUNCTIONS}:
