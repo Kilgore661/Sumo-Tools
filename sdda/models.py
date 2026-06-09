@@ -35,6 +35,19 @@ class ScopeRecord:
 
 
 @dataclass(frozen=True)
+class TypeFactRecord:
+    module: str
+    owner_kind: str
+    owner_qualname: str
+    owner_full_name: str
+    fact_kind: str
+    name: str
+    annotation: str
+    line: int
+    reason: str
+
+
+@dataclass(frozen=True)
 class FileUseRecord:
     module: str
     scope_kind: str
@@ -122,6 +135,7 @@ class AnalysisResult:
     imports: list[ImportRecord]
     reachable_modules: list[str]
     scopes: list[ScopeRecord]
+    type_facts: list[TypeFactRecord]
     file_uses: list[FileUseRecord]
     file_families: list[FileFamilyRecord]
     file_family_evidence: list[FileFamilyEvidenceRecord]
