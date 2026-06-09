@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from .models import FileFamilyClassificationRecord, FileFamilyRecord
 
-READ_ACTIONS = {"may_read", "may_observe", "may_existence_check", "may_download"}
+CONTENT_READ_ACTIONS = {"may_read", "may_observe", "may_download"}
+EXISTENCE_ACTIONS = {"may_existence_check"}
 WRITE_ACTIONS = {"may_write", "may_create_directory", "may_delete", "may_copy"}
 
 
@@ -40,26 +41,39 @@ def _classification(
     if family.confidence == "low":
         return "unknown_review_needed", "low", "family_confidence:low"
 
-    reads = bool(actions & READ_ACTIONS)
+    content_reads = bool(actions & CONTENT_READ_ACTIONS)
+    existence_checks = bool(actions & EXISTENCE_ACTIONS)
     writes = bool(actions & WRITE_ACTIONS)
-    if reads and writes:
-        return _read_write_classification(family, actions)
-    if reads:
+    if content_reads and writes:
+        return _content_read_write_classification(family, actions)
+    if existence_checks and writes:
+        return _existence_write_classification(family, actions)
+    if content_reads:
         return _read_only_classification(family, actions)
+    if existence_checks:
+        return "possible_state_or_control_file", "medium", "existence_check_without_content_read"
     if writes:
         return _write_only_classification(family, actions)
-    return "unknown_review_needed", "low", "no_read_or_write_actions"
+    return "unknown_review_needed", "low", "no_file_actions"
 
 
-def _read_write_classification(
+def _content_read_write_classification(
     family: FileFamilyRecord,
     actions: set[str],
 ) -> tuple[str, str, str]:
-    if "may_existence_check" in actions and actions <= {"may_existence_check", "may_write", "may_create_directory"}:
-        return "possible_efficiency_cache", "medium", "existence_check_plus_write"
     if family.family_kind == "directory_family":
-        return "possible_state_or_control_file", "medium", "directory_read_or_observe_plus_write"
-    return "possible_efficiency_cache", "medium", "read_or_observe_plus_write"
+        return "possible_state_or_control_file", "medium", "directory_content_read_plus_write"
+    return "possible_efficiency_cache", "medium", "content_read_or_observe_plus_write"
+
+
+def _existence_write_classification(
+    family: FileFamilyRecord, actions: set[str]
+) -> tuple[str, str, str]:
+    if actions <= {"may_existence_check", "may_delete", "may_create_directory"}:
+        return "generated_output", "medium", "existence_check_plus_cleanup_or_recreate"
+    if actions <= {"may_existence_check", "may_write", "may_create_directory"}:
+        return "possible_efficiency_cache", "medium", "existence_check_plus_write"
+    return "possible_state_or_control_file", "medium", "existence_check_plus_mixed_write"
 
 
 def _read_only_classification(
@@ -70,7 +84,7 @@ def _read_only_classification(
         return "internet_source", "medium", "download_action"
     if family.family_kind == "glob_family":
         return "required_distribution_input", "medium", "glob_observed_without_write"
-    return "required_distribution_input", "medium", "read_or_observe_without_write"
+    return "required_distribution_input", "medium", "content_read_or_observe_without_write"
 
 
 def _write_only_classification(
