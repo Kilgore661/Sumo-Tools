@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+from collections import Counter
 from dataclasses import asdict
 from pathlib import Path
 
@@ -75,20 +76,42 @@ def _write_summary(result: AnalysisResult) -> None:
         f"Distribution candidates: {len(result.distribution_candidates)}",
         f"Unresolved records: {len(result.unresolved)}",
         "",
-        "## Reports",
-        "",
-        "```text",
-        "module_index.csv",
-        "imports.csv",
-        "module_graph.csv",
-        "scopes.csv",
-        "file_uses.csv",
-        "file_families.csv",
-        "file_family_evidence.csv",
-        "file_family_classification.csv",
-        "distribution_candidates.csv",
-        "unresolved.csv",
-        "summary.md",
-        "```",
     ]
+    lines.extend(_summary_block("Distribution decisions", _distribution_decisions(result)))
+    lines.extend(_summary_block("File-family classifications", _file_family_classifications(result)))
+    lines.extend(
+        [
+            "## Reports",
+            "",
+            "```text",
+            "module_index.csv",
+            "imports.csv",
+            "module_graph.csv",
+            "scopes.csv",
+            "file_uses.csv",
+            "file_families.csv",
+            "file_family_evidence.csv",
+            "file_family_classification.csv",
+            "distribution_candidates.csv",
+            "unresolved.csv",
+            "summary.md",
+            "```",
+        ]
+    )
     (result.output_dir / "summary.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def _distribution_decisions(result: AnalysisResult) -> Counter[str]:
+    return Counter(row.distribution_decision for row in result.distribution_candidates)
+
+
+def _file_family_classifications(result: AnalysisResult) -> Counter[str]:
+    return Counter(row.classification for row in result.file_family_classification)
+
+
+def _summary_block(title: str, counts: Counter[str]) -> list[str]:
+    lines = [f"## {title}", ""]
+    for name, count in sorted(counts.items(), key=lambda item: (-item[1], item[0])):
+        lines.append(f"{name}: {count}")
+    lines.append("")
+    return lines
