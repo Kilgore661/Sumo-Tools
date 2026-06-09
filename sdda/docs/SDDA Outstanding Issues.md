@@ -126,3 +126,26 @@ foo.py at SHA 2348929
 ```
 
 If a specific output snapshot is important enough to keep, it should be explicitly curated, documented, and checked in as an exception rather than as routine generated output.
+
+## OI-006: SDDA code should be split into small modules
+
+SDDA should be implemented as a package made of small modules, not as one large script.
+
+This is partly ordinary maintainability and partly a practical readability constraint for assisted development: files much over roughly 300 lines become harder to inspect and modify reliably.
+
+The preferred shape remains close to the design document:
+
+```text
+sdda/__main__.py
+sdda/module_index.py
+sdda/import_graph.py
+sdda/scopes.py
+sdda/bindings.py
+sdda/calls.py
+sdda/file_uses.py
+sdda/file_families.py
+sdda/classification.py
+sdda/reports.py
+```
+
+The exact module list may evolve, but the implementation should prefer cohesive, readable modules over a monolithic analyser file.
