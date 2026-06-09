@@ -81,12 +81,21 @@ def _assignment_parts(node: ast.stmt) -> tuple[str | None, ast.AST | None]:
 
 
 def _loop_aliases(node: ast.For, aliases: dict[str, str]) -> dict[str, str]:
-    if not isinstance(node.target, ast.Name):
-        return {}
     choices = _eval_choice_expression(node.iter, aliases)
     if choices is None:
         return {}
-    return {node.target.id: choices}
+    targets = _loop_target_names(node.target)
+    if not targets:
+        return {}
+    return {targets[0]: choices}
+
+
+def _loop_target_names(target: ast.AST) -> list[str]:
+    if isinstance(target, ast.Name):
+        return [target.id]
+    if isinstance(target, (ast.Tuple, ast.List)):
+        return [element.id for element in target.elts if isinstance(element, ast.Name)]
+    return []
 
 
 def _eval_path_expression(node: ast.AST, aliases: dict[str, str]) -> str | None:
