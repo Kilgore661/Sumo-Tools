@@ -16,6 +16,20 @@ A module is relevant to SDDA only if it is reachable from the product root throu
 
 The analyser's main product is a set of evidence-backed reports about file-family may-dependencies. Build files such as Makefiles or Ninja files are possible later renderings, not the central output.
 
+## Implementation decomposition decision
+
+SDDA shall be implemented as a package decomposed into logical modules, not as one large analyser script.
+
+The acid test is:
+
+```text
+No SDDA Python module should be over 300 lines long.
+```
+
+If a module approaches that size, it should be split into a package or refactored into smaller logical units before it becomes difficult to understand and modify.
+
+This is both an ordinary maintainability rule and a practical rule for assisted development: smaller, cohesive files are easier to inspect, reason about, and change safely.
+
 ## Separation of graphs
 
 SDDA deliberately keeps several graphs and indexes separate.
@@ -388,7 +402,7 @@ unresolved review items
 
 ## Suggested internal modules
 
-The implementation may remain a single script initially, but the design naturally separates into these components:
+The implementation should use a package of small, cohesive modules. The expected starting decomposition is:
 
 ```text
 sdda/__main__.py
@@ -422,7 +436,9 @@ sdda/reports.py
   Writes CSV and Markdown reports.
 ```
 
-The first implementation may borrow code from `src/introspection` where useful, but it should not inherit the old module-level dataflow assumption.
+The exact module list may evolve, but any module approaching the 300-line acid test should be split or refactored.
+
+The first implementation may borrow code from `src/introspection` where useful, but it should not import from `src/introspection` and should not inherit the old module-level dataflow assumption.
 
 ## Development milestones
 
