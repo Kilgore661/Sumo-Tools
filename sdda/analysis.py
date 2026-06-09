@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from .classification import classify_file_families
+from .distribution import derive_distribution_candidates
 from .file_families import normalise_file_families
 from .file_uses import extract_file_uses
 from .import_graph import build_reachable_imports
@@ -30,6 +31,7 @@ def analyse(root_module: str, import_root: Path, output_dir: Path | None = None)
 
     file_families, file_family_evidence = normalise_file_families(file_uses)
     file_family_classification = classify_file_families(file_families)
+    distribution_candidates = derive_distribution_candidates(file_family_classification)
     final_output_dir = output_dir or _default_output_dir(root_module)
     return AnalysisResult(
         root_module=root_module,
@@ -43,6 +45,7 @@ def analyse(root_module: str, import_root: Path, output_dir: Path | None = None)
         file_families=file_families,
         file_family_evidence=file_family_evidence,
         file_family_classification=file_family_classification,
+        distribution_candidates=distribution_candidates,
         unresolved=unresolved,
     )
 
