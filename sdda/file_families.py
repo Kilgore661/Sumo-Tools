@@ -97,6 +97,8 @@ def _family_kind(pattern: str, uses: list[FileUseRecord]) -> str:
         return "glob_family"
     if "*" in pattern:
         return "glob_family"
+    if any(use.action == "may_create_directory" for use in uses):
+        return "directory_family"
     if "{" in pattern and "}" in pattern:
         return "template_family"
     if pattern.endswith("/") or pattern.endswith("/**"):
