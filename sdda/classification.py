@@ -85,6 +85,10 @@ def _read_only_classification(
         return "internet_source", "medium", "download_action"
     if _is_non_root_main_local(family.family_pattern):
         return "unknown_review_needed", "medium", "non_root_main_scope_read"
+    if _is_scoped_local_or_parameter(family.family_pattern):
+        return "unknown_review_needed", "medium", "scoped_local_or_parameter_read"
+    if _is_object_field_expression(family.family_pattern):
+        return "possible_pipeline_intermediate", "medium", "object_field_read_without_value_flow"
     if family.family_kind == "glob_family" and _is_constant_glob(family.family_pattern):
         return "required_distribution_input", "medium", "constant_glob_observed_without_write"
     if family.family_kind == "glob_family":
@@ -117,6 +121,14 @@ def _is_deploy_module_only(family: FileFamilyRecord) -> bool:
 
 def _is_non_root_main_local(pattern: str) -> bool:
     return ":main:" in pattern and not pattern.startswith("src.products.make_site2.__main__:main:")
+
+
+def _is_scoped_local_or_parameter(pattern: str) -> bool:
+    return pattern.count(":") >= 2
+
+
+def _is_object_field_expression(pattern: str) -> bool:
+    return pattern.startswith("producer_output.")
 
 
 def _review_priority(classification: str, confidence: str) -> str:
