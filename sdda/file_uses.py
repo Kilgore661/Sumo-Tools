@@ -126,7 +126,7 @@ def _file_uses_from_call(module_name: str, scope: ScopeRecord, node: ast.Call) -
     if method in EXISTS_METHODS:
         return [_record(module_name, scope, node, "may_existence_check", receiver, f"path_method:{method}")]
     if method in MKDIR_METHODS:
-        return [_record(module_name, scope, node, "may_create_directory", receiver, f"path_method:{method}")]
+        return [_record(module_name, scope, node, "may_create_directory", _mkdir_expression(node, receiver), f"path_method:{method}")]
     if method in DELETE_METHODS:
         return [_record(module_name, scope, node, "may_delete", receiver, f"path_method:{method}")]
     return []
@@ -230,6 +230,13 @@ def _arg(node: ast.Call, index: int) -> ast.AST | None:
     if len(node.args) > index:
         return node.args[index]
     return None
+
+
+def _mkdir_expression(node: ast.Call, receiver: ast.AST | None) -> ast.AST | None:
+    first_arg = _arg(node, 0)
+    if first_arg is not None:
+        return first_arg
+    return receiver
 
 
 def _receiver(node: ast.AST) -> ast.AST | None:
