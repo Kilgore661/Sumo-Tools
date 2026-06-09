@@ -28,7 +28,7 @@ The exact set of runtime inputs needed by `make_site2` is not computable in gene
 Which file families, URL families, environment settings, and local assumptions may be needed by the website build/deploy product?
 ```
 
-The current implementation does not yet answer that final distribution question. It now produces a useful evidence layer and a first normalised file-family layer from which classification can begin.
+The current implementation does not yet answer that final distribution question. It produces a useful evidence layer, grouped file families, first-pass classifications, and conservative distribution candidate decisions.
 
 ## Implemented slice
 
@@ -39,7 +39,10 @@ module index
   -> reachable import graph
   -> scope extraction
   -> raw file-use extraction
+  -> path-constant and local-alias normalisation
   -> file-family normalisation and grouping
+  -> first-pass file-family classification
+  -> first-pass distribution candidate decisions
   -> unresolved-call evidence
   -> CSV and Markdown reports
 ```
@@ -54,6 +57,8 @@ scopes.csv
 file_uses.csv
 file_families.csv
 file_family_evidence.csv
+file_family_classification.csv
+distribution_candidates.csv
 unresolved.csv
 summary.md
 ```
@@ -61,14 +66,36 @@ summary.md
 The latest run against `src.products.make_site2.__main__` produced:
 
 ```text
-Project modules indexed: 1100
+Project modules indexed: 1104
 Reachable modules: 68
 Import records: 646
 Scopes: 560
 File uses: 120
 File families: 92
 File family evidence rows: 120
+File family classifications: 92
+Distribution candidates: 92
 Unresolved records: 168
+```
+
+The latest distribution decision summary is:
+
+```text
+exclude: 54
+review: 31
+include: 7
+```
+
+The current include candidates are:
+
+```text
+files/output/bcr/data/banzuke_change_report.csv
+files/output/bcr/site_config.json
+files/output/misc/finish_by_chii_1958_2026_bottom_thresholds.csv
+files/output/misc/finish_by_chii_1958_2026_top_thresholds.csv
+files/output/standings/publisher/latest_data/site_config.json
+src/analysis/standings/files/full_shiks.pkl
+src/products/make_site2/runtime/site.css
 ```
 
 ## What looks good
@@ -97,29 +124,45 @@ os.environ[...] and os.getenv(...)
 
 Literal open modes are used to distinguish obvious reads from obvious writes.
 
-Copy operations now produce separate source/read and destination/write evidence rows.
+Copy operations produce separate source/read and destination/write evidence rows.
 
-Path-style method calls now generally record the receiver expression rather than the method expression.
+Path-style method calls generally record the receiver expression rather than the method expression.
 
 Simple local names in file-family patterns are scoped by module and scope to avoid collapsing unrelated variables such as `path` into one false family.
 
-Directory-creation evidence is classified as `directory_family`.
+Path constants are resolved for common `Path(__file__).resolve().parent`-style constants and imported uppercase constants. This is enough to turn rows such as `LEGACY_QUALIFIED_SHIKONA` into concrete repository-relative paths.
 
-The unresolved report has been reduced from broad call noise to a more useful review set. It now mostly represents the known limitation around object or project method dispatch.
+Simple same-scope path aliases are resolved where the assignment is straightforward, such as `source_root = Path("files") / "output" / "misc"`.
 
-## Known limitation
+The classifier is conservative. It now avoids treating broad variable globs, deploy-only reads, non-root helper `main()` reads, unresolved parameters, unresolved locals, and object-field reads as definite source-distribution inputs.
 
-The major known limitation is unresolved method calls of the form:
+The `summary.md` report now gives enough information for first-pass review without opening the CSVs: counts, decision breakdowns, classification breakdowns, include candidates, and high-priority review candidates.
+
+## Known limitations
+
+The major known limitation is still unresolved method calls of the form:
 
 ```python
 obj.method(...)
 ```
 
-Such methods may hide important file uses.
+Such methods may hide important file uses. For now, method-call uncertainty is preserved in `unresolved.csv` rather than hidden.
 
-Trying to solve object method dispatch in the abstract may be slower than first building downstream classification. The current evidence may already be sufficient to identify which file-family questions matter most, and that analysis may show which unresolved method calls actually block progress.
+The more immediate limitation exposed by the current reports is value flow. SDDA does not yet connect expressions such as:
 
-For now, method-call uncertainty is preserved in `unresolved.csv` rather than hidden.
+```text
+source_path
+producer_output.data_path
+output_root
+BuildOutput.root
+build_output.root
+```
+
+across function calls, return objects, and dataclass fields.
+
+Because of that, some rows are correctly placed in review rather than include/exclude. Examples include parameter reads in helper functions, object-field reads, and deployment reads that probably consume build output.
+
+Two attempted loop-alias changes intended to resolve `/name` rows were reverted because they had no visible effect and affected only two review rows. This is not a strategic blocker.
 
 ## Current interpretation
 
@@ -127,42 +170,31 @@ Milestone 1, module and import evidence, is good enough for now.
 
 Milestone 2, scope-level file-use evidence, is good enough for now.
 
-The first part of Milestone 4, file-family normalisation and grouping, is also good enough to support the next downstream step.
+Milestone 4, file-family normalisation, classification, and first-pass distribution candidate reporting, is now good enough for this stage.
 
-The current reports are not the final dependency answer. They are an evidence layer from which later reports can derive candidate distribution inputs, generated outputs, caches, deployment assumptions, and review items.
+The current reports are not the final dependency answer. They are a conservative evidence layer from which later reports can derive candidate distribution inputs, generated outputs, caches, deployment assumptions, and review items.
+
+The current break-point is reasonable because the remaining high-priority review rows mostly require a new analysis layer rather than more local classification tweaks.
 
 ## Next steps
 
-The next step is first-pass file-family classification.
+The next major step is call-argument and value-flow matching.
 
-Implement a conservative classifier that reads the grouped file-family evidence and emits:
-
-```text
-file_family_classification.csv
-```
-
-The first classifier should use simple, reviewable labels such as:
+The aim is to match producer and consumer expressions across the website pipeline, for example:
 
 ```text
-required_distribution_input
-generated_output
-possible_efficiency_cache
-possible_state_or_control_file
-directory_family
-environment_setting
-internet_source
-unknown_review_needed
+build_site writes output_root
+build_site returns BuildOutput(root=output_root)
+__main__ passes build_output into deploy_local and deploy_remote
+deploy reads build_output.root
 ```
 
-The initial rule should be conservative:
+This should allow SDDA to recognise pipeline intermediates more directly:
 
 ```text
-families with only read or observe evidence are candidate inputs
-families with only write/create/delete evidence are generated outputs or generated directories
-families with both read/observe and write evidence are possible efficiency caches or possible state/control files
-environment settings remain environment settings
-URL families remain internet sources
-low-confidence expression families remain unknown_review_needed
+generated_then_consumed / pipeline_intermediate
 ```
 
-After the first classification report exists, review it against the source-distribution goal and use it to decide whether unresolved `obj.method(...)` calls need immediate attention.
+and avoid leaving those rows as high-priority review items.
+
+Do not prioritise further small alias cleanups unless they affect more than a handful of rows or block the value-flow work.
