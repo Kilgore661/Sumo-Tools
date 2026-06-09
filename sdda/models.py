@@ -48,6 +48,34 @@ class FileUseRecord:
 
 
 @dataclass(frozen=True)
+class FileFamilyRecord:
+    family_id: str
+    family_kind: str
+    family_pattern: str
+    actions: str
+    evidence_count: int
+    modules: str
+    first_module: str
+    first_scope: str
+    first_line: int
+    confidence: str
+    reason: str
+
+
+@dataclass(frozen=True)
+class FileFamilyEvidenceRecord:
+    family_id: str
+    module: str
+    scope_kind: str
+    scope_name: str
+    line: int
+    action: str
+    raw_expression: str
+    resolved_expression: str
+    reason: str
+
+
+@dataclass(frozen=True)
 class UnresolvedRecord:
     module: str
     scope_kind: str
@@ -67,4 +95,6 @@ class AnalysisResult:
     reachable_modules: list[str]
     scopes: list[ScopeRecord]
     file_uses: list[FileUseRecord]
+    file_families: list[FileFamilyRecord]
+    file_family_evidence: list[FileFamilyEvidenceRecord]
     unresolved: list[UnresolvedRecord]
