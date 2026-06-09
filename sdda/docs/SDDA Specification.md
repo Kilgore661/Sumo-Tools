@@ -2,10 +2,10 @@
 
 ## Scope
 
-`sdda.py` shall live under:
+The command-line entry point shall be:
 
 ```text
-sdda/sdda.py
+sdda/__main__.py
 ```
 
 It is part of the repository audit and distribution-analysis tooling, not part of the application runtime under `src`.
@@ -239,13 +239,15 @@ Those renderings are projections of the richer file-family model and are not the
 
 ## Command-line interface
 
-The analyser should be invokable with a root module and import root, for example:
+The analyser should be invokable as a package module with a root module and import root, for example:
 
 ```powershell
-python sdda/sdda.py src.infra.get_bios.__main__ --import-root .
-python sdda/sdda.py src.infra.get_bios.parser --import-root .
-python sdda/sdda.py src.products.make_site2.__main__ --import-root .
+python -m sdda src.infra.get_bios.__main__ --import-root .
+python -m sdda src.infra.get_bios.parser --import-root .
+python -m sdda src.products.make_site2.__main__ --import-root .
 ```
+
+The package-module invocation shall dispatch through `sdda/__main__.py`.
 
 ## Acceptance tests
 
