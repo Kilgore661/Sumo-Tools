@@ -14,7 +14,7 @@ def extract_scopes(module_name: str, tree: ast.Module) -> list[ScopeRecord]:
             scope_kind="module_import_time",
             qualname="<module>",
             line_start=1,
-            line_end=node_end_line(tree) or 1,
+            line_end=_module_end_line(tree),
         )
     ]
     for node in tree.body:
@@ -58,6 +58,12 @@ def _scopes_from_node(
         return records
 
     return []
+
+
+def _module_end_line(tree: ast.Module) -> int:
+    if not tree.body:
+        return 1
+    return max(node_end_line(node) for node in tree.body)
 
 
 def _mark_methods(records: list[ScopeRecord]) -> list[ScopeRecord]:
