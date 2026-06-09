@@ -112,13 +112,13 @@ def _file_use_from_call(
 ) -> FileUseRecord | None:
     func_name = _call_name(node.func)
     if func_name == "open":
-        return _record(module_name, scope, node, "may_read_or_write", _arg(node, 0), "open_call")
+        return _record(module_name, scope, node, _open_action(node, 1), _arg(node, 0), "open_call")
     if func_name in {"Path", "PurePath"}:
         return None
 
     method = _attribute_name(node.func)
     if method == "open":
-        return _record(module_name, scope, node, "may_read_or_write", node.func, "path_method:open")
+        return _record(module_name, scope, node, _open_action(node, 0), node.func, "path_method:open")
     if method in READ_METHODS:
         return _record(module_name, scope, node, "may_read", node.func, f"path_method:{method}")
     if method in WRITE_METHODS:
@@ -201,6 +201,24 @@ def _unresolved_from_call(
         source_expression=unparse(node),
         reason="object_method_dispatch_not_resolved",
     )
+
+
+def _open_action(node: ast.Call, mode_index: int) -> str:
+    mode = _literal_string_arg(node, mode_index)
+    if mode == "":
+        return "may_read"
+    if any(marker in mode for marker in ("w", "a", "x", "+")):
+        return "may_write"
+    if "r" in mode:
+        return "may_read"
+    return "may_read_or_write"
+
+
+def _literal_string_arg(node: ast.Call, index: int) -> str:
+    arg = _arg(node, index)
+    if isinstance(arg, ast.Constant) and isinstance(arg.value, str):
+        return arg.value
+    return ""
 
 
 def _record(
