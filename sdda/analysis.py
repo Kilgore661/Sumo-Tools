@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from .file_families import normalise_file_families
 from .file_uses import extract_file_uses
 from .import_graph import build_reachable_imports
 from .models import AnalysisResult, FileUseRecord, ScopeRecord, UnresolvedRecord
@@ -26,6 +27,7 @@ def analyse(root_module: str, import_root: Path, output_dir: Path | None = None)
         file_uses.extend(module_uses)
         unresolved.extend(module_unresolved)
 
+    file_families, file_family_evidence = normalise_file_families(file_uses)
     final_output_dir = output_dir or _default_output_dir(root_module)
     return AnalysisResult(
         root_module=root_module,
@@ -36,6 +38,8 @@ def analyse(root_module: str, import_root: Path, output_dir: Path | None = None)
         reachable_modules=reachable_modules,
         scopes=scopes,
         file_uses=file_uses,
+        file_families=file_families,
+        file_family_evidence=file_family_evidence,
         unresolved=unresolved,
     )
 
