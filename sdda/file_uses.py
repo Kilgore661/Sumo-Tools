@@ -82,18 +82,14 @@ KNOWN_MODULE_RECEIVERS = {
 
 
 def extract_file_uses(
-    module_name: str,
-    tree: ast.Module,
-    scopes: list[ScopeRecord],
+    module_name: str, tree: ast.Module, scopes: list[ScopeRecord]
 ) -> tuple[list[FileUseRecord], list[UnresolvedRecord]]:
     uses: list[FileUseRecord] = []
     unresolved: list[UnresolvedRecord] = []
     for node in ast.walk(tree):
         if isinstance(node, ast.Call):
             scope = _scope_for_line(scopes, node.lineno)
-            use = _file_use_from_call(module_name, scope, node)
-            if use is not None:
-                uses.append(use)
+            uses.extend(_file_uses_from_call(module_name, scope, node))
             unresolved_call = _unresolved_from_call(module_name, scope, node)
             if unresolved_call is not None:
                 unresolved.append(unresolved_call)
@@ -105,81 +101,67 @@ def extract_file_uses(
     return uses, unresolved
 
 
-def _file_use_from_call(
-    module_name: str,
-    scope: ScopeRecord,
-    node: ast.Call,
-) -> FileUseRecord | None:
+def _file_uses_from_call(module_name: str, scope: ScopeRecord, node: ast.Call) -> list[FileUseRecord]:
     func_name = _call_name(node.func)
     if func_name == "open":
-        return _record(module_name, scope, node, _open_action(node, 1), _arg(node, 0), "open_call")
+        return [_record(module_name, scope, node, _open_action(node, 1), _arg(node, 0), "open_call")]
     if func_name in {"Path", "PurePath"}:
-        return None
+        return []
 
     method = _attribute_name(node.func)
+    receiver = _receiver(node.func)
     if method == "open":
-        return _record(module_name, scope, node, _open_action(node, 0), node.func, "path_method:open")
+        return [_record(module_name, scope, node, _open_action(node, 0), receiver, "path_method:open")]
     if method in READ_METHODS:
-        return _record(module_name, scope, node, "may_read", node.func, f"path_method:{method}")
+        return [_record(module_name, scope, node, "may_read", receiver, f"path_method:{method}")]
     if method in WRITE_METHODS:
-        return _record(module_name, scope, node, "may_write", node.func, f"path_method:{method}")
+        return [_record(module_name, scope, node, "may_write", receiver, f"path_method:{method}")]
     if method in GLOB_METHODS:
-        return _record(module_name, scope, node, "may_observe", node, f"path_method:{method}")
+        return [_record(module_name, scope, node, "may_observe", node, f"path_method:{method}")]
     if method in EXISTS_METHODS:
-        return _record(module_name, scope, node, "may_existence_check", node.func, f"path_method:{method}")
+        return [_record(module_name, scope, node, "may_existence_check", receiver, f"path_method:{method}")]
     if method in MKDIR_METHODS:
-        return _record(module_name, scope, node, "may_create_directory", node.func, f"path_method:{method}")
+        return [_record(module_name, scope, node, "may_create_directory", receiver, f"path_method:{method}")]
     if method in DELETE_METHODS:
-        return _record(module_name, scope, node, "may_delete", node.func, f"path_method:{method}")
+        return [_record(module_name, scope, node, "may_delete", receiver, f"path_method:{method}")]
 
     dotted = _dotted_name(node.func)
     if dotted in {"glob.glob", "glob.iglob"}:
-        return _record(module_name, scope, node, "may_observe", _arg(node, 0), dotted)
+        return [_record(module_name, scope, node, "may_observe", _arg(node, 0), dotted)]
     if dotted in {"os.makedirs"}:
-        return _record(module_name, scope, node, "may_create_directory", _arg(node, 0), dotted)
+        return [_record(module_name, scope, node, "may_create_directory", _arg(node, 0), dotted)]
     if dotted in {"os.remove", "os.rmdir"}:
-        return _record(module_name, scope, node, "may_delete", _arg(node, 0), dotted)
+        return [_record(module_name, scope, node, "may_delete", _arg(node, 0), dotted)]
     if dotted in {"os.path.exists", "os.path.isfile", "os.path.isdir"}:
-        return _record(module_name, scope, node, "may_existence_check", _arg(node, 0), dotted)
+        return [_record(module_name, scope, node, "may_existence_check", _arg(node, 0), dotted)]
     if dotted in {f"shutil.{name}" for name in COPY_FUNCTIONS}:
-        return _record(module_name, scope, node, "may_copy", node, dotted)
+        return _copy_records(module_name, scope, node, dotted)
     if dotted in {f"shutil.{name}" for name in DELETE_FUNCTIONS}:
-        return _record(module_name, scope, node, "may_delete", node, dotted)
+        return [_record(module_name, scope, node, "may_delete", _arg(node, 0), dotted)]
     if dotted in {f"requests.{name}" for name in REQUESTS_METHODS}:
-        return _record(module_name, scope, node, "may_download", _arg(node, 0), dotted)
+        return [_record(module_name, scope, node, "may_download", _arg(node, 0), dotted)]
     if dotted in {"urllib.request.urlopen", "urlopen"}:
-        return _record(module_name, scope, node, "may_download", _arg(node, 0), dotted)
+        return [_record(module_name, scope, node, "may_download", _arg(node, 0), dotted)]
     if dotted in {"os.getenv"}:
-        return _record(module_name, scope, node, "may_read_environment", _arg(node, 0), dotted)
-    return None
+        return [_record(module_name, scope, node, "may_read_environment", _arg(node, 0), dotted)]
+    return []
 
 
-def _env_use_from_subscript(
-    module_name: str,
-    scope: ScopeRecord,
-    node: ast.Subscript,
-) -> FileUseRecord | None:
+def _copy_records(module_name: str, scope: ScopeRecord, node: ast.Call, reason: str) -> list[FileUseRecord]:
+    return [
+        _record(module_name, scope, node, "may_read", _arg(node, 0), f"{reason}:source"),
+        _record(module_name, scope, node, "may_write", _arg(node, 1), f"{reason}:destination"),
+    ]
+
+
+def _env_use_from_subscript(module_name: str, scope: ScopeRecord, node: ast.Subscript) -> FileUseRecord | None:
     if _dotted_name(node.value) != "os.environ":
         return None
-    return FileUseRecord(
-        module=module_name,
-        scope_kind=scope.scope_kind,
-        scope_name=scope.qualname,
-        line=node.lineno,
-        action="may_read_environment",
-        raw_expression=unparse(node),
-        resolved_expression=unparse(node.slice),
-        confidence="medium",
-        reason="os.environ_subscript",
-    )
+    return FileUseRecord(module_name, scope.scope_kind, scope.qualname, node.lineno, "may_read_environment", unparse(node), unparse(node.slice), "medium", "os.environ_subscript")
 
 
-def _unresolved_from_call(
-    module_name: str,
-    scope: ScopeRecord,
-    node: ast.Call,
-) -> UnresolvedRecord | None:
-    if _file_use_from_call(module_name, scope, node) is not None:
+def _unresolved_from_call(module_name: str, scope: ScopeRecord, node: ast.Call) -> UnresolvedRecord | None:
+    if _file_uses_from_call(module_name, scope, node):
         return None
     if not isinstance(node.func, ast.Attribute):
         return None
@@ -193,14 +175,7 @@ def _unresolved_from_call(
     if isinstance(receiver, ast.Name) and receiver.id[:1].isupper():
         return None
 
-    return UnresolvedRecord(
-        module=module_name,
-        scope_kind=scope.scope_kind,
-        scope_name=scope.qualname,
-        line=node.lineno,
-        source_expression=unparse(node),
-        reason="object_method_dispatch_not_resolved",
-    )
+    return UnresolvedRecord(module_name, scope.scope_kind, scope.qualname, node.lineno, unparse(node), "object_method_dispatch_not_resolved")
 
 
 def _open_action(node: ast.Call, mode_index: int) -> str:
@@ -221,24 +196,15 @@ def _literal_string_arg(node: ast.Call, index: int) -> str:
     return ""
 
 
-def _record(
-    module_name: str,
-    scope: ScopeRecord,
-    call: ast.Call,
-    action: str,
-    expression: ast.AST | None,
-    reason: str,
-) -> FileUseRecord:
-    raw = unparse(call)
-    resolved = unparse(expression) if expression is not None else ""
+def _record(module_name: str, scope: ScopeRecord, call: ast.Call, action: str, expression: ast.AST | None, reason: str) -> FileUseRecord:
     return FileUseRecord(
         module=module_name,
         scope_kind=scope.scope_kind,
         scope_name=scope.qualname,
         line=call.lineno,
         action=action,
-        raw_expression=raw,
-        resolved_expression=resolved,
+        raw_expression=unparse(call),
+        resolved_expression=unparse(expression) if expression is not None else "",
         confidence="medium",
         reason=reason,
     )
@@ -254,6 +220,12 @@ def _scope_for_line(scopes: list[ScopeRecord], line: int) -> ScopeRecord:
 def _arg(node: ast.Call, index: int) -> ast.AST | None:
     if len(node.args) > index:
         return node.args[index]
+    return None
+
+
+def _receiver(node: ast.AST) -> ast.AST | None:
+    if isinstance(node, ast.Attribute):
+        return node.value
     return None
 
 
