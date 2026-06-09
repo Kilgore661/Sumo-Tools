@@ -10,6 +10,10 @@ SKIPPED_DIRS = {
     ".mypy_cache",
     ".pytest_cache",
     "__pycache__",
+    ".venv",
+    "venv",
+    "env",
+    "node_modules",
     "files",
 }
 
