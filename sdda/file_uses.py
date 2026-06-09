@@ -11,7 +11,7 @@ GLOB_METHODS = {"glob", "rglob"}
 EXISTS_METHODS = {"exists", "is_file", "is_dir"}
 MKDIR_METHODS = {"mkdir"}
 DELETE_METHODS = {"unlink", "rmdir"}
-URL_METHODS = {"get", "post", "put", "request", "urlopen"}
+REQUESTS_METHODS = {"get", "post", "put", "request"}
 COPY_FUNCTIONS = {"copy", "copy2", "copyfile", "copytree"}
 DELETE_FUNCTIONS = {"rmtree", "remove"}
 
@@ -72,8 +72,10 @@ def _file_use_from_call(
         return _record(module_name, scope, node, "may_copy", node, dotted)
     if dotted in {f"shutil.{name}" for name in DELETE_FUNCTIONS}:
         return _record(module_name, scope, node, "may_delete", node, dotted)
-    if method in URL_METHODS or dotted in {f"requests.{name}" for name in URL_METHODS}:
-        return _record(module_name, scope, node, "may_download", _arg(node, 0), dotted or method)
+    if dotted in {f"requests.{name}" for name in REQUESTS_METHODS}:
+        return _record(module_name, scope, node, "may_download", _arg(node, 0), dotted)
+    if dotted in {"urllib.request.urlopen", "urlopen"}:
+        return _record(module_name, scope, node, "may_download", _arg(node, 0), dotted)
     if dotted in {"os.getenv"}:
         return _record(module_name, scope, node, "may_read_environment", _arg(node, 0), dotted)
     return None
