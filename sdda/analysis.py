@@ -7,6 +7,7 @@ from .distribution import derive_distribution_candidates
 from .file_families import normalise_file_families
 from .file_uses import extract_file_uses
 from .import_graph import build_reachable_imports
+from .local_path_aliases import build_local_path_alias_map
 from .models import AnalysisResult, FileUseRecord, ScopeRecord, UnresolvedRecord
 from .module_index import build_module_index
 from .path_constants import build_path_constant_map
@@ -31,7 +32,17 @@ def analyse(root_module: str, import_root: Path, output_dir: Path | None = None)
         file_uses.extend(module_uses)
         unresolved.extend(module_unresolved)
 
-    file_families, file_family_evidence = normalise_file_families(file_uses, path_constants)
+    local_aliases = build_local_path_alias_map(
+        module_index,
+        reachable_modules,
+        scopes,
+        path_constants,
+    )
+    file_families, file_family_evidence = normalise_file_families(
+        file_uses,
+        path_constants,
+        local_aliases,
+    )
     file_family_classification = classify_file_families(file_families)
     distribution_candidates = derive_distribution_candidates(file_family_classification)
     final_output_dir = output_dir or _default_output_dir(root_module)
