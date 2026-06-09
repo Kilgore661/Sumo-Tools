@@ -10,7 +10,19 @@ sdda/__main__.py
 
 It is part of the repository audit and distribution-analysis tooling, not part of the application runtime under `src`.
 
-Given a Python root module or entry point, it shall statically analyse the reachable code and produce an evidence-backed over-approximation of file-family use.
+The analyser targets the Sumo-Tools website product. Its primary analysed root is:
+
+```text
+src.products.make_site2.__main__
+```
+
+Given that Python module entry point, it shall statically analyse the code that may be reached through imports, bindings, and calls from that entry point, and produce an evidence-backed over-approximation of file-family use.
+
+Code not reachable from the website build/deploy entry point is out of distribution scope, even if it defines a command-line tool, a main guard, or a useful research/probe workflow.
+
+Such code is treated as research unless and until it becomes reachable from the website build/deploy path.
+
+The analyser is not required to discover every functional unit in a package or every module with a main guard.
 
 The target distribution mode is:
 
@@ -73,19 +85,19 @@ A URL or URL template shall be recorded as an external source family when observ
 
 The analyser shall report **may-dependencies**.
 
-If a statically visible import-time effect or execution path may read, write, observe, copy, delete, download, create, or check a file family, that file family should be included in the output.
+If a statically visible import-time effect or execution path reachable from the website build/deploy entry point may read, write, observe, copy, delete, download, create, or check a file family, that file family should be included in the output.
 
 The analyser is not required to prove that a file family is used on every possible execution path.
 
 ## Distribution interpretation
 
-The analyser targets a source distribution with internet access.
+The analyser targets a source distribution with internet access for building and deploying the website locally and remotely.
 
 Under this distribution mode, files that can be regenerated from code plus internet access are normally not required distribution inputs.
 
 The analyser shall still report such files as file families, together with their observed producers, consumers, and classifications, because they may be useful for reproducibility, auditing, cache decisions, or later build-recipe generation.
 
-The analyser shall report candidate required distribution inputs where a file family appears to be needed and no regeneration path is evident from the analysed code.
+The analyser shall report candidate required distribution inputs where a file family appears to be needed by the website build/deploy path and no regeneration path is evident from the analysed code.
 
 ## Scope model
 
@@ -142,6 +154,8 @@ unresolved dynamic cases marked for review
 ```
 
 It shall not include file uses from unrelated sibling functions merely because those functions live in an imported module.
+
+It shall not scan packages for unrelated command-line tools or main-guard modules unless those modules are reachable from the website build/deploy entry point.
 
 ## Environment and local assumptions
 
@@ -239,21 +253,39 @@ Those renderings are projections of the richer file-family model and are not the
 
 ## Command-line interface
 
-The analyser should be invokable as a package module with a root module and import root, for example:
+The analyser should be invokable as a package module with a root module and import root.
+
+The primary invocation is:
 
 ```powershell
-python -m sdda src.infra.get_bios.__main__ --import-root .
-python -m sdda src.infra.get_bios.parser --import-root .
 python -m sdda src.products.make_site2.__main__ --import-root .
 ```
 
 The package-module invocation shall dispatch through `sdda/__main__.py`.
 
+Other module roots may be analysed as development tests of the analyser, but package-wide discovery of unrelated tools is not a distribution requirement.
+
 ## Acceptance tests
 
-The first adequacy test shall be `src.infra.get_bios.__main__`.
+The primary adequacy test shall be `src.products.make_site2.__main__`.
 
-A satisfactory first result should report that:
+The generated output should be compared with the checked-in snapshot under:
+
+```text
+src/products/make_site2/buggy_output/src.products.make_site2.__main/
+```
+
+Changes from that snapshot need not be avoided, but they should be visible and explainable.
+
+The `make_site2` test should exercise:
+
+```text
+singleton config or input-like files, if present, such as files/input/elo_fide.json
+deployment environment variables, if present
+hard-coded local host or IP assumptions, if present
+```
+
+`src.infra.get_bios.__main__` may be used as a development regression test for analyser behaviour because it exposes useful edge cases. A satisfactory development result should report that:
 
 ```text
 src.infra.get_bios.__main__ may obtain live History via live_store
@@ -266,23 +298,7 @@ parser2 callable-body file effects are not included merely because OUTPUT_DIR wa
 SumoDB Rikishi.aspx URLs are internet sources
 ```
 
-The second adequacy test shall be `src.products.make_site2.__main__`.
-
-The generated output should be compared with the checked-in snapshot under:
-
-```text
-src/products/make_site2/buggy_output/src.products.make_site2.__main/
-```
-
-Changes from that snapshot need not be avoided, but they should be visible and explainable.
-
-The `make_site2` test should also exercise:
-
-```text
-singleton config or input-like files, if present, such as files/input/elo_fide.json
-deployment environment variables, if present
-hard-coded local host or IP assumptions, if present
-```
+This `get_bios` test does not make `get_bios.__main__` part of the website distribution unless it is reachable from `src.products.make_site2.__main__`.
 
 ## Non-goals and limits
 
