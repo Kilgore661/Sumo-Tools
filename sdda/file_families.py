@@ -8,6 +8,9 @@ from .models import FileFamilyEvidenceRecord, FileFamilyRecord, FileUseRecord
 
 _QUOTED_STRING = re.compile(r"^(['\"])(.*)\1$")
 _INTEGER = re.compile(r"\b\d+\b")
+_IDENTIFIER = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+_OS_PATH_JOIN = re.compile(r"^os\.path\.join\((.*)\)$")
+_PATH_GLOB = re.compile(r"^(.+)\.glob\((['\"])(.*)\2\)$")
 
 
 def normalise_file_families(
@@ -75,8 +78,11 @@ def _family_pattern(use: FileUseRecord) -> str:
     expression = expression.strip()
     expression = _strip_quotes(expression)
     expression = expression.replace("\\", "/")
-    expression = _normalise_join(expression)
+    expression = _normalise_path_glob(expression)
+    expression = _normalise_os_path_join(expression)
+    expression = _normalise_join_operator(expression)
     expression = _normalise_numeric_ids(expression)
+    expression = _qualify_simple_local_name(use, expression)
     return expression
 
 
@@ -118,9 +124,34 @@ def _strip_quotes(expression: str) -> str:
     return match.group(2)
 
 
-def _normalise_join(expression: str) -> str:
+def _normalise_path_glob(expression: str) -> str:
+    match = _PATH_GLOB.match(expression)
+    if match is None:
+        return expression
+    base = match.group(1)
+    pattern = match.group(3)
+    return f"{base}/{pattern}"
+
+
+def _normalise_os_path_join(expression: str) -> str:
+    match = _OS_PATH_JOIN.match(expression)
+    if match is None:
+        return expression
+    parts = [_strip_quotes(part.strip()) for part in match.group(1).split(",")]
+    return "/".join(part for part in parts if part)
+
+
+def _normalise_join_operator(expression: str) -> str:
     return expression.replace(" / ", "/")
 
 
 def _normalise_numeric_ids(expression: str) -> str:
     return _INTEGER.sub("{int}", expression)
+
+
+def _qualify_simple_local_name(use: FileUseRecord, expression: str) -> str:
+    if not _IDENTIFIER.match(expression):
+        return expression
+    if expression.isupper():
+        return expression
+    return f"{use.module}:{use.scope_name}:{expression}"
