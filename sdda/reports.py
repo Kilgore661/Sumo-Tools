@@ -5,7 +5,7 @@ from collections import Counter
 from dataclasses import asdict
 from pathlib import Path
 
-from .models import AnalysisResult, ImportRecord
+from .models import AnalysisResult, DistributionCandidateRecord, ImportRecord
 
 
 def write_reports(result: AnalysisResult) -> None:
@@ -79,6 +79,8 @@ def _write_summary(result: AnalysisResult) -> None:
     ]
     lines.extend(_summary_block("Distribution decisions", _distribution_decisions(result)))
     lines.extend(_summary_block("File-family classifications", _file_family_classifications(result)))
+    lines.extend(_candidate_list_block("Include candidates", _include_candidates(result)))
+    lines.extend(_candidate_list_block("High-priority review candidates", _high_review_candidates(result)))
     lines.extend(
         [
             "## Reports",
@@ -109,9 +111,38 @@ def _file_family_classifications(result: AnalysisResult) -> Counter[str]:
     return Counter(row.classification for row in result.file_family_classification)
 
 
+def _include_candidates(result: AnalysisResult) -> list[DistributionCandidateRecord]:
+    return sorted(
+        [row for row in result.distribution_candidates if row.distribution_decision == "include"],
+        key=lambda row: row.family_pattern,
+    )
+
+
+def _high_review_candidates(result: AnalysisResult) -> list[DistributionCandidateRecord]:
+    return sorted(
+        [
+            row
+            for row in result.distribution_candidates
+            if row.distribution_decision == "review" and row.review_priority == "high"
+        ],
+        key=lambda row: row.family_pattern,
+    )
+
+
 def _summary_block(title: str, counts: Counter[str]) -> list[str]:
     lines = [f"## {title}", ""]
     for name, count in sorted(counts.items(), key=lambda item: (-item[1], item[0])):
         lines.append(f"{name}: {count}")
+    lines.append("")
+    return lines
+
+
+def _candidate_list_block(title: str, rows: list[DistributionCandidateRecord]) -> list[str]:
+    lines = [f"## {title}", ""]
+    if not rows:
+        lines.extend(["None", ""])
+        return lines
+    for row in rows:
+        lines.append(f"- `{row.family_pattern}` ({row.classification}; {row.actions})")
     lines.append("")
     return lines
