@@ -52,6 +52,8 @@ def _file_use_from_call(
         return None
 
     method = _attribute_name(node.func)
+    if method == "open":
+        return _record(module_name, scope, node, "may_read_or_write", node.func, "path_method:open")
     if method in READ_METHODS:
         return _record(module_name, scope, node, "may_read", node.func, f"path_method:{method}")
     if method in WRITE_METHODS:
@@ -106,6 +108,8 @@ def _unresolved_from_call(
     scope: ScopeRecord,
     node: ast.Call,
 ) -> UnresolvedRecord | None:
+    if _file_use_from_call(module_name, scope, node) is not None:
+        return None
     if isinstance(node.func, ast.Attribute):
         value = node.func.value
         if isinstance(value, ast.Name) and value.id not in {"os", "Path", "shutil", "glob", "requests"}:
