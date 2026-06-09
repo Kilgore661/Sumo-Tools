@@ -42,6 +42,7 @@ def _print_summary(result) -> None:
     print(f"Reachable modules: {len(result.reachable_modules)}")
     print(f"Import records: {len(result.imports)}")
     print(f"Scopes: {len(result.scopes)}")
+    print(f"Type facts: {len(result.type_facts)}")
     print(f"File uses: {len(result.file_uses)}")
     print(f"Unresolved records: {len(result.unresolved)}")
 
