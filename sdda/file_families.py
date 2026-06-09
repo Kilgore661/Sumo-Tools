@@ -11,6 +11,7 @@ _INTEGER = re.compile(r"\b\d+\b")
 _IDENTIFIER = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 _OS_PATH_JOIN = re.compile(r"^os\.path\.join\((.*)\)$")
 _PATH_GLOB = re.compile(r"^(.+)\.glob\((['\"])(.*)\2\)$")
+_PATH_RGLOB = re.compile(r"^(.+)\.rglob\((['\"])(.*)\2\)$")
 
 
 def normalise_file_families(
@@ -79,6 +80,7 @@ def _family_pattern(use: FileUseRecord) -> str:
     expression = _strip_quotes(expression)
     expression = expression.replace("\\", "/")
     expression = _normalise_path_glob(expression)
+    expression = _normalise_path_rglob(expression)
     expression = _normalise_os_path_join(expression)
     expression = _normalise_join_operator(expression)
     expression = _normalise_numeric_ids(expression)
@@ -131,6 +133,15 @@ def _normalise_path_glob(expression: str) -> str:
     base = match.group(1)
     pattern = match.group(3)
     return f"{base}/{pattern}"
+
+
+def _normalise_path_rglob(expression: str) -> str:
+    match = _PATH_RGLOB.match(expression)
+    if match is None:
+        return expression
+    base = match.group(1)
+    pattern = match.group(3)
+    return f"{base}/**/{pattern}"
 
 
 def _normalise_os_path_join(expression: str) -> str:
