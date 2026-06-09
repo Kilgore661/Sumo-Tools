@@ -15,6 +15,53 @@ REQUESTS_METHODS = {"get", "post", "put", "request"}
 COPY_FUNCTIONS = {"copy", "copy2", "copyfile", "copytree"}
 DELETE_FUNCTIONS = {"rmtree", "remove"}
 
+BENIGN_METHODS = {
+    "add",
+    "append",
+    "close",
+    "compile",
+    "dumps",
+    "end",
+    "exit",
+    "extend",
+    "findall",
+    "finditer",
+    "fullmatch",
+    "get",
+    "group",
+    "groups",
+    "items",
+    "keys",
+    "load",
+    "loads",
+    "parse",
+    "relative_to",
+    "replace",
+    "search",
+    "split",
+    "start",
+    "startswith",
+    "strip",
+    "time",
+    "update",
+    "values",
+}
+KNOWN_MODULE_RECEIVERS = {
+    "argparse",
+    "csv",
+    "datetime",
+    "gzip",
+    "html",
+    "json",
+    "logging",
+    "object",
+    "pickle",
+    "re",
+    "shared_memory",
+    "sys",
+    "time",
+}
+
 
 def extract_file_uses(
     module_name: str,
@@ -110,18 +157,26 @@ def _unresolved_from_call(
 ) -> UnresolvedRecord | None:
     if _file_use_from_call(module_name, scope, node) is not None:
         return None
-    if isinstance(node.func, ast.Attribute):
-        value = node.func.value
-        if isinstance(value, ast.Name) and value.id not in {"os", "Path", "shutil", "glob", "requests"}:
-            return UnresolvedRecord(
-                module=module_name,
-                scope_kind=scope.scope_kind,
-                scope_name=scope.qualname,
-                line=node.lineno,
-                source_expression=unparse(node),
-                reason="object_method_dispatch_not_resolved",
-            )
-    return None
+    if not isinstance(node.func, ast.Attribute):
+        return None
+
+    method = node.func.attr
+    receiver = node.func.value
+    if method in BENIGN_METHODS:
+        return None
+    if isinstance(receiver, ast.Name) and receiver.id in KNOWN_MODULE_RECEIVERS:
+        return None
+    if isinstance(receiver, ast.Name) and receiver.id[:1].isupper():
+        return None
+
+    return UnresolvedRecord(
+        module=module_name,
+        scope_kind=scope.scope_kind,
+        scope_name=scope.qualname,
+        line=node.lineno,
+        source_expression=unparse(node),
+        reason="object_method_dispatch_not_resolved",
+    )
 
 
 def _record(
