@@ -104,3 +104,25 @@ whether any temporary fixtures can be deleted
 whether test code and test data should be colocated under src/products/make_site2/tests/
 whether any checked-in buggy-output snapshots should remain as documented regression evidence
 ```
+
+## OI-005: Generated SDDA outputs are not committed by default
+
+Generated SDDA outputs should not normally be committed to the repository.
+
+They should be written under:
+
+```text
+files/output/sdda/
+```
+
+and treated as local generated output.
+
+This keeps routine analysis output from getting in the way during normal Git use.
+
+The accepted trade-off is that, by default, the repository will not preserve the exact SDDA output produced by a historical commit such as:
+
+```text
+foo.py at SHA 2348929
+```
+
+If a specific output snapshot is important enough to keep, it should be explicitly curated, documented, and checked in as an exception rather than as routine generated output.
