@@ -48,6 +48,19 @@ class TypeFactRecord:
 
 
 @dataclass(frozen=True)
+class ValueFactRecord:
+    module: str
+    scope_kind: str
+    scope_name: str
+    name: str
+    inferred_type: str
+    source_expression: str
+    source_full_name: str
+    line: int
+    reason: str
+
+
+@dataclass(frozen=True)
 class FileUseRecord:
     module: str
     scope_kind: str
@@ -136,6 +149,7 @@ class AnalysisResult:
     reachable_modules: list[str]
     scopes: list[ScopeRecord]
     type_facts: list[TypeFactRecord]
+    value_facts: list[ValueFactRecord]
     file_uses: list[FileUseRecord]
     file_families: list[FileFamilyRecord]
     file_family_evidence: list[FileFamilyEvidenceRecord]
