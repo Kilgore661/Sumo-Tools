@@ -9,6 +9,7 @@ from .file_uses import extract_file_uses
 from .import_graph import build_reachable_imports
 from .models import AnalysisResult, FileUseRecord, ScopeRecord, UnresolvedRecord
 from .module_index import build_module_index
+from .path_constants import build_path_constant_map
 from .scopes import extract_scopes
 from .source import parse_python_file
 
@@ -16,6 +17,7 @@ from .source import parse_python_file
 def analyse(root_module: str, import_root: Path, output_dir: Path | None = None) -> AnalysisResult:
     module_index = build_module_index(import_root)
     reachable_modules, imports = build_reachable_imports(root_module, module_index)
+    path_constants = build_path_constant_map(module_index, imports, reachable_modules, import_root)
     scopes: list[ScopeRecord] = []
     file_uses: list[FileUseRecord] = []
     unresolved: list[UnresolvedRecord] = []
@@ -29,7 +31,7 @@ def analyse(root_module: str, import_root: Path, output_dir: Path | None = None)
         file_uses.extend(module_uses)
         unresolved.extend(module_unresolved)
 
-    file_families, file_family_evidence = normalise_file_families(file_uses)
+    file_families, file_family_evidence = normalise_file_families(file_uses, path_constants)
     file_family_classification = classify_file_families(file_families)
     distribution_candidates = derive_distribution_candidates(file_family_classification)
     final_output_dir = output_dir or _default_output_dir(root_module)
