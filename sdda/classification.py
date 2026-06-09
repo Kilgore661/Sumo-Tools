@@ -82,8 +82,10 @@ def _read_only_classification(
 ) -> tuple[str, str, str]:
     if "may_download" in actions:
         return "internet_source", "medium", "download_action"
+    if family.family_kind == "glob_family" and _is_constant_glob(family.family_pattern):
+        return "required_distribution_input", "medium", "constant_glob_observed_without_write"
     if family.family_kind == "glob_family":
-        return "required_distribution_input", "medium", "glob_observed_without_write"
+        return "possible_pipeline_intermediate", "medium", "variable_glob_observed_without_write"
     return "required_distribution_input", "medium", "content_read_or_observe_without_write"
 
 
@@ -98,12 +100,21 @@ def _write_only_classification(
     return "generated_output", "medium", "write_without_read"
 
 
+def _is_constant_glob(pattern: str) -> bool:
+    base = pattern.split("/", 1)[0]
+    return base.isupper()
+
+
 def _review_priority(classification: str, confidence: str) -> str:
     if classification == "unknown_review_needed":
         return "high"
     if confidence == "low":
         return "medium"
-    if classification in {"possible_efficiency_cache", "possible_state_or_control_file"}:
+    if classification in {
+        "possible_efficiency_cache",
+        "possible_pipeline_intermediate",
+        "possible_state_or_control_file",
+    }:
         return "medium"
     return "low"
 
