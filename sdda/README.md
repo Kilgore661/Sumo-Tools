@@ -13,5 +13,6 @@ The project exists to determine what non-code file families may be needed, produ
 The initial requirements and specification are in:
 
 ```text
-sdda/docs/SDDA Requirements and Specification.md
+sdda/docs/SDDA Requirements.md
+sdda/docs/SDDA Specification.md
 ```
