@@ -5,6 +5,7 @@ from .models import FileFamilyClassificationRecord, FileFamilyRecord
 CONTENT_READ_ACTIONS = {"may_read", "may_observe", "may_download"}
 EXISTENCE_ACTIONS = {"may_existence_check"}
 WRITE_ACTIONS = {"may_write", "may_create_directory", "may_delete", "may_copy"}
+DEPLOY_MODULE = "src.products.make_site2.deploy"
 
 
 def classify_file_families(
@@ -86,6 +87,8 @@ def _read_only_classification(
         return "required_distribution_input", "medium", "constant_glob_observed_without_write"
     if family.family_kind == "glob_family":
         return "possible_pipeline_intermediate", "medium", "variable_glob_observed_without_write"
+    if _is_deploy_module_only(family):
+        return "possible_pipeline_intermediate", "medium", "deploy_read_without_producer_matching"
     return "required_distribution_input", "medium", "content_read_or_observe_without_write"
 
 
@@ -103,6 +106,11 @@ def _write_only_classification(
 def _is_constant_glob(pattern: str) -> bool:
     base = pattern.split("/", 1)[0]
     return base.isupper()
+
+
+def _is_deploy_module_only(family: FileFamilyRecord) -> bool:
+    modules = {module for module in family.modules.split(";") if module}
+    return modules == {DEPLOY_MODULE}
 
 
 def _review_priority(classification: str, confidence: str) -> str:
