@@ -90,6 +90,20 @@ class FileFamilyClassificationRecord:
 
 
 @dataclass(frozen=True)
+class DistributionCandidateRecord:
+    family_id: str
+    family_pattern: str
+    classification: str
+    distribution_decision: str
+    review_priority: str
+    reason: str
+    actions: str
+    family_kind: str
+    evidence_count: int
+    modules: str
+
+
+@dataclass(frozen=True)
 class UnresolvedRecord:
     module: str
     scope_kind: str
@@ -112,4 +126,5 @@ class AnalysisResult:
     file_families: list[FileFamilyRecord]
     file_family_evidence: list[FileFamilyEvidenceRecord]
     file_family_classification: list[FileFamilyClassificationRecord]
+    distribution_candidates: list[DistributionCandidateRecord]
     unresolved: list[UnresolvedRecord]
