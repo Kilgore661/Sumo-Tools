@@ -5,6 +5,7 @@ from .models import DistributionCandidateRecord, FileFamilyClassificationRecord
 INCLUDE_CLASSIFICATIONS = {"required_distribution_input", "environment_setting"}
 REVIEW_CLASSIFICATIONS = {
     "possible_efficiency_cache",
+    "possible_pipeline_intermediate",
     "possible_state_or_control_file",
     "unknown_review_needed",
 }
