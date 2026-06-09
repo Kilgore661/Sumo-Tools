@@ -8,11 +8,12 @@ from .file_families import normalise_file_families
 from .file_uses import extract_file_uses
 from .import_graph import build_reachable_imports
 from .local_path_aliases import build_local_path_alias_map
-from .models import AnalysisResult, FileUseRecord, ScopeRecord, UnresolvedRecord
+from .models import AnalysisResult, FileUseRecord, ScopeRecord, TypeFactRecord, UnresolvedRecord
 from .module_index import build_module_index
 from .path_constants import build_path_constant_map
 from .scopes import extract_scopes
 from .source import parse_python_file
+from .type_facts import extract_type_facts
 
 
 def analyse(root_module: str, import_root: Path, output_dir: Path | None = None) -> AnalysisResult:
@@ -20,6 +21,7 @@ def analyse(root_module: str, import_root: Path, output_dir: Path | None = None)
     reachable_modules, imports = build_reachable_imports(root_module, module_index)
     path_constants = build_path_constant_map(module_index, imports, reachable_modules, import_root)
     scopes: list[ScopeRecord] = []
+    type_facts: list[TypeFactRecord] = []
     file_uses: list[FileUseRecord] = []
     unresolved: list[UnresolvedRecord] = []
 
@@ -29,6 +31,7 @@ def analyse(root_module: str, import_root: Path, output_dir: Path | None = None)
         module_scopes = extract_scopes(module_name, tree)
         module_uses, module_unresolved = extract_file_uses(module_name, tree, module_scopes)
         scopes.extend(module_scopes)
+        type_facts.extend(extract_type_facts(module_name, tree))
         file_uses.extend(module_uses)
         unresolved.extend(module_unresolved)
 
@@ -54,6 +57,7 @@ def analyse(root_module: str, import_root: Path, output_dir: Path | None = None)
         imports=imports,
         reachable_modules=reachable_modules,
         scopes=scopes,
+        type_facts=type_facts,
         file_uses=file_uses,
         file_families=file_families,
         file_family_evidence=file_family_evidence,
