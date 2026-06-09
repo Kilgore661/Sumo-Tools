@@ -5,6 +5,7 @@ import re
 from collections import defaultdict
 
 from .models import FileFamilyEvidenceRecord, FileFamilyRecord, FileUseRecord
+from .path_constants import PathConstantMap
 
 _QUOTED_STRING = re.compile(r"^(['\"])(.*)\1$")
 _INTEGER = re.compile(r"\b\d+\b")
@@ -16,10 +17,12 @@ _PATH_RGLOB = re.compile(r"^(.+)\.rglob\((['\"])(.*)\2\)$")
 
 def normalise_file_families(
     file_uses: list[FileUseRecord],
+    path_constants: PathConstantMap | None = None,
 ) -> tuple[list[FileFamilyRecord], list[FileFamilyEvidenceRecord]]:
+    constants = path_constants or {}
     evidence: list[FileFamilyEvidenceRecord] = []
     for use in file_uses:
-        pattern = _family_pattern(use)
+        pattern = _family_pattern(use, constants)
         family_id = _family_id(pattern)
         evidence.append(
             FileFamilyEvidenceRecord(
@@ -35,13 +38,14 @@ def normalise_file_families(
             )
         )
 
-    families = _families_from_evidence(file_uses, evidence)
+    families = _families_from_evidence(file_uses, evidence, constants)
     return families, evidence
 
 
 def _families_from_evidence(
     file_uses: list[FileUseRecord],
     evidence: list[FileFamilyEvidenceRecord],
+    constants: PathConstantMap,
 ) -> list[FileFamilyRecord]:
     uses_by_id: dict[str, list[FileUseRecord]] = defaultdict(list)
     evidence_by_id: dict[str, list[FileFamilyEvidenceRecord]] = defaultdict(list)
@@ -55,7 +59,7 @@ def _families_from_evidence(
         family_evidence = evidence_by_id[family_id]
         family_uses = uses_by_id[family_id]
         first = family_evidence[0]
-        pattern = _family_pattern(family_uses[0])
+        pattern = _family_pattern(family_uses[0], constants)
         records.append(
             FileFamilyRecord(
                 family_id=family_id,
@@ -74,7 +78,7 @@ def _families_from_evidence(
     return records
 
 
-def _family_pattern(use: FileUseRecord) -> str:
+def _family_pattern(use: FileUseRecord, constants: PathConstantMap) -> str:
     expression = use.resolved_expression or use.raw_expression
     expression = expression.strip()
     expression = _strip_quotes(expression)
@@ -83,6 +87,7 @@ def _family_pattern(use: FileUseRecord) -> str:
     expression = _normalise_path_rglob(expression)
     expression = _normalise_os_path_join(expression)
     expression = _normalise_join_operator(expression)
+    expression = _resolve_path_constants(use.module, expression, constants)
     expression = _normalise_numeric_ids(expression)
     expression = _qualify_simple_local_name(use, expression)
     return expression
@@ -156,6 +161,21 @@ def _normalise_os_path_join(expression: str) -> str:
 
 def _normalise_join_operator(expression: str) -> str:
     return expression.replace(" / ", "/")
+
+
+def _resolve_path_constants(module: str, expression: str, constants: PathConstantMap) -> str:
+    module_constants = constants.get(module, {})
+    for name, value in sorted(module_constants.items(), key=lambda item: len(item[0]), reverse=True):
+        expression = _replace_constant_token(expression, name, value)
+    return expression
+
+
+def _replace_constant_token(expression: str, name: str, value: str) -> str:
+    if expression == name:
+        return value
+    if expression.startswith(f"{name}/"):
+        return f"{value}{expression[len(name):]}"
+    return expression
 
 
 def _normalise_numeric_ids(expression: str) -> str:
