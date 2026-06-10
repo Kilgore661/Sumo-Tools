@@ -190,6 +190,7 @@ def _parameter_path_input_patterns(provenance: list[object]) -> set[str]:
         if getattr(row, "interpretation", "") not in {
             "parameter_from_path_expression",
             "parameter_from_iterator_path_family",
+            "parameter_from_default_path_expression",
         }:
             continue
         expression = getattr(row, "consumer_expression")
