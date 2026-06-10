@@ -30,6 +30,8 @@ def _print_summary(result) -> None:
     standalone_rows = [row for row in result.module_index_rows if row.program_kind == "standalone_program"]
     imported_rows = [row for row in result.module_index_rows if row.program_kind == "imported_program"]
     library_rows = [row for row in result.module_index_rows if row.module_kind == "library_module"]
+    resolution_notes = [row for row in result.warnings if row.severity == "note"]
+    warnings = [row for row in result.warnings if row.severity == "warning"]
     print(f"Wrote {result.output_dir}")
     print(f"Modules indexed: {len(result.module_index_rows)}")
     print(f"Library modules: {len(library_rows)}")
@@ -37,7 +39,8 @@ def _print_summary(result) -> None:
     print(f"Standalone programs: {len(standalone_rows)}")
     print(f"Imported programs: {len(imported_rows)}")
     print(f"References: {len(result.references)}")
-    print(f"Warnings: {len(result.warnings)}")
+    print(f"Resolution notes: {len(resolution_notes)}")
+    print(f"Warnings: {len(warnings)}")
 
 
 if __name__ == "__main__":
