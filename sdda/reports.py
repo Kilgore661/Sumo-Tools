@@ -20,6 +20,7 @@ def write_reports(result: AnalysisResult) -> None:
     _write_csv(result.output_dir / "call_edges.csv", result.call_edges)
     _write_csv(result.output_dir / "execution_call_slice.csv", result.execution_call_slice)
     _write_csv(result.output_dir / "execution_review_candidates.csv", result.execution_review_candidates)
+    _write_csv(result.output_dir / "source_distribution_inputs.csv", result.source_distribution_inputs)
     _write_csv(result.output_dir / "call_argument_bindings.csv", result.call_argument_bindings)
     _write_csv(result.output_dir / "parameter_field_provenance.csv", result.parameter_field_provenance)
     _write_csv(result.output_dir / "parameter_file_provenance.csv", result.parameter_file_provenance)
@@ -89,6 +90,7 @@ def _write_summary(result: AnalysisResult) -> None:
         f"Call edges: {len(result.call_edges)}",
         f"Execution call slice: {len(result.execution_call_slice)}",
         f"Execution review candidates: {len(result.execution_review_candidates)}",
+        f"Source distribution inputs: {len(result.source_distribution_inputs)}",
         f"Call argument bindings: {len(result.call_argument_bindings)}",
         f"Parameter field provenance: {len(result.parameter_field_provenance)}",
         f"Parameter file provenance: {len(result.parameter_file_provenance)}",
@@ -109,9 +111,12 @@ def _write_summary(result: AnalysisResult) -> None:
     lines.extend(_summary_block("File-family classifications", _file_family_classifications(result)))
     lines.extend(_summary_block("Execution review status", _execution_review_status(result)))
     lines.extend(_summary_block("Effective review priorities", _effective_review_priorities(result)))
+    lines.extend(_summary_block("Source distribution buckets", _source_distribution_buckets(result)))
     lines.extend(_candidate_list_block("Include candidates", _include_candidates(result)))
     lines.extend(_candidate_list_block("High-priority review candidates", _high_review_candidates(result)))
     lines.extend(_execution_candidate_list_block("Effective high-priority review candidates", _effective_high_review_candidates(result)))
+    lines.extend(_source_distribution_list_block("Must-include source distribution inputs", _source_distribution_bucket_rows(result, "must_include")))
+    lines.extend(_source_distribution_list_block("Mode-dependent source distribution review", _source_distribution_bucket_rows(result, "mode_dependent_review")))
     lines.extend(
         [
             "## Reports",
@@ -127,6 +132,7 @@ def _write_summary(result: AnalysisResult) -> None:
             "call_edges.csv",
             "execution_call_slice.csv",
             "execution_review_candidates.csv",
+            "source_distribution_inputs.csv",
             "call_argument_bindings.csv",
             "parameter_field_provenance.csv",
             "parameter_file_provenance.csv",
@@ -164,6 +170,10 @@ def _effective_review_priorities(result: AnalysisResult) -> Counter[str]:
     return Counter(row.effective_review_priority for row in result.execution_review_candidates)
 
 
+def _source_distribution_buckets(result: AnalysisResult) -> Counter[str]:
+    return Counter(row.source_distribution_bucket for row in result.source_distribution_inputs)
+
+
 def _include_candidates(result: AnalysisResult) -> list[DistributionCandidateRecord]:
     return sorted(
         [row for row in result.distribution_candidates if row.distribution_decision == "include"],
@@ -189,6 +199,13 @@ def _effective_high_review_candidates(result: AnalysisResult) -> list[object]:
             for row in result.execution_review_candidates
             if row.effective_review_priority == "high"
         ],
+        key=lambda row: row.family_pattern,
+    )
+
+
+def _source_distribution_bucket_rows(result: AnalysisResult, bucket: str) -> list[object]:
+    return sorted(
+        [row for row in result.source_distribution_inputs if row.source_distribution_bucket == bucket],
         key=lambda row: row.family_pattern,
     )
 
@@ -220,6 +237,19 @@ def _execution_candidate_list_block(title: str, rows: list[object]) -> list[str]
     for row in rows:
         lines.append(
             f"- `{row.family_pattern}` ({row.classification}; {row.execution_status}; {row.classification_reason})"
+        )
+    lines.append("")
+    return lines
+
+
+def _source_distribution_list_block(title: str, rows: list[object]) -> list[str]:
+    lines = [f"## {title}", ""]
+    if not rows:
+        lines.extend(["None", ""])
+        return lines
+    for row in rows:
+        lines.append(
+            f"- `{row.family_pattern}` ({row.classification}; {row.source_distribution_decision}; {row.reason})"
         )
     lines.append("")
     return lines
