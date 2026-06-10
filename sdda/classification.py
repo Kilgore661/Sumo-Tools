@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from .models import FileFamilyClassificationRecord, FileFamilyRecord
+from .models import FileFamilyClassificationRecord, FileFamilyRecord, ProducerOutputRecord
 
 CONTENT_READ_ACTIONS = {"may_read", "may_observe", "may_download"}
 EXISTENCE_ACTIONS = {"may_existence_check"}
@@ -10,13 +10,18 @@ DEPLOY_MODULE = "src.products.make_site2.deploy"
 
 def classify_file_families(
     families: list[FileFamilyRecord],
+    producer_outputs: list[ProducerOutputRecord] | None = None,
 ) -> list[FileFamilyClassificationRecord]:
-    return [_classify_family(family) for family in families]
+    generated_then_consumed = _generated_then_consumed_patterns(producer_outputs or [])
+    return [_classify_family(family, generated_then_consumed) for family in families]
 
 
-def _classify_family(family: FileFamilyRecord) -> FileFamilyClassificationRecord:
+def _classify_family(
+    family: FileFamilyRecord,
+    generated_then_consumed: set[str],
+) -> FileFamilyClassificationRecord:
     actions = _actions(family)
-    classification, confidence, reason = _classification(family, actions)
+    classification, confidence, reason = _classification(family, actions, generated_then_consumed)
     return FileFamilyClassificationRecord(
         family_id=family.family_id,
         family_kind=family.family_kind,
@@ -34,7 +39,10 @@ def _classify_family(family: FileFamilyRecord) -> FileFamilyClassificationRecord
 def _classification(
     family: FileFamilyRecord,
     actions: set[str],
+    generated_then_consumed: set[str],
 ) -> tuple[str, str, str]:
+    if family.family_pattern in generated_then_consumed:
+        return "generated_then_consumed", "high", "producer_output_written_then_consumed"
     if family.family_kind == "environment_setting":
         return "environment_setting", "high", "family_kind:environment_setting"
     if family.family_kind == "url_family":
@@ -109,6 +117,12 @@ def _write_only_classification(
     if "may_delete" in actions and len(actions) == 1:
         return "generated_output", "low", "delete_without_read"
     return "generated_output", "medium", "write_without_read"
+
+
+def _generated_then_consumed_patterns(
+    producer_outputs: list[ProducerOutputRecord],
+) -> set[str]:
+    return {row.consumer_expression for row in producer_outputs}
 
 
 def _is_constant_glob(pattern: str) -> bool:
