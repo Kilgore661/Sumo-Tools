@@ -28,6 +28,10 @@ def _parse_args() -> argparse.Namespace:
 def _print_summary(result) -> None:
     program_rows = [row for row in result.module_index_rows if row.module_kind == "program"]
     standalone_rows = [row for row in result.module_index_rows if row.program_kind == "standalone_program"]
+    command_like_rows = [row for row in standalone_rows if row.standalone_subtype == "command_like"]
+    weak_entrypoint_rows = [
+        row for row in standalone_rows if row.standalone_subtype == "weak_entrypoint_signal"
+    ]
     imported_rows = [row for row in result.module_index_rows if row.program_kind == "imported_program"]
     library_rows = [row for row in result.module_index_rows if row.module_kind == "library_module"]
     resolution_notes = [row for row in result.warnings if row.severity == "note"]
@@ -37,6 +41,8 @@ def _print_summary(result) -> None:
     print(f"Library modules: {len(library_rows)}")
     print(f"Programs: {len(program_rows)}")
     print(f"Standalone programs: {len(standalone_rows)}")
+    print(f"  Command-like: {len(command_like_rows)}")
+    print(f"  Weak entrypoint signal: {len(weak_entrypoint_rows)}")
     print(f"Imported programs: {len(imported_rows)}")
     print(f"References: {len(result.references)}")
     print(f"Resolution notes: {len(resolution_notes)}")
