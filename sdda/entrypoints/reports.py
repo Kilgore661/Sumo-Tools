@@ -51,11 +51,24 @@ def _write_summary(result: EntrypointAnalysisResult) -> None:
         for row in result.module_index_rows
         if row.program_kind == "imported_program" and row.program_subtype
     )
+    accounting = _module_type_accounting(result)
     lines = [
         "# SDDA Entrypoint Index Summary",
         "",
         f"Import root: `{result.import_root}`",
         f"Output directory: `{result.output_dir}`",
+        "",
+        "## Module type accounting",
+        "",
+        f"total_modules: {accounting['total_modules']}",
+        "",
+        f"library_modules: {accounting['library_modules']}",
+        "",
+        f"programs: {accounting['programs']}",
+        f"  probable_entrypoints: {accounting['probable_entrypoints']}",
+        f"  imported_programs_needing_review: {accounting['imported_programs_needing_review']}",
+        f"    probable_library_modules: {accounting['probable_library_modules']}",
+        f"    possible_entrypoints: {accounting['possible_entrypoints']}",
         "",
         "## Module kinds",
         "",
@@ -84,13 +97,37 @@ def _write_summary(result: EntrypointAnalysisResult) -> None:
             "",
             "A library module is a Python module whose top-level body is declarative only.",
             "A program is any Python module with non-declarative top-level code, including assignments and main guards.",
-            "A standalone program is not imported by another indexed module.",
+            "A standalone program is counted as a probable entrypoint.",
             "An imported program is a program that is imported by at least one other indexed module and needs human review.",
             "An imported program with subtype `probable_library` has no non-declarative top-level code after its final top-level function.",
+            "An imported program counted as `possible_entrypoints` does not have the `probable_library` hint.",
             "",
         ]
     )
     (result.output_dir / "summary.md").write_text("\n".join(lines), encoding="utf-8")
+
+
+def _module_type_accounting(result: EntrypointAnalysisResult) -> dict[str, int]:
+    total_modules = len(result.module_index_rows)
+    library_modules = len(_library_rows(result))
+    programs = len(_program_rows(result))
+    probable_entrypoints = len(_program_kind_rows(result, "standalone_program"))
+    imported_programs = _program_kind_rows(result, "imported_program")
+    probable_library_modules = len(
+        [row for row in imported_programs if row.program_subtype == "probable_library"]
+    )
+    possible_entrypoints = len(
+        [row for row in imported_programs if row.program_subtype != "probable_library"]
+    )
+    return {
+        "total_modules": total_modules,
+        "library_modules": library_modules,
+        "programs": programs,
+        "probable_entrypoints": probable_entrypoints,
+        "imported_programs_needing_review": len(imported_programs),
+        "probable_library_modules": probable_library_modules,
+        "possible_entrypoints": possible_entrypoints,
+    }
 
 
 def _counter_lines(counts: Counter[str]) -> list[str]:
