@@ -46,6 +46,11 @@ def _program_kind_rows(result: EntrypointAnalysisResult, program_kind: str) -> l
 def _write_summary(result: EntrypointAnalysisResult) -> None:
     module_kind_counts = Counter(row.module_kind for row in result.module_index_rows)
     program_kind_counts = Counter(row.program_kind for row in result.module_index_rows if row.program_kind)
+    imported_subtype_counts = Counter(
+        row.program_subtype
+        for row in result.module_index_rows
+        if row.program_kind == "imported_program" and row.program_subtype
+    )
     lines = [
         "# SDDA Entrypoint Index Summary",
         "",
@@ -58,6 +63,8 @@ def _write_summary(result: EntrypointAnalysisResult) -> None:
     lines.extend(_counter_lines(module_kind_counts))
     lines.extend(["## Program kinds", ""])
     lines.extend(_counter_lines(program_kind_counts))
+    lines.extend(["## Imported program subtypes", ""])
+    lines.extend(_counter_lines(imported_subtype_counts))
     lines.extend(
         [
             "## Reports",
@@ -79,6 +86,7 @@ def _write_summary(result: EntrypointAnalysisResult) -> None:
             "A program is any Python module with non-declarative top-level code, including assignments and main guards.",
             "A standalone program is not imported by another indexed module.",
             "An imported program is a program that is imported by at least one other indexed module and needs human review.",
+            "An imported program with subtype `probable_library` has no non-declarative top-level code after its final top-level function.",
             "",
         ]
     )
