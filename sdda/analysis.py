@@ -57,7 +57,7 @@ def analyse(root_module: str, import_root: Path, output_dir: Path | None = None)
 
     local_aliases = build_local_path_alias_map(module_index, reachable_modules, scopes, path_constants)
     file_families, file_family_evidence = normalise_file_families(file_uses, path_constants, local_aliases)
-    file_family_classification = classify_file_families(file_families)
+    file_family_classification = classify_file_families(file_families, producer_outputs)
     distribution_candidates = derive_distribution_candidates(file_family_classification)
     final_output_dir = output_dir or _default_output_dir(root_module)
     return AnalysisResult(
