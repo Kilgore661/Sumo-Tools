@@ -173,11 +173,14 @@ def _mode_dependent_deployment_source_patterns(
 
 
 def _parameter_path_input_patterns(provenance: list[object]) -> set[str]:
-    return {
-        getattr(row, "consumer_expression")
-        for row in provenance
-        if getattr(row, "interpretation", "") == "parameter_from_path_expression"
-    }
+    patterns: set[str] = set()
+    for row in provenance:
+        if getattr(row, "interpretation", "") != "parameter_from_path_expression":
+            continue
+        expression = getattr(row, "consumer_expression")
+        patterns.add(expression)
+        patterns.add(f"{getattr(row, 'consumer_module')}:{getattr(row, 'consumer_scope')}:{expression}")
+    return patterns
 
 
 def _matches_any_field_pattern(pattern: str, fields: set[str]) -> bool:
