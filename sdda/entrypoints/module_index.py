@@ -45,4 +45,7 @@ def _is_skipped(path: Path, root: Path) -> bool:
 
 def _module_name_for_path(path: Path, root: Path) -> str:
     relative = path.relative_to(root).with_suffix("")
-    return ".".join(relative.parts)
+    parts = list(relative.parts)
+    if parts and parts[-1] == "__init__":
+        parts = parts[:-1]
+    return ".".join(parts)
