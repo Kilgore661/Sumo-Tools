@@ -86,7 +86,7 @@ def _source_distribution_policy(candidate: object, execution: object | None) -> 
         return "review", "review", "scoped_parameter_without_concrete_source_pattern"
 
     if classification == "required_distribution_input":
-        return "must_include", "include", "required_distribution_input"
+        return _required_input_policy(family_pattern)
 
     if classification == "environment_setting":
         return "external_runtime_assumption", "document", "environment_setting"
@@ -107,9 +107,17 @@ def _source_distribution_policy(candidate: object, execution: object | None) -> 
         return "requires_review", "review", "effective_high_priority_review"
 
     if distribution_decision == "include":
-        return "must_include", "include", "distribution_decision_include"
+        return _required_input_policy(family_pattern)
 
     return "review", "review", "fallback_review"
+
+
+def _required_input_policy(family_pattern: str) -> tuple[str, str, str]:
+    if family_pattern.startswith("files/output/"):
+        return "precomputed_artifact_input", "include_or_regenerate", "required_precomputed_artifact_input"
+    if family_pattern.startswith("src/"):
+        return "repository_source_input", "include", "required_repository_source_input"
+    return "required_input_unclassified", "include", "required_input_unclassified"
 
 
 def _is_output_parameter_family(family_pattern: str) -> bool:
@@ -152,12 +160,14 @@ def _effective_review_priority(candidate: object, execution: object | None) -> s
 
 def _bucket_order(bucket: str) -> int:
     order = {
-        "must_include": 0,
-        "mode_dependent_review": 1,
-        "external_runtime_assumption": 2,
-        "requires_review": 3,
-        "review": 4,
-        "exclude": 5,
-        "not_in_execution_slice": 6,
+        "repository_source_input": 0,
+        "precomputed_artifact_input": 1,
+        "required_input_unclassified": 2,
+        "mode_dependent_review": 3,
+        "external_runtime_assumption": 4,
+        "requires_review": 5,
+        "review": 6,
+        "exclude": 7,
+        "not_in_execution_slice": 8,
     }
     return order.get(bucket, 99)
