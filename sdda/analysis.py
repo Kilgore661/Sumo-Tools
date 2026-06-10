@@ -23,6 +23,7 @@ from .provenance import extract_producer_outputs, extract_producer_return_bindin
 from .review_candidates import build_review_candidates
 from .scopes import extract_scopes
 from .source import parse_python_file
+from .source_distribution import derive_source_distribution_inputs
 from .type_facts import extract_type_facts
 from .value_facts import extract_value_facts
 
@@ -76,6 +77,7 @@ def analyse(root_module: str, import_root: Path, output_dir: Path | None = None)
     distribution_candidates = derive_distribution_candidates(file_family_classification)
     review_candidates = build_review_candidates(distribution_candidates, file_family_classification, file_families, file_family_evidence)
     execution_review_candidates = build_execution_review_candidates(review_candidates, execution_call_slice)
+    source_distribution_inputs = derive_source_distribution_inputs(distribution_candidates, execution_review_candidates)
     final_output_dir = output_dir or _default_output_dir(root_module)
     return AnalysisResult(
         root_module=root_module,
@@ -91,6 +93,7 @@ def analyse(root_module: str, import_root: Path, output_dir: Path | None = None)
         call_edges=call_edges,
         execution_call_slice=execution_call_slice,
         execution_review_candidates=execution_review_candidates,
+        source_distribution_inputs=source_distribution_inputs,
         call_argument_bindings=call_argument_bindings,
         parameter_field_provenance=parameter_field_provenance,
         parameter_file_provenance=parameter_file_provenance,
