@@ -55,26 +55,25 @@ def _from_import_references(
     statement: ast.ImportFrom,
     module_index: dict[str, ModuleRecord],
 ) -> list[ReferenceRecord]:
-    if statement.module is None:
-        return []
-    base_module = _resolve_relative_module(source_module, statement.module, statement.level)
+    base_module = _resolve_relative_module(source_module, statement.module or "", statement.level)
     records: list[ReferenceRecord] = []
 
-    base_target = _resolve_module(base_module, module_index)
-    if base_target:
-        for alias in statement.names:
-            records.append(
-                ReferenceRecord(
-                    source_module=source_module,
-                    target_module=base_target,
-                    reference_kind="from_import_module",
-                    imported_name=alias.name,
-                    line=statement.lineno,
+    if base_module:
+        base_target = _resolve_module(base_module, module_index)
+        if base_target:
+            for alias in statement.names:
+                records.append(
+                    ReferenceRecord(
+                        source_module=source_module,
+                        target_module=base_target,
+                        reference_kind="from_import_module",
+                        imported_name=alias.name,
+                        line=statement.lineno,
+                    )
                 )
-            )
 
     for alias in statement.names:
-        candidate = f"{base_module}.{alias.name}"
+        candidate = f"{base_module}.{alias.name}" if base_module else alias.name
         target = _resolve_module(candidate, module_index)
         if not target:
             continue
@@ -105,11 +104,7 @@ def _resolve_module(name: str, module_index: dict[str, ModuleRecord]) -> str:
 def _resolve_relative_module(source_module: str, imported_module: str, level: int) -> str:
     if level <= 0:
         return imported_module
-    source_parts = source_module.split(".")
-    if source_parts[-1] == "__init__":
-        package_parts = source_parts[:-1]
-    else:
-        package_parts = source_parts[:-1]
+    package_parts = source_module.split(".")[:-1]
     keep_count = max(len(package_parts) - level + 1, 0)
     base_parts = package_parts[:keep_count]
     if imported_module:
