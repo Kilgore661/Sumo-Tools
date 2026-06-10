@@ -35,6 +35,7 @@ class ModuleIndexRecord:
     path: str
     module_kind: str
     program_kind: str
+    program_subtype: str
     inbound_reference_count: int
     imported_by: str
     first_non_declarative_line: int
