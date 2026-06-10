@@ -16,6 +16,7 @@ from .module_index import build_module_index
 from .parameter_provenance import extract_parameter_field_provenance
 from .path_constants import build_path_constant_map
 from .provenance import extract_producer_outputs, extract_producer_return_bindings, extract_producer_write_bindings
+from .review_candidates import build_review_candidates
 from .scopes import extract_scopes
 from .source import parse_python_file
 from .type_facts import extract_type_facts
@@ -65,6 +66,7 @@ def analyse(root_module: str, import_root: Path, output_dir: Path | None = None)
     file_families, file_family_evidence = normalise_file_families(file_uses, path_constants, local_aliases)
     file_family_classification = classify_file_families(file_families, producer_outputs, parameter_field_provenance)
     distribution_candidates = derive_distribution_candidates(file_family_classification)
+    review_candidates = build_review_candidates(distribution_candidates, file_family_classification, file_families, file_family_evidence)
     final_output_dir = output_dir or _default_output_dir(root_module)
     return AnalysisResult(
         root_module=root_module,
@@ -88,6 +90,7 @@ def analyse(root_module: str, import_root: Path, output_dir: Path | None = None)
         file_family_evidence=file_family_evidence,
         file_family_classification=file_family_classification,
         distribution_candidates=distribution_candidates,
+        review_candidates=review_candidates,
         unresolved=unresolved,
     )
 
