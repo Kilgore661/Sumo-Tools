@@ -1,6 +1,11 @@
 from __future__ import annotations
 
-from .models import FileFamilyClassificationRecord, FileFamilyRecord, ProducerOutputRecord
+from .models import (
+    FileFamilyClassificationRecord,
+    FileFamilyRecord,
+    ParameterFieldProvenanceRecord,
+    ProducerOutputRecord,
+)
 
 CONTENT_READ_ACTIONS = {"may_read", "may_observe", "may_download"}
 EXISTENCE_ACTIONS = {"may_existence_check"}
@@ -11,17 +16,30 @@ DEPLOY_MODULE = "src.products.make_site2.deploy"
 def classify_file_families(
     families: list[FileFamilyRecord],
     producer_outputs: list[ProducerOutputRecord] | None = None,
+    parameter_field_provenance: list[ParameterFieldProvenanceRecord] | None = None,
 ) -> list[FileFamilyClassificationRecord]:
     generated_then_consumed = _generated_then_consumed_patterns(producer_outputs or [])
-    return [_classify_family(family, generated_then_consumed) for family in families]
+    mode_dependent_deployment_sources = _mode_dependent_deployment_source_patterns(
+        parameter_field_provenance or []
+    )
+    return [
+        _classify_family(family, generated_then_consumed, mode_dependent_deployment_sources)
+        for family in families
+    ]
 
 
 def _classify_family(
     family: FileFamilyRecord,
     generated_then_consumed: set[str],
+    mode_dependent_deployment_sources: set[str],
 ) -> FileFamilyClassificationRecord:
     actions = _actions(family)
-    classification, confidence, reason = _classification(family, actions, generated_then_consumed)
+    classification, confidence, reason = _classification(
+        family,
+        actions,
+        generated_then_consumed,
+        mode_dependent_deployment_sources,
+    )
     return FileFamilyClassificationRecord(
         family_id=family.family_id,
         family_kind=family.family_kind,
@@ -40,9 +58,12 @@ def _classification(
     family: FileFamilyRecord,
     actions: set[str],
     generated_then_consumed: set[str],
+    mode_dependent_deployment_sources: set[str],
 ) -> tuple[str, str, str]:
     if family.family_pattern in generated_then_consumed:
         return "generated_then_consumed", "high", "producer_output_written_then_consumed"
+    if family.family_pattern in mode_dependent_deployment_sources:
+        return "mode_dependent_deployment_source", "high", "parameter_field_has_generated_and_external_sources"
     if family.family_kind == "environment_setting":
         return "environment_setting", "high", "family_kind:environment_setting"
     if family.family_kind == "url_family":
@@ -125,6 +146,20 @@ def _generated_then_consumed_patterns(
     return {row.consumer_expression for row in producer_outputs}
 
 
+def _mode_dependent_deployment_source_patterns(
+    provenance: list[ParameterFieldProvenanceRecord],
+) -> set[str]:
+    interpretations_by_expression: dict[str, set[str]] = {}
+    for row in provenance:
+        interpretations_by_expression.setdefault(row.consumer_expression, set()).add(row.interpretation)
+    return {
+        expression
+        for expression, interpretations in interpretations_by_expression.items()
+        if "generated_output_tree" in interpretations
+        and "externally_supplied_existing_output" in interpretations
+    }
+
+
 def _is_constant_glob(pattern: str) -> bool:
     base = pattern.split("/", 1)[0]
     return base.isupper()
@@ -160,6 +195,7 @@ def _review_priority(classification: str, confidence: str) -> str:
     if confidence == "low":
         return "medium"
     if classification in {
+        "mode_dependent_deployment_source",
         "possible_efficiency_cache",
         "possible_pipeline_intermediate",
         "possible_state_or_control_file",
