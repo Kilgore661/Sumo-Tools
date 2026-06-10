@@ -32,6 +32,8 @@ A **standalone program** is a program that is not imported by any other indexed 
 
 An **imported program** is a program that is imported by at least one other indexed module. Imported programs are the main review queue: a human should decide whether they are real pipeline entrypoints or library-like modules with convenient executable code.
 
+An imported program with subtype **probable_library** has no non-declarative top-level code after its final top-level function. This is only a review hint; it does not prove that the module is not a real entrypoint.
+
 ## Invocation
 
 ```powershell
