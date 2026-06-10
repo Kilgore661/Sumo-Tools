@@ -141,6 +141,8 @@ def _target_name(node: ast.AST) -> str:
 
 
 def _iterdir_root_pattern(node: ast.AST, constants: dict[str, str]) -> str:
+    if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == "sorted" and len(node.args) == 1:
+        return _iterdir_root_pattern(node.args[0], constants)
     if not isinstance(node, ast.Call):
         return ""
     if not isinstance(node.func, ast.Attribute) or node.func.attr != "iterdir":
