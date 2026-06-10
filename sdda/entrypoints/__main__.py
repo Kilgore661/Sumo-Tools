@@ -9,7 +9,7 @@ from .reports import write_reports
 
 def main() -> None:
     args = _parse_args()
-    result = analyse_entrypoints(import_root=args.import_root, output_dir=args.output_dir)
+    result = analyse_entrypoints(import_root=args.import_root)
     write_reports(result)
     _print_summary(result)
 
@@ -21,12 +21,6 @@ def _parse_args() -> argparse.Namespace:
         type=Path,
         default=Path("."),
         help="Repository/import root used to resolve project modules",
-    )
-    parser.add_argument(
-        "--output-dir",
-        type=Path,
-        default=None,
-        help="Directory for generated reports; defaults to files/output/sdda/entrypoints",
     )
     return parser.parse_args()
 
