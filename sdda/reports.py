@@ -18,6 +18,7 @@ def write_reports(result: AnalysisResult) -> None:
     _write_csv(result.output_dir / "value_facts.csv", result.value_facts)
     _write_csv(result.output_dir / "field_facts.csv", result.field_facts)
     _write_csv(result.output_dir / "call_argument_bindings.csv", result.call_argument_bindings)
+    _write_csv(result.output_dir / "parameter_field_provenance.csv", result.parameter_field_provenance)
     _write_csv(result.output_dir / "file_uses.csv", result.file_uses)
     _write_csv(result.output_dir / "file_use_resolution.csv", result.file_use_resolutions)
     _write_csv(result.output_dir / "producer_return_bindings.csv", result.producer_return_bindings)
@@ -81,6 +82,7 @@ def _write_summary(result: AnalysisResult) -> None:
         f"Value facts: {len(result.value_facts)}",
         f"Field facts: {len(result.field_facts)}",
         f"Call argument bindings: {len(result.call_argument_bindings)}",
+        f"Parameter field provenance: {len(result.parameter_field_provenance)}",
         f"File uses: {len(result.file_uses)}",
         f"File use resolutions: {len(result.file_use_resolutions)}",
         f"Producer return bindings: {len(result.producer_return_bindings)}",
@@ -110,6 +112,7 @@ def _write_summary(result: AnalysisResult) -> None:
             "value_facts.csv",
             "field_facts.csv",
             "call_argument_bindings.csv",
+            "parameter_field_provenance.csv",
             "file_uses.csv",
             "file_use_resolution.csv",
             "producer_return_bindings.csv",
