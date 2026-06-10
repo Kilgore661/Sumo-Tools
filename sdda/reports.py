@@ -19,6 +19,7 @@ def write_reports(result: AnalysisResult) -> None:
     _write_csv(result.output_dir / "field_facts.csv", result.field_facts)
     _write_csv(result.output_dir / "call_edges.csv", result.call_edges)
     _write_csv(result.output_dir / "execution_call_slice.csv", result.execution_call_slice)
+    _write_csv(result.output_dir / "execution_review_candidates.csv", result.execution_review_candidates)
     _write_csv(result.output_dir / "call_argument_bindings.csv", result.call_argument_bindings)
     _write_csv(result.output_dir / "parameter_field_provenance.csv", result.parameter_field_provenance)
     _write_csv(result.output_dir / "parameter_file_provenance.csv", result.parameter_file_provenance)
@@ -87,6 +88,7 @@ def _write_summary(result: AnalysisResult) -> None:
         f"Field facts: {len(result.field_facts)}",
         f"Call edges: {len(result.call_edges)}",
         f"Execution call slice: {len(result.execution_call_slice)}",
+        f"Execution review candidates: {len(result.execution_review_candidates)}",
         f"Call argument bindings: {len(result.call_argument_bindings)}",
         f"Parameter field provenance: {len(result.parameter_field_provenance)}",
         f"Parameter file provenance: {len(result.parameter_file_provenance)}",
@@ -105,6 +107,7 @@ def _write_summary(result: AnalysisResult) -> None:
     ]
     lines.extend(_summary_block("Distribution decisions", _distribution_decisions(result)))
     lines.extend(_summary_block("File-family classifications", _file_family_classifications(result)))
+    lines.extend(_summary_block("Execution review status", _execution_review_status(result)))
     lines.extend(_candidate_list_block("Include candidates", _include_candidates(result)))
     lines.extend(_candidate_list_block("High-priority review candidates", _high_review_candidates(result)))
     lines.extend(
@@ -121,6 +124,7 @@ def _write_summary(result: AnalysisResult) -> None:
             "field_facts.csv",
             "call_edges.csv",
             "execution_call_slice.csv",
+            "execution_review_candidates.csv",
             "call_argument_bindings.csv",
             "parameter_field_provenance.csv",
             "parameter_file_provenance.csv",
@@ -148,6 +152,10 @@ def _distribution_decisions(result: AnalysisResult) -> Counter[str]:
 
 def _file_family_classifications(result: AnalysisResult) -> Counter[str]:
     return Counter(row.classification for row in result.file_family_classification)
+
+
+def _execution_review_status(result: AnalysisResult) -> Counter[str]:
+    return Counter(row.execution_status for row in result.execution_review_candidates)
 
 
 def _include_candidates(result: AnalysisResult) -> list[DistributionCandidateRecord]:
