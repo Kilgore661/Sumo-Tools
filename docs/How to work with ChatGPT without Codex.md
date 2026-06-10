@@ -51,10 +51,12 @@ To get the changes without conflicts:
 
 `git pull --ff-only`
 
-
-
 ---
 
 For non-codex you need
 
 Get-ChildItem -Path . -Recurse |Where-Object { $_.FullName -notlike "*\output*" } > ..\dir.txt
+
+---
+
+for non-codex  it is better to ask it to work in a new branch/sandbox so that I am not promoted to confirm that chatgpt can change and commit every single file that it changes.; but then I need to know how to see those changes and put them all back into dev at the end.
