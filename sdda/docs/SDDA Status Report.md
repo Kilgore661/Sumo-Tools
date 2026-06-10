@@ -2,8 +2,6 @@
 
 ## Status
 
-Working status report for the current SDDA implementation slice.
-
 SDDA is implemented as a small package under the top-level `sdda` project. It is independent of `src/introspection` and is invoked through:
 
 ```powershell
@@ -22,13 +20,19 @@ These outputs are local generated evidence and are not normally committed.
 
 The purpose of SDDA is to support a source distribution of the Sumo-Tools website product.
 
-The exact set of runtime inputs needed by `make_site2` is not computable in general. The practical target is therefore a conservative static may-use account:
+The exact runtime input set for `make_site2` is not computable in general, so SDDA uses conservative static evidence plus an execution-slice overlay. The current goal is:
 
 ```text
-Which file families, URL families, environment settings, and local assumptions may be needed by the website build/deploy product?
+Identify which file families, generated outputs, precomputed artifacts, source assets, deployment assumptions, and review items matter for the current make_site2 product slice.
 ```
 
-SDDA now has an initial execution-slice layer. The base evidence is still conservative and import-reachability based, but the execution-aware reports distinguish direct product-slice concerns from imported helper noise.
+The project has now moved beyond raw evidence reports. It emits a derived final report:
+
+```text
+source_distribution_inputs.csv
+```
+
+This is now the main source-distribution view.
 
 ## Current run shape
 
@@ -48,7 +52,7 @@ Producer outputs: 2
 Unresolved records: 168
 ```
 
-Additional current reports include call-edge, execution-slice, and execution-aware review evidence. The exact call-edge counts vary as resolution rules improve.
+Additional report counts vary as call and policy rules improve.
 
 The historic `Project modules indexed: 1104` count was caused by indexing `.venv`. That is no longer the expected shape after `.venv` was excluded.
 
@@ -76,11 +80,12 @@ module index
   -> distribution candidate decisions
   -> review candidate report
   -> execution-aware review candidate report
+  -> source distribution input derivation
   -> unresolved-call evidence
   -> CSV and Markdown reports
 ```
 
-The generated reports currently include:
+Generated reports currently include:
 
 ```text
 module_index.csv
@@ -93,6 +98,7 @@ field_facts.csv
 call_edges.csv
 execution_call_slice.csv
 execution_review_candidates.csv
+source_distribution_inputs.csv
 call_argument_bindings.csv
 parameter_field_provenance.csv
 parameter_file_provenance.csv
@@ -112,7 +118,7 @@ summary.md
 
 `review_candidates.csv` remains the conservative import-reachable triage report.
 
-`execution_review_candidates.csv` is now the preferred product-slice triage report. It adds:
+`execution_review_candidates.csv` is the product-slice triage report. It adds:
 
 ```text
 execution_status
@@ -121,56 +127,113 @@ execution_reason
 effective_review_priority
 ```
 
-Rows outside the project execution slice are given `effective_review_priority: low`, while the base conservative priority is preserved.
+`source_distribution_inputs.csv` is the final derived source-distribution report. It combines distribution candidates with execution-aware status and source-distribution policy buckets.
 
-## What looks good
+## Current source_distribution_inputs.csv shape
 
-The module and import evidence is stable across recent runs.
-
-The scope-level file-use evidence is useful enough for downstream analysis. It records common filesystem, URL, and environment operations, including:
+Recent bucket counts:
 
 ```text
-open(...)
-Path.open(...)
-Path.read_text(...)
-Path.write_text(...)
-Path.write_bytes(...)
-Path.exists(...)
-Path.mkdir(...)
-Path.glob(...)
-Path.rglob(...)
-glob.glob(...)
-os.makedirs(...)
-os.path.exists(...)
-shutil.copy...
-shutil.rmtree(...)
-requests...
-os.environ[...] and os.getenv(...)
+54 generated_or_intermediate_output
+11 not_in_execution_slice
+ 8 precomputed_artifact_input
+ 4 unresolved_non_execution_parameter
+ 4 state_or_control_review
+ 3 repository_source_input
+ 2 pipeline_tree_review
+ 2 mode_dependent_review
+ 2 scoped_output_parameter
 ```
 
-Literal open modes are used to distinguish obvious reads from obvious writes.
+There is no generic `review` bucket in the latest checked output. The remaining non-final buckets are semantically named.
 
-Copy operations produce separate source/read and destination/write evidence rows.
+### Repository source inputs
 
-Path-style method calls generally record the receiver expression rather than the method expression.
+These are concrete repository files/assets that should be included in a source distribution:
 
-Simple local names in file-family patterns are scoped by module and scope to avoid collapsing unrelated variables such as `path` into one false family.
+```text
+src/analysis/standings/files/full_shiks.pkl
+src/products/make_site2/runtime/site-refactor/**/*
+src/products/make_site2/runtime/site.css
+```
 
-Path constants are resolved for common `Path(__file__).resolve().parent`-style constants and imported uppercase constants. This is enough to turn rows such as `LEGACY_QUALIFIED_SHIKONA` into concrete repository-relative paths.
+### Precomputed artifact inputs
 
-The classifier is conservative. It avoids treating broad variable globs, deploy-only reads, non-root helper `main()` reads, unresolved parameters, unresolved locals, and object-field reads as definite source-distribution inputs unless a later provenance layer provides stronger evidence.
+These are required by the current `make_site2` product slice, but they live under `files/output/...`, so the policy decision is `include_or_regenerate` rather than unconditional source-control inclusion:
 
-## Implemented value-flow and provenance improvements
+```text
+files/output/bcr/data/banzuke_change_report.csv
+files/output/bcr/site_config.json
+files/output/career_length/site/career_length_1958_01_to_2026_05/{distribution.csv,pmf.csv,cdf.csv,survival.csv,longest.csv}
+files/output/infra/get_bios/rikishi/*.html
+files/output/misc/finish_by_chii_1958_2026_bottom_thresholds.csv
+files/output/misc/finish_by_chii_1958_2026_top_thresholds.csv
+files/output/probability/matchups/site/win_probability_by_standing/{observed_trace_points.csv,equelo_trace_points.csv}
+files/output/standings/publisher/latest_data/site_config.json
+```
+
+### Mode-dependent deployment review
+
+These rows represent deployment source-tree reads that are generated in normal build mode but externally supplied in `--no-build` mode:
+
+```text
+build_output.root/**/*
+src.products.make_site2.deploy:copy_file:source
+```
+
+### State or control review
+
+These rows are execution-reachable state/existence checks rather than source inputs:
+
+```text
+src.products.make_site2.build:count_output_files:path
+src.products.make_site2.deploy:build_output_from_existing:entrypoint
+src.products.make_site2.deploy:count_files:path
+src.products.make_site2.deploy:deploy_remote:path
+```
+
+### Pipeline tree review
+
+These are variable output-tree globs that are still worth understanding, but no longer appear as generic review noise:
+
+```text
+output_root/**/*
+root/**/*
+```
+
+### Scoped output parameters
+
+These are output-location parameters, not source-distribution inputs:
+
+```text
+src.analysis.sumo_history.basho_results.reports:write_index:output_root
+src.products.make_site2.build:build_site:output_root
+```
+
+### Unresolved non-execution parameters
+
+These are scoped parameter proxies that are not currently in the product execution slice or are not represented by concrete source-distribution families in the final report:
+
+```text
+src.analysis.equelo.expt1.params:load_divisional_k_fn:config_path
+src.infra.get_bios.api:load_bio_store:path
+src.products.make_site2.data_output:copy_single_csv_chart_data_output:source_path
+src.products.make_site2.data_output:copy_standings_source_file:source_path
+```
+
+The concrete file/glob families produced from the important parameter provenance are represented elsewhere, for example under `precomputed_artifact_input` or `repository_source_input`.
+
+## Important implemented improvements
 
 ### Dataclass and value facts
 
 SDDA records class/dataclass definitions, dataclass fields, function parameter annotations, function return annotations, and selected local value facts from annotated calls.
 
-An important correction was made to class/dataclass type facts: class rows now use the actual class full name rather than only the containing module name. This enabled constructor-return matching such as `MasterDataOutput(...)`.
+Class/dataclass type facts use the actual class full name rather than only the containing module name. This enabled constructor-return matching such as `MasterDataOutput(...)`.
 
 ### Field facts
 
-SDDA resolves object field reads where the receiver has an inferred dataclass type. Examples include:
+SDDA resolves object field reads where the receiver has an inferred dataclass type. Important examples include:
 
 ```text
 producer_output.data_path
@@ -189,7 +252,7 @@ producer_write_bindings.csv
 producer_outputs.csv
 ```
 
-This proves the important `write_master_data()` case:
+This proves the important generated-then-consumed case:
 
 ```text
 write_master_data()
@@ -204,13 +267,13 @@ build_career_comparisons_data_output()
 The resulting classification is:
 
 ```text
-producer_output.data_path   generated_then_consumed -> exclude, low review
-producer_output.report_path generated_then_consumed -> exclude, low review
+producer_output.data_path   generated_then_consumed -> exclude
+producer_output.report_path generated_then_consumed -> exclude
 ```
 
 ### Call edges and execution slice
 
-SDDA now emits:
+SDDA emits:
 
 ```text
 call_edges.csv
@@ -233,7 +296,7 @@ unresolved_attribute
 unresolved_dynamic
 ```
 
-The first execution slice starts from:
+The execution slice starts from:
 
 ```text
 src.products.make_site2.__main__.<module>
@@ -242,34 +305,12 @@ src.products.make_site2.__main__.main
 
 and follows project-resolved call edges. It does not follow builtin, external, or unresolved edges.
 
-This layer proved that most remaining high-priority conservative rows were imported helper noise, while `load_bio_store()` was genuinely execution-reachable via:
+This layer proved that most high-priority conservative rows were imported helper noise, while `load_bio_store()` was genuinely execution-reachable via:
 
 ```text
 build_basho_results_data_output
   -> make_public_shikona
   -> load_bio_store
-```
-
-### Call argument bindings
-
-SDDA emits:
-
-```text
-call_argument_bindings.csv
-```
-
-This connects call-site arguments to annotated callee parameters. For example, `main` passing `build_output` into deployment functions is visible:
-
-```text
-main -> deploy_local(build_output, deployment_config)
-main -> deploy_remote(build_output, deployment_config)
-```
-
-The `build_output` argument may come from both:
-
-```text
-src.products.make_site2.build.build_site
-src.products.make_site2.deploy.build_output_from_existing
 ```
 
 ### Parameter field provenance
@@ -280,7 +321,7 @@ SDDA emits:
 parameter_field_provenance.csv
 ```
 
-This connects field reads inside a callee back to the caller-side argument source. The main useful case is:
+This connects field reads inside a callee back to caller-side argument sources. The main useful case is:
 
 ```text
 deploy_local/deploy_remote read build_output.root
@@ -299,10 +340,8 @@ build_output <- build_output_from_existing(args.output)
 The resulting classification is:
 
 ```text
-build_output.root/**/* mode_dependent_deployment_source -> review, medium priority
+build_output.root/**/* mode_dependent_deployment_source
 ```
-
-This is intentionally conservative because `--no-build` mode requires the output tree to already exist.
 
 ### Parameter file provenance
 
@@ -314,7 +353,7 @@ parameter_file_provenance.csv
 
 This connects direct file-use parameters inside helper functions back to call-site arguments, local aliases, iterator families, or default parameter values.
 
-Handled cases now include:
+Handled cases include:
 
 ```text
 parameter_from_path_expression
@@ -323,176 +362,39 @@ parameter_from_local_path_alias
 parameter_from_default_path_expression
 ```
 
-The direct path-expression case is handled for `copy_single_csv_chart_data_output:source_path`. Examples include:
+Examples now handled include:
 
 ```text
-DIVISION_STABILITY_SOURCE_ROOT / 'persistence.csv'
-FIRST_CHII_APPEARANCE_SOURCE_ROOT / 'appearances.csv'
-RANK_AT_RETIREMENT_SOURCE_ROOT / 'distribution.csv'
-TYPICAL_EQUELO_VALUES_SOURCE_ROOT / 'typical_equelo_values.csv'
-BANZUKE_DIVISION_BY_ERA_SOURCE_ROOT / 'divisions.csv'
-MAKUUCHI_RANK_BY_ERA_SOURCE_ROOT / 'ranks.csv'
+copy_single_csv_chart_data_output:source_path
+copy_standings_source_file:source_path
+copy_file:source
+load_bio_store(path: Path = OUTPUT_JSON)
 ```
 
-The resulting classification is:
-
-```text
-copy_single_csv_chart_data_output:source_path required_distribution_input -> low review
-```
-
-Iterator-derived parameter provenance is handled for `copy_standings_source_file:source_path`, from this source pattern:
-
-```python
-copy_standings_source_file(source_path, route_data_root)
-for source_path in sorted(STANDINGS_SOURCE_ROOT.iterdir())
-if source_path.name.startswith("multiple basho standings view ")
-and source_path.suffix in {".csv", ".json"}
-```
-
-The current emitted iterator family is:
-
-```text
-files/output/standings/publisher/latest_data/**
-```
-
-The resulting classification is:
-
-```text
-copy_standings_source_file:source_path required_distribution_input -> low review
-```
-
-Local-alias-derived parameter provenance is handled for deployment helper calls. For example:
-
-```python
-for source in build_output.root.rglob("*"):
-    if source.is_file():
-        copy_file(source, target)
-```
-
-SDDA records:
-
-```text
-copy_file:source <- build_output.root/**/*
-```
-
-and inherits the mode-dependent deployment-source classification:
-
-```text
-copy_file:source mode_dependent_deployment_source -> review, medium priority
-```
-
-Default-parameter provenance is handled for `load_bio_store(path: Path = OUTPUT_JSON)`. The execution-reachable read now resolves to:
+The execution-reachable `load_bio_store` read resolves to:
 
 ```text
 files/output/infra/get_bios/rikishi_bios.json
 ```
 
-and is classified as a required distribution input rather than an unresolved high-priority parameter.
-
 ### Loop-variable aliasing
 
-Simple literal filename tuples and loop variables from `zip(...)` are resolved.
+Simple literal filename tuples, `zip(...)` loop variables, and simple glob/rglob loop variables are resolved.
 
-The following former high-priority `name` rows have been collapsed:
+This collapsed former high-priority rows such as:
 
 ```text
 files/output/career_length/site/career_length_1958_01_to_2026_05/name
 files/output/probability/matchups/site/win_probability_by_standing/name
 ```
 
-Simple glob/rglob loop aliases are also resolved. This handles the browser runtime copy loop:
-
-```python
-for source_path in RUNTIME_MODULE_SOURCE_ROOT.rglob("*"):
-```
-
-which now becomes:
+The browser runtime copy loop now becomes:
 
 ```text
-src/products/make_site2/runtime/site-refactor/**/* required_distribution_input -> low review
-```
-
-## Current make_site2 classification highlights
-
-Closed or improved direct `make_site2` cases:
-
-```text
-producer_output.data_path
-  generated_then_consumed
-  exclude
-  low review
-
-producer_output.report_path
-  generated_then_consumed
-  exclude
-  low review
-
-build_output.root/**/*
-  mode_dependent_deployment_source
-  review
-  medium review
-
-copy_file:source
-  mode_dependent_deployment_source
-  review
-  medium review
-
 src/products/make_site2/runtime/site-refactor/**/*
-  required_distribution_input
-  include
-  low review
-
-copy_single_csv_chart_data_output:source_path
-  required_distribution_input
-  include
-  low review
-
-copy_standings_source_file:source_path
-  required_distribution_input
-  include
-  low review
-
-src.infra.get_bios.api:load_bio_store:path
-  required_distribution_input
-  include
-  low effective review
-  resolved via default parameter to files/output/infra/get_bios/rikishi_bios.json
 ```
 
-As of the latest checked output, there are no effective high-priority review rows for the current `make_site2` execution slice.
-
-Confirm with:
-
-```powershell
-Import-Csv files\output\sdda\src.products.make_site2.__main__\execution_review_candidates.csv |
-  Where-Object { $_.effective_review_priority -eq "high" } |
-  Select-Object family_pattern, review_priority, effective_review_priority, execution_status, classification_reason, first_module, first_scope |
-  Format-Table -AutoSize
-```
-
-Expected result:
-
-```text
-no rows
-```
-
-The base conservative `review_candidates.csv` may still contain high-priority rows from import-reachable helper functions. In the execution-aware report these are marked:
-
-```text
-execution_status: not_in_execution_slice
-effective_review_priority: low
-```
-
-Recently observed not-in-slice examples include:
-
-```text
-src.analysis.equelo.fixed_v2.api:load_day_end_ratings:path
-src.analysis.equelo.fixed_v2.api:load_entrant_initial_ratings:path
-src.analysis.equelo.fixed_v2.api:load_metadata:path
-src.infra.get_bios.parser:main:path
-src.infra.parser.parser2_margin:_parse_raw_marginalia:fn
-src.infra.parser.parser_daily:_parse_daily_results:fn
-```
+and is treated as a repository source input in `source_distribution_inputs.csv`.
 
 ## Known limitations
 
@@ -506,7 +408,9 @@ obj.method(...)
 
 are still preserved in `unresolved.csv` and `call_edges.csv` rather than hidden. Some of these may eventually need receiver type resolution and method/call graph improvements.
 
-The base conservative reports are still import-reachability based. The execution-aware reports should be used to distinguish direct product-slice concerns from imported helper noise.
+The base conservative reports are still import-reachability based. The execution-aware and source-distribution reports should be used to distinguish direct product-slice concerns from imported helper noise.
+
+The final source-distribution policy still treats `files/output/...` inputs as `include_or_regenerate`; a later product decision should decide which of those artifacts are committed, distributed separately, or regenerated as part of a full source build.
 
 ## Current interpretation
 
@@ -514,22 +418,21 @@ Milestone 1, module and import evidence, is good enough for now.
 
 Milestone 2, scope-level file-use evidence, is good enough for now.
 
-Milestone 3, initial type/value/field facts, is useful and already feeding policy decisions.
+Milestone 3, type/value/field facts, is useful and feeding policy decisions.
 
-Milestone 4, producer-output and parameter-provenance evidence, is working for the important direct `make_site2` build/deploy cases and the execution-reachable `load_bio_store` default-input case.
+Milestone 4, producer-output and parameter-provenance evidence, is working for the important direct `make_site2` cases.
 
-Milestone 5, file-family normalisation, classification, and distribution candidate reporting, is good enough for continued triage but should continue to consume stronger provenance facts as they are added.
+Milestone 5, call-edge and execution-slice reporting, is working well enough to separate direct product-slice concerns from imported helper noise.
 
-Milestone 6, initial call-edge and execution-slice reporting, is now working well enough to clear the effective high-priority queue for the current `make_site2` slice.
-
-The reports are not yet the final dependency answer. They are a conservative evidence layer from which later reports can derive candidate distribution inputs, generated outputs, caches, deployment assumptions, and review items.
+Milestone 6, `source_distribution_inputs.csv`, is now the main usable output. It provides semantically named buckets rather than raw review noise.
 
 ## Recommended next steps
 
-1. Treat `execution_review_candidates.csv` as the main triage view for product-slice work.
-2. Keep `review_candidates.csv` as the conservative import-reachable evidence view.
-3. Improve unresolved attribute calls by adding receiver type/method resolution where it materially affects the execution slice.
-4. Consider deriving a final `source_distribution_inputs.csv` report from execution-aware classification, rather than expecting users to interpret the raw evidence reports directly.
-5. Update documentation when the final source-distribution policy is chosen.
+1. Treat `source_distribution_inputs.csv` as the main source-distribution view.
+2. Treat `execution_review_candidates.csv` as the main triage view when debugging product-slice analysis.
+3. Keep `review_candidates.csv` as the conservative import-reachable evidence view.
+4. Decide product policy for `precomputed_artifact_input`: include, regenerate, or package separately.
+5. Investigate the two `pipeline_tree_review` rows if they matter: `output_root/**/*` and `root/**/*`.
+6. Improve unresolved attribute calls by adding receiver type/method resolution only where it materially affects the final source-distribution report.
 
-Do not prioritise further small alias cleanups unless they affect more than a handful of rows or block execution-slice/value-flow work.
+Do not prioritise further small alias cleanups unless they affect the final source-distribution buckets or block execution-slice/value-flow work.
