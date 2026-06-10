@@ -277,6 +277,7 @@ class AnalysisResult:
     call_edges: list[object]
     execution_call_slice: list[object]
     execution_review_candidates: list[object]
+    source_distribution_inputs: list[object]
     call_argument_bindings: list[CallArgumentBindingRecord]
     parameter_field_provenance: list[ParameterFieldProvenanceRecord]
     parameter_file_provenance: list[object]
