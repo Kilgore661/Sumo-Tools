@@ -33,6 +33,7 @@ class ReferenceRecord:
 class WarningRecord:
     source_module: str
     line: int
+    severity: str
     warning_kind: str
     imported_name: str
     resolved_module: str
