@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from .call_bindings import extract_call_argument_bindings
 from .classification import classify_file_families
 from .distribution import derive_distribution_candidates
 from .field_facts import extract_field_facts
@@ -10,7 +11,7 @@ from .file_use_resolution import resolve_file_uses
 from .file_uses import extract_file_uses
 from .import_graph import build_reachable_imports
 from .local_path_aliases import build_local_path_alias_map
-from .models import AnalysisResult, FieldFactRecord, FileUseRecord, FileUseResolutionRecord, ScopeRecord, TypeFactRecord, UnresolvedRecord, ValueFactRecord
+from .models import AnalysisResult, CallArgumentBindingRecord, FieldFactRecord, FileUseRecord, FileUseResolutionRecord, ScopeRecord, TypeFactRecord, UnresolvedRecord, ValueFactRecord
 from .module_index import build_module_index
 from .path_constants import build_path_constant_map
 from .provenance import extract_producer_outputs, extract_producer_return_bindings, extract_producer_write_bindings
@@ -47,8 +48,11 @@ def analyse(root_module: str, import_root: Path, output_dir: Path | None = None)
         value_facts.extend(extract_value_facts(module_name, parsed_trees[module_name], scopes_by_module[module_name], imports, type_facts))
 
     field_facts: list[FieldFactRecord] = []
+    call_argument_bindings: list[CallArgumentBindingRecord] = []
     for module_name in reachable_modules:
-        field_facts.extend(extract_field_facts(module_name, parsed_trees[module_name], scopes_by_module[module_name], imports, type_facts, value_facts))
+        module_scopes = scopes_by_module[module_name]
+        field_facts.extend(extract_field_facts(module_name, parsed_trees[module_name], module_scopes, imports, type_facts, value_facts))
+        call_argument_bindings.extend(extract_call_argument_bindings(module_name, parsed_trees[module_name], module_scopes, imports, type_facts, value_facts))
 
     file_use_resolutions: list[FileUseResolutionRecord] = resolve_file_uses(file_uses, field_facts)
     producer_return_bindings = extract_producer_return_bindings(parsed_trees, imports, type_facts)
@@ -71,6 +75,7 @@ def analyse(root_module: str, import_root: Path, output_dir: Path | None = None)
         type_facts=type_facts,
         value_facts=value_facts,
         field_facts=field_facts,
+        call_argument_bindings=call_argument_bindings,
         file_uses=file_uses,
         file_use_resolutions=file_use_resolutions,
         producer_return_bindings=producer_return_bindings,
