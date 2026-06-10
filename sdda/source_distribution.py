@@ -88,6 +88,9 @@ def _source_distribution_policy(candidate: object, execution: object | None) -> 
     if classification == "possible_state_or_control_file":
         return "state_or_control_review", "review", "possible_state_or_control_file"
 
+    if _is_variable_pipeline_tree(family_pattern, classification):
+        return "pipeline_tree_review", "review", "variable_pipeline_tree_without_producer_matching"
+
     if _is_output_parameter_family(family_pattern):
         return "scoped_output_parameter", "document_as_output_location", "scoped_output_parameter_not_source_input"
 
@@ -127,6 +130,12 @@ def _scoped_parameter_policy(execution_status: str) -> tuple[str, str, str]:
     if execution_status == "execution_reachable":
         return "unresolved_execution_parameter", "review", "scoped_execution_parameter_without_concrete_source_pattern"
     return "unresolved_non_execution_parameter", "review", "scoped_non_execution_parameter_without_concrete_source_pattern"
+
+
+def _is_variable_pipeline_tree(family_pattern: str, classification: str) -> bool:
+    if classification != "possible_pipeline_intermediate":
+        return False
+    return family_pattern in {"output_root/**/*", "root/**/*"}
 
 
 def _is_output_parameter_family(family_pattern: str) -> bool:
@@ -178,14 +187,15 @@ def _bucket_order(bucket: str) -> int:
         "required_input_unclassified": 2,
         "mode_dependent_review": 3,
         "state_or_control_review": 4,
-        "external_runtime_assumption": 5,
-        "requires_review": 6,
-        "unresolved_execution_parameter": 7,
-        "unresolved_non_execution_parameter": 8,
-        "scoped_output_parameter": 9,
-        "review": 10,
-        "generated_or_intermediate_output": 11,
-        "exclude": 12,
-        "not_in_execution_slice": 13,
+        "pipeline_tree_review": 5,
+        "external_runtime_assumption": 6,
+        "requires_review": 7,
+        "unresolved_execution_parameter": 8,
+        "unresolved_non_execution_parameter": 9,
+        "scoped_output_parameter": 10,
+        "review": 11,
+        "generated_or_intermediate_output": 12,
+        "exclude": 13,
+        "not_in_execution_slice": 14,
     }
     return order.get(bucket, 99)
