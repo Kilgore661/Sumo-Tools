@@ -19,6 +19,7 @@ def write_reports(result: AnalysisResult) -> None:
     _write_csv(result.output_dir / "field_facts.csv", result.field_facts)
     _write_csv(result.output_dir / "file_uses.csv", result.file_uses)
     _write_csv(result.output_dir / "file_use_resolution.csv", result.file_use_resolutions)
+    _write_csv(result.output_dir / "producer_outputs.csv", result.producer_outputs)
     _write_csv(result.output_dir / "file_families.csv", result.file_families)
     _write_csv(result.output_dir / "file_family_evidence.csv", result.file_family_evidence)
     _write_csv(result.output_dir / "file_family_classification.csv", result.file_family_classification)
@@ -78,6 +79,7 @@ def _write_summary(result: AnalysisResult) -> None:
         f"Field facts: {len(result.field_facts)}",
         f"File uses: {len(result.file_uses)}",
         f"File use resolutions: {len(result.file_use_resolutions)}",
+        f"Producer outputs: {len(result.producer_outputs)}",
         f"File families: {len(result.file_families)}",
         f"File family evidence rows: {len(result.file_family_evidence)}",
         f"File family classifications: {len(result.file_family_classification)}",
@@ -103,6 +105,7 @@ def _write_summary(result: AnalysisResult) -> None:
             "field_facts.csv",
             "file_uses.csv",
             "file_use_resolution.csv",
+            "producer_outputs.csv",
             "file_families.csv",
             "file_family_evidence.csv",
             "file_family_classification.csv",
