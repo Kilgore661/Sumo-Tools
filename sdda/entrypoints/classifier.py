@@ -15,6 +15,8 @@ DECLARATIVE_NODE_TYPES = (
     ast.Pass,
 )
 
+FUNCTION_NODE_TYPES = (ast.FunctionDef, ast.AsyncFunctionDef)
+
 
 def parse_python_file(path: Path) -> ast.Module:
     return ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
@@ -52,6 +54,28 @@ def classify_module(module_name: str, path: Path, tree: ast.Module, is_dunder_ma
 
 def has_main_guard(tree: ast.Module) -> bool:
     return any(_is_main_guard(statement) for statement in tree.body if isinstance(statement, ast.If))
+
+
+def has_non_declarative_after_last_function(tree: ast.Module) -> bool:
+    last_function_end = _last_top_level_function_end(tree)
+    if last_function_end == 0:
+        return True
+    for statement in tree.body:
+        statement_line = getattr(statement, "lineno", 0)
+        if statement_line <= last_function_end:
+            continue
+        if not _is_declarative_statement(statement):
+            return True
+    return False
+
+
+def _last_top_level_function_end(tree: ast.Module) -> int:
+    function_ends = [
+        getattr(statement, "end_lineno", getattr(statement, "lineno", 0))
+        for statement in tree.body
+        if isinstance(statement, FUNCTION_NODE_TYPES)
+    ]
+    return max(function_ends, default=0)
 
 
 def _is_declarative_statement(statement: ast.stmt) -> bool:
