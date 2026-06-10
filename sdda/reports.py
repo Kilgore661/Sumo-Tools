@@ -18,6 +18,7 @@ def write_reports(result: AnalysisResult) -> None:
     _write_csv(result.output_dir / "value_facts.csv", result.value_facts)
     _write_csv(result.output_dir / "field_facts.csv", result.field_facts)
     _write_csv(result.output_dir / "call_edges.csv", result.call_edges)
+    _write_csv(result.output_dir / "execution_call_slice.csv", result.execution_call_slice)
     _write_csv(result.output_dir / "call_argument_bindings.csv", result.call_argument_bindings)
     _write_csv(result.output_dir / "parameter_field_provenance.csv", result.parameter_field_provenance)
     _write_csv(result.output_dir / "parameter_file_provenance.csv", result.parameter_file_provenance)
@@ -85,6 +86,7 @@ def _write_summary(result: AnalysisResult) -> None:
         f"Value facts: {len(result.value_facts)}",
         f"Field facts: {len(result.field_facts)}",
         f"Call edges: {len(result.call_edges)}",
+        f"Execution call slice: {len(result.execution_call_slice)}",
         f"Call argument bindings: {len(result.call_argument_bindings)}",
         f"Parameter field provenance: {len(result.parameter_field_provenance)}",
         f"Parameter file provenance: {len(result.parameter_file_provenance)}",
@@ -118,6 +120,7 @@ def _write_summary(result: AnalysisResult) -> None:
             "value_facts.csv",
             "field_facts.csv",
             "call_edges.csv",
+            "execution_call_slice.csv",
             "call_argument_bindings.csv",
             "parameter_field_provenance.csv",
             "parameter_file_provenance.csv",
