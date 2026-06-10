@@ -45,7 +45,6 @@ def extract_parameter_file_provenance(
             iterator_key = (
                 binding.caller_module,
                 binding.caller_scope,
-                binding.call_line,
                 binding.argument_expression,
             )
             iterator_binding = iterator_bindings.get(iterator_key)
@@ -103,8 +102,8 @@ def _bindings_by_callee_parameter(
 def _iterator_argument_bindings(
     module_index: dict[str, ModuleRecord],
     path_constants: PathConstantMap,
-) -> dict[tuple[str, str, int, str], str]:
-    bindings: dict[tuple[str, str, int, str], str] = {}
+) -> dict[tuple[str, str, str], str]:
+    bindings: dict[tuple[str, str, str], str] = {}
     for module_name, module_record in module_index.items():
         tree = parse_python_file(module_record.path)
         for function_node in ast.walk(tree):
@@ -131,7 +130,7 @@ def _iterator_argument_bindings(
                 if not isinstance(argument, ast.Name) or argument.id != target_name:
                     continue
                 pattern = _filtered_iterator_pattern(root_pattern, target_name, comprehension.ifs)
-                bindings[(module_name, scope_name, generator.elt.lineno, target_name)] = pattern
+                bindings[(module_name, scope_name, target_name)] = pattern
     return bindings
 
 
@@ -161,7 +160,7 @@ def _filtered_iterator_pattern(root_pattern: str, target_name: str, filters: lis
         if suffix_values:
             suffixes.extend(suffix_values)
     if suffixes:
-        return f"{root_pattern}/{prefix}{{{','.join(sorted(suffixes))}}}"
+        return f"{root_pattern}/{prefix}*{{{','.join(sorted(suffixes))}}}"
     return f"{root_pattern}/{prefix}*"
 
 
