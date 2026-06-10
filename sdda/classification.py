@@ -175,7 +175,10 @@ def _mode_dependent_deployment_source_patterns(
 def _parameter_path_input_patterns(provenance: list[object]) -> set[str]:
     patterns: set[str] = set()
     for row in provenance:
-        if getattr(row, "interpretation", "") != "parameter_from_path_expression":
+        if getattr(row, "interpretation", "") not in {
+            "parameter_from_path_expression",
+            "parameter_from_iterator_path_family",
+        }:
             continue
         expression = getattr(row, "consumer_expression")
         patterns.add(expression)
