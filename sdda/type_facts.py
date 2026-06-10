@@ -36,9 +36,9 @@ def _class_facts(
     facts = [
         TypeFactRecord(
             module=module_name,
-            owner_kind="module",
-            owner_qualname="<module>",
-            owner_full_name=module_name,
+            owner_kind="class",
+            owner_qualname=qualname,
+            owner_full_name=full_name,
             fact_kind="dataclass" if dataclass_class else "class",
             name=node.name,
             annotation="",
