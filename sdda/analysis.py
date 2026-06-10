@@ -7,6 +7,7 @@ from .call_edges import extract_call_edges
 from .call_slice import derive_execution_call_slice
 from .classification import classify_file_families
 from .distribution import derive_distribution_candidates
+from .execution_review import build_execution_review_candidates
 from .field_facts import extract_field_facts
 from .file_families import normalise_file_families
 from .file_use_resolution import resolve_file_uses
@@ -74,6 +75,7 @@ def analyse(root_module: str, import_root: Path, output_dir: Path | None = None)
     file_family_classification = classify_file_families(file_families, producer_outputs, parameter_field_provenance, parameter_file_provenance)
     distribution_candidates = derive_distribution_candidates(file_family_classification)
     review_candidates = build_review_candidates(distribution_candidates, file_family_classification, file_families, file_family_evidence)
+    execution_review_candidates = build_execution_review_candidates(review_candidates, execution_call_slice)
     final_output_dir = output_dir or _default_output_dir(root_module)
     return AnalysisResult(
         root_module=root_module,
@@ -88,6 +90,7 @@ def analyse(root_module: str, import_root: Path, output_dir: Path | None = None)
         field_facts=field_facts,
         call_edges=call_edges,
         execution_call_slice=execution_call_slice,
+        execution_review_candidates=execution_review_candidates,
         call_argument_bindings=call_argument_bindings,
         parameter_field_provenance=parameter_field_provenance,
         parameter_file_provenance=parameter_file_provenance,
