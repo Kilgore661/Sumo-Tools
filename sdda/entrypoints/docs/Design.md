@@ -12,7 +12,9 @@ Given an import root, produce an accounting of all Python modules under that roo
 all indexed modules
 ├── library modules
 └── programs
-    ├── probable entrypoints
+    ├── standalone programs
+    │   ├── command-like
+    │   └── weak entrypoint signal
     └── imported programs needing review
         ├── probable library modules
         └── possible entrypoints
@@ -23,9 +25,34 @@ The output should make it easy to answer questions such as:
 * How many modules are in this import root?
 * Which modules are purely library-like?
 * Which modules are executable programs?
-* Which programs appear to be standalone entrypoints?
+* Which programs have no observed inbound syntactic imports from other indexed modules?
+* Which standalone programs look command-like?
+* Which standalone programs have weak entrypoint evidence?
 * Which executable modules are imported by other modules and therefore need human review?
 * After review, what are the true entrypoints for this import root?
+
+## Scope assumptions
+
+The import root is treated as the closed universe for reference analysis.
+
+For example, if the command is:
+
+```powershell
+python -m sdda.entrypoints --import-root .\src
+```
+
+then the tool indexes modules under `src` and records references between those indexed modules.
+
+The tool does not look for inbound imports from outside the import root.
+
+The tool does not detect dynamic imports such as `importlib.import_module(...)`, string-based plugin loading, or shell commands that run `python -m ...`.
+
+The analysis assumes relevant module relationships are expressed as ordinary syntactic imports:
+
+```text
+import ...
+from ... import ...
+```
 
 ## Terminology
 
@@ -64,9 +91,26 @@ That may be library-like after human review, but the machine classification rema
 
 ### Standalone program
 
-A standalone program is a program that is not imported by any other indexed module.
+A standalone program is a program with no inbound syntactic references from other indexed modules.
 
-In the generated review form, standalone programs are treated as probable entrypoints.
+This is a topological statement about the indexed import graph. It does not mean the module is a confirmed command, and it does not prove that the module is not library-like.
+
+In the generated review form, standalone programs are treated as probable entrypoint candidates.
+
+### Command-like standalone program
+
+A command-like standalone program is a standalone program that either:
+
+* is `__main__.py`; or
+* has a main guard such as `if __name__ == "__main__":`.
+
+This is stronger evidence that the module is intentionally runnable, but it is still a review hint rather than proof.
+
+### Weak-entrypoint-signal standalone program
+
+A weak-entrypoint-signal standalone program is a standalone program that is neither `__main__.py` nor guarded by `if __name__ == "__main__":`.
+
+It may still be a real entrypoint, but the machine has weaker evidence that it is intentionally runnable. It may also be old script code, dead code, or library-like code with top-level setup.
 
 ### Imported program
 
@@ -187,7 +231,20 @@ A program with no inbound references from other indexed modules is a `standalone
 
 A program with at least one inbound reference is an `imported_program`.
 
-### 6. Add imported-program review hints
+This classification is relative to the import root. It does not consider imports from outside the import root and does not consider dynamic imports.
+
+### 6. Add review hints
+
+Standalone programs receive a command-shape subtype:
+
+```text
+command_like
+weak_entrypoint_signal
+```
+
+`command_like` means the standalone program is either `__main__.py` or has a main guard.
+
+`weak_entrypoint_signal` means the standalone program has neither signal.
 
 Imported programs receive a subtype:
 
@@ -196,9 +253,9 @@ probable_library
 review
 ```
 
-The generated reports present subtype `review` as `possible_entrypoints` in the accounting section.
+The generated reports present imported-program subtype `review` as `possible_entrypoints` in the accounting section.
 
-The subtype is based on syntax only. It is not proof of intent.
+All subtypes are based on syntax only. They are not proof of intent.
 
 ### 7. Write reports
 
@@ -236,6 +293,10 @@ Reviewed forms that represent durable human judgement should be copied into `sdd
 The tool does not prove whether a module is intended to be run.
 
 It does not detect every possible runtime relationship between modules.
+
+It does not look outside the import root for inbound imports.
+
+It does not detect dynamic imports.
 
 It does not know whether a runnable probe is part of a production pipeline.
 
