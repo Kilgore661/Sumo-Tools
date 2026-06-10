@@ -82,6 +82,9 @@ def _source_distribution_policy(candidate: object, execution: object | None) -> 
     if _is_output_parameter_family(family_pattern):
         return "review", "review", "scoped_output_parameter_not_source_input"
 
+    if _is_unresolved_scoped_parameter_family(family_pattern, execution):
+        return "review", "review", "scoped_parameter_without_concrete_source_pattern"
+
     if classification == "required_distribution_input":
         return "must_include", "include", "required_distribution_input"
 
@@ -115,6 +118,24 @@ def _is_output_parameter_family(family_pattern: str) -> bool:
     if family_pattern.endswith(":target") or family_pattern.endswith(":target_path"):
         return True
     return False
+
+
+def _is_unresolved_scoped_parameter_family(family_pattern: str, execution: object | None) -> bool:
+    if not _is_scoped_family(family_pattern):
+        return False
+    if _is_concrete_path_family(family_pattern):
+        return False
+    if execution is not None and _execution_status(execution) == "not_in_execution_slice":
+        return False
+    return True
+
+
+def _is_scoped_family(family_pattern: str) -> bool:
+    return family_pattern.count(":") >= 2
+
+
+def _is_concrete_path_family(family_pattern: str) -> bool:
+    return family_pattern.startswith("files/") or family_pattern.startswith("src/")
 
 
 def _execution_status(execution: object | None) -> str:
