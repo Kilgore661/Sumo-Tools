@@ -33,17 +33,20 @@ def extract_parameter_file_provenance(
     path_constants: PathConstantMap | None = None,
     local_aliases: dict[tuple[str, str], dict[str, str]] | None = None,
 ) -> list[ParameterFileProvenanceRecord]:
+    modules = module_index or {}
+    constants = path_constants or {}
     bindings_by_callee_parameter = _bindings_by_callee_parameter(call_argument_bindings)
-    iterator_bindings = _iterator_argument_bindings(module_index or {}, path_constants or {})
+    default_arguments = _default_argument_bindings(modules, constants)
+    iterator_bindings = _iterator_argument_bindings(modules, constants)
     aliases = local_aliases or {}
     records: list[ParameterFileProvenanceRecord] = []
-    seen: set[tuple[str, str, int, str, str, int]] = set()
+    seen: set[tuple[str, str, int, str, str, int, str]] = set()
     for file_use in file_uses:
         parameter_name = _parameter_name(file_use.resolved_expression)
         if parameter_name == "":
             continue
         key = (file_use.module, file_use.scope_name, parameter_name)
-        for binding in bindings_by_callee_parameter.get(key, ()):
+        for binding in bindings_by_callee_parameter.get(key, ()): 
             argument_expression, interpretation, reason = _argument_provenance(
                 binding,
                 iterator_bindings,
@@ -56,6 +59,7 @@ def extract_parameter_file_provenance(
                 parameter_name,
                 binding.caller_module,
                 binding.call_line,
+                interpretation,
             )
             if dedupe_key in seen:
                 continue
@@ -78,6 +82,39 @@ def extract_parameter_file_provenance(
                     reason=reason,
                 )
             )
+        default_expression = default_arguments.get(key)
+        if default_expression is None:
+            continue
+        dedupe_key = (
+            file_use.module,
+            file_use.scope_name,
+            file_use.line,
+            parameter_name,
+            file_use.module,
+            0,
+            "parameter_from_default_path_expression",
+        )
+        if dedupe_key in seen:
+            continue
+        seen.add(dedupe_key)
+        records.append(
+            ParameterFileProvenanceRecord(
+                consumer_module=file_use.module,
+                consumer_scope=file_use.scope_name,
+                consumer_line=file_use.line,
+                consumer_action=file_use.action,
+                consumer_expression=file_use.resolved_expression,
+                parameter_name=parameter_name,
+                caller_module=file_use.module,
+                caller_scope=file_use.scope_name,
+                call_line=0,
+                argument_expression=default_expression,
+                argument_name=parameter_name,
+                argument_value_sources="",
+                interpretation="parameter_from_default_path_expression",
+                reason="parameter_file_use_from_default_argument",
+            )
+        )
     return records
 
 
@@ -113,6 +150,43 @@ def _bindings_by_callee_parameter(
             continue
         grouped.setdefault((module, scope, binding.parameter_name), []).append(binding)
     return {key: tuple(value) for key, value in grouped.items()}
+
+
+def _default_argument_bindings(
+    module_index: dict[str, ModuleRecord],
+    path_constants: PathConstantMap,
+) -> dict[tuple[str, str, str], str]:
+    bindings: dict[tuple[str, str, str], str] = {}
+    for module_name, module_record in module_index.items():
+        tree = parse_python_file(module_record.path)
+        constants = path_constants.get(module_name, {})
+        for function_node in ast.walk(tree):
+            if not isinstance(function_node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            defaults = function_node.args.defaults
+            if not defaults:
+                continue
+            positional_args = function_node.args.args[-len(defaults):]
+            for argument, default in zip(positional_args, defaults):
+                default_expression = _eval_default_expression(default, constants)
+                if default_expression == "":
+                    continue
+                bindings[(module_name, function_node.name, argument.arg)] = default_expression
+    return bindings
+
+
+def _eval_default_expression(node: ast.AST, constants: dict[str, str]) -> str:
+    if isinstance(node, ast.Name):
+        return constants.get(node.id, node.id)
+    if isinstance(node, ast.Constant) and isinstance(node.value, str):
+        return node.value
+    if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Div):
+        left = _eval_default_expression(node.left, constants)
+        right = _eval_default_expression(node.right, constants)
+        if left == "" or right == "":
+            return ""
+        return f"{left}/{right}"
+    return ""
 
 
 def _iterator_argument_bindings(
