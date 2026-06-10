@@ -50,7 +50,7 @@ def extract_producer_outputs(
             if value_fact.name != _receiver_name(resolution.resolved_expression):
                 continue
             for return_binding in returns:
-                if return_binding.producer_function != value_fact.source_full_name:
+                if not _same_function(return_binding.producer_function, value_fact):
                     continue
                 if return_binding.field_name != resolution.resolved_field_name:
                     continue
@@ -166,6 +166,15 @@ def _write_source_name(node: ast.Call) -> str:
         if node.args:
             return _source_name(node.args[0])
     return ""
+
+
+def _same_function(producer_function: str, value_fact: ValueFactRecord) -> bool:
+    if producer_function == value_fact.source_full_name:
+        return True
+    producer_name = producer_function.rsplit(".", maxsplit=1)[-1]
+    source_name = value_fact.source_full_name.rsplit(".", maxsplit=1)[-1]
+    expression_name = value_fact.source_expression.split("(", maxsplit=1)[0].split(".")[-1]
+    return producer_name == source_name == expression_name
 
 
 def _source_name(node: ast.AST) -> str:
