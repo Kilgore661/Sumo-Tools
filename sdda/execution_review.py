@@ -12,6 +12,7 @@ class ExecutionReviewCandidateRecord:
     classification: str
     distribution_decision: str
     review_priority: str
+    effective_review_priority: str
     classification_reason: str
     first_module: str
     first_scope: str
@@ -50,6 +51,7 @@ def build_execution_review_candidates(
                 classification=row.classification,
                 distribution_decision=row.distribution_decision,
                 review_priority=row.review_priority,
+                effective_review_priority=_effective_review_priority(row.review_priority, execution_status),
                 classification_reason=row.classification_reason,
                 first_module=row.first_module,
                 first_scope=row.first_scope,
@@ -60,7 +62,13 @@ def build_execution_review_candidates(
                 execution_reason=execution_reason,
             )
         )
-    return sorted(rows, key=lambda item: (item.review_priority, item.execution_status, item.family_pattern))
+    return sorted(rows, key=lambda item: (item.effective_review_priority, item.execution_status, item.family_pattern))
+
+
+def _effective_review_priority(review_priority: str, execution_status: str) -> str:
+    if execution_status == "not_in_execution_slice":
+        return "low"
+    return review_priority
 
 
 def _reachable_functions(execution_call_slice: list[object]) -> dict[str, int]:
