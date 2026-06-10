@@ -132,6 +132,8 @@ def _read_only_classification(
         return "unknown_review_needed", "medium", "scoped_local_or_parameter_read"
     if _is_object_field_expression(family.family_pattern):
         return "possible_pipeline_intermediate", "medium", "object_field_read_without_value_flow"
+    if family.family_kind == "glob_family" and _is_concrete_repository_glob(family.family_pattern):
+        return "required_distribution_input", "high", "concrete_repository_glob_without_write"
     if family.family_kind == "glob_family" and _is_constant_glob(family.family_pattern):
         return "required_distribution_input", "medium", "constant_glob_observed_without_write"
     if family.family_kind == "glob_family":
@@ -188,6 +190,10 @@ def _parameter_path_input_patterns(provenance: list[object]) -> set[str]:
 
 def _matches_any_field_pattern(pattern: str, fields: set[str]) -> bool:
     return any(pattern == field or pattern.startswith(f"{field}/") for field in fields)
+
+
+def _is_concrete_repository_glob(pattern: str) -> bool:
+    return pattern.startswith("src/") or pattern.startswith("files/")
 
 
 def _is_constant_glob(pattern: str) -> bool:
