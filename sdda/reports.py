@@ -108,8 +108,10 @@ def _write_summary(result: AnalysisResult) -> None:
     lines.extend(_summary_block("Distribution decisions", _distribution_decisions(result)))
     lines.extend(_summary_block("File-family classifications", _file_family_classifications(result)))
     lines.extend(_summary_block("Execution review status", _execution_review_status(result)))
+    lines.extend(_summary_block("Effective review priorities", _effective_review_priorities(result)))
     lines.extend(_candidate_list_block("Include candidates", _include_candidates(result)))
     lines.extend(_candidate_list_block("High-priority review candidates", _high_review_candidates(result)))
+    lines.extend(_execution_candidate_list_block("Effective high-priority review candidates", _effective_high_review_candidates(result)))
     lines.extend(
         [
             "## Reports",
@@ -158,6 +160,10 @@ def _execution_review_status(result: AnalysisResult) -> Counter[str]:
     return Counter(row.execution_status for row in result.execution_review_candidates)
 
 
+def _effective_review_priorities(result: AnalysisResult) -> Counter[str]:
+    return Counter(row.effective_review_priority for row in result.execution_review_candidates)
+
+
 def _include_candidates(result: AnalysisResult) -> list[DistributionCandidateRecord]:
     return sorted(
         [row for row in result.distribution_candidates if row.distribution_decision == "include"],
@@ -171,6 +177,17 @@ def _high_review_candidates(result: AnalysisResult) -> list[DistributionCandidat
             row
             for row in result.distribution_candidates
             if row.distribution_decision == "review" and row.review_priority == "high"
+        ],
+        key=lambda row: row.family_pattern,
+    )
+
+
+def _effective_high_review_candidates(result: AnalysisResult) -> list[object]:
+    return sorted(
+        [
+            row
+            for row in result.execution_review_candidates
+            if row.effective_review_priority == "high"
         ],
         key=lambda row: row.family_pattern,
     )
@@ -191,5 +208,18 @@ def _candidate_list_block(title: str, rows: list[DistributionCandidateRecord]) -
         return lines
     for row in rows:
         lines.append(f"- `{row.family_pattern}` ({row.classification}; {row.actions})")
+    lines.append("")
+    return lines
+
+
+def _execution_candidate_list_block(title: str, rows: list[object]) -> list[str]:
+    lines = [f"## {title}", ""]
+    if not rows:
+        lines.extend(["None", ""])
+        return lines
+    for row in rows:
+        lines.append(
+            f"- `{row.family_pattern}` ({row.classification}; {row.execution_status}; {row.classification_reason})"
+        )
     lines.append("")
     return lines
