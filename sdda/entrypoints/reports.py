@@ -44,7 +44,11 @@ def _program_kind_rows(result: EntrypointAnalysisResult, program_kind: str) -> l
     return [row for row in result.module_index_rows if row.program_kind == program_kind]
 
 
-def _review_rows(result: EntrypointAnalysisResult) -> list[ModuleIndexRecord]:
+def _probable_entrypoint_rows(result: EntrypointAnalysisResult) -> list[ModuleIndexRecord]:
+    return sorted(_program_kind_rows(result, "standalone_program"), key=lambda row: row.module)
+
+
+def _imported_program_review_rows(result: EntrypointAnalysisResult) -> list[ModuleIndexRecord]:
     return sorted(
         _program_kind_rows(result, "imported_program"),
         key=lambda row: (row.program_subtype != "probable_library", row.module),
@@ -52,39 +56,113 @@ def _review_rows(result: EntrypointAnalysisResult) -> list[ModuleIndexRecord]:
 
 
 def _write_review_form(result: EntrypointAnalysisResult) -> None:
-    rows = _review_rows(result)
+    accounting = _module_type_accounting(result)
+    probable_entrypoints = _probable_entrypoint_rows(result)
+    imported_programs = _imported_program_review_rows(result)
     lines = [
         "# SDDA Entrypoint Review Form",
         "",
         f"Import root: `{result.import_root}`",
         "",
-        "This generated form records human review of imported programs.",
-        "Check exactly one outcome for each module and add comments where useful.",
+        "This generated form records human review of machine-identified entrypoint candidates.",
+        "Check exactly one outcome for each reviewed module and add comments where useful.",
+        "",
+        "## Machine-written context",
+        "",
+        f"total_modules: {accounting['total_modules']}",
+        f"library_modules: {accounting['library_modules']}",
+        f"programs: {accounting['programs']}",
+        f"  probable_entrypoints: {accounting['probable_entrypoints']}",
+        f"  imported_programs_needing_review: {accounting['imported_programs_needing_review']}",
+        f"    probable_library_modules: {accounting['probable_library_modules']}",
+        f"    possible_entrypoints: {accounting['possible_entrypoints']}",
+        "",
+        "## Overall human conclusion",
+        "",
+        "Use this section after reviewing the module-level entries below.",
+        "",
+        "Conclusion:",
+        "",
+        "> ",
+        "",
+        "True entrypoints:",
+        "",
+        "- ",
+        "",
+        "Modules reviewed as library-like:",
+        "",
+        "- ",
+        "",
+        "Modules still unclear:",
+        "",
+        "- ",
+        "",
+        "## Probable entrypoints",
+        "",
+        "These are standalone programs. They are probable entrypoints, but still need human confirmation.",
         "",
     ]
-    if not rows:
+    if not probable_entrypoints:
+        lines.extend(["No standalone programs were found.", ""])
+    for row in probable_entrypoints:
+        lines.extend(_probable_entrypoint_section(row))
+
+    lines.extend(
+        [
+            "## Imported programs needing review",
+            "",
+            "These are programs that are imported by at least one other indexed module.",
+            "",
+        ]
+    )
+    if not imported_programs:
         lines.extend(["No imported programs require review.", ""])
-    for row in rows:
-        lines.extend(
-            [
-                f"## `{row.module}`",
-                "",
-                f"Path: `{row.path}`",
-                f"Subtype hint: `{row.program_subtype or 'review'}`",
-                f"Imported by: `{row.imported_by}`",
-                "",
-                "- [ ] Reviewed as library-like module",
-                "- [ ] Reviewed as real entrypoint",
-                "- [ ] Reviewed as obsolete / ignore",
-                "- [ ] Still unclear",
-                "",
-                "Comments:",
-                "",
-                "> ",
-                "",
-            ]
-        )
+    for row in imported_programs:
+        lines.extend(_imported_program_section(row))
     (result.output_dir / "entrypoint_review_form.md").write_text("\n".join(lines), encoding="utf-8")
+
+
+def _probable_entrypoint_section(row: ModuleIndexRecord) -> list[str]:
+    return [
+        f"### `{row.module}`",
+        "",
+        f"Path: `{row.path}`",
+        f"First non-declarative statement: line {row.first_non_declarative_line}, `{row.first_non_declarative_kind}`",
+        f"Has main guard: `{row.has_main_guard}`",
+        f"Is `__main__.py`: `{row.is_dunder_main}`",
+        "",
+        "- [ ] Reviewed as true entrypoint",
+        "- [ ] Reviewed as not a true entrypoint",
+        "- [ ] Still unclear",
+        "",
+        "Conclusion / comments:",
+        "",
+        "> ",
+        "",
+    ]
+
+
+def _imported_program_section(row: ModuleIndexRecord) -> list[str]:
+    return [
+        f"### `{row.module}`",
+        "",
+        f"Path: `{row.path}`",
+        f"Subtype hint: `{row.program_subtype or 'review'}`",
+        f"Imported by: `{row.imported_by}`",
+        f"First non-declarative statement: line {row.first_non_declarative_line}, `{row.first_non_declarative_kind}`",
+        f"Has main guard: `{row.has_main_guard}`",
+        f"Is `__main__.py`: `{row.is_dunder_main}`",
+        "",
+        "- [ ] Reviewed as library-like module",
+        "- [ ] Reviewed as real entrypoint",
+        "- [ ] Reviewed as obsolete / ignore",
+        "- [ ] Still unclear",
+        "",
+        "Conclusion / comments:",
+        "",
+        "> ",
+        "",
+    ]
 
 
 def _write_summary(result: EntrypointAnalysisResult) -> None:
@@ -146,7 +224,7 @@ def _write_summary(result: EntrypointAnalysisResult) -> None:
             "An imported program is a program that is imported by at least one other indexed module and needs human review.",
             "An imported program with subtype `probable_library` has no non-declarative top-level code after its final top-level function.",
             "An imported program counted as `possible_entrypoints` does not have the `probable_library` hint.",
-            "Review outcomes can be recorded in `entrypoint_review_form.md`.",
+            "Review outcomes and final conclusions can be recorded in `entrypoint_review_form.md`.",
             "",
         ]
     )
