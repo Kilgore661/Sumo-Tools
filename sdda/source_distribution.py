@@ -79,11 +79,20 @@ def _source_distribution_policy(candidate: object, execution: object | None) -> 
     if execution_status == "not_in_execution_slice":
         return "not_in_execution_slice", "exclude_from_current_product_slice", "not_in_execution_slice"
 
+    if classification in {"generated_then_consumed", "generated_output"}:
+        return "generated_or_intermediate_output", "exclude", classification
+
+    if classification == "mode_dependent_deployment_source":
+        return "mode_dependent_review", "review", "mode_dependent_deployment_source"
+
+    if classification == "possible_state_or_control_file":
+        return "state_or_control_review", "review", "possible_state_or_control_file"
+
     if _is_output_parameter_family(family_pattern):
-        return "review", "review", "scoped_output_parameter_not_source_input"
+        return "scoped_output_parameter", "document_as_output_location", "scoped_output_parameter_not_source_input"
 
     if _is_unresolved_scoped_parameter_family(family_pattern, execution):
-        return "review", "review", "scoped_parameter_without_concrete_source_pattern"
+        return _scoped_parameter_policy(execution_status)
 
     if classification == "required_distribution_input":
         return _required_input_policy(family_pattern)
@@ -93,12 +102,6 @@ def _source_distribution_policy(candidate: object, execution: object | None) -> 
 
     if classification == "internet_source":
         return "external_runtime_assumption", "document_or_regenerate", "internet_source"
-
-    if classification == "mode_dependent_deployment_source":
-        return "mode_dependent_review", "review", "mode_dependent_deployment_source"
-
-    if classification in {"generated_then_consumed", "generated_output"}:
-        return "exclude", "exclude", classification
 
     if distribution_decision == "exclude":
         return "exclude", "exclude", "distribution_decision_exclude"
@@ -120,8 +123,18 @@ def _required_input_policy(family_pattern: str) -> tuple[str, str, str]:
     return "required_input_unclassified", "include", "required_input_unclassified"
 
 
+def _scoped_parameter_policy(execution_status: str) -> tuple[str, str, str]:
+    if execution_status == "execution_reachable":
+        return "unresolved_execution_parameter", "review", "scoped_execution_parameter_without_concrete_source_pattern"
+    return "unresolved_non_execution_parameter", "review", "scoped_non_execution_parameter_without_concrete_source_pattern"
+
+
 def _is_output_parameter_family(family_pattern: str) -> bool:
     if family_pattern.endswith(":output_root"):
+        return True
+    if family_pattern.endswith(":output_dir"):
+        return True
+    if family_pattern.endswith(":destination"):
         return True
     if family_pattern.endswith(":target") or family_pattern.endswith(":target_path"):
         return True
@@ -164,10 +177,15 @@ def _bucket_order(bucket: str) -> int:
         "precomputed_artifact_input": 1,
         "required_input_unclassified": 2,
         "mode_dependent_review": 3,
-        "external_runtime_assumption": 4,
-        "requires_review": 5,
-        "review": 6,
-        "exclude": 7,
-        "not_in_execution_slice": 8,
+        "state_or_control_review": 4,
+        "external_runtime_assumption": 5,
+        "requires_review": 6,
+        "unresolved_execution_parameter": 7,
+        "unresolved_non_execution_parameter": 8,
+        "scoped_output_parameter": 9,
+        "review": 10,
+        "generated_or_intermediate_output": 11,
+        "exclude": 12,
+        "not_in_execution_slice": 13,
     }
     return order.get(bucket, 99)
