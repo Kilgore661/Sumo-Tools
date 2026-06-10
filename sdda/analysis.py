@@ -13,7 +13,7 @@ from .local_path_aliases import build_local_path_alias_map
 from .models import AnalysisResult, FieldFactRecord, FileUseRecord, FileUseResolutionRecord, ScopeRecord, TypeFactRecord, UnresolvedRecord, ValueFactRecord
 from .module_index import build_module_index
 from .path_constants import build_path_constant_map
-from .provenance import extract_producer_outputs
+from .provenance import extract_producer_outputs, extract_producer_return_bindings, extract_producer_write_bindings
 from .scopes import extract_scopes
 from .source import parse_python_file
 from .type_facts import extract_type_facts
@@ -51,19 +51,12 @@ def analyse(root_module: str, import_root: Path, output_dir: Path | None = None)
         field_facts.extend(extract_field_facts(module_name, parsed_trees[module_name], scopes_by_module[module_name], imports, type_facts, value_facts))
 
     file_use_resolutions: list[FileUseResolutionRecord] = resolve_file_uses(file_uses, field_facts)
-    producer_outputs = extract_producer_outputs(parsed_trees, imports, type_facts, value_facts, file_use_resolutions)
+    producer_return_bindings = extract_producer_return_bindings(parsed_trees, imports, type_facts)
+    producer_write_bindings = extract_producer_write_bindings(parsed_trees)
+    producer_outputs = extract_producer_outputs(producer_return_bindings, producer_write_bindings, value_facts, file_use_resolutions)
 
-    local_aliases = build_local_path_alias_map(
-        module_index,
-        reachable_modules,
-        scopes,
-        path_constants,
-    )
-    file_families, file_family_evidence = normalise_file_families(
-        file_uses,
-        path_constants,
-        local_aliases,
-    )
+    local_aliases = build_local_path_alias_map(module_index, reachable_modules, scopes, path_constants)
+    file_families, file_family_evidence = normalise_file_families(file_uses, path_constants, local_aliases)
     file_family_classification = classify_file_families(file_families)
     distribution_candidates = derive_distribution_candidates(file_family_classification)
     final_output_dir = output_dir or _default_output_dir(root_module)
@@ -80,6 +73,8 @@ def analyse(root_module: str, import_root: Path, output_dir: Path | None = None)
         field_facts=field_facts,
         file_uses=file_uses,
         file_use_resolutions=file_use_resolutions,
+        producer_return_bindings=producer_return_bindings,
+        producer_write_bindings=producer_write_bindings,
         producer_outputs=producer_outputs,
         file_families=file_families,
         file_family_evidence=file_family_evidence,
