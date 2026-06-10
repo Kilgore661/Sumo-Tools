@@ -188,10 +188,14 @@ def _resolve_local_aliases(use: FileUseRecord, expression: str, aliases: LocalPa
 
 
 def _replace_constant_token(expression: str, name: str, value: str) -> str:
-    if expression == name:
-        return value
-    if expression.startswith(f"{name}/"):
-        return f"{value}{expression[len(name):]}"
+    parts = expression.split("/")
+    changed = False
+    for index, part in enumerate(parts):
+        if part == name:
+            parts[index] = value
+            changed = True
+    if changed:
+        return "/".join(parts)
     return expression
 
 
