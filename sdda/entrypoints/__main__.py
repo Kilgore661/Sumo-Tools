@@ -37,6 +37,7 @@ def _print_summary(result) -> None:
     print(f"Standalone programs: {len(standalone_rows)}")
     print(f"Imported programs: {len(imported_rows)}")
     print(f"References: {len(result.references)}")
+    print(f"Warnings: {len(result.warnings)}")
 
 
 if __name__ == "__main__":
