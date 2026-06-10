@@ -75,17 +75,28 @@ def _from_import_references(
     base_module = _resolve_relative_module(source_module, statement.module or "", statement.level)
     records: list[ReferenceRecord] = []
     warnings: list[WarningRecord] = []
+    base_resolution = resolver.resolve(base_module) if base_module else _Resolution()
+    submodule_results = []
+
+    for alias in statement.names:
+        candidate = f"{base_module}.{alias.name}" if base_module else alias.name
+        resolution = resolver.resolve(candidate)
+        submodule_results.append((alias, candidate, resolution))
 
     if base_module:
-        base_resolution = resolver.resolve(base_module)
-        warnings.extend(
-            _resolution_warnings(
-                source_module=source_module,
-                line=statement.lineno,
-                imported_name=base_module,
-                resolution=base_resolution,
-            )
+        suppress_base_warning = (
+            not base_resolution.target
+            and any(resolution.target for _, _, resolution in submodule_results)
         )
+        if not suppress_base_warning:
+            warnings.extend(
+                _resolution_warnings(
+                    source_module=source_module,
+                    line=statement.lineno,
+                    imported_name=base_module,
+                    resolution=base_resolution,
+                )
+            )
         if base_resolution.target:
             for alias in statement.names:
                 records.append(
@@ -98,9 +109,7 @@ def _from_import_references(
                     )
                 )
 
-    for alias in statement.names:
-        candidate = f"{base_module}.{alias.name}" if base_module else alias.name
-        resolution = resolver.resolve(candidate)
+    for alias, candidate, resolution in submodule_results:
         warnings.extend(
             _resolution_warnings(
                 source_module=source_module,
