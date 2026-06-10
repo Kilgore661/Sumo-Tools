@@ -50,3 +50,11 @@ To see what has changed:
 To get the changes without conflicts:
 
 `git pull --ff-only`
+
+
+
+---
+
+For non-codex you need
+
+Get-ChildItem -Path . -Recurse |Where-Object { $_.FullName -notlike "*\output*" } > ..\dir.txt
