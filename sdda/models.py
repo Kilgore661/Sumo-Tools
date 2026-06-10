@@ -104,6 +104,27 @@ class FileUseResolutionRecord:
 
 
 @dataclass(frozen=True)
+class ProducerReturnBindingRecord:
+    producer_function: str
+    output_type: str
+    output_field: str
+    source_name: str
+    source_expression: str
+    return_line: int
+    reason: str
+
+
+@dataclass(frozen=True)
+class ProducerWriteBindingRecord:
+    producer_function: str
+    source_name: str
+    write_action: str
+    write_expression: str
+    write_line: int
+    reason: str
+
+
+@dataclass(frozen=True)
 class ProducerOutputRecord:
     consumer_module: str
     consumer_scope: str
@@ -201,6 +222,8 @@ class AnalysisResult:
     field_facts: list[FieldFactRecord]
     file_uses: list[FileUseRecord]
     file_use_resolutions: list[FileUseResolutionRecord]
+    producer_return_bindings: list[ProducerReturnBindingRecord]
+    producer_write_bindings: list[ProducerWriteBindingRecord]
     producer_outputs: list[ProducerOutputRecord]
     file_families: list[FileFamilyRecord]
     file_family_evidence: list[FileFamilyEvidenceRecord]
