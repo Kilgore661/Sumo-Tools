@@ -10,7 +10,7 @@ from .file_use_resolution import resolve_file_uses
 from .file_uses import extract_file_uses
 from .import_graph import build_reachable_imports
 from .local_path_aliases import build_local_path_alias_map
-from .models import AnalysisResult, FieldFactRecord, FileUseRecord, FileUseResolutionRecord, ProducerOutputRecord, ScopeRecord, TypeFactRecord, UnresolvedRecord, ValueFactRecord
+from .models import AnalysisResult, FieldFactRecord, FileUseRecord, FileUseResolutionRecord, ScopeRecord, TypeFactRecord, UnresolvedRecord, ValueFactRecord
 from .module_index import build_module_index
 from .path_constants import build_path_constant_map
 from .provenance import extract_producer_outputs
@@ -51,10 +51,7 @@ def analyse(root_module: str, import_root: Path, output_dir: Path | None = None)
         field_facts.extend(extract_field_facts(module_name, parsed_trees[module_name], scopes_by_module[module_name], imports, type_facts, value_facts))
 
     file_use_resolutions: list[FileUseResolutionRecord] = resolve_file_uses(file_uses, field_facts)
-
-    producer_outputs: list[ProducerOutputRecord] = []
-    for module_name in reachable_modules:
-        producer_outputs.extend(extract_producer_outputs(module_name, parsed_trees[module_name], imports, type_facts, value_facts, file_use_resolutions))
+    producer_outputs = extract_producer_outputs(parsed_trees, imports, type_facts, value_facts, file_use_resolutions)
 
     local_aliases = build_local_path_alias_map(
         module_index,
