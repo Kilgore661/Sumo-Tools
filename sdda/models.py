@@ -232,6 +232,27 @@ class DistributionCandidateRecord:
 
 
 @dataclass(frozen=True)
+class ReviewCandidateRecord:
+    family_id: str
+    family_pattern: str
+    classification: str
+    distribution_decision: str
+    review_priority: str
+    classification_reason: str
+    distribution_reason: str
+    actions: str
+    family_kind: str
+    evidence_count: int
+    modules: str
+    first_module: str
+    first_scope: str
+    first_line: int
+    first_raw_expression: str
+    first_resolved_expression: str
+    first_evidence_reason: str
+
+
+@dataclass(frozen=True)
 class UnresolvedRecord:
     module: str
     scope_kind: str
@@ -264,4 +285,5 @@ class AnalysisResult:
     file_family_evidence: list[FileFamilyEvidenceRecord]
     file_family_classification: list[FileFamilyClassificationRecord]
     distribution_candidates: list[DistributionCandidateRecord]
+    review_candidates: list[ReviewCandidateRecord]
     unresolved: list[UnresolvedRecord]
