@@ -36,13 +36,17 @@ total_modules: 12
 library_modules: 3
 
 programs: 9
-  probable_entrypoints: 7
+  standalone_programs: 7
+    command_like: 6
+    weak_entrypoint_signal: 1
   imported_programs_needing_review: 2
     probable_library_modules: 1
     possible_entrypoints: 1
 ```
 
 This is the partition of indexed modules used for review.
+
+`standalone_programs` means programs with no observed inbound syntactic imports from other modules inside the import root. It does not mean confirmed entrypoints.
 
 ## 3. Check resolution notes and warnings
 
@@ -73,17 +77,36 @@ It contains:
 ```text
 machine-written context
 overall human conclusion
-probable entrypoints
+standalone programs / probable entrypoint candidates
 imported programs needing review
 ```
 
 The form deliberately includes blank checkboxes and comment fields.
 
-## 5. Review probable entrypoints
+## 5. Review standalone programs
 
-Probable entrypoints are standalone programs.
+Standalone programs are probable entrypoint candidates.
 
-For each one, decide whether it is:
+The standalone-program classification is a statement about the import graph inside the import root:
+
+```text
+program with no observed inbound syntactic imports from other indexed modules
+```
+
+It is not a conclusion about intent.
+
+Standalone programs have a command-shape subtype:
+
+```text
+command_like
+weak_entrypoint_signal
+```
+
+`command_like` means the module is `__main__.py` or has a main guard.
+
+`weak_entrypoint_signal` means the module is neither `__main__.py` nor guarded by `if __name__ == "__main__":`.
+
+For each standalone program, decide whether it is:
 
 ```text
 reviewed as true entrypoint
@@ -95,9 +118,11 @@ Useful questions:
 
 * Is this module intended to be run by a user or pipeline?
 * Is it a package `__main__.py`?
+* Does it have a main guard?
 * Does it parse CLI arguments?
 * Does it read or write durable data files?
 * Is it only a probe, demonstration, or manual check?
+* If it has weak entrypoint signal, is there other evidence that it is intentionally runnable?
 
 A probe may still be a true entrypoint if it is deliberately runnable. The reviewer should decide whether the review is about all runnable commands or only production pipeline commands.
 
@@ -152,7 +177,22 @@ module_index.csv
 
 for sorting, filtering, or checking the complete partition.
 
-## 8. Record the overall conclusion
+## 8. Remember the scope assumptions
+
+The import root is treated as the closed universe for reference analysis.
+
+The tool does not look for inbound imports from outside the import root.
+
+The tool does not detect dynamic imports.
+
+The tool assumes relevant module relationships are expressed as ordinary syntactic imports:
+
+```text
+import ...
+from ... import ...
+```
+
+## 9. Record the overall conclusion
 
 After reviewing individual modules, complete the top section of the form:
 
@@ -172,7 +212,7 @@ This folder has one true entrypoint: `__main__`.
 The imported programs `classifier` and `module_index` were reviewed as library-like helper modules.
 ```
 
-## 9. Preserve reviewed forms
+## 10. Preserve reviewed forms
 
 Generated output under `files/output/...` is not durable source documentation.
 
@@ -184,7 +224,7 @@ sdda/entrypoints/docs/entrypoint_review_form_reviewed.md
 
 or a package-specific docs folder near the reviewed code.
 
-## 10. Re-run after code changes
+## 11. Re-run after code changes
 
 The review is tied to the code at the time it was generated.
 
@@ -194,6 +234,7 @@ Pay particular attention to:
 
 * new programs;
 * programs that changed from standalone to imported;
+* standalone programs that changed command-shape subtype;
 * imported programs that changed subtype;
 * new warnings;
 * removed modules that were previously reviewed.
