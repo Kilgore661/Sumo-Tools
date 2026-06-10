@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from .call_bindings import extract_call_argument_bindings
+from .call_edges import extract_call_edges
 from .classification import classify_file_families
 from .distribution import derive_distribution_candidates
 from .field_facts import extract_field_facts
@@ -51,10 +52,12 @@ def analyse(root_module: str, import_root: Path, output_dir: Path | None = None)
         value_facts.extend(extract_value_facts(module_name, parsed_trees[module_name], scopes_by_module[module_name], imports, type_facts))
 
     field_facts: list[FieldFactRecord] = []
+    call_edges = []
     call_argument_bindings: list[CallArgumentBindingRecord] = []
     for module_name in reachable_modules:
         module_scopes = scopes_by_module[module_name]
         field_facts.extend(extract_field_facts(module_name, parsed_trees[module_name], module_scopes, imports, type_facts, value_facts))
+        call_edges.extend(extract_call_edges(module_name, parsed_trees[module_name], module_scopes, imports, type_facts))
         call_argument_bindings.extend(extract_call_argument_bindings(module_name, parsed_trees[module_name], module_scopes, imports, type_facts, value_facts))
 
     parameter_field_provenance = extract_parameter_field_provenance(call_argument_bindings, field_facts)
@@ -81,6 +84,7 @@ def analyse(root_module: str, import_root: Path, output_dir: Path | None = None)
         type_facts=type_facts,
         value_facts=value_facts,
         field_facts=field_facts,
+        call_edges=call_edges,
         call_argument_bindings=call_argument_bindings,
         parameter_field_provenance=parameter_field_provenance,
         parameter_file_provenance=parameter_file_provenance,
