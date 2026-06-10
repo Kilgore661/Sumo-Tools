@@ -276,6 +276,7 @@ class AnalysisResult:
     field_facts: list[FieldFactRecord]
     call_argument_bindings: list[CallArgumentBindingRecord]
     parameter_field_provenance: list[ParameterFieldProvenanceRecord]
+    parameter_file_provenance: list[object]
     file_uses: list[FileUseRecord]
     file_use_resolutions: list[FileUseResolutionRecord]
     producer_return_bindings: list[ProducerReturnBindingRecord]
