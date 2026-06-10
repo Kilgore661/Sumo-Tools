@@ -198,6 +198,7 @@ def _resolution_warnings(
             WarningRecord(
                 source_module=source_module,
                 line=line,
+                severity="note",
                 warning_kind="import_root_relative_resolution",
                 imported_name=imported_name,
                 resolved_module=resolution.target,
@@ -209,6 +210,7 @@ def _resolution_warnings(
             WarningRecord(
                 source_module=source_module,
                 line=line,
+                severity="warning",
                 warning_kind="unresolved_import_root_relative_import",
                 imported_name=imported_name,
                 resolved_module="",
