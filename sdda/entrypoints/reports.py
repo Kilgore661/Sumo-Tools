@@ -56,10 +56,20 @@ def _imported_program_review_rows(result: EntrypointAnalysisResult) -> list[Modu
     )
 
 
+def _warning_rows(result: EntrypointAnalysisResult) -> list[object]:
+    return [row for row in result.warnings if row.severity == "warning"]
+
+
+def _note_rows(result: EntrypointAnalysisResult) -> list[object]:
+    return [row for row in result.warnings if row.severity == "note"]
+
+
 def _write_review_form(result: EntrypointAnalysisResult) -> None:
     accounting = _module_type_accounting(result)
     probable_entrypoints = _probable_entrypoint_rows(result)
     imported_programs = _imported_program_review_rows(result)
+    warning_count = len(_warning_rows(result))
+    note_count = len(_note_rows(result))
     lines = [
         "# SDDA Entrypoint Review Form",
         "",
@@ -77,10 +87,18 @@ def _write_review_form(result: EntrypointAnalysisResult) -> None:
         f"  imported_programs_needing_review: {accounting['imported_programs_needing_review']}",
         f"    probable_library_modules: {accounting['probable_library_modules']}",
         f"    possible_entrypoints: {accounting['possible_entrypoints']}",
-        f"warnings: {len(result.warnings)}",
+        f"resolution_notes: {note_count}",
+        f"warnings: {warning_count}",
         "",
     ]
-    if result.warnings:
+    if note_count:
+        lines.extend(
+            [
+                "Resolution notes were generated. These usually document intentional import-root-relative resolutions; review `warnings.csv` if a classification looks surprising.",
+                "",
+            ]
+        )
+    if warning_count:
         lines.extend(
             [
                 "Machine warnings were generated. Review `warnings.csv` and `summary.md` before recording final conclusions.",
@@ -186,7 +204,8 @@ def _write_summary(result: EntrypointAnalysisResult) -> None:
         for row in result.module_index_rows
         if row.program_kind == "imported_program" and row.program_subtype
     )
-    warning_counts = Counter(row.warning_kind for row in result.warnings)
+    severity_counts = Counter(row.severity for row in result.warnings)
+    warning_kind_counts = Counter(row.warning_kind for row in result.warnings)
     accounting = _module_type_accounting(result)
     lines = [
         "# SDDA Entrypoint Index Summary",
@@ -206,19 +225,21 @@ def _write_summary(result: EntrypointAnalysisResult) -> None:
         f"    probable_library_modules: {accounting['probable_library_modules']}",
         f"    possible_entrypoints: {accounting['possible_entrypoints']}",
         "",
-        "## Warnings",
+        "## Resolution notes and warnings",
         "",
     ]
     if result.warnings:
-        lines.extend(_counter_lines(warning_counts))
+        lines.extend(_counter_lines(severity_counts))
+        lines.extend(["### Kinds", ""])
+        lines.extend(_counter_lines(warning_kind_counts))
         lines.extend(
             [
-                "Review `warnings.csv` for details. Import-root-relative resolutions are intentional but should be checked when reviewing entrypoint classifications.",
+                "Review `warnings.csv` for details. Severity `note` usually records intentional import-root-relative resolution. Severity `warning` marks something that may affect classification and should be reviewed.",
                 "",
             ]
         )
     else:
-        lines.extend(["No warnings.", ""])
+        lines.extend(["No resolution notes or warnings.", ""])
     lines.extend(["## Module kinds", ""])
     lines.extend(_counter_lines(module_kind_counts))
     lines.extend(["## Program kinds", ""])
@@ -250,7 +271,7 @@ def _write_summary(result: EntrypointAnalysisResult) -> None:
             "An imported program is a program that is imported by at least one other indexed module and needs human review.",
             "An imported program with subtype `probable_library` has no non-declarative top-level code after its final top-level function.",
             "An imported program counted as `possible_entrypoints` does not have the `probable_library` hint.",
-            "When the import root is narrower than the repository root, absolute imports that start with that import root can be resolved to local indexed modules and reported in `warnings.csv`.",
+            "When the import root is narrower than the repository root, absolute imports that start with that import root can be resolved to local indexed modules and reported in `warnings.csv` as resolution notes.",
             "Review outcomes and final conclusions can be recorded in `entrypoint_review_form.md`.",
             "",
         ]
