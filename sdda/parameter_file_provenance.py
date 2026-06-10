@@ -31,9 +31,11 @@ def extract_parameter_file_provenance(
     file_uses: list[FileUseRecord],
     module_index: dict[str, ModuleRecord] | None = None,
     path_constants: PathConstantMap | None = None,
+    local_aliases: dict[tuple[str, str], dict[str, str]] | None = None,
 ) -> list[ParameterFileProvenanceRecord]:
     bindings_by_callee_parameter = _bindings_by_callee_parameter(call_argument_bindings)
     iterator_bindings = _iterator_argument_bindings(module_index or {}, path_constants or {})
+    aliases = local_aliases or {}
     records: list[ParameterFileProvenanceRecord] = []
     seen: set[tuple[str, str, int, str, str, int]] = set()
     for file_use in file_uses:
@@ -42,19 +44,11 @@ def extract_parameter_file_provenance(
             continue
         key = (file_use.module, file_use.scope_name, parameter_name)
         for binding in bindings_by_callee_parameter.get(key, ()):
-            iterator_key = (
-                binding.caller_module,
-                binding.caller_scope,
-                binding.argument_expression,
+            argument_expression, interpretation, reason = _argument_provenance(
+                binding,
+                iterator_bindings,
+                aliases,
             )
-            iterator_binding = iterator_bindings.get(iterator_key)
-            argument_expression = binding.argument_expression
-            interpretation = _interpretation(binding.argument_expression, binding.argument_value_sources)
-            reason = "parameter_file_use_from_call_argument"
-            if iterator_binding is not None:
-                argument_expression = iterator_binding
-                interpretation = "parameter_from_iterator_path_family"
-                reason = "parameter_file_use_from_iterator_argument"
             dedupe_key = (
                 file_use.module,
                 file_use.scope_name,
@@ -85,6 +79,28 @@ def extract_parameter_file_provenance(
                 )
             )
     return records
+
+
+def _argument_provenance(
+    binding: CallArgumentBindingRecord,
+    iterator_bindings: dict[tuple[str, str, str], str],
+    aliases: dict[tuple[str, str], dict[str, str]],
+) -> tuple[str, str, str]:
+    alias_binding = aliases.get((binding.caller_module, binding.caller_scope), {}).get(
+        binding.argument_expression
+    )
+    if alias_binding is not None:
+        return alias_binding, "parameter_from_local_path_alias", "parameter_file_use_from_local_alias_argument"
+    iterator_binding = iterator_bindings.get(
+        (binding.caller_module, binding.caller_scope, binding.argument_expression)
+    )
+    if iterator_binding is not None:
+        return iterator_binding, "parameter_from_iterator_path_family", "parameter_file_use_from_iterator_argument"
+    return (
+        binding.argument_expression,
+        _interpretation(binding.argument_expression, binding.argument_value_sources),
+        "parameter_file_use_from_call_argument",
+    )
 
 
 def _bindings_by_callee_parameter(
