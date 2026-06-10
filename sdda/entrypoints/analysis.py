@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 from .classifier import classify_module, has_main_guard, has_non_declarative_after_last_function, parse_python_file
@@ -8,7 +9,7 @@ from .module_index import build_module_index
 from .references import extract_references, inbound_references_by_module
 
 
-def analyse_entrypoints(import_root: Path, output_dir: Path | None = None) -> EntrypointAnalysisResult:
+def analyse_entrypoints(import_root: Path) -> EntrypointAnalysisResult:
     module_index = build_module_index(import_root)
     evidence_by_module: dict[str, list[ProgramEvidenceRecord]] = {}
     has_main_guard_by_module: dict[str, bool] = {}
@@ -39,7 +40,7 @@ def analyse_entrypoints(import_root: Path, output_dir: Path | None = None) -> En
         )
         for module_name, module in sorted(module_index.items())
     ]
-    final_output_dir = output_dir or _default_output_dir()
+    final_output_dir = _default_output_dir(import_root)
     return EntrypointAnalysisResult(
         import_root=import_root,
         output_dir=final_output_dir,
@@ -96,5 +97,14 @@ def _program_subtype(program_kind: str, non_declarative_after_last_function: boo
     return "probable_library"
 
 
-def _default_output_dir() -> Path:
-    return Path("files") / "output" / "sdda" / "entrypoints"
+def _default_output_dir(import_root: Path) -> Path:
+    return Path("files") / "output" / "sdda" / "entrypoints" / _import_root_output_name(import_root)
+
+
+def _import_root_output_name(import_root: Path) -> str:
+    parts = [part for part in import_root.parts if part not in {"", "."}]
+    if not parts:
+        return "repo_root"
+    raw_name = "_".join(parts)
+    safe_name = re.sub(r"[^A-Za-z0-9_.-]+", "_", raw_name).strip("._-")
+    return safe_name or "repo_root"
