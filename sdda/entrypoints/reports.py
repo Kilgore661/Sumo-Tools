@@ -45,8 +45,19 @@ def _program_kind_rows(result: EntrypointAnalysisResult, program_kind: str) -> l
     return [row for row in result.module_index_rows if row.program_kind == program_kind]
 
 
+def _standalone_rows(result: EntrypointAnalysisResult) -> list[ModuleIndexRecord]:
+    return _program_kind_rows(result, "standalone_program")
+
+
+def _standalone_subtype_rows(result: EntrypointAnalysisResult, standalone_subtype: str) -> list[ModuleIndexRecord]:
+    return [row for row in _standalone_rows(result) if row.standalone_subtype == standalone_subtype]
+
+
 def _probable_entrypoint_rows(result: EntrypointAnalysisResult) -> list[ModuleIndexRecord]:
-    return sorted(_program_kind_rows(result, "standalone_program"), key=lambda row: row.module)
+    return sorted(
+        _standalone_rows(result),
+        key=lambda row: (row.standalone_subtype != "command_like", row.module),
+    )
 
 
 def _imported_program_review_rows(result: EntrypointAnalysisResult) -> list[ModuleIndexRecord]:
@@ -83,7 +94,9 @@ def _write_review_form(result: EntrypointAnalysisResult) -> None:
         f"total_modules: {accounting['total_modules']}",
         f"library_modules: {accounting['library_modules']}",
         f"programs: {accounting['programs']}",
-        f"  probable_entrypoints: {accounting['probable_entrypoints']}",
+        f"  standalone_programs: {accounting['standalone_programs']}",
+        f"    command_like: {accounting['command_like_standalone_programs']}",
+        f"    weak_entrypoint_signal: {accounting['weak_entrypoint_signal_standalone_programs']}",
         f"  imported_programs_needing_review: {accounting['imported_programs_needing_review']}",
         f"    probable_library_modules: {accounting['probable_library_modules']}",
         f"    possible_entrypoints: {accounting['possible_entrypoints']}",
@@ -127,9 +140,9 @@ def _write_review_form(result: EntrypointAnalysisResult) -> None:
             "",
             "- ",
             "",
-            "## Probable entrypoints",
+            "## Standalone programs / probable entrypoint candidates",
             "",
-            "These are standalone programs. They are probable entrypoints, but still need human confirmation.",
+            "These are programs with no observed inbound syntactic imports from other indexed modules. They are review candidates, not confirmed entrypoints.",
             "",
         ]
     )
@@ -158,6 +171,7 @@ def _probable_entrypoint_section(row: ModuleIndexRecord) -> list[str]:
         f"### `{row.module}`",
         "",
         f"Path: `{row.path}`",
+        f"Standalone subtype: `{row.standalone_subtype}`",
         f"First non-declarative statement: line {row.first_non_declarative_line}, `{row.first_non_declarative_kind}`",
         f"Has main guard: `{row.has_main_guard}`",
         f"Is `__main__.py`: `{row.is_dunder_main}`",
@@ -199,6 +213,11 @@ def _imported_program_section(row: ModuleIndexRecord) -> list[str]:
 def _write_summary(result: EntrypointAnalysisResult) -> None:
     module_kind_counts = Counter(row.module_kind for row in result.module_index_rows)
     program_kind_counts = Counter(row.program_kind for row in result.module_index_rows if row.program_kind)
+    standalone_subtype_counts = Counter(
+        row.standalone_subtype
+        for row in result.module_index_rows
+        if row.program_kind == "standalone_program" and row.standalone_subtype
+    )
     imported_subtype_counts = Counter(
         row.program_subtype
         for row in result.module_index_rows
@@ -220,7 +239,9 @@ def _write_summary(result: EntrypointAnalysisResult) -> None:
         f"library_modules: {accounting['library_modules']}",
         "",
         f"programs: {accounting['programs']}",
-        f"  probable_entrypoints: {accounting['probable_entrypoints']}",
+        f"  standalone_programs: {accounting['standalone_programs']}",
+        f"    command_like: {accounting['command_like_standalone_programs']}",
+        f"    weak_entrypoint_signal: {accounting['weak_entrypoint_signal_standalone_programs']}",
         f"  imported_programs_needing_review: {accounting['imported_programs_needing_review']}",
         f"    probable_library_modules: {accounting['probable_library_modules']}",
         f"    possible_entrypoints: {accounting['possible_entrypoints']}",
@@ -244,6 +265,8 @@ def _write_summary(result: EntrypointAnalysisResult) -> None:
     lines.extend(_counter_lines(module_kind_counts))
     lines.extend(["## Program kinds", ""])
     lines.extend(_counter_lines(program_kind_counts))
+    lines.extend(["## Standalone program subtypes", ""])
+    lines.extend(_counter_lines(standalone_subtype_counts))
     lines.extend(["## Imported program subtypes", ""])
     lines.extend(_counter_lines(imported_subtype_counts))
     lines.extend(
@@ -267,10 +290,13 @@ def _write_summary(result: EntrypointAnalysisResult) -> None:
             "",
             "A library module is a Python module whose top-level body is declarative only.",
             "A program is any Python module with non-declarative top-level code, including assignments and main guards.",
-            "A standalone program is counted as a probable entrypoint.",
+            "A standalone program has no observed inbound syntactic imports from other indexed modules.",
+            "A command-like standalone program is `__main__.py` or has a main guard.",
+            "A weak-entrypoint-signal standalone program has neither of those command-shape signals.",
             "An imported program is a program that is imported by at least one other indexed module and needs human review.",
             "An imported program with subtype `probable_library` has no non-declarative top-level code after its final top-level function.",
             "An imported program counted as `possible_entrypoints` does not have the `probable_library` hint.",
+            "The import root is treated as the closed universe for syntactic reference analysis; dynamic imports are not detected.",
             "When the import root is narrower than the repository root, absolute imports that start with that import root can be resolved to local indexed modules and reported in `warnings.csv` as resolution notes.",
             "Review outcomes and final conclusions can be recorded in `entrypoint_review_form.md`.",
             "",
@@ -283,7 +309,7 @@ def _module_type_accounting(result: EntrypointAnalysisResult) -> dict[str, int]:
     total_modules = len(result.module_index_rows)
     library_modules = len(_library_rows(result))
     programs = len(_program_rows(result))
-    probable_entrypoints = len(_program_kind_rows(result, "standalone_program"))
+    standalone_programs = _standalone_rows(result)
     imported_programs = _program_kind_rows(result, "imported_program")
     probable_library_modules = len(
         [row for row in imported_programs if row.program_subtype == "probable_library"]
@@ -295,7 +321,11 @@ def _module_type_accounting(result: EntrypointAnalysisResult) -> dict[str, int]:
         "total_modules": total_modules,
         "library_modules": library_modules,
         "programs": programs,
-        "probable_entrypoints": probable_entrypoints,
+        "standalone_programs": len(standalone_programs),
+        "command_like_standalone_programs": len(_standalone_subtype_rows(result, "command_like")),
+        "weak_entrypoint_signal_standalone_programs": len(
+            _standalone_subtype_rows(result, "weak_entrypoint_signal")
+        ),
         "imported_programs_needing_review": len(imported_programs),
         "probable_library_modules": probable_library_modules,
         "possible_entrypoints": possible_entrypoints,
