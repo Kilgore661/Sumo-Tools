@@ -88,6 +88,22 @@ class FileUseRecord:
 
 
 @dataclass(frozen=True)
+class FileUseResolutionRecord:
+    module: str
+    scope_kind: str
+    scope_name: str
+    line: int
+    action: str
+    raw_expression: str
+    resolved_expression: str
+    resolution_kind: str
+    resolved_owner_type: str
+    resolved_field_name: str
+    resolved_field_annotation: str
+    reason: str
+
+
+@dataclass(frozen=True)
 class FileFamilyRecord:
     family_id: str
     family_kind: str
@@ -166,6 +182,7 @@ class AnalysisResult:
     value_facts: list[ValueFactRecord]
     field_facts: list[FieldFactRecord]
     file_uses: list[FileUseRecord]
+    file_use_resolutions: list[FileUseResolutionRecord]
     file_families: list[FileFamilyRecord]
     file_family_evidence: list[FileFamilyEvidenceRecord]
     file_family_classification: list[FileFamilyClassificationRecord]
