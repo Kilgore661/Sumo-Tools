@@ -3,7 +3,15 @@ from __future__ import annotations
 import ast
 from dataclasses import dataclass
 
-from .models import FileUseResolutionRecord, ImportRecord, ProducerOutputRecord, TypeFactRecord, ValueFactRecord
+from .models import (
+    FileUseResolutionRecord,
+    ImportRecord,
+    ProducerOutputRecord,
+    ProducerReturnBindingRecord,
+    ProducerWriteBindingRecord,
+    TypeFactRecord,
+    ValueFactRecord,
+)
 from .source import unparse
 
 
@@ -26,20 +34,54 @@ class WriteBinding:
     write_line: int
 
 
-def extract_producer_outputs(
+def extract_producer_return_bindings(
     module_trees: dict[str, ast.Module],
     imports: list[ImportRecord],
     type_facts: list[TypeFactRecord],
+) -> list[ProducerReturnBindingRecord]:
+    records: list[ProducerReturnBindingRecord] = []
+    for module_name, tree in module_trees.items():
+        module_imports = [record for record in imports if record.source_module == module_name]
+        for binding in _return_field_bindings(module_name, tree, module_imports, type_facts):
+            records.append(
+                ProducerReturnBindingRecord(
+                    producer_function=binding.producer_function,
+                    output_type=binding.output_type,
+                    output_field=binding.field_name,
+                    source_name=binding.source_name,
+                    source_expression=binding.source_expression,
+                    return_line=binding.return_line,
+                    reason="return_dataclass_field_binding",
+                )
+            )
+    return records
+
+
+def extract_producer_write_bindings(
+    module_trees: dict[str, ast.Module],
+) -> list[ProducerWriteBindingRecord]:
+    records: list[ProducerWriteBindingRecord] = []
+    for module_name, tree in module_trees.items():
+        for binding in _write_bindings(module_name, tree):
+            records.append(
+                ProducerWriteBindingRecord(
+                    producer_function=binding.producer_function,
+                    source_name=binding.source_name,
+                    write_action=binding.write_action,
+                    write_expression=binding.write_expression,
+                    write_line=binding.write_line,
+                    reason="write_to_local_path_binding",
+                )
+            )
+    return records
+
+
+def extract_producer_outputs(
+    producer_return_bindings: list[ProducerReturnBindingRecord],
+    producer_write_bindings: list[ProducerWriteBindingRecord],
     value_facts: list[ValueFactRecord],
     file_use_resolutions: list[FileUseResolutionRecord],
 ) -> list[ProducerOutputRecord]:
-    returns: list[ReturnFieldBinding] = []
-    writes: list[WriteBinding] = []
-    for module_name, tree in module_trees.items():
-        module_imports = [record for record in imports if record.source_module == module_name]
-        returns.extend(_return_field_bindings(module_name, tree, module_imports, type_facts))
-        writes.extend(_write_bindings(module_name, tree))
-
     records: list[ProducerOutputRecord] = []
     for resolution in file_use_resolutions:
         for value_fact in value_facts:
@@ -49,12 +91,12 @@ def extract_producer_outputs(
                 continue
             if value_fact.name != _receiver_name(resolution.resolved_expression):
                 continue
-            for return_binding in returns:
+            for return_binding in producer_return_bindings:
                 if not _same_function(return_binding.producer_function, value_fact):
                     continue
-                if return_binding.field_name != resolution.resolved_field_name:
+                if return_binding.output_field != resolution.resolved_field_name:
                     continue
-                for write_binding in writes:
+                for write_binding in producer_write_bindings:
                     if write_binding.producer_function != return_binding.producer_function:
                         continue
                     if write_binding.source_name != return_binding.source_name:
@@ -68,7 +110,7 @@ def extract_producer_outputs(
                             consumer_expression=resolution.resolved_expression,
                             producer_function=return_binding.producer_function,
                             output_type=return_binding.output_type,
-                            output_field=return_binding.field_name,
+                            output_field=return_binding.output_field,
                             producer_source_name=return_binding.source_name,
                             producer_source_expression=return_binding.source_expression,
                             producer_write_action=write_binding.write_action,
