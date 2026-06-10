@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import ast
+import builtins
 from dataclasses import dataclass
 
 from .models import ImportRecord, ScopeRecord, TypeFactRecord
 from .source import unparse
+
+BUILTIN_CALL_NAMES = set(dir(builtins))
 
 
 @dataclass(frozen=True)
@@ -85,9 +88,9 @@ def _resolve_call_target(
             if class_name:
                 return f"{module_name}.{class_name}.{node.attr}", "current_class_method", "cls_method_call"
         if receiver:
-            imported = _resolve_import_attribute(receiver, node.attr, imports)
+            imported, resolution_kind = _resolve_import_attribute(receiver, node.attr, imports)
             if imported:
-                return imported, "imported_attribute", "imported_module_attribute_call"
+                return imported, resolution_kind, "imported_module_attribute_call"
         return "", "unresolved_attribute", "attribute_receiver_not_resolved"
     return "", "unresolved_dynamic", "dynamic_call_expression"
 
@@ -99,27 +102,32 @@ def _resolve_name_call(
     local_defs: set[str],
 ) -> tuple[str, str, str]:
     for record in imports:
-        if record.import_kind != "from_import" or not record.resolved:
+        if record.import_kind != "from_import":
             continue
         local_name = record.as_name or record.imported_name
-        if local_name == name:
-            return f"{record.target_module}.{record.imported_name}", "from_import", "from_import_name_call"
+        if local_name != name:
+            continue
+        resolution_kind = "from_import" if record.resolved else "external_from_import"
+        return f"{record.target_module}.{record.imported_name}", resolution_kind, "from_import_name_call"
     if name in local_defs:
         return f"{module_name}.{name}", "same_module_definition", "same_module_name_call"
+    if name in BUILTIN_CALL_NAMES:
+        return f"builtins.{name}", "builtin", "builtin_name_call"
     return "", "unresolved_name", "name_not_imported_or_defined_in_module"
 
 
-def _resolve_import_attribute(receiver: str, attr: str, imports: list[ImportRecord]) -> str:
+def _resolve_import_attribute(receiver: str, attr: str, imports: list[ImportRecord]) -> tuple[str, str]:
     for record in imports:
-        if record.import_kind != "import" or not record.resolved:
+        if record.import_kind != "import":
             continue
         local_name = record.as_name or record.imported_name.split(".", maxsplit=1)[0]
+        resolution_kind = "imported_attribute" if record.resolved else "external_imported_attribute"
         if receiver == local_name:
-            return f"{record.target_module}.{attr}"
+            return f"{record.target_module}.{attr}", resolution_kind
         if receiver.startswith(f"{local_name}."):
             suffix = receiver.removeprefix(f"{local_name}.")
-            return f"{record.target_module}.{suffix}.{attr}"
-    return ""
+            return f"{record.target_module}.{suffix}.{attr}", resolution_kind
+    return "", ""
 
 
 def _class_scope_name(scope_name: str) -> str:
