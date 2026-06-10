@@ -16,6 +16,7 @@ def write_reports(result: AnalysisResult) -> None:
     _write_csv(result.output_dir / "scopes.csv", result.scopes)
     _write_csv(result.output_dir / "type_facts.csv", result.type_facts)
     _write_csv(result.output_dir / "value_facts.csv", result.value_facts)
+    _write_csv(result.output_dir / "field_facts.csv", result.field_facts)
     _write_csv(result.output_dir / "file_uses.csv", result.file_uses)
     _write_csv(result.output_dir / "file_families.csv", result.file_families)
     _write_csv(result.output_dir / "file_family_evidence.csv", result.file_family_evidence)
@@ -73,6 +74,7 @@ def _write_summary(result: AnalysisResult) -> None:
         f"Scopes: {len(result.scopes)}",
         f"Type facts: {len(result.type_facts)}",
         f"Value facts: {len(result.value_facts)}",
+        f"Field facts: {len(result.field_facts)}",
         f"File uses: {len(result.file_uses)}",
         f"File families: {len(result.file_families)}",
         f"File family evidence rows: {len(result.file_family_evidence)}",
@@ -96,6 +98,7 @@ def _write_summary(result: AnalysisResult) -> None:
             "scopes.csv",
             "type_facts.csv",
             "value_facts.csv",
+            "field_facts.csv",
             "file_uses.csv",
             "file_families.csv",
             "file_family_evidence.csv",
