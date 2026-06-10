@@ -13,6 +13,7 @@ from .import_graph import build_reachable_imports
 from .local_path_aliases import build_local_path_alias_map
 from .models import AnalysisResult, CallArgumentBindingRecord, FieldFactRecord, FileUseRecord, FileUseResolutionRecord, ScopeRecord, TypeFactRecord, UnresolvedRecord, ValueFactRecord
 from .module_index import build_module_index
+from .parameter_provenance import extract_parameter_field_provenance
 from .path_constants import build_path_constant_map
 from .provenance import extract_producer_outputs, extract_producer_return_bindings, extract_producer_write_bindings
 from .scopes import extract_scopes
@@ -54,6 +55,7 @@ def analyse(root_module: str, import_root: Path, output_dir: Path | None = None)
         field_facts.extend(extract_field_facts(module_name, parsed_trees[module_name], module_scopes, imports, type_facts, value_facts))
         call_argument_bindings.extend(extract_call_argument_bindings(module_name, parsed_trees[module_name], module_scopes, imports, type_facts, value_facts))
 
+    parameter_field_provenance = extract_parameter_field_provenance(call_argument_bindings, field_facts)
     file_use_resolutions: list[FileUseResolutionRecord] = resolve_file_uses(file_uses, field_facts)
     producer_return_bindings = extract_producer_return_bindings(parsed_trees, imports, type_facts)
     producer_write_bindings = extract_producer_write_bindings(parsed_trees)
@@ -76,6 +78,7 @@ def analyse(root_module: str, import_root: Path, output_dir: Path | None = None)
         value_facts=value_facts,
         field_facts=field_facts,
         call_argument_bindings=call_argument_bindings,
+        parameter_field_provenance=parameter_field_provenance,
         file_uses=file_uses,
         file_use_resolutions=file_use_resolutions,
         producer_return_bindings=producer_return_bindings,
