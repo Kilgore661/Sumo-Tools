@@ -61,6 +61,20 @@ class ValueFactRecord:
 
 
 @dataclass(frozen=True)
+class FieldFactRecord:
+    module: str
+    scope_kind: str
+    scope_name: str
+    expression: str
+    receiver_name: str
+    receiver_type: str
+    field_name: str
+    field_annotation: str
+    line: int
+    reason: str
+
+
+@dataclass(frozen=True)
 class FileUseRecord:
     module: str
     scope_kind: str
@@ -150,6 +164,7 @@ class AnalysisResult:
     scopes: list[ScopeRecord]
     type_facts: list[TypeFactRecord]
     value_facts: list[ValueFactRecord]
+    field_facts: list[FieldFactRecord]
     file_uses: list[FileUseRecord]
     file_families: list[FileFamilyRecord]
     file_family_evidence: list[FileFamilyEvidenceRecord]
