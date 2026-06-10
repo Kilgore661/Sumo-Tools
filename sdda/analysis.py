@@ -4,6 +4,7 @@ from pathlib import Path
 
 from .call_bindings import extract_call_argument_bindings
 from .call_edges import extract_call_edges
+from .call_slice import derive_execution_call_slice
 from .classification import classify_file_families
 from .distribution import derive_distribution_candidates
 from .field_facts import extract_field_facts
@@ -60,6 +61,7 @@ def analyse(root_module: str, import_root: Path, output_dir: Path | None = None)
         call_edges.extend(extract_call_edges(module_name, parsed_trees[module_name], module_scopes, imports, type_facts))
         call_argument_bindings.extend(extract_call_argument_bindings(module_name, parsed_trees[module_name], module_scopes, imports, type_facts, value_facts))
 
+    execution_call_slice = derive_execution_call_slice(root_module, call_edges)
     parameter_field_provenance = extract_parameter_field_provenance(call_argument_bindings, field_facts)
     local_aliases = build_local_path_alias_map(module_index, reachable_modules, scopes, path_constants)
     parameter_file_provenance = extract_parameter_file_provenance(call_argument_bindings, file_uses, module_index, path_constants, local_aliases)
@@ -85,6 +87,7 @@ def analyse(root_module: str, import_root: Path, output_dir: Path | None = None)
         value_facts=value_facts,
         field_facts=field_facts,
         call_edges=call_edges,
+        execution_call_slice=execution_call_slice,
         call_argument_bindings=call_argument_bindings,
         parameter_field_provenance=parameter_field_provenance,
         parameter_file_provenance=parameter_file_provenance,
