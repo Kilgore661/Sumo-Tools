@@ -1,6 +1,26 @@
 from __future__ import annotations
 
-from .models import CallArgumentBindingRecord, FileUseRecord, ParameterFileProvenanceRecord
+from dataclasses import dataclass
+
+from .models import CallArgumentBindingRecord, FileUseRecord
+
+
+@dataclass(frozen=True)
+class ParameterFileProvenanceRecord:
+    consumer_module: str
+    consumer_scope: str
+    consumer_line: int
+    consumer_action: str
+    consumer_expression: str
+    parameter_name: str
+    caller_module: str
+    caller_scope: str
+    call_line: int
+    argument_expression: str
+    argument_name: str
+    argument_value_sources: str
+    interpretation: str
+    reason: str
 
 
 def extract_parameter_file_provenance(
