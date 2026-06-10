@@ -104,6 +104,24 @@ class FileUseResolutionRecord:
 
 
 @dataclass(frozen=True)
+class ProducerOutputRecord:
+    consumer_module: str
+    consumer_scope: str
+    consumer_line: int
+    consumer_action: str
+    consumer_expression: str
+    producer_function: str
+    output_type: str
+    output_field: str
+    producer_source_name: str
+    producer_source_expression: str
+    producer_write_action: str
+    producer_write_expression: str
+    producer_write_line: int
+    reason: str
+
+
+@dataclass(frozen=True)
 class FileFamilyRecord:
     family_id: str
     family_kind: str
@@ -183,6 +201,7 @@ class AnalysisResult:
     field_facts: list[FieldFactRecord]
     file_uses: list[FileUseRecord]
     file_use_resolutions: list[FileUseResolutionRecord]
+    producer_outputs: list[ProducerOutputRecord]
     file_families: list[FileFamilyRecord]
     file_family_evidence: list[FileFamilyEvidenceRecord]
     file_family_classification: list[FileFamilyClassificationRecord]
