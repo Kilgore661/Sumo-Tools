@@ -55,14 +55,21 @@ def _aliases_from_scope(
     output: dict[str, str] = {}
     for node in scope_node.body:
         target, value = _assignment_parts(node)
-        if target is None or value is None:
-            continue
-        resolved = _eval_path_expression(value, aliases)
-        if resolved is None:
-            continue
-        aliases[target] = resolved
-        if not target.isupper():
-            output[target] = resolved
+        if target is not None and value is not None:
+            resolved = _eval_path_expression(value, aliases)
+            if resolved is not None:
+                aliases[target] = resolved
+                if not target.isupper():
+                    output[target] = resolved
+                continue
+            resolved_values = _eval_literal_string_tuple(value)
+            if resolved_values is not None:
+                aliases[target] = resolved_values
+                if not target.isupper():
+                    output[target] = resolved_values
+                continue
+        output.update(_loop_aliases(node, aliases))
+        aliases.update(output)
     return output
 
 
@@ -74,6 +81,63 @@ def _assignment_parts(node: ast.stmt) -> tuple[str | None, ast.AST | None]:
     if isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
         return node.target.id, node.value
     return None, None
+
+
+def _loop_aliases(node: ast.stmt, aliases: dict[str, str]) -> dict[str, str]:
+    if not isinstance(node, ast.For):
+        return {}
+    target_names = _target_names(node.target)
+    iter_names = _zip_iter_names(node.iter)
+    if not target_names or not iter_names:
+        return {}
+    output: dict[str, str] = {}
+    for index, target_name in enumerate(target_names):
+        if index >= len(iter_names):
+            continue
+        iter_alias = aliases.get(iter_names[index])
+        if iter_alias is None:
+            continue
+        output[target_name] = iter_alias
+    return output
+
+
+def _target_names(node: ast.AST) -> tuple[str, ...]:
+    if isinstance(node, ast.Name):
+        return (node.id,)
+    if isinstance(node, ast.Tuple):
+        names: list[str] = []
+        for element in node.elts:
+            if not isinstance(element, ast.Name):
+                return ()
+            names.append(element.id)
+        return tuple(names)
+    return ()
+
+
+def _zip_iter_names(node: ast.AST) -> tuple[str, ...]:
+    if not isinstance(node, ast.Call):
+        return ()
+    if not isinstance(node.func, ast.Name) or node.func.id != "zip":
+        return ()
+    names: list[str] = []
+    for argument in node.args:
+        if not isinstance(argument, ast.Name):
+            return ()
+        names.append(argument.id)
+    return tuple(names)
+
+
+def _eval_literal_string_tuple(node: ast.AST) -> str | None:
+    if not isinstance(node, (ast.Tuple, ast.List)):
+        return None
+    values: list[str] = []
+    for element in node.elts:
+        if not isinstance(element, ast.Constant) or not isinstance(element.value, str):
+            return None
+        values.append(element.value)
+    if not values:
+        return None
+    return "{" + ",".join(values) + "}"
 
 
 def _eval_path_expression(node: ast.AST, aliases: dict[str, str]) -> str | None:
