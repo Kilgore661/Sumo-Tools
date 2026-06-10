@@ -1,54 +1,38 @@
 # SDDA Entrypoint Index
 
-This package builds a repository-wide index of Python modules to support human review of real entrypoints.
+`SDDA Entrypoint Index` scans a Python import root and writes reports that help a human decide which modules are real entrypoints.
 
-## Purpose
+It is deliberately conservative. It does not try to prove author intent; it builds a review queue.
 
-The objective is to make it easy to see which executable modules are likely to be real entrypoints and which executable modules are imported by other code and therefore need human review.
-
-This package does not try to prove authorial intent.
-
-## Terminology
-
-A **library module** is a Python module whose module body is declarative only.
-
-For the first implementation, declarative top-level statements are limited to:
-
-```text
-import
-from ... import ...
-def
-async def
-class
-module docstring
-pass
-```
-
-A **program** is any Python module whose module body contains any non-declarative statement.
-
-Assignments are non-declarative. This is deliberately conservative: SDDA does not try to prove whether a top-level statement is semantically harmless.
-
-A **standalone program** is a program that is not imported by any other indexed module.
-
-An **imported program** is a program that is imported by at least one other indexed module. Imported programs are the main review queue: a human should decide whether they are real pipeline entrypoints or library-like modules with convenient executable code.
-
-An imported program with subtype **probable_library** has no non-declarative top-level code after its final top-level function. This is only a review hint; it does not prove that the module is not a real entrypoint.
-
-## Invocation
+## Run
 
 ```powershell
 python -m sdda.entrypoints --import-root .
 ```
 
-By default reports are written to:
+For a narrower import root:
 
-```text
-files/output/sdda/entrypoints/
+```powershell
+python -m sdda.entrypoints --import-root .\src\infra\get_bios\
 ```
 
-## Reports
+Reports are written under an import-root-specific output directory:
 
 ```text
+files/output/sdda/entrypoints/<import-root-name>/
+```
+
+For example:
+
+```text
+files/output/sdda/entrypoints/src_infra_get_bios/
+```
+
+## Main outputs
+
+```text
+summary.md
+entrypoint_review_form.md
 module_index.csv
 programs.csv
 standalone_programs.csv
@@ -56,5 +40,16 @@ imported_programs.csv
 library_modules.csv
 program_evidence.csv
 module_references.csv
-summary.md
+warnings.csv
+```
+
+Start with `summary.md`, then fill in `entrypoint_review_form.md` after human review.
+
+## Read next
+
+The fuller design and review process are documented in:
+
+```text
+sdda/entrypoints/docs/Design.md
+sdda/entrypoints/docs/Review workflow.md
 ```
