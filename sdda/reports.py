@@ -36,6 +36,7 @@ def write_reports(result: AnalysisResult) -> None:
     _write_csv(result.output_dir / "review_candidates.csv", result.review_candidates)
     _write_csv(result.output_dir / "unresolved.csv", result.unresolved)
     _write_summary(result)
+    _write_source_distribution_summary(result)
 
 
 def _write_csv(path: Path, rows: list[object]) -> None:
@@ -115,7 +116,8 @@ def _write_summary(result: AnalysisResult) -> None:
     lines.extend(_candidate_list_block("Include candidates", _include_candidates(result)))
     lines.extend(_candidate_list_block("High-priority review candidates", _high_review_candidates(result)))
     lines.extend(_execution_candidate_list_block("Effective high-priority review candidates", _effective_high_review_candidates(result)))
-    lines.extend(_source_distribution_list_block("Must-include source distribution inputs", _source_distribution_bucket_rows(result, "must_include")))
+    lines.extend(_source_distribution_list_block("Repository source inputs", _source_distribution_bucket_rows(result, "repository_source_input")))
+    lines.extend(_source_distribution_list_block("Precomputed artifact inputs", _source_distribution_bucket_rows(result, "precomputed_artifact_input")))
     lines.extend(_source_distribution_list_block("Mode-dependent source distribution review", _source_distribution_bucket_rows(result, "mode_dependent_review")))
     lines.extend(
         [
@@ -133,6 +135,7 @@ def _write_summary(result: AnalysisResult) -> None:
             "execution_call_slice.csv",
             "execution_review_candidates.csv",
             "source_distribution_inputs.csv",
+            "source_distribution_summary.md",
             "call_argument_bindings.csv",
             "parameter_field_provenance.csv",
             "parameter_file_provenance.csv",
@@ -152,6 +155,132 @@ def _write_summary(result: AnalysisResult) -> None:
         ]
     )
     (result.output_dir / "summary.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def _write_source_distribution_summary(result: AnalysisResult) -> None:
+    lines = [
+        "# Source Distribution Summary",
+        "",
+        f"Root module: `{result.root_module}`",
+        "",
+        "## Bottom line",
+        "",
+        _bottom_line(result),
+        "",
+        "## Bucket counts",
+        "",
+    ]
+    lines.extend(_summary_block_lines(_source_distribution_buckets(result)))
+    lines.extend(
+        [
+            "## Repository source inputs",
+            "",
+            "These are concrete repository files/assets that should be included in a source distribution.",
+            "",
+        ]
+    )
+    lines.extend(_source_distribution_rows(_source_distribution_bucket_rows(result, "repository_source_input")))
+    lines.extend(
+        [
+            "## Precomputed artifact inputs",
+            "",
+            "These are required by the current product slice, but they live under `files/output/...`. The policy decision is `include_or_regenerate`.",
+            "",
+        ]
+    )
+    lines.extend(_source_distribution_rows(_source_distribution_bucket_rows(result, "precomputed_artifact_input")))
+    lines.extend(
+        [
+            "## Mode-dependent deployment inputs",
+            "",
+            "These are generated in normal build mode but externally supplied in deployment modes such as `--no-build`.",
+            "",
+        ]
+    )
+    lines.extend(_source_distribution_rows(_source_distribution_bucket_rows(result, "mode_dependent_review")))
+    lines.extend(
+        [
+            "## Runtime and state/control review",
+            "",
+            "These rows are execution-reachable state checks, existence checks, or runtime control paths rather than ordinary source inputs.",
+            "",
+        ]
+    )
+    lines.extend(_source_distribution_rows(_source_distribution_bucket_rows(result, "state_or_control_review")))
+    lines.extend(
+        [
+            "## Pipeline tree review",
+            "",
+            "These are variable output-tree globs that still need provenance clarification if the final packaging policy depends on them.",
+            "",
+        ]
+    )
+    lines.extend(_source_distribution_rows(_source_distribution_bucket_rows(result, "pipeline_tree_review")))
+    lines.extend(
+        [
+            "## Scoped output parameters",
+            "",
+            "These are output-location parameters, not source-distribution inputs.",
+            "",
+        ]
+    )
+    lines.extend(_source_distribution_rows(_source_distribution_bucket_rows(result, "scoped_output_parameter")))
+    lines.extend(
+        [
+            "## Unresolved non-execution parameter proxies",
+            "",
+            "These are scoped parameter families that are not represented as final concrete source inputs in this report. Important concrete families produced from parameter provenance appear in the sections above.",
+            "",
+        ]
+    )
+    lines.extend(_source_distribution_rows(_source_distribution_bucket_rows(result, "unresolved_non_execution_parameter")))
+    lines.extend(
+        [
+            "## Not in current execution slice",
+            "",
+            "These rows are conservative import-reachable evidence, but they are outside the current `make_site2` execution slice.",
+            "",
+        ]
+    )
+    lines.extend(_source_distribution_rows(_source_distribution_bucket_rows(result, "not_in_execution_slice")))
+    lines.extend(
+        [
+            "## Generated or intermediate outputs",
+            "",
+            "These rows are generated or intermediate outputs and are excluded from the source distribution input set.",
+            "",
+        ]
+    )
+    lines.extend(_source_distribution_rows(_source_distribution_bucket_rows(result, "generated_or_intermediate_output"), limit=30))
+    if len(_source_distribution_bucket_rows(result, "generated_or_intermediate_output")) > 30:
+        lines.extend(["", "Generated/intermediate output list truncated to 30 rows in this summary; see `source_distribution_inputs.csv` for the full list.", ""])
+    lines.extend(
+        [
+            "## Policy notes",
+            "",
+            "- `repository_source_input` means include in the source distribution.",
+            "- `precomputed_artifact_input` means the website product needs the artifact present, but the product policy can choose whether to include it, regenerate it, or package it separately.",
+            "- `mode_dependent_review` means normal build mode and deployment/no-build mode have different assumptions.",
+            "- `not_in_execution_slice` rows are retained as conservative evidence but are not blockers for the current product slice.",
+            "",
+        ]
+    )
+    (result.output_dir / "source_distribution_summary.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def _bottom_line(result: AnalysisResult) -> str:
+    counts = _source_distribution_buckets(result)
+    repository_count = counts.get("repository_source_input", 0)
+    artifact_count = counts.get("precomputed_artifact_input", 0)
+    mode_count = counts.get("mode_dependent_review", 0)
+    state_count = counts.get("state_or_control_review", 0)
+    pipeline_count = counts.get("pipeline_tree_review", 0)
+    return (
+        f"For the current `make_site2` execution slice, SDDA identifies {repository_count} repository source inputs "
+        f"and {artifact_count} precomputed artifact inputs. There are {mode_count} mode-dependent deployment rows, "
+        f"{state_count} state/control review rows, and {pipeline_count} pipeline-tree review rows. "
+        "Generated/intermediate outputs are excluded, and import-reachable rows outside the execution slice are separated from the product-slice answer."
+    )
 
 
 def _distribution_decisions(result: AnalysisResult) -> Counter[str]:
@@ -212,6 +341,12 @@ def _source_distribution_bucket_rows(result: AnalysisResult, bucket: str) -> lis
 
 def _summary_block(title: str, counts: Counter[str]) -> list[str]:
     lines = [f"## {title}", ""]
+    lines.extend(_summary_block_lines(counts))
+    return lines
+
+
+def _summary_block_lines(counts: Counter[str]) -> list[str]:
+    lines: list[str] = []
     for name, count in sorted(counts.items(), key=lambda item: (-item[1], item[0])):
         lines.append(f"{name}: {count}")
     lines.append("")
@@ -244,12 +379,17 @@ def _execution_candidate_list_block(title: str, rows: list[object]) -> list[str]
 
 def _source_distribution_list_block(title: str, rows: list[object]) -> list[str]:
     lines = [f"## {title}", ""]
+    lines.extend(_source_distribution_rows(rows))
+    return lines
+
+
+def _source_distribution_rows(rows: list[object], limit: int | None = None) -> list[str]:
     if not rows:
-        lines.extend(["None", ""])
-        return lines
-    for row in rows:
-        lines.append(
-            f"- `{row.family_pattern}` ({row.classification}; {row.source_distribution_decision}; {row.reason})"
-        )
+        return ["None", ""]
+    selected_rows = rows if limit is None else rows[:limit]
+    lines = [
+        f"- `{row.family_pattern}` ({row.source_distribution_decision}; {row.classification}; {row.reason})"
+        for row in selected_rows
+    ]
     lines.append("")
     return lines
