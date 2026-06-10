@@ -28,6 +28,7 @@ def write_reports(result: AnalysisResult) -> None:
     _write_csv(result.output_dir / "file_family_evidence.csv", result.file_family_evidence)
     _write_csv(result.output_dir / "file_family_classification.csv", result.file_family_classification)
     _write_csv(result.output_dir / "distribution_candidates.csv", result.distribution_candidates)
+    _write_csv(result.output_dir / "review_candidates.csv", result.review_candidates)
     _write_csv(result.output_dir / "unresolved.csv", result.unresolved)
     _write_summary(result)
 
@@ -92,6 +93,7 @@ def _write_summary(result: AnalysisResult) -> None:
         f"File family evidence rows: {len(result.file_family_evidence)}",
         f"File family classifications: {len(result.file_family_classification)}",
         f"Distribution candidates: {len(result.distribution_candidates)}",
+        f"Review candidates: {len(result.review_candidates)}",
         f"Unresolved records: {len(result.unresolved)}",
         "",
     ]
@@ -122,6 +124,7 @@ def _write_summary(result: AnalysisResult) -> None:
             "file_family_evidence.csv",
             "file_family_classification.csv",
             "distribution_candidates.csv",
+            "review_candidates.csv",
             "unresolved.csv",
             "summary.md",
             "```",
