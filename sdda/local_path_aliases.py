@@ -86,6 +86,13 @@ def _assignment_parts(node: ast.stmt) -> tuple[str | None, ast.AST | None]:
 def _loop_aliases(node: ast.stmt, aliases: dict[str, str]) -> dict[str, str]:
     if not isinstance(node, ast.For):
         return {}
+    glob_aliases = _glob_loop_aliases(node, aliases)
+    if glob_aliases:
+        return glob_aliases
+    return _zip_loop_aliases(node, aliases)
+
+
+def _zip_loop_aliases(node: ast.For, aliases: dict[str, str]) -> dict[str, str]:
     target_names = _target_names(node.target)
     iter_names = _zip_iter_names(node.iter)
     if not target_names or not iter_names:
@@ -99,6 +106,34 @@ def _loop_aliases(node: ast.stmt, aliases: dict[str, str]) -> dict[str, str]:
             continue
         output[target_name] = iter_alias
     return output
+
+
+def _glob_loop_aliases(node: ast.For, aliases: dict[str, str]) -> dict[str, str]:
+    target_names = _target_names(node.target)
+    if len(target_names) != 1:
+        return {}
+    pattern = _glob_iter_pattern(node.iter, aliases)
+    if pattern == "":
+        return {}
+    return {target_names[0]: pattern}
+
+
+def _glob_iter_pattern(node: ast.AST, aliases: dict[str, str]) -> str:
+    if not isinstance(node, ast.Call):
+        return ""
+    if not isinstance(node.func, ast.Attribute):
+        return ""
+    if node.func.attr not in {"glob", "rglob"}:
+        return ""
+    if len(node.args) != 1:
+        return ""
+    base = _eval_path_expression(node.func.value, aliases)
+    pattern = _eval_path_expression(node.args[0], aliases)
+    if base is None or pattern is None:
+        return ""
+    if node.func.attr == "rglob":
+        return f"{base}/**/{pattern}"
+    return f"{base}/{pattern}"
 
 
 def _target_names(node: ast.AST) -> tuple[str, ...]:
