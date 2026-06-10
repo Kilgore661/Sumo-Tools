@@ -79,18 +79,20 @@ def _module_index_row(
     program_kind = _program_kind(module_kind, inbound_references)
     first_evidence = min(evidence, key=lambda row: row.line) if evidence else None
     imported_by = ";".join(sorted({row.source_module for row in inbound_references}))
+    is_dunder_main = getattr(module, "is_dunder_main")
     return ModuleIndexRecord(
         module=module_name,
         path=str(getattr(module, "path")),
         module_kind=module_kind,
         program_kind=program_kind,
         program_subtype=_program_subtype(program_kind, non_declarative_after_last_function),
+        standalone_subtype=_standalone_subtype(program_kind, has_main_guard_value, is_dunder_main),
         inbound_reference_count=len({row.source_module for row in inbound_references}),
         imported_by=imported_by,
         first_non_declarative_line=first_evidence.line if first_evidence else 0,
         first_non_declarative_kind=first_evidence.statement_kind if first_evidence else "",
         has_main_guard=has_main_guard_value,
-        is_dunder_main=getattr(module, "is_dunder_main"),
+        is_dunder_main=is_dunder_main,
     )
 
 
@@ -108,6 +110,14 @@ def _program_subtype(program_kind: str, non_declarative_after_last_function: boo
     if non_declarative_after_last_function:
         return "review"
     return "probable_library"
+
+
+def _standalone_subtype(program_kind: str, has_main_guard_value: bool, is_dunder_main: bool) -> str:
+    if program_kind != "standalone_program":
+        return ""
+    if has_main_guard_value or is_dunder_main:
+        return "command_like"
+    return "weak_entrypoint_signal"
 
 
 def _default_output_dir(import_root: Path) -> Path:
