@@ -203,9 +203,11 @@ def _eval_call(node: ast.Call, aliases: dict[str, str]) -> str | None:
 
 def _eval_attribute(node: ast.Attribute, aliases: dict[str, str]) -> str | None:
     value = _eval_path_expression(node.value, aliases)
-    if value is None:
-        return None
-    if node.attr == "parent":
+    if value is not None and node.attr == "parent":
         parts = [part for part in value.split("/") if part]
         return "/".join(parts[:-1])
+    if value is not None:
+        return f"{value}.{node.attr}"
+    if isinstance(node.value, ast.Name):
+        return f"{node.value.id}.{node.attr}"
     return None
