@@ -47,6 +47,7 @@ class ModuleIndexRecord:
     module_kind: str
     program_kind: str
     program_subtype: str
+    standalone_subtype: str
     inbound_reference_count: int
     imported_by: str
     first_non_declarative_line: int
