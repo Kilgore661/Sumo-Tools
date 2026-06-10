@@ -47,6 +47,7 @@ def _print_summary(result) -> None:
     print(f"Field facts: {len(result.field_facts)}")
     print(f"File uses: {len(result.file_uses)}")
     print(f"File use resolutions: {len(result.file_use_resolutions)}")
+    print(f"Producer outputs: {len(result.producer_outputs)}")
     print(f"Unresolved records: {len(result.unresolved)}")
 
 
