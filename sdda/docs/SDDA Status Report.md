@@ -272,7 +272,7 @@ The resulting classification is:
 copy_single_csv_chart_data_output:source_path required_distribution_input -> low review
 ```
 
-Iterator-derived parameter provenance is also handled for `copy_standings_source_file:source_path`, from this source pattern:
+Iterator-derived parameter provenance is handled for `copy_standings_source_file:source_path`, from this source pattern:
 
 ```python
 copy_standings_source_file(source_path, route_data_root)
@@ -293,6 +293,26 @@ The resulting classification is:
 copy_standings_source_file:source_path required_distribution_input -> low review
 ```
 
+Local-alias-derived parameter provenance is also handled for deployment helper calls. For example:
+
+```python
+for source in build_output.root.rglob("*"):
+    if source.is_file():
+        copy_file(source, target)
+```
+
+SDDA now records:
+
+```text
+copy_file:source <- build_output.root/**/*
+```
+
+and inherits the mode-dependent deployment-source classification:
+
+```text
+copy_file:source mode_dependent_deployment_source -> review, medium priority
+```
+
 ### Loop-variable aliasing
 
 Simple literal filename tuples and loop variables from `zip(...)` are now resolved.
@@ -306,9 +326,21 @@ files/output/probability/matchups/site/win_probability_by_standing/name
 
 They no longer appear as high-priority unknown variable path segments.
 
+Simple glob/rglob loop aliases are also now resolved. This handles the browser runtime copy loop:
+
+```python
+for source_path in RUNTIME_MODULE_SOURCE_ROOT.rglob("*"):
+```
+
+which now becomes:
+
+```text
+src/products/make_site2/runtime/site-refactor/**/* required_distribution_input -> low review
+```
+
 ## Current make_site2 classification highlights
 
-Closed or improved cases:
+Closed or improved direct `make_site2` cases:
 
 ```text
 producer_output.data_path
@@ -326,6 +358,16 @@ build_output.root/**/*
   review
   medium review
 
+copy_file:source
+  mode_dependent_deployment_source
+  review
+  medium review
+
+src/products/make_site2/runtime/site-refactor/**/*
+  required_distribution_input
+  include
+  low review
+
 copy_single_csv_chart_data_output:source_path
   required_distribution_input
   include
@@ -337,12 +379,7 @@ copy_standings_source_file:source_path
   low review
 ```
 
-The previously known remaining make_site2-specific high-priority cases are now expected to be:
-
-```text
-src.products.make_site2.build:copy_runtime_modules:source_path
-src.products.make_site2.deploy:copy_file:source
-```
+As of the latest checked output, there are no remaining high-priority review rows from direct `make_site2` build/deploy logic.
 
 Confirm with:
 
@@ -353,13 +390,7 @@ Import-Csv files\output\sdda\src.products.make_site2.__main__\review_candidates.
   Format-Table -AutoSize
 ```
 
-## Known limitations
-
-The major architectural limitation is still that SDDA is import-reachability based, not full execution-slice based.
-
-That means helper APIs imported into the reachable module set can still appear as high-priority review rows even when they may not actually be called by `make_site2` in the analysed run.
-
-The remaining high-priority rows outside direct make_site2 work have recently looked like:
+The remaining high-priority rows should be imported helper/analysis APIs rather than direct `make_site2` build/deploy logic:
 
 ```text
 src.analysis.equelo.expt1.params:load_divisional_k_fn:config_path
@@ -372,7 +403,26 @@ src.infra.parser.parser2_margin:_parse_raw_marginalia:fn
 src.infra.parser.parser_daily:_parse_daily_results:fn
 ```
 
-These may need either call-site provenance, execution-slice filtering, or classification as external helper API parameters.
+## Known limitations
+
+The major architectural limitation is still that SDDA is import-reachability based, not full execution-slice based.
+
+That means helper APIs imported into the reachable module set can still appear as high-priority review rows even when they may not actually be called by `make_site2` in the analysed run.
+
+The remaining high-priority rows outside direct make_site2 work currently look like:
+
+```text
+src.analysis.equelo.expt1.params:load_divisional_k_fn:config_path
+src.analysis.equelo.fixed_v2.api:load_day_end_ratings:path
+src.analysis.equelo.fixed_v2.api:load_entrant_initial_ratings:path
+src.analysis.equelo.fixed_v2.api:load_metadata:path
+src.infra.get_bios.api:load_bio_store:path
+src.infra.get_bios.parser:main:path
+src.infra.parser.parser2_margin:_parse_raw_marginalia:fn
+src.infra.parser.parser_daily:_parse_daily_results:fn
+```
+
+These should probably not be attacked with more ad hoc path-provenance rules. The better next step is to add call-edge reporting and then execution-slice filtering, or else classify unbound helper API parameters separately from direct product distribution inputs.
 
 Unresolved method calls of the form:
 
@@ -390,7 +440,7 @@ Milestone 2, scope-level file-use evidence, is good enough for now.
 
 Milestone 3, initial type/value/field facts, is useful and already feeding policy decisions.
 
-Milestone 4, producer-output and parameter-provenance evidence, is now working for several important `make_site2` cases.
+Milestone 4, producer-output and parameter-provenance evidence, is now working for the important direct `make_site2` build/deploy cases.
 
 Milestone 5, file-family normalisation, classification, and distribution candidate reporting, is good enough for continued triage but should continue to consume stronger provenance facts as they are added.
 
@@ -398,9 +448,10 @@ The reports are not yet the final dependency answer. They are a conservative evi
 
 ## Recommended next steps
 
-1. Confirm the current high-priority list after the latest iterator provenance changes.
-2. Tackle `copy_runtime_modules:source_path` next. It likely needs provenance through runtime module copy traversal.
-3. Tackle `deploy.copy_file:source` after that. It is probably called from deployment traversal and should inherit the `build_output.root` mode-dependent provenance.
-4. Then decide whether to model the remaining imported helper APIs or introduce a proper execution-slice/call graph so imported-but-not-called helpers do not dominate the source-distribution answer.
+1. Stop adding narrow path-provenance fixes for the remaining eight helper rows unless one is proven to be directly called by `make_site2`.
+2. Add a `calls.csv` or `call_edges.csv` report with caller module/scope, call line, callee expression, resolved callee full name, and resolution kind.
+3. Use the call-edge report to derive an execution-reachable call slice from `src.products.make_site2.__main__.main`.
+4. Reclassify file-use families from imported-but-not-executed helper APIs as outside the direct `make_site2` execution slice, or as external helper API parameters.
+5. Then revisit unresolved object-method calls with the call graph in place.
 
-Do not prioritise further small alias cleanups unless they affect more than a handful of rows or block the value-flow work.
+Do not prioritise further small alias cleanups unless they affect more than a handful of rows or block the call-graph/value-flow work.
