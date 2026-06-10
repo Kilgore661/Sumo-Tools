@@ -6,10 +6,11 @@ from .classification import classify_file_families
 from .distribution import derive_distribution_candidates
 from .field_facts import extract_field_facts
 from .file_families import normalise_file_families
+from .file_use_resolution import resolve_file_uses
 from .file_uses import extract_file_uses
 from .import_graph import build_reachable_imports
 from .local_path_aliases import build_local_path_alias_map
-from .models import AnalysisResult, FieldFactRecord, FileUseRecord, ScopeRecord, TypeFactRecord, UnresolvedRecord, ValueFactRecord
+from .models import AnalysisResult, FieldFactRecord, FileUseRecord, FileUseResolutionRecord, ScopeRecord, TypeFactRecord, UnresolvedRecord, ValueFactRecord
 from .module_index import build_module_index
 from .path_constants import build_path_constant_map
 from .scopes import extract_scopes
@@ -48,6 +49,8 @@ def analyse(root_module: str, import_root: Path, output_dir: Path | None = None)
     for module_name in reachable_modules:
         field_facts.extend(extract_field_facts(module_name, parsed_trees[module_name], scopes_by_module[module_name], imports, type_facts, value_facts))
 
+    file_use_resolutions: list[FileUseResolutionRecord] = resolve_file_uses(file_uses, field_facts)
+
     local_aliases = build_local_path_alias_map(
         module_index,
         reachable_modules,
@@ -74,6 +77,7 @@ def analyse(root_module: str, import_root: Path, output_dir: Path | None = None)
         value_facts=value_facts,
         field_facts=field_facts,
         file_uses=file_uses,
+        file_use_resolutions=file_use_resolutions,
         file_families=file_families,
         file_family_evidence=file_family_evidence,
         file_family_classification=file_family_classification,
