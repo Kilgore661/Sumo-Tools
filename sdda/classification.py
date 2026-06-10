@@ -17,13 +17,20 @@ def classify_file_families(
     families: list[FileFamilyRecord],
     producer_outputs: list[ProducerOutputRecord] | None = None,
     parameter_field_provenance: list[ParameterFieldProvenanceRecord] | None = None,
+    parameter_file_provenance: list[object] | None = None,
 ) -> list[FileFamilyClassificationRecord]:
     generated_then_consumed = _generated_then_consumed_patterns(producer_outputs or [])
     mode_dependent_deployment_sources = _mode_dependent_deployment_source_patterns(
         parameter_field_provenance or []
     )
+    parameter_path_inputs = _parameter_path_input_patterns(parameter_file_provenance or [])
     return [
-        _classify_family(family, generated_then_consumed, mode_dependent_deployment_sources)
+        _classify_family(
+            family,
+            generated_then_consumed,
+            mode_dependent_deployment_sources,
+            parameter_path_inputs,
+        )
         for family in families
     ]
 
@@ -32,6 +39,7 @@ def _classify_family(
     family: FileFamilyRecord,
     generated_then_consumed: set[str],
     mode_dependent_deployment_sources: set[str],
+    parameter_path_inputs: set[str],
 ) -> FileFamilyClassificationRecord:
     actions = _actions(family)
     classification, confidence, reason = _classification(
@@ -39,6 +47,7 @@ def _classify_family(
         actions,
         generated_then_consumed,
         mode_dependent_deployment_sources,
+        parameter_path_inputs,
     )
     return FileFamilyClassificationRecord(
         family_id=family.family_id,
@@ -59,11 +68,14 @@ def _classification(
     actions: set[str],
     generated_then_consumed: set[str],
     mode_dependent_deployment_sources: set[str],
+    parameter_path_inputs: set[str],
 ) -> tuple[str, str, str]:
     if family.family_pattern in generated_then_consumed:
         return "generated_then_consumed", "high", "producer_output_written_then_consumed"
     if _matches_any_field_pattern(family.family_pattern, mode_dependent_deployment_sources):
         return "mode_dependent_deployment_source", "high", "parameter_field_has_generated_and_external_sources"
+    if family.family_pattern in parameter_path_inputs:
+        return "required_distribution_input", "high", "parameter_file_use_bound_to_path_expression"
     if family.family_kind == "environment_setting":
         return "environment_setting", "high", "family_kind:environment_setting"
     if family.family_kind == "url_family":
@@ -157,6 +169,14 @@ def _mode_dependent_deployment_source_patterns(
         for expression, interpretations in interpretations_by_expression.items()
         if "generated_output_tree" in interpretations
         and "externally_supplied_existing_output" in interpretations
+    }
+
+
+def _parameter_path_input_patterns(provenance: list[object]) -> set[str]:
+    return {
+        getattr(row, "consumer_expression")
+        for row in provenance
+        if getattr(row, "interpretation", "") == "parameter_from_path_expression"
     }
 
 
