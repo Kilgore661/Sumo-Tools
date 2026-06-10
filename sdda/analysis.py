@@ -58,7 +58,7 @@ def analyse(root_module: str, import_root: Path, output_dir: Path | None = None)
         call_argument_bindings.extend(extract_call_argument_bindings(module_name, parsed_trees[module_name], module_scopes, imports, type_facts, value_facts))
 
     parameter_field_provenance = extract_parameter_field_provenance(call_argument_bindings, field_facts)
-    parameter_file_provenance = extract_parameter_file_provenance(call_argument_bindings, file_uses)
+    parameter_file_provenance = extract_parameter_file_provenance(call_argument_bindings, file_uses, module_index, path_constants)
     file_use_resolutions: list[FileUseResolutionRecord] = resolve_file_uses(file_uses, field_facts)
     producer_return_bindings = extract_producer_return_bindings(parsed_trees, imports, type_facts)
     producer_write_bindings = extract_producer_write_bindings(parsed_trees)
