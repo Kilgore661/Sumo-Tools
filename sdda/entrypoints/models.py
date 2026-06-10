@@ -30,6 +30,16 @@ class ReferenceRecord:
 
 
 @dataclass(frozen=True)
+class WarningRecord:
+    source_module: str
+    line: int
+    warning_kind: str
+    imported_name: str
+    resolved_module: str
+    detail: str
+
+
+@dataclass(frozen=True)
 class ModuleIndexRecord:
     module: str
     path: str
@@ -52,3 +62,4 @@ class EntrypointAnalysisResult:
     module_index_rows: list[ModuleIndexRecord]
     program_evidence: list[ProgramEvidenceRecord]
     references: list[ReferenceRecord]
+    warnings: list[WarningRecord]
