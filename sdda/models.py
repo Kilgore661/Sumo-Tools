@@ -89,6 +89,25 @@ class CallArgumentBindingRecord:
 
 
 @dataclass(frozen=True)
+class ParameterFieldProvenanceRecord:
+    consumer_module: str
+    consumer_scope: str
+    consumer_line: int
+    consumer_expression: str
+    parameter_name: str
+    parameter_type: str
+    field_name: str
+    field_annotation: str
+    caller_module: str
+    caller_scope: str
+    call_line: int
+    argument_expression: str
+    argument_value_source: str
+    interpretation: str
+    reason: str
+
+
+@dataclass(frozen=True)
 class FileUseRecord:
     module: str
     scope_kind: str
@@ -235,6 +254,7 @@ class AnalysisResult:
     value_facts: list[ValueFactRecord]
     field_facts: list[FieldFactRecord]
     call_argument_bindings: list[CallArgumentBindingRecord]
+    parameter_field_provenance: list[ParameterFieldProvenanceRecord]
     file_uses: list[FileUseRecord]
     file_use_resolutions: list[FileUseResolutionRecord]
     producer_return_bindings: list[ProducerReturnBindingRecord]
