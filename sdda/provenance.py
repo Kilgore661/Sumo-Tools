@@ -26,27 +26,20 @@ class WriteBinding:
     write_line: int
 
 
-WRITE_ACTIONS = {
-    "write_text",
-    "write_bytes",
-    "open",
-    "copy",
-    "copy2",
-    "copyfile",
-}
-
-
 def extract_producer_outputs(
-    module_name: str,
-    tree: ast.Module,
+    module_trees: dict[str, ast.Module],
     imports: list[ImportRecord],
     type_facts: list[TypeFactRecord],
     value_facts: list[ValueFactRecord],
     file_use_resolutions: list[FileUseResolutionRecord],
 ) -> list[ProducerOutputRecord]:
-    module_imports = [record for record in imports if record.source_module == module_name]
-    returns = _return_field_bindings(module_name, tree, module_imports, type_facts)
-    writes = _write_bindings(module_name, tree)
+    returns: list[ReturnFieldBinding] = []
+    writes: list[WriteBinding] = []
+    for module_name, tree in module_trees.items():
+        module_imports = [record for record in imports if record.source_module == module_name]
+        returns.extend(_return_field_bindings(module_name, tree, module_imports, type_facts))
+        writes.extend(_write_bindings(module_name, tree))
+
     records: list[ProducerOutputRecord] = []
     for resolution in file_use_resolutions:
         for value_fact in value_facts:
