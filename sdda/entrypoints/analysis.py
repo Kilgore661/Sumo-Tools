@@ -4,7 +4,7 @@ import re
 from pathlib import Path
 
 from .classifier import classify_module, has_main_guard, has_non_declarative_after_last_function, parse_python_file
-from .models import EntrypointAnalysisResult, ModuleIndexRecord, ProgramEvidenceRecord, ReferenceRecord
+from .models import EntrypointAnalysisResult, ModuleIndexRecord, ProgramEvidenceRecord, ReferenceRecord, WarningRecord
 from .module_index import build_module_index
 from .references import extract_references, inbound_references_by_module
 
@@ -15,6 +15,7 @@ def analyse_entrypoints(import_root: Path) -> EntrypointAnalysisResult:
     has_main_guard_by_module: dict[str, bool] = {}
     non_declarative_after_last_function_by_module: dict[str, bool] = {}
     references: list[ReferenceRecord] = []
+    warnings: list[WarningRecord] = []
     parsed_trees = {}
 
     for module_name, module in sorted(module_index.items()):
@@ -25,8 +26,16 @@ def analyse_entrypoints(import_root: Path) -> EntrypointAnalysisResult:
         has_main_guard_by_module[module_name] = has_main_guard(tree)
         non_declarative_after_last_function_by_module[module_name] = has_non_declarative_after_last_function(tree)
 
+    import_root_package = _import_root_package(import_root)
     for module_name, tree in parsed_trees.items():
-        references.extend(extract_references(module_name, tree, module_index))
+        module_references, module_warnings = extract_references(
+            module_name,
+            tree,
+            module_index,
+            import_root_package,
+        )
+        references.extend(module_references)
+        warnings.extend(module_warnings)
 
     inbound_by_module = inbound_references_by_module(references)
     module_index_rows = [
@@ -50,6 +59,10 @@ def analyse_entrypoints(import_root: Path) -> EntrypointAnalysisResult:
         references=sorted(
             references,
             key=lambda row: (row.target_module, row.source_module, row.line, row.imported_name),
+        ),
+        warnings=sorted(
+            warnings,
+            key=lambda row: (row.source_module, row.line, row.warning_kind, row.imported_name),
         ),
     )
 
@@ -108,3 +121,8 @@ def _import_root_output_name(import_root: Path) -> str:
     raw_name = "_".join(parts)
     safe_name = re.sub(r"[^A-Za-z0-9_.-]+", "_", raw_name).strip("._-")
     return safe_name or "repo_root"
+
+
+def _import_root_package(import_root: Path) -> str:
+    parts = [part for part in import_root.parts if part not in {"", "."}]
+    return ".".join(parts)
