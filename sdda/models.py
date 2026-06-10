@@ -274,6 +274,7 @@ class AnalysisResult:
     type_facts: list[TypeFactRecord]
     value_facts: list[ValueFactRecord]
     field_facts: list[FieldFactRecord]
+    call_edges: list[object]
     call_argument_bindings: list[CallArgumentBindingRecord]
     parameter_field_provenance: list[ParameterFieldProvenanceRecord]
     parameter_file_provenance: list[object]
