@@ -62,7 +62,7 @@ def _classification(
 ) -> tuple[str, str, str]:
     if family.family_pattern in generated_then_consumed:
         return "generated_then_consumed", "high", "producer_output_written_then_consumed"
-    if family.family_pattern in mode_dependent_deployment_sources:
+    if _matches_any_field_pattern(family.family_pattern, mode_dependent_deployment_sources):
         return "mode_dependent_deployment_source", "high", "parameter_field_has_generated_and_external_sources"
     if family.family_kind == "environment_setting":
         return "environment_setting", "high", "family_kind:environment_setting"
@@ -158,6 +158,10 @@ def _mode_dependent_deployment_source_patterns(
         if "generated_output_tree" in interpretations
         and "externally_supplied_existing_output" in interpretations
     }
+
+
+def _matches_any_field_pattern(pattern: str, fields: set[str]) -> bool:
+    return any(pattern == field or pattern.startswith(f"{field}/") for field in fields)
 
 
 def _is_constant_glob(pattern: str) -> bool:
