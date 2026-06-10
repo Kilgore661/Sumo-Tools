@@ -28,9 +28,14 @@ def derive_source_distribution_inputs(
     execution_by_family_id = {
         getattr(row, "family_id"): row for row in execution_review_candidates
     }
+    execution_by_family_pattern = {
+        getattr(row, "family_pattern"): row for row in execution_review_candidates
+    }
     rows: list[SourceDistributionInputRecord] = []
     for candidate in distribution_candidates:
         execution = execution_by_family_id.get(getattr(candidate, "family_id"))
+        if execution is None:
+            execution = execution_by_family_pattern.get(getattr(candidate, "family_pattern"))
         rows.append(_derive_record(candidate, execution))
     return sorted(
         rows,
@@ -65,6 +70,7 @@ def _derive_record(candidate: object, execution: object | None) -> SourceDistrib
 
 
 def _source_distribution_policy(candidate: object, execution: object | None) -> tuple[str, str, str]:
+    family_pattern = getattr(candidate, "family_pattern")
     classification = getattr(candidate, "classification")
     distribution_decision = getattr(candidate, "distribution_decision")
     execution_status = _execution_status(execution)
@@ -72,6 +78,9 @@ def _source_distribution_policy(candidate: object, execution: object | None) -> 
 
     if execution_status == "not_in_execution_slice":
         return "not_in_execution_slice", "exclude_from_current_product_slice", "not_in_execution_slice"
+
+    if _is_output_parameter_family(family_pattern):
+        return "review", "review", "scoped_output_parameter_not_source_input"
 
     if classification == "required_distribution_input":
         return "must_include", "include", "required_distribution_input"
@@ -98,6 +107,14 @@ def _source_distribution_policy(candidate: object, execution: object | None) -> 
         return "must_include", "include", "distribution_decision_include"
 
     return "review", "review", "fallback_review"
+
+
+def _is_output_parameter_family(family_pattern: str) -> bool:
+    if family_pattern.endswith(":output_root"):
+        return True
+    if family_pattern.endswith(":target") or family_pattern.endswith(":target_path"):
+        return True
+    return False
 
 
 def _execution_status(execution: object | None) -> str:
