@@ -8,14 +8,12 @@ from time import perf_counter
 
 from .build import DEFAULT_OUTPUT_ROOT, build_site
 from .deploy import (
-    HOST,
-    LOCAL_ROOT,
-    REMOTE_ROOT,
-    DeploymentConfig,
+    DEFAULT_DEPLOY_TARGETS_PATH,
     build_output_from_existing,
-    deploy_local,
-    deploy_remote,
-    preflight_remote_auth,
+    deploy_target,
+    load_deployment_plan,
+    preflight_deploy_targets,
+    select_deploy_targets,
 )
 
 
@@ -23,8 +21,48 @@ SHORT_HISTORY_ZIP = Path("files/output/Historys/1978_01 to 1980_11.zip")
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--history-zip", type=Path)
+    parser = argparse.ArgumentParser(
+        description=(
+            "Build the make_site2 static site and, unless told otherwise, "
+            f"deploy it to the default targets in {DEFAULT_DEPLOY_TARGETS_PATH}."
+        ),
+        epilog="""Typical workflows:
+  py -m src.products.make_site2
+      Build the full site, deploy to the local filesystem target, then deploy
+      to the configured remote SFTP target.
+
+  py -m src.products.make_site2 --local-only
+      Build the full site and deploy only to targets whose method is win_copy.
+      This does not request SFTP credentials.
+
+  py -m src.products.make_site2 --build-only
+      Build files/output/make_site2 and stop. Nothing is deployed.
+
+  py -m src.products.make_site2 --no-build
+      Deploy the existing files/output/make_site2 tree without rebuilding.
+
+  py -m src.products.make_site2 --no-build --local-only
+      Copy the existing build to the local filesystem target only.
+
+  py -m src.products.make_site2 --short --local-only
+      Build from the standard short History zip and deploy locally. Useful for
+      a quick smoke test; the site will show only the short-history range.
+
+Deployment targets:
+  The command line chooses the mode. The configured JSON chooses the sites.
+  Edit deploy/make_site2_targets.json to change destinations, transfer methods,
+  URLs, hosts, users, or password environment variables.
+""",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument(
+        "--history-zip",
+        type=Path,
+        help=(
+            "Build from an explicit History zip instead of the default live "
+            "store/history source."
+        ),
+    )
     parser.add_argument(
         "--short",
         action="store_true",
@@ -37,48 +75,60 @@ def build_parser() -> argparse.ArgumentParser:
         "--output",
         type=Path,
         default=DEFAULT_OUTPUT_ROOT,
-        help="Output directory for the generated make_site2 site.",
-    )
-    parser.add_argument(
-        "--local-root",
-        type=Path,
-        default=LOCAL_ROOT,
-        help="Server directory to receive the deployable make_site2 site.",
-    )
-    parser.add_argument(
-        "--remote-root",
-        default=REMOTE_ROOT,
-        help="Remote server web root to receive the deployable make_site2 site.",
+        help=(
+            "Output directory for the generated site. Default: "
+            f"{DEFAULT_OUTPUT_ROOT}."
+        ),
     )
     parser.add_argument(
         "--build-only",
         action="store_true",
-        help="Build the persisted output tree without deployment.",
+        help=(
+            "Build the persisted output tree and stop. Use this when checking "
+            "build output before touching any served target."
+        ),
     )
     parser.add_argument(
         "--no-build",
         action="store_true",
-        help="Deploy the existing output tree without rebuilding it.",
+        help=(
+            "Deploy the existing output tree without rebuilding it. This is "
+            "the shortcut after a prior --build-only run."
+        ),
     )
     parser.add_argument(
         "--local-only",
         action="store_true",
-        help="Build/deploy to the server, but do not deploy to the remote server.",
+        help=(
+            "Deploy only targets whose configured method is win_copy. With the "
+            "current config this means the local Apache filesystem target and "
+            "no SFTP password prompt."
+        ),
     )
     parser.add_argument(
         "--prod",
         action="store_true",
-        help="Build without development cache-busting query parameters.",
+        help=(
+            "Build without development cache-busting query parameters. Leave "
+            "unset for ordinary local development/review builds."
+        ),
     )
     parser.add_argument(
         "--no-basho",
         action="store_true",
-        help="Do not include Basho Results Browser per-basho payload data.",
+        help=(
+            "Do not include Basho Results Browser per-basho payload data. "
+            "Useful only when deliberately shrinking or debugging the BRB "
+            "payload surface."
+        ),
     )
     parser.add_argument(
         "--one-basho",
         action="store_true",
-        help="Include only the latest Basho Results Browser payload data.",
+        help=(
+            "Include only the latest Basho Results Browser payload data. "
+            "Useful for a faster build while keeping one BRB page usable."
+        ),
     )
     parser.add_argument(
         "--brb-payload-mode",
@@ -134,12 +184,14 @@ def main() -> None:
     start_time = perf_counter()
     args = build_parser().parse_args()
     reject_conflicting_modes(args)
-    deployment_config = DeploymentConfig(
-        local_root=args.local_root.resolve(),
-        remote_root=args.remote_root,
-    )
-    if not args.build_only and not args.local_only:
-        deployment_config = preflight_remote_auth(deployment_config)
+    deploy_targets = ()
+    if not args.build_only:
+        plan = load_deployment_plan(DEFAULT_DEPLOY_TARGETS_PATH)
+        deploy_targets = select_deploy_targets(
+            plan,
+            local_only=args.local_only,
+        )
+        deploy_targets = preflight_deploy_targets(deploy_targets)
     if args.no_build:
         build_output = build_output_from_existing(args.output)
         print(f"using existing build {build_output.root}")
@@ -157,21 +209,14 @@ def main() -> None:
     if args.build_only:
         print_elapsed_time(start_time)
         return
-    local_result = deploy_local(build_output, deployment_config)
-    print(
-        f"deployed {local_result.file_count} files to server "
-        f"{local_result.target_root}"
-    )
-    print(local_result.public_url)
-    if args.local_only:
-        print_elapsed_time(start_time)
-        return
-    remote_result = deploy_remote(build_output, deployment_config)
-    print(
-        f"deployed {remote_result.file_count} files to remote server "
-        f"{HOST}:{remote_result.target_root}"
-    )
-    print(remote_result.public_url)
+    for target in deploy_targets:
+        result = deploy_target(build_output, target)
+        print(
+            f"deployed {result.file_count} files to "
+            f"{result.method} target {result.target_name}: {result.target_root}"
+        )
+        if result.public_url:
+            print(result.public_url)
     print_elapsed_time(start_time)
 
 

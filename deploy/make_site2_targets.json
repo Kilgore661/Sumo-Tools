@@ -1,0 +1,23 @@
+{
+  "default_targets": [
+    "local_apache",
+    "remote_661"
+  ],
+  "targets": {
+    "local_apache": {
+      "method": "win_copy",
+      "host": "192.168.0.6",
+      "location": "A:/local/html/sumo-tools2",
+      "url": "http://192.168.0.6/sumo-tools2/"
+    },
+    "remote_661": {
+      "method": "sftp",
+      "host": "www.661.org.uk",
+      "user": "root",
+      "location": "/var/www/html/sumo-tools2",
+      "url": "http://68.66.241.105/sumo-tools2/",
+      "password_env": "GEOLOCATION",
+      "password_required": true
+    }
+  }
+}

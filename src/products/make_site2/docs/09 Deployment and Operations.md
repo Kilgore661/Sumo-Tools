@@ -60,7 +60,7 @@ Site Definition
 Conceptually:
 
 ```text
-BuildOutput + DeploymentConfig
+BuildOutput + DeployTarget
   -> DeploymentResult
 ```
 
@@ -185,21 +185,29 @@ successor-site root, not inferred from the legacy product or from package names.
 
 ---
 
-## 6. DeploymentConfig
+## 6. Deployment Configuration
 
-`DeploymentConfig` contains operational target configuration.
+Deployment configuration is stored outside the Python code as named deployment
+targets. The current default file is:
+
+```text
+deploy/make_site2_targets.json
+```
 
 Conceptually:
 
 ```text
-DeploymentConfig
-  local_target_root?
-  local_public_url?
-  remote_target?
-  remote_public_url?
+DeploymentPlan
+  default_targets
+  targets[name] -> DeployTarget
+
+DeployTarget
+  method
+  location
+  url?
+  host?
+  user?
   credential_source?
-  preview_host_or_port_defaults?
-  deployment_cleaning_policy?
 ```
 
 Deployment configuration may contain:
@@ -211,6 +219,17 @@ Deployment configuration may contain:
 - credential lookup/configuration details;
 - policy for whether the target is cleaned or incrementally updated;
 - optional operational safety guards.
+
+The implemented transfer methods are currently:
+
+- `win_copy`: copy the completed output tree to a local, mapped, or UNC-style
+  filesystem location;
+- `sftp`: upload the completed output tree to a remote host.
+
+Passwords are method-specific. A `win_copy` target shall not require or request
+a password. An `sftp` target may name an environment variable such as
+`GEOLOCATION`, or request an interactive password when configured to require
+one.
 
 Deployment configuration is operational. It is not part of `SiteDefinition`,
 `PG`, Public UI Model or Published Artifact Model.
@@ -230,7 +249,7 @@ local/LAN served URL:
   http://192.168.0.6/sumo-tools2/
 
 known local/LAN target form from the development machine:
-  A:\local\htm\sumo-tools2
+  A:\local\html\sumo-tools2
 
 known remote public URL:
   http://68.66.241.105/sumo-tools2/
@@ -254,13 +273,13 @@ successor-site target root.
 The local deployment target shall be the site root itself, for example:
 
 ```text
-A:\local\htm\sumo-tools2
+A:\local\html\sumo-tools2
 ```
 
 It shall not be the containing web-document root, for example:
 
 ```text
-A:\local\htm
+A:\local\html
 ```
 
 ### 8.1 Clean Local Deployment
@@ -573,8 +592,7 @@ crossed and the requirement should be addressed upstream.
 The following matters remain deferred until implementation or operating pressure
 requires settled decisions:
 
-- exact deployment configuration representation and default locations;
-- exact local/LAN target path validation mechanism;
+- exact target-safety validation mechanism for configured deployment paths;
 - whether preview serving is managed by `make_site2` or remains an external
   development command;
 - exact remote transport implementation;
