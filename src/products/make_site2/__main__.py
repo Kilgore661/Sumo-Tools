@@ -50,7 +50,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 Deployment targets:
   The command line chooses the mode. The configured JSON chooses the sites.
-  Edit deploy/make_site2_targets.json to change destinations, transfer methods,
+  Edit distro/make_site2_targets.json to change destinations, transfer methods,
   URLs, hosts, users, or password environment variables.
 """,
         formatter_class=argparse.RawDescriptionHelpFormatter,

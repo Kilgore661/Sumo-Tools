@@ -191,7 +191,7 @@ Deployment configuration is stored outside the Python code as named deployment
 targets. The current default file is:
 
 ```text
-deploy/make_site2_targets.json
+distro/make_site2_targets.json
 ```
 
 Conceptually:

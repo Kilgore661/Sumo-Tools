@@ -13,7 +13,7 @@ from pathlib import Path
 from .models import BuildOutput
 
 
-DEFAULT_DEPLOY_TARGETS_PATH = Path("deploy/make_site2_targets.json")
+DEFAULT_DEPLOY_TARGETS_PATH = Path("distro/make_site2_targets.json")
 VALID_DEPLOY_METHODS = frozenset(("win_copy", "sftp"))
 
 
