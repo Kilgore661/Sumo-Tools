@@ -78,3 +78,55 @@ The first SDDA2 goal should be modest:
 * avoid building a general Python abstract interpreter;
 * avoid treating every runnable module as a distribution target.
 
+## Current Command
+
+The first implemented command is deterministic:
+
+```powershell
+python -m sdda2
+```
+
+It analyses the built-in product:
+
+```text
+local-server-site
+```
+
+and writes CSV reports to:
+
+```text
+files/output/sdda2/local-server-site/
+```
+
+Current outputs:
+
+```text
+product.csv
+product_summary.csv
+product_evidence.csv
+product_review.csv
+input_worklist.csv
+input_actions.csv
+producer_search.csv
+input_resolution.csv
+```
+
+`product_evidence.csv` is the main table. `product_review.csv` is a smaller table of rows that require review or an include/regenerate policy decision.
+
+`input_worklist.csv` is the iteration surface. It lists inputs that need a producer, policy decision, or parameter/context review before the product contract can be considered closed.
+
+`input_actions.csv` records the handler chosen for each worklist input. `producer_search.csv` records automatic producer candidates found by matching needed inputs to statically visible write families. `input_resolution.csv` records the current resolution state for each input.
+
+## Current Assessment
+
+The static path-normalisation work in `sdda2.file_roots` is useful as reconnaissance, but it is not expected to close the deployment problem by itself.
+
+It can normalise many literal-like path expressions into file templates, and its summary reports how many expressions remain unresolved. Further progress would require chasing dataclass fields, object properties, loop domains, directory iteration, suffix guards, and deployment wrapper functions. That is possible case by case, but it is not proportionate to the immediate goal.
+
+The next proposed direction is empirical:
+
+```text
+src/deploy_test
+```
+
+That project should run the relevant build/deploy code in a clean deployment setting and observe the files and assumptions directly.
