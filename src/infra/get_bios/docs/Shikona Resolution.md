@@ -56,6 +56,13 @@ This preserves the normal public meaning of the shikona. The disambiguation burd
 
 The earlier retired-vs-active formulation was a useful approximation, but it was not the real rule. A retired rikishi can still be the latest holder of a shikona.
 
+This latest-holder rule is the settled working principle even though the
+residual disambiguator is not settled. In short: the most recent `X` gets to be
+public `X`; earlier `X` holders must be distinguished. That creates a
+publication-maintenance responsibility: as new rikishi take old shikona, the
+catalogue-wide resolver must be rebuilt so the new latest holder can inherit
+the bare label and displaced earlier holders can receive disambiguated labels.
+
 ## Chosen disambiguator
 
 When an earlier holder of a non-unique History shikona needs disambiguating, the system shall use the rikishi's full shikona.
@@ -118,6 +125,12 @@ The production resolver should be much simpler than the probe code. It should no
 ## Probe findings
 
 The prototype investigation considered several possible disambiguators.
+
+The recurring result is that disambiguation itself is the hard problem. Every
+candidate below either fails to identify all required rikishi, depends on data
+that is incomplete or stale, creates ugly public text, or needs more source data
+than the current parsed cache exposes. `rikid` is the reliable machine answer,
+but not an acceptable public label.
 
 ### `rikid`
 
