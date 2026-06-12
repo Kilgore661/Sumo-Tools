@@ -290,14 +290,11 @@ def main() -> None:
         )
 
     refresh_latest_data(run_dir)
-    deploy_to_local_web()
 
     print(f"Publisher run complete in {time() - t0:.0f}s")
     print(f"Output: {run_dir}")
-    print(f"Deployed to: {WEB_ROOT}")
+    print(f"Latest data: {PUBLISHER_LATEST_DATA}")
 
 
 if __name__ == "__main__":
     main()
-    from .deploy import main as upload
-    upload()

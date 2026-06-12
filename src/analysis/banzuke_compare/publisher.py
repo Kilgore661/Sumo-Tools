@@ -33,7 +33,7 @@ STATIC_FILE_NAMES = (
 DATA_FILE_NAME = "banzuke_change_report.csv"
 SITE_CONFIG_FILE_NAME = "site_config.json"
 
-DEFAULT_WEB_ROOT = Path(r"A:/local/html/bcr")
+DEFAULT_OUTPUT_ROOT = Path("files/output/bcr")
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -51,8 +51,8 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--output-root",
         type=Path,
-        default=DEFAULT_WEB_ROOT,
-        help="Directory to receive the deployable static BCR app.",
+        default=DEFAULT_OUTPUT_ROOT,
+        help="Directory to receive the generated BCR publication data.",
     )
     return parser
 
@@ -122,5 +122,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-    from .deploy import main as upload
-    upload()

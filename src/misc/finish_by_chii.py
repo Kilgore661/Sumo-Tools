@@ -17,11 +17,6 @@ try:
         write_average_finish_chart,
         write_finish_chart,
     )
-    from src.misc.finish_by_chii_deploy import (
-        LOCAL_AVERAGE_HTML,
-        LOCAL_HTML,
-        main as upload_chart,
-    )
 except ImportError:  # pragma: no cover - fallback for package-style execution
     from ..infra.config import EPOCH
     from ..infra.connect import connect
@@ -29,7 +24,6 @@ except ImportError:  # pragma: no cover - fallback for package-style execution
     from ..sumo_core.Chii import Chii
     from ..sumo_core.History import History
     from .finish_by_chii_charting import write_average_finish_chart, write_finish_chart
-    from .finish_by_chii_deploy import LOCAL_AVERAGE_HTML, LOCAL_HTML, main as upload_chart
 
 
 OUTPUT_PREFIX = "finish_by_chii"
@@ -100,12 +94,17 @@ def _build_parser() -> argparse.ArgumentParser:
         "--html-output",
         type=Path,
         default=None,
-        help="Optional Plotly HTML output path. Defaults to the local web root.",
+        help="Optional Plotly HTML output path.",
     )
     parser.add_argument(
         "--no-upload",
         action="store_true",
-        help="Write the local HTML page but do not upload it to the remote server.",
+        help="Deprecated; uploads are disabled unless --upload is supplied.",
+    )
+    parser.add_argument(
+        "--upload",
+        action="store_true",
+        help="Upload the generated local HTML pages to the remote server.",
     )
     parser.add_argument(
         "--average-html-output",
@@ -126,11 +125,26 @@ def _default_output_path(start: int, end: int, suffix: str) -> Path:
 
 
 def _default_html_output_path(start: int, end: int) -> Path:
-    return LOCAL_HTML
+    return _repo_root() / "files" / "output" / "misc" / f"{OUTPUT_PREFIX}_{start}_{end}.html"
 
 
 def _default_average_html_output_path(start: int, end: int) -> Path:
-    return LOCAL_AVERAGE_HTML
+    return (
+        _repo_root()
+        / "files"
+        / "output"
+        / "misc"
+        / f"average_{OUTPUT_PREFIX}_{start}_{end}.html"
+    )
+
+
+def _upload_chart() -> None:
+    try:
+        from src.misc.finish_by_chii_deploy import main as upload_chart
+    except ImportError:  # pragma: no cover - fallback for package-style execution
+        from .finish_by_chii_deploy import main as upload_chart
+
+    upload_chart()
 
 
 def _default_history_range() -> tuple[int, int]:
@@ -421,8 +435,8 @@ def main() -> None:
         f"{write_average_finish_chart(summary_rows, average_html_path, args.start, args.end)}"
     )
 
-    if not args.no_upload:
-        upload_chart()
+    if args.upload and not args.no_upload:
+        _upload_chart()
 
 
 if __name__ == "__main__":

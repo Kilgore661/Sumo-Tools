@@ -1,6 +1,7 @@
 import inspect
 import os
 import argparse
+from datetime import datetime
 from .config import EPOCH
 
 def app_dir():
@@ -42,5 +43,4 @@ def parse_args(args=None):
     elif args.end is not None:
         return {'end': args.end}
     else:
-        return { 'start': EPOCH, 'end': 2026 }
-
+        return { 'start': EPOCH, 'end': datetime.now().year }
