@@ -82,5 +82,5 @@ Run "py -m src.analysis.sumo_history.career_lifecycle.career_length"
 Run "py -m src.analysis.probability.matchups"
 Run "py -m src.analysis.probability.matchups.trace_main"
 
-# Build the make_site2 static output tree. Add --short only for a smoke test.
-Run "py -m src.products.make_site2 --build-only"
+# Build and deploy the make_site2 static output tree.
+Run "py -m src.products.make_site2"

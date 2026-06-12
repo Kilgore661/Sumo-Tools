@@ -313,17 +313,23 @@ def make_distro_readme(*, extended: bool) -> str:
 
 After extracting:
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! BEFORE RUNNING _boot.ps1: EDIT distro/make_site2_targets.json             !!
+!! _boot.ps1 builds and deploys at the end. If this file still contains      !!
+!! paths or servers for another machine, those targets will be used.          !!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 1. Edit distro/make_site2_targets.json for your local and remote deployment
    destinations.
 2. Run _boot.ps1 from the extracted repository root to regenerate the pipeline
-   outputs needed by make_site2.
+   outputs needed by make_site2, then build and deploy the site.
 3. Start the live store in a separate terminal when _boot.ps1 tells you to:
 
    py -m src.infra.tracker.tracker
 
-4. Build/deploy the site:
+4. To redeploy the generated site without rebuilding it:
 
-   py -m src.products.make_site2 --local-only
+   py -m src.products.make_site2 --no-build --local-only
 
 The true input data included in the basic distro is:
 

@@ -16,6 +16,12 @@ location and inspection URL. `win_copy` targets are ordinary filesystem copies
 and do not use passwords. `sftp` targets carry host/user information and may
 name a password environment variable such as `GEOLOCATION`.
 
+> [!WARNING]
+> Before running `_boot.ps1` from an extracted distro, edit
+> `distro/make_site2_targets.json`. `_boot.ps1` builds and deploys at the end,
+> so stale or machine-specific target paths will be used if this file is not
+> customised first.
+
 `package_make_site2.py` creates a runnable make_site2 distro zip.
 
 Basic distro:
