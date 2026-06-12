@@ -57,6 +57,23 @@ class ModuleIndexRecord:
 
 
 @dataclass(frozen=True)
+class AtomRecord:
+    module: str
+    path: str
+    module_kind: str
+    program_kind: str
+    program_subtype: str
+    standalone_subtype: str
+    inbound_reference_count: int
+    outbound_reference_count: int
+    imported_by: str
+    first_non_declarative_line: int
+    first_non_declarative_kind: str
+    has_main_guard: bool
+    is_dunder_main: bool
+
+
+@dataclass(frozen=True)
 class EntrypointAnalysisResult:
     import_root: Path
     output_dir: Path

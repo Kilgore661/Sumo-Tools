@@ -128,13 +128,13 @@ The data dependency graph is the product-facing graph. It is what supports sourc
 The primary invocation is:
 
 ```powershell
-python -m sdda src.products.make_site2.__main__ --import-root .
+python -m sdda.dataflow --import-root . src.products.make_site2.__main__
 ```
 
 The package-module invocation dispatches through:
 
 ```text
-sdda/__main__.py
+sdda/dataflow/__main__.py
 ```
 
 The command-line root is a Python module, not a package to be searched for functional units.
@@ -405,34 +405,34 @@ unresolved review items
 The implementation should use a package of small, cohesive modules. The expected starting decomposition is:
 
 ```text
-sdda/__main__.py
+sdda/dataflow/__main__.py
   CLI entry point.
 
-sdda/module_index.py
+sdda/dataflow/module_index.py
   Builds module-name to path catalogue.
 
-sdda/import_graph.py
+sdda/dataflow/import_graph.py
   Resolves imports and builds the reachable module dependency graph.
 
-sdda/scopes.py
+sdda/dataflow/scopes.py
   Splits ASTs into import-time, function, method, class, and unknown scopes.
 
-sdda/bindings.py
+sdda/dataflow/bindings.py
   Resolves simple imported names, constants, and local bindings.
 
-sdda/calls.py
+sdda/dataflow/calls.py
   Builds an approximate callable may-call graph.
 
-sdda/file_uses.py
+sdda/dataflow/file_uses.py
   Extracts raw file, URL, and environment uses from scopes.
 
-sdda/file_families.py
+sdda/dataflow/file_families.py
   Normalises raw uses into file families and records possible family matches.
 
-sdda/classification.py
+sdda/dataflow/classification.py
   Applies conservative distribution-oriented roles.
 
-sdda/reports.py
+sdda/dataflow/reports.py
   Writes CSV and Markdown reports.
 ```
 
@@ -455,7 +455,7 @@ module_graph.csv
 for:
 
 ```powershell
-python -m sdda src.products.make_site2.__main__ --import-root .
+python -m sdda.dataflow --import-root . src.products.make_site2.__main__
 ```
 
 ### Milestone 2: scope-level file-use evidence

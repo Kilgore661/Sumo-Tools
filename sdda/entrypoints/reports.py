@@ -5,7 +5,7 @@ from collections import Counter
 from dataclasses import asdict
 from pathlib import Path
 
-from .models import EntrypointAnalysisResult, ModuleIndexRecord
+from .models import AtomRecord, EntrypointAnalysisResult, ModuleIndexRecord
 
 
 def write_reports(result: EntrypointAnalysisResult) -> None:
@@ -15,6 +15,9 @@ def write_reports(result: EntrypointAnalysisResult) -> None:
     _write_csv(result.output_dir / "standalone_programs.csv", _program_kind_rows(result, "standalone_program"))
     _write_csv(result.output_dir / "imported_programs.csv", _program_kind_rows(result, "imported_program"))
     _write_csv(result.output_dir / "library_modules.csv", _library_rows(result))
+    _write_csv(result.output_dir / "dependency_atoms.csv", _atom_rows(result))
+    _write_csv(result.output_dir / "program_atoms.csv", _program_atom_rows(result))
+    _write_csv(result.output_dir / "library_atoms.csv", _library_atom_rows(result))
     _write_csv(result.output_dir / "program_evidence.csv", result.program_evidence)
     _write_csv(result.output_dir / "module_references.csv", result.references)
     _write_csv(result.output_dir / "warnings.csv", result.warnings)
@@ -43,6 +46,41 @@ def _library_rows(result: EntrypointAnalysisResult) -> list[ModuleIndexRecord]:
 
 def _program_kind_rows(result: EntrypointAnalysisResult, program_kind: str) -> list[ModuleIndexRecord]:
     return [row for row in result.module_index_rows if row.program_kind == program_kind]
+
+
+def _atom_rows(result: EntrypointAnalysisResult) -> list[AtomRecord]:
+    source_modules = {reference.source_module for reference in result.references}
+    return [
+        _atom_row(row)
+        for row in result.module_index_rows
+        if row.module not in source_modules
+    ]
+
+
+def _program_atom_rows(result: EntrypointAnalysisResult) -> list[AtomRecord]:
+    return [row for row in _atom_rows(result) if row.module_kind == "program"]
+
+
+def _library_atom_rows(result: EntrypointAnalysisResult) -> list[AtomRecord]:
+    return [row for row in _atom_rows(result) if row.module_kind == "library_module"]
+
+
+def _atom_row(row: ModuleIndexRecord) -> AtomRecord:
+    return AtomRecord(
+        module=row.module,
+        path=row.path,
+        module_kind=row.module_kind,
+        program_kind=row.program_kind,
+        program_subtype=row.program_subtype,
+        standalone_subtype=row.standalone_subtype,
+        inbound_reference_count=row.inbound_reference_count,
+        outbound_reference_count=0,
+        imported_by=row.imported_by,
+        first_non_declarative_line=row.first_non_declarative_line,
+        first_non_declarative_kind=row.first_non_declarative_kind,
+        has_main_guard=row.has_main_guard,
+        is_dunder_main=row.is_dunder_main,
+    )
 
 
 def _standalone_rows(result: EntrypointAnalysisResult) -> list[ModuleIndexRecord]:
@@ -226,6 +264,7 @@ def _write_summary(result: EntrypointAnalysisResult) -> None:
     severity_counts = Counter(row.severity for row in result.warnings)
     warning_kind_counts = Counter(row.warning_kind for row in result.warnings)
     accounting = _module_type_accounting(result)
+    atom_counts = _atom_accounting(result)
     lines = [
         "# SDDA Entrypoint Index Summary",
         "",
@@ -245,6 +284,12 @@ def _write_summary(result: EntrypointAnalysisResult) -> None:
         f"  imported_programs_needing_review: {accounting['imported_programs_needing_review']}",
         f"    probable_library_modules: {accounting['probable_library_modules']}",
         f"    possible_entrypoints: {accounting['possible_entrypoints']}",
+        "",
+        "## Dependency atoms",
+        "",
+        f"dependency_atoms: {atom_counts['dependency_atoms']}",
+        f"  program_atoms: {atom_counts['program_atoms']}",
+        f"  library_atoms: {atom_counts['library_atoms']}",
         "",
         "## Resolution notes and warnings",
         "",
@@ -279,6 +324,9 @@ def _write_summary(result: EntrypointAnalysisResult) -> None:
             "standalone_programs.csv",
             "imported_programs.csv",
             "library_modules.csv",
+            "dependency_atoms.csv",
+            "program_atoms.csv",
+            "library_atoms.csv",
             "program_evidence.csv",
             "module_references.csv",
             "warnings.csv",
@@ -296,6 +344,8 @@ def _write_summary(result: EntrypointAnalysisResult) -> None:
             "An imported program is a program that is imported by at least one other indexed module and needs human review.",
             "An imported program with subtype `probable_library` has no non-declarative top-level code after its final top-level function.",
             "An imported program counted as `possible_entrypoints` does not have the `probable_library` hint.",
+            "A dependency atom is an indexed module with no observed outgoing local module references.",
+            "Program and library atoms are dependency atoms split by module kind.",
             "The import root is treated as the closed universe for syntactic reference analysis; dynamic imports are not detected.",
             "When the import root is narrower than the repository root, absolute imports that start with that import root can be resolved to local indexed modules and reported in `warnings.csv` as resolution notes.",
             "Review outcomes and final conclusions can be recorded in `entrypoint_review_form.md`.",
@@ -329,6 +379,15 @@ def _module_type_accounting(result: EntrypointAnalysisResult) -> dict[str, int]:
         "imported_programs_needing_review": len(imported_programs),
         "probable_library_modules": probable_library_modules,
         "possible_entrypoints": possible_entrypoints,
+    }
+
+
+def _atom_accounting(result: EntrypointAnalysisResult) -> dict[str, int]:
+    atoms = _atom_rows(result)
+    return {
+        "dependency_atoms": len(atoms),
+        "program_atoms": len([row for row in atoms if row.module_kind == "program"]),
+        "library_atoms": len([row for row in atoms if row.module_kind == "library_module"]),
     }
 
 

@@ -5,7 +5,7 @@
 The command-line entry point shall be:
 
 ```text
-sdda/__main__.py
+sdda/dataflow/__main__.py
 ```
 
 It is part of the repository audit and distribution-analysis tooling, not part of the application runtime under `src`.
@@ -258,10 +258,10 @@ The analyser should be invokable as a package module with a root module and impo
 The primary invocation is:
 
 ```powershell
-python -m sdda src.products.make_site2.__main__ --import-root .
+python -m sdda.dataflow --import-root . src.products.make_site2.__main__
 ```
 
-The package-module invocation shall dispatch through `sdda/__main__.py`.
+The package-module invocation shall dispatch through `sdda/dataflow/__main__.py`.
 
 Other module roots may be analysed as development tests of the analyser, but package-wide discovery of unrelated tools is not a distribution requirement.
 
@@ -302,7 +302,7 @@ This `get_bios` test does not make `get_bios.__main__` part of the website distr
 
 ## Non-goals and limits
 
-`sdda.py` shall not promise perfect static knowledge of Python behaviour.
+`sdda.dataflow` shall not promise perfect static knowledge of Python behaviour.
 
 The analyser may encounter:
 
@@ -321,5 +321,5 @@ These cases should be reported as unresolved or review-needed where practical, r
 The intended contract is:
 
 ```text
-sdda.py produces an evidence-backed, conservative over-approximation of file-family may-dependencies for human review and distribution planning.
+sdda.dataflow produces an evidence-backed, conservative over-approximation of file-family may-dependencies for human review and distribution planning.
 ```

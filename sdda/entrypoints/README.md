@@ -38,12 +38,17 @@ programs.csv
 standalone_programs.csv
 imported_programs.csv
 library_modules.csv
+dependency_atoms.csv
+program_atoms.csv
+library_atoms.csv
 program_evidence.csv
 module_references.csv
 warnings.csv
 ```
 
 Start with `summary.md`, then fill in `entrypoint_review_form.md` after human review.
+
+The atom reports are quick graph leaves: indexed modules with no observed outgoing local module references. `program_atoms.csv` and `library_atoms.csv` split those leaves by module kind.
 
 ## Read next
 

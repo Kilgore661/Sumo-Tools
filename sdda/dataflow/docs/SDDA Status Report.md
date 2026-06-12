@@ -2,10 +2,10 @@
 
 ## Status
 
-SDDA is implemented as a small package under the top-level `sdda` project. It is independent of `src/introspection` and is invoked through:
+SDDA Dataflow is implemented under `sdda.dataflow`. It is independent of `src/introspection` and is invoked through:
 
 ```powershell
-python -m sdda src.products.make_site2.__main__ --import-root .
+python -m sdda.dataflow --import-root . src.products.make_site2.__main__
 ```
 
 The current implementation writes generated reports under:

@@ -1,6 +1,6 @@
 # SDDA Requirements
 
-The Static Data-Dependency Analyser, `sdda.py`, is required to determine what non-code file families may be needed, produced, or observed when building and deploying the Sumo-Tools website.
+The Static Data-Dependency Analyser, now housed in `sdda.dataflow`, is required to determine what non-code file families may be needed, produced, or observed when building and deploying the Sumo-Tools website.
 
 The purpose is to support source-distribution and reproduction decisions for the website product.
 

@@ -34,6 +34,10 @@ def _print_summary(result) -> None:
     ]
     imported_rows = [row for row in result.module_index_rows if row.program_kind == "imported_program"]
     library_rows = [row for row in result.module_index_rows if row.module_kind == "library_module"]
+    source_modules = {reference.source_module for reference in result.references}
+    atom_rows = [row for row in result.module_index_rows if row.module not in source_modules]
+    program_atom_rows = [row for row in atom_rows if row.module_kind == "program"]
+    library_atom_rows = [row for row in atom_rows if row.module_kind == "library_module"]
     resolution_notes = [row for row in result.warnings if row.severity == "note"]
     warnings = [row for row in result.warnings if row.severity == "warning"]
     print(f"Wrote {result.output_dir}")
@@ -44,6 +48,9 @@ def _print_summary(result) -> None:
     print(f"  Command-like: {len(command_like_rows)}")
     print(f"  Weak entrypoint signal: {len(weak_entrypoint_rows)}")
     print(f"Imported programs: {len(imported_rows)}")
+    print(f"Dependency atoms: {len(atom_rows)}")
+    print(f"  Program atoms: {len(program_atom_rows)}")
+    print(f"  Library atoms: {len(library_atom_rows)}")
     print(f"References: {len(result.references)}")
     print(f"Resolution notes: {len(resolution_notes)}")
     print(f"Warnings: {len(warnings)}")
