@@ -13,7 +13,7 @@ from src.analysis.sumo_history.basho_results.build import (
 )
 from src.analysis.sumo_history.basho_results.dates import represented_dates
 from src.analysis.sumo_history.basho_results.reports import write_index, write_payload
-from src.infra.get_bios.make_public_shikona import make_public_shikona
+from src.infra.get_bios.FullShikonaStore import FullShikonaStore
 from src.infra.persistence.annotated_serialiser import load_history_with_annotations
 from src.sumo_core.History import History
 
@@ -200,7 +200,7 @@ def build_basho_results_data_output(
         payload_dates = dates
 
     ratings = EqueloLookup.load(history)
-    public_shikona_by_rikid = make_public_shikona(history)
+    full_shikona_store = FullShikonaStore.from_sources(history)
     payload_paths = tuple(
         write_payload(
             date,
@@ -208,7 +208,7 @@ def build_basho_results_data_output(
                 history=history,
                 date=date,
                 ratings=ratings,
-                public_shikona_by_rikid=public_shikona_by_rikid,
+                full_shikona_store=full_shikona_store,
             ),
             route_data_root,
         )

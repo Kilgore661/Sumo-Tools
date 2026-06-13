@@ -12,7 +12,7 @@ from src.analysis.sumo_history.basho_results.build import (
 )
 from src.analysis.sumo_history.basho_results.dates import represented_dates
 from src.analysis.sumo_history.basho_results.reports import OUTPUT_ROOT, write_index, write_payload
-from src.infra.get_bios.make_public_shikona import make_public_shikona
+from src.infra.get_bios.FullShikonaStore import FullShikonaStore
 from src.infra.live_store.api import get_history
 from src.sumo_core.BasicPrimitives import Month, Year
 from src.sumo_core.History import Date
@@ -23,7 +23,7 @@ def main() -> None:
     output_root = args.output_root
     history = get_history()
     ratings = EqueloLookup.load(history)
-    public_shikona_by_rikid = make_public_shikona(history)
+    full_shikona_store = FullShikonaStore.from_sources(history)
 
     dates = represented_dates(history)
     payload_dates = dates
@@ -48,7 +48,7 @@ def main() -> None:
             history=history,
             date=date,
             ratings=ratings,
-            public_shikona_by_rikid=public_shikona_by_rikid,
+            full_shikona_store=full_shikona_store,
         )
         write_payload(date, rows, output_root)
 
