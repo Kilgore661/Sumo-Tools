@@ -129,6 +129,40 @@ The package downloads individual rikishi pages, parses headline biographical det
 
 ## Open Questions / Next Steps
 
+### 0. Parser Refresh Performance
+
+Refreshing `rikishi_bios.json` from the cached per-rikishi HTML pages is slow
+enough to interrupt normal iteration.
+
+Likely hot spots in `src.infra.get_bios.parser`:
+
+* `parse_career_table()` walks every career-table row and scans every cell for
+  height/weight observations.
+* Most cells cannot contain height/weight data, but the parser still strips
+  HTML and runs several regular expressions over them.
+* `find_matching_table_end()` recompiles its table-open and table-close regexes
+  on every call.
+* The final pretty-printed `json.dump(..., indent=4)` may add noticeable write
+  time, though it is probably not the main cost.
+
+Low-risk first improvements:
+
+* only run height/weight parsing on raw cells that contain `cm` or `kg`;
+* hoist table-boundary regexes to module-level compiled patterns;
+* time the parse, validation and JSON-write phases before considering larger
+  changes such as parallel parsing.
+
+### 0a. Shikona Odd-Character Validation Masks `#`
+
+`src.infra.get_bios.parser.check_shikona()` currently strips a trailing `#`
+from each shikona word before applying its odd-character check. As a result,
+records such as `Abe Tadashi#` are not reported as containing odd characters.
+
+This masking should be revisited. If `#` is a meaningful SumoDB marker, it
+should be parsed and documented explicitly. If it is noise or an unresolved
+data-quality signal, the parser should report it rather than silently treating
+it as acceptable romanised shikona text.
+
 ### 1. Relationship Between Headline Values and Career-Table Values
 
 Sometimes the headline bio table reports a shikona, height, or weight that is not the last value found in the career table.

@@ -394,8 +394,13 @@ def main() -> None:
     diagnostics = []
     persisted = OrderedDict()
 
-    for path in html_files:
+    total_files = len(html_files)
+
+    for index, path in enumerate(html_files, start=1):
         rikid = rikid_from_path(path)
+
+        if index == 1 or index == total_files or index % 100 == 0:
+            print(f"Parsing bio HTML {index}/{total_files}: {rikid}")
 
         try:
             text = path.read_text(encoding="utf-8")

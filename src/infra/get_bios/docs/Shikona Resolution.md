@@ -48,6 +48,76 @@ The important interpretation is that retirement is not the deciding condition. T
 
 For example, Hakuho Sho is the latest holder of the History shikona `Hakuho`. Even though he has retired, he remains the public `Hakuho`. Earlier holders of `Hakuho` need disambiguation, not him.
 
+## Current resolved policy
+
+The production policy now uses a hybrid rule:
+
+```text
+Group by History shikona H.
+
+The latest holder of H owns the bare public label H.
+
+Earlier holders first try their maximal shikona M from BioStore when M differs
+from H.
+
+Earlier holders use an Intai suffix when:
+  - M is not distinct from H;
+  - M collides with another earlier-holder candidate;
+  - M collides with any latest-holder bare History shikona.
+
+The suffix is YYYY unless YYYY is insufficient, in which case it is YYYY/MM.
+```
+
+This preserves the latest-holder rule while using shikona text where possible.
+Brevity is not the main concern for earlier holders; unambiguous public labels
+are.
+
+Known examples under the current rule:
+
+```text
+RikId(1123)  Hakuho Sho          -> Hakuho
+RikId(8206)  Hakuho              -> Hakuho (1975)
+RikId(9111)  Abe Kenichiro       -> Abe
+RikId(9048)  Abe                 -> Abe (1973)
+RikId(2103)  Takahashi Hirokazu  -> Takahashi Hirokazu
+RikId(7237)  Takahashi Shinichi  -> Takahashi Shinichi
+```
+
+The implementation is isolated in:
+
+```text
+src/infra/get_bios/FullShikonaStore.py
+```
+
+`FullShikonaStore` is a publication-time entity parallel to `History`. This is
+intentional containment of a modelling hack: the information probably belongs
+in or beside the History-building pipeline in the long run, but this rollout
+does not mutate `History`.
+
+The store is built from:
+
+```text
+History
+BioStore / rikishi_bios.json
+Rikishi.aspx shikona-search CSV
+```
+
+The Career Comparisons dropdown now receives full shikona through the existing
+`trajectory_master.json` artifact rather than through new JavaScript plumbing.
+
+On a fresh source-cache rebuild, the Career Comparisons artifact was checked:
+
+```text
+labels 9064
+unique 9064
+duplicates 0
+```
+
+Historical sections below record the investigation path. Some earlier
+conclusions, especially the rejection of Intai as a general disambiguator and
+the insufficiency of full shikona alone, should now be read as background
+rather than the final production policy.
+
 ## Why the latest holder keeps the History shikona
 
 If a History shikona is non-unique, the latest holder is the rikishi most users will expect to be identified by the bare handle.

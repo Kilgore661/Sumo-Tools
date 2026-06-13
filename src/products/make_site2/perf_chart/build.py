@@ -8,8 +8,8 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from src.analysis.equelo.api import EqueloLookup, EqueloTiming
-from src.infra.get_bios.make_public_shikona import make_public_shikona
-from src.sumo_core.BasicPrimitives import RikId, Shikona
+from src.infra.get_bios.FullShikonaStore import FullShikonaStore
+from src.sumo_core.BasicPrimitives import RikId
 from src.sumo_core.History import Date, History
 
 
@@ -56,6 +56,8 @@ def build_master_payload(
     """Return compact all-rikishi trajectory rows keyed by rikishi id."""
 
     dates = tuple(sorted(history.keys()))
+    full_shikona_store = FullShikonaStore.from_sources(history)
+    full_shikona_store.write_json()
     return {
         "schema_version": 1,
         "columns": ("date", "shikona", "chii", "equelo"),
@@ -64,7 +66,7 @@ def build_master_payload(
             history=history,
             dates=dates,
             equelo_lookup=equelo_lookup,
-            public_shikona_by_rikid=make_public_shikona(history),
+            full_shikona_store=full_shikona_store,
         ),
     }
 
@@ -74,17 +76,22 @@ def make_js_input(
     history: History,
     dates: tuple[Date, ...],
     equelo_lookup: EqueloLookup,
-    public_shikona_by_rikid: dict[RikId, Shikona],
+    full_shikona_store: FullShikonaStore,
 ) -> dict[str, list[list[object]]]:
     """Return the browser trajectory input expected by Career Comparisons."""
 
     points_by_rikishi: dict[str, list[list[object]]] = {}
+    full_shikona_store.assert_complete_for(
+        rikishi_id
+        for date in dates
+        for rikishi_id in history(date).banzuke.riks
+    )
 
     for date in dates:
         basho = history(date)
         for rikishi_id in sorted(basho.banzuke.riks, key=int):
             chii = basho.banzuke.rikchii[rikishi_id]
-            shikona = public_shikona_by_rikid[rikishi_id]
+            shikona = full_shikona_store.full_shikona(rikishi_id)
             rating = equelo_lookup.get_equelo(
                 rikid=rikishi_id,
                 date=date,

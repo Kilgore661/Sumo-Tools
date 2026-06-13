@@ -20,8 +20,19 @@ requires it.
 The canonical one-word shikona stored in `History`.
 
 This is the public "surname" shikona. When a rikishi has a two-word recorded
-name, the second word behaves like a given name and is not the chosen
-disambiguation strategy for this rollout.
+name, the second word behaves like a given name.
+
+History shikona owns the public handle. The latest holder of History shikona
+`X` gets to be public `X`, even when `get_bios` knows a longer maximal shikona
+for that rikishi.
+
+### Maximal shikona
+
+The one- or two-word latest shikona parsed by `get_bios` / `BioStore`.
+
+This is used as a preferred disambiguating candidate for earlier holders of a
+non-unique History shikona. It is not the default public label for every
+rikishi.
 
 ### Full shikona
 
@@ -30,17 +41,23 @@ The catalogue-derived, public, disambiguated label for a rikishi.
 The full shikona rule is:
 
 ```text
-If History shikona H is unique:
+Group by History shikona H.
+
+If the rikishi is the latest holder of H:
     full shikona = H
 
-If History shikona H is not unique and the rikishi is the latest holder of H:
-    full shikona = H
+If the rikishi is an earlier holder of H and has maximal shikona M != H:
+    candidate full shikona = M
 
-If History shikona H is not unique and the rikishi is an earlier holder of H:
-    full shikona = H (YYYY)
+If the rikishi is an earlier holder of H and has no distinct maximal shikona:
+    candidate full shikona = H
 
-If H (YYYY) is still not unique among earlier holders:
-    full shikona = H (YYYY/MM)
+If an earlier-holder candidate is H, collides with another candidate, or
+collides with any latest-holder bare History shikona:
+    append Intai year: candidate (YYYY)
+
+If candidate (YYYY) is still not unique:
+    append Intai year/month: candidate (YYYY/MM)
 ```
 
 `YYYY` and `YYYY/MM` are derived from the rikishi's `Intai` value.
@@ -61,8 +78,8 @@ This rollout does not:
 
 1. Move disambiguated shikona into `History`.
 2. Use `rikid` as public disambiguation text.
-3. Use second-name components as the disambiguator.
-4. Re-open the general choice of disambiguator.
+3. Make maximal shikona the default public label for every rikishi.
+4. Re-open the general choice of owner label.
 5. Treat the old probe implementation as production design.
 
 The probe is evidence. The production implementation should express the
@@ -115,25 +132,13 @@ Promote the decided Intai-based rule into a production resolver.
 The core transformation is:
 
 ```text
-History + BioStore -> dict[RikId, full shikona]
+History + BioStore + Rikishi.aspx shikona-search rows -> FullShikonaStore
 ```
 
-A likely production contract is:
-
-```python
-def make_full_shikona_by_rikid(
-    history: History,
-    bios: BioStore,
-) -> dict[RikId, str]:
-    ...
-```
-
-A convenience wrapper may hide the cache load where appropriate:
-
-```python
-def make_full_shikona(history: History) -> dict[RikId, str]:
-    ...
-```
+`FullShikonaStore` is a deliberate publication-time entity parallel to
+`History`. It is a hack in the useful sense: it isolates public identity data
+that arguably belongs in the History-building pipeline, without changing
+`History` during this rollout.
 
 The resolver owns only the computation of full shikona. It does not decide
 whether a public context displays History shikona or full shikona.
@@ -141,17 +146,19 @@ whether a public context displays History shikona or full shikona.
 Required resolver behaviour:
 
 1. Use `History` to find each represented rikishi's History shikona.
-2. Use the catalogue to find all rikishi sharing each History shikona.
+2. Group represented rikishi by History shikona.
 3. Use `History` to choose the latest holder of each non-unique History
    shikona.
 4. Give the latest holder the bare History shikona.
-5. Give earlier holders `History shikona (YYYY)` when the year suffix is
-   sufficient.
-6. Give earlier holders `History shikona (YYYY/MM)` when the month suffix is
-   required.
-7. Fail loudly if an earlier holder needs an `Intai` suffix and no usable
+5. For earlier holders, use distinct maximal shikona from `BioStore` where
+   that produces an unambiguous public label.
+6. Add `Intai` year to earlier-holder candidates that are still ambiguous, that
+   collapse to the bare History shikona, or that collide with another
+   latest-holder bare History shikona.
+7. Add `Intai` month when year is not enough.
+8. Fail loudly if an earlier holder needs an `Intai` suffix and no usable
    `Intai` value exists.
-8. Fail loudly if the produced full shikona labels are not unique where the
+9. Fail loudly if the produced full shikona labels are not unique where the
    calling contract requires uniqueness.
 
 This keeps the offensive-programming stance: missing or contradictory catalogue
@@ -160,6 +167,15 @@ data is not papered over with a public `rikid` fallback.
 ## Phase 3: Rikishi History Dropdown
 
 Replace the dropdown's current public label source with full shikona labels.
+
+The first implementation point is the Career Comparisons producer:
+
+```text
+src/products/make_site2/perf_chart/build.py
+```
+
+It writes full shikona labels into the existing `trajectory_master.json`
+structure, so the JavaScript dropdown can keep its current data flow.
 
 The dropdown should:
 
@@ -270,6 +286,45 @@ tracker/history refresh
 Publication should fail loudly if the resolver cannot produce the labels
 required by public selectors or other full-shikona contexts.
 
+Fresh raw source files matter. A stale or corrupt `current standings` cache can
+poison History shikona and therefore the owner calculation. This was observed
+with a bad `1964/01`-era source cache that incorrectly made `RikId(11446)` look
+like the latest History holder of `Tonegamine`. Rebuilding `History` from fresh
+source files restored agreement:
+
+```text
+11184 -> Tonegamine
+11446 -> Sadonohana
+```
+
+The rollout should therefore treat source-cache freshness as part of the
+full-shikona maintenance story, not merely as a tracker concern.
+
+## Verified Dropdown Check
+
+On a fresh source-cache rebuild in `C:\Users\kilgo\Sumo-Tools`, the corrected
+`FullShikonaStore` policy produced unique labels for the Career Comparisons
+artifact:
+
+```text
+labels 9064
+unique 9064
+duplicates 0
+```
+
+Selected known cases:
+
+```text
+11184 Tonegamine
+11446 Sadonohana
+1123 Hakuho
+8206 Hakuho (1975)
+9048 Abe (1973)
+9111 Abe
+2103 Takahashi Hirokazu
+7237 Takahashi Shinichi
+```
+
 ## Documentation and Commit Plan
 
 The work should be committed at conceptual boundaries:
@@ -289,4 +344,3 @@ Relevant documentation should distinguish:
 5. Resolver ownership.
 6. Page/context choice of which label to display.
 7. Freshness requirements.
-
