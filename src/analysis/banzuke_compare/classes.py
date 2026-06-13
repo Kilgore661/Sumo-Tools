@@ -163,7 +163,7 @@ class BcrReportSide:
 
     rikishi_id: RikId
     chii: str
-    shikona: Shikona
+    shikona: str
     graph_shikona: str
     old_chii: str
     previous_result: str

@@ -23,7 +23,8 @@ from math import sqrt
 
 from src.analysis.standings.multiple_basho import MultipleBashoCore
 from src.analysis.standings.classes import WinPolicy
-from src.sumo_core.BasicPrimitives import RikId, Shikona
+from src.infra.get_bios.FullShikonaStore import FullShikonaStore
+from src.sumo_core.BasicPrimitives import RikId
 from src.sumo_core.History import Date, History
 from src.sumo_core.BasicEnums import Outcome, Division, MSD
 from src.sumo_core.Chii import Chii
@@ -35,7 +36,7 @@ CI95_Z = 1.96
 class MultipleBashoViewRow:
     position: int
     rikishi_id: RikId
-    shikona: Shikona
+    shikona: str
     chii: str
     chii_ordinal: int
     fought_wins: int
@@ -186,6 +187,7 @@ def get_multiple_basho_view(
     history: History,
     core: MultipleBashoCore,
     win_policy: WinPolicy = WinPolicy.FOUGHT_ONLY,
+    full_shikona_store: FullShikonaStore | None = None,
 ) -> MultipleBashoView:
 
     # Rows are sorted deterministically for developer convenience.
@@ -198,6 +200,11 @@ def get_multiple_basho_view(
     # file that humans will read. 
 
     selected_basho_count = len(core.selected_dates)
+    resolved_full_shikona_store = (
+        full_shikona_store
+        if full_shikona_store is not None
+        else FullShikonaStore.from_sources(history)
+    )
 
     sortable_rows: list[dict[str, object]] = []
 
@@ -241,7 +248,7 @@ def get_multiple_basho_view(
         sortable_rows.append(
             {
                 "rikishi_id": rid,
-                "shikona": display_basho.banzuke.get_shik(rid),
+                "shikona": resolved_full_shikona_store.full_shikona(rid),
                 "chii": str(chii),
                 "chii_ordinal": chii.ordinal(),
                 "fought_wins": row.fought_wins,

@@ -10,7 +10,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Iterable
 
-from src.infra.get_bios.make_public_shikona import make_public_shikona
+from src.infra.get_bios.FullShikonaStore import FullShikonaStore
 from src.infra.live_store.api import get_history
 from src.infra.persistence.annotated_serialiser import load_history_with_annotations
 from src.sumo_core.BasicPrimitives import RikId
@@ -109,7 +109,7 @@ def compute_career_spans(history: History) -> tuple[list[CareerSpan], list[GapWa
     date_by_index = {index: date for date, index in date_index.items()}
 
     appearances: dict[RikId, list[Date]] = {}
-    public_shikona_by_rikid = make_public_shikona(history)
+    full_shikona_store = FullShikonaStore.from_sources(history)
 
     for date in dates:
         banzuke = history(date).banzuke
@@ -128,7 +128,7 @@ def compute_career_spans(history: History) -> tuple[list[CareerSpan], list[GapWa
         last_index = indices[-1]
         missing_segments = _missing_segments(indices)
         gap_basho_count = sum(len(segment) for segment in missing_segments)
-        shikona = str(public_shikona_by_rikid[rikishi_id])
+        shikona = full_shikona_store.full_shikona(rikishi_id)
         graph_shikona = _graph_shikona_for(rikishi_id, shikona)
 
         for segment in missing_segments:

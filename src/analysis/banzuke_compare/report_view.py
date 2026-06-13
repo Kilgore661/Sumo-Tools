@@ -14,9 +14,8 @@ from .banzuke_diff import rank_level_movement_marker
 from .equelo_ratings import EqueloSnapshot, load_latest_equelo_snapshot_before
 from .results import format_previous_result
 from .shikona_links import graph_shikona_for
-from src.infra.get_bios.make_public_shikona import make_public_shikona
+from src.infra.get_bios.FullShikonaStore import FullShikonaStore
 from src.sumo_core.BasicEnums import Division, Side
-from src.sumo_core.BasicPrimitives import RikId, Shikona
 
 
 DIVISION_ORDER = (
@@ -57,14 +56,14 @@ def build_bcr_report(diff: BanzukeDiff) -> BcrReport:
     """
 
     equelo_snapshot = load_latest_equelo_snapshot_before(diff.source.current_date)
-    public_shikona_by_rikid = make_public_shikona(diff.source.history)
+    full_shikona_store = FullShikonaStore.from_sources(diff.source.history)
 
     divisions = tuple(
         build_division_report(
             diff=diff,
             division=division,
             equelo_snapshot=equelo_snapshot,
-            public_shikona_by_rikid=public_shikona_by_rikid,
+            full_shikona_store=full_shikona_store,
         )
         for division in DIVISION_ORDER
         if any(change.current_division == division for change in diff.changes)
@@ -80,7 +79,7 @@ def build_division_report(
     diff: BanzukeDiff,
     division: Division,
     equelo_snapshot: EqueloSnapshot,
-    public_shikona_by_rikid: dict[RikId, Shikona],
+    full_shikona_store: FullShikonaStore,
 ) -> BcrDivisionReport:
     """
     Contract:
@@ -103,7 +102,7 @@ def build_division_report(
             diff=diff,
             changes=changes,
             equelo_snapshot=equelo_snapshot,
-            public_shikona_by_rikid=public_shikona_by_rikid,
+            full_shikona_store=full_shikona_store,
         ),
     )
 
@@ -112,7 +111,7 @@ def build_division_rows(
     diff: BanzukeDiff,
     changes: tuple[BanzukeChange, ...],
     equelo_snapshot: EqueloSnapshot,
-    public_shikona_by_rikid: dict[RikId, Shikona],
+    full_shikona_store: FullShikonaStore,
 ) -> tuple[BcrReportRow, ...]:
     """
     Contract:
@@ -141,7 +140,7 @@ def build_division_rows(
             diff=diff,
             change=change,
             equelo_snapshot=equelo_snapshot,
-            public_shikona_by_rikid=public_shikona_by_rikid,
+            full_shikona_store=full_shikona_store,
         )
 
         if change.current_side == Side.EAST:
@@ -196,7 +195,7 @@ def build_report_side(
     diff: BanzukeDiff,
     change: BanzukeChange,
     equelo_snapshot: EqueloSnapshot,
-    public_shikona_by_rikid: dict[RikId, Shikona],
+    full_shikona_store: FullShikonaStore,
 ) -> BcrReportSide:
     """
     Contract:
@@ -208,7 +207,7 @@ def build_report_side(
     return BcrReportSide(
         rikishi_id=change.rikishi_id,
         chii=str(change.current_chii),
-        shikona=public_shikona_by_rikid[change.rikishi_id],
+        shikona=full_shikona_store.full_shikona(change.rikishi_id),
         graph_shikona=graph_shikona_for(change.rikishi_id, change.current_shikona),
         old_chii="" if change.previous_chii is None else str(change.previous_chii),
         previous_result=format_previous_result(change, diff.source.previous_summary),

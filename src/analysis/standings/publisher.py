@@ -12,6 +12,7 @@ from pathlib import Path
 from time import time
 import pickle
 
+from src.infra.get_bios.FullShikonaStore import FullShikonaStore
 from src.infra.live_store.api import get_history
 from src.sumo_core.BasicPrimitives import Month
 
@@ -175,6 +176,7 @@ def write_published_view_csv(
 
 def publish_one_window(
     history,
+    full_shikona_store: FullShikonaStore,
     run_stamp: str,
     anchor_date,
     num_basho: int,
@@ -194,6 +196,7 @@ def publish_one_window(
     view = get_multiple_basho_view(
         history=history,
         core=core,
+        full_shikona_store=full_shikona_store,
     )
 
     terminal_date = selected_dates[-1]
@@ -250,6 +253,7 @@ def main() -> None:
     t0 = time()
 
     history = get_history()
+    full_shikona_store = FullShikonaStore.from_sources(history)
     run_stamp = make_run_stamp()
 
     run_dir = publisher_run_output_dir(run_stamp)
@@ -284,6 +288,7 @@ def main() -> None:
     for num_basho in SUPPORTED_NUM_BASHO:
         publish_one_window(
             history=history,
+            full_shikona_store=full_shikona_store,
             run_stamp=run_stamp,
             anchor_date=anchor_date,
             num_basho=num_basho,
