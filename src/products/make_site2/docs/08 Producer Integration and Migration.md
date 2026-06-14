@@ -490,6 +490,31 @@ nonconforming for a reduced-history build or not proven coherent. Producer
 integration for these PAs shall follow the enforcement policy chosen for
 explicit-History builds and actual public priority.
 
+### 16.4 Most Consecutive Bouts
+
+Most Consecutive Bouts is the first promoted Records table under Sumo History.
+It demonstrates an ordinary flat table PA whose producer output is shaped for
+public rendering rather than copied from legacy HTML.
+
+The producer is `src.analysis.sumo_history.records.consecutive_bouts`. It writes
+the public candidate CSV to:
+
+```text
+files/output/analysis/sumo_history/records/consecutive_bouts/longest_streak_candidates.csv
+```
+
+`make_site2` stages that CSV to:
+
+```text
+sumo-history/records/most-consecutive-bouts/data/longest_streak_candidates.csv
+```
+
+The PA contract is specified in
+`02.6 Specification - Most Consecutive Bouts.md`. The important producer-owned
+meaning is the History-based consecutive-appearance algorithm, including the
+declared sanctioned-absence exception list. `make_site2` owns the page location,
+filter, table column model, SumoDB shikona links, popovers and Notes.
+
 ---
 
 ## 17. Suggested Migration Sequence

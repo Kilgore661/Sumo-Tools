@@ -28,6 +28,7 @@ Then read the detailed model/design document for the area being changed:
 | Visible page structure, filters, PAPanel, notes | `04.3 Public UI Model.md` |
 | Tables, charts, artifact forms, PA-local meaning | `04.4 Published Artifact Model.md` |
 | Basho Results (7.1) recursive table model | `04.5 Basho Results Model.md` |
+| Most Consecutive Bouts (7.4.1) page contract | `02.6 Specification - Most Consecutive Bouts.md` |
 | HTML/CSS/runtime realisation | `05 Rendering Design.md` and `06 Rendering Audit and Changes.md` |
 | Build output, runtime state, data staging | `07 Build, Output and Runtime Design.md` |
 | Producer boundaries and migration | `08 Producer Integration and Migration.md` |
@@ -104,6 +105,9 @@ Implemented and verified:
 - The modular browser runtime is active.
 - Basho Results (7.1) uses the recursive presentation-table model for the
   settled transitional slice, including leaf-heading sorting and Shikona links.
+- Most Consecutive Bouts (7.4.1) is a promoted ordinary table PA under
+  Sumo History > Records, with a `Clean only?` option and SumoDB-linked
+  shikona values.
 
 Known gaps:
 

@@ -16,6 +16,7 @@ from ..artifact_model import (
     SectionedTableArtifact,
     SelectedTableDataSource,
     StandingsArtifact,
+    TableArtifact,
     TableColumn,
     TableSection,
 )
@@ -179,6 +180,24 @@ CAREER_LENGTH_ARTIFACT = ChartArtifact(
     notes=(
         Note(id="observed_career_length", applies_to=("all",), text="Years is the observed career length: the elapsed time between the first and last banzuke appearances in the prepared history."),
         Note(id="bg_count", applies_to=("longest",), text="Bg is the number of basho for which the rikishi was absent."),
+    ),
+)
+
+MOST_CONSECUTIVE_BOUTS_ARTIFACT = TableArtifact(
+    id="most_consecutive_bouts", heading="Most Consecutive Bouts", kind="table", renderer="generic_table",
+    rows_source=DataSource(id="longest_streak_candidates", label="Longest streak candidates", path="sumo-history/records/most-consecutive-bouts/data/longest_streak_candidates.csv", media_type="text/csv"),
+    columns=(
+        TableColumn(id="row_number", heading="", sort_kind="none", align="right"),
+        TableColumn(id="position", heading="#", source_field="position", sort_key="position", sort_kind="numeric", sort_default_direction="ascending", align="right"),
+        TableColumn(id="shikona", heading="Shikona", source_field="shikona", sort_kind="text", align="left"),
+        TableColumn(id="bouts", heading="Bouts", source_field="bouts", sort_kind="numeric", align="right"),
+        TableColumn(id="start", heading="Start", source_field="start", help="year/month/day of basho", sort_kind="text", align="left"),
+        TableColumn(id="end", heading="End", source_field="end", help="year/month/day of basho", sort_kind="text", align="left"),
+        TableColumn(id="clean", heading="Clean", source_field="clean", help="See Notes", sort_kind="none", align="center", note_id="clean_record"),
+    ),
+    default_sort_column="position",
+    notes=(
+        Note(id="clean_record", applies_to=("all",), text='A "clean" record is one where the rikishi has never missed a day in his entire career.'),
     ),
 )
 

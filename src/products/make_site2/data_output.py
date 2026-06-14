@@ -44,6 +44,12 @@ CAREER_LENGTH_ROUTE_DATA_DIR = (
     / "career-length"
     / "data"
 )
+MOST_CONSECUTIVE_BOUTS_ROUTE_DATA_DIR = (
+    Path("sumo-history")
+    / "records"
+    / "most-consecutive-bouts"
+    / "data"
+)
 TYPICAL_EQUELO_VALUES_ROUTE_DATA_DIR = (
     Path("ratings-models")
     / "rating-and-rank"
@@ -89,6 +95,14 @@ CAREER_LENGTH_SOURCE_ROOT = (
     / "career_length"
     / "site"
     / "career_length_1958_01_to_2026_05"
+)
+MOST_CONSECUTIVE_BOUTS_SOURCE_ROOT = (
+    Path("files")
+    / "output"
+    / "analysis"
+    / "sumo_history"
+    / "records"
+    / "consecutive_bouts"
 )
 TYPICAL_EQUELO_VALUES_SOURCE_ROOT = (
     Path("files")
@@ -138,6 +152,11 @@ class SingleCsvChartDataOutput:
 @dataclass(frozen=True, kw_only=True)
 class CareerLengthDataOutput:
     data_paths: tuple[Path, ...]
+
+
+@dataclass(frozen=True, kw_only=True)
+class MostConsecutiveBoutsDataOutput:
+    csv_path: Path
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -332,6 +351,21 @@ def copy_career_length_data_output(
     for name, target_path in zip(names, data_paths, strict=True):
         shutil.copy2(CAREER_LENGTH_SOURCE_ROOT / name, target_path)
     return CareerLengthDataOutput(data_paths=data_paths)
+
+
+def copy_most_consecutive_bouts_data_output(
+    *,
+    output_root: Path,
+) -> MostConsecutiveBoutsDataOutput:
+    """Copy the Most Consecutive Bouts CSV into the make_site2 output tree."""
+
+    csv_path = copy_single_csv_chart_data_output(
+        output_root=output_root,
+        route_data_dir=MOST_CONSECUTIVE_BOUTS_ROUTE_DATA_DIR,
+        source_path=MOST_CONSECUTIVE_BOUTS_SOURCE_ROOT / "longest_streak_candidates.csv",
+        target_name="longest_streak_candidates.csv",
+    )
+    return MostConsecutiveBoutsDataOutput(csv_path=csv_path)
 
 
 def copy_typical_equelo_values_data_output(

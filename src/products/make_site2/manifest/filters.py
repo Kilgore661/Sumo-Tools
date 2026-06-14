@@ -160,6 +160,16 @@ CAREER_LENGTH_FILTERS = (
     ),
 )
 
+MOST_CONSECUTIVE_BOUTS_FILTERS = (
+    Filter(
+        id="clean_only",
+        label="Clean only?",
+        control="checkbox",
+        default=False,
+        url_key="clean_only",
+    ),
+)
+
 CAREER_COMPARISONS_FILTERS = (
     Filter(
         id="skill",

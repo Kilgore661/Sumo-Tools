@@ -100,6 +100,10 @@ PANEL_DECLARATIONS: dict[str, PanelDeclaration] = {
         filters=f.CAREER_LENGTH_FILTERS,
         artifact=a.CAREER_LENGTH_ARTIFACT,
     ),
+    "most_consecutive_bouts": PanelDeclaration(
+        filters=f.MOST_CONSECUTIVE_BOUTS_FILTERS,
+        artifact=a.MOST_CONSECUTIVE_BOUTS_ARTIFACT,
+    ),
     "career_comparisons": PanelDeclaration(
         filters=f.CAREER_COMPARISONS_FILTERS,
         artifact=a.CAREER_COMPARISONS_ARTIFACT,

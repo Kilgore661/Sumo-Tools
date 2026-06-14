@@ -4,6 +4,7 @@ import { escapeHtml } from "../../utils/html.js";
 import {
   currentTableSortState,
   renderTableHeading,
+  renderRikishiLink,
   sortRows,
   tableCellAttributes,
 } from "./shared.js";
@@ -76,6 +77,46 @@ function renderIndexedTable(artifact, rows, state) {
   ].join("");
 }
 
+// Render a flat sortable table artifact.
+function renderGenericTable(artifact, rows, state) {
+  const sortState = currentTableSortState(artifact);
+  const visibleRows = genericRowsForState(rows, state);
+  const sortedRows = sortRows(visibleRows, artifact.columns || [], sortState);
+  return [
+    '<div class="artifact-title-block">',
+    `<h4>${escapeHtml(artifact.heading)}</h4>`,
+    '</div>',
+    '<table class="artifact-table generic-table">',
+    '<thead><tr>',
+    ...artifact.columns.map(column => renderTableHeading(column, sortState)),
+    '</tr></thead>',
+    '<tbody>',
+    ...sortedRows.map((row, index) => [
+      '<tr>',
+      ...artifact.columns.map(column =>
+        `<td ${tableCellAttributes(column)}>${genericCellValue(column, row, index)}</td>`
+      ),
+      '</tr>'
+    ].join("")),
+    '</tbody>',
+    '</table>'
+  ].join("");
+}
+
+function genericRowsForState(rows, state) {
+  if (!state?.clean_only) return rows;
+  return rows.filter(row => String(row.clean) === "True");
+}
+
+function genericCellValue(column, row, index) {
+  if (column.id === "row_number") return escapeHtml(String(index + 1));
+  if (column.id === "clean") return String(row[column.source_field || column.id]) === "True" ? "\u2713" : "";
+  if (column.id === "shikona") {
+    return renderRikishiLink(row[column.source_field || column.id] || "", row.rikishi_id);
+  }
+  return escapeHtml(row[column.source_field || column.id] || "");
+}
+
 // Apply generic column/group visibility rules from the runtime manifest.
 function isColumnVisible(column, groups, state) {
   if (column.always_visible) return true;
@@ -122,6 +163,9 @@ export {
   renderSectionedTable,
   renderTableSection,
   renderIndexedTable,
+  renderGenericTable,
+  genericRowsForState,
+  genericCellValue,
   isColumnVisible,
   cellValue,
   resultWithMovement,

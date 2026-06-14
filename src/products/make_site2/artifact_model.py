@@ -10,6 +10,7 @@ from typing import Literal
 ArtifactKind = Literal[
     "indexed_table",
     "sectioned_table",
+    "table",
     "chart",
     "banzuke_changes",
     "standings",
@@ -129,6 +130,19 @@ class SectionedTableArtifact:
     data_sources: tuple[DataSource, ...]
     sections: tuple[TableSection, ...]
     columns: tuple[TableColumn, ...]
+    notes: tuple[Note, ...] = ()
+
+
+@dataclass(frozen=True, kw_only=True)
+class TableArtifact:
+    id: str
+    heading: str
+    kind: ArtifactKind
+    renderer: str
+    rows_source: DataSource
+    columns: tuple[TableColumn, ...]
+    default_sort_column: str
+    default_sort_descending: bool = False
     notes: tuple[Note, ...] = ()
 
 

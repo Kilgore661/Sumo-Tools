@@ -9,7 +9,7 @@ import { buildBashoResultsPresentationModel, renderBashoResultsPresentationTable
 import { filterValueLabel, renderFilterSection, resolveBanzukeChangesDivision, resolveFilterState, resolveSelectedDataValue, resolveSelectedDivision, resolveSelectedFilterValueFromSource, resolveStandingsDivision, resolveStandingsWindow, selectedIndexEntry, selectedStandingsSource, wireFilterSection } from "../ui/filters.js";
 import { wirePAPanelLayout } from "../ui/layout.js";
 import { renderNotes, wireNotesPanel } from "../ui/notes.js";
-import { banzukeScanColumns, renderBanzukeChangesTable, renderIndexedTable, renderSectionedTable, renderStandingsTable, standingsRowsForState, wireTableSorting } from "../ui/tables.js";
+import { banzukeScanColumns, renderBanzukeChangesTable, renderGenericTable, renderIndexedTable, renderSectionedTable, renderStandingsTable, standingsRowsForState, wireTableSorting } from "../ui/tables.js";
 import { escapeHtml } from "../utils/html.js";
 
 // Dispatch a manifest-declared ContentPanel to the renderer for its PA kind.
@@ -24,6 +24,10 @@ async function renderContentPanel(panel, overrideState = null) {
   }
   if (artifact.kind === "sectioned_table") {
     await renderSectionedTableContentPanel(panel, artifact);
+    return;
+  }
+  if (artifact.kind === "table") {
+    await renderGenericTableContentPanel(panel, artifact, overrideState);
     return;
   }
   if (artifact.kind === "banzuke_changes") {
@@ -155,6 +159,32 @@ async function renderSectionedTableContentPanel(panel, artifact) {
     '</div>',
     '</section>'
   ].join("");
+  wireTableSorting(panel, artifact, renderContentPanel);
+  wireNotesPanel();
+  wirePAPanelLayout();
+}
+async function renderGenericTableContentPanel(panel, artifact, overrideState = null) {
+  const filters = panel.contents.filter_section?.filters || [];
+  const state = overrideState || resolveFilterState(filters, readFilterUrlState(filters));
+  const rows = await fetchCsv(artifact.rows_source.path);
+  writePanelUrl(panel.page_id, filters, state, { replace: true });
+
+  contentPanel.innerHTML = [
+    '<section class="content-panel">',
+    `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
+    renderContentSummary(panel.heading.summary),
+    '<div class="content-body">',
+    renderFilterSection(panel.contents.filter_section, state),
+    '<section class="pa-panel">',
+    '<div class="pa-slot">',
+    renderGenericTable(artifact, rows, state),
+    '</div>',
+    renderNotes(artifact, state),
+    '</section>',
+    '</div>',
+    '</section>'
+  ].join("");
+  wireFilterSection(panel, state, renderContentPanel);
   wireTableSorting(panel, artifact, renderContentPanel);
   wireNotesPanel();
   wirePAPanelLayout();
@@ -464,4 +494,4 @@ function bashoResultsTitle(state, entry, filters) {
   return `${division} Results for ${label}`;
 }
 
-export { renderContentPanel, renderIndexedTableContentPanel, renderBanzukeChangesContentPanel, renderSectionedTableContentPanel, renderStandingsContentPanel, renderChartContentPanel, renderStandingWinProbabilityContentPanel, renderCareerLengthContentPanel, renderCareerComparisonsContentPanel, renderFinishByChiiContentPanel, renderStackedBarChartContentPanel, renderGroupedLineChartContentPanel, renderOrderedBarChartContentPanel, renderCategoryBarChartContentPanel, fetchArtifactCsvSet, renderArtifactTitleBlock, artifactTitle, bashoResultsTitle, artifactForPAPanel };
+export { renderContentPanel, renderIndexedTableContentPanel, renderBanzukeChangesContentPanel, renderSectionedTableContentPanel, renderGenericTableContentPanel, renderStandingsContentPanel, renderChartContentPanel, renderStandingWinProbabilityContentPanel, renderCareerLengthContentPanel, renderCareerComparisonsContentPanel, renderFinishByChiiContentPanel, renderStackedBarChartContentPanel, renderGroupedLineChartContentPanel, renderOrderedBarChartContentPanel, renderCategoryBarChartContentPanel, fetchArtifactCsvSet, renderArtifactTitleBlock, artifactTitle, bashoResultsTitle, artifactForPAPanel };

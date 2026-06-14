@@ -142,6 +142,17 @@ PAGES = PageRegistry(
                 producer="sumo_history.career_lifecycle.career_length",
             ),
         ),
+        "most_consecutive_bouts": PageDefinition(
+            id="most_consecutive_bouts",
+            title="Most Consecutive Bouts",
+            summary="Rikishi with the longest policy-continuous bout appearance streaks.",
+            status=PageStatus.PROMOTED,
+            artifact=artifact(
+                "most_consecutive_bouts",
+                "table",
+                producer="sumo_history.records.consecutive_bouts",
+            ),
+        ),
         "typical_equelo_values": PageDefinition(
             id="typical_equelo_values",
             title="Typical Equelo Ratings",
