@@ -92,6 +92,22 @@ user may think it is hung.
 
 ## Deferred Design Issues
 
+### Shared constant discoverability
+
+The Sumo-Tools codebase has constants in many local modules, including
+analysis producers, product builders, deployment packaging and runtime-support
+code. Some are deliberately local, but some appear to be cross-cutting public or
+operational policy values.
+
+Open question: are all project-wide or distro-relevant constants gathered in
+one easy-to-find place, or at least organised under obvious domain-level
+constant/config modules?
+
+If not, consider introducing or documenting a clearer constants policy. The
+goal is not to centralise every local magic value, but to make shared policy
+values, output roots, distro paths, limits and operational defaults easy to
+discover and hard to accidentally duplicate.
+
 ### Shared banzuke calendar/source-availability model
 
 During the clean-room run, `src.analysis.banzuke_compare.publisher` defaulted

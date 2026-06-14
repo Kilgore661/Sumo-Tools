@@ -222,3 +222,75 @@ Basho Results payload
 
 This is the table/chart commutative diagram itch. It may become useful. It is
 not an implementation instruction yet.
+
+---
+
+## 6. Another Isolated Thought: Controls, Options, Filters and Scope
+
+The current public UI uses one broad control area that has usually been called
+`FilterSection` or "Options". That single bucket is probably hiding several
+different semantic things.
+
+Most Career Wins exposed the problem clearly.
+
+The page has:
+
+```text
+Include retired?
+Count fusen results?
+```
+
+At first glance both look like ordinary options. They are both checkboxes in
+the same visible control area. But they are not doing the same kind of work.
+
+`Include retired?` changes the row population. If it is unchecked, retired
+rikishi are not part of the selected visible table. The resulting top-50 record
+table is a different row set. Sorting should reorder that row set; sorting
+should not make excluded or non-top-50 rows reappear merely because they would
+rank highly under a secondary column such as win rate.
+
+`Count fusen results?` changes the definition of the displayed measure. If it
+is checked, fusensho count as wins and fusenpai count as losses. If unchecked,
+they are excluded from wins, losses, bouts, win rate and start/end decision
+dates. This changes the projection/measure definition before the ranked table is
+formed.
+
+There is also a third kind of control visible elsewhere: choosing an analytical
+scope or logical dataset. `Division = Makuuchi/Juryo/...` might physically be
+implemented by loading one large CSV and hiding rows for other divisions, but
+semantically the reader is choosing the population/domain of the PA. That feels
+different from a row filter such as `Include retired?`.
+
+A tentative vocabulary:
+
+```text
+Scope / selector
+  choose the logical dataset, data instance or analytical population
+  examples: Basho, Division
+
+Filter
+  restrict rows within the selected logical dataset
+  examples: Include retired?, Clean only?
+
+Projection option
+  choose fields, measures, derived-value policy or visible column groups
+  examples: Count fusen results?, Previous Basho, Delta, Equelo Ratings
+
+Presentation option
+  change rendering without changing analytical membership or measure meaning
+  examples: banzuke style versus scan style, compressed axis
+```
+
+In the GUT-ish pipeline this suggests:
+
+```text
+Source artifact
+  -> logical dataset selected by scope/selectors
+  -> view dataset restricted by filters
+  -> projected view shaped by options
+  -> presentation artifact rendered by presentation options
+```
+
+This is not yet an active model. It is a possible way to explain why the
+existing single "Filter/Options" bucket feels unstable: it contains scope
+selectors, row filters, projection options and presentation options.

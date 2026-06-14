@@ -170,6 +170,40 @@ MOST_CONSECUTIVE_BOUTS_FILTERS = (
     ),
 )
 
+MOST_CAREER_WINS_FILTERS = (
+    Filter(
+        id="include_retired",
+        label="Include retired?",
+        control="checkbox",
+        default=True,
+        url_key="include_retired",
+    ),
+    Filter(
+        id="count_fusen_results",
+        label="Count fusen results?",
+        control="checkbox",
+        default=True,
+        url_key="count_fusen",
+    ),
+)
+
+MOST_CAREER_LOSSES_FILTERS = (
+    Filter(
+        id="include_retired",
+        label="Include retired?",
+        control="checkbox",
+        default=True,
+        url_key="include_retired",
+    ),
+    Filter(
+        id="count_fusen_results",
+        label="Count fusen results?",
+        control="checkbox",
+        default=True,
+        url_key="count_fusen",
+    ),
+)
+
 CAREER_COMPARISONS_FILTERS = (
     Filter(
         id="skill",

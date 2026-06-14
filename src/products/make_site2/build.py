@@ -22,6 +22,8 @@ from .data_output import (
     copy_first_chii_appearance_data_output,
     copy_finish_by_chii_data_output,
     copy_makuuchi_rank_by_era_data_output,
+    copy_most_career_losses_data_output,
+    copy_most_career_wins_data_output,
     copy_most_consecutive_bouts_data_output,
     copy_rank_at_retirement_data_output,
     copy_standings_by_wins_data_output,
@@ -100,6 +102,8 @@ def build_site(
     copy_rank_at_retirement_data_output(output_root=output_root)
     copy_career_length_data_output(output_root=output_root)
     copy_most_consecutive_bouts_data_output(output_root=output_root)
+    copy_most_career_wins_data_output(output_root=output_root)
+    copy_most_career_losses_data_output(output_root=output_root)
     copy_typical_equelo_values_data_output(output_root=output_root)
     copy_win_probability_by_standing_data_output(output_root=output_root)
     plan = build_publication_plan(SITE)

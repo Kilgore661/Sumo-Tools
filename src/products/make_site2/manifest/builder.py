@@ -104,6 +104,14 @@ PANEL_DECLARATIONS: dict[str, PanelDeclaration] = {
         filters=f.MOST_CONSECUTIVE_BOUTS_FILTERS,
         artifact=a.MOST_CONSECUTIVE_BOUTS_ARTIFACT,
     ),
+    "most_career_wins": PanelDeclaration(
+        filters=f.MOST_CAREER_WINS_FILTERS,
+        artifact=a.MOST_CAREER_WINS_ARTIFACT,
+    ),
+    "most_career_losses": PanelDeclaration(
+        filters=f.MOST_CAREER_LOSSES_FILTERS,
+        artifact=a.MOST_CAREER_LOSSES_ARTIFACT,
+    ),
     "career_comparisons": PanelDeclaration(
         filters=f.CAREER_COMPARISONS_FILTERS,
         artifact=a.CAREER_COMPARISONS_ARTIFACT,

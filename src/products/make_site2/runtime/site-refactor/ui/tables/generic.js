@@ -80,7 +80,7 @@ function renderIndexedTable(artifact, rows, state) {
 // Render a flat sortable table artifact.
 function renderGenericTable(artifact, rows, state) {
   const sortState = currentTableSortState(artifact);
-  const visibleRows = genericRowsForState(rows, state);
+  const visibleRows = genericRowsForState(rows, state, artifact);
   const sortedRows = sortRows(visibleRows, artifact.columns || [], sortState);
   return [
     '<div class="artifact-title-block">',
@@ -103,14 +103,58 @@ function renderGenericTable(artifact, rows, state) {
   ].join("");
 }
 
-function genericRowsForState(rows, state) {
+function genericRowsForState(rows, state, artifact = null) {
+  if (artifact?.id === "most_career_wins") return careerWinsRowsForState(rows, state);
+  if (artifact?.id === "most_career_losses") return careerLossesRowsForState(rows, state);
   if (!state?.clean_only) return rows;
   return rows.filter(row => String(row.clean) === "True");
+}
+
+function careerWinsRowsForState(rows, state) {
+  const includeRetired = state?.include_retired !== false;
+  const suffix = state?.count_fusen_results === false ? "actual" : "all";
+  const positionField = includeRetired ? `position_${suffix}` : `active_position_${suffix}`;
+  return rows
+    .filter(row => includeRetired || String(row.active) === "True")
+    .filter(row => String(row[positionField] || "") !== "")
+    .map(row => ({
+      ...row,
+      position: row[positionField],
+      wins: row[`wins_${suffix}`],
+      losses: row[`losses_${suffix}`],
+      bouts: row[`bouts_${suffix}`],
+      win_rate: row[`win_rate_${suffix}`],
+      start: row[`start_${suffix}`],
+      end: row[`end_${suffix}`],
+    }));
+}
+
+function careerLossesRowsForState(rows, state) {
+  const includeRetired = state?.include_retired !== false;
+  const suffix = state?.count_fusen_results === false ? "actual" : "all";
+  const positionField = includeRetired ? `position_${suffix}` : `active_position_${suffix}`;
+  return rows
+    .filter(row => includeRetired || String(row.active) === "True")
+    .filter(row => String(row[positionField] || "") !== "")
+    .map(row => ({
+      ...row,
+      position: row[positionField],
+      losses: row[`losses_${suffix}`],
+      wins: row[`wins_${suffix}`],
+      bouts: row[`bouts_${suffix}`],
+      win_rate: row[`win_rate_${suffix}`],
+      start: row[`start_${suffix}`],
+      end: row[`end_${suffix}`],
+    }));
 }
 
 function genericCellValue(column, row, index) {
   if (column.id === "row_number") return escapeHtml(String(index + 1));
   if (column.id === "clean") return String(row[column.source_field || column.id]) === "True" ? "\u2713" : "";
+  if (column.id === "win_rate") {
+    const value = row[column.source_field || column.id] || "";
+    return value ? `${escapeHtml(value)}%` : "";
+  }
   if (column.id === "shikona") {
     return renderRikishiLink(row[column.source_field || column.id] || "", row.rikishi_id);
   }

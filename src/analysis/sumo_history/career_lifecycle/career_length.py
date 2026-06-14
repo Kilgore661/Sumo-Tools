@@ -10,6 +10,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Iterable
 
+from src.analysis.sumo_history.constants import TOP_N_LIMIT
 from src.infra.get_bios.FullShikonaStore import FullShikonaStore
 from src.infra.live_store.api import get_history
 from src.infra.persistence.annotated_serialiser import load_history_with_annotations
@@ -413,7 +414,7 @@ def _safe_probability(numerator: int, denominator: int) -> float:
     return round(numerator / denominator, 8)
 
 
-def _longest(spans: list[CareerSpan], limit: int = 50) -> list[CareerSpan]:
+def _longest(spans: list[CareerSpan], limit: int = TOP_N_LIMIT) -> list[CareerSpan]:
     return sorted(
         spans,
         key=lambda span: (

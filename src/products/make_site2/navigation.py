@@ -286,7 +286,18 @@ NAVIGATION = NavigationTree(
                     "most-consecutive-bouts",
                     page_id="most_consecutive_bouts",
                 ),
-                nav("most_career_wins", "Most career wins", "most-career-wins"),
+                nav(
+                    "most_career_wins",
+                    "Most career wins",
+                    "most-career-wins",
+                    page_id="most_career_wins",
+                ),
+                nav(
+                    "most_career_losses",
+                    "Most career losses",
+                    "most-career-losses",
+                    page_id="most_career_losses",
+                ),
             ),
         ),
         nav(

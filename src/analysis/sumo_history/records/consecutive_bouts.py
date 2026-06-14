@@ -15,6 +15,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Iterable
 
+from src.analysis.sumo_history.constants import TOP_N_LIMIT
 from src.infra.get_bios.FullShikonaStore import FullShikonaStore
 from src.infra.live_store.api import get_history
 from src.infra.persistence.annotated_serialiser import load_history_with_annotations
@@ -158,7 +159,7 @@ def build_consecutive_bouts_outputs(
     history: History,
     output_root: Path = OUTPUT_ROOT,
     *,
-    limit: int = 100,
+    limit: int = TOP_N_LIMIT,
     rikishi_id_filter: RikId | None = None,
 ) -> ConsecutiveBoutsOutputs:
     """Write diagnostic and leaderboard CSVs for consecutive-bout exploration."""
@@ -617,7 +618,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--limit",
         type=int,
-        default=100,
+        default=TOP_N_LIMIT,
         help="Number of longest streak candidates to write.",
     )
     parser.add_argument(

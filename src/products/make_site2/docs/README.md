@@ -29,6 +29,8 @@ Then read the detailed model/design document for the area being changed:
 | Tables, charts, artifact forms, PA-local meaning | `04.4 Published Artifact Model.md` |
 | Basho Results (7.1) recursive table model | `04.5 Basho Results Model.md` |
 | Most Consecutive Bouts (7.4.1) page contract | `02.6 Specification - Most Consecutive Bouts.md` |
+| Most Career Wins (7.4.2) page contract | `02.7 Specification - Most Career Wins.md` |
+| Most Career Losses (7.4.3) page contract | `02.8 Specification - Most Career Losses.md` |
 | HTML/CSS/runtime realisation | `05 Rendering Design.md` and `06 Rendering Audit and Changes.md` |
 | Build output, runtime state, data staging | `07 Build, Output and Runtime Design.md` |
 | Producer boundaries and migration | `08 Producer Integration and Migration.md` |
@@ -108,6 +110,11 @@ Implemented and verified:
 - Most Consecutive Bouts (7.4.1) is a promoted ordinary table PA under
   Sumo History > Records, with a `Clean only?` option and SumoDB-linked
   shikona values.
+- Most Career Wins (7.4.2) is a promoted ordinary table PA under
+  Sumo History > Records, with `Include retired?` and `Count fusen results?`
+  options.
+- Most Career Losses (7.4.3) is a promoted ordinary table PA under
+  Sumo History > Records, with the same public options as Most Career Wins.
 
 Known gaps:
 

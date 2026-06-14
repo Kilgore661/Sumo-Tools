@@ -515,6 +515,60 @@ meaning is the History-based consecutive-appearance algorithm, including the
 declared sanctioned-absence exception list. `make_site2` owns the page location,
 filter, table column model, SumoDB shikona links, popovers and Notes.
 
+### 16.5 Most Career Wins
+
+Most Career Wins is the second promoted Records table under Sumo History. It
+uses the same ordinary flat table PA path as Most Consecutive Bouts, with
+reader options that affect the ranked view.
+
+The producer is `src.analysis.sumo_history.records.career_wins`. It writes the
+public candidate CSV to:
+
+```text
+files/output/analysis/sumo_history/records/career_wins/career_wins.csv
+```
+
+`make_site2` stages that CSV to:
+
+```text
+sumo-history/records/most-career-wins/data/career_wins.csv
+```
+
+The PA contract is specified in
+`02.7 Specification - Most Career Wins.md`. The producer owns History-derived
+career win/loss totals, fusen-inclusive and actual-only projections, current
+active/retired classification, and top-N candidate selection for each option
+state. `make_site2` owns the page location, filters, table column model,
+SumoDB shikona links, popovers and runtime projection of the selected option
+state.
+
+### 16.6 Most Career Losses
+
+Most Career Losses is the third promoted Records table under Sumo History. It
+is intentionally separate from Most Career Wins even though the first
+implementation is similar.
+
+The producer is `src.analysis.sumo_history.records.career_losses`. It writes
+the public candidate CSV to:
+
+```text
+files/output/analysis/sumo_history/records/career_losses/career_losses.csv
+```
+
+`make_site2` stages that CSV to:
+
+```text
+sumo-history/records/most-career-losses/data/career_losses.csv
+```
+
+The PA contract is specified in
+`02.8 Specification - Most Career Losses.md`. The producer owns History-derived
+career win/loss totals, fusen-inclusive and actual-only projections, current
+active/retired classification, and top-N candidate selection for each option
+state. `make_site2` owns the page location, filters, table column model,
+SumoDB shikona links, popovers and runtime projection of the selected option
+state.
+
 ---
 
 ## 17. Suggested Migration Sequence

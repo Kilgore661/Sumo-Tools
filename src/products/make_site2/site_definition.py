@@ -153,6 +153,28 @@ PAGES = PageRegistry(
                 producer="sumo_history.records.consecutive_bouts",
             ),
         ),
+        "most_career_wins": PageDefinition(
+            id="most_career_wins",
+            title="Most Career Wins",
+            summary="Rikishi with the greatest number of career wins.",
+            status=PageStatus.PROMOTED,
+            artifact=artifact(
+                "most_career_wins",
+                "table",
+                producer="sumo_history.records.career_wins",
+            ),
+        ),
+        "most_career_losses": PageDefinition(
+            id="most_career_losses",
+            title="Most Career Losses",
+            summary="Rikishi with the greatest number of career losses.",
+            status=PageStatus.PROMOTED,
+            artifact=artifact(
+                "most_career_losses",
+                "table",
+                producer="sumo_history.records.career_losses",
+            ),
+        ),
         "typical_equelo_values": PageDefinition(
             id="typical_equelo_values",
             title="Typical Equelo Ratings",

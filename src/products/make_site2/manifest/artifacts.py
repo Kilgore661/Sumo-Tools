@@ -201,6 +201,40 @@ MOST_CONSECUTIVE_BOUTS_ARTIFACT = TableArtifact(
     ),
 )
 
+MOST_CAREER_WINS_ARTIFACT = TableArtifact(
+    id="most_career_wins", heading="Most Career Wins", kind="table", renderer="generic_table",
+    rows_source=DataSource(id="career_wins", label="Career wins", path="sumo-history/records/most-career-wins/data/career_wins.csv", media_type="text/csv"),
+    columns=(
+        TableColumn(id="row_number", heading="", sort_kind="none", align="right"),
+        TableColumn(id="position", heading="#", source_field="position", sort_key="position", sort_kind="numeric", sort_default_direction="ascending", align="right"),
+        TableColumn(id="shikona", heading="Shikona", source_field="shikona", sort_kind="text", align="left"),
+        TableColumn(id="wins", heading="Wins", source_field="wins", sort_kind="numeric", align="right"),
+        TableColumn(id="losses", heading="Losses", source_field="losses", sort_kind="numeric", align="right"),
+        TableColumn(id="bouts", heading="Bouts", source_field="bouts", sort_kind="numeric", align="right"),
+        TableColumn(id="win_rate", heading="Win rate", source_field="win_rate", sort_kind="numeric", align="right"),
+        TableColumn(id="start", heading="Start", source_field="start", help="year/month/day of basho", sort_kind="text", align="left"),
+        TableColumn(id="end", heading="End", source_field="end", help="year/month/day of basho", sort_kind="text", align="left"),
+    ),
+    default_sort_column="position",
+)
+
+MOST_CAREER_LOSSES_ARTIFACT = TableArtifact(
+    id="most_career_losses", heading="Most Career Losses", kind="table", renderer="generic_table",
+    rows_source=DataSource(id="career_losses", label="Career losses", path="sumo-history/records/most-career-losses/data/career_losses.csv", media_type="text/csv"),
+    columns=(
+        TableColumn(id="row_number", heading="", sort_kind="none", align="right"),
+        TableColumn(id="position", heading="#", source_field="position", sort_key="position", sort_kind="numeric", sort_default_direction="ascending", align="right"),
+        TableColumn(id="shikona", heading="Shikona", source_field="shikona", sort_kind="text", align="left"),
+        TableColumn(id="losses", heading="Losses", source_field="losses", sort_kind="numeric", align="right"),
+        TableColumn(id="wins", heading="Wins", source_field="wins", sort_kind="numeric", align="right"),
+        TableColumn(id="bouts", heading="Bouts", source_field="bouts", sort_kind="numeric", align="right"),
+        TableColumn(id="win_rate", heading="Win rate", source_field="win_rate", sort_kind="numeric", align="right"),
+        TableColumn(id="start", heading="Start", source_field="start", help="year/month/day of basho", sort_kind="text", align="left"),
+        TableColumn(id="end", heading="End", source_field="end", help="year/month/day of basho", sort_kind="text", align="left"),
+    ),
+    default_sort_column="position",
+)
+
 CAREER_COMPARISONS_ARTIFACT = ChartArtifact(
     id="career_comparisons", heading="Rikishi History", kind="chart", renderer="career_comparisons",
     data_binding=DataBinding(kind="json", sources=("trajectory_master",)),

@@ -50,6 +50,18 @@ MOST_CONSECUTIVE_BOUTS_ROUTE_DATA_DIR = (
     / "most-consecutive-bouts"
     / "data"
 )
+MOST_CAREER_WINS_ROUTE_DATA_DIR = (
+    Path("sumo-history")
+    / "records"
+    / "most-career-wins"
+    / "data"
+)
+MOST_CAREER_LOSSES_ROUTE_DATA_DIR = (
+    Path("sumo-history")
+    / "records"
+    / "most-career-losses"
+    / "data"
+)
 TYPICAL_EQUELO_VALUES_ROUTE_DATA_DIR = (
     Path("ratings-models")
     / "rating-and-rank"
@@ -104,6 +116,22 @@ MOST_CONSECUTIVE_BOUTS_SOURCE_ROOT = (
     / "records"
     / "consecutive_bouts"
 )
+MOST_CAREER_WINS_SOURCE_ROOT = (
+    Path("files")
+    / "output"
+    / "analysis"
+    / "sumo_history"
+    / "records"
+    / "career_wins"
+)
+MOST_CAREER_LOSSES_SOURCE_ROOT = (
+    Path("files")
+    / "output"
+    / "analysis"
+    / "sumo_history"
+    / "records"
+    / "career_losses"
+)
 TYPICAL_EQUELO_VALUES_SOURCE_ROOT = (
     Path("files")
     / "output"
@@ -156,6 +184,16 @@ class CareerLengthDataOutput:
 
 @dataclass(frozen=True, kw_only=True)
 class MostConsecutiveBoutsDataOutput:
+    csv_path: Path
+
+
+@dataclass(frozen=True, kw_only=True)
+class MostCareerWinsDataOutput:
+    csv_path: Path
+
+
+@dataclass(frozen=True, kw_only=True)
+class MostCareerLossesDataOutput:
     csv_path: Path
 
 
@@ -366,6 +404,36 @@ def copy_most_consecutive_bouts_data_output(
         target_name="longest_streak_candidates.csv",
     )
     return MostConsecutiveBoutsDataOutput(csv_path=csv_path)
+
+
+def copy_most_career_wins_data_output(
+    *,
+    output_root: Path,
+) -> MostCareerWinsDataOutput:
+    """Copy the Most Career Wins CSV into the make_site2 output tree."""
+
+    csv_path = copy_single_csv_chart_data_output(
+        output_root=output_root,
+        route_data_dir=MOST_CAREER_WINS_ROUTE_DATA_DIR,
+        source_path=MOST_CAREER_WINS_SOURCE_ROOT / "career_wins.csv",
+        target_name="career_wins.csv",
+    )
+    return MostCareerWinsDataOutput(csv_path=csv_path)
+
+
+def copy_most_career_losses_data_output(
+    *,
+    output_root: Path,
+) -> MostCareerLossesDataOutput:
+    """Copy the Most Career Losses CSV into the make_site2 output tree."""
+
+    csv_path = copy_single_csv_chart_data_output(
+        output_root=output_root,
+        route_data_dir=MOST_CAREER_LOSSES_ROUTE_DATA_DIR,
+        source_path=MOST_CAREER_LOSSES_SOURCE_ROOT / "career_losses.csv",
+        target_name="career_losses.csv",
+    )
+    return MostCareerLossesDataOutput(csv_path=csv_path)
 
 
 def copy_typical_equelo_values_data_output(
