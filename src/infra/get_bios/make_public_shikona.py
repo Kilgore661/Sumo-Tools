@@ -1,4 +1,13 @@
 """
+
+Legacy code for providing a disambiguated shikona. This module does contain
+still-used functions:
+
+make_history_shikona_by_rikid(history: History) -> dict[RikId, Shikona]
+make_latest_history_date_by_rikid(history: History) -> dict[RikId, Date]
+make_latest_holder_by_history_shikona(history: History) -> dict[Shikona, RikId]
+
+--------------------------------------------------------------------------------
 Build the public shikona map used by publication code.
 
 This module is the production counterpart to the exploratory shikona
