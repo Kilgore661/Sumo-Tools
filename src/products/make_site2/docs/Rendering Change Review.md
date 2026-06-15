@@ -4,14 +4,23 @@
 
 Review note for a proposed `make_site2` rendering change set.
 
-This document describes the proposed change before classifying its likely design
-and implementation impact. It is not yet normative rendering design.
+This document describes the proposed change set before classifying its likely
+design and implementation impact. It is not, by itself, normative rendering
+design.
 
 Settled rendering policy should move into `05 Rendering Design.md`. Unresolved
 or provisional rendering decisions should be tracked in
 `06 Rendering Audit and Changes.md`. Changes that affect table, chart, filter,
 control or interaction semantics should update the relevant `04.*` model design
 documents before implementation.
+
+Implementation status:
+
+```text
+Basho selector redesign: implemented as an interim PA-specific/runtime control.
+General bad-URL handling: minimal current behavior implemented; richer policy TBD.
+All other items in this review remain open unless called out separately.
+```
 
 ## 1. Review Purpose
 
@@ -217,37 +226,62 @@ corresponding Note to reveal and highlight.
 
 The method of selecting a basho should be redesigned.
 
-The proposed control shape is:
+The selected implementation treats this as a PA-specific Basho Results control
+inside the existing `FilterSection`, not as a general new `FilterSection` layout
+model.
+
+The implemented control shape is:
 
 ```text
 Basho
     Year  <year dropdown>
     Month <month dropdown>
+    <<  <  >  >>
+```
 
-<<  <  >  >>
+The Year and Month rows are indented under `Basho`; their dropdown left edges are
+aligned. The button row is indented with the same Basho sub-control block.
+
+The Month dropdown contains only the six sumo months:
+
+```text
+January, March, May, July, September, November
 ```
 
 The navigation buttons have the usual semantics:
 
-- `<<` moves to the first available basho;
-- `<` moves to the previous available basho;
-- `>` moves to the next available basho;
-- `>>` moves to the last available basho;
+- `<<` moves to the first available indexed basho;
+- `<` moves to the previous available indexed basho;
+- `>` moves to the next available indexed basho;
+- `>>` moves to the last available indexed basho;
 - attempts to move beyond either end are ignored.
 
-The displayed basho should change whenever the user changes a dropdown or clicks
-a navigation button. The semantics of such a change are to show the same public
+The displayed basho changes whenever the user changes a dropdown or clicks a
+navigation button. The semantics of such a change are to show the same public
 page for a different date/basho state.
 
-If the user chooses a year/month for which there are no results, the content
-panel should say:
+If the user chooses a supported year and one of the six sumo months for which
+there are no results, the content panel says:
 
 ```text
 There was no basho in MMMM YYYY
 ```
 
-Anything the browser can show through this selector, including no-basho states,
-should be representable by a URL.
+No-basho states are not intended as an important UX feature. They exist so the
+code does not crash when a valid sumo calendar slot has no indexed basho.
+
+The canonical public URL shape is:
+
+```text
+?page=basho_results_browser&year=YYYY&month=MM&division=makuuchi
+```
+
+Legacy `basho=YYYYMM` and `basho_date=YYYYMM` inputs may be accepted and
+canonicalized, but public state should prefer `year` and `month`.
+
+Bad URLs are separate from no-basho states. For now, bad URLs show the JS message
+`Bad URL` and navigate/replace to the same target as clicking `Home`. A richer
+bad-URL handler is still TBD.
 
 ### 2.6 Shared Chart Rendering
 
@@ -330,16 +364,16 @@ consistently.
 
 ### 3.7 Basho selector redesign
 
-This is model/runtime work rather than CSS. It changes the control model from a
-single finite basho selector into a compound selector plus navigation controls
-plus an unavailable selected-state message.
+This was implemented as a PA-specific Basho Results runtime control inside the
+existing `FilterSection`, rather than as a general new filter-control model.
 
-Changing the selector state means showing the same public page for a different
-date/basho state. Every state the browser can render through this selector should
-be URL-addressable, including states for year/month combinations with no basho.
+The implementation changes the control from a single finite basho selector into
+a compound Basho block with Year and Month dropdowns plus navigation buttons. The
+public URL state is `year` and `month`. Legacy basho date parameters are treated
+as compatibility input where practical.
 
-The design should decide whether this belongs to a richer `FilterSection` form or
-to a PA-specific Basho Results control.
+Valid no-basho states are supported only for supported sumo years and the six
+sumo months. Bad URL handling remains a separate, broader routing concern.
 
 ### 3.8 Section 9.1 vertically spanning headings
 
@@ -398,17 +432,18 @@ uncertainty, the colour choice should be declared as belonging to that PA featur
 
 ## 4. Natural Work Groups
 
-| Group | Items | Nature |
-| --- | --- | --- |
-| Diagnostic display affordances | `debug_show_notes` URL state, info symbol, possible debug CSS variants | Runtime presentation state / debug policy |
-| Shared table visual language | spacing, borders, row colours, muted colour, date-like display format | Rendering policy/CSS plus shared formatter |
-| Interim table structure metadata | 2.1/7.1/9.1 column groups, 6.2.1 custom handling | Ad hoc PA-local metadata, easiest-to-remove later |
-| Table semantic model | row numbers, superlative `#` columns | Published Artifact/table model |
-| Link/popover/notes interactions | shikona Alt-click, link popover text, clickable Notes popovers | Runtime interaction plus explicit metadata/text rule |
-| Basho Results control model | year/month selector and navigation buttons, URL-addressable no-basho state | Filter/control model or PA-specific control |
-| Shared chart rendering | tick-angle rule, bold axis titles | Chart rendering policy |
-| PA-specific chart semantics | line-vs-column chart changes, 6.3.1 error-bar colour | PA contract / chart renderer selection |
-| Build-mode policy | whether `--prod` suppresses stylistic debugging | Open build/operations decision |
+| Group | Items | Nature | Status |
+| --- | --- | --- | --- |
+| Diagnostic display affordances | `debug_show_notes` URL state, info symbol, possible debug CSS variants | Runtime presentation state / debug policy | Open |
+| Shared table visual language | spacing, borders, row colours, muted colour, date-like display format | Rendering policy/CSS plus shared formatter | Open |
+| Interim table structure metadata | 2.1/7.1/9.1 column groups, 6.2.1 custom handling | Ad hoc PA-local metadata, easiest-to-remove later | Open |
+| Table semantic model | row numbers, superlative `#` columns | Published Artifact/table model | Open |
+| Link/popover/notes interactions | shikona Alt-click, link popover text, clickable Notes popovers | Runtime interaction plus explicit metadata/text rule | Open |
+| Basho Results control model | year/month selector and navigation buttons, URL-addressable no-basho state | PA-specific runtime control inside existing FilterSection | Implemented |
+| Shared chart rendering | tick-angle rule, bold axis titles | Chart rendering policy | Open |
+| PA-specific chart semantics | line-vs-column chart changes, 6.3.1 error-bar colour | PA contract / chart renderer selection | Open |
+| Bad URL handling | reject bad URL, message, route Home; richer handler | Runtime routing / UX policy | Minimal implemented; richer policy TBD |
+| Build-mode policy | whether `--prod` suppresses stylistic debugging | Open build/operations decision | Open |
 
 ## 5. Implementation-Routing Notes
 
@@ -473,24 +508,32 @@ visual inspection.
 
 ### 5.6 Basho selector URL state
 
-The Basho selector changes the date/basho state of the same public page. Any
-state the browser can render should have a URL representation, including selected
-year/month states for which there was no basho and no results.
+Implemented as an interim PA-specific runtime control. The current public URL
+shape uses `year=YYYY` and `month=MM`, and the runtime accepts the six sumo
+months only. `year=latest&month=latest` may be emitted as an initial/default
+view and is canonicalized after the index loads.
+
+The no-basho case is intentionally simple: if a supported sumo calendar slot has
+no indexed basho, the ContentPanel is blank except for the no-basho message.
+
+### 5.7 Bad URLs
+
+A general bad-URL handler has not been designed. The current minimal behavior is:
+
+```text
+Bad URL -> JS message "Bad URL" -> replace/navigate to Home
+```
+
+This is sufficient for the Basho selector work but should be revisited as a
+separate routing/UX design topic.
 
 ## 6. Review Conclusion
 
 The proposed changes are understandable and mostly precise enough to begin
 design. They should not be implemented as an undifferentiated CSS tweak pass.
 
-A safe sequence is:
-
-1. classify each item by owner and layer;
-2. move settled presentation rules into `05 Rendering Design.md`;
-3. record unresolved/provisional decisions in `06 Rendering Audit and Changes.md`;
-4. update PA/table/chart model documents where the requested change affects
-   structure or semantics;
-5. only then design implementation changes.
-
-The highest-risk items are the Basho selector, row-number/ranking policy and
-popover-to-note behavior. The current column-group work is intentionally interim
-and ad hoc; it should not become the first step toward a general table theory.
+Basho selector work is now complete as an interim PA-specific/runtime solution.
+The highest-risk remaining items are row-number/ranking policy,
+popover-to-note behavior and the interim table-group/heading work. The current
+column-group work is intentionally interim and ad hoc; it should not become the
+first step toward a general table theory.
