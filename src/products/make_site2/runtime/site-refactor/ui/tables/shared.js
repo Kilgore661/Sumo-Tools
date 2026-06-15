@@ -87,14 +87,16 @@ function recordWins(value) {
 function renderTableHeading(column, sortState) {
   const attributes = tableCellAttributes(column);
   const heading = columnHeading(column);
-  if (!isSortableColumn(column)) return `<th ${attributes}>${renderLabelWithHelp(heading, column.help)}</th>`;
+  if (!isSortableColumn(column)) {
+    return `<th ${attributes}>${renderLabelWithHelp(heading, column.help, { noteId: column.note_id })}</th>`;
+  }
   const active = sortState?.columnId === column.id;
   const direction = active ? sortState.direction : "none";
   const indicator = active ? (sortState.direction === "ascending" ? " ▲" : " ▼") : "";
   return [
     `<th ${attributes} aria-sort="${direction}">`,
     `<button type="button" class="table-sort-button" data-sort-column="${escapeHtml(column.id)}">`,
-    renderLabelWithHelp(heading, column.help),
+    renderLabelWithHelp(heading, column.help, { noteId: column.note_id }),
     `<span class="table-sort-indicator" aria-hidden="true">${indicator}</span>`,
     '</button>',
     '</th>',
