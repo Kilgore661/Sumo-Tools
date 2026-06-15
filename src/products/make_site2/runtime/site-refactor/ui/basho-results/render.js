@@ -24,7 +24,7 @@ function renderBashoResultsPresentationTable(model) {
     '<tbody>',
     ...sortedValues.map((row, index) => [
       '<tr>',
-      ...leaves.map(leaf => `<td data-column-path="${escapeHtml(leaf.path)}" style="text-align: ${valueAlignment(leaf.presentation)};">${renderBashoResultsCell(row, leaf.path, index)}</td>`),
+      ...leaves.map(leaf => `<td ${leafCellAttributes(leaf)}>${renderBashoResultsCell(row, leaf.path, index)}</td>`),
       '</tr>',
     ].join("")),
     '</tbody>',
@@ -66,14 +66,15 @@ function renderNestedHeaderCell(cell, leaf, sortState) {
     `data-column-path="${escapeHtml(cell.path)}"`,
     `style="text-align: ${alignment};"`,
   ];
+  if (leaf?.role === "row_number") attributes.push('data-column-id="row_number"');
   if (!isSortableLeaf(leaf)) {
     return `<th ${attributes.join(" ")}>${renderLabelWithHelp(cell.label, cell.help)}</th>`;
   }
   const active = sortState?.path === leaf.path;
   const direction = active ? sortState.direction : "none";
-  const indicator = active ? (sortState.direction === "ascending" ? " \u25B2" : " \u25BC") : "";
+  const indicator = active ? (sortState.direction === "ascending" ? " ▲" : " ▼") : "";
   const escapedLabel = escapeHtml(cell.label);
-  const reservedSortText = `${escapedLabel} \u25BC`;
+  const reservedSortText = `${escapedLabel} ▼`;
   const visibleSortText = `${renderLabelWithHelp(cell.label, cell.help)}${indicator}`;
   return [
     `<th ${attributes.join(" ")} aria-sort="${direction}">`,
@@ -151,6 +152,15 @@ function isVisiblePath(path, visiblePaths) {
   return !visiblePaths.size || visiblePaths.has(path);
 }
 
+function leafCellAttributes(leaf) {
+  const attributes = [
+    `data-column-path="${escapeHtml(leaf.path)}"`,
+    `style="text-align: ${valueAlignment(leaf.presentation)};"`,
+  ];
+  if (leaf.role === "row_number") attributes.push('data-column-id="row_number"');
+  return attributes.join(" ");
+}
+
 // Render a terminal-path value, including the special rikishi link cell.
 function renderBashoResultsCell(row, path, index) {
   if (path === "reference.row_number") return escapeHtml(String(index + 1));
@@ -207,6 +217,7 @@ export {
   renderBashoResultsCell,
   renderRikishiLink,
   valueAtPath,
+  leafCellAttributes,
   headingAlignment,
   valueAlignment,
   buttonMarginStyle,
