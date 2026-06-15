@@ -159,6 +159,13 @@ CAREER_LENGTH_FILTERS = (
             FilterValue(value="longest", label="Longest"),
         ),
     ),
+    Filter(
+        id="active_only",
+        label="Show Active?",
+        control="checkbox",
+        default=True,
+        url_key="active",
+    ),
 )
 
 MOST_CONSECUTIVE_BOUTS_FILTERS = (
