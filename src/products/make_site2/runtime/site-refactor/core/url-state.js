@@ -56,6 +56,8 @@ function readFilterUrlState(filters) {
       } else if (/^\d{6}$/.test(legacyBasho)) {
         state.basho_year = legacyBasho.slice(0, 4);
         state.basho_month = legacyBasho.slice(4, 6);
+      } else {
+        throw new BadUrlError();
       }
     }
   }
