@@ -52,7 +52,7 @@ function loadStateFromUrl() {
     renderLandingPanel();
     return;
   }
-  selectPage(pageId, { canonicalizeUnfilteredView: true });
+  selectPage(pageId, { canonicalizeUnfilteredView: true, validateUrlKeys: true });
 }
 function renderLandingPanel() {
   const context = siteContext();
@@ -71,7 +71,7 @@ function handleBadUrl() {
 // Resolve a page id to a content panel and render it with canonical URL state.
 function selectPage(
   pageId,
-  { pushDefaultView = false, canonicalizeUnfilteredView = false } = {},
+  { pushDefaultView = false, canonicalizeUnfilteredView = false, validateUrlKeys = false } = {},
 ) {
   const panel = getRuntimeManifest().ui.content_panels.find(candidate => candidate.page_id === pageId);
   if (!panel) {
@@ -79,7 +79,7 @@ function selectPage(
     return;
   }
   const filters = panelFilters(panel);
-  if (!urlKeysAreAllowed(filters)) {
+  if (validateUrlKeys && !urlKeysAreAllowed(filters)) {
     handleBadUrl();
     return;
   }
