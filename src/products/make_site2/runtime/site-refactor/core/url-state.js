@@ -3,6 +3,13 @@
 export const PAGE_PARAM = "page";
 const PASSTHROUGH_PARAMS = ["debug_layout"];
 
+class BadUrlError extends Error {
+  constructor(message = "Bad URL") {
+    super(message);
+    this.name = "BadUrlError";
+  }
+}
+
 // Build the canonical public view URL for a page/filter state.
 function publicViewUrl(pageId, filters = [], state = {}) {
   const params = new URLSearchParams();
@@ -36,10 +43,26 @@ function writePanelUrl(pageId, filters, state, options) {
 // Read the filter subset of the current browser URL.
 function readFilterUrlState(filters) {
   const params = new URLSearchParams(window.location.search);
-  return Object.fromEntries(filters.map(filter => [
+  const state = Object.fromEntries(filters.map(filter => [
     filter.id,
     params.get(filter.url_key || filter.id)
   ]));
+  const legacyBasho = params.get("basho") ?? params.get("basho_date");
+  if (legacyBasho && hasFilter(filters, "basho_year") && hasFilter(filters, "basho_month")) {
+    if (!state.basho_year && !state.basho_month) {
+      if (legacyBasho === "latest") {
+        state.basho_year = "latest";
+        state.basho_month = "latest";
+      } else if (/^\d{6}$/.test(legacyBasho)) {
+        state.basho_year = legacyBasho.slice(0, 4);
+        state.basho_month = legacyBasho.slice(4, 6);
+      }
+    }
+  }
+  return state;
+}
+function hasFilter(filters, filterId) {
+  return filters.some(filter => filter.id === filterId);
 }
 
 function appendPassthroughParams(targetParams) {
@@ -90,4 +113,5 @@ export {
   embeddedPageParams,
   cleanPageParam,
   normalizeEmbeddedPageParams,
+  BadUrlError,
 };
