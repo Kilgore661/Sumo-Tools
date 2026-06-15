@@ -270,15 +270,9 @@ The proposed PA-specific chart changes are:
 The proposed change set is understandable and mostly precise enough to begin
 design work. It should not be implemented as an undifferentiated CSS pass.
 
-The natural grouping is:
-
-```text
-A. Pure presentation policy
-B. Rendering-policy changes that need shared CSS/renderer rules
-C. PA/table/chart model changes
-D. Runtime interaction/state changes
-E. Build-mode / development-vs-production policy
-```
+The subsections below classify each proposed change by ownership and
+implementation impact. Section 4 then groups the work into likely implementation
+streams.
 
 ### 3.1 Help/popover marker URL state
 
