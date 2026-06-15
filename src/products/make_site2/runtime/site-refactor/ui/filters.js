@@ -191,18 +191,26 @@ function renderFilterSection(filterSection, state, index, rowsBySource = {}) {
   const filters = filterSection.filters;
   const bashoCalendar = filters.some(filter => filter.id === "basho_year") &&
     filters.some(filter => filter.id === "basho_month") && index;
-  const visibleFilters = bashoCalendar
-    ? filters.filter(filter => filter.id !== "basho_year" && filter.id !== "basho_month")
-    : filters;
+  const visibleFilters = filters.filter(filter => isFilterVisible(filter, state, bashoCalendar));
   return [
     '<form class="filter-section" aria-label="Filters">',
     '<h4>Options</h4>',
     '<ul class="filter-list">',
     bashoCalendar ? `<li>${renderBashoCalendarControl(state, index)}</li>` : "",
-    ...visibleFilters.map(filter => `<li>${renderFilter(filter, state, index, rowsBySource)}</li>`),
+    ...visibleFilters.map(filter => renderFilterListItem(filter, state, index, rowsBySource)),
     '</ul>',
     '</form>'
   ].join("");
+}
+function isFilterVisible(filter, state, bashoCalendar) {
+  if (bashoCalendar && (filter.id === "basho_year" || filter.id === "basho_month")) return false;
+  if (filter.id === "active_only") return state.view === "longest";
+  return true;
+}
+function renderFilterListItem(filter, state, index, rowsBySource) {
+  const classes = ["filter-list-item"];
+  if (filter.id === "active_only") classes.push("filter-list-item-dependent", "filter-list-item-longest");
+  return `<li class="${classes.join(" ")}">${renderFilter(filter, state, index, rowsBySource)}</li>`;
 }
 function renderBashoCalendarControl(state, index) {
   return [
