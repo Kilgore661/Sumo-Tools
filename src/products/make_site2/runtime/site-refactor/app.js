@@ -42,6 +42,10 @@ function loadStateFromUrl() {
   const params = new URLSearchParams(window.location.search);
   const pageId = cleanPageParam(params);
   if (!pageId) {
+    if ([...params.keys()].some(key => !["debug_layout"].includes(key))) {
+      handleBadUrl();
+      return;
+    }
     markActivePage("");
     renderLandingPanel();
     return;
@@ -56,6 +60,12 @@ function renderLandingPanel() {
     '</section>'
   ].join("");
 }
+function handleBadUrl() {
+  window.alert("Bad URL");
+  markActivePage("");
+  writeCanonicalViewUrl("", [], {}, { replace: true });
+  renderLandingPanel();
+}
 // Resolve a page id to a content panel and render it with canonical URL state.
 function selectPage(
   pageId,
@@ -63,12 +73,7 @@ function selectPage(
 ) {
   const panel = getRuntimeManifest().ui.content_panels.find(candidate => candidate.page_id === pageId);
   if (!panel) {
-    window.alert(
-      `The requested page "${pageId}" is not available in this site build. Showing the home page instead.`
-    );
-    markActivePage("");
-    writeCanonicalViewUrl("", [], {}, { replace: true });
-    renderLandingPanel();
+    handleBadUrl();
     return;
   }
   markActivePage(pageId);
@@ -79,6 +84,10 @@ function selectPage(
     writeCanonicalViewUrl(pageId, [], {}, { replace: true });
   }
   renderContentPanel(panel).catch(error => {
+    if (error.message === "Bad URL") {
+      handleBadUrl();
+      return;
+    }
     contentPanel.innerHTML = `<p>${escapeHtml(error.message)}</p>`;
   });
 }
@@ -94,4 +103,4 @@ function markActivePage(pageId) {
   }
 }
 
-export { boot, isInPlaceNavigationClick, loadStateFromUrl, renderLandingPanel, selectPage, panelFilters, defaultFilterState, markActivePage };
+export { boot, isInPlaceNavigationClick, loadStateFromUrl, renderLandingPanel, selectPage, panelFilters, defaultFilterState, markActivePage, handleBadUrl };
