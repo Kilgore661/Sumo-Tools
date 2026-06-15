@@ -285,6 +285,30 @@ h5 {
   padding-left: 1em;
 }
 
+.basho-calendar-control {
+  display: grid;
+  row-gap: 0.2rem;
+}
+
+.basho-calendar-control > .choice-label {
+  display: block;
+}
+
+.basho-calendar-control > .filter-control,
+.basho-navigation-buttons {
+  margin-left: 1em;
+}
+
+.basho-navigation-buttons {
+  display: inline-flex;
+  gap: 0.25em;
+}
+
+.basho-navigation-buttons button {
+  line-height: 1;
+  padding: 0.05rem 0.3rem;
+}
+
 .career-comparisons-controls {
   box-sizing: border-box;
   min-width: 15rem;
@@ -558,18 +582,84 @@ h5 {
 
 .artifact-table-header,
 .artifact-table-body {
-  margin: 0 auto;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.artifact-table-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+}
+
+.artifact-table-header table,
+.artifact-table-body table {
+  margin-inline: auto;
+  min-width: max-content;
 }
 
 .artifact-table th,
 .artifact-table td {
-  padding: 2px 0.25em;
-  text-align: center;
+  padding: 0.2rem 0.4rem;
 }
 
 .artifact-table thead th {
   background: var(--content-bg);
-  z-index: 2;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.artifact-table tbody tr:nth-child(odd) {
+  background: var(--artifact-row-odd-bg);
+}
+
+.artifact-table tbody tr:nth-child(even) {
+  background: var(--artifact-row-even-bg);
+}
+
+.artifact-table-header table {
+  border-bottom: 0;
+}
+
+.artifact-table-body table {
+  border-top: 0;
+}
+
+.artifact-table-header th,
+.artifact-table-body td {
+  border-bottom: 0;
+  border-left: 0;
+  border-right: 0;
+  border-top: 0;
+}
+
+.artifact-table-header th[data-group-start="true"],
+.artifact-table-body td[data-group-start="true"] {
+  border-left: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.artifact-table-header th[data-group-end="true"],
+.artifact-table-body td[data-group-end="true"] {
+  border-right: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.artifact-table-header thead tr:last-child th {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.artifact-table-header table,
+.artifact-table-body table {
+  border-left: 1px solid rgba(255, 255, 255, 0.35);
+  border-right: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.artifact-table-header table {
+  border-top: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.artifact-table-body table {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.35);
 }
 
 .table-sort-button {
@@ -586,257 +676,53 @@ h5 {
   text-decoration: underline;
 }
 
-.table-sort-indicator {
-  display: inline-block;
-  min-width: 1em;
+.artifact-table th[data-sort-direction="asc"] .table-sort-button::after {
+  content: " ▲";
 }
 
-.artifact-table [data-column-id="shikona"] {
-  text-align: left;
+.artifact-table th[data-sort-direction="desc"] .table-sort-button::after {
+  content: " ▼";
 }
 
-.brb-redesign-table th[data-column-path="reference.shikona"],
-.brb-redesign-table td[data-column-path="reference.shikona"] {
-  text-align: left;
-}
-
-.artifact-table tbody tr:nth-child(odd) {
-  background: var(--artifact-row-odd-bg);
-}
-
-.artifact-table tbody tr:nth-child(even) {
-  background: var(--artifact-row-even-bg);
-}
-
-.brb-redesign-table th,
-.brb-redesign-table td {
-  border-left: 1px solid rgba(255, 255, 255, 0.5);
-}
-
-.brb-redesign-table th {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
-}
-
-.sectioned-table-grid {
-  align-items: flex-start;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2rem;
-  justify-content: center;
-  max-width: 100%;
-}
-
-.table-section h5 {
-  background: var(--content-bg);
-  margin: 0.5rem 0;
-  text-align: center;
+.sticky-col-0 {
+  background: inherit;
+  left: 0;
+  position: sticky;
   z-index: 2;
 }
 
-.sectioned-table [data-column-id="label"] {
-  text-align: left;
+.artifact-table thead .sticky-col-0 {
+  background: var(--content-bg);
+  z-index: 3;
 }
 
-.sectioned-table [data-column-id="rating"] {
-  text-align: right;
-}
-
-body.layout-debug {
-  --debug-nav: rgba(255, 99, 132, 0.14);
-  --debug-content: rgba(54, 162, 235, 0.12);
-  --debug-heading: rgba(255, 205, 86, 0.18);
-  --debug-filter: rgba(75, 192, 192, 0.14);
-  --debug-pa: rgba(153, 102, 255, 0.12);
-  --debug-artifact: rgba(255, 159, 64, 0.14);
-  --debug-notes: rgba(201, 203, 207, 0.16);
-  --debug-table: rgba(46, 204, 113, 0.11);
-  --debug-chart: rgba(231, 76, 60, 0.10);
-}
-
-body.layout-debug .site-nav,
-body.layout-debug .nav-hider-strip,
-body.layout-debug .nav-content,
-body.layout-debug .site-main,
 body.layout-debug .content-panel,
-body.layout-debug #content-title,
-body.layout-debug .content-summary,
 body.layout-debug .content-body,
 body.layout-debug .filter-section,
 body.layout-debug .pa-panel,
 body.layout-debug .pa-slot,
-body.layout-debug .artifact-title-block,
-body.layout-debug .artifact-table,
-body.layout-debug .artifact-table-shell,
-body.layout-debug .artifact-table-header-region,
-body.layout-debug .artifact-table-body-region,
-body.layout-debug .plotly-chart,
-body.layout-debug .notes-panel {
-  outline: 1px solid rgba(255, 255, 255, 0.7);
-  outline-offset: -1px;
-}
-
-body.layout-debug .site-nav {
-  background-color: var(--debug-nav);
-}
-
-body.layout-debug .nav-hider-strip,
-body.layout-debug .nav-content {
-  background-color: rgba(255, 99, 132, 0.08);
-}
-
-body.layout-debug .site-main,
-body.layout-debug .content-panel,
-body.layout-debug .content-body {
-  background-color: var(--debug-content);
-}
-
-body.layout-debug #content-title,
-body.layout-debug .content-summary,
-body.layout-debug .artifact-title-block {
-  background-color: var(--debug-heading);
-}
-
-body.layout-debug .filter-section {
-  background-color: var(--debug-filter);
-}
-
-body.layout-debug .pa-panel,
-body.layout-debug .pa-slot {
-  background-color: var(--debug-pa);
-}
-
-body.layout-debug .artifact-table,
-body.layout-debug .artifact-table-shell,
-body.layout-debug .artifact-table-header-region,
-body.layout-debug .artifact-table-body-region,
-body.layout-debug .artifact-table th,
-body.layout-debug .artifact-table td {
-  background-color: var(--debug-table);
-}
-
-body.layout-debug .plotly-chart {
-  background-color: var(--debug-chart);
-}
-
-body.layout-debug .notes-panel {
-  background-color: var(--debug-notes);
-}
-
-body.layout-debug .site-nav,
-body.layout-debug .nav-hider-strip,
+body.layout-debug .notes-panel,
 body.layout-debug .nav-content,
-body.layout-debug .site-main,
-body.layout-debug .content-panel,
-body.layout-debug #content-title,
-body.layout-debug .content-summary,
-body.layout-debug .content-body,
-body.layout-debug .filter-section,
-body.layout-debug .pa-panel,
-body.layout-debug .pa-slot,
-body.layout-debug .artifact-title-block,
-body.layout-debug .artifact-table-shell,
-body.layout-debug .artifact-table-header-region,
-body.layout-debug .artifact-table-body-region,
-body.layout-debug .plotly-chart,
-body.layout-debug .notes-panel {
-  position: relative;
+body.layout-debug .site-nav,
+body.layout-debug .site-main {
+  outline: 2px solid rgba(255, 0, 255, 0.65);
+  outline-offset: -2px;
 }
 
-body.layout-debug .site-nav::before,
-body.layout-debug .nav-hider-strip::before,
-body.layout-debug .nav-content::before,
-body.layout-debug .site-main::before,
-body.layout-debug .content-panel::before,
-body.layout-debug #content-title::before,
-body.layout-debug .content-summary::before,
-body.layout-debug .content-body::before,
 body.layout-debug .filter-section::before,
 body.layout-debug .pa-panel::before,
 body.layout-debug .pa-slot::before,
-body.layout-debug .artifact-title-block::before,
-body.layout-debug .artifact-table-shell::before,
-body.layout-debug .artifact-table-header-region::before,
-body.layout-debug .artifact-table-body-region::before,
-body.layout-debug .plotly-chart::before,
-body.layout-debug .notes-panel::before {
-  background: rgba(0, 0, 0, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  color: #fff;
-  font-size: 10px;
-  font-weight: 700;
-  left: 2px;
-  line-height: 1.1;
-  padding: 1px 3px;
+body.layout-debug .notes-panel::before,
+body.layout-debug .nav-content::before,
+body.layout-debug .site-nav::before,
+body.layout-debug .site-main::before {
+  background: rgba(255, 0, 255, 0.75);
+  color: white;
+  content: attr(class);
+  font-size: 11px;
+  line-height: 1;
+  padding: 2px 4px;
   pointer-events: none;
   position: absolute;
-  top: 2px;
-  z-index: 9990;
-}
-
-body.layout-debug .site-nav::before {
-  content: "NavigationBar";
-}
-
-body.layout-debug .nav-hider-strip::before {
-  content: "Nav hider";
-}
-
-body.layout-debug .nav-content::before {
-  content: "NavigationContent";
-}
-
-body.layout-debug .site-main::before {
-  content: "Content host";
-}
-
-body.layout-debug .content-panel::before {
-  content: "ContentPanel";
-}
-
-body.layout-debug #content-title::before {
-  content: "Page title";
-}
-
-body.layout-debug .content-summary::before {
-  content: "Page subtitle";
-}
-
-body.layout-debug .content-body::before {
-  content: "Contents";
-}
-
-body.layout-debug .filter-section::before {
-  content: "FilterSection";
-}
-
-body.layout-debug .pa-panel::before {
-  content: "PAPanel";
-}
-
-body.layout-debug .pa-slot::before {
-  content: "PA slot";
-}
-
-body.layout-debug .artifact-title-block::before {
-  content: "PA caption";
-}
-
-body.layout-debug .artifact-table-shell::before {
-  content: "Table shell";
-}
-
-body.layout-debug .artifact-table-header-region::before {
-  content: "Table headings";
-}
-
-body.layout-debug .artifact-table-body-region::before {
-  content: "Table body";
-}
-
-body.layout-debug .plotly-chart::before {
-  content: "Chart";
-}
-
-body.layout-debug .notes-panel::before {
-  content: "Notes";
+  z-index: 9999;
 }
