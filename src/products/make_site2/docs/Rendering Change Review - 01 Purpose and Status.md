@@ -19,6 +19,7 @@ Implementation status:
 ```text
 Basho selector redesign: implemented as an interim PA-specific/runtime control.
 Clickable Notes popovers: implemented as runtime popover-to-note interaction.
+Shikona link affordance: implemented across the shared table helper and Basho Results.
 Career Length Longest / Show Active: implemented with produced ranked populations.
 Row-number vs ranking semantics: partially implemented across shared table renderers.
 Section 6.2.1 side-by-side layout: restored as a custom sectioned-table layout.
