@@ -52,8 +52,9 @@ function renderCareerLengthTable(view, rows, state) {
 }
 
 function careerLengthRowsForState(rows, state) {
-  if (!state.active_only) return rows;
-  return rows.filter(row => isActiveRikishi(row.active));
+  const rankedRows = rows.map((row, index) => ({ ...row, __career_length_rank: index + 1 }));
+  if (state.show_active) return rankedRows;
+  return rankedRows.filter(row => !isActiveRikishi(row.active));
 }
 
 function careerLengthTableColumns(view) {
@@ -67,7 +68,7 @@ function careerLengthTableColumns(view) {
 
 function careerLengthColumn(column) {
   if (column.id === "rank") {
-    return { ...column, sort_kind: "numeric", sort_key: column.source_field || column.id, sort_default_direction: "ascending" };
+    return { ...column, source_field: "__career_length_rank", sort_kind: "numeric", sort_key: "__career_length_rank", sort_default_direction: "ascending" };
   }
   if (column.id === "shikona") {
     return { ...column, sort_kind: "text", sort_key: column.source_field || column.id };
