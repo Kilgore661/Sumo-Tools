@@ -2,29 +2,194 @@
 
 ## Status
 
-Review note for proposed `make_site2` rendering changes.
+Review note for a proposed `make_site2` rendering change set.
 
-This document records a first-pass comprehension and classification of proposed
-styling, rendering, UI model, PA model and runtime interaction changes. It is not
-yet a normative rendering design. Settled rendering policy should move into
-`05 Rendering Design.md`; unresolved or provisional rendering decisions should be
-tracked in `06 Rendering Audit and Changes.md`; model-level changes should be
-reflected in the relevant `04.*` model documents before implementation.
+This document describes the proposed change before classifying its likely design
+and implementation impact. It is not yet normative rendering design.
 
-## Review Question
+Settled rendering policy should move into `05 Rendering Design.md`. Unresolved
+or provisional rendering decisions should be tracked in
+`06 Rendering Audit and Changes.md`. Changes that affect table, chart, filter,
+control or interaction semantics should update the relevant `04.*` model design
+documents before implementation.
 
-The current layout is broadly solid, but several visible treatments are
-suboptimal. The purpose of this review is to determine whether the requested
-changes are merely presentation adjustments or whether they affect the Public UI
-Model, Published Artifact model, runtime state, or build-mode policy.
+## 1. Review Purpose
+
+The current `make_site2` layout is broadly solid, but a review of rendered pages
+identified a collection of suboptimal visible treatments.
+
+The purpose of this document is to record the proposed change set in product and
+design terms, then classify which parts are:
+
+- pure presentation/token changes;
+- shared rendering-policy changes;
+- Published Artifact model changes;
+- Public UI Model or Filter/control changes;
+- runtime interaction changes; or
+- build-mode/development-vs-production policy changes.
 
 The main risk is making changes that look like CSS tweaks while silently changing
 UI ownership, PA semantics or public interaction contracts.
 
-## First-Pass Answer
+## 2. Proposed Change
 
-Yes, the requested changes are understandable. Most are tight enough to begin
-design work, but they do not all belong to the same layer.
+### 2.1 Development and Production Affordances
+
+Help/popover markers currently use a visible `?` indicator. The proposed change
+is:
+
+- production output should not need a visible marker solely to advertise that
+  popover/help text exists;
+- development output may still need a visible marker so reviewers can find and
+  audit popover-bearing items;
+- when a marker is shown, it should use a circled-info style symbol rather than
+  `?`.
+
+This proposal may require an explicit distinction between development and final
+product rendering. The existing `--prod` CLI flag should be reviewed before it is
+used for this purpose, because its current intended scope is not yet established
+as a general production-rendering mode.
+
+### 2.2 Shared Table Visual Language
+
+The proposed table visual changes are:
+
+- increase whitespace above and below table headings, roughly `1ex`, whether the
+  heading is simple or two-part;
+- give all tables a bounding box;
+- draw a line under the lowest heading row;
+- draw left and right lines for every column group;
+- draw no other table grid lines;
+- make alternating row colours brighter and increase the contrast between the two
+  alternating colours;
+- introduce a muted foreground colour derived from the normal text colour but
+  close to the background colour;
+- render dates with `-` where they currently use `/`.
+
+These are intended as shared visible language for table-like PAs rather than
+page-local tweaks.
+
+### 2.3 Table Structure and Semantic Policy
+
+Several proposed changes concern table structure, not merely table appearance.
+
+#### Section 6.2.1 table headings
+
+In page/section 6.2.1, the heading above each of the three tables should become a
+column heading that spans the two columns in its table.
+
+#### Section 9.1 grouped headings
+
+In page/section 9.1, simple headings such as `#`, `Shikona`, `Chii` and `Wins`
+should vertically span the two heading rows occupied by grouped headings such as
+`Wins per Basho / Average` and `Wins per Basho / #`.
+
+#### Row-number column
+
+All tables should receive a leading row-number column. The heading for this
+mechanical row-number column should be blank. The heading cell and row-number
+values should use the muted foreground colour.
+
+#### Superlative/ranking columns
+
+Tables whose titles mention a superlative should use `#` for ordinal/ranking
+columns. This `#` column is distinct from the blank, muted, mechanical row-number
+column.
+
+The intended distinction is:
+
+```text
+blank muted leading column = mechanical row number
+# column                   = meaningful ordinal/ranking/leaderboard position
+```
+
+### 2.4 Shikona Links and Notes Interactions
+
+#### Shikona links
+
+All shikona links should retain their current ordinary-click behavior and should
+also support Alt-click.
+
+The proposed behavior is:
+
+```text
+normal click -> SumoDB rikishi page
+Alt-click    -> make_site2 Career Comparisons chart
+popover      -> "Click for SumoDB; Alt-click for chart."
+```
+
+The Alt-click chart target is:
+
+```text
+index.html?page=career_comparisons&skill=chii&x=date&log=true&rikishi=<rik id>
+```
+
+where `<rik id>` is the linked rikishi id.
+
+#### Popovers that refer to Notes
+
+When a popover mentions Notes, the reference should be interactive. Clicking the
+Notes reference should:
+
+- make the Notes bar/panel visible if it is currently hidden;
+- identify the relevant note;
+- highlight that note, for example by underlining it.
+
+A later validation pass should check that every popover which refers to Notes has
+a corresponding Note to reveal and highlight.
+
+### 2.5 Basho Selector Redesign
+
+The method of selecting a basho should be redesigned.
+
+The proposed control shape is:
+
+```text
+Basho
+    Year  <year dropdown>
+    Month <month dropdown>
+
+<<  <  >  >>
+```
+
+The navigation buttons have the usual semantics:
+
+- `<<` moves to the first available basho;
+- `<` moves to the previous available basho;
+- `>` moves to the next available basho;
+- `>>` moves to the last available basho;
+- attempts to move beyond either end are ignored.
+
+The displayed basho should change whenever the user changes a dropdown or clicks
+a navigation button.
+
+If the user chooses a year/month for which there are no results, the content
+panel should say:
+
+```text
+There was no basho in MMMM YYYY
+```
+
+### 2.6 Shared Chart Rendering
+
+The proposed shared chart rendering changes are:
+
+- x-axis tick labels should be angled only when needed for density or legibility;
+  low tick-count charts should generally keep horizontal labels;
+- x-axis and y-axis titles should be bold.
+
+### 2.7 PA-Specific Chart Changes
+
+The proposed PA-specific chart changes are:
+
+- page 5.1 should use a line chart rather than a column chart;
+- page 7.3.1 Distribution should use a line chart rather than a column chart;
+- in page 6.3.1, error bars should be pale blue rather than appearing white.
+
+## 3. First-Pass Design Classification
+
+The proposed change set is understandable and mostly precise enough to begin
+design work. It should not be implemented as an undifferentiated CSS pass.
 
 The natural grouping is:
 
@@ -36,208 +201,107 @@ D. Runtime interaction/state changes
 E. Build-mode / development-vs-production policy
 ```
 
-The important conclusion is that the request is not a bag of cosmetic tweaks. It
-contains presentation tokens, shared rendering rules, model changes and runtime
-interaction changes. The safe next step is to classify each item by owner before
-writing implementation code.
-
-## Table-Related Items
-
-### Development-only help/popover marker
-
-The request is clear:
-
-- Production should not show a visible `?` marker merely to indicate “hover over
-  me for info”.
-- Development may still need an affordance to reveal where popovers/gloss exist.
-- Even in development, the marker should be changed from `?` to the circled-info
-  style symbol.
+### 3.1 Development-only help/popover marker
 
 This is not purely CSS if production and development diverge. It requires an
-explicit build/runtime context policy. The existing `--prod` flag currently needs
-separate review before it is treated as a broader public-product mode rather than
-only a cache-mode switch.
+explicit build/runtime context policy.
 
-### Table heading spacing
+The `--prod` flag is a possible implementation route, but only after its intended
+contract is reviewed and either confirmed or extended.
 
-The request is clear: tables should have more whitespace above and below the
-heading, around `1ex`, regardless of whether the heading is simple or two-part.
+### 3.2 Table heading spacing
 
 This is shared table/PA-caption rendering policy. It belongs to table-like PA
 presentation and/or PA caption spacing, not to the Public UI Model.
 
-### Section 6.2.1 table headings as spanning column headings
+### 3.3 Section 6.2.1 spanning headings
 
-The visual target is understood: the heading above each of the three tables
-should become a table-level heading cell spanning both columns.
+This changes table structure and semantics. The design question is whether those
+headings are captions above separate tables, group headings inside one sectioned
+table, or `colspan=2` heading rows within each table.
 
-This is not merely CSS. It changes table structure and semantics. The design
-question is whether those headings are captions above separate tables, group
-headings inside one sectioned table, or `colspan=2` heading rows within each
-table.
-
-### Table border policy
-
-The requested shared table border policy is understood:
-
-- every table has a bounding box;
-- there is a line under the lowest heading row;
-- there are left and right lines for every column group;
-- there are no other lines.
+### 3.4 Table border policy
 
 This is mostly shared table rendering policy. However, “column group” requires
 the renderer to know which headings/groups exist. For recursive/grouped tables
 that is model-driven; for flat tables it may require an explicit grouping
 vocabulary or a default “each column is its own group” rule.
 
-### Alternating row colours
+### 3.5 Alternating row colours
 
-The request is clear: alternating row colours are too subtle; both should be a
-bit brighter and the difference between them should be increased.
+This is theme/token tuning inside an already accepted shared table rule.
 
-This is pure theme/token tuning inside an already accepted shared table rule.
-
-### Shikona links
-
-The requirement is understood:
-
-```text
-normal click -> SumoDB rikishi page
-Alt-click    -> make_site2 Career Comparisons chart
-popover      -> "Click for SumoDB; Alt-click for chart."
-```
-
-The chart target should be:
-
-```text
-index.html?page=career_comparisons&skill=chii&x=date&log=true&rikishi=<rik id>
-```
+### 3.6 Shikona links
 
 This is runtime interaction and public-link policy, not styling. It should be
-shared shikona-link semantics so all table renderers behave consistently.
+implemented as shared shikona-link semantics so all table renderers behave
+consistently.
 
-### Basho selector redesign
+### 3.7 Basho selector redesign
 
-The request is clear. The desired control is:
-
-```text
-Basho
-  Year  <year dropdown>
-  Month <month dropdown>
-
-<<  <  >  >>
-```
-
-The displayed basho should change immediately when either dropdown changes or a
-button is clicked. Movement beyond either end should be ignored. If the user
-chooses a year/month with no basho, the content panel should say:
-
-```text
-There was no basho in MMMM YYYY
-```
-
-This is model/runtime work rather than CSS. It changes the filter model from a
+This is model/runtime work rather than CSS. It changes the control model from a
 single finite basho selector into a compound selector plus navigation controls
-plus an unavailable selected-state message. It should be specified either as a
-richer `FilterSection` form or as a PA-specific Basho Results control.
+plus an unavailable selected-state message.
 
-### Section 9.1 vertically spanning headings
+The design should decide whether this belongs to a richer `FilterSection` form or
+to a PA-specific Basho Results control.
 
-The request is understood. Simple headings such as `#`, `Shikona`, `Chii` and
-`Wins` should vertically span the two heading rows occupied by grouped headings
-such as `Wins per Basho / Average` and `Wins per Basho / #`.
+### 3.8 Section 9.1 vertically spanning headings
 
-This is not CSS-only. It is table heading model/rendering. The likely issue is
-that ordinary tables do not currently have the same recursive/grouped table model
-used by 7.1 Basho Results.
+This is table heading model/rendering. It is probably related to the distinction
+between ordinary tables and the recursive/grouped table model used by 7.1 Basho
+Results.
 
-### Muted foreground colour
-
-The request is clear: define a muted font colour based on the text colour but
-close to the background colour.
+### 3.9 Muted foreground colour
 
 This is a shared theme token, but it carries semantic meaning wherever used. It
-needs a declared owner/scope, such as row numbers, navigation placeholders,
+needs a declared owner and scope, such as row numbers, navigation placeholders,
 unavailable items or secondary metadata.
 
-### Row-number column on all tables
-
-The request is clear: all tables should have a leading row-number column with a
-blank heading, and both heading and row-number values should use the muted font
-colour.
+### 3.10 Row-number column on all tables
 
 This is table model/rendering policy, not merely CSS.
 
-### Superlative tables and ordinal/ranking columns
+### 3.11 Superlative tables and ordinal/ranking columns
 
-The distinction is understood:
+This is part of the same row-number/ranking policy. It needs a table-model
+concept or explicit shared table-rendering policy.
 
-- blank muted leading column = mechanical row number;
-- `#` column = meaningful ordinal/ranking/leaderboard position, especially when
-  the page title implies a superlative.
-
-This needs a table-model concept or at least explicit shared table-rendering
-policy.
-
-### Date separator
-
-The request is clear: dates should render with `-` where they currently use `/`.
+### 3.12 Date separator
 
 This is a shared data-formatting/rendering rule. It may belong in a shared date
-formatter if date values are modelled as dates; if current data arrives as
+formatter if date values are modelled as dates. If current data arrives as
 strings, it may require renderer-side normalization or producer-side output
 cleanup.
 
-### Popovers that mention Notes
+### 3.13 Popovers that mention Notes
 
-The request is clear:
+This is runtime interaction/state plus an explicit popover-to-note relationship.
+It should not be implemented by parsing arbitrary popover text if the
+relationship can instead be represented directly.
 
-- a popover mentioning or implying `Notes` should be clickable;
-- clicking it should make the Notes panel visible if hidden;
-- it should highlight the relevant note, for example by underlining;
-- a later sanity pass should confirm that every such popover has a corresponding
-  note to reveal.
-
-This is runtime interaction/state plus explicit popover-to-note relationship. It
-should not be implemented by parsing arbitrary popover text if the relationship
-can instead be represented directly.
-
-## Chart-Related Items
-
-### Conditional x-axis tick rotation
-
-The request is clear. X-axis tick labels should only be angled when that is
-needed for density/legibility. Low tick-count charts should generally keep
-horizontal labels.
+### 3.14 Conditional x-axis tick rotation
 
 This is shared chart rendering policy. The current behavior may be applying a
 fixed artifact value where a dynamic rule is wanted.
 
-### Bold axis titles
-
-The request is clear: x- and y-axis titles should be bold.
+### 3.15 Bold axis titles
 
 This is a shared Plotly chart presentation rule. It has low model impact, but it
 should still be declared as chart rendering policy.
 
-### Specific charts should be line charts
-
-The request is clear: pages 5.1 and 7.3.1/Distribution should be line charts, not
-column charts.
+### 3.16 Specific charts should be line charts
 
 This is a product/PA-form change, not CSS. It changes the PA terminal form or
-chart renderer choice, and it should be checked against the public analytical
+chart renderer choice, and should be checked against the public analytical
 question because bar/column charts and line charts make different claims.
 
-### Section 6.3.1 error bars
-
-The request is clear: the error bars in 6.3.1 should be pale blue rather than
-white-looking.
+### 3.17 Section 6.3.1 error bars
 
 This is a PA-specific chart rendering rule. Because error bars communicate
 uncertainty, the colour choice should be declared as belonging to that PA feature.
 
-## Natural Work Groups
+## 4. Natural Work Groups
 
 | Group | Items | Nature |
 | --- | --- | --- |
@@ -249,29 +313,29 @@ uncertainty, the colour choice should be declared as belonging to that PA featur
 | Shared chart rendering | tick-angle rule, bold axis titles | Chart rendering policy |
 | PA-specific chart semantics | line-vs-column chart changes, 6.3.1 error-bar colour | PA contract / chart renderer selection |
 
-## Implementation-Routing Notes
+## 5. Implementation-Routing Notes
 
-These are not implementation decisions yet, but they record likely routes to
-avoid losing the context of the review.
+These notes are intentionally non-final. They preserve likely routes without
+settling implementation design prematurely.
 
-### `--prod`
+### 5.1 `--prod`
 
 There is an existing `--prod` CLI flag. Before using it to drive visible
 production/development differences, review its current contract and decide
-whether it is intended to mean only “no development cache-busting” or a broader
-“final public product build”.
+whether it means only “no development cache-busting” or a broader “final public
+product build”.
 
 The help/popover marker visibility is a candidate for build-mode-dependent
 behavior, but only after the build-mode contract is explicit.
 
-### `debug_layout`
+### 5.2 `debug_layout`
 
 The existing `debug_layout=true` overlay is useful for structure inspection. A
 future extension such as `debug_layout=headings_v4` could support experimental
 CSS or rendering diagnostics, but that should be treated as debug/development
 instrumentation rather than as public rendering policy.
 
-## Review Conclusion
+## 6. Review Conclusion
 
 The proposed changes are understandable and mostly precise enough to begin
 design. They should not be implemented as an undifferentiated CSS tweak pass.
