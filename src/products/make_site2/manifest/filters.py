@@ -160,7 +160,7 @@ CAREER_LENGTH_FILTERS = (
         ),
     ),
     Filter(
-        id="active_only",
+        id="show_active",
         label="Show Active?",
         control="checkbox",
         default=True,
