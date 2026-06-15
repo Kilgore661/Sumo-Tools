@@ -41,23 +41,25 @@ The proposed change is to control the visibility of the info-here indicator by a
 new URL parameter:
 
 ```text
-show_notes=true
+debug_show_notes=true
 ```
 
-When `show_notes` is absent or set to `false`, there should be no visible
-info-here indicator. When `show_notes=true`, the indicator should be visible so
-reviewers can find and audit popover-bearing items.
+When `debug_show_notes` is absent or set to `false`, there should be no visible
+info-here indicator. When `debug_show_notes=true`, the indicator should be
+visible so reviewers can find and audit popover-bearing items.
 
 When the indicator is visible, it should use a circled-info style symbol rather
 than `?`.
 
 This makes the marker a reader/reviewer-selected diagnostic display mode rather
-than an unconditional development-vs-production distinction.
+than an unconditional development-vs-production distinction. The parameter name
+is deliberately diagnostic: it shows note/help affordance markers, but does not
+open the Notes panel on page load.
 
 Open issue: decide whether `--prod` should also suppress stylistic debugging
-features, including `show_notes` and any future style-debug URL modes, or whether
-such URL-selected diagnostics should remain available in product builds unless
-explicitly disabled.
+features, including `debug_show_notes` and any future style-debug URL modes, or
+whether such URL-selected diagnostics should remain available in product builds
+unless explicitly disabled.
 
 ### 2.2 Shared Table Visual Language
 
@@ -84,23 +86,68 @@ state, the table receives the general bounding box and heading rule, but no
 additional column-group boundary treatment is inferred merely from individual
 columns.
 
-Exact colour values, transparency settings and related visual tokens remain open
-implementation choices.
+Exact colour values, transparency settings, border colours, border weights and
+related visual tokens are implementer choices. They should be chosen as reasonable
+initial values and adjusted if visual review rejects them.
 
 ### 2.3 Table Structure and Semantic Policy
 
 Several proposed changes concern table structure, not merely table appearance.
 
+The current intent is not to move ordinary tables into the general table theory
+or recursive table model. These declarations are interim, PA-local rendering
+metadata where needed.
+
+#### Initial column-group catalogue
+
+The current column-group declarations are:
+
+```text
+2.1 Banzuke Changes:
+  groups: East, Rank, West
+
+7.1 Basho Results:
+  leaves in the heading tree are not groups
+  all non-leaf heading-tree nodes are groups
+
+7.3.1 Longest:
+  no groups
+
+7.4.*:
+  no groups
+
+9.1:
+  groups:
+    unnamed left group containing #, Shikona, Chii and Wins
+    Wins per Basho
+    Wins per bout
+
+6.2.1:
+  special custom case
+  each table should look like any other table as far as it makes sense and is
+  possible
+```
+
+For 9.1, the unnamed left group has no heading because those columns do not need
+one. It must not be treated as a missing heading and must not force introduction
+of a placeholder heading such as `Context`. The group exists only to support the
+interim rendering policy. If a later general table model is adopted, this ad hoc
+9.1 rule should be revisited and may become redundant.
+
 #### Section 6.2.1 table headings
 
 In page/section 6.2.1, the heading above each of the three tables should become a
-column heading that spans the two columns in its table.
+column heading that spans the two columns in its table, as far as that makes sense
+for this custom PA.
 
 #### Section 9.1 grouped headings
 
 In page/section 9.1, simple headings such as `#`, `Shikona`, `Chii` and `Wins`
 should vertically span the two heading rows occupied by grouped headings such as
 `Wins per Basho / Average` and `Wins per Basho / #`.
+
+This is resolved for now by the interim 9.1 column-group declaration above. It is
+not a commitment to making 9.1 a recursive table.
 
 #### Row-number column
 
@@ -146,15 +193,25 @@ where `<rik id>` is the linked rikishi id.
 
 #### Popovers that refer to Notes
 
-When a popover mentions Notes, the reference should be interactive. Clicking the
-Notes reference should:
+A popover has a Notes action if and only if its text contains the exact word
+`Notes`.
+
+If a popover contains the exact word `Notes`, the whole popover is clickable.
+Clicking anywhere in that popover should:
 
 - make the Notes bar/panel visible if it is currently hidden;
 - identify the relevant note;
 - highlight that note, for example by underlining it.
 
-A later validation pass should check that every popover which refers to Notes has
-a corresponding Note to reveal and highlight.
+Inside such a popover, the word `Notes` may be styled to look link-like, but it
+is not a link, does not own the click and does not have a separate handler. The
+popover owns the click.
+
+If a popover does not contain the exact word `Notes`, it should not be clickable
+at all.
+
+A later validation pass should check that every popover containing `Notes` has a
+corresponding Note to reveal and highlight.
 
 ### 2.5 Basho Selector Redesign
 
@@ -226,7 +283,7 @@ split. It is proposed as an explicit URL-selected diagnostic mode owned by the
 public/runtime state layer:
 
 ```text
-show_notes=true
+debug_show_notes=true
 ```
 
 This is a runtime presentation-state feature. It should be treated similarly to a
@@ -234,18 +291,23 @@ reader/reviewer display mode: absent or false hides the indicator; true shows it
 
 The `--prod` question remains separate. `--prod` may or may not imply removal of
 stylistic debugging features, but that is an open build-mode policy decision and
-should not be assumed by the `show_notes` design.
+should not be assumed by the `debug_show_notes` design.
 
 ### 3.2 Table heading spacing
 
 This is shared table/PA-caption rendering policy. It belongs to table-like PA
 presentation and/or PA caption spacing, not to the Public UI Model.
 
-### 3.3 Section 6.2.1 spanning headings
+### 3.3 Interim table structure and column groups
 
-This changes table structure and semantics. The design question is whether those
-headings are captions above separate tables, group headings inside one sectioned
-table, or `colspan=2` heading rows within each table.
+The table structure requests are deliberately narrower than a general table
+model. The implementation should use an interim, easy-to-remove mechanism for
+non-7.1 column-group declarations.
+
+The steer is: choose the approach that is easiest to remove later when a general
+table model supersedes it. Avoid spreading table-group theory across unrelated
+renderers and avoid migrating ordinary tables into the recursive table model as
+part of this change.
 
 ### 3.4 Table border and column-group policy
 
@@ -279,9 +341,9 @@ to a PA-specific Basho Results control.
 
 ### 3.8 Section 9.1 vertically spanning headings
 
-This is table heading model/rendering. It is probably related to the distinction
-between ordinary tables and the recursive/grouped table model used by 7.1 Basho
-Results.
+This is currently resolved by the interim 9.1 column-group declaration. If a later
+general table model is adopted, this rule should be revisited and may become
+redundant.
 
 ### 3.9 Muted foreground colour
 
@@ -300,16 +362,15 @@ concept or explicit shared table-rendering policy.
 
 ### 3.12 Date separator
 
-This is a shared data-formatting/rendering rule. It may belong in a shared date
-formatter if date values are modelled as dates. If current data arrives as
-strings, it may require renderer-side normalization or producer-side output
-cleanup.
+This is a shared data-formatting/rendering rule for public rendered display. It
+should not be assumed to change source data, CSV contracts, filenames, URL
+parameters or internal identifiers unless a later requirement says so.
 
 ### 3.13 Popovers that mention Notes
 
-This is runtime interaction/state plus an explicit popover-to-note relationship.
-It should not be implemented by parsing arbitrary popover text if the
-relationship can instead be represented directly.
+This is runtime interaction/state plus a text-triggered popover action rule. The
+qualifying condition is exact text occurrence of `Notes`; the whole popover owns
+the click.
 
 ### 3.14 Conditional x-axis tick rotation
 
@@ -336,10 +397,11 @@ uncertainty, the colour choice should be declared as belonging to that PA featur
 
 | Group | Items | Nature |
 | --- | --- | --- |
-| Diagnostic display affordances | `show_notes` URL state, info symbol, possible debug CSS variants | Runtime presentation state / debug policy |
+| Diagnostic display affordances | `debug_show_notes` URL state, info symbol, possible debug CSS variants | Runtime presentation state / debug policy |
 | Shared table visual language | spacing, borders, row colours, muted colour, date format | Rendering policy/CSS plus shared formatter |
-| Table semantic model | 6.2.1 spanning headings, 9.1 rowspans, row numbers, superlative `#` columns, explicit column groups | Published Artifact/table model |
-| Link/popover/notes interactions | shikona Alt-click, link popover text, clickable Notes popovers | Runtime interaction plus explicit metadata |
+| Interim table structure metadata | 2.1/7.1/9.1 column groups, 6.2.1 custom handling | Ad hoc PA-local metadata, easiest-to-remove later |
+| Table semantic model | row numbers, superlative `#` columns | Published Artifact/table model |
+| Link/popover/notes interactions | shikona Alt-click, link popover text, clickable Notes popovers | Runtime interaction plus explicit metadata/text rule |
 | Basho Results control model | year/month selector and navigation buttons, no-basho message | Filter/control model or PA-specific control |
 | Shared chart rendering | tick-angle rule, bold axis titles | Chart rendering policy |
 | PA-specific chart semantics | line-vs-column chart changes, 6.3.1 error-bar colour | PA contract / chart renderer selection |
@@ -350,34 +412,33 @@ uncertainty, the colour choice should be declared as belonging to that PA featur
 These notes are intentionally non-final. They preserve likely routes without
 settling implementation design prematurely.
 
-### 5.1 `show_notes`
+### 5.1 `debug_show_notes`
 
 The proposed immediate control for visible info-here indicators is the URL
-parameter `show_notes`.
+parameter `debug_show_notes`.
 
 Required behavior:
 
 ```text
-absent          -> no info-here indicator
-show_notes=false -> no info-here indicator
-show_notes=true  -> show info-here indicator
+absent                 -> no info-here indicator
+debug_show_notes=false -> no info-here indicator
+debug_show_notes=true  -> show info-here indicator
 ```
 
 The visible marker should be the circled-info style symbol rather than `?`.
 
-The name `show_notes` is provisional only if a later model pass decides the
-parameter is really about popover/gloss affordances rather than Notes. For now,
-it records the requested public URL state.
+This parameter shows diagnostic affordance markers. It does not open the Notes
+panel on page load.
 
 ### 5.2 `--prod`
 
 There is an existing `--prod` CLI flag. An open issue remains: should `--prod`
 imply that stylistic debugging features are removed or disabled?
 
-This question should be resolved separately from the `show_notes` URL-state rule.
-The `show_notes` rule defines when the info-here marker is displayed; the `--prod`
-issue asks whether a production build should make such diagnostic display modes
-unavailable regardless of URL parameters.
+This question should be resolved separately from the `debug_show_notes` URL-state
+rule. The `debug_show_notes` rule defines when the info-here marker is displayed;
+the `--prod` issue asks whether a production build should make such diagnostic
+display modes unavailable regardless of URL parameters.
 
 ### 5.3 `debug_layout`
 
@@ -395,6 +456,18 @@ The renderer should not infer a column group for every individual column. Column
 boundary treatment should appear only where a group is declared, while the table
 still receives the general bounding box and heading underline rules.
 
+Because this mechanism is expected to be removed if/when a general table model is
+introduced, prefer the easiest-to-remove implementation. A small ad hoc
+configuration close to the current make_site2 rendering/manifest boundary is
+preferable to a broad model migration.
+
+### 5.5 Visual tokens
+
+Exact visual token choices are delegated to implementation and review. Choose
+reasonable initial values for muted foreground, row backgrounds, border colour,
+border weight and spacing. If the result looks wrong, revise the tokens after
+visual inspection.
+
 ## 6. Review Conclusion
 
 The proposed changes are understandable and mostly precise enough to begin
@@ -409,7 +482,6 @@ A safe sequence is:
    structure or semantics;
 5. only then design implementation changes.
 
-The highest-risk items are the Basho selector, table heading structure,
-row-number/ranking policy and popover-to-note linking. Those can easily look like
-layout work while actually changing the UI model, Published Artifact model or
-runtime interaction contract.
+The highest-risk items are the Basho selector, row-number/ranking policy and
+popover-to-note behavior. The current column-group work is intentionally interim
+and ad hoc; it should not become the first step toward a general table theory.
