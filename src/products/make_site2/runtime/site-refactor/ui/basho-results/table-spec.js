@@ -15,7 +15,7 @@ const PRIZE_DISPLAY_ORDER = ["Y", "D", "J", "K", "S", "G"];
 
 const TRANSITIONAL_TABLE_SPEC = [
   group("reference", "", [
-    column("row_number", "#", { sort_kind: "none", presentation: PRESENTATION.NUMERIC_MAGNITUDE }),
+    column("row_number", "", { sort_kind: "none", presentation: PRESENTATION.NUMERIC_MAGNITUDE, role: "row_number" }),
     column("shikona", "Shikona", { sort_kind: "text", presentation: PRESENTATION.NAME }),
   ]),
   group("before", "Before Basho", recordSpec()),
@@ -28,12 +28,12 @@ const TRANSITIONAL_TABLE_SPEC = [
     }),
   ]),
   group("changes", "Next Basho", [
-    column("delta_equelo", "\u0394Eq", {
+    column("delta_equelo", "ΔEq", {
       help: "Difference in rating.",
       sort_kind: "numeric",
       presentation: PRESENTATION.RATING,
     }),
-    group("movement", "\u21C5", [
+    group("movement", "⇅", [
       column("bp", "Chii", {
         help: "See Notes.",
         sort_kind: "movement_symbol",
@@ -62,7 +62,7 @@ function recordSpec() {
         column("equelo", "Eq", { help: "Equelo rating.", sort_kind: "numeric", presentation: PRESENTATION.RATING }),
       ]),
       group("analysis", "Ratings Fit", [
-        group("banzuke_error", "\u0394BZ", [
+        group("banzuke_error", "ΔBZ", [
           column("direction", "Dir", {
             sort_kind: "movement_symbol",
             sort_default_direction: "descending",
@@ -81,7 +81,7 @@ function recordSpec() {
       column("wins", "W", { sort_kind: "numeric", presentation: PRESENTATION.COMPACT_COUNT }),
       column("losses", "L", { sort_kind: "numeric", presentation: PRESENTATION.COMPACT_COUNT }),
       column("absences", "A", { sort_kind: "numeric", presentation: PRESENTATION.COMPACT_COUNT }),
-      column("prizes", "\u{1F4E6}", {
+      column("prizes", "📦", {
         sort_kind: "prize_set",
         sort_default_direction: "descending",
         presentation: PRESENTATION.COMPACT_TEXT,
