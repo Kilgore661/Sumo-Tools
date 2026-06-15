@@ -95,10 +95,18 @@ function wireFilterSection(panel, state, renderPanel, index = null) {
 function selectedIndexEntry(index, selected) {
   const entries = index.entries || [];
   if (selected && selected !== "latest") {
-    const match = entries.find(entry => bashoKey(entry.basho) === bashoKey(selected));
-    if (match) return match;
+    const selectedKey = safeBashoKey(selected);
+    if (selectedKey) {
+      const match = entries.find(entry => safeBashoKey(entry.basho) === selectedKey);
+      if (match) return match;
+    }
   }
-  return entries.find(entry => bashoKey(entry.basho) === bashoKey(index.default_basho)) || latestIndexEntry(entries);
+  const defaultKey = safeBashoKey(index.default_basho);
+  if (defaultKey) {
+    const defaultEntry = entries.find(entry => safeBashoKey(entry.basho) === defaultKey);
+    if (defaultEntry) return defaultEntry;
+  }
+  return latestIndexEntry(entries);
 }
 function latestIndexEntry(entries) {
   return [...entries].sort((left, right) => bashoKey(right.basho).localeCompare(bashoKey(left.basho)))[0];
@@ -110,6 +118,7 @@ function bashoSelectorValues(index) {
 }
 function resolveBashoCalendarState(index, state) {
   const defaultEntry = selectedIndexEntry(index, "latest");
+  if (!defaultEntry) throw new Error("Bad URL");
   const defaultParts = parseBashoId(defaultEntry.basho);
   const year = state.basho_year === "latest" ? defaultParts.year : String(state.basho_year || "");
   const month = state.basho_month === "latest" ? defaultParts.month : normalizeBashoMonth(state.basho_month);
@@ -137,6 +146,13 @@ function parseBashoId(basho) {
 function bashoKey(basho) {
   const { year, month } = parseBashoId(basho);
   return `${year}${month}`;
+}
+function safeBashoKey(basho) {
+  try {
+    return bashoKey(basho);
+  } catch {
+    return null;
+  }
 }
 function supportedBashoYears(index) {
   const years = (index.entries || [])
