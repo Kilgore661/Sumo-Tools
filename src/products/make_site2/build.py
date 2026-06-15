@@ -12,6 +12,7 @@ from urllib.parse import urlencode
 from src.infra.live_store.api import get_history
 from src.sumo_core.History import History
 
+from .career_length_views import materialize_career_length_longest_views
 from .data_output import (
     build_basho_results_data_output,
     build_career_comparisons_data_output,
@@ -101,6 +102,7 @@ def build_site(
     copy_first_chii_appearance_data_output(output_root=output_root)
     copy_rank_at_retirement_data_output(output_root=output_root)
     copy_career_length_data_output(output_root=output_root)
+    materialize_career_length_longest_views(output_root=output_root)
     copy_most_consecutive_bouts_data_output(output_root=output_root)
     copy_most_career_wins_data_output(output_root=output_root)
     copy_most_career_losses_data_output(output_root=output_root)
