@@ -208,7 +208,8 @@ function renderBashoCalendarControl(state, index) {
 function optionHtml(value, selected) {
   const selectedAttr = value.value === selected ? " selected" : "";
   return `<option value="${escapeHtml(value.value)}"${selectedAttr}>${escapeHtml(value.label)}</option>`;
-}\nfunction renderFilter(filter, state, index, rowsBySource = {}) {
+}
+function renderFilter(filter, state, index, rowsBySource = {}) {
   if (filter.control === "checkbox") {
     return [
       '<label class="checkbox-control">',
