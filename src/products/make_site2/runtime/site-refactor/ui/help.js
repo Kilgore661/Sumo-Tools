@@ -2,8 +2,13 @@
 
 import { escapeHtml } from "../utils/html.js";
 
+const HELP_POPOVER_LIFETIME_MS = 2000;
+
 let activeHelpTarget = null;
 let helpLayer = null;
+let hideTimer = null;
+let hideStartedAt = 0;
+let hideRemainingMs = HELP_POPOVER_LIFETIME_MS;
 
 function renderLabelWithHelp(label, help, options = {}) {
   if (!help) return escapeHtml(label);
@@ -41,26 +46,23 @@ function installHelpPopovers() {
     const target = helpTargetFromEvent(event);
     if (target) showHelpPopover(target);
   });
-  document.addEventListener("pointerout", event => {
-    if (!activeHelpTarget) return;
-    if (event.relatedTarget instanceof Node && activeHelpTarget.contains(event.relatedTarget)) return;
-    if (event.relatedTarget instanceof Node && helpLayer?.contains(event.relatedTarget)) return;
-    hideHelpPopover();
-  });
-  helpLayer.addEventListener("pointerout", event => {
-    if (event.relatedTarget instanceof Node && helpLayer.contains(event.relatedTarget)) return;
-    if (event.relatedTarget instanceof Node && activeHelpTarget?.contains(event.relatedTarget)) return;
-    hideHelpPopover();
-  });
   document.addEventListener("focusin", event => {
     const target = helpTargetFromEvent(event);
     if (target) showHelpPopover(target);
   });
-  document.addEventListener("focusout", event => {
-    if (!activeHelpTarget) return;
-    if (event.relatedTarget instanceof Node && activeHelpTarget.contains(event.relatedTarget)) return;
-    if (event.relatedTarget instanceof Node && helpLayer?.contains(event.relatedTarget)) return;
-    hideHelpPopover();
+  helpLayer.addEventListener("pointerover", () => {
+    if (helpLayer.dataset.notesPopover === "true") pauseHideCountdown();
+  });
+  helpLayer.addEventListener("pointerout", event => {
+    if (event.relatedTarget instanceof Node && helpLayer.contains(event.relatedTarget)) return;
+    if (helpLayer.dataset.notesPopover === "true") startHideCountdown();
+  });
+  helpLayer.addEventListener("focusin", () => {
+    if (helpLayer.dataset.notesPopover === "true") pauseHideCountdown();
+  });
+  helpLayer.addEventListener("focusout", event => {
+    if (event.relatedTarget instanceof Node && helpLayer.contains(event.relatedTarget)) return;
+    if (helpLayer.dataset.notesPopover === "true") startHideCountdown();
   });
   helpLayer.addEventListener("click", event => {
     if (helpLayer.dataset.notesPopover !== "true") return;
@@ -99,9 +101,12 @@ function showHelpPopover(target) {
   helpLayer.style.pointerEvents = helpLayer.dataset.notesPopover === "true" ? "auto" : "none";
   helpLayer.hidden = false;
   positionHelpPopover();
+  hideRemainingMs = HELP_POPOVER_LIFETIME_MS;
+  startHideCountdown(hideRemainingMs);
 }
 
 function hideHelpPopover() {
+  clearHideTimer();
   activeHelpTarget = null;
   if (!helpLayer) return;
   helpLayer.hidden = true;
@@ -109,6 +114,29 @@ function hideHelpPopover() {
   helpLayer.dataset.noteId = "";
   helpLayer.tabIndex = -1;
   helpLayer.style.pointerEvents = "none";
+  hideRemainingMs = HELP_POPOVER_LIFETIME_MS;
+}
+
+function startHideCountdown(duration = hideRemainingMs) {
+  clearHideTimer();
+  hideRemainingMs = Math.max(0, duration);
+  hideStartedAt = performance.now();
+  hideTimer = window.setTimeout(() => {
+    hideHelpPopover();
+  }, hideRemainingMs);
+}
+
+function pauseHideCountdown() {
+  if (!hideTimer) return;
+  window.clearTimeout(hideTimer);
+  hideTimer = null;
+  hideRemainingMs = Math.max(0, hideRemainingMs - (performance.now() - hideStartedAt));
+}
+
+function clearHideTimer() {
+  if (!hideTimer) return;
+  window.clearTimeout(hideTimer);
+  hideTimer = null;
 }
 
 function dispatchOpenNote(noteId) {
