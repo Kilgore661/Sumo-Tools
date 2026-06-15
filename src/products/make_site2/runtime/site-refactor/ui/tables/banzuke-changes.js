@@ -51,8 +51,8 @@ function renderBanzukeStyleTable(rows, state) {
     `<th colspan="${westColumns.length}">West</th>`,
     '</tr>',
     '<tr>',
-    ...eastColumns.map(column => `<th>${renderLabelWithHelp(column.heading, column.help)}</th>`),
-    ...westColumns.map(column => `<th>${renderLabelWithHelp(column.heading, column.help)}</th>`),
+    ...eastColumns.map(column => `<th>${renderLabelWithHelp(column.heading, column.help, { noteId: column.note_id })}</th>`),
+    ...westColumns.map(column => `<th>${renderLabelWithHelp(column.heading, column.help, { noteId: column.note_id })}</th>`),
     '</tr>',
     '</thead>',
     '<tbody>',
@@ -98,16 +98,16 @@ function renderBanzukeScanTable(artifact, rows, state) {
 
 function banzukeSideColumns(side, state) {
   const identity = { id: "shikona", heading: "Shikona", help: "Rikishi fighting name.", side };
-  const direction = { id: "direction", heading: "\u21C5", help: "Banzuke movement.", side };
+  const direction = { id: "direction", heading: "⇅", help: "Banzuke movement.", side };
   const columns = [];
 
   if (state.equelo) columns.push({ id: "equelo", heading: "Equelo", help: "Model rating. See Ratings & Models.", side });
   if (state.context) {
     columns.push({ id: "old_chii", heading: "Previous Chii", side });
-    columns.push({ id: "result", heading: "Result", help: "Result movement means rank-group movement. See Notes.", side });
+    columns.push({ id: "result", heading: "Result", help: "Result movement means rank-group movement. See Notes.", note_id: "note_result", side });
   }
   columns.push(direction);
-  if (state.delta) columns.push({ id: "delta", heading: "Delta", help: "Size of movement. See Notes.", side });
+  if (state.delta) columns.push({ id: "delta", heading: "Delta", help: "Size of movement. See Notes.", note_id: "note_delta", side });
 
   if (side === "east") return [...columns, identity];
   return [identity, ...columns.reverse()];
@@ -117,11 +117,11 @@ function banzukeScanColumns(state) {
   const columns = [
     { id: "chii", heading: "Chii", sort_kind: "chii_ordinal" },
     { id: "shikona", heading: "Shikona", help: "Rikishi fighting name.", sort_kind: "text" },
-    { id: "direction", heading: "\u21C5", help: "Banzuke movement.", sort_kind: "text" },
+    { id: "direction", heading: "⇅", help: "Banzuke movement.", sort_kind: "text" },
   ];
-  if (state.delta) columns.push({ id: "delta", heading: "Delta", help: "Size of movement. See Notes.", sort_kind: "numeric" });
+  if (state.delta) columns.push({ id: "delta", heading: "Delta", help: "Size of movement. See Notes.", note_id: "note_delta", sort_kind: "numeric" });
   if (state.context) {
-    columns.push({ id: "result", heading: "Result", help: "Result movement means rank-group movement. See Notes.", sort_kind: "record" });
+    columns.push({ id: "result", heading: "Result", help: "Result movement means rank-group movement. See Notes.", note_id: "note_result", sort_kind: "record" });
     columns.push({ id: "old_chii", heading: "Previous Chii", sort_kind: "chii_ordinal" });
   }
   if (state.equelo) columns.push({ id: "equelo", heading: "Equelo", help: "Model rating. See Ratings & Models.", sort_kind: "numeric" });
@@ -195,8 +195,8 @@ function banzukeCellAttributes(columnId) {
 }
 
 function movementDirection(value) {
-  if (String(value).startsWith("+")) return "\u2191";
-  if (String(value).startsWith("-")) return "\u2193";
+  if (String(value).startsWith("+")) return "↑";
+  if (String(value).startsWith("-")) return "↓";
   return "";
 }
 
