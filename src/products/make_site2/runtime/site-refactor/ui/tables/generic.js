@@ -16,7 +16,7 @@ function renderSectionedTable(artifact, rows) {
     '<div class="artifact-title-block">',
     `<h4>${escapeHtml(artifact.heading)}</h4>`,
     '</div>',
-    '<div class="sectioned-table-grid">',
+    '<div class="sectioned-table-grid" style="display: flex; flex-direction: row; align-items: flex-start; justify-content: center; gap: 2rem; flex-wrap: nowrap;">',
     ...artifact.sections.map(section =>
       renderTableSection(section, rows, artifact.columns || [], sortState)
     ),
@@ -35,7 +35,7 @@ function renderTableSection(section, rows, columns, sortState = null) {
     sortState
   );
   return [
-    '<section class="table-section">',
+    '<section class="table-section" style="flex: 0 0 auto;">',
     `<h5>${escapeHtml(section.heading)}</h5>`,
     '<table class="artifact-table sectioned-table">',
     '<thead><tr>',
@@ -150,7 +150,7 @@ function careerLossesRowsForState(rows, state) {
 
 function genericCellValue(column, row, index) {
   if (column.id === "row_number") return escapeHtml(String(index + 1));
-  if (column.id === "clean") return String(row[column.source_field || column.id]) === "True" ? "\u2713" : "";
+  if (column.id === "clean") return String(row[column.source_field || column.id]) === "True" ? "✓" : "";
   if (column.id === "win_rate") {
     const value = row[column.source_field || column.id] || "";
     return value ? `${escapeHtml(value)}%` : "";
@@ -190,7 +190,7 @@ function resultWithMovement(result, movement) {
 }
 
 function rankLevelMovementMarker(value) {
-  if (value === "\u2191" || value === "\u2193") return value;
+  if (value === "↑" || value === "↓") return value;
   return "";
 }
 
