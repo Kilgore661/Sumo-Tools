@@ -16,6 +16,7 @@ let helpLayer = null;
 let hideTimer = null;
 let hideStartedAt = 0;
 let hideRemainingMs = HELP_POPOVER_LIFETIME_MS;
+let shikonaLinkHandlerInstalled = false;
 
 function renderLabelWithHelp(label, help, options = {}) {
   if (!help) return escapeHtml(label);
@@ -51,6 +52,7 @@ function inferredNoteId(label, help) {
 function installHelpPopovers() {
   if (helpLayer) return;
   installNoteHighlightStyle();
+  installShikonaLinkAffordance();
   helpLayer = document.createElement("div");
   helpLayer.className = "help-popover-layer";
   helpLayer.hidden = true;
@@ -97,6 +99,21 @@ function installHelpPopovers() {
   });
   window.addEventListener("resize", () => positionHelpPopover(), { passive: true });
   document.addEventListener("scroll", () => positionHelpPopover(), { capture: true, passive: true });
+}
+
+function installShikonaLinkAffordance() {
+  if (shikonaLinkHandlerInstalled) return;
+  shikonaLinkHandlerInstalled = true;
+  document.addEventListener("click", event => {
+    if (!event.altKey) return;
+    const link = event.target instanceof Element
+      ? event.target.closest(".shikona-link[data-alt-href]")
+      : null;
+    if (!link) return;
+    event.preventDefault();
+    event.stopPropagation();
+    window.location.href = link.dataset.altHref;
+  });
 }
 
 function installNoteHighlightStyle() {
@@ -199,4 +216,13 @@ function positionHelpPopover() {
   helpLayer.style.top = `${Math.max(margin, top)}px`;
 }
 
-export { installHelpPopovers, renderLabelWithHelp, containsExactNotes, hideHelpPopover, renderNotesHelpText, inferredNoteId, installNoteHighlightStyle };
+export {
+  installHelpPopovers,
+  installShikonaLinkAffordance,
+  renderLabelWithHelp,
+  containsExactNotes,
+  hideHelpPopover,
+  renderNotesHelpText,
+  inferredNoteId,
+  installNoteHighlightStyle,
+};
