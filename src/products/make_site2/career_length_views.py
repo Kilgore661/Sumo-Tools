@@ -47,7 +47,11 @@ def _read_rows(path: Path) -> list[dict[str, str]]:
 
 def _ranked_rows(rows: list[dict[str, str]], *, population: str) -> list[dict[str, object]]:
     return [
-        {"rank": rank, LONGEST_POPULATION_FIELD: population, **_without_generated_fields(row)}
+        {
+            "rank": rank,
+            LONGEST_POPULATION_FIELD: population,
+            **_display_row(row),
+        }
         for rank, row in enumerate(rows, start=1)
     ]
 
@@ -62,6 +66,13 @@ def _longest_sort_key(row: dict[str, str]) -> tuple[float, int, int]:
         int(row["first_index"]),
         int(row["rikishi_id"]),
     )
+
+
+def _display_row(row: dict[str, str]) -> dict[str, str]:
+    display_row = _without_generated_fields(row)
+    if _is_active(display_row.get("active")):
+        display_row["last_appearance"] = "-"
+    return display_row
 
 
 def _without_generated_fields(row: dict[str, str]) -> dict[str, str]:
