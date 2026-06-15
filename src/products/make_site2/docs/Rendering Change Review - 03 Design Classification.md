@@ -88,14 +88,26 @@ This is a shared theme token, but it carries semantic meaning wherever used. It
 needs a declared owner and scope, such as row numbers, navigation placeholders,
 unavailable items or secondary metadata.
 
+Status: partially implemented for mechanical row numbers in shared table
+renderers. Broader muted-token policy remains open.
+
 ### 3.10 Row-number column on all tables
 
 This is table model/rendering policy, not merely CSS.
+
+Status: partially implemented. A distinct mechanical `row_number` column now has
+blank heading, muted treatment, non-sort semantics and sort/filter recomputation
+where applicable in 7.1, 7.4-style generic tables and 9.1. Banzuke Changes 2.1
+still needs the mechanical row-number column.
 
 ### 3.11 Superlative tables and ordinal/ranking columns
 
 This is part of the same row-number/ranking policy. It needs a table-model
 concept or explicit shared table-rendering policy.
+
+Status: partially implemented. The `#` ranking column is now treated separately
+from mechanical row numbers. Career Length Longest uses produced ranks rather
+than runtime-derived rank.
 
 ### 3.12 Date separator
 
@@ -133,3 +145,21 @@ question because bar/column charts and line charts make different claims.
 
 This is a PA-specific chart rendering rule. Because error bars communicate
 uncertainty, the colour choice should be declared as belonging to that PA feature.
+
+### 3.18 Career Length Longest active filter
+
+This is PA-specific chart/table semantics for 7.3.1, not a generic filter model
+change. The implementation materializes ranked Longest populations from producer
+spans and lets runtime switch between those produced populations. `Show Active`
+is a Longest-only dependent option.
+
+Status: implemented. Checked/default true includes active rikishi; unchecked
+shows the non-active population. Active Last values display as `-`.
+
+### 3.19 Section 6.2.1 sectioned-table layout
+
+This is a PA-specific/custom sectioned table layout. It is not evidence that
+ordinary tables should move to a recursive table model.
+
+Status: side-by-side sectioned-table layout restored. Further visual validation
+may still be needed for heading treatment and shared table language alignment.
