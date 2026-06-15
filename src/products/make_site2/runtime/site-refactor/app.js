@@ -42,7 +42,7 @@ function loadStateFromUrl() {
   const params = new URLSearchParams(window.location.search);
   const pageId = cleanPageParam(params);
   if (!pageId) {
-    if ([...params.keys()].some(key => !["debug_layout"].includes(key))) {
+    if ([...params.keys()].some(key => !["debug_layout", "debug_show_notes"].includes(key))) {
       handleBadUrl();
       return;
     }
