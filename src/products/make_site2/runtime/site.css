@@ -285,6 +285,10 @@ h5 {
   padding-left: 1em;
 }
 
+.filter-list-item-dependent {
+  margin-left: 1em;
+}
+
 .basho-calendar-control {
   display: grid;
   row-gap: 0.2rem;
@@ -606,6 +610,11 @@ h5 {
 .artifact-table th,
 .artifact-table td {
   padding: 0.2rem 0.4rem;
+}
+
+.artifact-table [data-column-id="row_number"] {
+  color: rgba(255, 255, 255, 0.42);
+  font-weight: 400;
 }
 
 .artifact-table thead th {
