@@ -95,17 +95,17 @@ function wireFilterSection(panel, state, renderPanel, index = null) {
 function selectedIndexEntry(index, selected) {
   const entries = index.entries || [];
   if (selected && selected !== "latest") {
-    const match = entries.find(entry => entry.basho === selected);
+    const match = entries.find(entry => bashoKey(entry.basho) === bashoKey(selected));
     if (match) return match;
   }
-  return entries.find(entry => entry.basho === index.default_basho) || latestIndexEntry(entries);
+  return entries.find(entry => bashoKey(entry.basho) === bashoKey(index.default_basho)) || latestIndexEntry(entries);
 }
 function latestIndexEntry(entries) {
-  return [...entries].sort((left, right) => String(right.basho).localeCompare(String(left.basho)))[0];
+  return [...entries].sort((left, right) => bashoKey(right.basho).localeCompare(bashoKey(left.basho)))[0];
 }
 function bashoSelectorValues(index) {
   return [...(index.entries || [])]
-    .sort((left, right) => String(right.basho).localeCompare(String(left.basho)))
+    .sort((left, right) => bashoKey(right.basho).localeCompare(bashoKey(left.basho)))
     .map(entry => ({ value: entry.basho, label: entry.label || entry.basho }));
 }
 function resolveBashoCalendarState(index, state) {
@@ -115,7 +115,7 @@ function resolveBashoCalendarState(index, state) {
   const month = state.basho_month === "latest" ? defaultParts.month : normalizeBashoMonth(state.basho_month);
   validateBashoCalendarSlot(index, year, month);
   const basho = `${year}${month}`;
-  const entry = (index.entries || []).find(candidate => candidate.basho === basho) || null;
+  const entry = (index.entries || []).find(candidate => bashoKey(candidate.basho) === basho) || null;
   return { year, month, basho, entry };
 }
 function validateBashoCalendarSlot(index, year, month) {
@@ -130,8 +130,13 @@ function normalizeBashoMonth(month) {
 }
 function parseBashoId(basho) {
   const value = String(basho || "");
-  if (!/^\d{6}$/.test(value)) throw new Error("Bad URL");
-  return { year: value.slice(0, 4), month: value.slice(4, 6) };
+  const match = /^(\d{4})_?(\d{2})$/.exec(value);
+  if (!match) throw new Error("Bad URL");
+  return { year: match[1], month: match[2] };
+}
+function bashoKey(basho) {
+  const { year, month } = parseBashoId(basho);
+  return `${year}${month}`;
 }
 function supportedBashoYears(index) {
   const years = (index.entries || [])
@@ -147,10 +152,10 @@ function monthLabel(month) {
 }
 function bashoNavigationState(direction, index, state) {
   const entries = [...(index.entries || [])]
-    .sort((left, right) => String(left.basho).localeCompare(String(right.basho)));
+    .sort((left, right) => bashoKey(left.basho).localeCompare(bashoKey(right.basho)));
   if (!entries.length) return null;
   const current = `${state.basho_year}${state.basho_month}`;
-  const currentIndex = entries.findIndex(entry => entry.basho === current);
+  const currentIndex = entries.findIndex(entry => bashoKey(entry.basho) === current);
   if (currentIndex < 0) return null;
   let nextIndex = currentIndex;
   if (direction === "first") nextIndex = 0;
