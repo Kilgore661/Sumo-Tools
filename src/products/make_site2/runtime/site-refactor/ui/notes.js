@@ -6,6 +6,7 @@ import { escapeHtml } from "../utils/html.js";
 const NOTES_COLLAPSED_STORAGE_KEY = "gaspodeSumoLab.makeSite2.notesCollapsed";
 const NOTE_HIGHLIGHT_DURATION_MS = 5000;
 let noteHighlightTimer = null;
+let noteOpenHandlerInstalled = false;
 
 // Render notes that apply to the current artifact and filter state.
 function renderNotes(artifact, state) {
@@ -27,6 +28,7 @@ function renderNotes(artifact, state) {
 }
 // Attach collapse behaviour to the rendered Notes panel.
 function wireNotesPanel() {
+  installNoteOpenHandler();
   const panel = document.querySelector("[data-notes-panel]");
   if (!panel) return;
   const toggle = panel.querySelector("[data-notes-toggle]");
@@ -44,6 +46,8 @@ function wireNotesPanel() {
 }
 
 function installNoteOpenHandler() {
+  if (noteOpenHandlerInstalled) return;
+  noteOpenHandlerInstalled = true;
   document.addEventListener("sumo:open-note", event => {
     openAndHighlightNote(event.detail?.noteId || "");
   });
