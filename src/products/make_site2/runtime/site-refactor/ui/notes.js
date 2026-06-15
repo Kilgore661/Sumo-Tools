@@ -72,10 +72,13 @@ function openAndHighlightNote(noteId) {
 function highlightNote(noteElement) {
   document.querySelectorAll(".note-highlight").forEach(item => item.classList.remove("note-highlight"));
   noteElement.classList.add("note-highlight");
+  noteElement.setAttribute("tabindex", "-1");
   noteElement.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  noteElement.focus({ preventScroll: true });
   if (noteHighlightTimer) clearTimeout(noteHighlightTimer);
   noteHighlightTimer = window.setTimeout(() => {
     noteElement.classList.remove("note-highlight");
+    noteElement.removeAttribute("tabindex");
     noteHighlightTimer = null;
   }, NOTE_HIGHLIGHT_DURATION_MS);
 }
