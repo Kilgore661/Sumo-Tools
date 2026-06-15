@@ -88,7 +88,7 @@ function recordSpec() {
         sort_default_direction: "descending",
         presentation: PRESENTATION.COMPACT_TEXT,
       }),
-    ], { help: "See Notes." }),
+    ], { help: "See Notes.", note_id: "note_result" }),
   ];
 }
 
