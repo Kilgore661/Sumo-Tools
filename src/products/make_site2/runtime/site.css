@@ -286,7 +286,7 @@ h5 {
 }
 
 .filter-list-item-dependent {
-  margin-left: 2em;
+  margin-left: calc(2em + 4px);
 }
 
 .basho-calendar-control {
