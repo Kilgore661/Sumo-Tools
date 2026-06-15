@@ -97,7 +97,9 @@ BASHO_RESULTS_ARTIFACT = IndexedTableArtifact(
     default_sort_column="chii",
     notes=(
         Note(id="note_result", applies_to=("all",), text="Result shows the number of wins, losses, absences and prizes."),
-        Note(id="note_movement", applies_to=("changes_context",), text="Chii movement follows banzuke slot order. Div movement shows significant movement: transitions between sanyaku levels and between banzuke divisions."),
+        Note(id="note_movement", applies_to=("changes_context",), text="Movement notes placeholder. Replace with meaningful movement documentation."),
+        Note(id="note_chii_movement", applies_to=("changes_context",), text="Chii movement notes placeholder. Replace with meaningful chii movement documentation."),
+        Note(id="note_division_movement", applies_to=("changes_context",), text="Division movement notes placeholder. Replace with meaningful division movement documentation."),
     ),
 )
 
@@ -251,7 +253,7 @@ CAREER_COMPARISONS_ARTIFACT = ChartArtifact(
     },
     notes=(
         Note(id="missing_equelo", applies_to=("all",), text="Some obscure pre-1989 lower-division chii are outside the Equelo bout-data rating domain; Equelo traces omit points without a rating."),
-    ),
+    )
 )
 
 TYPICAL_EQUELO_VALUES_ARTIFACT = SectionedTableArtifact(
