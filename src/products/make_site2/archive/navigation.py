@@ -40,6 +40,11 @@ NAVIGATION = NavigationTree(
                 "what-this-site-is",
             ),
             nav(
+                "featured_latest",
+                "Featured / latest exhibits",
+                "featured-latest-exhibits",
+            ),
+            nav(
                 "site_notes_caveats",
                 "Notes and caveats",
                 "notes-and-caveats",
@@ -54,6 +59,12 @@ NAVIGATION = NavigationTree(
                 "Most recent banzuke",
                 "banzuke-changes",
                 page_id="banzuke_changes",
+            ),
+            nav(
+                "standings_by_wins",
+                "Rolling wins-based ranking",
+                "standings-by-wins",
+                page_id="standings_by_wins",
             ),
             nav("current_ratings", "Current ratings", "current-ratings"),
             nav(
@@ -303,12 +314,6 @@ NAVIGATION = NavigationTree(
             "lab_archive",
             "Lab / Archive",
             "lab-archive",
-            nav(
-                "standings_by_wins",
-                "Rolling wins-based ranking",
-                "standings-by-wins",
-                page_id="standings_by_wins",
-            ),
             nav("research_charts_not_promoted", "Research charts not yet promoted", "research-charts-not-promoted"),
             nav("legacy_v9_pending", "Legacy v9 exhibits pending reimplementation", "legacy-v9-pending"),
             nav("deprecated_superseded", "Deprecated / superseded outputs", "deprecated-superseded"),
