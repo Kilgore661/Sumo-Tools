@@ -93,16 +93,27 @@ function showHelpPopover(target) {
   const help = target.dataset.help;
   if (!help || !helpLayer) return;
   activeHelpTarget = target;
-  helpLayer.textContent = help;
+  helpLayer.innerHTML = target.dataset.notesPopover === "true"
+    ? renderNotesHelpText(help)
+    : escapeHtml(help);
   helpLayer.dataset.notesPopover = target.dataset.notesPopover === "true" ? "true" : "false";
   helpLayer.dataset.noteId = target.dataset.noteId || "";
   helpLayer.tabIndex = helpLayer.dataset.notesPopover === "true" ? 0 : -1;
   helpLayer.setAttribute("role", helpLayer.dataset.notesPopover === "true" ? "button" : "tooltip");
   helpLayer.style.pointerEvents = helpLayer.dataset.notesPopover === "true" ? "auto" : "none";
+  helpLayer.style.cursor = helpLayer.dataset.notesPopover === "true" ? "pointer" : "default";
   helpLayer.hidden = false;
   positionHelpPopover();
   hideRemainingMs = HELP_POPOVER_LIFETIME_MS;
   startHideCountdown(hideRemainingMs);
+}
+
+function renderNotesHelpText(help) {
+  const escapedHelp = escapeHtml(help);
+  return escapedHelp.replace(
+    /(^|[^A-Za-z])(Notes)([^A-Za-z]|$)/,
+    '$1<span class="help-popover-notes-link">$2</span>$3',
+  );
 }
 
 function hideHelpPopover() {
@@ -114,6 +125,7 @@ function hideHelpPopover() {
   helpLayer.dataset.noteId = "";
   helpLayer.tabIndex = -1;
   helpLayer.style.pointerEvents = "none";
+  helpLayer.style.cursor = "default";
   hideRemainingMs = HELP_POPOVER_LIFETIME_MS;
 }
 
@@ -165,4 +177,4 @@ function positionHelpPopover() {
   helpLayer.style.top = `${Math.max(margin, top)}px`;
 }
 
-export { installHelpPopovers, renderLabelWithHelp, containsExactNotes, hideHelpPopover };
+export { installHelpPopovers, renderLabelWithHelp, containsExactNotes, hideHelpPopover, renderNotesHelpText };
