@@ -86,18 +86,24 @@ function recordWins(value) {
 // Render a sortable or static table heading cell.
 function renderTableHeading(column, sortState) {
   const attributes = tableCellAttributes(column);
-  if (!isSortableColumn(column)) return `<th ${attributes}>${renderLabelWithHelp(column.heading, column.help)}</th>`;
+  const heading = columnHeading(column);
+  if (!isSortableColumn(column)) return `<th ${attributes}>${renderLabelWithHelp(heading, column.help)}</th>`;
   const active = sortState?.columnId === column.id;
   const direction = active ? sortState.direction : "none";
-  const indicator = active ? (sortState.direction === "ascending" ? " \u25B2" : " \u25BC") : "";
+  const indicator = active ? (sortState.direction === "ascending" ? " ▲" : " ▼") : "";
   return [
     `<th ${attributes} aria-sort="${direction}">`,
     `<button type="button" class="table-sort-button" data-sort-column="${escapeHtml(column.id)}">`,
-    renderLabelWithHelp(column.heading, column.help),
+    renderLabelWithHelp(heading, column.help),
     `<span class="table-sort-indicator" aria-hidden="true">${indicator}</span>`,
     '</button>',
     '</th>',
   ].join("");
+}
+
+function columnHeading(column) {
+  if (column.id === "row_number") return "";
+  return column.heading;
 }
 
 // Attach click handlers for ordinary table heading sort buttons.
@@ -124,7 +130,9 @@ function toggledSortDirection(direction) {
 }
 
 function tableCellAttributes(column) {
-  return `data-column-id="${escapeHtml(column.id)}"`;
+  const attributes = [`data-column-id="${escapeHtml(column.id)}"`];
+  if (column.id === "row_number") attributes.push('class="row-number-cell"');
+  return attributes.join(" ");
 }
 
 // Render the standard external SumoDB rikishi link.
@@ -152,6 +160,7 @@ export {
   sortValue,
   recordWins,
   renderTableHeading,
+  columnHeading,
   wireTableSorting,
   toggledSortDirection,
   tableCellAttributes,
