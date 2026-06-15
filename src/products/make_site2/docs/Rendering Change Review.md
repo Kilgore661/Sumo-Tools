@@ -75,7 +75,7 @@ The proposed table visual changes are:
   alternating colours;
 - introduce a muted foreground colour derived from the normal text colour but
   close to the background colour;
-- render dates with `-` where they currently use `/`.
+- render date-like public display values with `-` where they currently use `/`.
 
 These are intended as shared visible language for table-like PAs rather than
 page-local tweaks.
@@ -236,7 +236,8 @@ The navigation buttons have the usual semantics:
 - attempts to move beyond either end are ignored.
 
 The displayed basho should change whenever the user changes a dropdown or clicks
-a navigation button.
+a navigation button. The semantics of such a change are to show the same public
+page for a different date/basho state.
 
 If the user chooses a year/month for which there are no results, the content
 panel should say:
@@ -244,6 +245,9 @@ panel should say:
 ```text
 There was no basho in MMMM YYYY
 ```
+
+Anything the browser can show through this selector, including no-basho states,
+should be representable by a URL.
 
 ### 2.6 Shared Chart Rendering
 
@@ -336,6 +340,10 @@ This is model/runtime work rather than CSS. It changes the control model from a
 single finite basho selector into a compound selector plus navigation controls
 plus an unavailable selected-state message.
 
+Changing the selector state means showing the same public page for a different
+date/basho state. Every state the browser can render through this selector should
+be URL-addressable, including states for year/month combinations with no basho.
+
 The design should decide whether this belongs to a richer `FilterSection` form or
 to a PA-specific Basho Results control.
 
@@ -362,9 +370,10 @@ concept or explicit shared table-rendering policy.
 
 ### 3.12 Date separator
 
-This is a shared data-formatting/rendering rule for public rendered display. It
-should not be assumed to change source data, CSV contracts, filenames, URL
-parameters or internal identifiers unless a later requirement says so.
+This is a shared data-formatting/rendering rule for date-like values in public
+rendered display. It should not be assumed to change source data, CSV contracts,
+filenames, URL parameters, internal identifiers or other non-display contexts
+where `/` is normal unless a later requirement says so.
 
 ### 3.13 Popovers that mention Notes
 
@@ -398,11 +407,11 @@ uncertainty, the colour choice should be declared as belonging to that PA featur
 | Group | Items | Nature |
 | --- | --- | --- |
 | Diagnostic display affordances | `debug_show_notes` URL state, info symbol, possible debug CSS variants | Runtime presentation state / debug policy |
-| Shared table visual language | spacing, borders, row colours, muted colour, date format | Rendering policy/CSS plus shared formatter |
+| Shared table visual language | spacing, borders, row colours, muted colour, date-like display format | Rendering policy/CSS plus shared formatter |
 | Interim table structure metadata | 2.1/7.1/9.1 column groups, 6.2.1 custom handling | Ad hoc PA-local metadata, easiest-to-remove later |
 | Table semantic model | row numbers, superlative `#` columns | Published Artifact/table model |
 | Link/popover/notes interactions | shikona Alt-click, link popover text, clickable Notes popovers | Runtime interaction plus explicit metadata/text rule |
-| Basho Results control model | year/month selector and navigation buttons, no-basho message | Filter/control model or PA-specific control |
+| Basho Results control model | year/month selector and navigation buttons, URL-addressable no-basho state | Filter/control model or PA-specific control |
 | Shared chart rendering | tick-angle rule, bold axis titles | Chart rendering policy |
 | PA-specific chart semantics | line-vs-column chart changes, 6.3.1 error-bar colour | PA contract / chart renderer selection |
 | Build-mode policy | whether `--prod` suppresses stylistic debugging | Open build/operations decision |
@@ -467,6 +476,12 @@ Exact visual token choices are delegated to implementation and review. Choose
 reasonable initial values for muted foreground, row backgrounds, border colour,
 border weight and spacing. If the result looks wrong, revise the tokens after
 visual inspection.
+
+### 5.6 Basho selector URL state
+
+The Basho selector changes the date/basho state of the same public page. Any
+state the browser can render should have a URL representation, including selected
+year/month states for which there was no basho and no results.
 
 ## 6. Review Conclusion
 
