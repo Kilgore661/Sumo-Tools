@@ -15,11 +15,7 @@ function renderLabelWithHelp(label, help, options = {}) {
     `data-help="${escapedHelp}"`,
     `aria-label="${escapedLabel}: ${escapedHelp}"`,
   ];
-  if (containsExactNotes(help)) {
-    attributes.push('data-notes-popover="true"');
-    attributes.push('role="button"');
-    attributes.push('tabindex="0"');
-  }
+  if (containsExactNotes(help)) attributes.push('data-notes-popover="true"');
   if (resolvedOptions.noteId) attributes.push(`data-note-id="${escapeHtml(resolvedOptions.noteId)}"`);
   return [
     `<span ${attributes.join(" ")}>`,
@@ -48,6 +44,12 @@ function installHelpPopovers() {
   document.addEventListener("pointerout", event => {
     if (!activeHelpTarget) return;
     if (event.relatedTarget instanceof Node && activeHelpTarget.contains(event.relatedTarget)) return;
+    if (event.relatedTarget instanceof Node && helpLayer?.contains(event.relatedTarget)) return;
+    hideHelpPopover();
+  });
+  helpLayer.addEventListener("pointerout", event => {
+    if (event.relatedTarget instanceof Node && helpLayer.contains(event.relatedTarget)) return;
+    if (event.relatedTarget instanceof Node && activeHelpTarget?.contains(event.relatedTarget)) return;
     hideHelpPopover();
   });
   document.addEventListener("focusin", event => {
@@ -57,25 +59,26 @@ function installHelpPopovers() {
   document.addEventListener("focusout", event => {
     if (!activeHelpTarget) return;
     if (event.relatedTarget instanceof Node && activeHelpTarget.contains(event.relatedTarget)) return;
+    if (event.relatedTarget instanceof Node && helpLayer?.contains(event.relatedTarget)) return;
     hideHelpPopover();
   });
-  document.addEventListener("click", event => {
-    const target = notesHelpTargetFromEvent(event);
-    if (!target) return;
+  helpLayer.addEventListener("click", event => {
+    if (helpLayer.dataset.notesPopover !== "true") return;
     event.preventDefault();
     event.stopPropagation();
+    const noteId = helpLayer.dataset.noteId || "";
     hideHelpPopover();
-    dispatchOpenNote(target.dataset.noteId || "");
-  }, true);
-  document.addEventListener("keydown", event => {
+    dispatchOpenNote(noteId);
+  });
+  helpLayer.addEventListener("keydown", event => {
     if (event.key !== "Enter" && event.key !== " ") return;
-    const target = notesHelpTargetFromEvent(event);
-    if (!target) return;
+    if (helpLayer.dataset.notesPopover !== "true") return;
     event.preventDefault();
     event.stopPropagation();
+    const noteId = helpLayer.dataset.noteId || "";
     hideHelpPopover();
-    dispatchOpenNote(target.dataset.noteId || "");
-  }, true);
+    dispatchOpenNote(noteId);
+  });
   window.addEventListener("resize", () => positionHelpPopover(), { passive: true });
   document.addEventListener("scroll", () => positionHelpPopover(), { capture: true, passive: true });
 }
@@ -84,23 +87,28 @@ function helpTargetFromEvent(event) {
   return event.target instanceof Element ? event.target.closest(".help-popover") : null;
 }
 
-function notesHelpTargetFromEvent(event) {
-  const target = helpTargetFromEvent(event);
-  return target?.dataset.notesPopover === "true" ? target : null;
-}
-
 function showHelpPopover(target) {
   const help = target.dataset.help;
   if (!help || !helpLayer) return;
   activeHelpTarget = target;
   helpLayer.textContent = help;
+  helpLayer.dataset.notesPopover = target.dataset.notesPopover === "true" ? "true" : "false";
+  helpLayer.dataset.noteId = target.dataset.noteId || "";
+  helpLayer.tabIndex = helpLayer.dataset.notesPopover === "true" ? 0 : -1;
+  helpLayer.setAttribute("role", helpLayer.dataset.notesPopover === "true" ? "button" : "tooltip");
+  helpLayer.style.pointerEvents = helpLayer.dataset.notesPopover === "true" ? "auto" : "none";
   helpLayer.hidden = false;
   positionHelpPopover();
 }
 
 function hideHelpPopover() {
   activeHelpTarget = null;
-  if (helpLayer) helpLayer.hidden = true;
+  if (!helpLayer) return;
+  helpLayer.hidden = true;
+  helpLayer.dataset.notesPopover = "false";
+  helpLayer.dataset.noteId = "";
+  helpLayer.tabIndex = -1;
+  helpLayer.style.pointerEvents = "none";
 }
 
 function dispatchOpenNote(noteId) {
