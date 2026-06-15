@@ -204,12 +204,12 @@ function renderFilterSection(filterSection, state, index, rowsBySource = {}) {
 }
 function isFilterVisible(filter, state, bashoCalendar) {
   if (bashoCalendar && (filter.id === "basho_year" || filter.id === "basho_month")) return false;
-  if (filter.id === "active_only") return state.view === "longest";
+  if (filter.id === "show_active") return state.view === "longest";
   return true;
 }
 function renderFilterListItem(filter, state, index, rowsBySource) {
   const classes = ["filter-list-item"];
-  if (filter.id === "active_only") classes.push("filter-list-item-dependent", "filter-list-item-longest");
+  if (filter.id === "show_active") classes.push("filter-list-item-dependent", "filter-list-item-longest");
   return `<li class="${classes.join(" ")}">${renderFilter(filter, state, index, rowsBySource)}</li>`;
 }
 function renderBashoCalendarControl(state, index) {
