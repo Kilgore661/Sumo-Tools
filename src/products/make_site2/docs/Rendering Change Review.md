@@ -33,22 +33,31 @@ UI ownership, PA semantics or public interaction contracts.
 
 ## 2. Proposed Change
 
-### 2.1 Development and Production Affordances
+### 2.1 Help/Popover Marker Affordance
 
-Help/popover markers currently use a visible `?` indicator. The proposed change
-is:
+Help/popover markers currently use a visible `?` indicator.
 
-- production output should not need a visible marker solely to advertise that
-  popover/help text exists;
-- development output may still need a visible marker so reviewers can find and
-  audit popover-bearing items;
-- when a marker is shown, it should use a circled-info style symbol rather than
-  `?`.
+The proposed change is to control the visibility of the info-here indicator by a
+new URL parameter:
 
-This proposal may require an explicit distinction between development and final
-product rendering. The existing `--prod` CLI flag should be reviewed before it is
-used for this purpose, because its current intended scope is not yet established
-as a general production-rendering mode.
+```text
+show_notes=true
+```
+
+When `show_notes` is absent or set to `false`, there should be no visible
+info-here indicator. When `show_notes=true`, the indicator should be visible so
+reviewers can find and audit popover-bearing items.
+
+When the indicator is visible, it should use a circled-info style symbol rather
+than `?`.
+
+This makes the marker a reader/reviewer-selected diagnostic display mode rather
+than an unconditional development-vs-production distinction.
+
+Open issue: decide whether `--prod` should also suppress stylistic debugging
+features, including `show_notes` and any future style-debug URL modes, or whether
+such URL-selected diagnostics should remain available in product builds unless
+explicitly disabled.
 
 ### 2.2 Shared Table Visual Language
 
@@ -201,13 +210,22 @@ D. Runtime interaction/state changes
 E. Build-mode / development-vs-production policy
 ```
 
-### 3.1 Development-only help/popover marker
+### 3.1 Help/popover marker URL state
 
-This is not purely CSS if production and development diverge. It requires an
-explicit build/runtime context policy.
+The visible info-here marker is no longer primarily a production/development
+split. It is proposed as an explicit URL-selected diagnostic mode owned by the
+public/runtime state layer:
 
-The `--prod` flag is a possible implementation route, but only after its intended
-contract is reviewed and either confirmed or extended.
+```text
+show_notes=true
+```
+
+This is a runtime presentation-state feature. It should be treated similarly to a
+reader/reviewer display mode: absent or false hides the indicator; true shows it.
+
+The `--prod` question remains separate. `--prod` may or may not imply removal of
+stylistic debugging features, but that is an open build-mode policy decision and
+should not be assumed by the `show_notes` design.
 
 ### 3.2 Table heading spacing
 
@@ -305,30 +323,50 @@ uncertainty, the colour choice should be declared as belonging to that PA featur
 
 | Group | Items | Nature |
 | --- | --- | --- |
-| Development vs production affordances | help/popover marker visibility, info symbol, possible debug CSS variants | Build/runtime mode policy |
+| Diagnostic display affordances | `show_notes` URL state, info symbol, possible debug CSS variants | Runtime presentation state / debug policy |
 | Shared table visual language | spacing, borders, row colours, muted colour, date format | Rendering policy/CSS plus shared formatter |
 | Table semantic model | 6.2.1 spanning headings, 9.1 rowspans, row numbers, superlative `#` columns, column groups | Published Artifact/table model |
 | Link/popover/notes interactions | shikona Alt-click, link popover text, clickable Notes popovers | Runtime interaction plus explicit metadata |
 | Basho Results control model | year/month selector and navigation buttons, no-basho message | Filter/control model or PA-specific control |
 | Shared chart rendering | tick-angle rule, bold axis titles | Chart rendering policy |
 | PA-specific chart semantics | line-vs-column chart changes, 6.3.1 error-bar colour | PA contract / chart renderer selection |
+| Build-mode policy | whether `--prod` suppresses stylistic debugging | Open build/operations decision |
 
 ## 5. Implementation-Routing Notes
 
 These notes are intentionally non-final. They preserve likely routes without
 settling implementation design prematurely.
 
-### 5.1 `--prod`
+### 5.1 `show_notes`
 
-There is an existing `--prod` CLI flag. Before using it to drive visible
-production/development differences, review its current contract and decide
-whether it means only “no development cache-busting” or a broader “final public
-product build”.
+The proposed immediate control for visible info-here indicators is the URL
+parameter `show_notes`.
 
-The help/popover marker visibility is a candidate for build-mode-dependent
-behavior, but only after the build-mode contract is explicit.
+Required behavior:
 
-### 5.2 `debug_layout`
+```text
+absent          -> no info-here indicator
+show_notes=false -> no info-here indicator
+show_notes=true  -> show info-here indicator
+```
+
+The visible marker should be the circled-info style symbol rather than `?`.
+
+The name `show_notes` is provisional only if a later model pass decides the
+parameter is really about popover/gloss affordances rather than Notes. For now,
+it records the requested public URL state.
+
+### 5.2 `--prod`
+
+There is an existing `--prod` CLI flag. An open issue remains: should `--prod`
+imply that stylistic debugging features are removed or disabled?
+
+This question should be resolved separately from the `show_notes` URL-state rule.
+The `show_notes` rule defines when the info-here marker is displayed; the `--prod`
+issue asks whether a production build should make such diagnostic display modes
+unavailable regardless of URL parameters.
+
+### 5.3 `debug_layout`
 
 The existing `debug_layout=true` overlay is useful for structure inspection. A
 future extension such as `debug_layout=headings_v4` could support experimental
