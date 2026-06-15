@@ -109,6 +109,10 @@ In page/section 6.2.1, the heading above each of the three tables should become 
 column heading that spans the two columns in its table, as far as that makes sense
 for this custom PA.
 
+Implemented note: the three section tables are restored to a side-by-side custom
+sectioned-table row layout. Heading-as-column-heading treatment may still need
+visual validation against the shared table language.
+
 #### Section 9.1 grouped headings
 
 In page/section 9.1, simple headings such as `#`, `Shikona`, `Chii` and `Wins`
@@ -124,6 +128,13 @@ All tables should receive a leading row-number column. The heading for this
 mechanical row-number column should be blank. The heading cell and row-number
 values should use the muted foreground colour.
 
+Implemented note: the shared table renderers now distinguish a mechanical
+`row_number` column from a meaningful `#` ranking column. The mechanical row
+number has a blank heading, muted treatment and is non-sortable/recomputed after
+sort/filter where applicable. This is implemented for 7.1, 7.4-style generic
+row-list tables and 9.1. Banzuke Changes 2.1 still needs its mechanical row
+number column.
+
 #### Superlative/ranking columns
 
 Tables whose titles mention a superlative should use `#` for ordinal/ranking
@@ -136,6 +147,10 @@ The intended distinction is:
 blank muted leading column = mechanical row number
 # column                   = meaningful ordinal/ranking/leaderboard position
 ```
+
+Implemented note: Career Length Longest uses produced ranking values for `#` and
+a separate mechanical row number. The Longest table switches between produced
+ranked populations instead of calculating rank at runtime.
 
 ### 2.4 Shikona Links and Notes Interactions
 
@@ -264,3 +279,12 @@ The proposed PA-specific chart changes are:
 - page 5.1 should use a line chart rather than a column chart;
 - page 7.3.1 Distribution should use a line chart rather than a column chart;
 - in page 6.3.1, error bars should be pale blue rather than appearing white.
+
+### 2.8 Career Length Longest Active Filter
+
+Implemented as a PA-specific control for the 7.3.1 Longest view. The `Show
+Active` checkbox is visible only for Longest. Checked/default true shows the
+produced all-rikishi ranked population. Unchecked false shows the produced
+non-active ranked population. Active rikishi use `-` for the Last date display.
+The runtime switches between produced populations and does not compute Longest
+rankings at runtime.
