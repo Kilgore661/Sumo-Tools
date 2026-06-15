@@ -19,6 +19,9 @@ Implementation status:
 ```text
 Basho selector redesign: implemented as an interim PA-specific/runtime control.
 Clickable Notes popovers: implemented as runtime popover-to-note interaction.
+Career Length Longest / Show Active: implemented with produced ranked populations.
+Row-number vs ranking semantics: partially implemented across shared table renderers.
+Section 6.2.1 side-by-side layout: restored as a custom sectioned-table layout.
 General bad-URL handling: minimal current behavior implemented; richer policy TBD.
 All other items in this review remain open unless called out separately.
 ```
