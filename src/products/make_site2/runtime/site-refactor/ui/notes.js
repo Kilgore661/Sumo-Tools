@@ -4,6 +4,8 @@ import { updateStickyArtifactHeaders } from "./layout.js";
 import { escapeHtml } from "../utils/html.js";
 
 const NOTES_COLLAPSED_STORAGE_KEY = "gaspodeSumoLab.makeSite2.notesCollapsed";
+const NOTE_HIGHLIGHT_DURATION_MS = 5000;
+let noteHighlightTimer = null;
 
 // Render notes that apply to the current artifact and filter state.
 function renderNotes(artifact, state) {
@@ -17,7 +19,7 @@ function renderNotes(artifact, state) {
     '<div class="notes-content" data-notes-body>',
     '<h4>Notes</h4>',
     '<ol>',
-    ...notes.map(note => `<li>${escapeHtml(note.text)}</li>`),
+    ...notes.map(note => `<li data-note-id="${escapeHtml(note.id)}">${escapeHtml(note.text)}</li>`),
     '</ol>',
     '</div>',
     '</aside>'
@@ -39,6 +41,44 @@ function wireNotesPanel() {
     updateStickyArtifactHeaders();
     resizePlotlyCharts();
   });
+}
+
+function installNoteOpenHandler() {
+  document.addEventListener("sumo:open-note", event => {
+    openAndHighlightNote(event.detail?.noteId || "");
+  });
+}
+
+function openAndHighlightNote(noteId) {
+  const panel = document.querySelector("[data-notes-panel]");
+  const body = panel?.querySelector("[data-notes-body]");
+  const toggle = panel?.querySelector("[data-notes-toggle]");
+  const note = noteId ? document.querySelector(`[data-note-id="${cssEscape(noteId)}"]`) : null;
+  if (!panel || !body || !toggle || !note) {
+    window.alert("No such note");
+    return;
+  }
+  applyNotesCollapsedState(panel, body, toggle, false);
+  window.localStorage.setItem(NOTES_COLLAPSED_STORAGE_KEY, "false");
+  updateStickyArtifactHeaders();
+  resizePlotlyCharts();
+  highlightNote(note);
+}
+
+function highlightNote(noteElement) {
+  document.querySelectorAll(".note-highlight").forEach(item => item.classList.remove("note-highlight"));
+  noteElement.classList.add("note-highlight");
+  noteElement.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  if (noteHighlightTimer) clearTimeout(noteHighlightTimer);
+  noteHighlightTimer = window.setTimeout(() => {
+    noteElement.classList.remove("note-highlight");
+    noteHighlightTimer = null;
+  }, NOTE_HIGHLIGHT_DURATION_MS);
+}
+
+function cssEscape(value) {
+  if (window.CSS?.escape) return window.CSS.escape(value);
+  return String(value).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 }
 
 function applyNotesCollapsedState(panel, body, toggle, collapsed) {
@@ -76,4 +116,12 @@ function noteApplies(note, state) {
   return false;
 }
 
-export { renderNotes, wireNotesPanel, noteApplies, applyNotesCollapsedState };
+export {
+  renderNotes,
+  wireNotesPanel,
+  installNoteOpenHandler,
+  openAndHighlightNote,
+  highlightNote,
+  noteApplies,
+  applyNotesCollapsedState,
+};
