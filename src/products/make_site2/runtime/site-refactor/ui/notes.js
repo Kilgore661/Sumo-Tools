@@ -59,7 +59,7 @@ function openAndHighlightNote(noteId) {
   const toggle = panel?.querySelector("[data-notes-toggle]");
   const note = noteId && panel ? panel.querySelector(`[data-note-id="${cssEscape(noteId)}"]`) : null;
   if (!panel || !body || !toggle || !note) {
-    window.alert("No such note: " + (noteId || "empty"));
+    window.alert("No such note");
     return;
   }
   applyNotesCollapsedState(panel, body, toggle, false);
