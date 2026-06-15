@@ -4,6 +4,7 @@ import { escapeHtml } from "../../utils/html.js";
 import { renderLabelWithHelp } from "../help.js";
 
 const tableSortStates = new Map();
+const SHIKONA_LINK_HELP = "Click for SumoDB; Alt-click for chart.";
 
 function decimal(value, places) {
   return Number(value).toFixed(places);
@@ -140,16 +141,31 @@ function tableCellAttributes(column) {
 // Render the standard external SumoDB rikishi link.
 function renderRikishiLink(shikona, rikishiId) {
   if (!rikishiId) return "";
+  const escapedShikona = escapeHtml(shikona);
+  const escapedHelp = escapeHtml(SHIKONA_LINK_HELP);
+  const altHref = careerComparisonHref(rikishiId);
   return [
-    `<a href="https://sumodb.sumogames.de/Rikishi.aspx?r=${encodeURIComponent(rikishiId)}"`,
-    ' target="_blank" rel="noopener">',
-    escapeHtml(shikona),
+    `<a class="shikona-link help-popover" href="https://sumodb.sumogames.de/Rikishi.aspx?r=${encodeURIComponent(rikishiId)}"`,
+    ` target="_blank" rel="noopener" data-help="${escapedHelp}"`,
+    ` data-alt-href="${escapeHtml(altHref)}" aria-label="${escapedShikona}: ${escapedHelp}">`,
+    escapedShikona,
     '</a>',
   ].join("");
 }
 
+function careerComparisonHref(rikishiId) {
+  return [
+    "index.html?page=career_comparisons",
+    "skill=chii",
+    "x=date",
+    "log=true",
+    `rikishi=${encodeURIComponent(rikishiId)}`,
+  ].join("&");
+}
+
 export {
   tableSortStates,
+  SHIKONA_LINK_HELP,
   decimal,
   compareValues,
   currentTableSortState,
@@ -167,4 +183,5 @@ export {
   toggledSortDirection,
   tableCellAttributes,
   renderRikishiLink,
+  careerComparisonHref,
 };
