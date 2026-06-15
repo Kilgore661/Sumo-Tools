@@ -8,7 +8,7 @@
 | Shared table visual language | spacing, borders, row colours, muted colour, date-like display format | Rendering policy/CSS plus shared formatter | Open |
 | Interim table structure metadata | 2.1/7.1/9.1 column groups, 6.2.1 custom handling | Ad hoc PA-local metadata, easiest-to-remove later | Partially implemented: 6.2.1 side-by-side restored; 9.1 grouping partially represented; 2.1 group/row work open |
 | Table semantic model | row numbers, superlative `#` columns | Published Artifact/table model | Partially implemented: row-number/ranking distinction in 7.1, 7.4-style tables and 9.1; 2.1 row number open |
-| Link/popover/notes interactions | shikona Alt-click, link popover text, clickable Notes popovers | Runtime interaction plus explicit metadata/text rule | Partially implemented: clickable Notes popovers complete; shikona Alt-click/link text open |
+| Link/popover/notes interactions | shikona Alt-click, link popover text, clickable Notes popovers | Runtime interaction plus explicit metadata/text rule | Partially implemented: clickable Notes popovers complete; Notes validation/tightening open; shikona Alt-click/link text open |
 | Basho Results control model | year/month selector and navigation buttons, URL-addressable no-basho state | PA-specific runtime control inside existing FilterSection | Implemented |
 | Career Length Longest control | Longest-only Show Active control and produced ranked populations | PA-specific chart/table semantics | Implemented |
 | Shared chart rendering | tick-angle rule, bold axis titles | Chart rendering policy | Open |
@@ -111,9 +111,11 @@ Notes panel if needed, finds the target note inside that panel, scrolls/focuses
 it and applies a five-second highlight. Missing rendered targets produce the
 message `No such note`.
 
-Known follow-up: replace placeholder Basho movement notes with meaningful text
-and keep a validation pass for popovers containing `Notes` but lacking a
-corresponding rendered note.
+Open validation/tightening pass: test Banzuke Delta and Result, Basho movement
+and result popovers, generic Clean popovers, and 9.1 popovers; confirm popup
+timing, clickability, note opening and highlight. Replace placeholder Basho
+movement notes with meaningful text and keep a validation pass for popovers
+containing `Notes` but lacking a corresponding rendered note.
 
 ### 5.9 Career Length Longest routing
 
@@ -140,7 +142,7 @@ design. They should not be implemented as an undifferentiated CSS tweak pass.
 Basho selector work is now complete as an interim PA-specific/runtime solution.
 Clickable Notes popovers and Career Length Longest Show Active are complete as
 runtime/PA-specific interactions. The highest-risk remaining items are Banzuke
-Changes row-number/group handling, shikona Alt-click behavior and the remaining
-shared table visual-language work. The current column-group work is intentionally
-interim and ad hoc; it should not become the first step toward a general table
-theory.
+Changes row-number/group handling, Notes-popover validation/tightening, shikona
+Alt-click behavior and the remaining shared table visual-language work. The
+current column-group work is intentionally interim and ad hoc; it should not
+become the first step toward a general table theory.
