@@ -1,7 +1,7 @@
 // Browser URL state helpers for page and filter selection.
 
 export const PAGE_PARAM = "page";
-const PASSTHROUGH_PARAMS = ["debug_layout"];
+const PASSTHROUGH_PARAMS = ["debug_layout", "debug_show_notes"];
 
 class BadUrlError extends Error {
   constructor(message = "Bad URL") {
