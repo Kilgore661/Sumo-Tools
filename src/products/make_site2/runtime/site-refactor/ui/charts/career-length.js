@@ -1,14 +1,16 @@
 // Career Length chart/table runtime view handling.
 
-import { decimal, renderRikishiLink } from "../tables.js";
+import { currentTableSortState, decimal, renderRikishiLink, renderTableHeading, sortRows, wireTableSorting } from "../tables.js";
 import { escapeHtml } from "../../utils/html.js";
 import { PLOTLY_CONFIG } from "./shared.js";
+
+const CAREER_LENGTH_LONGEST_TABLE_ID = "career_length:longest";
 
 // Render the selected Career Length view, which may be a table or Plotly host.
 function renderCareerLengthArtifact(artifact, state, rowsBySource) {
   const view = careerLengthView(artifact, state.view);
   if (view.kind === "table") {
-    return renderCareerLengthTable(view, rowsBySource[state.view] || []);
+    return renderCareerLengthTable(view, rowsBySource[state.view] || [], state);
   }
   const rows = rowsBySource[state.view] || [];
   if (!rows.length) {
@@ -23,27 +25,89 @@ function renderCareerLengthArtifact(artifact, state, rowsBySource) {
 }
 
 // Render the tabular Career Length view.
-function renderCareerLengthTable(view, rows) {
-  const columns = view.columns || [];
+function renderCareerLengthTable(view, rows, state) {
+  const columns = careerLengthTableColumns(view);
+  const visibleRows = careerLengthRowsForState(rows, state);
+  const sortState = currentTableSortState(careerLengthTableArtifact(columns), "rank");
+  const sortedRows = sortRows(visibleRows, columns, sortState);
   return [
     '<div class="artifact-title-block">',
     `<h4>${escapeHtml(view.label)}</h4>`,
     '</div>',
     '<table class="artifact-table">',
     '<thead><tr>',
-    ...columns.map(column => `<th data-column-id="${escapeHtml(column.id)}">${escapeHtml(column.heading)}</th>`),
+    ...columns.map(column => renderTableHeading(column, sortState)),
     '</tr></thead>',
     '<tbody>',
-    ...rows.map((row, index) => [
+    ...sortedRows.map((row, index) => [
       '<tr>',
       ...columns.map(column =>
-        `<td data-column-id="${escapeHtml(column.id)}">${careerLengthCellValue(column, row, index)}</td>`
+        `<td ${careerLengthCellAttributes(column)}>${careerLengthCellValue(column, row, index)}</td>`
       ),
       '</tr>'
     ].join("")),
     '</tbody>',
     '</table>',
   ].join("");
+}
+
+function careerLengthRowsForState(rows, state) {
+  if (!state.active_only) return rows;
+  return rows.filter(row => isActiveRikishi(row.active));
+}
+
+function careerLengthTableColumns(view) {
+  return [
+    { id: "row_number", heading: "", sort_kind: "none", align: "right", role: "row_number" },
+    ...(view.columns || [])
+      .filter(column => column.id !== "active")
+      .map(column => careerLengthColumn(column)),
+  ];
+}
+
+function careerLengthColumn(column) {
+  if (column.id === "rank") {
+    return { ...column, sort_kind: "numeric", sort_key: column.source_field || column.id, sort_default_direction: "ascending" };
+  }
+  if (column.id === "shikona") {
+    return { ...column, sort_kind: "text", sort_key: column.source_field || column.id };
+  }
+  if (column.id === "participation_years" || column.id === "gap_basho_count") {
+    return { ...column, sort_kind: "numeric", sort_key: column.source_field || column.id };
+  }
+  return { ...column, sort_kind: "text", sort_key: column.source_field || column.id };
+}
+
+function careerLengthTableArtifact(columns) {
+  return {
+    id: CAREER_LENGTH_LONGEST_TABLE_ID,
+    columns,
+    default_sort_column: "rank",
+  };
+}
+
+function careerLengthCellAttributes(column) {
+  const attributes = [`data-column-id="${escapeHtml(column.id)}"`];
+  if (column.role === "row_number") attributes.push('class="row-number-cell"');
+  return attributes.join(" ");
+}
+
+function wireCareerLengthTableSorting(panel, renderPanel) {
+  const columns = careerLengthTableColumns(careerLengthViewForSorting());
+  wireTableSorting(panel, careerLengthTableArtifact(columns), renderPanel, columns);
+}
+
+function careerLengthViewForSorting() {
+  return {
+    columns: [
+      { id: "rank", heading: "#", source_field: "rank" },
+      { id: "shikona", heading: "Shikona", source_field: "shikona" },
+      { id: "first_appearance", heading: "First", source_field: "first_appearance" },
+      { id: "last_appearance", heading: "Last", source_field: "last_appearance" },
+      { id: "participation_years", heading: "Years", source_field: "participation_years" },
+      { id: "gap_basho_count", heading: "Bg", source_field: "gap_basho_count" },
+    ],
+  };
 }
 
 // Populate the Career Length chart host when the selected view is graphical.
@@ -135,21 +199,28 @@ function careerLengthView(artifact, selectedView) {
 }
 
 function careerLengthCellValue(column, row, index) {
-  if (column.id === "rank") return String(index + 1);
+  if (column.id === "row_number") return String(index + 1);
   const value = row[column.source_field || column.id] || "";
   if (column.id === "shikona") return renderRikishiLink(value, row.rikishi_id);
   if (column.formatter === "decimal_2") return decimal(value, 2);
-  if (column.id === "active") return value === "True" || value === "true" || value === "1" ? "Yes" : "No";
   return escapeHtml(value);
+}
+
+function isActiveRikishi(value) {
+  return value === true || value === "True" || value === "true" || value === "1" || value === "Yes";
 }
 
 export {
   renderCareerLengthArtifact,
   renderCareerLengthTable,
   renderCareerLengthPlot,
+  wireCareerLengthTableSorting,
   careerLengthTraces,
   careerLengthLayout,
   resolveCareerLengthView,
   careerLengthView,
   careerLengthCellValue,
+  careerLengthRowsForState,
+  careerLengthTableColumns,
+  isActiveRikishi,
 };
