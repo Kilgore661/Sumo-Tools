@@ -57,7 +57,7 @@ function openAndHighlightNote(noteId) {
   const panel = document.querySelector("[data-notes-panel]");
   const body = panel?.querySelector("[data-notes-body]");
   const toggle = panel?.querySelector("[data-notes-toggle]");
-  const note = noteId ? document.querySelector(`[data-note-id="${cssEscape(noteId)}"]`) : null;
+  const note = noteId && panel ? panel.querySelector(`[data-note-id="${cssEscape(noteId)}"]`) : null;
   if (!panel || !body || !toggle || !note) {
     window.alert("No such note: " + (noteId || "empty"));
     return;
