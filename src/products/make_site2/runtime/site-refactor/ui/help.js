@@ -50,6 +50,7 @@ function inferredNoteId(label, help) {
 
 function installHelpPopovers() {
   if (helpLayer) return;
+  installNoteHighlightStyle();
   helpLayer = document.createElement("div");
   helpLayer.className = "help-popover-layer";
   helpLayer.hidden = true;
@@ -96,6 +97,14 @@ function installHelpPopovers() {
   });
   window.addEventListener("resize", () => positionHelpPopover(), { passive: true });
   document.addEventListener("scroll", () => positionHelpPopover(), { capture: true, passive: true });
+}
+
+function installNoteHighlightStyle() {
+  if (document.querySelector("#sumo-note-highlight-style")) return;
+  const style = document.createElement("style");
+  style.id = "sumo-note-highlight-style";
+  style.textContent = ".note-highlight{background:#f00!important;color:#fff!important;outline:4px solid #f00!important;outline-offset:3px!important;}";
+  document.head.append(style);
 }
 
 function helpTargetFromEvent(event) {
@@ -190,4 +199,4 @@ function positionHelpPopover() {
   helpLayer.style.top = `${Math.max(margin, top)}px`;
 }
 
-export { installHelpPopovers, renderLabelWithHelp, containsExactNotes, hideHelpPopover, renderNotesHelpText, inferredNoteId };
+export { installHelpPopovers, renderLabelWithHelp, containsExactNotes, hideHelpPopover, renderNotesHelpText, inferredNoteId, installNoteHighlightStyle };
