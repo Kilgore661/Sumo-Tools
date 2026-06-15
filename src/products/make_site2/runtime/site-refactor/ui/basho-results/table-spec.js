@@ -36,17 +36,19 @@ const TRANSITIONAL_TABLE_SPEC = [
     group("movement", "⇅", [
       column("bp", "Chii", {
         help: "See Notes.",
+        note_id: "note_chii_movement",
         sort_kind: "movement_symbol",
         sort_default_direction: "descending",
         presentation: PRESENTATION.MOVEMENT_SYMBOL,
       }),
       column("division", "Div", {
         help: "See Notes.",
+        note_id: "note_division_movement",
         sort_kind: "movement_symbol",
         sort_default_direction: "descending",
         presentation: PRESENTATION.MOVEMENT_SYMBOL,
       }),
-    ], { help: "See Notes." }),
+    ], { help: "See Notes.", note_id: "note_movement" }),
   ]),
 ];
 
