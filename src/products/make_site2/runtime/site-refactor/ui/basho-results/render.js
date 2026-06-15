@@ -139,7 +139,7 @@ function terminalNodes(nodes, path, visiblePaths) {
     const nextPath = [...path, node.key];
     const pathText = nextPath.join(".");
     if (node.children) return terminalNodes(node.children, nextPath, visiblePaths);
-    return isVisiblePath(pathText)
+    return isVisiblePath(pathText, visiblePaths)
       ? [{ ...node, path: pathText, sort_path: resolveLeafSortPath(node, nextPath) }]
       : [];
   });
