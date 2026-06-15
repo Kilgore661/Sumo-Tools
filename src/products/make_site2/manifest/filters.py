@@ -25,7 +25,8 @@ STANDINGS_WINDOW_VALUES = tuple(
 )
 
 BRB_FILTERS = (
-    Filter(id="basho_date", label="Basho", control="select", default="latest", url_key="basho"),
+    Filter(id="basho_year", label="Year", control="select", default="latest", url_key="year"),
+    Filter(id="basho_month", label="Month", control="select", default="latest", url_key="month"),
     Filter(
         id="division",
         label="Division",
@@ -259,5 +260,4 @@ WIN_PROBABILITY_BY_STANDING_FILTERS = (
             FilterValue(value="All", label="All"),
         ),
     ),
-    Filter(id="error_bars", label="Error bars", control="checkbox", default=True, url_key="error_bars"),
 )
