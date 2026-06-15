@@ -67,7 +67,7 @@ The proposed table visual changes are:
   heading is simple or two-part;
 - give all tables a bounding box;
 - draw a line under the lowest heading row;
-- draw left and right lines for every column group;
+- draw left and right lines for every declared column group;
 - draw no other table grid lines;
 - make alternating row colours brighter and increase the contrast between the two
   alternating colours;
@@ -77,6 +77,15 @@ The proposed table visual changes are:
 
 These are intended as shared visible language for table-like PAs rather than
 page-local tweaks.
+
+For tables other than 7.1 Basho Results, there shall be a mechanism for defining
+column groups. The default is that no column groups are declared. In that default
+state, the table receives the general bounding box and heading rule, but no
+additional column-group boundary treatment is inferred merely from individual
+columns.
+
+Exact colour values, transparency settings and related visual tokens remain open
+implementation choices.
 
 ### 2.3 Table Structure and Semantic Policy
 
@@ -238,12 +247,16 @@ This changes table structure and semantics. The design question is whether those
 headings are captions above separate tables, group headings inside one sectioned
 table, or `colspan=2` heading rows within each table.
 
-### 3.4 Table border policy
+### 3.4 Table border and column-group policy
 
-This is mostly shared table rendering policy. However, “column group” requires
-the renderer to know which headings/groups exist. For recursive/grouped tables
-that is model-driven; for flat tables it may require an explicit grouping
-vocabulary or a default “each column is its own group” rule.
+The general table bounding box, lowest-heading underline and suppression of other
+grid lines are shared table rendering policy.
+
+Column-group boundary lines require explicit column-group knowledge. For 7.1
+Basho Results, that knowledge is already model-driven by the recursive/grouped
+table structure. For tables other than 7.1, there shall be a mechanism for
+defining column groups. The default is “no groups here”; individual flat columns
+must not automatically imply column groups.
 
 ### 3.5 Alternating row colours
 
@@ -325,7 +338,7 @@ uncertainty, the colour choice should be declared as belonging to that PA featur
 | --- | --- | --- |
 | Diagnostic display affordances | `show_notes` URL state, info symbol, possible debug CSS variants | Runtime presentation state / debug policy |
 | Shared table visual language | spacing, borders, row colours, muted colour, date format | Rendering policy/CSS plus shared formatter |
-| Table semantic model | 6.2.1 spanning headings, 9.1 rowspans, row numbers, superlative `#` columns, column groups | Published Artifact/table model |
+| Table semantic model | 6.2.1 spanning headings, 9.1 rowspans, row numbers, superlative `#` columns, explicit column groups | Published Artifact/table model |
 | Link/popover/notes interactions | shikona Alt-click, link popover text, clickable Notes popovers | Runtime interaction plus explicit metadata |
 | Basho Results control model | year/month selector and navigation buttons, no-basho message | Filter/control model or PA-specific control |
 | Shared chart rendering | tick-angle rule, bold axis titles | Chart rendering policy |
@@ -372,6 +385,15 @@ The existing `debug_layout=true` overlay is useful for structure inspection. A
 future extension such as `debug_layout=headings_v4` could support experimental
 CSS or rendering diagnostics, but that should be treated as debug/development
 instrumentation rather than as public rendering policy.
+
+### 5.4 Column groups in non-7.1 tables
+
+For tables other than 7.1 Basho Results, implement a mechanism for declaring
+column groups. The default state is explicitly no declared groups.
+
+The renderer should not infer a column group for every individual column. Column
+boundary treatment should appear only where a group is declared, while the table
+still receives the general bounding box and heading underline rules.
 
 ## 6. Review Conclusion
 
