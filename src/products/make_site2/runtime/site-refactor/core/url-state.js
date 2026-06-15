@@ -47,9 +47,12 @@ function readFilterUrlState(filters) {
     filter.id,
     params.get(filter.url_key || filter.id)
   ]));
-  const legacyBasho = params.get("basho") ?? params.get("basho_date");
-  if (legacyBasho && hasFilter(filters, "basho_year") && hasFilter(filters, "basho_month")) {
-    if (!state.basho_year && !state.basho_month) {
+  if (hasFilter(filters, "basho_year") && hasFilter(filters, "basho_month")) {
+    const hasYear = params.has("year");
+    const hasMonth = params.has("month");
+    if (hasYear !== hasMonth) throw new BadUrlError();
+    const legacyBasho = params.get("basho") ?? params.get("basho_date");
+    if (legacyBasho && !hasYear && !hasMonth) {
       if (legacyBasho === "latest") {
         state.basho_year = "latest";
         state.basho_month = "latest";
