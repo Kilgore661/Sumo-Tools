@@ -12,6 +12,27 @@ The review source has been split so the long original can be read and maintained
 - `Rendering Change Review - 03 Design Classification.md`.
 - `Rendering Change Review - 04 Work Groups and Routing.md`.
 
+## A/B list status
+
+The A-list and B-list are the selected review action plan. There is no hidden
+third level where “do A and B” is one item.
+
+The B-list completed in this pass was:
+
+```text
+B1. Update Rendering Change Review
+B2. Remove/debug cleanup
+B3. Validate and tighten Notes popovers
+B4. Shikona link affordance
+```
+
+B1, B2 and B4 are complete. B3 was deferred, counted done for this pass, and is
+still tracked as open validation/tightening work in the review.
+
+The remaining review action items are listed below in “Remaining review backlog.”
+The date-format display cleanup is still open and belongs under Shared table
+visual language as “date-like display separator policy.”
+
 ## Completed in this pass
 
 ### B1. Update Rendering Change Review
@@ -202,7 +223,7 @@ Other open items:
 - Column-group boundary treatment.
 - Alternating row color/token pass.
 - Muted foreground token policy.
-- Date-like display separator policy.
+- Date-like display separator policy. This is the public display-format cleanup for date-like values that should use `-` where they currently use `/`.
 
 3. `debug_show_notes` / marker affordance.
 
