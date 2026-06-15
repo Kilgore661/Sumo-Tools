@@ -11,6 +11,8 @@ import { bootLayoutDebug } from "./ui/layout-debug.js";
 import { bootNavigationToggle } from "./ui/navigation-toggle.js";
 import { escapeHtml } from "./utils/html.js";
 
+const PASSTHROUGH_PARAMS = ["debug_layout", "debug_show_notes"];
+
 bootSiteContext();
 bootNavigationToggle();
 normalizeEmbeddedPageParams();
@@ -42,7 +44,7 @@ function loadStateFromUrl() {
   const params = new URLSearchParams(window.location.search);
   const pageId = cleanPageParam(params);
   if (!pageId) {
-    if ([...params.keys()].some(key => !["debug_layout", "debug_show_notes"].includes(key))) {
+    if ([...params.keys()].some(key => !PASSTHROUGH_PARAMS.includes(key))) {
       handleBadUrl();
       return;
     }
@@ -76,8 +78,12 @@ function selectPage(
     handleBadUrl();
     return;
   }
-  markActivePage(pageId);
   const filters = panelFilters(panel);
+  if (!urlKeysAreAllowed(filters)) {
+    handleBadUrl();
+    return;
+  }
+  markActivePage(pageId);
   if (pushDefaultView) {
     writeCanonicalViewUrl(pageId, filters, defaultFilterState(filters), { replace: false });
   } else if (canonicalizeUnfilteredView && !filters.length) {
@@ -91,6 +97,22 @@ function selectPage(
     contentPanel.innerHTML = `<p>${escapeHtml(error.message)}</p>`;
   });
 }
+function urlKeysAreAllowed(filters) {
+  const params = new URLSearchParams(window.location.search);
+  const allowed = new Set([
+    PAGE_PARAM,
+    ...PASSTHROUGH_PARAMS,
+    ...filters.map(filter => filter.url_key || filter.id),
+  ]);
+  if (hasFilter(filters, "basho_year") && hasFilter(filters, "basho_month")) {
+    allowed.add("basho");
+    allowed.add("basho_date");
+  }
+  return [...params.keys()].every(key => allowed.has(key));
+}
+function hasFilter(filters, filterId) {
+  return filters.some(filter => filter.id === filterId);
+}
 function panelFilters(panel) {
   return panel.contents.filter_section?.filters || [];
 }
@@ -103,4 +125,4 @@ function markActivePage(pageId) {
   }
 }
 
-export { boot, isInPlaceNavigationClick, loadStateFromUrl, renderLandingPanel, selectPage, panelFilters, defaultFilterState, markActivePage, handleBadUrl };
+export { boot, isInPlaceNavigationClick, loadStateFromUrl, renderLandingPanel, selectPage, panelFilters, defaultFilterState, markActivePage, handleBadUrl, urlKeysAreAllowed };
