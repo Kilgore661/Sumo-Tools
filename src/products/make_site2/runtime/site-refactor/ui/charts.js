@@ -38,11 +38,15 @@ export {
   renderCareerLengthArtifact,
   renderCareerLengthTable,
   renderCareerLengthPlot,
+  wireCareerLengthTableSorting,
   careerLengthTraces,
   careerLengthLayout,
   resolveCareerLengthView,
   careerLengthView,
   careerLengthCellValue,
+  careerLengthRowsForState,
+  careerLengthTableColumns,
+  isActiveRikishi,
 } from "./charts/career-length.js";
 
 export {
