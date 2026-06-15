@@ -3,6 +3,13 @@
 import { escapeHtml } from "../utils/html.js";
 
 const HELP_POPOVER_LIFETIME_MS = 2000;
+const LEGACY_NOTE_TARGETS = new Map([
+  ["delta", "note_delta"],
+  ["result", "note_result"],
+  ["clean", "clean_record"],
+  ["movement", "note_movement"],
+  ["⇅", "note_movement"],
+]);
 
 let activeHelpTarget = null;
 let helpLayer = null;
@@ -13,6 +20,7 @@ let hideRemainingMs = HELP_POPOVER_LIFETIME_MS;
 function renderLabelWithHelp(label, help, options = {}) {
   if (!help) return escapeHtml(label);
   const resolvedOptions = normalizeHelpOptions(options, label);
+  const noteId = resolvedOptions.noteId || inferredNoteId(label, help);
   const escapedLabel = escapeHtml(resolvedOptions.helpLabel || label || "Item");
   const escapedHelp = escapeHtml(help);
   const attributes = [
@@ -21,7 +29,7 @@ function renderLabelWithHelp(label, help, options = {}) {
     `aria-label="${escapedLabel}: ${escapedHelp}"`,
   ];
   if (containsExactNotes(help)) attributes.push('data-notes-popover="true"');
-  if (resolvedOptions.noteId) attributes.push(`data-note-id="${escapeHtml(resolvedOptions.noteId)}"`);
+  if (noteId) attributes.push(`data-note-id="${escapeHtml(noteId)}"`);
   return [
     `<span ${attributes.join(" ")}>`,
     escapeHtml(label),
@@ -33,6 +41,11 @@ function renderLabelWithHelp(label, help, options = {}) {
 function normalizeHelpOptions(options, label) {
   if (typeof options === "string") return { helpLabel: options };
   return options || { helpLabel: label };
+}
+
+function inferredNoteId(label, help) {
+  if (!containsExactNotes(help)) return "";
+  return LEGACY_NOTE_TARGETS.get(String(label || "").trim().toLowerCase()) || "";
 }
 
 function installHelpPopovers() {
@@ -97,7 +110,7 @@ function showHelpPopover(target) {
     ? renderNotesHelpText(help)
     : escapeHtml(help);
   helpLayer.dataset.notesPopover = target.dataset.notesPopover === "true" ? "true" : "false";
-  helpLayer.dataset.noteId = target.dataset.noteId || "";
+  helpLayer.dataset.noteId = target.dataset.noteId || inferredNoteId(target.textContent, help);
   helpLayer.tabIndex = helpLayer.dataset.notesPopover === "true" ? 0 : -1;
   helpLayer.setAttribute("role", helpLayer.dataset.notesPopover === "true" ? "button" : "tooltip");
   helpLayer.style.pointerEvents = helpLayer.dataset.notesPopover === "true" ? "auto" : "none";
@@ -177,4 +190,4 @@ function positionHelpPopover() {
   helpLayer.style.top = `${Math.max(margin, top)}px`;
 }
 
-export { installHelpPopovers, renderLabelWithHelp, containsExactNotes, hideHelpPopover, renderNotesHelpText };
+export { installHelpPopovers, renderLabelWithHelp, containsExactNotes, hideHelpPopover, renderNotesHelpText, inferredNoteId };
