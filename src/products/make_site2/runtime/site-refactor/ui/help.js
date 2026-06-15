@@ -112,7 +112,7 @@ function renderNotesHelpText(help) {
   const escapedHelp = escapeHtml(help);
   return escapedHelp.replace(
     /(^|[^A-Za-z])(Notes)([^A-Za-z]|$)/,
-    '$1<span class="help-popover-notes-link">$2</span>$3',
+    '$1<span class="help-popover-notes-link" style="cursor:pointer;text-decoration:underline;">$2</span>$3',
   );
 }
 
