@@ -6,7 +6,7 @@ import { readFilterUrlState, writePanelUrl } from "../core/url-state.js";
 import { fetchCsv, fetchJson } from "../data/http.js";
 import { renderCareerComparisonsChart, renderCareerComparisonsControls, renderCareerLengthArtifact, renderCareerLengthPlot, renderCategoryBarChart, renderCategoryBarPlot, renderFinishByChiiChart, renderFinishByChiiPlot, renderGroupedLineChart, renderGroupedLinePlot, renderOrderedBarChart, renderOrderedBarPlot, renderStackedBarChart, renderStackedBarPlot, renderStandingWinProbabilityChart, renderStandingWinProbabilityPlot, resolveCareerLengthView, resolveFilterValue, resolveSelectedDataSourceId, wireCareerComparisonsControls } from "../ui/charts.js";
 import { buildBashoResultsPresentationModel, renderBashoResultsPresentationTable, wireBashoResultsPresentationSorting } from "../ui/basho-results-table.js";
-import { filterValueLabel, renderFilterSection, resolveBanzukeChangesDivision, resolveFilterState, resolveSelectedDataValue, resolveSelectedDivision, resolveSelectedFilterValueFromSource, resolveStandingsDivision, resolveStandingsWindow, selectedIndexEntry, selectedStandingsSource, wireFilterSection } from "../ui/filters.js";
+import { filterValueLabel, monthLabel, renderFilterSection, resolveBanzukeChangesDivision, resolveBashoCalendarState, resolveFilterState, resolveSelectedDataValue, resolveSelectedDivision, resolveSelectedFilterValueFromSource, resolveStandingsDivision, resolveStandingsWindow, selectedIndexEntry, selectedStandingsSource, wireFilterSection } from "../ui/filters.js";
 import { wirePAPanelLayout } from "../ui/layout.js";
 import { renderNotes, wireNotesPanel } from "../ui/notes.js";
 import { banzukeScanColumns, renderBanzukeChangesTable, renderGenericTable, renderIndexedTable, renderSectionedTable, renderStandingsTable, standingsRowsForState, wireTableSorting } from "../ui/tables.js";
@@ -63,8 +63,21 @@ async function renderIndexedTableContentPanel(panel, artifact, overrideState = n
   const filters = panel.contents.filter_section.filters;
   const state = overrideState || resolveFilterState(filters, readFilterUrlState(filters));
   const index = await fetchJson(artifact.indexed_source.index_path);
-  const selectedEntry = selectedIndexEntry(index, state[artifact.selector_filter_id]);
-  state[artifact.selector_filter_id] = selectedEntry.basho;
+  let selectedEntry = selectedIndexEntry(index, state[artifact.selector_filter_id]);
+  if (artifact.id === "basho_results_browser") {
+    const selectedBasho = resolveBashoCalendarState(index, state);
+    state.basho_year = selectedBasho.year;
+    state.basho_month = selectedBasho.month;
+    state.basho_date = selectedBasho.basho;
+    selectedEntry = selectedBasho.entry;
+    if (!selectedEntry) {
+      writePanelUrl(panel.page_id, filters, state, { replace: true });
+      renderNoBashoContentPanel(selectedBasho);
+      return;
+    }
+  } else {
+    state[artifact.selector_filter_id] = selectedEntry.basho;
+  }
   const payloadPath = selectedEntry[artifact.indexed_source.payload_path_field];
   const dataRoot = artifact.indexed_source.index_path.replace(/[^/]+$/, "");
   const rows = await fetchCsv(`${dataRoot}${payloadPath.replace(/^data\//, "")}`);
@@ -100,7 +113,7 @@ async function renderIndexedTableContentPanel(panel, artifact, overrideState = n
     '</div>',
     '</section>'
   ].join("");
-  wireFilterSection(panel, state, renderContentPanel);
+  wireFilterSection(panel, state, renderContentPanel, index);
   if (presentationModel) {
     wireBashoResultsPresentationSorting(panel, presentationModel, renderContentPanel);
   } else {
@@ -108,6 +121,13 @@ async function renderIndexedTableContentPanel(panel, artifact, overrideState = n
   }
   wireNotesPanel();
   wirePAPanelLayout();
+}
+function renderNoBashoContentPanel(selectedBasho) {
+  contentPanel.innerHTML = [
+    '<section class="content-panel">',
+    `<p>There was no basho in ${escapeHtml(monthLabel(selectedBasho.month))} ${escapeHtml(selectedBasho.year)}</p>`,
+    '</section>'
+  ].join("");
 }
 // Render the Banzuke Changes panel from config and row data.
 async function renderBanzukeChangesContentPanel(panel, artifact, overrideState = null) {
@@ -494,4 +514,4 @@ function bashoResultsTitle(state, entry, filters) {
   return `${division} Results for ${label}`;
 }
 
-export { renderContentPanel, renderIndexedTableContentPanel, renderBanzukeChangesContentPanel, renderSectionedTableContentPanel, renderGenericTableContentPanel, renderStandingsContentPanel, renderChartContentPanel, renderStandingWinProbabilityContentPanel, renderCareerLengthContentPanel, renderCareerComparisonsContentPanel, renderFinishByChiiContentPanel, renderStackedBarChartContentPanel, renderGroupedLineChartContentPanel, renderOrderedBarChartContentPanel, renderCategoryBarChartContentPanel, fetchArtifactCsvSet, renderArtifactTitleBlock, artifactTitle, bashoResultsTitle, artifactForPAPanel };
+export { renderContentPanel, renderIndexedTableContentPanel, renderBanzukeChangesContentPanel, renderSectionedTableContentPanel, renderGenericTableContentPanel, renderStandingsContentPanel, renderChartContentPanel, renderStandingWinProbabilityContentPanel, renderCareerLengthContentPanel, renderCareerComparisonsContentPanel, renderFinishByChiiContentPanel, renderStackedBarChartContentPanel, renderGroupedLineChartContentPanel, renderOrderedBarChartContentPanel, renderCategoryBarChartContentPanel, fetchArtifactCsvSet, renderArtifactTitleBlock, artifactTitle, bashoResultsTitle, renderNoBashoContentPanel, artifactForPAPanel };
