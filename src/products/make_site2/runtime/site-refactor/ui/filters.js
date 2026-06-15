@@ -5,6 +5,15 @@ import { writePanelUrl } from "../core/url-state.js";
 import { escapeHtml } from "../utils/html.js";
 import { renderLabelWithHelp } from "./help.js";
 
+const SUMO_MONTHS = [
+  { value: "01", label: "January" },
+  { value: "03", label: "March" },
+  { value: "05", label: "May" },
+  { value: "07", label: "July" },
+  { value: "09", label: "September" },
+  { value: "11", label: "November" },
+];
+
 function filterValueLabel(filters, filterId, value) {
   const filter = filters.find(candidate => candidate.id === filterId);
   const option = (filter?.values || []).find(candidate => candidate.value === value);
@@ -52,7 +61,7 @@ function selectedStandingsSource(artifact, state) {
   );
 }
 // Attach filter controls and rerender the panel on change.
-function wireFilterSection(panel, state, renderPanel) {
+function wireFilterSection(panel, state, renderPanel, index = null) {
   const form = contentPanel.querySelector(".filter-section");
   if (!form) return;
   form.addEventListener("change", event => {
@@ -65,6 +74,17 @@ function wireFilterSection(panel, state, renderPanel) {
       if (!input) continue;
       nextState[filter.id] = filter.control === "checkbox" ? input.checked : input.value;
     }
+    writePanelUrl(panel.page_id, filters, nextState, { replace: false });
+    renderPanel(panel, nextState).catch(error => {
+      contentPanel.innerHTML = `<p>${escapeHtml(error.message)}</p>`;
+    });
+  });
+  form.addEventListener("click", event => {
+    const button = event.target.closest("button[data-basho-nav]");
+    if (!button || !index) return;
+    const nextState = bashoNavigationState(button.dataset.bashoNav, index, state);
+    if (!nextState) return;
+    const filters = panel.contents.filter_section.filters;
     writePanelUrl(panel.page_id, filters, nextState, { replace: false });
     renderPanel(panel, nextState).catch(error => {
       contentPanel.innerHTML = `<p>${escapeHtml(error.message)}</p>`;
@@ -88,19 +108,107 @@ function bashoSelectorValues(index) {
     .sort((left, right) => String(right.basho).localeCompare(String(left.basho)))
     .map(entry => ({ value: entry.basho, label: entry.label || entry.basho }));
 }
+function resolveBashoCalendarState(index, state) {
+  const defaultEntry = selectedIndexEntry(index, "latest");
+  const defaultParts = parseBashoId(defaultEntry.basho);
+  const year = state.basho_year === "latest" ? defaultParts.year : String(state.basho_year || "");
+  const month = state.basho_month === "latest" ? defaultParts.month : normalizeBashoMonth(state.basho_month);
+  validateBashoCalendarSlot(index, year, month);
+  const basho = `${year}${month}`;
+  const entry = (index.entries || []).find(candidate => candidate.basho === basho) || null;
+  return { year, month, basho, entry };
+}
+function validateBashoCalendarSlot(index, year, month) {
+  if (!/^\d{4}$/.test(year)) throw new Error("Bad URL");
+  if (!SUMO_MONTHS.some(candidate => candidate.value === month)) throw new Error("Bad URL");
+  const years = supportedBashoYears(index);
+  if (!years.some(candidate => candidate.value === year)) throw new Error("Bad URL");
+}
+function normalizeBashoMonth(month) {
+  if (/^\d$/.test(String(month))) return `0${month}`;
+  return String(month || "");
+}
+function parseBashoId(basho) {
+  const value = String(basho || "");
+  if (!/^\d{6}$/.test(value)) throw new Error("Bad URL");
+  return { year: value.slice(0, 4), month: value.slice(4, 6) };
+}
+function supportedBashoYears(index) {
+  const years = (index.entries || [])
+    .map(entry => parseBashoId(entry.basho).year)
+    .map(value => Number(value));
+  const minYear = Math.min(...years);
+  const maxYear = Math.max(...years);
+  return Array.from({ length: maxYear - minYear + 1 }, (_, offset) => String(maxYear - offset))
+    .map(year => ({ value: year, label: year }));
+}
+function monthLabel(month) {
+  return SUMO_MONTHS.find(candidate => candidate.value === month)?.label || month;
+}
+function bashoNavigationState(direction, index, state) {
+  const entries = [...(index.entries || [])]
+    .sort((left, right) => String(left.basho).localeCompare(String(right.basho)));
+  if (!entries.length) return null;
+  const current = `${state.basho_year}${state.basho_month}`;
+  const currentIndex = entries.findIndex(entry => entry.basho === current);
+  if (currentIndex < 0) return null;
+  let nextIndex = currentIndex;
+  if (direction === "first") nextIndex = 0;
+  if (direction === "previous") nextIndex = Math.max(0, currentIndex - 1);
+  if (direction === "next") nextIndex = Math.min(entries.length - 1, currentIndex + 1);
+  if (direction === "last") nextIndex = entries.length - 1;
+  if (nextIndex === currentIndex) return null;
+  const { year, month } = parseBashoId(entries[nextIndex].basho);
+  return { ...state, basho_year: year, basho_month: month };
+}
 // Render all controls for a panel FilterSection.
 function renderFilterSection(filterSection, state, index, rowsBySource = {}) {
   if (!filterSection.filters.length) return "";
+  const filters = filterSection.filters;
+  const bashoCalendar = filters.some(filter => filter.id === "basho_year") &&
+    filters.some(filter => filter.id === "basho_month") && index;
+  const visibleFilters = bashoCalendar
+    ? filters.filter(filter => filter.id !== "basho_year" && filter.id !== "basho_month")
+    : filters;
   return [
     '<form class="filter-section" aria-label="Filters">',
     '<h4>Options</h4>',
     '<ul class="filter-list">',
-    ...filterSection.filters.map(filter => `<li>${renderFilter(filter, state, index, rowsBySource)}</li>`),
+    bashoCalendar ? `<li>${renderBashoCalendarControl(state, index)}</li>` : "",
+    ...visibleFilters.map(filter => `<li>${renderFilter(filter, state, index, rowsBySource)}</li>`),
     '</ul>',
     '</form>'
   ].join("");
 }
-function renderFilter(filter, state, index, rowsBySource = {}) {
+function renderBashoCalendarControl(state, index) {
+  return [
+    '<div class="basho-calendar-control" role="group" aria-label="Basho">',
+    '<span class="choice-label">Basho</span>',
+    '<label class="filter-control basho-year-control">',
+    '<span>Year</span>',
+    '<select name="basho_year">',
+    ...supportedBashoYears(index).map(value => optionHtml(value, state.basho_year)),
+    '</select>',
+    '</label>',
+    '<label class="filter-control basho-month-control">',
+    '<span>Month</span>',
+    '<select name="basho_month">',
+    ...SUMO_MONTHS.map(value => optionHtml(value, state.basho_month)),
+    '</select>',
+    '</label>',
+    '<div class="basho-navigation-buttons" aria-label="Basho navigation">',
+    '<button type="button" data-basho-nav="first">&lt;&lt;</button>',
+    '<button type="button" data-basho-nav="previous">&lt;</button>',
+    '<button type="button" data-basho-nav="next">&gt;</button>',
+    '<button type="button" data-basho-nav="last">&gt;&gt;</button>',
+    '</div>',
+    '</div>'
+  ].join("");
+}
+function optionHtml(value, selected) {
+  const selectedAttr = value.value === selected ? " selected" : "";
+  return `<option value="${escapeHtml(value.value)}"${selectedAttr}>${escapeHtml(value.label)}</option>`;
+}\nfunction renderFilter(filter, state, index, rowsBySource = {}) {
   if (filter.control === "checkbox") {
     return [
       '<label class="checkbox-control">',
@@ -118,8 +226,10 @@ function renderFilter(filter, state, index, rowsBySource = {}) {
 }
 function filterValues(filter, state, index, rowsBySource) {
   if (filter.id === "basho_date" && index) return bashoSelectorValues(index);
+  if (filter.id === "basho_year" && index) return supportedBashoYears(index);
+  if (filter.id === "basho_month" && index) return SUMO_MONTHS;
   if (filter.values_source) return dataSelectorValues(filter, state, rowsBySource);
-  return filter.values;
+  return filter.values || [];
 }
 function selectedFilterValue(filter, state, index) {
   if (filter.id === "basho_date" && index) {
@@ -196,4 +306,4 @@ function divisionId(value) {
   return String(value || "").toLowerCase().replace(/\s+/g, "_");
 }
 
-export { filterValueLabel, resolveFilterState, coerceFilterValue, resolveSelectedDivision, resolveBanzukeChangesDivision, resolveStandingsWindow, resolveStandingsDivision, selectedStandingsSource, wireFilterSection, selectedIndexEntry, latestIndexEntry, bashoSelectorValues, renderFilterSection, renderFilter, filterValues, selectedFilterValue, renderRadioChoice, renderDropdownChoice, dataSelectorValues, resolveSelectedFilterValueFromSource, resolveSelectedDataValue, normalizedSourceValue, divisionId };
+export { filterValueLabel, resolveFilterState, coerceFilterValue, resolveSelectedDivision, resolveBanzukeChangesDivision, resolveStandingsWindow, resolveStandingsDivision, selectedStandingsSource, wireFilterSection, selectedIndexEntry, latestIndexEntry, bashoSelectorValues, resolveBashoCalendarState, monthLabel, renderFilterSection, renderFilter, filterValues, selectedFilterValue, renderRadioChoice, renderDropdownChoice, dataSelectorValues, resolveSelectedFilterValueFromSource, resolveSelectedDataValue, normalizedSourceValue, divisionId };
