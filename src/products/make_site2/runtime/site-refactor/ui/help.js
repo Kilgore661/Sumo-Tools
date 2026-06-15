@@ -66,15 +66,16 @@ function installHelpPopovers() {
     event.stopPropagation();
     hideHelpPopover();
     dispatchOpenNote(target.dataset.noteId || "");
-  });
+  }, true);
   document.addEventListener("keydown", event => {
     if (event.key !== "Enter" && event.key !== " ") return;
     const target = notesHelpTargetFromEvent(event);
     if (!target) return;
     event.preventDefault();
+    event.stopPropagation();
     hideHelpPopover();
     dispatchOpenNote(target.dataset.noteId || "");
-  });
+  }, true);
   window.addEventListener("resize", () => positionHelpPopover(), { passive: true });
   document.addEventListener("scroll", () => positionHelpPopover(), { capture: true, passive: true });
 }
