@@ -2,6 +2,7 @@
 
 import { escapeHtml } from "../../utils/html.js";
 import { renderLabelWithHelp } from "../help.js";
+import { renderRikishiLink as renderSharedRikishiLink } from "../tables/shared.js";
 import { PRESENTATION } from "./table-spec.js";
 import {
   currentBashoResultsSortState,
@@ -138,7 +139,7 @@ function terminalNodes(nodes, path, visiblePaths) {
     const nextPath = [...path, node.key];
     const pathText = nextPath.join(".");
     if (node.children) return terminalNodes(node.children, nextPath, visiblePaths);
-    return isVisiblePath(pathText, visiblePaths)
+    return isVisiblePath(pathText)
       ? [{ ...node, path: pathText, sort_path: resolveLeafSortPath(node, nextPath) }]
       : [];
   });
@@ -174,12 +175,7 @@ function renderBashoResultsCell(row, path, index) {
 
 function renderRikishiLink(shikona, rikishiId) {
   if (!rikishiId) return escapeHtml(shikona || "");
-  return [
-    `<a href="https://sumodb.sumogames.de/Rikishi.aspx?r=${encodeURIComponent(rikishiId)}"`,
-    ' target="_blank" rel="noopener">',
-    escapeHtml(shikona || ""),
-    '</a>',
-  ].join("");
+  return renderSharedRikishiLink(shikona || "", rikishiId);
 }
 
 function valueAtPath(row, path) {
