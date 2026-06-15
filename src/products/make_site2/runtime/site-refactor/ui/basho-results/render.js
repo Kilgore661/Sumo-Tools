@@ -68,14 +68,14 @@ function renderNestedHeaderCell(cell, leaf, sortState) {
   ];
   if (leaf?.role === "row_number") attributes.push('data-column-id="row_number"');
   if (!isSortableLeaf(leaf)) {
-    return `<th ${attributes.join(" ")}>${renderLabelWithHelp(cell.label, cell.help)}</th>`;
+    return `<th ${attributes.join(" ")}>${renderLabelWithHelp(cell.label, cell.help, { noteId: cell.note_id })}</th>`;
   }
   const active = sortState?.path === leaf.path;
   const direction = active ? sortState.direction : "none";
   const indicator = active ? (sortState.direction === "ascending" ? " ▲" : " ▼") : "";
   const escapedLabel = escapeHtml(cell.label);
   const reservedSortText = `${escapedLabel} ▼`;
-  const visibleSortText = `${renderLabelWithHelp(cell.label, cell.help)}${indicator}`;
+  const visibleSortText = `${renderLabelWithHelp(cell.label, cell.help, { noteId: cell.note_id })}${indicator}`;
   return [
     `<th ${attributes.join(" ")} aria-sort="${direction}">`,
     `<button type="button" class="table-sort-button" data-basho-results-sort-path="${escapeHtml(leaf.path)}" style="display: inline-grid; place-items: center; ${buttonMarginStyle(alignment)} text-align: ${alignment};">`,
@@ -105,6 +105,7 @@ function appendHeaderCells(rows, nodes, path, visiblePaths, depth, level) {
         colspan: childLeaves.length,
         label: node.label ?? node.key,
         help: node.help || "",
+        note_id: node.note_id || "",
         path: pathText,
         rowspan: 1,
       });
@@ -114,6 +115,7 @@ function appendHeaderCells(rows, nodes, path, visiblePaths, depth, level) {
         colspan: 1,
         label: node.label ?? node.key,
         help: node.help || "",
+        note_id: node.note_id || "",
         path: pathText,
         rowspan: depth - level,
       });
