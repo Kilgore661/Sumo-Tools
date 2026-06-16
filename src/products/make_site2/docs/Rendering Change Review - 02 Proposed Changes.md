@@ -73,7 +73,8 @@ The current column-group declarations are:
 
 ```text
 2.1 Banzuke Changes:
-  groups: East, Rank, West
+  banzuke-style groups: row number, East, Rank, West
+  scan-table groups: none
 
 7.1 Basho Results:
   leaves in the heading tree are not groups
@@ -153,6 +154,12 @@ blank muted leading column = mechanical row number
 Implemented note: Career Length Longest uses produced ranking values for `#` and
 a separate mechanical row number. The Longest table switches between produced
 ranked populations instead of calculating rank at runtime.
+
+Implemented note: Banzuke Changes 2.1 now has mechanical row numbers in both
+views. In banzuke-style view, row number is provisionally represented as its own
+group next to East, Rank and West, simulating the row-number-as-skeleton model
+without changing the general table model. In scan-table view, the row number is
+just the leading mechanical row-number column and no groups are declared.
 
 ### 2.4 Shikona Links and Notes Interactions
 

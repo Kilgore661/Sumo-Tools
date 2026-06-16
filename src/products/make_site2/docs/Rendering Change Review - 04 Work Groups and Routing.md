@@ -6,7 +6,7 @@
 | --- | --- | --- | --- |
 | Diagnostic display affordances | `debug_show_notes` URL state, info symbol, possible debug CSS variants | Runtime presentation state / debug policy | Open |
 | Shared table visual language | spacing, borders, row colours, muted colour, date-like display format | Rendering policy/CSS plus shared formatter | Open |
-| Interim table structure metadata | 2.1/7.1/9.1 column groups, 6.2.1 custom handling | Ad hoc PA-local metadata, easiest-to-remove later | Partially implemented: 6.2.1 side-by-side restored; 9.1 grouping partially represented; 2.1 row-number slice implemented; broader 2.1 East/Rank/West group handling open |
+| Interim table structure metadata | 2.1/7.1/9.1 column groups, 6.2.1 custom handling | Ad hoc PA-local metadata, easiest-to-remove later | Partially implemented: 6.2.1 side-by-side restored; 9.1 grouping partially represented; 2.1 row-number and banzuke-style Row number/East/Rank/West group metadata provisionally implemented |
 | Table semantic model | row numbers, superlative `#` columns | Published Artifact/table model | Partially implemented: row-number/ranking distinction in 7.1, 7.4-style tables, 9.1 and 2.1; broader row-number-as-table-skeleton model remains provisional |
 | Link/popover/notes interactions | shikona Alt-click, link popover text, clickable Notes popovers | Runtime interaction plus explicit metadata/text rule | Partially implemented: clickable Notes popovers complete; shikona link help and Alt-click implemented; Notes validation/tightening open |
 | Basho Results control model | year/month selector and navigation buttons, URL-addressable no-basho state | PA-specific runtime control inside existing FilterSection | Implemented |
@@ -72,8 +72,10 @@ preferable to a broad model migration.
 
 Current status: 6.2.1 side-by-side sectioned-table layout is restored. 9.1 has
 an interim grouped-heading declaration. Banzuke Changes 2.1 row-number work is
-implemented for both banzuke-style and scan-table views; broader 2.1
-East/Rank/West group handling remains open.
+implemented for both banzuke-style and scan-table views. The banzuke-style view
+also has provisional Row number, East, Rank and West group metadata. The
+scan-table view remains intentionally flat except for the mechanical row-number
+column.
 
 ### 5.5 Visual tokens
 
@@ -81,6 +83,11 @@ Exact visual token choices are delegated to implementation and review. Choose
 reasonable initial values for muted foreground, row backgrounds, border colour,
 border weight and spacing. If the result looks wrong, revise the tokens after
 visual inspection.
+
+The first 2.1 group-boundary implementation exposes doubled/heavy visible lines
+where adjacent groups both contribute borders. This belongs to the shared
+bounding-box and column-boundary visual pass; the interim group metadata should
+not be removed merely to avoid that temporary rendering artefact.
 
 ### 5.6 Basho selector URL state
 

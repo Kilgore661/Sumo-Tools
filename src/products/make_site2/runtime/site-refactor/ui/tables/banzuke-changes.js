@@ -47,10 +47,10 @@ function renderBanzukeStyleTable(rows, state) {
     '<table class="artifact-table banzuke-changes-table">',
     '<thead>',
     '<tr>',
-    `<th rowspan="2" data-column-id="${escapeHtml(rowNumberColumn.id)}">${escapeHtml(rowNumberColumn.heading)}</th>`,
-    `<th colspan="${eastColumns.length}">East</th>`,
-    '<th rowspan="2">Rank</th>',
-    `<th colspan="${westColumns.length}">West</th>`,
+    `<th rowspan="2" ${banzukeGroupAttributes(rowNumberColumn.id, "only")}>${escapeHtml(rowNumberColumn.heading)}</th>`,
+    `<th colspan="${eastColumns.length}" ${banzukeGroupAttributes("east", "only")}>East</th>`,
+    `<th rowspan="2" ${banzukeGroupAttributes("rank", "only")}>Rank</th>`,
+    `<th colspan="${westColumns.length}" ${banzukeGroupAttributes("west", "only")}>West</th>`,
     '</tr>',
     '<tr>',
     ...eastColumns.map(column => `<th>${renderLabelWithHelp(column.heading, column.help, { noteId: column.note_id })}</th>`),
@@ -61,9 +61,13 @@ function renderBanzukeStyleTable(rows, state) {
     ...rows.map((row, index) => [
       '<tr>',
       renderBanzukeStyleRowNumberCell(index),
-      ...eastColumns.map(column => renderBanzukeSideCell(row, column)),
-      `<td scope="row">${escapeHtml(row.bz_chii)}</td>`,
-      ...westColumns.map(column => renderBanzukeSideCell(row, column)),
+      ...eastColumns.map((column, columnIndex) =>
+        renderBanzukeSideCell(row, column, banzukeGroupPosition(columnIndex, eastColumns.length))
+      ),
+      `<td scope="row" ${banzukeGroupAttributes("rank", "only")}>${escapeHtml(row.bz_chii)}</td>`,
+      ...westColumns.map((column, columnIndex) =>
+        renderBanzukeSideCell(row, column, banzukeGroupPosition(columnIndex, westColumns.length))
+      ),
       '</tr>',
     ].join("")),
     '</tbody>',
@@ -137,12 +141,12 @@ function banzukeRowNumberColumn() {
 }
 
 function renderBanzukeStyleRowNumberCell(index) {
-  return `<td data-column-id="row_number">${escapeHtml(String(index + 1))}</td>`;
+  return `<td ${banzukeGroupAttributes("row_number", "only")}>${escapeHtml(String(index + 1))}</td>`;
 }
 
-function renderBanzukeSideCell(row, column) {
+function renderBanzukeSideCell(row, column, groupPosition = "") {
   const rikishiId = row[`${column.side}_rikishi_id`];
-  const attributes = banzukeCellAttributes(column.id);
+  const attributes = banzukeCellAttributes(column.id, groupPosition);
   if (!rikishiId) return `<td${attributes}></td>`;
   return `<td${attributes}>${banzukeSideValue(row, column.side, column.id)}</td>`;
 }
@@ -207,9 +211,34 @@ function banzukeChiiOrdinal(chii, side) {
   return level * 100000 + number * 2 + sideOffset;
 }
 
-function banzukeCellAttributes(columnId) {
-  if (columnId === "row_number") return ' data-column-id="row_number"';
-  return columnId === "shikona" ? ' data-column-id="shikona"' : "";
+function banzukeCellAttributes(columnId, groupPosition = "") {
+  const attributes = [];
+  if (columnId === "row_number" || columnId === "shikona") {
+    attributes.push(`data-column-id="${escapeHtml(columnId)}"`);
+  }
+  if (groupPosition) attributes.push(...banzukeGroupBoundaryAttributes(groupPosition));
+  return attributes.length ? ` ${attributes.join(" ")}` : "";
+}
+
+function banzukeGroupAttributes(id, groupPosition) {
+  return [
+    `data-column-id="${escapeHtml(id)}"`,
+    ...banzukeGroupBoundaryAttributes(groupPosition),
+  ].join(" ");
+}
+
+function banzukeGroupBoundaryAttributes(groupPosition) {
+  if (groupPosition === "only") return ['data-group-start="true"', 'data-group-end="true"'];
+  if (groupPosition === "start") return ['data-group-start="true"'];
+  if (groupPosition === "end") return ['data-group-end="true"'];
+  return [];
+}
+
+function banzukeGroupPosition(index, count) {
+  if (count === 1) return "only";
+  if (index === 0) return "start";
+  if (index === count - 1) return "end";
+  return "";
 }
 
 function movementDirection(value) {
@@ -253,6 +282,9 @@ export {
   banzukeScanSortValue,
   banzukeChiiOrdinal,
   banzukeCellAttributes,
+  banzukeGroupAttributes,
+  banzukeGroupBoundaryAttributes,
+  banzukeGroupPosition,
   movementDirection,
   banzukeSideValue,
 };

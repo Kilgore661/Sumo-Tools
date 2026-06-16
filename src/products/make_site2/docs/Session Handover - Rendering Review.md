@@ -189,10 +189,7 @@ Implemented for:
 - 7.4-style generic tables.
 - 9.1 Standings.
 - Career Length Longest, with produced rank in `#` and separate mechanical row number.
-
-Still open:
-
-- 2.1 Banzuke Changes needs mechanical row-number work.
+- 2.1 Banzuke Changes, in both banzuke-style and scan-table views.
 
 ### Section 6.2.1
 
@@ -212,7 +209,10 @@ Open pieces:
   scan-table views after this handover. Banzuke-style uses a leading blank
   row-number header spanning the two heading rows; scan-table uses a leading
   blank, non-sortable row-number column whose values recompute after sorting.
-- Finish broader East / Rank / West group handling.
+- Broader East / Rank / West group metadata is provisionally implemented for
+  banzuke-style view. The row-number column is represented as its own group so
+  the current renderer can simulate row-number-as-skeleton behavior without a
+  general table-model change.
 - Verify banzuke-style versus scan-table behavior.
 - Keep the interim table-group approach easiest-to-remove later.
 
@@ -224,6 +224,9 @@ Other open items:
 - Heading spacing.
 - Lowest-heading underline.
 - Column-group boundary treatment.
+  The first 2.1 implementation shows doubled/heavy lines at adjacent group
+  boundaries because visible start/end borders can both render. Treat this as
+  part of the shared bounding-box/boundary pass, not as a 2.1 model problem.
 - Alternating row color/token pass.
 - Muted foreground token policy.
 - Date-like display separator policy. This is the public display-format cleanup for date-like values that should use `-` where they currently use `/`.
