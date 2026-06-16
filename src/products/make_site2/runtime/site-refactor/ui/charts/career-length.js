@@ -87,9 +87,7 @@ function careerLengthTableArtifact(columns) {
 }
 
 function careerLengthCellAttributes(column) {
-  const attributes = [`data-column-id="${escapeHtml(column.id)}"`];
-  if (column.role === "row_number") attributes.push('class="row-number-cell"');
-  return attributes.join(" ");
+  return `data-column-id="${escapeHtml(column.id)}"`;
 }
 
 function wireCareerLengthTableSorting(panel, renderPanel) {

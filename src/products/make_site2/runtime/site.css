@@ -628,8 +628,7 @@ h5 {
   padding: 0.2rem 0.4rem;
 }
 
-.artifact-table [data-column-id="row_number"],
-.artifact-table .row-number-cell {
+.artifact-table [data-column-id="row_number"] {
   color: var(--artifact-muted-fg);
   font-weight: 400;
 }
