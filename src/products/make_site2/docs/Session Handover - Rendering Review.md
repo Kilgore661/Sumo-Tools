@@ -220,6 +220,7 @@ Completed table-structure/scaffolding pieces:
   sectioned tables.
 - Artifact title blocks own their trailing whitespace and are followed by a
   defined gap before the table entity.
+- Mechanical row-number columns use the shared muted foreground token.
 - The heading/data separator is rendered as the top border of the first body row.
 - Section 6.2.1 section headings render as table heading cells spanning their
   two columns.
@@ -230,7 +231,6 @@ Other open items:
 2. Shared table visual language follow-up.
 
 - Alternating row color/token pass.
-- Muted foreground token policy.
 - Date-like display separator policy. This is the public display-format cleanup for date-like values that should use `-` where they currently use `/`.
 
 3. `debug_show_notes` / marker affordance.

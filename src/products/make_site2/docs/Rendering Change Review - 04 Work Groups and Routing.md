@@ -5,7 +5,7 @@
 | Group | Items | Nature | Status |
 | --- | --- | --- | --- |
 | Diagnostic display affordances | `debug_show_notes` URL state, info symbol, possible debug CSS variants | Runtime presentation state / debug policy | Open |
-| Shared table visual language | spacing, borders, row colours, muted colour, date-like display format | Rendering policy/CSS plus shared formatter | Partially implemented: table bounding boxes, title-block spacing, body-start heading/data separator, collapsed group-boundary borders and 6.2.1 heading treatment implemented; colour/token and date-like display policy remain open |
+| Shared table visual language | spacing, borders, row colours, muted colour, date-like display format | Rendering policy/CSS plus shared formatter | Partially implemented: table bounding boxes, title-block spacing, body-start heading/data separator, collapsed group-boundary borders, 6.2.1 heading treatment and muted row-number foreground implemented; row-colour and date-like display policy remain open |
 | Interim table structure metadata | 2.1/7.1/9.1 column groups, 6.2.1 custom handling | Ad hoc PA-local metadata, easiest-to-remove later | Partially implemented: 6.2.1 side-by-side restored; 9.1 Row number/Context/Wins group metadata provisionally implemented; 2.1 row-number and banzuke-style Row number/East/Rank/West group metadata provisionally implemented |
 | Table semantic model | row numbers, superlative `#` columns | Published Artifact/table model | Partially implemented: row-number/ranking distinction in 7.1, 7.4-style tables, 9.1 and 2.1; broader row-number-as-table-skeleton model remains provisional |
 | Link/popover/notes interactions | shikona Alt-click, link popover text, clickable Notes popovers | Runtime interaction plus explicit metadata/text rule | Partially implemented: clickable Notes popovers complete; shikona link help and Alt-click implemented; Notes validation/tightening open |
@@ -91,8 +91,9 @@ box directly. The heading/data separator is rendered from the first body row
 rather than the last header row, and collapsed table borders allow adjacent group
 boundaries to render as one shared line. The artifact title block owns its
 trailing whitespace and is followed by a defined gap before the table entity.
-Remaining visual-token work should focus on row-colour contrast, muted foreground
-and date-like display formatting.
+Mechanical row-number columns use the shared muted foreground token. Remaining
+visual-token work should focus on row-colour contrast and date-like display
+formatting.
 
 ### 5.6 Basho selector URL state
 

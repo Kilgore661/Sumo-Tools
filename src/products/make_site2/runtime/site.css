@@ -5,6 +5,7 @@
   --page-fg: #ffffff;
   --artifact-row-odd-bg: #12234b;
   --artifact-row-even-bg: #1b2c52;
+  --artifact-muted-fg: rgba(255, 255, 255, 0.42);
 }
 
 body.site-context-local {
@@ -627,8 +628,9 @@ h5 {
   padding: 0.2rem 0.4rem;
 }
 
-.artifact-table [data-column-id="row_number"] {
-  color: rgba(255, 255, 255, 0.42);
+.artifact-table [data-column-id="row_number"],
+.artifact-table .row-number-cell {
+  color: var(--artifact-muted-fg);
   font-weight: 400;
 }
 
