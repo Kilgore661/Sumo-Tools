@@ -59,6 +59,15 @@ Exact colour values, transparency settings, border colours, border weights and
 related visual tokens are implementer choices. They should be chosen as reasonable
 initial values and adjusted if visual review rejects them.
 
+Implemented note: the shared table shell now creates an explicit
+`artifact-table-frame` around split header/body tables, and that frame carries
+the table bounding box. Sectioned tables such as 6.2.1 remain unsplit and carry
+their own bounding box. The heading/data separator is rendered as the top border
+of the first data row rather than as the bottom border of the last physical
+heading row, so rowspan headings in multi-row headers do not break the separator.
+Tables use collapsed borders so adjacent group-boundary borders render as a
+single shared line.
+
 ### 2.3 Table Structure and Semantic Policy
 
 Several proposed changes concern table structure, not merely table appearance.
@@ -88,7 +97,8 @@ The current column-group declarations are:
 
 9.1:
   groups:
-    unnamed left group containing #, Shikona, Chii and Wins
+    row number
+    Context containing Shikona, Chii and Wins
     Wins per Basho
     Wins per bout
 
@@ -98,11 +108,11 @@ The current column-group declarations are:
   possible
 ```
 
-For 9.1, the unnamed left group has no heading because those columns do not need
-one. It must not be treated as a missing heading and must not force introduction
-of a placeholder heading such as `Context`. The group exists only to support the
-interim rendering policy. If a later general table model is adopted, this ad hoc
-9.1 rule should be revisited and may become redundant.
+For 9.1, `Context` is the public heading for Shikona, Chii and Wins, matching the
+Context vocabulary used by the Basho Results model. The leading row-number
+column remains a separate blank-headed mechanical group. If a later general
+table model is adopted, this ad hoc 9.1 rule should be revisited and may become
+redundant.
 
 #### Section 6.2.1 table headings
 
@@ -111,8 +121,9 @@ column heading that spans the two columns in its table, as far as that makes sen
 for this custom PA.
 
 Implemented note: the three section tables are restored to a side-by-side custom
-sectioned-table row layout. Heading-as-column-heading treatment may still need
-visual validation against the shared table language.
+sectioned-table row layout. Each section heading now renders as a table heading
+cell spanning its two columns, rather than as an external heading above the
+table.
 
 #### Section 9.1 grouped headings
 
@@ -120,8 +131,9 @@ In page/section 9.1, simple headings such as `#`, `Shikona`, `Chii` and `Wins`
 should vertically span the two heading rows occupied by grouped headings such as
 `Wins per Basho / Average` and `Wins per Basho / #`.
 
-This is resolved for now by the interim 9.1 column-group declaration above. It is
-not a commitment to making 9.1 a recursive table.
+This is resolved for now by the interim 9.1 column-group declaration above and
+Standings-specific grouped-heading rendering. It is not a commitment to making
+9.1 use the general 7.1 recursive table renderer.
 
 #### Row-number column
 

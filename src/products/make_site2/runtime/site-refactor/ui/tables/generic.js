@@ -36,11 +36,13 @@ function renderTableSection(section, rows, columns, sortState = null) {
   );
   return [
     '<section class="table-section" style="flex: 0 0 auto;">',
-    `<h5>${escapeHtml(section.heading)}</h5>`,
     '<table class="artifact-table sectioned-table">',
-    '<thead><tr>',
+    '<thead>',
+    `<tr><th colspan="${columns.length}">${escapeHtml(section.heading)}</th></tr>`,
+    '<tr>',
     ...columns.map(column => renderTableHeading(column, sortState)),
-    '</tr></thead>',
+    '</tr>',
+    '</thead>',
     '<tbody>',
     ...sectionRows.map((row, index) => [
       '<tr>',

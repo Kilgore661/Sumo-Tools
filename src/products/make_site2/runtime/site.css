@@ -564,7 +564,7 @@ h5 {
 }
 
 .artifact-table {
-  border-collapse: separate;
+  border-collapse: collapse;
   border-spacing: 0;
 }
 
@@ -574,6 +574,18 @@ h5 {
   flex-direction: column;
   max-width: 100%;
   min-height: 0;
+}
+
+.artifact-table-frame {
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  display: flex;
+  flex: 0 1 auto;
+  flex-direction: column;
+  margin-inline: auto;
+  max-width: 100%;
+  max-height: 100%;
+  min-height: 0;
+  width: max-content;
 }
 
 .artifact-table-header-region {
@@ -658,22 +670,16 @@ h5 {
   border-right: 1px solid rgba(255, 255, 255, 0.35);
 }
 
-.artifact-table-header thead tr:last-child th {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.35);
-}
-
-.artifact-table-header table,
-.artifact-table-body table {
-  border-left: 1px solid rgba(255, 255, 255, 0.35);
-  border-right: 1px solid rgba(255, 255, 255, 0.35);
-}
-
-.artifact-table-header table {
+.artifact-table-body tbody tr:first-child td {
   border-top: 1px solid rgba(255, 255, 255, 0.35);
 }
 
-.artifact-table-body table {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+.sectioned-table tbody tr:first-child td {
+  border-top: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.sectioned-table {
+  border: 1px solid rgba(255, 255, 255, 0.35);
 }
 
 .table-sort-button {

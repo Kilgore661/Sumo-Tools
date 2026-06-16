@@ -85,8 +85,8 @@ function recordWins(value) {
 }
 
 // Render a sortable or static table heading cell.
-function renderTableHeading(column, sortState) {
-  const attributes = tableCellAttributes(column);
+function renderTableHeading(column, sortState, extraAttributes = "") {
+  const attributes = [tableCellAttributes(column), extraAttributes].filter(Boolean).join(" ");
   const heading = columnHeading(column);
   if (!isSortableColumn(column)) {
     return `<th ${attributes}>${renderLabelWithHelp(heading, column.help, { noteId: column.note_id })}</th>`;

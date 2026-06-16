@@ -35,6 +35,9 @@ function upgradeScrollableTable(table) {
   const bodyRegion = document.createElement("div");
   bodyRegion.className = "artifact-table-body-region";
 
+  const frame = document.createElement("div");
+  frame.className = "artifact-table-frame";
+
   const headerTable = document.createElement("table");
   headerTable.className = `${table.className} artifact-table-header`;
   headerTable.dataset.scrollRegion = "header";
@@ -47,7 +50,8 @@ function upgradeScrollableTable(table) {
 
   headerRegion.append(headerTable);
   bodyRegion.append(bodyTable);
-  shell.append(headerRegion, bodyRegion);
+  frame.append(headerRegion, bodyRegion);
+  shell.append(frame);
   bodyRegion.addEventListener("scroll", () => {
     headerRegion.scrollLeft = bodyRegion.scrollLeft;
   });
@@ -62,8 +66,8 @@ function updateStickyArtifactHeaders() {
 
 // Synchronize header/body column widths in a scrollable table shell.
 function syncTableShellColumns(shell) {
-  const headerTable = shell.querySelector(":scope > .artifact-table-header-region > table");
-  const bodyTable = shell.querySelector(":scope > .artifact-table-body-region > table");
+  const headerTable = shell.querySelector(":scope .artifact-table-header-region > table");
+  const bodyTable = shell.querySelector(":scope .artifact-table-body-region > table");
   if (!headerTable || !bodyTable) return;
 
   clearColumnWidths(headerTable, bodyTable);

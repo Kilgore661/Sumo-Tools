@@ -31,7 +31,7 @@ function renderStandingsTable(artifact, rows, filteredRows, state) {
     ...sortedRows.map((row, index) => [
       '<tr>',
       ...visibleColumns.map(column =>
-        `<td ${tableCellAttributes(column)}>${standingsCellValue(column, row, index, meanPositions, percentPositions)}</td>`
+        `<td ${standingsCellAttributes(column, standingsColumnGroupPosition(column, visibleColumns))}>${standingsCellValue(column, row, index, meanPositions, percentPositions)}</td>`
       ),
       '</tr>',
     ].join("")),
@@ -72,9 +72,9 @@ function standingsVisibleColumns(artifact, state) {
 }
 
 function standingsVisibleGroups(state) {
-  if (state.metric_group_preset === "percentages") return ["identity", "wins_per_bout"];
-  if (state.metric_group_preset === "combined") return ["identity", "wins_per_basho", "wins_per_bout"];
-  return ["identity", "wins_per_basho"];
+  if (state.metric_group_preset === "percentages") return ["row_number", "context", "wins_per_bout"];
+  if (state.metric_group_preset === "combined") return ["row_number", "context", "wins_per_basho", "wins_per_bout"];
+  return ["row_number", "context", "wins_per_basho"];
 }
 
 function renderStandingsTableHead(artifact, visibleColumns, sortState = null) {
@@ -85,15 +85,63 @@ function renderStandingsTableHead(artifact, visibleColumns, sortState = null) {
     '<thead>',
     '<tr>',
     ...groups.map(group => {
-      const count = visibleColumns.filter(column => column.group === group.id).length;
-      return `<th colspan="${count}">${renderLabelWithHelp(group.heading, group.help)}</th>`;
+      const groupColumns = standingsGroupColumns(group, visibleColumns);
+      const attributes = standingsGroupAttributes(group.id, "only");
+      if (group.id === "row_number") {
+        return `<th rowspan="2" ${attributes}>${renderLabelWithHelp(group.heading, group.help)}</th>`;
+      }
+      return `<th colspan="${groupColumns.length}" ${attributes}>${renderLabelWithHelp(group.heading, group.help)}</th>`;
     }),
     '</tr>',
     '<tr>',
-    ...visibleColumns.map(column => renderTableHeading(column, sortState)),
+    ...visibleColumns
+      .filter(column => column.group !== "row_number")
+      .map(column => renderTableHeading(
+        column,
+        sortState,
+        standingsGroupBoundaryAttributes(standingsColumnGroupPosition(column, visibleColumns)).join(" ")
+      )),
     '</tr>',
     '</thead>',
   ].join("");
+}
+
+function standingsGroupColumns(group, visibleColumns) {
+  return visibleColumns.filter(column => column.group === group.id);
+}
+
+function standingsColumnGroupPosition(column, visibleColumns) {
+  const groupColumns = visibleColumns.filter(candidate => candidate.group === column.group);
+  const index = groupColumns.findIndex(candidate => candidate.id === column.id);
+  return standingsGroupPosition(index, groupColumns.length);
+}
+
+function standingsCellAttributes(column, groupPosition = "") {
+  return [
+    tableCellAttributes(column),
+    ...standingsGroupBoundaryAttributes(groupPosition),
+  ].filter(Boolean).join(" ");
+}
+
+function standingsGroupAttributes(id, groupPosition) {
+  return [
+    `data-column-id="${escapeHtml(id)}"`,
+    ...standingsGroupBoundaryAttributes(groupPosition),
+  ].join(" ");
+}
+
+function standingsGroupBoundaryAttributes(groupPosition) {
+  if (groupPosition === "only") return ['data-group-start="true"', 'data-group-end="true"'];
+  if (groupPosition === "start") return ['data-group-start="true"'];
+  if (groupPosition === "end") return ['data-group-end="true"'];
+  return [];
+}
+
+function standingsGroupPosition(index, count) {
+  if (count === 1) return "only";
+  if (index === 0) return "start";
+  if (index === count - 1) return "end";
+  return "";
 }
 
 function standingsCellValue(column, row, index, meanPositions, percentPositions) {

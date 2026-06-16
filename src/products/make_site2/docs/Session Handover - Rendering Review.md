@@ -201,9 +201,9 @@ Open visual/design follow-up: confirm heading treatment and shared table-languag
 
 Recommended next target:
 
-1. Banzuke Changes 2.1 table work.
+1. Shared table visual-language follow-up.
 
-Open pieces:
+Completed table-structure/scaffolding pieces:
 
 - Mechanical row-number column implemented in both banzuke-style and
   scan-table views after this handover. Banzuke-style uses a leading blank
@@ -213,20 +213,21 @@ Open pieces:
   banzuke-style view. The row-number column is represented as its own group so
   the current renderer can simulate row-number-as-skeleton behavior without a
   general table-model change.
-- Verify banzuke-style versus scan-table behavior.
+- 9.1 has provisional Row number, Context, Wins per Basho and Wins per Bout
+  group metadata, with Standings-specific grouped-heading rendering.
+- Table bounding boxes are implemented through an explicit
+  `artifact-table-frame` for split tables, and direct borders for unsplit
+  sectioned tables.
+- The heading/data separator is rendered as the top border of the first body row.
+- Section 6.2.1 section headings render as table heading cells spanning their
+  two columns.
 - Keep the interim table-group approach easiest-to-remove later.
 
 Other open items:
 
-2. Shared table visual language.
+2. Shared table visual language follow-up.
 
-- Table bounding box.
 - Heading spacing.
-- Lowest-heading underline.
-- Column-group boundary treatment.
-  The first 2.1 implementation shows doubled/heavy lines at adjacent group
-  boundaries because visible start/end borders can both render. Treat this as
-  part of the shared bounding-box/boundary pass, not as a 2.1 model problem.
 - Alternating row color/token pass.
 - Muted foreground token policy.
 - Date-like display separator policy. This is the public display-format cleanup for date-like values that should use `-` where they currently use `/`.
