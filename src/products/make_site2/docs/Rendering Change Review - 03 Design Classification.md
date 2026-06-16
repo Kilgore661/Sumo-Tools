@@ -95,10 +95,12 @@ renderers. Broader muted-token policy remains open.
 
 This is table model/rendering policy, not merely CSS.
 
-Status: partially implemented. A distinct mechanical `row_number` column now has
-blank heading, muted treatment, non-sort semantics and sort/filter recomputation
-where applicable in 7.1, 7.4-style generic tables and 9.1. Banzuke Changes 2.1
-still needs the mechanical row-number column.
+Status: implemented for the current worked table set. A distinct mechanical
+`row_number` column now has blank heading, muted treatment, non-sort semantics
+and sort/filter recomputation where applicable in 7.1, 7.4-style generic tables,
+9.1 and Banzuke Changes 2.1. In 2.1, the banzuke-style view treats row number as
+a leading blank group/header spanning the East/Rank/West heading depth, while
+the scan-table view treats it as a flat leading non-sortable column.
 
 ### 3.11 Superlative tables and ordinal/ranking columns
 

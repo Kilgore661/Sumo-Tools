@@ -40,12 +40,14 @@ function banzukeTitle(config) {
 
 // Render the East/West banzuke-shaped report view.
 function renderBanzukeStyleTable(rows, state) {
+  const rowNumberColumn = banzukeRowNumberColumn();
   const eastColumns = banzukeSideColumns("east", state);
   const westColumns = banzukeSideColumns("west", state);
   return [
     '<table class="artifact-table banzuke-changes-table">',
     '<thead>',
     '<tr>',
+    `<th rowspan="2" data-column-id="${escapeHtml(rowNumberColumn.id)}">${escapeHtml(rowNumberColumn.heading)}</th>`,
     `<th colspan="${eastColumns.length}">East</th>`,
     '<th rowspan="2">Rank</th>',
     `<th colspan="${westColumns.length}">West</th>`,
@@ -56,8 +58,9 @@ function renderBanzukeStyleTable(rows, state) {
     '</tr>',
     '</thead>',
     '<tbody>',
-    ...rows.map(row => [
+    ...rows.map((row, index) => [
       '<tr>',
+      renderBanzukeStyleRowNumberCell(index),
       ...eastColumns.map(column => renderBanzukeSideCell(row, column)),
       `<td scope="row">${escapeHtml(row.bz_chii)}</td>`,
       ...westColumns.map(column => renderBanzukeSideCell(row, column)),
@@ -86,9 +89,9 @@ function renderBanzukeScanTable(artifact, rows, state) {
     '</tr>',
     '</thead>',
     '<tbody>',
-    ...sideRows.map(({ row, side }) => [
+    ...sideRows.map(({ row, side }, index) => [
       '<tr>',
-      ...columns.map(column => renderBanzukeScanCell(row, side, column)),
+      ...columns.map(column => renderBanzukeScanCell(row, side, column, index)),
       '</tr>',
     ].join("")),
     '</tbody>',
@@ -115,6 +118,7 @@ function banzukeSideColumns(side, state) {
 
 function banzukeScanColumns(state) {
   const columns = [
+    banzukeRowNumberColumn(),
     { id: "chii", heading: "Chii", sort_kind: "chii_ordinal" },
     { id: "shikona", heading: "Shikona", help: "Rikishi fighting name.", sort_kind: "text" },
     { id: "direction", heading: "⇅", help: "Banzuke movement.", sort_kind: "text" },
@@ -128,6 +132,14 @@ function banzukeScanColumns(state) {
   return columns;
 }
 
+function banzukeRowNumberColumn() {
+  return { id: "row_number", heading: "", sort_kind: "none", align: "right" };
+}
+
+function renderBanzukeStyleRowNumberCell(index) {
+  return `<td data-column-id="row_number">${escapeHtml(String(index + 1))}</td>`;
+}
+
 function renderBanzukeSideCell(row, column) {
   const rikishiId = row[`${column.side}_rikishi_id`];
   const attributes = banzukeCellAttributes(column.id);
@@ -135,13 +147,17 @@ function renderBanzukeSideCell(row, column) {
   return `<td${attributes}>${banzukeSideValue(row, column.side, column.id)}</td>`;
 }
 
-function renderBanzukeScanCell(row, side, column) {
+function renderBanzukeScanCell(row, side, column, index) {
+  if (column.id === "row_number") {
+    return `<td${banzukeCellAttributes(column.id)}>${escapeHtml(String(index + 1))}</td>`;
+  }
   return `<td${banzukeCellAttributes(column.id)}>${banzukeSideValue(row, side, column.id)}</td>`;
 }
 
 function currentBanzukeScanSortState(artifact, columns) {
   const existing = tableSortStates.get(artifact.id);
-  if (existing && columns.some(column => column.id === existing.columnId)) return existing;
+  const existingColumn = columns.find(column => column.id === existing?.columnId);
+  if (existingColumn && isSortableColumn(existingColumn)) return existing;
   const column = columns.find(item => item.id === "chii") || firstSortableColumn(columns);
   return {
     columnId: column?.id || "",
@@ -166,6 +182,7 @@ function sortBanzukeScanRows(rows, columns, sortState) {
 
 function banzukeScanSortValue(column, item) {
   const { row, side } = item;
+  if (column.id === "row_number") return null;
   if (column.id === "chii") return banzukeChiiOrdinal(row.bz_chii, side);
   if (column.id === "old_chii") return banzukeChiiOrdinal(row[`${side}_old_chii`], side);
   if (column.id === "result") return recordWins(row[`${side}_result`]);
@@ -191,6 +208,7 @@ function banzukeChiiOrdinal(chii, side) {
 }
 
 function banzukeCellAttributes(columnId) {
+  if (columnId === "row_number") return ' data-column-id="row_number"';
   return columnId === "shikona" ? ' data-column-id="shikona"' : "";
 }
 
@@ -226,6 +244,8 @@ export {
   renderBanzukeScanTable,
   banzukeSideColumns,
   banzukeScanColumns,
+  banzukeRowNumberColumn,
+  renderBanzukeStyleRowNumberCell,
   renderBanzukeSideCell,
   renderBanzukeScanCell,
   currentBanzukeScanSortState,

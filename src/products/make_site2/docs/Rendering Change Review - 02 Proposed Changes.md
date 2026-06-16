@@ -132,8 +132,10 @@ Implemented note: the shared table renderers now distinguish a mechanical
 `row_number` column from a meaningful `#` ranking column. The mechanical row
 number has a blank heading, muted treatment and is non-sortable/recomputed after
 sort/filter where applicable. This is implemented for 7.1, 7.4-style generic
-row-list tables and 9.1. Banzuke Changes 2.1 still needs its mechanical row
-number column.
+row-list tables, 9.1 and Banzuke Changes 2.1. In 2.1, banzuke-style rendering
+uses a leading blank row-number header spanning the East/Rank/West heading
+depth, while scan-table rendering uses a leading blank, non-sortable row-number
+column.
 
 #### Superlative/ranking columns
 

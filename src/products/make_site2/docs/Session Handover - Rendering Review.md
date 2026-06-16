@@ -208,8 +208,11 @@ Recommended next target:
 
 Open pieces:
 
-- Add/settle mechanical row-number column.
-- Finish East / Rank / West group handling.
+- Mechanical row-number column implemented in both banzuke-style and
+  scan-table views after this handover. Banzuke-style uses a leading blank
+  row-number header spanning the two heading rows; scan-table uses a leading
+  blank, non-sortable row-number column whose values recompute after sorting.
+- Finish broader East / Rank / West group handling.
 - Verify banzuke-style versus scan-table behavior.
 - Keep the interim table-group approach easiest-to-remove later.
 
