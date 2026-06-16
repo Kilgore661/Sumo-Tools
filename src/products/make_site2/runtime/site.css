@@ -550,7 +550,8 @@ h5 {
 .artifact-title-block {
   align-self: stretch;
   background: var(--content-bg);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0;
+  padding-bottom: 1ex;
   text-align: center;
   z-index: 2;
 }
@@ -559,8 +560,10 @@ h5 {
   margin-top: 0.5rem;
 }
 
-.artifact-title-block:has(h5) {
-  margin-bottom: 0.4375rem;
+.artifact-title-block + .artifact-table-shell,
+.artifact-title-block + .artifact-table,
+.artifact-title-block + .sectioned-table-grid {
+  margin-top: 1ex;
 }
 
 .artifact-table {

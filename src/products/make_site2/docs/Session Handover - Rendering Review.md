@@ -218,6 +218,8 @@ Completed table-structure/scaffolding pieces:
 - Table bounding boxes are implemented through an explicit
   `artifact-table-frame` for split tables, and direct borders for unsplit
   sectioned tables.
+- Artifact title blocks own their trailing whitespace and are followed by a
+  defined gap before the table entity.
 - The heading/data separator is rendered as the top border of the first body row.
 - Section 6.2.1 section headings render as table heading cells spanning their
   two columns.
@@ -227,7 +229,6 @@ Other open items:
 
 2. Shared table visual language follow-up.
 
-- Heading spacing.
 - Alternating row color/token pass.
 - Muted foreground token policy.
 - Date-like display separator policy. This is the public display-format cleanup for date-like values that should use `-` where they currently use `/`.
