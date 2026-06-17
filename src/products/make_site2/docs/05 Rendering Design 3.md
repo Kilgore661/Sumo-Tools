@@ -225,6 +225,8 @@ Shared Plotly chart presentation includes:
   slot, including Notes-panel show/hide changes and NavigationBar
   hide/restore changes.
 - Plotly mode bars shall be available without showing the Plotly logo.
+- Plotly x-axis and y-axis titles shall render in bold text as shared axis-title
+  presentation, so axis captions remain visibly distinct from tick labels.
 - Long x-axis tick labels may be rotated, with `45` degrees as the normal
   first candidate when horizontal labels are not legible.
 - X-axis tick rotation is a chart artifact/layout property, not an ad hoc local
@@ -234,11 +236,12 @@ Shared Plotly chart presentation includes:
   interaction.
 
 The current runtime implements the shared Plotly configuration in
-`runtime/site-refactor/ui/charts/shared.js`. Current generic chart layouts read
-`x_tickangle` from artifact provenance. Standing Win Probability currently has
-PA-specific legend behaviour; if the same legend interaction is wanted by more
-chart PAs, it should be promoted into a shared chart helper rather than copied
-locally.
+`runtime/site-refactor/ui/charts/shared.js`. Current chart layouts use the
+shared `axisTitle` helper for axis-title emphasis. Current generic chart layouts
+read `x_tickangle` from artifact provenance. Standing Win Probability currently
+has PA-specific legend behaviour; if the same legend interaction is wanted by
+more chart PAs, it should be promoted into a shared chart helper rather than
+copied locally.
 
 Shared chart presentation rules shall continue to be added as real promoted
 chart cases require them and are agreed.
