@@ -126,7 +126,10 @@ function orderedBarLayout(artifact, trace) {
     zerolinecolor: "rgba(127,149,192,0.35)",
     color: "#c9d4ee",
   };
-  if (!useAutoXTicks) {
+  if (useAutoXTicks) {
+    xaxis.tickmode = "auto";
+    xaxis.nticks = 20;
+  } else {
     xaxis.tickvals = trace.x;
     xaxis.ticktext = sparseTickText(trace.x, artifact.provenance.max_x_tick_labels || trace.x.length);
   }
