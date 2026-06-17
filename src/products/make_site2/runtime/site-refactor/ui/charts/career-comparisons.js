@@ -445,8 +445,7 @@ function careerComparisonLayout(artifact, state, data, traces = null) {
       ...(state.x_base === "date" ? dateAxisCategoryOrder(traces || []) : {}),
       automargin: true,
       gridcolor: "rgba(127,149,192,0.18)",
-      zerolinecolor: "rgba(127,149,192,0.35)
-      ",
+      zerolinecolor: "rgba(127,149,192,0.35)",
       color: "#c9d4ee",
     },
     ...yAxes,
