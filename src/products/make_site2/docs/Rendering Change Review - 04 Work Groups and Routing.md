@@ -4,7 +4,7 @@
 
 | Group | Items | Nature | Status |
 | --- | --- | --- | --- |
-| Diagnostic display affordances | `debug_show_notes` URL state, info symbol, possible debug CSS variants | Runtime presentation state / debug policy | Partially implemented: marker visibility follows `debug_show_notes`; `--prod` build-mode policy remains open |
+| Diagnostic display affordances | `debug_show_notes` URL state, info symbol, possible debug CSS variants | Runtime presentation state / debug policy | Implemented for marker visibility; production build diagnostic policy moved to main open issues |
 | Shared table visual language | spacing, borders, row colours, muted colour, date-like display format | Rendering policy/CSS plus shared formatter | Implemented for the reviewed slice: table bounding boxes, title-block spacing, body-start heading/data separator, collapsed group-boundary borders, 6.2.1 heading treatment, muted row-number foreground, date-like public display formatting and alternating row colour tokens |
 | Interim table structure metadata | 2.1/7.1/9.1 column groups, 6.2.1 custom handling | Ad hoc PA-local metadata, easiest-to-remove later | Partially implemented: 6.2.1 side-by-side restored; 9.1 Row number/Context/Wins group metadata provisionally implemented; 2.1 row-number and banzuke-style Row number/East/Rank/West group metadata provisionally implemented |
 | Table semantic model | row numbers, superlative `#` columns | Published Artifact/table model | Partially implemented: row-number/ranking distinction in 7.1, 7.4-style tables, 9.1 and 2.1; broader row-number-as-table-skeleton model remains provisional |
@@ -14,7 +14,6 @@
 | Shared chart rendering | tick-angle rule, bold axis titles | Chart rendering policy | Open |
 | PA-specific chart semantics | line-vs-column chart changes, 6.3.1 error-bar colour | PA contract / chart renderer selection | Open |
 | Bad URL handling | reject bad URL, message, route Home; richer handler | Runtime routing / UX policy | Minimal implemented; richer policy TBD |
-| Build-mode policy | whether `--prod` suppresses stylistic debugging | Open build/operations decision | Open |
 
 ## 5. Implementation-Routing Notes
 
@@ -45,13 +44,11 @@ is present in the URL. When visible, they use a circled-info marker rather than
 
 ### 5.2 `--prod`
 
-There is an existing `--prod` CLI flag. An open issue remains: should `--prod`
-imply that stylistic debugging features are removed or disabled?
-
-This question should be resolved separately from the `debug_show_notes` URL-state
-rule. The `debug_show_notes` rule defines when the info-here marker is displayed;
-the `--prod` issue asks whether a production build should make such diagnostic
-display modes unavailable regardless of URL parameters.
+The production-build policy question has moved to
+`10.4 Open Issues - Defects and Deferred Matters.md` as "Production build
+diagnostic display policy." The implemented `debug_show_notes` URL-state rule
+defines marker display behavior; the open issue asks whether production builds
+should disable diagnostic URL modes regardless of that runtime rule.
 
 ### 5.3 `debug_layout`
 

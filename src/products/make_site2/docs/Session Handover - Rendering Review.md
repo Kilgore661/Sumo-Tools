@@ -229,24 +229,18 @@ Completed table-structure/scaffolding pieces:
 
 Other open items:
 
-2. `debug_show_notes` / marker affordance.
-
-- Marker visibility follows `debug_show_notes=true`; hidden otherwise.
-- Visible markers use a circled-info style marker rather than `?`.
-- Product/debug build-mode policy remains open.
-
-3. Shared chart rendering.
+2. Shared chart rendering.
 
 - Conditional x-axis tick rotation.
 - Bold axis titles.
 
-4. PA-specific chart changes.
+3. PA-specific chart changes.
 
 - Page 5.1 line chart instead of column.
 - Page 7.3.1 Distribution line chart instead of column.
 - Page 6.3.1 pale-blue error bars.
 
-5. Richer bad-URL handling.
+4. Richer bad-URL handling.
 
 - Current minimal behavior exists: `Bad URL` message and route Home.
 - Richer routing/UX policy remains TBD.
