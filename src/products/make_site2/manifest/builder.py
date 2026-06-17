@@ -34,17 +34,12 @@ class QuickLinkDeclaration:
     href: str | None = None
 
 
+GOATS_HREF = "?page=career_comparisons&skill=equelo&x=date&log=true&rikishi=1123%2C3987%2C1354%2C2%2C3%2C4080"
+
 QUICK_LINKS: tuple[QuickLinkDeclaration, ...] = (
     QuickLinkDeclaration(page_id="basho_results_browser", label="Basho Results"),
     QuickLinkDeclaration(page_id="banzuke_changes", label="Most Recent Banzuke"),
-    QuickLinkDeclaration(
-        label="GOATs",
-        href=(
-            "http://192.168.0.6/sumo-tools2/?"
-            "page=career_comparisons&skill=equelo&x=date&log=true&"
-            "rikishi=1123%2C3987%2C1354%2C2%2C3%2C4080"
-        ),
-    ),
+    QuickLinkDeclaration(label="GOATs", href=GOATS_HREF),
 )
 
 LANDING_NAVIGATION_NODE_ID = "home"
@@ -273,7 +268,7 @@ def renderable_navigation_item(
     href = (
         canonical_default_view_href(item.page_id, declaration.filters)
         if included and item.page_id is not None and declaration is not None
-        else None
+        else item.href
     )
     if item.id == LANDING_NAVIGATION_NODE_ID and item.page_id is None:
         href = LANDING_NAVIGATION_HREF
