@@ -8,7 +8,11 @@ import {
   writeCareerComparisonSelectionToUrl,
 } from "./selection-url.js";
 import { renderCareerComparisonsPlot } from "./plot.js";
-import { setRikishiTraceVisibility, syncRikishiVisibilityControls } from "./visibility.js";
+import {
+  removeStoredRikishiVisibility,
+  setRikishiTraceVisibility,
+  syncRikishiVisibilityControls,
+} from "./visibility.js";
 
 function renderCareerComparisonsControls(state) {
   return [
@@ -97,6 +101,7 @@ function wireCareerComparisonsControls(panel, artifact, state, data, writeState)
     if (!button) return;
     careerComparisonsState.selectedRikishiIds = careerComparisonsState.selectedRikishiIds
       .filter(id => id !== button.dataset.rikishiId);
+    removeStoredRikishiVisibility(button.dataset.rikishiId);
     renderSelectedRikishiList(selectedList, optionsById);
     applyState();
   });
@@ -180,6 +185,7 @@ function addSelectedRikishi(label, optionsByLabel) {
   const option = optionsByLabel.get(label);
   if (!option) return;
   if (careerComparisonsState.selectedRikishiIds.includes(option.id)) return;
+  removeStoredRikishiVisibility(option.id);
   careerComparisonsState.selectedRikishiIds = [
     ...careerComparisonsState.selectedRikishiIds,
     option.id,
