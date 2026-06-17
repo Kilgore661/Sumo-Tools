@@ -18,6 +18,7 @@ const CAREER_COMPARISON_TRACE_COLOURS = [
 ];
 const DEFAULT_STATE = {
   selectedRikishiIds: [],
+  hiddenRikishiIds: [],
   candidateLimit: 12,
 };
 
