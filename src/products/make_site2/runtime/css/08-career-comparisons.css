@@ -74,9 +74,9 @@
 
 .career-comparison-selected li {
   align-items: center;
+  column-gap: 0.1rem;
   display: grid;
-  gap: 0.4rem;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto auto;
 }
 
 .career-comparison-selected span {
@@ -87,6 +87,10 @@
 
 .career-comparison-selected button {
   cursor: pointer;
+}
+
+.career-comparison-selected input[data-rikishi-visible-id] {
+  margin: 0;
 }
 
 .career-comparison-empty {
