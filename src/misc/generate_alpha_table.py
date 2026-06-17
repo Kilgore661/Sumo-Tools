@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Generate an HTML table showing alpha-composited steps from a base color to white.
+Generate an HTML table showing alpha-composited steps from a base color to white. This is to help choose the alternating row colours in tables.
 
 Usage:
     python generate_alpha_table.py 0b1d3e 13
