@@ -68,7 +68,7 @@ select {
 }
 
 .help-popover-marker {
-  display: inline-block;
+  display: none;
   font-size: 0.72em;
   font-weight: 700;
   line-height: 1;
@@ -76,6 +76,10 @@ select {
   opacity: 0.75;
   pointer-events: none;
   vertical-align: super;
+}
+
+body.debug-show-notes .help-popover-marker {
+  display: inline-block;
 }
 
 .help-popover-layer {

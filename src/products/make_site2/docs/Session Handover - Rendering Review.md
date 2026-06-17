@@ -231,9 +231,9 @@ Other open items:
 
 2. `debug_show_notes` / marker affordance.
 
-- Hide normal help marker unless `debug_show_notes=true`.
-- Replace `?` marker with circled-info style marker when visible.
-- Decide product/debug policy.
+- Marker visibility follows `debug_show_notes=true`; hidden otherwise.
+- Visible markers use a circled-info style marker rather than `?`.
+- Product/debug build-mode policy remains open.
 
 3. Shared chart rendering.
 

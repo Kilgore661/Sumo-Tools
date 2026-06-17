@@ -4,7 +4,7 @@
 
 | Group | Items | Nature | Status |
 | --- | --- | --- | --- |
-| Diagnostic display affordances | `debug_show_notes` URL state, info symbol, possible debug CSS variants | Runtime presentation state / debug policy | Open |
+| Diagnostic display affordances | `debug_show_notes` URL state, info symbol, possible debug CSS variants | Runtime presentation state / debug policy | Partially implemented: marker visibility follows `debug_show_notes`; `--prod` build-mode policy remains open |
 | Shared table visual language | spacing, borders, row colours, muted colour, date-like display format | Rendering policy/CSS plus shared formatter | Implemented for the reviewed slice: table bounding boxes, title-block spacing, body-start heading/data separator, collapsed group-boundary borders, 6.2.1 heading treatment, muted row-number foreground, date-like public display formatting and alternating row colour tokens |
 | Interim table structure metadata | 2.1/7.1/9.1 column groups, 6.2.1 custom handling | Ad hoc PA-local metadata, easiest-to-remove later | Partially implemented: 6.2.1 side-by-side restored; 9.1 Row number/Context/Wins group metadata provisionally implemented; 2.1 row-number and banzuke-style Row number/East/Rank/West group metadata provisionally implemented |
 | Table semantic model | row numbers, superlative `#` columns | Published Artifact/table model | Partially implemented: row-number/ranking distinction in 7.1, 7.4-style tables, 9.1 and 2.1; broader row-number-as-table-skeleton model remains provisional |
@@ -38,6 +38,10 @@ The visible marker should be the circled-info style symbol rather than `?`.
 
 This parameter shows diagnostic affordance markers. It does not open the Notes
 panel on page load.
+
+Implemented note: help/popover markers are hidden unless `debug_show_notes=true`
+is present in the URL. When visible, they use a circled-info marker rather than
+`?`. This does not change whether the underlying hover/click popovers work.
 
 ### 5.2 `--prod`
 

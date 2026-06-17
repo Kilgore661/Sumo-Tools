@@ -35,7 +35,7 @@ function renderLabelWithHelp(label, help, options = {}) {
     `<span ${attributes.join(" ")}>`,
     escapeHtml(label),
     '</span>',
-    '<span class="help-popover-marker" aria-hidden="true">?</span>',
+    '<span class="help-popover-marker" aria-hidden="true">&#9432;</span>',
   ].join("");
 }
 
@@ -51,6 +51,7 @@ function inferredNoteId(label, help) {
 
 function installHelpPopovers() {
   if (helpLayer) return;
+  syncHelpMarkerDebugMode();
   installNoteHighlightStyle();
   installShikonaLinkAffordance();
   helpLayer = document.createElement("div");
@@ -98,7 +99,13 @@ function installHelpPopovers() {
     dispatchOpenNote(noteId);
   });
   window.addEventListener("resize", () => positionHelpPopover(), { passive: true });
+  window.addEventListener("popstate", () => syncHelpMarkerDebugMode());
   document.addEventListener("scroll", () => positionHelpPopover(), { capture: true, passive: true });
+}
+
+function syncHelpMarkerDebugMode() {
+  const params = new URLSearchParams(window.location.search);
+  document.body.classList.toggle("debug-show-notes", params.get("debug_show_notes") === "true");
 }
 
 function installShikonaLinkAffordance() {
@@ -225,4 +232,5 @@ export {
   renderNotesHelpText,
   inferredNoteId,
   installNoteHighlightStyle,
+  syncHelpMarkerDebugMode,
 };
