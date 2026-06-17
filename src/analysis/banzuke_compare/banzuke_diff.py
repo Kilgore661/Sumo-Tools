@@ -53,7 +53,7 @@ def build_banzuke_diff(source: PublicationSource) -> BanzukeDiff:
 def build_change(
     source: PublicationSource,
     rikishi_id: RikId,
-    local_delta_by_rikishi: dict[RikId, float],
+    local_delta_by_rikishi: dict[RikId, int],
 ) -> BanzukeChange:
     """
     Contract:
@@ -98,7 +98,7 @@ def build_change(
 def calculate_local_deltas(
     previous_banzuke: Banzuke,
     current_banzuke: Banzuke,
-) -> dict[RikId, float]:
+) -> dict[RikId, int]:
     """
     Contract:
         previous_banzuke and current_banzuke are the compared pair.
@@ -118,7 +118,6 @@ def calculate_local_deltas(
             slot_index[previous_banzuke.get_chii(rikishi_id)]
             - slot_index[current_banzuke.get_chii(rikishi_id)]
         )
-        / 2
         for rikishi_id in shared_rikishi
     }
 
@@ -171,7 +170,7 @@ def rank_level_movement_marker(previous_chii: Chii | None, current_chii: Chii) -
     if previous_index == current_index:
         return ""
 
-    return "\u2191" if current_index < previous_index else "\u2193"
+    return "↑" if current_index < previous_index else "↓"
 
 
 def bz_chii_for_chii(chii: Chii) -> str:
