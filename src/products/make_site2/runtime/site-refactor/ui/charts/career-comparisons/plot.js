@@ -3,6 +3,7 @@ import { careerComparisonsState } from "./state.js";
 import { careerComparisonCaption } from "./caption.js";
 import { careerComparisonTraces } from "./traces.js";
 import { careerComparisonLayout, usesChiiAxis } from "./layout.js";
+import { syncRikishiVisibilityControls } from "./visibility.js";
 
 function renderCareerComparisonsPlot(artifact, state, data) {
   const host = document.getElementById("career-comparisons-chart");
@@ -30,6 +31,7 @@ function renderCareerComparisonsPlot(artifact, state, data) {
   Plotly.react(host, traces, careerComparisonLayout(artifact, state, data, traces), PLOTLY_CONFIG)
     .then(() => {
       attachCareerComparisonLegendHandler(host);
+      syncCareerComparisonVisibilityControls(host);
     });
 }
 
@@ -47,6 +49,12 @@ function attachCareerComparisonLegendHandler(host) {
   if (!host.on) return;
   if (host.__careerComparisonHandlersAttached) return;
   host.__careerComparisonHandlersAttached = true;
+  host.on("plotly_legendclick", () => {
+    requestAnimationFrame(() => syncCareerComparisonVisibilityControls(host));
+  });
+  host.on("plotly_restyle", () => {
+    syncCareerComparisonVisibilityControls(host);
+  });
   host.on("plotly_legenddoubleclick", event => {
     const visibility = host.data.map((_, index) =>
       index === event.curveNumber ? true : "legendonly"
@@ -56,8 +64,16 @@ function attachCareerComparisonLegendHandler(host) {
   });
 }
 
+function syncCareerComparisonVisibilityControls(host) {
+  syncRikishiVisibilityControls(
+    host,
+    document.querySelector(".career-comparison-selected"),
+  );
+}
+
 export {
   renderCareerComparisonsPlot,
   updateCareerComparisonCaption,
   attachCareerComparisonLegendHandler,
+  syncCareerComparisonVisibilityControls,
 };
