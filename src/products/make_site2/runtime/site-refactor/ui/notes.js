@@ -3,7 +3,6 @@
 import { updateStickyArtifactHeaders } from "./layout.js";
 import { escapeHtml } from "../utils/html.js";
 
-const NOTES_COLLAPSED_STORAGE_KEY = "gaspodeSumoLab.makeSite2.notesCollapsed";
 const NOTE_HIGHLIGHT_DURATION_MS = 5000;
 let noteHighlightTimer = null;
 let noteOpenHandlerInstalled = false;
@@ -34,12 +33,10 @@ function wireNotesPanel() {
   const toggle = panel.querySelector("[data-notes-toggle]");
   const body = panel.querySelector("[data-notes-body]");
   if (!toggle || !body) return;
-  const initialCollapsed = window.localStorage.getItem(NOTES_COLLAPSED_STORAGE_KEY) === "true";
-  applyNotesCollapsedState(panel, body, toggle, initialCollapsed);
+  applyNotesCollapsedState(panel, body, toggle, true);
   toggle.addEventListener("click", () => {
     const collapsed = !panel.classList.contains("notes-panel-collapsed");
     applyNotesCollapsedState(panel, body, toggle, collapsed);
-    window.localStorage.setItem(NOTES_COLLAPSED_STORAGE_KEY, String(collapsed));
     updateStickyArtifactHeaders();
     resizePlotlyCharts();
   });
@@ -63,7 +60,6 @@ function openAndHighlightNote(noteId) {
     return;
   }
   applyNotesCollapsedState(panel, body, toggle, false);
-  window.localStorage.setItem(NOTES_COLLAPSED_STORAGE_KEY, "false");
   updateStickyArtifactHeaders();
   resizePlotlyCharts();
   highlightNote(note);
@@ -85,7 +81,7 @@ function highlightNote(noteElement) {
 
 function cssEscape(value) {
   if (window.CSS?.escape) return window.CSS.escape(value);
-  return String(value).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+  return String(value).replace(/\/g, "\\").replace(/"/g, '\"');
 }
 
 function applyNotesCollapsedState(panel, body, toggle, collapsed) {
