@@ -15,7 +15,7 @@ Basho selector redesign: implemented as an interim PA-specific/runtime control.
 
 Clickable Notes popovers: implemented as runtime popover-to-note interaction.
 
-General bad-URL handling: minimal current behavior implemented; richer policy TBD.
+General bad-URL handling: minimal current behavior implemented. Richer handling policy is resolved but not implemented: bad deep URLs should alert and land on Home, while bad in-site navigation should alert and preserve the current view.
 
 All other items in this review remain open unless called out separately.
 
