@@ -97,7 +97,7 @@ BASHO_RESULTS_ARTIFACT = IndexedTableArtifact(
     ),
     default_sort_column="chii",
     notes=(
-        Note(id="note_result", applies_to=("all",), text="Result shows the number of wins, losses, absences and prizes."),
+        Note(id="note_result", applies_to=("all",), text="Result shows the number of wins, losses and absences."),
         Note(id="note_movement", applies_to=("changes_context",), text="Movement notes placeholder. Replace with meaningful movement documentation."),
         Note(id="note_chii_movement", applies_to=("changes_context",), text="Chii movement notes placeholder. Replace with meaningful chii movement documentation."),
         Note(id="note_division_movement", applies_to=("changes_context",), text="Division movement notes placeholder. Replace with meaningful division movement documentation."),
@@ -130,7 +130,7 @@ MAKUUCHI_RANK_BY_ERA_ARTIFACT = ChartArtifact(
     traces=(ChartTrace(id="era_counts", label="Era counts", kind="stacked_bar", x="rank", y="count", group_by="era"),),
     x_axis=ChartAxis(id="x", source_field="rank", label="Rank"),
     y_axis=ChartAxis(id="y", source_field="count", label="Appearances", minimum=0),
-    provenance={"subheading": "Count of banzuke appearances at each Makuuchi rank.", "legend_title": "Era", "group_order": ("1958-1967", "1968-1977", "1978-1987", "1988-1997", "1998-2007", "2008-2017", "2018-2026"), "x_tickangle": -45},
+    provenance={"subheading": "Count of banzuke appearances at each Makuuchi rank.", "legend_title": "Era", "group_order": ("1958-1967", "1968-1977", "1978-1987", "1988-1997", "1998-2007", "2008-2017", "2018-2026"), "x_tickangle": "auto"},
 )
 
 DIVISION_STABILITY_ARTIFACT = ChartArtifact(
