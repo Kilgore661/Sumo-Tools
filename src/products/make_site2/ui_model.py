@@ -104,6 +104,7 @@ class ContentPanel:
     page_id: str
     heading: Heading
     contents: Contents
+    public_url_keys: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True, kw_only=True)
