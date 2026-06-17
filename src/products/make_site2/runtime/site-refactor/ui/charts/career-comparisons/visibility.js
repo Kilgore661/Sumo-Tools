@@ -41,7 +41,9 @@ function removeStoredRikishiVisibility(rikishiId) {
 function syncRikishiVisibilityControls(host, selectedList) {
   if (!host || !selectedList) return;
   for (const control of selectedList.querySelectorAll("input[data-rikishi-visible-id]")) {
-    control.checked = isAnyRikishiTraceVisible(host, control.dataset.rikishiVisibleId);
+    const visible = isAnyRikishiTraceVisible(host, control.dataset.rikishiVisibleId);
+    control.checked = visible;
+    setStoredRikishiVisibility(control.dataset.rikishiVisibleId, visible);
   }
 }
 
