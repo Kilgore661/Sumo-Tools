@@ -140,6 +140,25 @@ RawPageDefinition -> PlannedPageWithRoute (carrying Route, not Optional[Route])
 
 > Design top-down by contract. Trust your inputs. Eliminate defensive noise, let the language crash natively on internal logic errors, and handle only the explicit uncertainties admitted by the project requirements.
 
+## LLM Edit Discipline
+
+LLM edits should be direct, minimal, and owned by the real code path.
+
+* Identify the actual runtime path before editing. Do not change adjacent or
+  plausible files until the file that owns the behavior is known.
+* Prefer the smallest file that owns the behavior. Replacing a small file through
+  a connector may be acceptable when patch support is unavailable; replacing a
+  large file is fragile and should be avoided.
+* Do not create policy, wrapper, adapter, or probe files merely to route around a
+  simple change. Add new modules only when the design actually calls for new
+  surface area.
+* After a blocked or failed write, stop and reassess the simplest route. Do not
+  keep changing strategy sideways with blobs, trees, placeholder files, or
+  half-wired workaround modules.
+* Never probe connector behavior with temporary files on the real branch.
+* For small behavioral edits, make the direct minimal edit, then verify by
+  fetching the exact changed lines before reporting completion.
+
 # Results of conversation about LLM's environment
 
 Here is what I’ve learned about this working environment.
@@ -238,106 +257,3 @@ node -e "const { chromium } = require('playwright'); (async () => { const browse
 ```
 
 Python works from the workspace. For local static preview, the command is:
-
-```powershell
-python -m http.server 8766 --directory <folder>
-```
-
-but the folder must actually contain `index.html`. The earlier `8787` 404 was because `files/output/make_site2` did not exist from `X:\Sumo-Tools`.
-
-The make_site2 tests live under the repository-root `tests` directory, for
-example:
-
-```text
-tests\test_make_site2_basho_results_redesign.py
-tests\test_make_site2_table_sorting.py
-tests\test_make_site2_build.py
-```
-
-Do not rely on the GitHub connector to discover unknown test files. In this
-environment it can usually read files by exact known path, but file/directory
-discovery and broad code search may miss existing files. Use local Git/shell
-discovery from the repo root instead:
-
-```powershell
-git ls-files "tests/*"
-git ls-files "tests/test_make_site2*.py"
-git ls-files "*pytest*"
-```
-
-Use the repo-local virtual environment for tests:
-
-```powershell
-.\.venv\Scripts\python.exe -m pytest -s <test paths>
-```
-
-For focused make_site2 checks, start with known root tests such as:
-
-```powershell
-.\.venv\Scripts\python.exe -m pytest -s tests\test_make_site2_basho_results_redesign.py tests\test_make_site2_table_sorting.py
-```
-
-Then broaden only when the focused checks are understood:
-
-```powershell
-.\.venv\Scripts\python.exe -m pytest -s tests
-```
-
-Testing policy is pragmatic. This is not a professional safety-critical build
-where every historical test must be maintained forever. Tests may be current,
-stale, or legacy/redundant. Current useful tests should be kept; stale tests may
-be rewritten when they protect the current model; legacy tests that assert
-abandoned structure may be deleted. A failing test is evidence to classify, not
-automatic proof that product code is wrong.
-
-Use tests to support the work just done or about to be done. Do not preserve
-broad tests merely because they exist. It is acceptable to keep only a lightweight
-baseline plus focused regression checks for recent changes.
-
-For `make_site2`, useful recurring checks are:
-
-```text
-syntax/import checks
-  Python compile/import where relevant; JavaScript `node --check` on edited
-  runtime files.
-
-focused pytest checks
-  Model, manifest, build, CLI, data-output or renderer contracts directly
-  affected by the change.
-
-build/preview checks
-  Build the site, serve it on localhost:8766, and inspect the relevant browser
-  behaviour when the environment supports it.
-```
-
-Pytest is not a substitute for browser inspection. It cannot by itself prove
-click behaviour, DOM event wiring, CSS layout, heading alignment, Plotly
-visibility or other functional browser behaviour. When those are the material
-risk, use the shared preview or ask for human browser inspection.
-
-The user is not personally invested in maintaining test internals. If a change
-under `tests/*` is needed to delete legacy tests, update stale tests, or add a
-focused check for the current work, do it and explain the classification.
-
-The user-site pytest install may be visible to the human's interactive shell
-but not to Codex. If `py -m pytest` or `python -m pytest` fails from Codex,
-do not chase the global Python environment first; use the repo-local `.venv`.
-
-Pytest may also have a local capture problem in this environment. A normal
-focused pytest run failed during capture teardown with:
-
-```text
-ValueError: I/O operation on closed file.
-```
-
-Rerunning with `-s` bypassed capture and produced ordinary test results. If an
-LLM sees this pytest/capture failure again, it should switch to the `.venv`
-command above with `-s`, then report any remaining real test failures.
-
-There may be a lingering Python server on port `8766`, started earlier, serving
-a recent build. Treat `8766` as the shared preview port and check with the user
-before killing or replacing that process.
-
-For data/builds, sometimes the live store is not available; why is not clear because the user says it is running. The reliable Codex path is to build from a history zip, ideally the small one kept for speed.
-
-Also: binary files need care. `.gitattributes` currently normalizes `* text eol=lf`, and without binary exceptions it can corrupt files like `.pkl`. That explained the `full_shiks.pkl` weirdness.
