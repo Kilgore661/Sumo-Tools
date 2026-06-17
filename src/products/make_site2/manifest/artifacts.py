@@ -120,7 +120,7 @@ BANZUKE_DIVISION_BY_ERA_ARTIFACT = ChartArtifact(
     traces=(ChartTrace(id="division_average", label="Division average", kind="stacked_bar", x="era", y="average_rikishi", group_by="division"),),
     x_axis=ChartAxis(id="x", source_field="era", label="Era", order_values=("1958-1967", "1968-1977", "1978-1987", "1988-1997", "1998-2007", "2008-2017", "2018-2026")),
     y_axis=ChartAxis(id="y", source_field="average_rikishi", label="Average rikishi per basho", minimum=0),
-    provenance={"subheading": "Average rikishi per basho, grouped by division.", "legend_title": "Division", "stack_order": ("Jonokuchi", "Jonidan", "Sandanme", "Makushita", "Juryo", "Makuuchi"), "x_tickangle": -45, "group_colours": {"Makuuchi": "#6D597A", "Juryo": "#355C7D", "Makushita": "#457B9D", "Sandanme": "#2A9D8F", "Jonidan": "#8D6A9F", "Jonokuchi": "#BC6C25"}},
+    provenance={"subheading": "Average rikishi per basho, grouped by division.", "legend_title": "Division", "stack_order": ("Jonokuchi", "Jonidan", "Sandanme", "Makushita", "Juryo", "Makuuchi"), "x_tickangle": "auto", "group_colours": {"Makuuchi": "#6D597A", "Juryo": "#355C7D", "Makushita": "#457B9D", "Sandanme": "#2A9D8F", "Jonidan": "#8D6A9F", "Jonokuchi": "#BC6C25"}},
 )
 
 MAKUUCHI_RANK_BY_ERA_ARTIFACT = ChartArtifact(
