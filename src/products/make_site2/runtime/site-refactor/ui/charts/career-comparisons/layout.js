@@ -1,5 +1,6 @@
 import { axisTitle } from "../shared.js";
 import { buildChiiScale } from "./chii-scale.js";
+import { usesChiiAxis } from "./mode.js";
 import { careerComparisonTraces } from "./traces.js";
 
 function careerComparisonLayout(artifact, state, data, traces = null) {
@@ -53,10 +54,6 @@ function careerComparisonYAxes(artifact, state, data, traces) {
       ? chiiAxisLayout(artifact, state, data, traces)
       : equeloAxisLayout(state, traces),
   };
-}
-
-function usesChiiAxis(state) {
-  return state.skill === "chii" || state.skill === "both";
 }
 
 function dateAxisCategoryOrder(traces) {
