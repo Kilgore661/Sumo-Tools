@@ -2,38 +2,35 @@
 
 ## Scope
 
-This handoff covers the recent `make_site2` chart-axis rendering review on branch
-`dev`. It is a standalone handoff for the chart work, separate from the older
-Rendering Review handover.
+This handoff records the completed `make_site2` chart-axis rendering review on
+branch `dev`. It is a closeout note for the chart-axis work, separate from the
+older Rendering Review handover.
 
 The work focused on Plotly chart presentation in the generic chart runtime:
 
-- bold axis titles
-- x-axis tick-label angle
-- x-axis tick-label density
-- behavior differences between stacked bar, ordered bar and grouped line charts
+- bold axis titles;
+- x-axis tick-label angle;
+- x-axis tick-label density;
+- behavior differences between stacked bar, ordered bar and grouped line charts.
 
-## Current branch state
+## Closeout state
 
-The latest confirmed state for this chart pass is:
+The reviewed simple-chart axis work is complete.
 
 - `BANZUKE_DIVISION_BY_ERA_ARTIFACT` uses `"x_tickangle": "auto"`.
 - `MAKUUCHI_RANK_BY_ERA_ARTIFACT` uses `"x_tickangle": "auto"`.
-- `FIRST_CHII_APPEARANCE_ARTIFACT` has a runtime special case in
-  `generic-layouts.js` that lets Plotly own both x tick-label angle and label
-  density.
-- `DIVISION_STABILITY_ARTIFACT` was briefly changed to `"x_tickangle": "auto"`
-  but was then restored. Current state is `"x_tickangle": -45`.
+- `FIRST_CHII_APPEARANCE_ARTIFACT` uses the ordered-bar runtime path that lets
+  Plotly own x tick-label angle and density.
+- `DIVISION_STABILITY_ARTIFACT` uses `"x_tickangle": "auto"` with `"nticks": 20`.
+- The grouped-line runtime passes artifact-level `nticks` through to Plotly.
 
-The user has not yet evaluated a rebuilt Division Persistence chart after a
-new fix. Do not assume the reverted trial was accepted.
+The remaining chart-maker, 3.3 Rikishi History, is outside this closeout. It has
+a separate follow-up issue.
 
-## Files most relevant to continue
+## Files most relevant to the completed work
 
 ```text
-src/products/make_site2/manifest/artifacts.py
-src/products/make_site2/runtime/site-refactor/ui/charts/generic.js
-src/products/make_site2/runtime/site-refactor/ui/charts/generic-traces.js
+src/products/make_site2/manifest/artifacts/
 src/products/make_site2/runtime/site-refactor/ui/charts/generic-layouts.js
 src/products/make_site2/runtime/site-refactor/ui/charts/generic-renderers.js
 src/products/make_site2/runtime/site-refactor/ui/charts/shared.js
@@ -132,48 +129,19 @@ Effect:
 Artifact: `DIVISION_STABILITY_ARTIFACT`
 Renderer: `grouped_line_chart`
 
-Current state after undo:
+Current accepted state:
 
 ```python
-"x_tickangle": -45
+"x_tickangle": "auto",
+"nticks": 20
 ```
 
-A one-line trial changed it to `"auto"`, but the user asked to undo before a
-rebuild/evaluation. Current branch has the original fixed angle restored.
+The grouped-line runtime now passes `artifact.provenance.nticks` to Plotly's
+x-axis layout. The artifact declares the density hint; the runtime owns the
+Plotly mechanics. This lets Plotly choose the displayed tick labels and label
+angle rather than hard-coding sparse tick text for this chart.
 
-Important distinction: Division Persistence is a grouped-line chart. It does not
-use the ordered-bar `sparseTickText(...)` path that caused the First Chii density
-issue. Do not blindly apply the First Chii special case here.
-
-## Important commits
-
-```text
-e45adf47016538ae05e364ce242fe89be527b0bc docs: record bold axis title rendering policy
-b339c56f3d0fa80c51d47c6b72c1b53427e32e36 docs: update rendering review chart status
-6c070ad0eccf91ede9071b84d1d341443c7db650 docs: clean up bold axis title handover status
-b7871fcabccb6614b386a92dc822c208574b8d0b runtime: split generic chart trace helpers
-731d812244a6caedb9e47d61fb50a4e3f217309e runtime: split generic chart layout builders
-44d5432929ee5e74415b49288ed8c3ee89037e94 runtime: split generic chart render entry points
-9f55f5824514f3ec158c173df3b0a7797f526bfe runtime: make generic chart module a facade
-7936ba73e1b926de8208411e4613daf63c66a52d artifacts: let era division chart use auto x tick angle
-830b1d1e43a4aae6ad6caa840513c8e1cc3691f1 artifacts: let makuuchi rank era chart use auto x tick angle
-feb9be8869af18b58e009e29f0ff563410fbd5b7 artifacts: restore basho result note wording
-512f04aee67b9c1430e9d5bba4ddb0416f35d184 runtime: let first chii appearance use Plotly x tick auto
-dd6544c0897cd7388aa60391cc4bc7ecb744c653 runtime: hint first chii x tick density to Plotly
-eea7fc1ecb53b05b6f2353e6ac4df777edbaf5ed artifacts: restore division persistence tick angle
-9d8e481368123775c73f75b75dd5d908f248daf1 docs: add LLM edit discipline guidance
-```
-
-There were also cleanup commits removing unused placeholder modules created
-during failed attempts:
-
-```text
-a1e490659cbcae75bb8cdccbda43cf0d9eb6ebe9
-07c8c6e059a06bfb4c9e7db66e9f1b0ce6f2f2d7
-c7a8bdf437dc8336052c157ec539945626bc2050
-```
-
-## Process cautions for the next run
+## Process cautions for future work
 
 Follow `docs/LLM Guide.md`, especially the `LLM Edit Discipline` section.
 
@@ -182,24 +150,16 @@ Practical lessons from this pass:
 - Identify the actual owner file before changing anything.
 - Prefer the smallest owner file.
 - Do not create placeholder, policy, wrapper or probe files for a simple edit.
-- Avoid full-file rewrites of large files such as `manifest/artifacts.py`; the
-  GitHub connector has no patch operation and full replacements caused accidental
-  unrelated edits during this pass.
+- Avoid full-file rewrites of large files; the GitHub connector has no patch
+  operation and full replacements can cause accidental unrelated edits.
 - If a full-file replacement is unavoidable, verify the net diff before saying
   the change is done.
 - Do not treat source inspection as browser verification. The user validates the
   rendered result after rebuilding.
 
-## Suggested next step
+## Closeout
 
-Continue with **4.5 Division Persistence**.
+No further action remains in this handover for the simple-chart axis pass.
 
-Current restored state is fixed `-45` x tick angle. Reasonable next options are:
-
-1. Leave it fixed if the rendered chart is acceptable.
-2. Retry a simple `"x_tickangle": "auto"` and have the user rebuild/evaluate.
-3. Inspect grouped-line layout and data density before adding any grouped-line
-   specific tick-density hint.
-
-Do not update normative rendering docs after every individual chart. Update the
-design docs only when a pattern becomes general policy.
+Do not use this handover as the next-step source for 4.5 Division Persistence;
+that work is complete. The remaining chart follow-up is 3.3 Rikishi History.
