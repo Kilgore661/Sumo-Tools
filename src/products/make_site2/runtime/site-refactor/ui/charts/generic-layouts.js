@@ -114,24 +114,28 @@ function groupedChartLayout(artifact, rowsBySource) {
 function orderedBarLayout(artifact, trace) {
   const maxY = Math.max(...trace.y, 0);
   const yTicks = monthIndexTicks(maxY, artifact);
+  const useAutoXTicks = artifact.id === "first_chii_appearance";
+  const xaxis = {
+    title: axisTitle(artifact.x_axis.label),
+    type: "category",
+    categoryorder: "array",
+    categoryarray: trace.x,
+    tickangle: useAutoXTicks ? "auto" : artifact.provenance.x_tickangle || 0,
+    automargin: true,
+    gridcolor: "rgba(127,149,192,0.18)",
+    zerolinecolor: "rgba(127,149,192,0.35)",
+    color: "#c9d4ee",
+  };
+  if (!useAutoXTicks) {
+    xaxis.tickvals = trace.x;
+    xaxis.ticktext = sparseTickText(trace.x, artifact.provenance.max_x_tick_labels || trace.x.length);
+  }
   return {
     autosize: true,
     paper_bgcolor: "rgba(0,0,0,0)",
     plot_bgcolor: "rgba(0,0,0,0)",
     margin: { l: 90, r: 30, t: 18, b: 120 },
-    xaxis: {
-      title: axisTitle(artifact.x_axis.label),
-      type: "category",
-      categoryorder: "array",
-      categoryarray: trace.x,
-      tickvals: trace.x,
-      ticktext: sparseTickText(trace.x, artifact.provenance.max_x_tick_labels || trace.x.length),
-      tickangle: artifact.provenance.x_tickangle || 0,
-      automargin: true,
-      gridcolor: "rgba(127,149,192,0.18)",
-      zerolinecolor: "rgba(127,149,192,0.35)",
-      color: "#c9d4ee",
-    },
+    xaxis,
     yaxis: {
       title: axisTitle(artifact.y_axis.label),
       range: [0, maxY],
