@@ -220,55 +220,71 @@ function banzukeCellAttributes(columnId, groupPosition = "") {
   return attributes.length ? ` ${attributes.join(" ")}` : "";
 }
 
-function banzukeGroupPosition(index, total) {
-  if (total === 1) return "only";
-  if (index === 0) return "first";
-  if (index === total - 1) return "last";
-  return "middle";
-}
-
-function banzukeGroupAttributes(groupId, position) {
+function banzukeGroupAttributes(id, groupPosition) {
   return [
-    `data-group-id="${escapeHtml(groupId)}"`,
-    ...banzukeGroupBoundaryAttributes(position),
+    `data-column-id="${escapeHtml(id)}"`,
+    ...banzukeGroupBoundaryAttributes(groupPosition),
   ].join(" ");
 }
 
-function banzukeGroupBoundaryAttributes(position) {
-  if (position === "first") return ['data-group-start="true"'];
-  if (position === "last") return ['data-group-end="true"'];
-  if (position === "only") return ['data-group-start="true"', 'data-group-end="true"'];
+function banzukeGroupBoundaryAttributes(groupPosition) {
+  if (groupPosition === "only") return ['data-group-start="true"', 'data-group-end="true"'];
+  if (groupPosition === "start") return ['data-group-start="true"'];
+  if (groupPosition === "end") return ['data-group-end="true"'];
   return [];
 }
 
-function banzukeSideValue(row, side, field) {
-  const prefix = `${side}_`;
-  if (field === "direction") return movementIcon(row[`${prefix}delta`]);
-  if (field === "result") return row[`${prefix}result`] || "";
-  if (field === "old_chii") return row[`${prefix}old_chii`] || "";
-  if (field === "equelo") return row[`${prefix}equelo_rating`] || "";
-  if (field === "delta") return renderDelta(row[`${prefix}delta`], row[`${prefix}delta_class`]);
-  if (field === "chii") return escapeHtml(row[`${prefix}chii`] || "");
-  if (field === "shikona") return renderRikishiLink(row[`${prefix}shikona`], row[`${prefix}rikishi_id`], row[`${prefix}graph_shikona`]);
-  return escapeHtml(row[`${prefix}${field}`] || "");
+function banzukeGroupPosition(index, count) {
+  if (count === 1) return "only";
+  if (index === 0) return "start";
+  if (index === count - 1) return "end";
+  return "";
 }
 
-function movementIcon(delta) {
-  const number = Number(delta);
-  if (Number.isNaN(number) || number === 0) return "";
-  return number > 0 ? "↑" : "↓";
+function movementDirection(value) {
+  if (String(value).startsWith("+")) return "↑";
+  if (String(value).startsWith("-")) return "↓";
+  return "";
 }
 
-function movementDirection(delta) {
-  const number = Number(delta);
-  if (Number.isNaN(number) || number === 0) return "";
-  return number > 0 ? "up" : "down";
+function banzukeSideValue(row, side, columnId) {
+  if (columnId === "chii") return escapeHtml(row[`${side}_chii`]);
+  if (columnId === "shikona") {
+    return renderRikishiLink(
+      row[`${side}_shikona`],
+      row[`${side}_rikishi_id`],
+    );
+  }
+  if (columnId === "result") {
+    const result = row[`${side}_result`];
+    const movement = row[`${side}_result_movement`];
+    return escapeHtml([result, movement].filter(Boolean).join(" "));
+  }
+  if (columnId === "direction") {
+    return movementDirection(row[`${side}_delta`]);
+  }
+  return escapeHtml(row[`${side}_${columnId}`]);
 }
 
-function renderDelta(delta, deltaClass) {
-  if (!delta) return "";
-  const className = deltaClass ? `delta ${escapeHtml(deltaClass)}` : "delta";
-  return `<span class="${className}">${escapeHtml(delta)}</span>`;
-}
-
-export { renderBanzukeChangesTable };
+export {
+  renderBanzukeChangesTable,
+  banzukeTitle,
+  renderBanzukeStyleTable,
+  renderBanzukeScanTable,
+  banzukeSideColumns,
+  banzukeScanColumns,
+  banzukeRowNumberColumn,
+  renderBanzukeStyleRowNumberCell,
+  renderBanzukeSideCell,
+  renderBanzukeScanCell,
+  currentBanzukeScanSortState,
+  sortBanzukeScanRows,
+  banzukeScanSortValue,
+  banzukeChiiOrdinal,
+  banzukeCellAttributes,
+  banzukeGroupAttributes,
+  banzukeGroupBoundaryAttributes,
+  banzukeGroupPosition,
+  movementDirection,
+  banzukeSideValue,
+};
