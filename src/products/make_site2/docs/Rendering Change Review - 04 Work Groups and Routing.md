@@ -5,7 +5,7 @@
 | Group | Items | Nature | Status |
 | --- | --- | --- | --- |
 | Diagnostic display affordances | `debug_show_notes` URL state, info symbol, possible debug CSS variants | Runtime presentation state / debug policy | Open |
-| Shared table visual language | spacing, borders, row colours, muted colour, date-like display format | Rendering policy/CSS plus shared formatter | Partially implemented: table bounding boxes, title-block spacing, body-start heading/data separator, collapsed group-boundary borders, 6.2.1 heading treatment, muted row-number foreground and date-like public display formatting implemented; row-colour policy remains open |
+| Shared table visual language | spacing, borders, row colours, muted colour, date-like display format | Rendering policy/CSS plus shared formatter | Implemented for the reviewed slice: table bounding boxes, title-block spacing, body-start heading/data separator, collapsed group-boundary borders, 6.2.1 heading treatment, muted row-number foreground, date-like public display formatting and alternating row colour tokens |
 | Interim table structure metadata | 2.1/7.1/9.1 column groups, 6.2.1 custom handling | Ad hoc PA-local metadata, easiest-to-remove later | Partially implemented: 6.2.1 side-by-side restored; 9.1 Row number/Context/Wins group metadata provisionally implemented; 2.1 row-number and banzuke-style Row number/East/Rank/West group metadata provisionally implemented |
 | Table semantic model | row numbers, superlative `#` columns | Published Artifact/table model | Partially implemented: row-number/ranking distinction in 7.1, 7.4-style tables, 9.1 and 2.1; broader row-number-as-table-skeleton model remains provisional |
 | Link/popover/notes interactions | shikona Alt-click, link popover text, clickable Notes popovers | Runtime interaction plus explicit metadata/text rule | Partially implemented: clickable Notes popovers complete; shikona link help and Alt-click implemented; Notes validation/tightening open |
@@ -94,7 +94,8 @@ trailing whitespace and is followed by a defined gap before the table entity.
 Mechanical row-number columns use the shared muted foreground token. Public
 date-like display strings use `-` separators at known table/chart display
 points without rewriting URLs, paths or source data. Remaining visual-token work
-should focus on row-colour contrast.
+for this reviewed slice is complete: alternating table rows use the revised row
+background tokens.
 
 ### 5.6 Basho selector URL state
 

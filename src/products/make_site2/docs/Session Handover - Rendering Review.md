@@ -221,6 +221,7 @@ Completed table-structure/scaffolding pieces:
 - Mechanical row-number columns use the shared muted foreground token.
 - Public date-like display strings use `-` separators at known table/chart
   display points without rewriting source data, URLs or paths.
+- Alternating table rows use the revised row background tokens.
 - The heading/data separator is rendered as the top border of the first body row.
 - Section 6.2.1 section headings render as table heading cells spanning their
   two columns.
@@ -228,28 +229,24 @@ Completed table-structure/scaffolding pieces:
 
 Other open items:
 
-2. Shared table visual language follow-up.
-
-- Alternating row color/token pass.
-
-3. `debug_show_notes` / marker affordance.
+2. `debug_show_notes` / marker affordance.
 
 - Hide normal help marker unless `debug_show_notes=true`.
 - Replace `?` marker with circled-info style marker when visible.
 - Decide product/debug policy.
 
-4. Shared chart rendering.
+3. Shared chart rendering.
 
 - Conditional x-axis tick rotation.
 - Bold axis titles.
 
-5. PA-specific chart changes.
+4. PA-specific chart changes.
 
 - Page 5.1 line chart instead of column.
 - Page 7.3.1 Distribution line chart instead of column.
 - Page 6.3.1 pale-blue error bars.
 
-6. Richer bad-URL handling.
+5. Richer bad-URL handling.
 
 - Current minimal behavior exists: `Bad URL` message and route Home.
 - Richer routing/UX policy remains TBD.
