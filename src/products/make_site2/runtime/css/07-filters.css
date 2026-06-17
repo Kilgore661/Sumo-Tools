@@ -3,6 +3,10 @@
   padding: 0.5rem 1rem 0;
 }
 
+.filter-section h4 {
+  margin-block-end: 1rem;
+}
+
 .filter-section ul {
   list-style: none;
 }
