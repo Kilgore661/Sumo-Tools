@@ -60,7 +60,7 @@ function careerComparisonTrace(rikishiId, artifact, state, data, chiiScale, seri
     ]);
   });
   if (!x.length) return null;
-  return {
+  const trace = {
     type: "scatter",
     mode: "lines",
     name: careerComparisonTraceName(rikishiId, data, resolvedSeries),
@@ -72,6 +72,10 @@ function careerComparisonTrace(rikishiId, artifact, state, data, chiiScale, seri
     customdata,
     hovertemplate: careerComparisonHoverTemplate(state, resolvedSeries.skill),
   };
+  if (careerComparisonsState.hiddenRikishiIds.includes(rikishiId)) {
+    trace.visible = "legendonly";
+  }
+  return trace;
 }
 
 function careerComparisonTraceName(rikishiId, data, series) {
