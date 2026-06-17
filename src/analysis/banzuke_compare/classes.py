@@ -89,7 +89,7 @@ class BanzukeChange:
     previous_shikona: Shikona | None
     previous_chii: Chii | None
     previous_division: Division | None
-    local_delta: float | None
+    local_delta: int | None
 
 
 @dataclass(frozen=True)
