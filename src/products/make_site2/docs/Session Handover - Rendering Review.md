@@ -30,8 +30,6 @@ B1, B2 and B4 are complete. B3 was deferred, counted done for this pass, and is
 still tracked as open validation/tightening work in the review.
 
 The remaining review action items are listed below in “Remaining review backlog.”
-The date-format display cleanup is still open and belongs under Shared table
-visual language as “date-like display separator policy.”
 
 ## Completed in this pass
 
@@ -221,6 +219,8 @@ Completed table-structure/scaffolding pieces:
 - Artifact title blocks own their trailing whitespace and are followed by a
   defined gap before the table entity.
 - Mechanical row-number columns use the shared muted foreground token.
+- Public date-like display strings use `-` separators at known table/chart
+  display points without rewriting source data, URLs or paths.
 - The heading/data separator is rendered as the top border of the first body row.
 - Section 6.2.1 section headings render as table heading cells spanning their
   two columns.
@@ -231,7 +231,6 @@ Other open items:
 2. Shared table visual language follow-up.
 
 - Alternating row color/token pass.
-- Date-like display separator policy. This is the public display-format cleanup for date-like values that should use `-` where they currently use `/`.
 
 3. `debug_show_notes` / marker affordance.
 

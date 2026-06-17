@@ -1,6 +1,7 @@
 // Career Length chart/table runtime view handling.
 
 import { currentTableSortState, decimal, renderRikishiLink, renderTableHeading, sortRows, wireTableSorting } from "../tables.js";
+import { dateLikeDisplay } from "../../utils/display.js";
 import { escapeHtml } from "../../utils/html.js";
 import { PLOTLY_CONFIG } from "./shared.js";
 
@@ -201,6 +202,7 @@ function careerLengthCellValue(column, row, index) {
   const value = row[column.source_field || column.id] || "";
   if (column.id === "shikona") return renderRikishiLink(value, row.rikishi_id);
   if (column.formatter === "decimal_2") return decimal(value, 2);
+  if (column.id === "first_appearance" || column.id === "last_appearance") return escapeHtml(dateLikeDisplay(value));
   return escapeHtml(value);
 }
 

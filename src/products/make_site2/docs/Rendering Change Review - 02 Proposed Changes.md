@@ -68,6 +68,10 @@ heading row, so rowspan headings in multi-row headers do not break the separator
 Tables use collapsed borders so adjacent group-boundary borders render as a
 single shared line.
 
+Implemented note: public date-like display strings use `-` separators at known
+table and chart display points. This is a renderer/display rule only; URLs,
+paths, source data and non-date slash strings are not rewritten.
+
 ### 2.3 Table Structure and Semantic Policy
 
 Several proposed changes concern table structure, not merely table appearance.

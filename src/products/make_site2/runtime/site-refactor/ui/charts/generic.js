@@ -1,6 +1,7 @@
 // Generic artifact-driven Plotly chart renderers.
 
 import { escapeHtml } from "../../utils/html.js";
+import { dateLikeDisplay, dateLikeDisplayFromParts } from "../../utils/display.js";
 import {
   PLOTLY_CONFIG,
   axisRange,
@@ -170,7 +171,7 @@ function stackedBarTraces(artifact, rowsBySource) {
     const plotlyTrace = {
       type: "bar",
       name: group,
-      x: groupRows.map(row => row[trace.x]),
+      x: groupRows.map(row => dateLikeDisplay(row[trace.x])),
       y: groupRows.map(row => Number(row[trace.y])),
       hovertemplate: `${escapeHtml(trace.group_by)}=%{fullData.name}<br>${escapeHtml(trace.x)}=%{x}<br>${escapeHtml(trace.y)}=%{y}<extra></extra>`,
     };
@@ -193,7 +194,7 @@ function groupedLineTraces(artifact, rowsBySource) {
       type: "scatter",
       mode: "lines",
       name: group,
-      x: groupRows.map(row => row[trace.x]),
+      x: groupRows.map(row => dateLikeDisplay(row[trace.x])),
       y: groupRows.map(row => Number(row[trace.y])),
       visible: defaultVisible.length && !defaultVisible.includes(group) ? "legendonly" : true,
       hovertemplate: groupedLineHoverTemplate(trace, artifact.provenance.hover_fields || []),
@@ -214,7 +215,7 @@ function orderedBarTrace(artifact, rowsBySource) {
     y: rows.map(row => Number(row[trace.y])),
     customdata: rows.map(row => [
       row[artifact.provenance.order_field],
-      ...dateFields.map(field => row[field]),
+      dateFields.length === 2 ? dateLikeDisplayFromParts(row[dateFields[0]], row[dateFields[1]]) : "",
     ]),
     hovertemplate: orderedBarHoverTemplate(trace, artifact),
   };
@@ -223,10 +224,10 @@ function orderedBarTrace(artifact, rowsBySource) {
 function categoryBarTrace(artifact, rowsBySource) {
   const rows = chartRows(artifact, rowsBySource);
   const trace = orderedBarTraceSpec(artifact);
-  const rowByCategory = new Map(rows.map(row => [row[trace.x], row]));
+  const rowByCategory = new Map(rows.map(row => [dateLikeDisplay(row[trace.x]), row]));
   const categories = artifact.x_axis.order_values.length
-    ? artifact.x_axis.order_values
-    : rows.map(row => row[trace.x]);
+    ? artifact.x_axis.order_values.map(value => dateLikeDisplay(value))
+    : rows.map(row => dateLikeDisplay(row[trace.x]));
   return {
     type: "bar",
     name: trace.label,
@@ -253,7 +254,7 @@ function orderedBarHoverTemplate(trace, artifact) {
     lines.push(`${escapeHtml(orderField)}=%{customdata[0]}`);
   }
   if (dateFields.length === 2) {
-    lines.push(`${escapeHtml(trace.y)}=%{customdata[1]}/%{customdata[2]}`);
+    lines.push(`${escapeHtml(trace.y)}=%{customdata[1]}`);
   } else {
     lines.push(`${escapeHtml(trace.y)}=%{y}`);
   }
@@ -287,8 +288,8 @@ function stackedBarLayout(artifact, rowsBySource) {
   const rows = stackedBarRows(artifact, rowsBySource);
   const trace = stackedBarTraceSpec(artifact);
   const xValues = artifact.x_axis.order_values.length
-    ? artifact.x_axis.order_values
-    : [...new Set(rows.map(row => row[trace.x]))];
+    ? artifact.x_axis.order_values.map(value => dateLikeDisplay(value))
+    : [...new Set(rows.map(row => dateLikeDisplay(row[trace.x])))];
   return {
     autosize: true,
     barmode: "stack",
@@ -336,8 +337,8 @@ function groupedChartLayout(artifact, rowsBySource) {
   const rows = chartRows(artifact, rowsBySource);
   const trace = groupedLineTraceSpec(artifact);
   const xValues = artifact.x_axis.order_values.length
-    ? artifact.x_axis.order_values
-    : [...new Set(rows.map(row => row[trace.x]))];
+    ? artifact.x_axis.order_values.map(value => dateLikeDisplay(value))
+    : [...new Set(rows.map(row => dateLikeDisplay(row[trace.x])))];
   return {
     autosize: true,
     paper_bgcolor: "rgba(0,0,0,0)",

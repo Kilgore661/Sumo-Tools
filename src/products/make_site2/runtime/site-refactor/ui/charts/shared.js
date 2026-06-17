@@ -1,5 +1,7 @@
 // Shared chart runtime helpers used by the chart-family modules.
 
+import { dateLikeDisplayFromParts } from "../../utils/display.js";
+
 const PLOTLY_CONFIG = {
   displayModeBar: true,
   displaylogo: false,
@@ -35,7 +37,7 @@ function monthIndexLabel(monthIndex, artifact) {
   const totalMonths = artifact.provenance.base_month - 1 + monthIndex;
   const year = artifact.provenance.base_year + Math.floor(totalMonths / 12);
   const month = (totalMonths % 12) + 1;
-  return `${String(year).padStart(4, "0")}/${String(month).padStart(2, "0")}`;
+  return dateLikeDisplayFromParts(year, month);
 }
 
 function axisRange(axis) {

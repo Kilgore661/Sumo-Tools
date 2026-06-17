@@ -1,6 +1,7 @@
 // Generic indexed and sectioned table renderers.
 
 import { escapeHtml } from "../../utils/html.js";
+import { dateLikeDisplay } from "../../utils/display.js";
 import {
   currentTableSortState,
   renderTableHeading,
@@ -160,7 +161,8 @@ function genericCellValue(column, row, index) {
   if (column.id === "shikona") {
     return renderRikishiLink(row[column.source_field || column.id] || "", row.rikishi_id);
   }
-  return escapeHtml(row[column.source_field || column.id] || "");
+  const value = row[column.source_field || column.id] || "";
+  return escapeHtml(isDateLikeColumn(column) ? dateLikeDisplay(value) : value);
 }
 
 // Apply generic column/group visibility rules from the runtime manifest.
@@ -184,6 +186,10 @@ function cellValue(column, row, index) {
     row.previous_rank_level_movement,
   );
   return row[column.source_field || column.id] || "";
+}
+
+function isDateLikeColumn(column) {
+  return ["start", "end", "first_appearance", "last_appearance"].includes(column.id);
 }
 
 function resultWithMovement(result, movement) {
@@ -214,6 +220,7 @@ export {
   genericCellValue,
   isColumnVisible,
   cellValue,
+  isDateLikeColumn,
   resultWithMovement,
   rankLevelMovementMarker,
 };

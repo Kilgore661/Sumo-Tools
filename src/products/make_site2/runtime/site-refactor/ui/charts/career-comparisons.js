@@ -1,6 +1,7 @@
 // Career Comparisons chart controls, selector and Plotly rendering.
 
 import { escapeHtml } from "../../utils/html.js";
+import { dateLikeDisplay } from "../../utils/display.js";
 import { renderLabelWithHelp } from "../help.js";
 import { PLOTLY_CONFIG } from "./shared.js";
 
@@ -310,7 +311,7 @@ function careerComparisonCaption(artifact, data) {
     .sort();
   return {
     heading: `Career History for ${formatNameList(names)}`,
-    subheading: dates.length ? `(${dates[0]} to ${dates[dates.length - 1]})` : "",
+    subheading: dates.length ? `(${dateLikeDisplay(dates[0])} to ${dateLikeDisplay(dates[dates.length - 1])})` : "",
   };
 }
 
@@ -356,11 +357,11 @@ function careerComparisonTrace(rikishiId, artifact, state, data, chiiScale, seri
   points.forEach((point, index) => {
     const yValue = careerComparisonYValue(point, artifact, state, chiiScale, resolvedSeries.skill);
     if (yValue === null || yValue === undefined || Number.isNaN(yValue)) return;
-    x.push(state.x_base === "basho" ? index : point[POINT_DATE]);
+    x.push(state.x_base === "basho" ? index : dateLikeDisplay(point[POINT_DATE]));
     y.push(yValue);
     customdata.push([
       point[POINT_SHIKONA],
-      point[POINT_DATE],
+      dateLikeDisplay(point[POINT_DATE]),
       point[POINT_CHII],
       formatOptionalFloat(point[POINT_EQUELO]),
     ]);
