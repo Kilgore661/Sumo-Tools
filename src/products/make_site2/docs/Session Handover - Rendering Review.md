@@ -12,6 +12,101 @@ The review source has been split so the long original can be read and maintained
 - `Rendering Change Review - 03 Design Classification.md`.
 - `Rendering Change Review - 04 Work Groups and Routing.md`.
 
+## Current chart-axis review progress
+
+This later chart-rendering pass focused on Plotly x-axis title emphasis, tick-label
+angle and tick-label density in the generic chart renderers.
+
+### Settled during this pass
+
+- Bold Plotly axis titles are implemented as shared chart presentation and are
+  now incorporated into `05 Rendering Design 3.md`.
+- The old monolithic generic chart module was split into smaller files:
+  - `runtime/site-refactor/ui/charts/generic.js` is now a facade.
+  - `runtime/site-refactor/ui/charts/generic-traces.js` owns generic trace helpers.
+  - `runtime/site-refactor/ui/charts/generic-layouts.js` owns generic Plotly layout builders.
+  - `runtime/site-refactor/ui/charts/generic-renderers.js` owns generic renderer entry points.
+- The refactor was intended to be behavior-preserving; later chart-axis changes
+  were made after the split.
+
+### Chart-specific x-axis findings and current state
+
+- `BANZUKE_DIVISION_BY_ERA_ARTIFACT` / Average Banzuke Composition by Era:
+  - Provenance now uses `"x_tickangle": "auto"`.
+  - User verified the behavior as acceptable: horizontal labels when there is
+    room and Plotly rotation when the chart narrows.
+- `MAKUUCHI_RANK_BY_ERA_ARTIFACT` / Makuuchi Rank Appearances by Era:
+  - Provenance now uses `"x_tickangle": "auto"`.
+  - Plotly may jump from horizontal to vertical because the rank labels are
+    dense; this was accepted as good enough for now.
+- `FIRST_CHII_APPEARANCE_ARTIFACT` / First Chii Appearance:
+  - The ordered-bar layout has a chart-specific branch for
+    `artifact.id === "first_chii_appearance"`.
+  - That branch lets Plotly own both x tick-label angle and x tick-label density:
+    it sets `tickangle: "auto"`, `tickmode: "auto"`, and `nticks: 20`, and it
+    deliberately omits explicit `tickvals` and `ticktext`.
+  - Other ordered-bar charts still use the existing `sparseTickText(...)` path.
+- `DIVISION_STABILITY_ARTIFACT` / Division Persistence:
+  - A one-line trial changed `"x_tickangle": -45` to `"auto"`, but the user
+    asked to undo it before evaluating a rebuild.
+  - Current state is restored to `"x_tickangle": -45`.
+  - Do not assume the First Chii treatment applies here. Division Persistence is
+    a grouped-line chart, not an ordered-bar chart using the `sparseTickText`
+    path.
+
+### Plotly context established in discussion
+
+- Plotly's default auto tick-angle candidates are effectively `0`, `30` and
+  `90`; it may skip straight to `90` if it judges intermediate rotation
+  insufficient.
+- `tickangle: "auto"` lets Plotly choose the angle during Plotly layout
+  recalculation.
+- If the runtime supplies `tickvals` and `ticktext`, label density is explicit
+  and Plotly is no longer choosing tick labels automatically.
+- For Plotly-controlled label density, use `tickmode: "auto"` plus an `nticks`
+  hint and omit `tickvals` / `ticktext`.
+- Plotly auto behavior recalculates when Plotly is redrawn or resized. Browser
+  window resizing works when Plotly responsive mode is active; internal layout
+  changes may need an explicit Plotly resize or redraw.
+
+### Process warnings from this pass
+
+- Avoid full-file rewrites of large files such as `manifest/artifacts.py` unless
+  there is no safer option. The GitHub connector lacks a patch operation, and
+  full replacement of large files caused accidental unrelated edits that had to
+  be cleaned up.
+- Prefer the smallest file that owns the behavior. For chart runtime behavior,
+  `generic-layouts.js` was the correct owner file and was small enough to edit
+  directly.
+- Do not create placeholder, policy, wrapper or probe files to work around a
+  simple edit. This is now recorded in `docs/LLM Guide.md` under “LLM Edit
+  Discipline.”
+
+Important recent commits:
+
+```text
+b7871fcabccb6614b386a92dc822c208574b8d0b runtime: split generic chart trace helpers
+731d812244a6caedb9e47d61fb50a4e3f217309e runtime: split generic chart layout builders
+44d5432929ee5e74415b49288ed8c3ee89037e94 runtime: split generic chart render entry points
+9f55f5824514f3ec158c173df3b0a7797f526bfe runtime: make generic chart module a facade
+7936ba73e1b926de8208411e4613daf63c66a52d artifacts: let era division chart use auto x tick angle
+830b1d1e43a4aae6ad6caa840513c8e1cc3691f1 artifacts: let makuuchi rank era chart use auto x tick angle
+512f04aee67b9c1430e9d5bba4ddb0416f35d184 runtime: let first chii appearance use Plotly x tick auto
+dd6544c0897cd7388aa60391cc4bc7ecb744c653 runtime: hint first chii x tick density to Plotly
+eea7fc1ecb53b05b6f2353e6ac4df777edbaf5ed artifacts: restore division persistence tick angle
+9d8e481368123775c73f75b75dd5d908f248daf1 docs: add LLM edit discipline guidance
+```
+
+Suggested next chart-review step:
+
+1. Continue from `DIVISION_STABILITY_ARTIFACT` / Division Persistence with the
+   current restored state (`"x_tickangle": -45`). Decide whether to leave it as
+   fixed-angle, retry simple `"auto"`, or add a grouped-line-specific density
+   hint after inspecting the rendered behavior.
+2. If a pattern is accepted across multiple charts, update the normative
+   rendering design docs. Do not document every chart immediately after a local
+   visual fix unless it establishes a general rule.
+
 ## A/B list status
 
 The A-list and B-list are the selected review action plan. There is no hidden
@@ -238,43 +333,3 @@ Other open items:
 
 2. Shared chart rendering.
 - Conditional x-axis tick rotation.
-3. PA-specific chart changes.
-- Page 5.1 line chart instead of column.
-- Page 7.3.1 Distribution line chart instead of column.
-- Page 6.3.1 pale-blue error bars.
-4. Richer bad-URL handling.
-- Current minimal behavior exists: `Bad URL` message and route Home.
-- Richer routing/UX policy remains TBD.
-
-## Files most likely to matter next
-
-```text
-src/products/make_site2/docs/Rendering Change Review.md
-src/products/make_site2/docs/Rendering Change Review - 01 Purpose and Status.md
-src/products/make_site2/docs/Rendering Change Review - 02 Proposed Changes.md
-src/products/make_site2/docs/Rendering Change Review - 03 Design Classification.md
-src/products/make_site2/docs/Rendering Change Review - 04 Work Groups and Routing.md
-
-src/products/make_site2/runtime/site-refactor/ui/help.js
-src/products/make_site2/runtime/site-refactor/ui/notes.js
-src/products/make_site2/runtime/site-refactor/ui/tables/shared.js
-src/products/make_site2/runtime/site-refactor/ui/tables/generic.js
-src/products/make_site2/runtime/site-refactor/ui/tables/standings.js
-src/products/make_site2/runtime/site-refactor/ui/tables/banzuke-changes.js
-src/products/make_site2/runtime/site-refactor/ui/basho-results/render.js
-src/products/make_site2/runtime/site-refactor/ui/charts/career-length.js
-
-src/products/make_site2/manifest/artifacts.py
-src/products/make_site2/manifest/builder.py
-src/products/make_site2/manifest/filters.py
-src/products/make_site2/ui_model.py
-src/products/make_site2/render.py
-```
-
-## Cautions for next session
-
-- Do not assume all shikona links use the shared helper. Search for local link renderers when a page does not behave as expected.
-- Do not treat Notes validation as done; it was deferred and recorded as open.
-- Do not let interim table-group work become a general table theory by accident.
-- GitHub connector output may truncate long files. Fetch long docs in chunks.
-- Some large full-file updates may be blocked by safety checks; smaller targeted updates usually work.
