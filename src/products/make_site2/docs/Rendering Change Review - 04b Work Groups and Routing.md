@@ -10,14 +10,18 @@ no indexed basho, the ContentPanel is blank except for the no-basho message.
 
 ### 5.7 Bad URLs
 
-A general bad-URL handler has not been designed. The current minimal behavior is:
+The richer bad-URL policy is resolved but not implemented.
 
-```text
-Bad URL -> JS message "Bad URL" -> replace/navigate to Home
-```
+Deep bad URLs, including pasted URLs, bookmarks, external links and new-tab
+links, should alert and then land on Home because there is no prior valid rendered
+view in that tab to preserve.
 
-This is sufficient for the Basho selector work but should be revisited as a
-separate routing/UX design topic.
+Bad in-site navigation means a navigation attempt intercepted by the running app
+while a valid page is already displayed. It should alert and leave the current URL
+and rendered view unchanged.
+
+The runtime still uses the minimal implemented behavior: alert, replace the URL
+with Home and render Home.
 
 ### 5.8 Notes popover interaction
 
@@ -44,14 +48,14 @@ non-active population. Active Last values render as `-`.
 
 ### 5.10 Row-number and ranking routing
 
-Partially implemented as shared table-rendering semantics. A mechanical
+Resolved for the current table model and shared renderers. A mechanical
 `row_number` column is distinct from a meaningful `#` ranking/ordinal column. The
 mechanical column is blank-headed, muted and non-sortable; it is recomputed after
-sort/filter where applicable. This is currently implemented for 7.1, 7.4-style
-generic tables, 9.1 and Banzuke Changes 2.1. In 2.1, banzuke-style rendering
-uses a leading blank row-number header spanning the two-row East/Rank/West
-heading structure; scan-table rendering uses a leading blank, non-sortable
-row-number column.
+sort/filter where applicable. This is implemented for 7.1, 7.4-style generic
+tables, 9.1 and Banzuke Changes 2.1. In 2.1, banzuke-style rendering uses a
+leading blank row-number header spanning the two-row East/Rank/West heading
+structure; scan-table rendering uses a leading blank, non-sortable row-number
+column.
 
 ### 5.11 Shikona link affordance
 
@@ -69,19 +73,21 @@ index.html?page=career_comparisons&skill=chii&x=date&log=true&rikishi=<rik id>
 Bold axis titles are implemented as shared Plotly chart presentation and
 incorporated into `05 Rendering Design 3.md`.
 
-Conditional x-axis tick rotation remains the open shared-chart rendering item.
-Its implementation should settle when chart labels are rotated for density or
-legibility rather than treating bold axis titles as still open work.
+Conditional x-axis tick rotation is resolved for the reviewed simple-chart slice.
+Dense-axis cases now either let Plotly choose angle/density directly or carry a
+local density hint where the chart requires it. 3.3 Rikishi History remains a
+separate follow-up.
 
 ## 6. Review Conclusion
 
-The proposed changes are understandable and mostly precise enough to begin
-design. They should not be implemented as an undifferentiated CSS tweak pass.
+The proposed changes were understandable and precise enough to separate rendering
+policy from PA semantics and runtime interaction.
 
-Basho selector work is now complete as an interim PA-specific/runtime solution.
-Clickable Notes popovers, shikona link affordance and Career Length Longest Show
-Active are complete as runtime/PA-specific interactions. The highest-risk
-remaining items are Notes-popover validation/tightening and the remaining shared
-table visual-language token work. The current column-group work is intentionally
-interim and ad hoc; it should not become the first step toward a general table
-theory.
+Basho selector work is complete as an interim PA-specific/runtime solution.
+Clickable Notes popovers, shikona link affordance, Career Length Longest Show
+Active, row-number/ranking semantics, reviewed table visual language and the
+reviewed simple-chart rendering work are complete for the reviewed slice.
+
+Remaining known work: Notes-popover validation/tightening and the separate 3.3
+Rikishi History follow-up. Richer bad-URL behavior is specified but not yet
+implemented.
