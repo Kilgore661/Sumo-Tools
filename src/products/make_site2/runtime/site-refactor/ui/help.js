@@ -127,7 +127,7 @@ function installNoteHighlightStyle() {
   if (document.querySelector("#sumo-note-highlight-style")) return;
   const style = document.createElement("style");
   style.id = "sumo-note-highlight-style";
-  style.textContent = ".note-highlight{font-weight:700!important;box-shadow:inset 0 0 0 2px #fff4b8!important;background:rgba(255,244,184,.18)!important;border-radius:4px!important;}";
+  style.textContent = ".note-highlight{text-decoration:underline!important;text-decoration-thickness:2px!important;text-underline-offset:.18em!important;}";
   document.head.append(style);
 }
 
