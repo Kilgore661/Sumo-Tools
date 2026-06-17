@@ -13,7 +13,7 @@ from .publication_model import NavigationItem
 from .ui_model import NavigationBar, NavigationQuickLink, PublicSiteShell
 
 
-NAV_WIDTH_STYLE = ".site-shell { grid-template-columns: 110% minmax(0, 1fr); }"
+NAV_WIDTH_STYLE = ".site-nav { padding-inline-end: 1.5rem; }"
 
 
 def render_site_shell(
