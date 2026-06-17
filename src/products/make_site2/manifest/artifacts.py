@@ -130,7 +130,7 @@ MAKUUCHI_RANK_BY_ERA_ARTIFACT = ChartArtifact(
     traces=(ChartTrace(id="era_counts", label="Era counts", kind="stacked_bar", x="rank", y="count", group_by="era"),),
     x_axis=ChartAxis(id="x", source_field="rank", label="Rank"),
     y_axis=ChartAxis(id="y", source_field="count", label="Appearances", minimum=0),
-    provenance={"subheading": "Count of banzuke appearances at each Makuuchi rank.", "legend_title": "Era", "group_order": ("1958-1967", "1968-1977", "1978-1987", "1988-1997", "1998-2007", "2008-2017", "2018-2026"), "x_tickangle": "auto"},
+    provenance={"subheading": "Count of banzuke appearances at each Makuuchi rank.", "legend_title": "Era", "group_order": ("1958-1967", "1968-1977", "1978-1987", "1998-2007", "2008-2017", "2018-2026"), "x_tickangle": "auto"},
 )
 
 DIVISION_STABILITY_ARTIFACT = ChartArtifact(
@@ -140,7 +140,7 @@ DIVISION_STABILITY_ARTIFACT = ChartArtifact(
     traces=(ChartTrace(id="mean_persistence", label="Mean persistence", kind="scatter", x="date", y="mean_persistence", group_by="division"),),
     x_axis=ChartAxis(id="x", source_field="date", label="Basho"),
     y_axis=ChartAxis(id="y", source_field="mean_persistence", label="Mean persistence", minimum=0, maximum=1, tickformat=".0%"),
-    provenance={"subheading": "How consistently each basho's division members stayed in the same division across that basho and the previous 10.", "legend_title": "Division", "default_visible": ("Makuuchi",), "group_order": ("Makuuchi", "Juryo", "Makushita", "Sandanme", "Jonidan", "Jonokuchi"), "hover_fields": ("num_basho", "frequency", "stdev_persistence"), "x_tickangle": -45},
+    provenance={"subheading": "How consistently each basho's division members stayed in the same division across that basho and the previous 10.", "legend_title": "Division", "default_visible": ("Makuuchi",), "group_order": ("Makuuchi", "Juryo", "Makushita", "Sandanme", "Jonidan", "Jonokuchi"), "hover_fields": ("num_basho", "frequency", "stdev_persistence"), "x_tickangle": "auto"},
 )
 
 FIRST_CHII_APPEARANCE_ARTIFACT = ChartArtifact(
