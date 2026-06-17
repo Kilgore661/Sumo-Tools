@@ -8,6 +8,7 @@ import {
   writeCareerComparisonSelectionToUrl,
 } from "./selection-url.js";
 import { renderCareerComparisonsPlot } from "./plot.js";
+import { setRikishiTraceVisibility, syncRikishiVisibilityControls } from "./visibility.js";
 
 function renderCareerComparisonsControls(state) {
   return [
@@ -99,6 +100,13 @@ function wireCareerComparisonsControls(panel, artifact, state, data, writeState)
     renderSelectedRikishiList(selectedList, optionsById);
     applyState();
   });
+  selectedList.addEventListener("change", event => {
+    const control = event.target.closest("input[data-rikishi-visible-id]");
+    if (!control) return;
+    const host = document.getElementById("career-comparisons-chart");
+    setRikishiTraceVisibility(host, control.dataset.rikishiVisibleId, control.checked)
+      .then(() => syncRikishiVisibilityControls(host, selectedList));
+  });
   form.addEventListener("change", event => {
     const control = event.target;
     if (control.name === "career_comparison_mode" || control.name === "log") {
@@ -187,6 +195,7 @@ function renderSelectedRikishiList(selectedList, optionsById) {
         '<li>',
         `<span>${escapeHtml(option.label)}</span>`,
         `<button type="button" data-rikishi-id="${escapeHtml(id)}" aria-label="Remove ${escapeHtml(option.label)}">X</button>`,
+        `<input type="checkbox" data-rikishi-visible-id="${escapeHtml(id)}" checked aria-label="Show ${escapeHtml(option.label)} traces" title="Show/hide ${escapeHtml(option.label)} traces">`,
         '</li>',
       ].join("");
     })
