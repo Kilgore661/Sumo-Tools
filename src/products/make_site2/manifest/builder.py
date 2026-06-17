@@ -129,7 +129,9 @@ PANEL_DECLARATIONS: dict[str, PanelDeclaration] = {
 }
 
 
-def build_public_site_shell(plan: PublicationPlan) -> PublicSiteShell:
+def build_public_site_shell(
+    plan: PublicationPlan, *, full_navigation: bool = False
+) -> PublicSiteShell:
     declarations = planned_panel_declarations(plan)
     declaration_by_page_id = dict(declarations)
     content_panels = tuple(
@@ -144,7 +146,10 @@ def build_public_site_shell(plan: PublicationPlan) -> PublicSiteShell:
                 QUICK_LINKS, renderable_page_ids, declaration_by_page_id
             ),
             navigation_tree=renderable_navigation_tree(
-                plan.navigation_tree, renderable_page_ids, declaration_by_page_id
+                plan.navigation_tree,
+                renderable_page_ids,
+                declaration_by_page_id,
+                full_navigation=full_navigation,
             ),
             collapse_control=NavigationCollapseControl(
                 enabled=True,
@@ -239,17 +244,29 @@ def renderable_navigation_tree(
     items: tuple[NavigationItem, ...],
     renderable_page_ids: frozenset[str],
     declaration_by_page_id: dict[str, PanelDeclaration],
+    *,
+    full_navigation: bool,
 ) -> tuple[NavigationItem, ...]:
-    return tuple(
-        renderable_navigation_item(item, renderable_page_ids, declaration_by_page_id)
+    resolved_items = tuple(
+        renderable_navigation_item(
+            item,
+            renderable_page_ids,
+            declaration_by_page_id,
+            full_navigation=full_navigation,
+        )
         for item in items
     )
+    if full_navigation:
+        return resolved_items
+    return tuple(item for item in resolved_items if item.href is not None or item.children)
 
 
 def renderable_navigation_item(
     item: NavigationItem,
     renderable_page_ids: frozenset[str],
     declaration_by_page_id: dict[str, PanelDeclaration],
+    *,
+    full_navigation: bool,
 ) -> NavigationItem:
     included = item.page_id in renderable_page_ids if item.page_id is not None else False
     declaration = declaration_by_page_id.get(item.page_id or "")
@@ -268,16 +285,21 @@ def renderable_navigation_item(
         href=href,
         included=included,
         children=renderable_navigation_tree(
-            item.children, renderable_page_ids, declaration_by_page_id
+            item.children,
+            renderable_page_ids,
+            declaration_by_page_id,
+            full_navigation=full_navigation,
         ),
     )
 
 
-def build_runtime_manifest(plan: PublicationPlan) -> dict[str, Any]:
+def build_runtime_manifest(
+    plan: PublicationPlan, *, full_navigation: bool = False
+) -> dict[str, Any]:
     declarations = planned_panel_declarations(plan)
     return {
         "site": {"id": plan.site.id, "title": plan.site.title},
-        "ui": to_plain(build_public_site_shell(plan)),
+        "ui": to_plain(build_public_site_shell(plan, full_navigation=full_navigation)),
         "artifacts": {
             declaration.artifact.id: to_plain(declaration.artifact)
             for _, declaration in declarations
