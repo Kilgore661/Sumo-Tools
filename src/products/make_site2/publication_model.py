@@ -73,7 +73,11 @@ def _navigation_item(
     planned_pages: Mapping[str, PlannedPage],
 ) -> NavigationItem:
     included = node.page_id in planned_pages if node.page_id is not None else False
-    href = route_href(routes[node.page_id].parts) if included and node.page_id is not None else None
+    href = (
+        route_href(routes[node.page_id].parts)
+        if included and node.page_id is not None
+        else node.href
+    )
     return NavigationItem(
         id=node.id,
         label=node.label,
