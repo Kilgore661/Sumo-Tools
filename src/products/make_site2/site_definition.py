@@ -11,9 +11,6 @@ from .models import ArtifactRef, PageDefinition, PageRegistry, PageStatus, SiteD
 from .navigation import NAVIGATION
 
 
-GOATS_HREF = "?page=career_comparisons&skill=equelo&x=date&log=true&rikishi=1123%2C3987%2C1354%2C2%2C3%2C4080"
-
-
 def artifact(id: str, kind: str, *, producer: str | None = None) -> ArtifactRef:
     return ArtifactRef(id=id, kind=kind, producer=producer)
 
