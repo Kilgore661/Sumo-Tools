@@ -11,7 +11,7 @@ import { buildChiiScale, humanChii } from "./chii-scale.js";
 import { formatOptionalFloat } from "./format.js";
 import { careerComparisonSession, careerComparisonsState } from "./state.js";
 import { displayNameForRikishi } from "./options.js";
-import { usesChiiAxis } from "./layout.js";
+import { usesChiiAxis } from "./mode.js";
 
 function careerComparisonTraces(artifact, state, data) {
   const chiiScale = usesChiiAxis(state) ? buildChiiScale(artifact, state, data) : null;
