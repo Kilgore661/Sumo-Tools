@@ -11,7 +11,7 @@
 | Link/popover/notes interactions | shikona Alt-click, link popover text, clickable Notes popovers | Runtime interaction plus explicit metadata/text rule | Partially implemented: clickable Notes popovers complete; shikona link help and Alt-click implemented; Notes validation/tightening open |
 | Basho Results control model | year/month selector and navigation buttons, URL-addressable no-basho state | PA-specific runtime control inside existing FilterSection | Implemented |
 | Career Length Longest control | Longest-only Show Active control and produced ranked populations | PA-specific chart/table semantics | Implemented |
-| Shared chart rendering | tick-angle rule, bold axis titles | Chart rendering policy | Open |
+| Shared chart rendering | tick-angle rule, bold axis titles | Chart rendering policy | Partially implemented: bold axis titles implemented and incorporated into Rendering Design; conditional x-axis tick rotation remains open |
 | PA-specific chart semantics | line-vs-column chart changes, 6.3.1 error-bar colour | PA contract / chart renderer selection | Open |
 | Bad URL handling | reject bad URL, message, route Home; richer handler | Runtime routing / UX policy | Minimal implemented; richer policy TBD |
 
@@ -163,6 +163,15 @@ route:
 ```text
 index.html?page=career_comparisons&skill=chii&x=date&log=true&rikishi=<rik id>
 ```
+
+### 5.12 Shared chart rendering
+
+Bold axis titles are implemented as shared Plotly chart presentation and
+incorporated into `05 Rendering Design 3.md`.
+
+Conditional x-axis tick rotation remains the open shared-chart rendering item.
+Its implementation should settle when chart labels are rotated for density or
+legibility rather than treating bold axis titles as still open work.
 
 ## 6. Review Conclusion
 
