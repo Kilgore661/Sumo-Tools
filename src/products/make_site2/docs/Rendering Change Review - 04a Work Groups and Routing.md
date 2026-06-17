@@ -6,14 +6,14 @@
 | --- | --- | --- | --- |
 | Diagnostic display affordances | `debug_show_notes` URL state, info symbol, possible debug CSS variants | Runtime presentation state / debug policy | Implemented for marker visibility; production build diagnostic policy moved to main open issues |
 | Shared table visual language | spacing, borders, row colours, muted colour, date-like display format | Rendering policy/CSS plus shared formatter | Implemented for the reviewed slice: table bounding boxes, title-block spacing, body-start heading/data separator, collapsed group-boundary borders, 6.2.1 heading treatment, muted row-number foreground, date-like public display formatting and alternating row colour tokens |
-| Interim table structure metadata | 2.1/7.1/9.1 column groups, 6.2.1 custom handling | Ad hoc PA-local metadata, easiest-to-remove later | Partially implemented: 6.2.1 side-by-side restored; 9.1 Row number/Context/Wins group metadata provisionally implemented; 2.1 row-number and banzuke-style Row number/East/Rank/West group metadata provisionally implemented |
-| Table semantic model | row numbers, superlative `#` columns | Published Artifact/table model | Partially implemented: row-number/ranking distinction in 7.1, 7.4-style tables, 9.1 and 2.1; broader row-number-as-table-skeleton model remains provisional |
-| Link/popover/notes interactions | shikona Alt-click, link popover text, clickable Notes popovers | Runtime interaction plus explicit metadata/text rule | Partially implemented: clickable Notes popovers complete; shikona link help and Alt-click implemented; Notes validation/tightening open |
+| Interim table structure metadata | 2.1/7.1/9.1 column groups, 6.2.1 custom handling | Ad hoc PA-local metadata, easiest-to-remove later | Resolved for the current table model and reviewed slice: 6.2.1 side-by-side restored; 9.1 Row number/Context/Wins group metadata implemented; 2.1 row-number and banzuke-style Row number/East/Rank/West group metadata implemented |
+| Table semantic model | row numbers, superlative `#` columns | Published Artifact/table model | Resolved for the current table model and shared renderers: row-number/ranking distinction in 7.1, 7.4-style tables, 9.1 and 2.1; Career Length Longest uses produced ranks |
+| Link/popover/notes interactions | shikona Alt-click, link popover text, clickable Notes popovers | Runtime interaction plus explicit metadata/text rule | Partially implemented: clickable Notes popovers complete; shikona link help and Alt-click implemented; Notes validation/tightening remains TBD |
 | Basho Results control model | year/month selector and navigation buttons, URL-addressable no-basho state | PA-specific runtime control inside existing FilterSection | Implemented |
 | Career Length Longest control | Longest-only Show Active control and produced ranked populations | PA-specific chart/table semantics | Implemented |
-| Shared chart rendering | tick-angle rule, bold axis titles | Chart rendering policy | Partially implemented: bold axis titles implemented and incorporated into Rendering Design; conditional x-axis tick rotation remains open |
-| PA-specific chart semantics | line-vs-column chart changes, 6.3.1 error-bar colour | PA contract / chart renderer selection | Open |
-| Bad URL handling | reject bad URL, message, route Home; richer handler | Runtime routing / UX policy | Minimal implemented; richer policy TBD |
+| Shared chart rendering | tick-angle rule, bold axis titles | Chart rendering policy | Implemented for the reviewed simple-chart slice; 3.3 Rikishi History remains a separate follow-up |
+| PA-specific chart semantics | line-vs-column chart changes, 6.3.1 error-bar colour | PA contract / chart renderer selection | Implemented for the reviewed non-3.3 charts; 3.3 Rikishi History remains a separate follow-up |
+| Bad URL handling | reject bad URL, message, route Home; richer handler | Runtime routing / UX policy | Minimal behavior implemented. Richer policy resolved but not implemented: deep bad URLs should alert and land on Home; bad in-site navigation should alert and preserve the current view |
 
 ## 5. Implementation-Routing Notes
 
@@ -66,17 +66,17 @@ The renderer should not infer a column group for every individual column. Column
 boundary treatment should appear only where a group is declared, while the table
 still receives the general bounding box and heading underline rules.
 
-Because this mechanism is expected to be removed if/when a general table model is
-introduced, prefer the easiest-to-remove implementation. A small ad hoc
-configuration close to the current make_site2 rendering/manifest boundary is
-preferable to a broad model migration.
+Because this mechanism can be revisited if a general table model is introduced,
+the implemented approach keeps the metadata explicit and close to the current
+make_site2 rendering/manifest boundary.
 
-Current status: 6.2.1 side-by-side sectioned-table layout is restored. 9.1 has
-provisional Row number, Context, Wins per Basho and Wins per Bout group metadata
-and visible grouped headings. Banzuke Changes 2.1 row-number work is implemented
-for both banzuke-style and scan-table views. The banzuke-style view also has
-provisional Row number, East, Rank and West group metadata. The scan-table view
-remains intentionally flat except for the mechanical row-number column.
+Current status: resolved for the current table model and reviewed slice. 6.2.1
+side-by-side sectioned-table layout is restored. 9.1 has Row number, Context,
+Wins per Basho and Wins per Bout group metadata and visible grouped headings.
+Banzuke Changes 2.1 row-number work is implemented for both banzuke-style and
+scan-table views. The banzuke-style view also has Row number, East, Rank and West
+group metadata. The scan-table view remains intentionally flat except for the
+mechanical row-number column.
 
 ### 5.5 Visual tokens
 
