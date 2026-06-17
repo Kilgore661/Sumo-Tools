@@ -43,6 +43,7 @@ from .site_definition import SITE
 PACKAGE_ROOT = Path(__file__).resolve().parent
 REPO_ROOT = PACKAGE_ROOT.parents[2]
 DEFAULT_OUTPUT_ROOT = REPO_ROOT / "files" / "output" / "make_site2"
+RUNTIME_CSS_SOURCE_ROOT = PACKAGE_ROOT / "runtime" / "css"
 RUNTIME_MODULE_SOURCE_ROOT = PACKAGE_ROOT / "runtime" / "site-refactor"
 MODULE_IMPORT_RE = re.compile(
     r'(?P<prefix>(?:from\s+|import\s+)["\'])(?P<path>\.{1,2}/[^"\']+\.js)(?P<suffix>["\'])'
@@ -133,6 +134,7 @@ def build_site(
         PACKAGE_ROOT / "runtime" / "site.css",
         output_root / "runtime" / "site.css",
     )
+    copy_runtime_css(output_root=output_root)
     copy_runtime_modules(
         output_root=output_root,
         cache_mode=cache_mode,
@@ -142,6 +144,15 @@ def build_site(
         root=output_root,
         entrypoint=output_root / "index.html",
         file_count=count_output_files(output_root),
+    )
+
+
+def copy_runtime_css(*, output_root: Path) -> None:
+    """Copy split runtime CSS files referenced by runtime/site.css imports."""
+
+    shutil.copytree(
+        RUNTIME_CSS_SOURCE_ROOT,
+        output_root / "runtime" / "css",
     )
 
 
