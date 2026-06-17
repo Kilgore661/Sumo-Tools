@@ -283,9 +283,9 @@ def delta_class(delta: int | None) -> str:
     direction = "up" if delta > 0 else "down"
     magnitude = abs(delta)
 
-    if magnitude <= 1.5:
+    if magnitude <= 3:
         band = "low"
-    elif magnitude <= 3.0:
+    elif magnitude <= 6:
         band = "mid"
     else:
         band = "high"
