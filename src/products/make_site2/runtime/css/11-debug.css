@@ -1,0 +1,30 @@
+body.layout-debug .content-panel,
+body.layout-debug .content-body,
+body.layout-debug .filter-section,
+body.layout-debug .pa-panel,
+body.layout-debug .pa-slot,
+body.layout-debug .notes-panel,
+body.layout-debug .nav-content,
+body.layout-debug .site-nav,
+body.layout-debug .site-main {
+  outline: 2px solid rgba(255, 0, 255, 0.65);
+  outline-offset: -2px;
+}
+
+body.layout-debug .filter-section::before,
+body.layout-debug .pa-panel::before,
+body.layout-debug .pa-slot::before,
+body.layout-debug .notes-panel::before,
+body.layout-debug .nav-content::before,
+body.layout-debug .site-nav::before,
+body.layout-debug .site-main::before {
+  background: rgba(255, 0, 255, 0.75);
+  color: white;
+  content: attr(class);
+  font-size: 11px;
+  line-height: 1;
+  padding: 2px 4px;
+  pointer-events: none;
+  position: absolute;
+  z-index: 9999;
+}

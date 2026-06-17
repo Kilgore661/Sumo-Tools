@@ -1,0 +1,67 @@
+.filter-section {
+  border-right: 1px solid rgba(255, 255, 255, 0.5);
+  padding: 0.5rem 1rem 0;
+}
+
+.filter-section ul {
+  list-style: none;
+}
+
+.filter-section select {
+  box-sizing: border-box;
+  height: 1.25em;
+  line-height: 1;
+  padding-block: 0;
+  padding-inline: 0.2em;
+}
+
+.filter-list {
+  line-height: 1.5;
+  margin: 0;
+  padding-left: 0;
+}
+
+.filter-section .choice-list {
+  padding-left: 1em;
+}
+
+.filter-list-item-dependent {
+  margin-left: calc(2em + 4px);
+}
+
+.filter-control,
+.checkbox-control {
+  align-items: baseline;
+  column-gap: 0.25em;
+  display: inline-flex;
+  white-space: nowrap;
+}
+
+.basho-calendar-control {
+  display: grid;
+  row-gap: 0.2rem;
+}
+
+.basho-calendar-control > .choice-label {
+  display: block;
+}
+
+.basho-calendar-control > .filter-control,
+.basho-navigation-buttons {
+  margin-left: 1em;
+}
+
+.basho-calendar-control > .filter-control {
+  display: grid;
+  grid-template-columns: 3.5em max-content;
+}
+
+.basho-navigation-buttons {
+  display: inline-flex;
+  gap: 0.25em;
+}
+
+.basho-navigation-buttons button {
+  line-height: 1;
+  padding: 0.05rem 0.3rem;
+}

@@ -1,0 +1,42 @@
+.help-popover {
+  display: inline-block;
+}
+
+.help-popover-marker {
+  display: none;
+  font-size: 0.72em;
+  font-weight: 700;
+  line-height: 1;
+  margin-left: 0.2em;
+  opacity: 0.75;
+  pointer-events: none;
+  vertical-align: super;
+}
+
+body.debug-show-notes .help-popover-marker {
+  display: inline-block;
+}
+
+.help-popover-layer {
+  background: #fff4b8;
+  border: 1px solid rgba(80, 61, 0, 0.35);
+  border-radius: 6px;
+  box-shadow: 0 0.2rem 0.55rem rgba(0, 0, 0, 0.3);
+  box-sizing: border-box;
+  color: #221b00;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.88rem;
+  font-weight: 400;
+  line-height: 1.35;
+  margin: 0;
+  max-width: min(200px, calc(100vw - 12px));
+  overflow-wrap: break-word;
+  padding: 0.35rem 0.5rem;
+  pointer-events: none;
+  position: fixed;
+  text-align: left;
+  width: max-content;
+  white-space: normal;
+  word-break: normal;
+  z-index: 10000;
+}

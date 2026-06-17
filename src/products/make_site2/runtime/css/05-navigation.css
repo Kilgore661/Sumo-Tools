@@ -1,0 +1,81 @@
+.nav-toggle {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0.15rem 0;
+  width: 100%;
+}
+
+.nav-hider-strip {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+
+.nav-content {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  min-height: 0;
+  overflow: hidden;
+}
+
+.nav-content[hidden] {
+  display: none;
+}
+
+.nav-list {
+  counter-reset: nav-item;
+  font-size: 13px;
+  line-height: 1.45;
+  list-style: none;
+}
+
+.nav-content > .nav-list {
+  min-height: 0;
+  overflow-y: auto;
+  padding-left: 0;
+}
+
+.nav-list .nav-list {
+  padding-left: 2em;
+}
+
+.nav-list li {
+  counter-increment: nav-item;
+}
+
+.nav-link::before,
+.nav-label::before {
+  content: counters(nav-item, ".") ". ";
+}
+
+.nav-label {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.quick-link::before {
+  content: none;
+}
+
+.site-title {
+  font-size: 24px;
+  margin: 0.5rem 0 0;
+}
+
+.quick-links {
+  margin: 0.75rem 0;
+}
+
+.quick-links h2 {
+  font-size: 16px;
+  margin: 0 0 0.25rem;
+}
+
+.quick-links-list {
+  margin: 0;
+  padding-left: 1.5em;
+}

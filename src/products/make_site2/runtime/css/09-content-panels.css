@@ -1,0 +1,96 @@
+.pa-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+}
+
+.landing-panel {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  min-height: 100%;
+}
+
+.landing-panel h2 {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.pa-slot {
+  align-items: center;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
+  padding-top: 0.5rem;
+}
+
+.plotly-chart {
+  flex: 1 1 auto;
+  height: 100%;
+  max-width: 100%;
+  min-height: 320px;
+  width: 100%;
+}
+
+.plotly-chart .modebar {
+  opacity: 0.35;
+  transition: opacity 120ms ease-in-out;
+}
+
+.plotly-chart:hover .modebar,
+.plotly-chart:focus-within .modebar {
+  opacity: 1;
+}
+
+.notes-panel {
+  align-self: center;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  box-sizing: border-box;
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  margin-top: auto;
+  max-width: 100%;
+  width: min(800px, 100%);
+}
+
+.notes-hider-strip {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.08);
+  display: flex;
+  justify-content: center;
+}
+
+.notes-toggle {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0.1rem 0.75rem;
+}
+
+.notes-content {
+  padding: 0.45rem 0.75rem 0.65rem;
+}
+
+.notes-panel h4 {
+  margin: 0.2rem 0 0.35rem;
+}
+
+.notes-panel ol {
+  margin: 0;
+  padding-left: 1.35rem;
+}
+
+.notes-panel li + li {
+  margin-top: 0.25rem;
+}

@@ -1,0 +1,27 @@
+:root {
+  --page-bg: #071733;
+  --nav-bg: #071733;
+  --content-bg: #0b1d3e;
+  --page-fg: #ffffff;
+  --artifact-row-odd-bg: #182948;
+  --artifact-row-even-bg: #253552;
+  --artifact-muted-fg: rgba(255, 255, 255, 0.42);
+}
+
+body.site-context-local {
+  --page-bg: #071733;
+  --nav-bg: #071733;
+  --content-bg: #0b1d3e;
+}
+
+body.site-context-remote {
+  --page-bg: #3b0508;
+  --nav-bg: #3b0508;
+  --content-bg: #4a090d;
+}
+
+body.site-context-preview {
+  --page-bg: #063819;
+  --nav-bg: #063819;
+  --content-bg: #084821;
+}

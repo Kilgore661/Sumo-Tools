@@ -1,0 +1,168 @@
+.artifact-title-block {
+  align-self: stretch;
+  background: var(--content-bg);
+  margin-bottom: 0;
+  padding-bottom: 1ex;
+  text-align: center;
+  z-index: 2;
+}
+
+.artifact-title-block h4 + h5 {
+  margin-top: 0.5rem;
+}
+
+.artifact-title-block + .artifact-table-shell,
+.artifact-title-block + .artifact-table,
+.artifact-title-block + .sectioned-table-grid {
+  margin-top: 1ex;
+}
+
+.artifact-table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.artifact-table-shell {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  max-width: 100%;
+  min-height: 0;
+}
+
+.artifact-table-frame {
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  display: flex;
+  flex: 0 1 auto;
+  flex-direction: column;
+  margin-inline: auto;
+  max-height: 100%;
+  max-width: 100%;
+  min-height: 0;
+  width: max-content;
+}
+
+.artifact-table-header-region {
+  flex: 0 0 auto;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.artifact-table-body-region {
+  flex: 1 1 auto;
+  max-width: 100%;
+  min-height: 0;
+  overflow: auto;
+}
+
+.artifact-table-header,
+.artifact-table-body {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.artifact-table-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+}
+
+.artifact-table-header table,
+.artifact-table-body table {
+  margin-inline: auto;
+  min-width: max-content;
+}
+
+.artifact-table th,
+.artifact-table td {
+  padding: 0.2rem 0.4rem;
+}
+
+.artifact-table [data-column-id="row_number"] {
+  color: var(--artifact-muted-fg);
+  font-weight: 400;
+}
+
+.artifact-table thead th {
+  background: var(--content-bg);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.artifact-table tbody tr:nth-child(odd) {
+  background: var(--artifact-row-odd-bg);
+}
+
+.artifact-table tbody tr:nth-child(even) {
+  background: var(--artifact-row-even-bg);
+}
+
+.artifact-table-header table {
+  border-bottom: 0;
+}
+
+.artifact-table-body table {
+  border-top: 0;
+}
+
+.artifact-table-header th,
+.artifact-table-body td {
+  border-bottom: 0;
+  border-left: 0;
+  border-right: 0;
+  border-top: 0;
+}
+
+.artifact-table-header th[data-group-start="true"],
+.artifact-table-body td[data-group-start="true"] {
+  border-left: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.artifact-table-header th[data-group-end="true"],
+.artifact-table-body td[data-group-end="true"] {
+  border-right: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.artifact-table-body tbody tr:first-child td,
+.sectioned-table tbody tr:first-child td {
+  border-top: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.sectioned-table {
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.table-sort-button {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+}
+
+.table-sort-button:hover,
+.table-sort-button:focus {
+  text-decoration: underline;
+}
+
+.artifact-table th[data-sort-direction="asc"] .table-sort-button::after {
+  content: " ▲";
+}
+
+.artifact-table th[data-sort-direction="desc"] .table-sort-button::after {
+  content: " ▼";
+}
+
+.sticky-col-0 {
+  background: inherit;
+  left: 0;
+  position: sticky;
+  z-index: 2;
+}
+
+.artifact-table thead .sticky-col-0 {
+  background: var(--content-bg);
+  z-index: 3;
+}
