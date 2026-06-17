@@ -40,7 +40,11 @@ SKIP_PATH_PARTS = (
     ("files", "cache"),
 )
 
-THIS_TOOL_PATH = "src/misc/mojibake_audit.py"
+SKIP_MARKER_SCAN_PATHS = frozenset(
+    {
+        "src/misc/mojibake/config.py",
+    }
+)
 
 MOJIBAKE_MARKERS = (
     "\ufffd",
