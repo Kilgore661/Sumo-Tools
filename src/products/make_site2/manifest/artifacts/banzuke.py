@@ -1,4 +1,4 @@
-from ..artifact_model import BanzukeChangesArtifact, ChartArtifact, ChartAxis, ChartTrace, DataSource, Note
+from ...artifact_model import BanzukeChangesArtifact, ChartArtifact, ChartAxis, ChartTrace, DataSource, DataBinding, Note
 
 BANZUKE_CHANGES_ARTIFACT = BanzukeChangesArtifact(
     id="banzuke_changes",
