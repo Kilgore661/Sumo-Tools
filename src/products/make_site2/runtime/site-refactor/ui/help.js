@@ -3,6 +3,7 @@
 import { escapeHtml } from "../utils/html.js";
 
 const HELP_POPOVER_LIFETIME_MS = 2000;
+const HELP_POPOVER_SHOW_DELAY_MS = 500;
 const LEGACY_NOTE_TARGETS = new Map([
   ["delta", "note_delta"],
   ["result", "note_result"],
@@ -14,6 +15,8 @@ const LEGACY_NOTE_TARGETS = new Map([
 let activeHelpTarget = null;
 let helpLayer = null;
 let hideTimer = null;
+let hoverShowTimer = null;
+let pendingHoverTarget = null;
 let hideStartedAt = 0;
 let hideRemainingMs = HELP_POPOVER_LIFETIME_MS;
 let shikonaLinkHandlerInstalled = false;
@@ -61,11 +64,20 @@ function installHelpPopovers() {
 
   document.addEventListener("pointerover", event => {
     const target = helpTargetFromEvent(event);
-    if (target) showHelpPopover(target);
+    if (target) scheduleHelpPopover(target);
+  });
+  document.addEventListener("pointerout", event => {
+    const target = helpTargetFromEvent(event);
+    if (!target) return;
+    if (event.relatedTarget instanceof Node && target.contains(event.relatedTarget)) return;
+    if (target === pendingHoverTarget) cancelScheduledHelpPopover();
   });
   document.addEventListener("focusin", event => {
     const target = helpTargetFromEvent(event);
-    if (target) showHelpPopover(target);
+    if (target) {
+      cancelScheduledHelpPopover();
+      showHelpPopover(target);
+    }
   });
   helpLayer.addEventListener("pointerover", () => {
     if (helpLayer.dataset.notesPopover === "true") pauseHideCountdown();
@@ -135,6 +147,26 @@ function helpTargetFromEvent(event) {
   return event.target instanceof Element ? event.target.closest(".help-popover") : null;
 }
 
+function scheduleHelpPopover(target) {
+  if (target === activeHelpTarget || target === pendingHoverTarget) return;
+  cancelScheduledHelpPopover();
+  pendingHoverTarget = target;
+  hoverShowTimer = window.setTimeout(() => {
+    hoverShowTimer = null;
+    const targetToShow = pendingHoverTarget;
+    pendingHoverTarget = null;
+    if (targetToShow) showHelpPopover(targetToShow);
+  }, HELP_POPOVER_SHOW_DELAY_MS);
+}
+
+function cancelScheduledHelpPopover() {
+  if (hoverShowTimer) {
+    window.clearTimeout(hoverShowTimer);
+    hoverShowTimer = null;
+  }
+  pendingHoverTarget = null;
+}
+
 function showHelpPopover(target) {
   const help = target.dataset.help;
   if (!help || !helpLayer) return;
@@ -163,6 +195,7 @@ function renderNotesHelpText(help) {
 }
 
 function hideHelpPopover() {
+  cancelScheduledHelpPopover();
   clearHideTimer();
   activeHelpTarget = null;
   if (!helpLayer) return;
