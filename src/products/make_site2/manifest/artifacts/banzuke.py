@@ -1,22 +1,20 @@
-from ...artifact_model import BanzukeChangesArtifact, ChartArtifact, ChartAxis, ChartTrace, DataSource, DataBinding, Note
+"""Banzuke and rank-structure artifact declarations for the public site."""
+
+from ...artifact_model import (
+    BanzukeChangesArtifact,
+    ChartArtifact,
+    ChartAxis,
+    ChartTrace,
+    DataBinding,
+    DataSource,
+    Note,
+)
+
 
 BANZUKE_CHANGES_ARTIFACT = BanzukeChangesArtifact(
-    id="banzuke_changes",
-    heading="Most Recent Banzuke",
-    kind="banzuke_changes",
-    renderer="banzuke_changes_table",
-    config_source=DataSource(
-        id="site_config",
-        label="Site Config",
-        path="current-sumo/banzuke-changes/site_config.json",
-        media_type="application/json"
-    ),
-    rows_source=DataSource(
-        id="banzuke_change_report",
-        label="Banzuke Change Report",
-        path="current-sumo/banzuke-changes/data/banzuke_change_report.csv",
-        media_type="text/csv"
-    ),
+    id="banzuke_changes", heading="Most Recent Banzuke", kind="banzuke_changes", renderer="banzuke_changes_table",
+    config_source=DataSource(id="site_config", label="Site Config", path="current-sumo/banzuke-changes/site_config.json", media_type="application/json"),
+    rows_source=DataSource(id="banzuke_change_report", label="Banzuke Change Report", path="current-sumo/banzuke-changes/data/banzuke_change_report.csv", media_type="text/csv"),
     notes=(
         Note(id="note_result", applies_to=("context",), text="In Result, arrows show movement between rank groups such as Maegashira, Komusubi, Sekiwake, Ozeki, Yokozuna or the lower divisions. This differs from the movement column, which shows movement up or down in banzuke slot order."),
         Note(id="note_delta", applies_to=("delta",), text="Delta measures how many east/west banzuke slots a rikishi moved. A full numbered rank change, such as M2e to M3e, counts as two slots."),
@@ -25,10 +23,7 @@ BANZUKE_CHANGES_ARTIFACT = BanzukeChangesArtifact(
 )
 
 BANZUKE_DIVISION_BY_ERA_ARTIFACT = ChartArtifact(
-    id="banzuke_division_by_era",
-    heading="Average Banzuke Composition by Era",
-    kind="chart",
-    renderer="stacked_bar_chart",
+    id="banzuke_division_by_era", heading="Average Banzuke Composition by Era", kind="chart", renderer="stacked_bar_chart",
     data_binding=DataBinding(kind="csv", sources=("divisions",)),
     data_sources=(DataSource(id="divisions", label="Average banzuke composition by era", path="banzuke-rank/banzuke-structure-over-time/banzuke-division-by-era/data/divisions.csv", media_type="text/csv"),),
     traces=(ChartTrace(id="division_average", label="Division average", kind="stacked_bar", x="era", y="average_rikishi", group_by="division"),),
@@ -38,10 +33,7 @@ BANZUKE_DIVISION_BY_ERA_ARTIFACT = ChartArtifact(
 )
 
 MAKUUCHI_RANK_BY_ERA_ARTIFACT = ChartArtifact(
-    id="makuuchi_rank_by_era",
-    heading="Makuuchi Rank Appearances by Era",
-    kind="chart",
-    renderer="stacked_bar_chart",
+    id="makuuchi_rank_by_era", heading="Makuuchi Rank Appearances by Era", kind="chart", renderer="stacked_bar_chart",
     data_binding=DataBinding(kind="csv", sources=("ranks",)),
     data_sources=(DataSource(id="ranks", label="Rank appearances by era", path="banzuke-rank/banzuke-structure-over-time/makuuchi-rank-by-era/data/ranks.csv", media_type="text/csv"),),
     traces=(ChartTrace(id="era_counts", label="Era counts", kind="stacked_bar", x="rank", y="count", group_by="era"),),
