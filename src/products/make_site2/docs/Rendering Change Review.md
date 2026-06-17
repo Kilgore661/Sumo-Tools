@@ -13,11 +13,19 @@ This review has been split into smaller documents so each part can be read and u
 
 Basho selector redesign: implemented as an interim PA-specific/runtime control.
 
-Clickable Notes popovers: implemented as runtime popover-to-note interaction.
+Clickable Notes popovers: implemented as runtime popover-to-note interaction. Notes validation/tightening remains TBD.
+
+Shikona link affordance: implemented across the shared table helper and Basho Results.
+
+Career Length Longest / Show Active: implemented with produced ranked populations.
+
+Row-number vs ranking semantics: resolved for the current table model and shared renderers.
+
+Reviewed table visual-language, row-number/ranking and simple-chart rendering items are complete for the reviewed slice.
 
 General bad-URL handling: minimal current behavior implemented. Richer handling policy is resolved but not implemented: bad deep URLs should alert and land on Home, while bad in-site navigation should alert and preserve the current view.
 
-All other items in this review remain open unless called out separately.
+Remaining known work: Notes validation/tightening and a separate 3.3 Rikishi History follow-up.
 
 ## Notes
 
