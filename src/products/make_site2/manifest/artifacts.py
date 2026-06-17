@@ -195,7 +195,7 @@ MOST_CONSECUTIVE_BOUTS_ARTIFACT = TableArtifact(
         TableColumn(id="shikona", heading="Shikona", source_field="shikona", sort_kind="text", align="left"),
         TableColumn(id="bouts", heading="Bouts", source_field="bouts", sort_kind="numeric", align="right"),
         TableColumn(id="start", heading="Start", source_field="start", help="year/month/day of basho", sort_kind="text", align="left"),
-        TableColumn(id="end", heading="End", help="year/month/day of basho", source_field="end", sort_kind="text", align="left"),
+        TableColumn(id="end", heading="End", source_field="end", help="year/month/day of basho", sort_kind="text", align="left"),
         TableColumn(id="clean", heading="Clean", source_field="clean", help="See Notes", sort_kind="none", align="center", note_id="clean_record"),
     ),
     default_sort_column="position",
@@ -216,7 +216,7 @@ MOST_CAREER_WINS_ARTIFACT = TableArtifact(
         TableColumn(id="bouts", heading="Bouts", source_field="bouts", sort_kind="numeric", align="right"),
         TableColumn(id="win_rate", heading="Win rate", source_field="win_rate", sort_kind="numeric", align="right"),
         TableColumn(id="start", heading="Start", source_field="start", help="year/month/day of basho", sort_kind="text", align="left"),
-        TableColumn(id="end", heading="End", help="year/month/day of basho", source_field="end", sort_kind="text", align="left"),
+        TableColumn(id="end", heading="End", source_field="end", help="year/month/day of basho", sort_kind="text", align="left"),
     ),
     default_sort_column="position",
 )
@@ -233,7 +233,7 @@ MOST_CAREER_LOSSES_ARTIFACT = TableArtifact(
         TableColumn(id="bouts", heading="Bouts", source_field="bouts", sort_kind="numeric", align="right"),
         TableColumn(id="win_rate", heading="Win rate", source_field="win_rate", sort_kind="numeric", align="right"),
         TableColumn(id="start", heading="Start", source_field="start", help="year/month/day of basho", sort_kind="text", align="left"),
-        TableColumn(id="end", heading="End", help="year/month/day of basho", source_field="end", sort_kind="text", align="left"),
+        TableColumn(id="end", heading="End", source_field="end", help="year/month/day of basho", sort_kind="text", align="left"),
     ),
     default_sort_column="position",
 )
