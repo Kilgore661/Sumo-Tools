@@ -9,12 +9,16 @@ from __future__ import annotations
 from .models import NavigationTree
 
 
+GOATS_HREF = "?page=career_comparisons&skill=equelo&x=date&log=true&rikishi=1123%2C3987%2C1354%2C2%2C3%2C4080"
+
+
 def nav(
     id: str,
     label: str,
     slug: str,
     *children: NavigationTree,
     page_id: str | None = None,
+    href: str | None = None,
 ) -> NavigationTree:
     return NavigationTree(
         id=id,
@@ -22,6 +26,7 @@ def nav(
         slug=slug,
         children=children,
         page_id=page_id,
+        href=href,
     )
 
 
@@ -287,6 +292,12 @@ NAVIGATION = NavigationTree(
                     "most-career-losses",
                     page_id="most_career_losses",
                 ),
+            ),
+            nav(
+                "goats",
+                "GOATs",
+                "goats",
+                href=GOATS_HREF,
             ),
         ),
         nav(
