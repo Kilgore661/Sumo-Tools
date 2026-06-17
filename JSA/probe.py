@@ -91,9 +91,9 @@ def get_json_from_url(
     response.raise_for_status()
 
     # JSA may return JSON while incorrectly labelling it as text/html.
-    # Parse the response text directly instead of trusting Content-Type.
+    # Decode the bytes explicitly instead of inheriting requests' text heuristic.
     return parse_json_text(
-        text=response.text,
+        text=response.content.decode("utf-8"),
         url=url,
         content_type=response.headers.get("content-type"),
     )
