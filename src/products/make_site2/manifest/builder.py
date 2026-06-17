@@ -57,6 +57,7 @@ class PanelDeclaration:
 
     filters: tuple[Filter, ...]
     artifact: object
+    public_url_keys: tuple[str, ...] = ()
 
 
 PANEL_DECLARATIONS: dict[str, PanelDeclaration] = {
@@ -115,6 +116,7 @@ PANEL_DECLARATIONS: dict[str, PanelDeclaration] = {
     "career_comparisons": PanelDeclaration(
         filters=f.CAREER_COMPARISONS_FILTERS,
         artifact=a.CAREER_COMPARISONS_ARTIFACT,
+        public_url_keys=("rikishi",),
     ),
     "typical_equelo_values": PanelDeclaration(
         filters=(),
@@ -170,6 +172,7 @@ def build_content_panel(page: object, declaration: PanelDeclaration) -> ContentP
                 notes=Notes(note_ids=note_ids),
             ),
         ),
+        public_url_keys=declaration.public_url_keys,
     )
 
 
