@@ -1,3 +1,5 @@
+"""Published artifact declarations grouped behind the manifest artifact contract."""
+
 from .banzuke import (
     BANZUKE_CHANGES_ARTIFACT,
     BANZUKE_DIVISION_BY_ERA_ARTIFACT,
