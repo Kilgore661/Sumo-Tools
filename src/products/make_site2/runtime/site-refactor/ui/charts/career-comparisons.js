@@ -676,41 +676,44 @@ function humanChii(chii) {
   return `${parsed.level}${parsed.number}`;
 }
 
+function humanChiiSortKey(human) {
+  const parsed = parseChii(human);
+  if (!parsed) {
+    const levelIndex = CHII_LEVELS.indexOf(human);
+    return levelIndex < 0 ? Number.MAX_SAFE_INTEGER : levelIndex * 1000;
+  }
+  return parsed.levelIndex * 1000 + parsed.number;
+}
+
 function parseChii(chii) {
-  const match = String(chii || "").match(/^([A-Za-z]+)(\d+)?[ew]?$/);
+  const match = String(chii || "").match(/^(Ms|Sd|Jd|Jk|Y|O|S|K|M|J)(\d*)/);
   if (!match) return null;
-  const levelIndex = CHII_LEVELS.indexOf(match[1]);
-  if (levelIndex === -1) return null;
+  const level = match[1];
+  const levelIndex = CHII_LEVELS.indexOf(level);
+  const number = match[2] ? Number(match[2]) : 1;
   return {
-    level: match[1],
-    number: Number(match[2] || 1),
+    level,
     levelIndex,
-    sortKey: (levelIndex * 1000) + Number(match[2] || 1),
+    number,
+    sortKey: levelIndex * 1000 + number,
   };
 }
 
-function humanChiiSortKey(label) {
-  const parsed = parseChii(label);
-  return parsed ? parsed.sortKey : Number.POSITIVE_INFINITY;
-}
-
-function displayNameForRikishi(rikishiId, data) {
-  return data.labels_by_rikishi[rikishiId] || rikishiId;
-}
-
 function careerComparisonRikishiOptions(data) {
-  return Object.entries(data.labels_by_rikishi || {})
-    .map(([id, label]) => ({
-      id,
-      label,
-      prefixes: searchPrefixes(label),
-    }))
+  const rows = Object.entries(data.points_by_rikishi || {}).map(([id, points]) => {
+    const lastPoint = points[points.length - 1] || [];
+    return { id, shikona: String(lastPoint[POINT_SHIKONA] || id) };
+  });
+  return rows
+    .map(row => {
+      const label = row.shikona;
+      return {
+        ...row,
+        label,
+        prefixes: [label, row.shikona, row.id].map(value => String(value).toLowerCase()),
+      };
+    })
     .sort((left, right) => left.label.localeCompare(right.label));
-}
-
-function searchPrefixes(label) {
-  const normalized = label.toLowerCase();
-  return normalized.split(/[^a-z0-9]+/).filter(Boolean);
 }
 
 function readCareerComparisonSelectionFromUrl(data) {
@@ -719,7 +722,7 @@ function readCareerComparisonSelectionFromUrl(data) {
     .split(",")
     .map(value => value.trim())
     .filter(Boolean);
-  const knownIds = new Set(Object.keys(data.labels_by_rikishi || {}));
+  const knownIds = new Set(Object.keys(data.points_by_rikishi || {}));
   careerComparisonsState.selectedRikishiIds = ids.filter(id => knownIds.has(id));
 }
 
@@ -733,29 +736,57 @@ function writeCareerComparisonSelectionToUrl() {
   history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
 }
 
+function displayNameForRikishi(rikishiId, data) {
+  const options = careerComparisonRikishiOptions(data);
+  return options.find(option => option.id === rikishiId)?.label || rikishiId;
+}
+
 function attachCareerComparisonLegendHandler(host) {
-  const legend = host.querySelector(".legend");
-  if (!legend) return;
-  legend.addEventListener("dblclick", () => {
-    careerComparisonSession = createCareerComparisonSession();
+  if (!host.on) return;
+  if (host.__careerComparisonHandlersAttached) return;
+  host.__careerComparisonHandlersAttached = true;
+  host.on("plotly_legenddoubleclick", event => {
+    const visibility = host.data.map((_, index) =>
+      index === event.curveNumber ? true : "legendonly"
+    );
+    Plotly.restyle(host, { visible: visibility });
+    return false;
   });
+}
+
+function resetCareerComparisonsState() {
+  careerComparisonsState = { ...DEFAULT_STATE };
+  careerComparisonSession = createCareerComparisonSession();
 }
 
 export {
   renderCareerComparisonsPanel,
-  wireCareerComparisonsControls,
-  renderCareerComparisonsChart,
   renderCareerComparisonsControls,
+  renderCareerComparisonsChart,
+  wireCareerComparisonsControls,
   renderCareerComparisonsPlot,
   careerComparisonTraces,
   careerComparisonTrace,
-  careerComparisonLayout,
-  careerComparisonYAxes,
   careerComparisonYValue,
-  careerComparisonHoverTemplate,
-  careerComparisonCaption,
-  careerComparisonControlState,
+  careerComparisonTraceColour,
+  careerComparisonLayout,
+  dateAxisCategoryOrder,
+  sortedTraceDates,
+  chiiAxisLayout,
+  equeloAxisLayout,
+  numericTraceRange,
+  chiiRangePadding,
+  formatFloatLabel,
+  formatOptionalFloat,
+  buildChiiScale,
+  linearChiiScale,
+  compressedChiiScale,
+  humanChii,
+  humanChiiSortKey,
+  spacedChiiTicks,
+  parseChii,
   careerComparisonRikishiOptions,
   readCareerComparisonSelectionFromUrl,
   writeCareerComparisonSelectionToUrl,
+  resetCareerComparisonsState,
 };
