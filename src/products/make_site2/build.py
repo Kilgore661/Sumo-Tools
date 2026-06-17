@@ -57,6 +57,7 @@ def build_site(
     basho_results_payload_mode: str = "all",
     cache_mode: str = "dev",
     cache_bust_token: str | None = None,
+    full_navigation: bool = False,
 ) -> BuildOutput:
     """Write the first make_site2 static output tree."""
 
@@ -115,14 +116,17 @@ def build_site(
     plan = build_publication_plan(SITE)
     (output_root / "index.html").write_text(
         render_site_shell(
-            build_public_site_shell(plan),
+            build_public_site_shell(plan, full_navigation=full_navigation),
             cache_mode=cache_mode,
             cache_bust_token=resolved_cache_bust_token,
         ),
         encoding="utf-8",
     )
     (output_root / "runtime" / "site-manifest.json").write_text(
-        json.dumps(build_runtime_manifest(plan), indent=2),
+        json.dumps(
+            build_runtime_manifest(plan, full_navigation=full_navigation),
+            indent=2,
+        ),
         encoding="utf-8",
     )
     shutil.copyfile(
