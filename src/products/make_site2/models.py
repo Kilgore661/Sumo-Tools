@@ -54,6 +54,7 @@ class NavigationTree:
     slug: str
     children: tuple["NavigationTree", ...] = ()
     page_id: str | None = None
+    href: str | None = None
 
 
 @dataclass(frozen=True, kw_only=True)
