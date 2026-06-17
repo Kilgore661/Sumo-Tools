@@ -50,6 +50,7 @@ SKIP_PATH_PARTS = (
     ("files", "output"),
     ("files", "cache"),
 )
+THIS_TOOL_PATH = "src/misc/mojibake_audit.py"
 MOJIBAKE_MARKERS = (
     "\ufffd",
     "Ã",
@@ -62,6 +63,7 @@ MOJIBAKE_MARKERS = (
     "â€”",
     "â€¦",
 )
+HTTP_RESPONSE_NAMES = frozenset({"r", "resp", "response"})
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -152,6 +154,8 @@ def audit_utf8_bytes(root: Path, path: Path, relative_path: str) -> Iterable[Fin
             evidence="",
         )
         return
+    if relative_path == THIS_TOOL_PATH:
+        return
     yield from scan_mojibake_markers(relative_path, text)
 
 
@@ -222,13 +226,13 @@ class PythonBoundaryVisitor(ast.NodeVisitor):
         self.generic_visit(node)
 
     def visit_Attribute(self, node: ast.Attribute) -> None:
-        if node.attr == "text":
+        if node.attr == "text" and is_http_response_text_attribute(node):
             self.findings.append(
                 Finding(
                     path=self.relative_path,
                     line=node.lineno,
                     kind="response_text_candidate",
-                    detail="Attribute named .text; inspect if this decodes HTTP bytes implicitly.",
+                    detail="HTTP response .text may decode bytes implicitly; inspect encoding contract.",
                     evidence=ast.unparse(node),
                 )
             )
@@ -252,6 +256,12 @@ class PythonBoundaryVisitor(ast.NodeVisitor):
                 evidence=ast.unparse(node)[:160],
             )
         )
+
+
+def is_http_response_text_attribute(node: ast.Attribute) -> bool:
+    if not isinstance(node.value, ast.Name):
+        return False
+    return node.value.id in HTTP_RESPONSE_NAMES
 
 
 def dotted_call_name(node: ast.AST) -> str:
