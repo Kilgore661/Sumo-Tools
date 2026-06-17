@@ -18,13 +18,15 @@ Implementation status:
 
 ```text
 Basho selector redesign: implemented as an interim PA-specific/runtime control.
-Clickable Notes popovers: implemented as runtime popover-to-note interaction.
+Clickable Notes popovers: implemented as runtime popover-to-note interaction; validation/tightening remains TBD.
 Shikona link affordance: implemented across the shared table helper and Basho Results.
 Career Length Longest / Show Active: implemented with produced ranked populations.
-Row-number vs ranking semantics: partially implemented across shared table renderers.
+Row-number vs ranking semantics: resolved for the current table model and shared renderers.
 Section 6.2.1 side-by-side layout: restored as a custom sectioned-table layout.
-General bad-URL handling: minimal current behavior implemented. Richer handling policy resolved but not implemented.
-All other items in this review remain open unless called out separately.
+Simple-chart rendering review: completed for the reviewed non-3.3 charts.
+3.3 Rikishi History: separate follow-up remains.
+General bad-URL handling: minimal current behavior implemented; richer handling policy resolved but not implemented.
+Remaining known work: Notes validation/tightening and the separate 3.3 follow-up.
 ```
 
 ## 1. Review Purpose
