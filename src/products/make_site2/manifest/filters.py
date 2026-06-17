@@ -1,4 +1,4 @@
-"""Declared reader-visible Filters used by current Published Artifacts."""
+"""Filter declarations for make_site2 public panels."""
 
 from __future__ import annotations
 
@@ -21,37 +21,19 @@ STANDINGS_DIVISION_FILTER_VALUES = (
 
 STANDINGS_WINDOW_VALUES = tuple(
     FilterValue(value=str(value), label=str(value))
-    for value in (1, 2, 3, 4, 5, 6, 12, 18, 24, 36, 60)
-)
-
-BRB_FILTERS = (
-    Filter(id="basho_year", label="Year", control="select", default="latest", url_key="year"),
-    Filter(id="basho_month", label="Month", control="select", default="latest", url_key="month"),
-    Filter(
-        id="division",
-        label="Division",
-        control="select",
-        default="makuuchi",
-        url_key="division",
-        values=DIVISION_FILTER_VALUES,
-    ),
-    Filter(id="previous_context", label="Previous Basho", control="checkbox", default=False, url_key="previous"),
-    Filter(id="changes_context", label="Next Basho", control="checkbox", default=True, url_key="changes"),
-    Filter(id="rating_context", label="Equelo Ratings", control="checkbox", default=False, url_key="ratings"),
-    Filter(id="analysis_context", label="Ratings Fit", control="checkbox", default=False, url_key="analysis", help="See TBD"),
-    Filter(id="nu_chii", label="nuChii", control="checkbox", default=False, url_key="nu_chii"),
+    for value in (1, 2, 3, 4, 5, 6, 12)
 )
 
 STANDINGS_FILTERS = (
     Filter(
-        id="metric_group_preset",
-        label="View",
+        id="source",
+        label="Ranking",
         control="select",
-        default="standard",
-        url_key="view",
+        default="rolling_wins",
+        url_key="ranking",
         values=(
-            FilterValue(value="standard", label="Wins per Basho"),
-            FilterValue(value="percentages", label="Wins per Bout"),
+            FilterValue(value="rolling_wins", label="Wins"),
+            FilterValue(value="rolling_equelo", label="Equelo"),
             FilterValue(value="combined", label="Both"),
         ),
     ),
@@ -100,6 +82,31 @@ BANZUKE_CHANGES_FILTERS = (
         default=False,
         url_key="equelo",
         help="Model ratings. See Ratings & Models.",
+    ),
+)
+
+BRB_FILTERS = (
+    Filter(
+        id="basho_year",
+        label="Year",
+        control="select",
+        default="latest",
+        url_key="year",
+    ),
+    Filter(
+        id="basho_month",
+        label="Month",
+        control="select",
+        default="latest",
+        url_key="month",
+    ),
+    Filter(
+        id="division",
+        label="Division",
+        control="select",
+        default="makuuchi",
+        url_key="division",
+        values=DIVISION_FILTER_VALUES,
     ),
 )
 
@@ -220,24 +227,25 @@ CAREER_COMPARISONS_FILTERS = (
         default="chii",
         url_key="skill",
         values=(
-            FilterValue(value="chii", label="Rank"),
-            FilterValue(value="equelo", label="Equelo Rating"),
+            FilterValue(value="chii", label="Chii"),
+            FilterValue(value="equelo", label="Equelo"),
+            FilterValue(value="both", label="Both"),
         ),
     ),
     Filter(
-        id="x_axis",
+        id="x_base",
         label="X Axis",
         control="select",
         default="date",
         url_key="x",
         values=(
-            FilterValue(value="date", label="Time"),
-            FilterValue(value="age", label="Age"),
+            FilterValue(value="date", label="Date"),
+            FilterValue(value="basho", label="Hatsu"),
         ),
     ),
     Filter(
-        id="show_log_scale",
-        label="Log Scale",
+        id="log",
+        label="Compress",
         control="checkbox",
         default=True,
         url_key="log",
