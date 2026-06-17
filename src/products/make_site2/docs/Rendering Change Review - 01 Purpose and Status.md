@@ -23,7 +23,7 @@ Shikona link affordance: implemented across the shared table helper and Basho Re
 Career Length Longest / Show Active: implemented with produced ranked populations.
 Row-number vs ranking semantics: partially implemented across shared table renderers.
 Section 6.2.1 side-by-side layout: restored as a custom sectioned-table layout.
-General bad-URL handling: minimal current behavior implemented; richer policy TBD.
+General bad-URL handling: minimal current behavior implemented. Richer handling policy resolved but not implemented.
 All other items in this review remain open unless called out separately.
 ```
 
