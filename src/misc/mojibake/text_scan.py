@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Iterable
 
-from .config import MOJIBAKE_MARKERS, THIS_TOOL_PATH
+from .config import MOJIBAKE_MARKERS, SKIP_MARKER_SCAN_PATHS
 from .findings import Finding
 
 
@@ -22,7 +22,7 @@ def audit_utf8_bytes(path: Path, relative_path: str) -> Iterable[Finding]:
             evidence="",
         )
         return
-    if relative_path == THIS_TOOL_PATH:
+    if relative_path in SKIP_MARKER_SCAN_PATHS:
         return
     yield from scan_mojibake_markers(relative_path, text)
 
