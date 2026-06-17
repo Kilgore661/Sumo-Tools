@@ -268,6 +268,7 @@ function renderCareerComparisonsPlot(artifact, state, data) {
   if (!host) return;
   updateCareerComparisonCaption(artifact, data);
   if (!careerComparisonsState.selectedRikishiIds.length) {
+    if (window.Plotly && host.on) Plotly.purge(host);
     host.innerHTML = '<p class="career-comparison-empty">Select one or more rikishi.</p>';
     return;
   }
@@ -278,6 +279,7 @@ function renderCareerComparisonsPlot(artifact, state, data) {
   host.classList.toggle("career-comparisons-chii-axis", usesChiiAxis(state));
   const traces = careerComparisonTraces(artifact, state, data);
   if (!traces.length) {
+    if (host.on) Plotly.purge(host);
     host.innerHTML = '<p class="career-comparison-empty">No plottable points are available for the selected rikishi and chart options.</p>';
     return;
   }
@@ -443,7 +445,8 @@ function careerComparisonLayout(artifact, state, data, traces = null) {
       ...(state.x_base === "date" ? dateAxisCategoryOrder(traces || []) : {}),
       automargin: true,
       gridcolor: "rgba(127,149,192,0.18)",
-      zerolinecolor: "rgba(127,149,192,0.35)",
+      zerolinecolor: "rgba(127,149,192,0.35)
+      ",
       color: "#c9d4ee",
     },
     ...yAxes,
