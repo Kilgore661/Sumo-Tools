@@ -64,6 +64,7 @@ function careerComparisonTrace(rikishiId, artifact, state, data, chiiScale, seri
     type: "scatter",
     mode: "lines",
     name: careerComparisonTraceName(rikishiId, data, resolvedSeries),
+    meta: { rikishiId },
     yaxis: resolvedSeries.yaxis,
     line: { color: careerComparisonTraceColour(rikishiId), dash: resolvedSeries.dash },
     x,
