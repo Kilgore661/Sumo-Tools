@@ -249,7 +249,7 @@ def division_change_marker(change: BanzukeChange) -> str:
     return rank_level_movement_marker(change.previous_chii, change.current_chii)
 
 
-def format_delta(delta: float | None) -> str:
+def format_delta(delta: int | None) -> str:
     """
     Contract:
         delta is the pair-local observed-slot movement metric, or None.
@@ -263,10 +263,10 @@ def format_delta(delta: float | None) -> str:
     if delta == 0:
         return "0"
 
-    return f"{delta:+.1f}"
+    return f"{delta:+d}"
 
 
-def delta_class(delta: float | None) -> str:
+def delta_class(delta: int | None) -> str:
     """
     Contract:
         delta is the pair-local observed-slot movement metric, or None.
