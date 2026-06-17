@@ -200,7 +200,7 @@ function renderSelectedRikishiList(selectedList, optionsById) {
       return [
         '<li>',
         `<span>${escapeHtml(option.label)}</span>`,
-        `<button type="button" data-rikishi-id="${escapeHtml(id)}" aria-label="Remove ${escapeHtml(option.label)}">X</button>`,
+        `<button type="button" data-rikishi-id="${escapeHtml(id)}" aria-label="Remove ${escapeHtml(option.label)}" title="Remove ${escapeHtml(option.label)}">🗑</button>`,
         `<input type="checkbox" data-rikishi-visible-id="${escapeHtml(id)}" checked aria-label="Show ${escapeHtml(option.label)} traces" title="Show/hide ${escapeHtml(option.label)} traces">`,
         '</li>',
       ].join("");
