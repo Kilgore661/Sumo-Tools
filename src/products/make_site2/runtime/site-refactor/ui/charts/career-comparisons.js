@@ -3,7 +3,7 @@
 import { escapeHtml } from "../../utils/html.js";
 import { dateLikeDisplay } from "../../utils/display.js";
 import { renderLabelWithHelp } from "../help.js";
-import { PLOTLY_CONFIG } from "./shared.js";
+import { PLOTLY_CONFIG, axisTitle } from "./shared.js";
 
 const POINT_DATE = 0;
 const POINT_SHIKONA = 1;
@@ -439,7 +439,7 @@ function careerComparisonLayout(artifact, state, data, traces = null) {
     plot_bgcolor: "rgba(0,0,0,0)",
     margin: { l: usesChiiAxis(state) ? 156 : 116, r: 150, t: 18, b: 70 },
     xaxis: {
-      title: state.x_base === "basho" ? "Number of Basho since Hatsu Dohyo" : "Date",
+      title: axisTitle(state.x_base === "basho" ? "Number of Basho since Hatsu Dohyo" : "Date"),
       ...(state.x_base === "date" ? dateAxisCategoryOrder(traces || []) : bashoAxisTickSettings(traces || [])),
       automargin: true,
       gridcolor: "rgba(127,149,192,0.18)",
@@ -529,7 +529,7 @@ function chiiAxisLayout(artifact, state, data, traces = null) {
   const scale = buildChiiScale(artifact, state, data);
   const range = numericTraceRange(traces || [], chiiRangePadding(scale));
   return {
-    title: state.log ? "Chii (Compressed)" : "Chii",
+    title: axisTitle(state.log ? "Chii (Compressed)" : "Chii"),
     autorange: range ? false : undefined,
     range,
     automargin: true,
@@ -546,7 +546,7 @@ function chiiAxisLayout(artifact, state, data, traces = null) {
 function equeloAxisLayout(state, traces) {
   const range = numericTraceRange(traces, null);
   return {
-    title: state.log ? "log(Equelo)" : "Equelo",
+    title: axisTitle(state.log ? "log(Equelo)" : "Equelo"),
     autorange: range ? false : undefined,
     range,
     tickformat: equeloTickFormat(state, range),

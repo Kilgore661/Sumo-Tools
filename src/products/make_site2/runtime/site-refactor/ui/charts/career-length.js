@@ -3,7 +3,7 @@
 import { currentTableSortState, decimal, renderRikishiLink, renderTableHeading, sortRows, wireTableSorting } from "../tables.js";
 import { dateLikeDisplay } from "../../utils/display.js";
 import { escapeHtml } from "../../utils/html.js";
-import { PLOTLY_CONFIG } from "./shared.js";
+import { PLOTLY_CONFIG, axisTitle } from "./shared.js";
 
 const CAREER_LENGTH_LONGEST_TABLE_ID = "career_length:longest";
 
@@ -156,14 +156,14 @@ function careerLengthLayout(view) {
     plot_bgcolor: "rgba(0,0,0,0)",
     margin: { l: 76, r: 40, t: 18, b: 70 },
     xaxis: {
-      title: view.x_label,
+      title: axisTitle(view.x_label),
       automargin: true,
       gridcolor: "rgba(127,149,192,0.18)",
       zerolinecolor: "rgba(127,149,192,0.35)",
       color: "#c9d4ee",
     },
     yaxis: {
-      title: view.y_label,
+      title: axisTitle(view.y_label),
       rangemode: "tozero",
       tickformat: view.tickformat || undefined,
       automargin: true,

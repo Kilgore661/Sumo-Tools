@@ -1,6 +1,7 @@
 // Shared chart runtime helpers used by the chart-family modules.
 
 import { dateLikeDisplayFromParts } from "../../utils/display.js";
+import { escapeHtml } from "../../utils/html.js";
 
 const PLOTLY_CONFIG = {
   displayModeBar: true,
@@ -45,6 +46,12 @@ function axisRange(axis) {
   return [axis.minimum, axis.maximum];
 }
 
+function axisTitle(text) {
+  return {
+    text: `<b>${escapeHtml(String(text ?? ""))}</b>`,
+  };
+}
+
 function chartElementId(artifact) {
   return `${artifact.id}-chart`;
 }
@@ -64,6 +71,7 @@ export {
   monthIndexTicks,
   monthIndexLabel,
   axisRange,
+  axisTitle,
   chartElementId,
   resolveFilterValue,
 };

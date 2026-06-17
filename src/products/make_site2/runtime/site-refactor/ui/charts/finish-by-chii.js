@@ -2,7 +2,7 @@
 
 import { divisionId, filterValueLabel } from "../filters.js";
 import { escapeHtml } from "../../utils/html.js";
-import { PLOTLY_CONFIG } from "./shared.js";
+import { PLOTLY_CONFIG, axisTitle } from "./shared.js";
 
 // Render the static HTML host for the selected Finish by Chii chart.
 function renderFinishByChiiChart(artifact, state, filters, rowsBySource) {
@@ -53,9 +53,9 @@ function renderFinishByChiiPlot(artifact, state, rowsBySource) {
     plot_bgcolor: "rgba(0,0,0,0)",
     margin: { l: 64, r: 26, t: 18, b: 58 },
     xaxis: {
-      title: state.direction === "top"
+      title: axisTitle(state.direction === "top"
         ? "Finish Position N, no worse than"
-        : "Finish Position N, no better than",
+        : "Finish Position N, no better than"),
       tickmode: "linear",
       dtick: 1,
       gridcolor: "rgba(127,149,192,0.22)",
@@ -63,7 +63,7 @@ function renderFinishByChiiPlot(artifact, state, rowsBySource) {
       color: "#c9d4ee",
     },
     yaxis: {
-      title: "Probability",
+      title: axisTitle("Probability"),
       range: [0, 100],
       ticksuffix: "%",
       gridcolor: "rgba(127,149,192,0.22)",

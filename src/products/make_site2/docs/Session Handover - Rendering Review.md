@@ -230,18 +230,13 @@ Completed table-structure/scaffolding pieces:
 Other open items:
 
 2. Shared chart rendering.
-
 - Conditional x-axis tick rotation.
-- Bold axis titles.
-
+- Bold axis titles. *Done
 3. PA-specific chart changes.
-
 - Page 5.1 line chart instead of column.
 - Page 7.3.1 Distribution line chart instead of column.
 - Page 6.3.1 pale-blue error bars.
-
 4. Richer bad-URL handling.
-
 - Current minimal behavior exists: `Bad URL` message and route Home.
 - Richer routing/UX policy remains TBD.
 

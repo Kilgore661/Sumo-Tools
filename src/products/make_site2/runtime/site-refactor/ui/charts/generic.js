@@ -5,6 +5,7 @@ import { dateLikeDisplay, dateLikeDisplayFromParts } from "../../utils/display.j
 import {
   PLOTLY_CONFIG,
   axisRange,
+  axisTitle,
   chartElementId,
   chartRows,
   monthIndexTicks,
@@ -297,7 +298,7 @@ function stackedBarLayout(artifact, rowsBySource) {
     plot_bgcolor: "rgba(0,0,0,0)",
     margin: { l: 76, r: 150, t: 18, b: 90 },
     xaxis: {
-      title: artifact.x_axis.label,
+      title: axisTitle(artifact.x_axis.label),
       type: "category",
       categoryorder: "array",
       categoryarray: xValues,
@@ -308,7 +309,7 @@ function stackedBarLayout(artifact, rowsBySource) {
       color: "#c9d4ee",
     },
     yaxis: {
-      title: artifact.y_axis.label,
+      title: axisTitle(artifact.y_axis.label),
       rangemode: artifact.y_axis.minimum === 0 ? "tozero" : "normal",
       range: axisRange(artifact.y_axis),
       tickformat: artifact.y_axis.tickformat || undefined,
@@ -345,7 +346,7 @@ function groupedChartLayout(artifact, rowsBySource) {
     plot_bgcolor: "rgba(0,0,0,0)",
     margin: { l: 76, r: 150, t: 18, b: 90 },
     xaxis: {
-      title: artifact.x_axis.label,
+      title: axisTitle(artifact.x_axis.label),
       type: "category",
       categoryorder: "array",
       categoryarray: xValues,
@@ -356,7 +357,7 @@ function groupedChartLayout(artifact, rowsBySource) {
       color: "#c9d4ee",
     },
     yaxis: {
-      title: artifact.y_axis.label,
+      title: axisTitle(artifact.y_axis.label),
       rangemode: artifact.y_axis.minimum === 0 ? "tozero" : "normal",
       range: axisRange(artifact.y_axis),
       tickformat: artifact.y_axis.tickformat || undefined,
@@ -390,7 +391,7 @@ function orderedBarLayout(artifact, trace) {
     plot_bgcolor: "rgba(0,0,0,0)",
     margin: { l: 90, r: 30, t: 18, b: 120 },
     xaxis: {
-      title: artifact.x_axis.label,
+      title: axisTitle(artifact.x_axis.label),
       type: "category",
       categoryorder: "array",
       categoryarray: trace.x,
@@ -403,7 +404,7 @@ function orderedBarLayout(artifact, trace) {
       color: "#c9d4ee",
     },
     yaxis: {
-      title: artifact.y_axis.label,
+      title: axisTitle(artifact.y_axis.label),
       range: [0, maxY],
       tickmode: "array",
       tickvals: yTicks.values,
@@ -429,7 +430,7 @@ function categoryBarLayout(artifact, trace) {
     plot_bgcolor: "rgba(0,0,0,0)",
     margin: { l: 80, r: 30, t: 18, b: 70 },
     xaxis: {
-      title: artifact.x_axis.label,
+      title: axisTitle(artifact.x_axis.label),
       type: "category",
       categoryorder: "array",
       categoryarray: trace.x,
@@ -439,7 +440,7 @@ function categoryBarLayout(artifact, trace) {
       color: "#c9d4ee",
     },
     yaxis: {
-      title: artifact.y_axis.label,
+      title: axisTitle(artifact.y_axis.label),
       rangemode: artifact.y_axis.minimum === 0 ? "tozero" : "normal",
       automargin: true,
       gridcolor: "rgba(127,149,192,0.22)",

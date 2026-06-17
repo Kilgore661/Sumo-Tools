@@ -2,7 +2,7 @@
 
 import { compareValues } from "../tables.js";
 import { escapeHtml } from "../../utils/html.js";
-import { PLOTLY_CONFIG, axisRange } from "./shared.js";
+import { PLOTLY_CONFIG, axisRange, axisTitle } from "./shared.js";
 
 // Render the title and Plotly host for the selected rank win probability source.
 function renderStandingWinProbabilityChart(artifact, state, rowsBySource) {
@@ -194,7 +194,7 @@ function standingWinProbabilityLayout(artifact, traces) {
     plot_bgcolor: "rgba(0,0,0,0)",
     margin: { l: 76, r: 36, t: 18, b: 92 },
     xaxis: {
-      title: artifact.x_axis.label,
+      title: axisTitle(artifact.x_axis.label),
       type: "category",
       categoryorder: "array",
       categoryarray: visibleStandingCategories(traces),
@@ -204,7 +204,7 @@ function standingWinProbabilityLayout(artifact, traces) {
       color: "#c9d4ee",
     },
     yaxis: {
-      title: artifact.y_axis.label,
+      title: axisTitle(artifact.y_axis.label),
       range: axisRange(artifact.y_axis),
       tickformat: artifact.y_axis.tickformat || undefined,
       automargin: true,
