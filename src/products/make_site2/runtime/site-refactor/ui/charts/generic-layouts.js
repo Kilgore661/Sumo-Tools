@@ -84,6 +84,7 @@ function groupedChartLayout(artifact, rowsBySource) {
       gridcolor: "rgba(127,149,192,0.18)",
       zerolinecolor: "rgba(127,149,192,0.35)",
       color: "#c9d4ee",
+      nticks: artifact.provenance.nticks || undefined,
     },
     yaxis: {
       title: axisTitle(artifact.y_axis.label),
