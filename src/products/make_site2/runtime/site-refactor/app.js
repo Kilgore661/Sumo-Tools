@@ -79,7 +79,7 @@ function selectPage(
     return;
   }
   const filters = panelFilters(panel);
-  if (validateUrlKeys && !urlKeysAreAllowed(filters)) {
+  if (validateUrlKeys && !urlKeysAreAllowed(panel)) {
     handleBadUrl();
     return;
   }
@@ -97,11 +97,13 @@ function selectPage(
     contentPanel.innerHTML = `<p>${escapeHtml(error.message)}</p>`;
   });
 }
-function urlKeysAreAllowed(filters) {
+function urlKeysAreAllowed(panel) {
   const params = new URLSearchParams(window.location.search);
+  const filters = panelFilters(panel);
   const allowed = new Set([
     PAGE_PARAM,
     ...PASSTHROUGH_PARAMS,
+    ...(panel.public_url_keys || []),
     ...filters.map(filter => filter.url_key || filter.id),
   ]);
   if (hasFilter(filters, "basho_year") && hasFilter(filters, "basho_month")) {
