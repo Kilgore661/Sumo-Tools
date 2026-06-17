@@ -81,7 +81,7 @@ function highlightNote(noteElement) {
 
 function cssEscape(value) {
   if (window.CSS?.escape) return window.CSS.escape(value);
-  return String(value).replace(/\/g, "\\").replace(/"/g, '\"');
+  return String(value).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 }
 
 function applyNotesCollapsedState(panel, body, toggle, collapsed) {
