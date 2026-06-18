@@ -61,8 +61,11 @@
 }
 
 .basho-navigation-buttons {
-  display: inline-flex;
-  gap: 0.25em;
+  align-items: center;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  justify-items: center;
+  width: calc(3.5em + 7.5em);
 }
 
 .basho-navigation-buttons button {
