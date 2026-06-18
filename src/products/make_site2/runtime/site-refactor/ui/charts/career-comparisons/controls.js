@@ -15,6 +15,8 @@ import {
 } from "./visibility.js";
 
 const TRASH_ICON_PATH = "assets/trash.svg";
+const EYE_ICON_PATH = "assets/eye.svg";
+const EYE_CLOSED_ICON_PATH = "assets/eye-closed.svg";
 
 function renderCareerComparisonsControls(state) {
   return [
@@ -199,11 +201,13 @@ function renderSelectedRikishiList(selectedList, optionsById) {
     .map(id => {
       const option = optionsById.get(id);
       if (!option) return "";
+      const escapedId = escapeHtml(id);
+      const escapedLabel = escapeHtml(option.label);
       return [
         '<li>',
-        `<span>${escapeHtml(option.label)}</span>`,
-        `<button type="button" class="career-comparison-remove-control" data-rikishi-id="${escapeHtml(id)}" aria-label="Remove ${escapeHtml(option.label)}" title="Remove ${escapeHtml(option.label)}"><img class="career-comparison-remove-icon" src="${TRASH_ICON_PATH}" alt="" aria-hidden="true" draggable="false"></button>`,
-        `<input type="checkbox" data-rikishi-visible-id="${escapeHtml(id)}" checked aria-label="Show ${escapeHtml(option.label)} traces" title="Show/hide ${escapeHtml(option.label)} traces">`,
+        `<span>${escapedLabel}</span>`,
+        `<button type="button" class="career-comparison-remove-control" data-rikishi-id="${escapedId}" aria-label="Remove ${escapedLabel}" title="Remove ${escapedLabel}"><img class="career-comparison-remove-icon" src="${TRASH_ICON_PATH}" alt="" aria-hidden="true" draggable="false"></button>`,
+        `<label class="career-comparison-visibility-control" title="Show/hide ${escapedLabel} traces"><input type="checkbox" data-rikishi-visible-id="${escapedId}" checked aria-label="Show ${escapedLabel} traces"><img class="career-comparison-visibility-icon career-comparison-visibility-icon-on" src="${EYE_ICON_PATH}" alt="" aria-hidden="true" draggable="false"><img class="career-comparison-visibility-icon career-comparison-visibility-icon-off" src="${EYE_CLOSED_ICON_PATH}" alt="" aria-hidden="true" draggable="false"></label>`,
         '</li>',
       ].join("");
     })
