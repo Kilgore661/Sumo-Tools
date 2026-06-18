@@ -49,7 +49,7 @@ function buildRecordAnalysis(rows, fields) {
     if (!banzukePosition || !ratingPosition || !rbbpSlot) continue;
     const signedDelta = banzukePosition - ratingPosition;
     values[item.index] = {
-      direction: signedDelta > 0 ? "\u2191" : signedDelta < 0 ? "\u2193" : "",
+      direction: signedDelta > 0 ? "↑" : signedDelta < 0 ? "↓" : "",
       magnitude: signedDelta === 0 ? "" : String(Math.abs(signedDelta)),
       rbbp: rbbpSlot.bp,
       rbbpOrdinal: String(rbbpSlot.bpOrdinal),
@@ -96,6 +96,7 @@ function transitionalRowValues(row, index, analyses) {
     "selected.context.skill.bp": row.chii || "",
     "selected.context.skill.bp_ordinal": row.chii_ordinal || "",
     "selected.context.skill.equelo": row.equelo || "",
+    "selected.context.skill.delta_equelo": row.delta_equelo || "",
     "selected.context.analysis.banzuke_error.direction": selectedAnalysis.direction,
     "selected.context.analysis.banzuke_error.magnitude": selectedAnalysis.magnitude,
     "selected.context.analysis.rbbp": selectedAnalysis.rbbp,
@@ -128,9 +129,9 @@ function parseResult(value) {
 }
 
 function rankLevelMovementMarker(value) {
-  if (value === "\u2191" || value === "\u2193") return value;
-  if (value === "\u00C3\u00A2\u00E2\u20AC\u00A0\u00E2\u20AC\u02DC") return "\u2191";
-  if (value === "\u00C3\u00A2\u00E2\u20AC\u00A0\u00E2\u20AC\u0153") return "\u2193";
+  if (value === "↑" || value === "↓") return value;
+  if (value === "Ã¢â€ â€˜") return "↑";
+  if (value === "Ã¢â€ â€œ") return "↓";
   return "";
 }
 
@@ -138,14 +139,14 @@ function bpMovementBetween(fromOrdinal, toOrdinal) {
   const from = Number(fromOrdinal);
   const to = Number(toOrdinal);
   if (Number.isNaN(from) || Number.isNaN(to) || from === to) return "";
-  return to < from ? "\u2191" : "\u2193";
+  return to < from ? "↑" : "↓";
 }
 
 function rankLevelMovementBetween(fromBp, toBp) {
   const fromIndex = rankLevelIndex(fromBp);
   const toIndex = rankLevelIndex(toBp);
   if (fromIndex === null || toIndex === null || fromIndex === toIndex) return "";
-  return toIndex < fromIndex ? "\u2191" : "\u2193";
+  return toIndex < fromIndex ? "↑" : "↓";
 }
 
 function rankLevelIndex(bp) {
