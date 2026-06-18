@@ -49,6 +49,8 @@ INPUT_ASSET_ROOT = REPO_ROOT / "files" / "input"
 OUTPUT_ASSET_ROOT_NAME = "assets"
 STATIC_ASSETS = {
     "trash.svg": INPUT_ASSET_ROOT / "trash.svg",
+    "eye.svg": INPUT_ASSET_ROOT / "eye.svg",
+    "eye-closed.svg": INPUT_ASSET_ROOT / "eye-closed.svg",
 }
 MODULE_IMPORT_RE = re.compile(
     r'(?P<prefix>(?:from\s+|import\s+)["\'])(?P<path>\.{1,2}/[^"\']+\.js)(?P<suffix>["\'])'
