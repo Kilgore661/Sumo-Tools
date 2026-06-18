@@ -21,19 +21,19 @@ STANDINGS_DIVISION_FILTER_VALUES = (
 
 STANDINGS_WINDOW_VALUES = tuple(
     FilterValue(value=str(value), label=str(value))
-    for value in (1, 2, 3, 4, 5, 6, 12)
+    for value in (1, 2, 3, 4, 5, 6, 12, 18, 24, 36, 60)
 )
 
 STANDINGS_FILTERS = (
     Filter(
-        id="source",
-        label="Ranking",
+        id="metric_group_preset",
+        label="View",
         control="select",
-        default="rolling_wins",
-        url_key="ranking",
+        default="standard",
+        url_key="view",
         values=(
-            FilterValue(value="rolling_wins", label="Wins"),
-            FilterValue(value="rolling_equelo", label="Equelo"),
+            FilterValue(value="standard", label="Wins per Basho"),
+            FilterValue(value="percentages", label="Wins per Bout"),
             FilterValue(value="combined", label="Both"),
         ),
     ),
