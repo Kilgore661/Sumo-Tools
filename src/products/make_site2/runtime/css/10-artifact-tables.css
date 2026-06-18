@@ -22,6 +22,11 @@
   border-spacing: 0;
 }
 
+.brb-redesign-table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
 .artifact-table-shell {
   display: flex;
   flex: 1 1 auto;
