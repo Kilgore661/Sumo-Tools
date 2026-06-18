@@ -37,6 +37,10 @@ BASIC_PATHS = (
     Path("files/input/trash.svg"),
     Path("files/input/eye.svg"),
     Path("files/input/eye-closed.svg"),
+    Path("files/input/start.svg"),
+    Path("files/input/back.svg"),
+    Path("files/input/next.svg"),
+    Path("files/input/end.svg"),
 )
 
 EXTENDED_CACHE_PATHS = (
@@ -341,6 +345,10 @@ The true input data included in the basic distro is:
   files/input/trash.svg
   files/input/eye.svg
   files/input/eye-closed.svg
+  files/input/start.svg
+  files/input/back.svg
+  files/input/next.svg
+  files/input/end.svg
 
 {cache_note}The default deployment command:
 
