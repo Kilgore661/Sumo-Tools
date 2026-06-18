@@ -108,6 +108,42 @@ BRB_FILTERS = (
         url_key="division",
         values=DIVISION_FILTER_VALUES,
     ),
+    Filter(
+        id="previous_context",
+        label="Previous Basho",
+        control="checkbox",
+        default=False,
+        url_key="previous",
+    ),
+    Filter(
+        id="changes_context",
+        label="Next Basho",
+        control="checkbox",
+        default=True,
+        url_key="changes",
+    ),
+    Filter(
+        id="rating_context",
+        label="Equelo Ratings",
+        control="checkbox",
+        default=False,
+        url_key="ratings",
+    ),
+    Filter(
+        id="analysis_context",
+        label="Ratings Fit",
+        control="checkbox",
+        default=False,
+        url_key="analysis",
+        help="See TBD",
+    ),
+    Filter(
+        id="nu_chii",
+        label="nuChii",
+        control="checkbox",
+        default=False,
+        url_key="nu_chii",
+    ),
 )
 
 FINISH_BY_CHII_FILTERS = (
