@@ -24,6 +24,16 @@ STANDINGS_WINDOW_VALUES = tuple(
     for value in (1, 2, 3, 4, 5, 6, 12, 18, 24, 36, 60)
 )
 
+WIN_PROBABILITY_BY_STANDING_DIVISION_FILTER_VALUES = (
+    FilterValue(value="All", label="All"),
+    FilterValue(value="Makuuchi", label="Makuuchi"),
+    FilterValue(value="Juryo", label="Juryo"),
+    FilterValue(value="Makushita", label="Makushita"),
+    FilterValue(value="Sandanme", label="Sandanme"),
+    FilterValue(value="Jonidan", label="Jonidan"),
+    FilterValue(value="Jonokuchi", label="Jonokuchi"),
+)
+
 STANDINGS_FILTERS = (
     Filter(
         id="metric_group_preset",
@@ -290,14 +300,29 @@ CAREER_COMPARISONS_FILTERS = (
 
 WIN_PROBABILITY_BY_STANDING_FILTERS = (
     Filter(
-        id="view",
-        label="View",
+        id="source",
+        label="Source",
         control="select",
-        default="thresholds",
-        url_key="view",
+        default="observed",
+        url_key="source",
         values=(
-            FilterValue(value="thresholds", label="Thresholds"),
-            FilterValue(value="distribution", label="Distribution"),
+            FilterValue(value="observed", label="Observed"),
+            FilterValue(value="equelo", label="Predicted"),
         ),
+    ),
+    Filter(
+        id="division",
+        label="Division",
+        control="select",
+        default="All",
+        url_key="division",
+        values=WIN_PROBABILITY_BY_STANDING_DIVISION_FILTER_VALUES,
+    ),
+    Filter(
+        id="error_bars",
+        label="Error Bars",
+        control="checkbox",
+        default=True,
+        url_key="error_bars",
     ),
 )
