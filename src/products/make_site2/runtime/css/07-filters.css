@@ -66,6 +66,32 @@
 }
 
 .basho-navigation-buttons button {
+  align-items: center;
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  height: 24px;
+  justify-content: center;
   line-height: 1;
-  padding: 0.05rem 0.3rem;
+  margin: 0;
+  padding: 0;
+  width: 24px;
+}
+
+.basho-navigation-buttons button:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: 2px;
+}
+
+.basho-navigation-icon {
+  display: block;
+  filter: brightness(0) invert(1);
+  height: 24px;
+  max-height: none;
+  max-width: none;
+  pointer-events: none;
+  width: auto;
 }
