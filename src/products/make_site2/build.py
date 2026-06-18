@@ -45,6 +45,11 @@ REPO_ROOT = PACKAGE_ROOT.parents[2]
 DEFAULT_OUTPUT_ROOT = REPO_ROOT / "files" / "output" / "make_site2"
 RUNTIME_CSS_SOURCE_ROOT = PACKAGE_ROOT / "runtime" / "css"
 RUNTIME_MODULE_SOURCE_ROOT = PACKAGE_ROOT / "runtime" / "site-refactor"
+INPUT_ASSET_ROOT = REPO_ROOT / "files" / "input"
+OUTPUT_ASSET_ROOT_NAME = "assets"
+STATIC_ASSETS = {
+    "trash.svg": INPUT_ASSET_ROOT / "trash.svg",
+}
 MODULE_IMPORT_RE = re.compile(
     r'(?P<prefix>(?:from\s+|import\s+)["\'])(?P<path>\.{1,2}/[^"\']+\.js)(?P<suffix>["\'])'
 )
@@ -134,6 +139,7 @@ def build_site(
         PACKAGE_ROOT / "runtime" / "site.css",
         output_root / "runtime" / "site.css",
     )
+    copy_static_assets(output_root=output_root)
     copy_runtime_css(output_root=output_root)
     copy_runtime_modules(
         output_root=output_root,
@@ -145,6 +151,17 @@ def build_site(
         entrypoint=output_root / "index.html",
         file_count=count_output_files(output_root),
     )
+
+
+def copy_static_assets(*, output_root: Path) -> None:
+    """Copy source assets into the generated static site tree."""
+
+    asset_output_root = output_root / OUTPUT_ASSET_ROOT_NAME
+    asset_output_root.mkdir(parents=True, exist_ok=True)
+    for output_name, source in STATIC_ASSETS.items():
+        if not source.is_file():
+            raise FileNotFoundError(f"Static asset not found: {source}")
+        shutil.copyfile(source, asset_output_root / output_name)
 
 
 def copy_runtime_css(*, output_root: Path) -> None:
