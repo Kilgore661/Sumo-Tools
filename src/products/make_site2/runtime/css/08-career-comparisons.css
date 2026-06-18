@@ -92,18 +92,19 @@
 .career-comparison-remove-control {
   align-items: center;
   appearance: none;
-  background-color: currentColor;
-  border: 0;
+  background: #ff00ff;
+  border: 2px solid #ffff00;
+  box-sizing: border-box;
   color: inherit;
   display: inline-flex;
-  height: 14px;
+  height: 24px;
   justify-content: center;
   line-height: 1;
   margin: 0;
-  mask: url("../../assets/trash.svg") center / contain no-repeat;
+  mask: none;
   padding: 0;
-  width: 14px;
-  -webkit-mask: url("../../assets/trash.svg") center / contain no-repeat;
+  width: 24px;
+  -webkit-mask: none;
 }
 
 .career-comparison-remove-control:focus-visible {
