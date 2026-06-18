@@ -89,6 +89,32 @@
   cursor: pointer;
 }
 
+.career-comparison-remove-control {
+  align-items: center;
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  display: inline-flex;
+  justify-content: center;
+  line-height: 1;
+  margin: 0;
+  padding: 0;
+}
+
+.career-comparison-remove-control:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: 2px;
+}
+
+.career-comparison-remove-icon {
+  display: block;
+  height: 0.72em;
+  height: 1cap;
+  width: 0.72em;
+  width: 1cap;
+}
+
 .career-comparison-selected input[data-rikishi-visible-id] {
   margin: 0;
 }
