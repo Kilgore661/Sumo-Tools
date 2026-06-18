@@ -16,16 +16,17 @@ import {
 function renderBashoResultsPresentationTable(model) {
   const visiblePaths = new Set(model.projection?.visible_paths || []);
   const leaves = terminalNodes(model.table_spec || [], [], visiblePaths);
+  const boundaries = groupBoundaryMap(model.table_spec || [], visiblePaths, leaves);
   const sortState = currentBashoResultsSortState(model, leaves);
   const sortedValues = sortBashoResultsRows(model.values || [], leaves, sortState);
   return [
     renderBashoResultsHeader(model.header),
     '<table class="artifact-table brb-table brb-redesign-table">',
-    renderNestedHead(model.table_spec || [], visiblePaths, leaves, sortState),
+    renderNestedHead(model.table_spec || [], visiblePaths, leaves, sortState, boundaries),
     '<tbody>',
     ...sortedValues.map((row, index) => [
       '<tr>',
-      ...leaves.map(leaf => `<td ${leafCellAttributes(leaf)}>${renderBashoResultsCell(row, leaf.path, index)}</td>`),
+      ...leaves.map(leaf => `<td ${leafCellAttributes(leaf, boundaries.position(leaf.path))}>${renderBashoResultsCell(row, leaf.path, index)}</td>`),
       '</tr>',
     ].join("")),
     '</tbody>',
@@ -44,28 +45,32 @@ function renderBashoResultsHeader(header) {
 }
 
 // Render multi-row table headings from the recursive table specification.
-function renderNestedHead(nodes, visiblePaths, leaves = null, sortState = null) {
+function renderNestedHead(nodes, visiblePaths, leaves = null, sortState = null, boundaries = null) {
   const rows = headerRows(nodes, visiblePaths);
-  const leafByPath = new Map((leaves || terminalNodes(nodes, [], visiblePaths)).map(leaf => [leaf.path, leaf]));
+  const visibleLeaves = leaves || terminalNodes(nodes, [], visiblePaths);
+  const leafByPath = new Map(visibleLeaves.map(leaf => [leaf.path, leaf]));
+  const boundaryMap = boundaries || groupBoundaryMap(nodes, visiblePaths, visibleLeaves);
   return [
     '<thead>',
     ...rows.map(row => [
       '<tr>',
-      ...row.map(cell => renderNestedHeaderCell(cell, leafByPath.get(cell.path), sortState)),
+      ...row.map(cell => renderNestedHeaderCell(cell, leafByPath.get(cell.path), sortState, boundaryMap)),
       '</tr>',
     ].join("")),
     '</thead>',
   ].join("");
 }
 
-function renderNestedHeaderCell(cell, leaf, sortState) {
+function renderNestedHeaderCell(cell, leaf, sortState, boundaries = null) {
   const presentation = leaf?.presentation || PRESENTATION.DEFAULT;
   const alignment = headingAlignment(presentation);
+  const groupPosition = cell.is_group ? "only" : boundaries?.position(cell.path);
   const attributes = [
     `colspan="${cell.colspan}"`,
     `rowspan="${cell.rowspan}"`,
     `data-column-path="${escapeHtml(cell.path)}"`,
     `style="text-align: ${alignment};"`,
+    ...groupBoundaryAttributes(groupPosition),
   ];
   if (leaf?.role === "row_number") attributes.push('data-column-id="row_number"');
   if (!isSortableLeaf(leaf)) {
@@ -109,6 +114,7 @@ function appendHeaderCells(rows, nodes, path, visiblePaths, depth, level) {
         note_id: node.note_id || "",
         path: pathText,
         rowspan: 1,
+        is_group: true,
       });
       appendHeaderCells(rows, node.children, nextPath, visiblePaths, depth, level + 1);
     } else if (isVisiblePath(pathText, visiblePaths)) {
@@ -119,6 +125,7 @@ function appendHeaderCells(rows, nodes, path, visiblePaths, depth, level) {
         note_id: node.note_id || "",
         path: pathText,
         rowspan: depth - level,
+        is_group: false,
       });
     }
   }
@@ -145,6 +152,49 @@ function terminalNodes(nodes, path, visiblePaths) {
   });
 }
 
+function groupBoundaryMap(nodes, visiblePaths, leaves = null) {
+  const visibleLeaves = leaves || terminalNodes(nodes, [], visiblePaths);
+  const starts = new Set();
+  const ends = new Set();
+
+  collectGroupBoundaries(nodes, [], visiblePaths, starts, ends);
+
+  return {
+    starts,
+    ends,
+    position(path) {
+      const start = starts.has(path);
+      const end = ends.has(path);
+      if (start && end) return "only";
+      if (start) return "start";
+      if (end) return "end";
+      return "";
+    },
+    leaves: visibleLeaves,
+  };
+}
+
+function collectGroupBoundaries(nodes, path, visiblePaths, starts, ends) {
+  for (const node of nodes || []) {
+    const nextPath = [...path, node.key];
+    if (!node.children) continue;
+
+    const childLeaves = terminalNodes(node.children, nextPath, visiblePaths);
+    if (!childLeaves.length) continue;
+
+    starts.add(childLeaves[0].path);
+    ends.add(childLeaves[childLeaves.length - 1].path);
+    collectGroupBoundaries(node.children, nextPath, visiblePaths, starts, ends);
+  }
+}
+
+function groupBoundaryAttributes(groupPosition = "") {
+  if (groupPosition === "only") return ['data-group-start="true"', 'data-group-end="true"'];
+  if (groupPosition === "start") return ['data-group-start="true"'];
+  if (groupPosition === "end") return ['data-group-end="true"'];
+  return [];
+}
+
 function resolveLeafSortPath(node, path) {
   if (!node.sort_path) return path.join(".");
   if (node.sort_path.includes(".")) return node.sort_path;
@@ -155,10 +205,11 @@ function isVisiblePath(path, visiblePaths) {
   return !visiblePaths.size || visiblePaths.has(path);
 }
 
-function leafCellAttributes(leaf) {
+function leafCellAttributes(leaf, groupPosition = "") {
   const attributes = [
     `data-column-path="${escapeHtml(leaf.path)}"`,
     `style="text-align: ${valueAlignment(leaf.presentation)};"`,
+    ...groupBoundaryAttributes(groupPosition),
   ];
   if (leaf.role === "row_number") attributes.push('data-column-id="row_number"');
   return attributes.join(" ");
@@ -210,6 +261,9 @@ export {
   appendHeaderCells,
   maxDepth,
   terminalNodes,
+  groupBoundaryMap,
+  collectGroupBoundaries,
+  groupBoundaryAttributes,
   resolveLeafSortPath,
   isVisiblePath,
   renderBashoResultsCell,
