@@ -96,15 +96,13 @@
   border: 0;
   color: inherit;
   display: inline-flex;
-  height: 0.72em;
-  height: 1cap;
+  height: 14px;
   justify-content: center;
   line-height: 1;
   margin: 0;
   mask: url("../../assets/trash.svg") center / contain no-repeat;
   padding: 0;
-  width: 0.72em;
-  width: 1cap;
+  width: 14px;
   -webkit-mask: url("../../assets/trash.svg") center / contain no-repeat;
 }
 
