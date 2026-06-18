@@ -34,6 +34,9 @@ BASIC_PATHS = (
     Path("distro/make_site2_targets.json"),
     Path("files/input/bios.json"),
     Path("files/input/elo_fide.json"),
+    Path("files/input/trash.svg"),
+    Path("files/input/eye.svg"),
+    Path("files/input/eye-closed.svg"),
 )
 
 EXTENDED_CACHE_PATHS = (
@@ -335,6 +338,9 @@ The true input data included in the basic distro is:
 
   files/input/bios.json
   files/input/elo_fide.json
+  files/input/trash.svg
+  files/input/eye.svg
+  files/input/eye-closed.svg
 
 {cache_note}The default deployment command:
 
