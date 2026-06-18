@@ -14,6 +14,8 @@ import {
   syncRikishiVisibilityControls,
 } from "./visibility.js";
 
+const TRASH_ICON_PATH = "assets/trash.svg";
+
 function renderCareerComparisonsControls(state) {
   return [
     '<form class="filter-section career-comparisons-controls" aria-label="Career comparison options">',
@@ -200,7 +202,7 @@ function renderSelectedRikishiList(selectedList, optionsById) {
       return [
         '<li>',
         `<span>${escapeHtml(option.label)}</span>`,
-        `<button type="button" class="career-comparison-remove-control" data-rikishi-id="${escapeHtml(id)}" aria-label="Remove ${escapeHtml(option.label)}" title="Remove ${escapeHtml(option.label)}"></button>`,
+        `<button type="button" class="career-comparison-remove-control" data-rikishi-id="${escapeHtml(id)}" aria-label="Remove ${escapeHtml(option.label)}" title="Remove ${escapeHtml(option.label)}"><img class="career-comparison-remove-icon" src="${TRASH_ICON_PATH}" alt="" aria-hidden="true" draggable="false"></button>`,
         `<input type="checkbox" data-rikishi-visible-id="${escapeHtml(id)}" checked aria-label="Show ${escapeHtml(option.label)} traces" title="Show/hide ${escapeHtml(option.label)} traces">`,
         '</li>',
       ].join("");
