@@ -104,8 +104,7 @@
   width: 24px;
 }
 
-.career-comparison-remove-control:focus-visible,
-.career-comparison-visibility-control:focus-within {
+.career-comparison-remove-control:focus-visible {
   outline: 1px solid currentColor;
   outline-offset: 2px;
 }
@@ -133,10 +132,14 @@
 
 .career-comparison-visibility-control input[data-rikishi-visible-id] {
   appearance: none;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
   height: 1px;
   margin: 0;
   opacity: 0;
+  overflow: hidden;
   position: absolute;
+  white-space: nowrap;
   width: 1px;
 }
 
@@ -150,16 +153,16 @@
   width: auto;
 }
 
-.career-comparison-visibility-icon-off,
-.career-comparison-visibility-control input[data-rikishi-visible-id]:checked ~ .career-comparison-visibility-icon-on {
-  display: none;
-}
-
-.career-comparison-visibility-control input[data-rikishi-visible-id]:checked ~ .career-comparison-visibility-icon-off {
+.career-comparison-visibility-icon-off {
   display: block;
 }
 
-.career-comparison-visibility-control input[data-rikishi-visible-id]:not(:checked) ~ .career-comparison-visibility-icon-on {
+.career-comparison-visibility-icon-on,
+.career-comparison-visibility-control input[data-rikishi-visible-id]:checked ~ .career-comparison-visibility-icon-off {
+  display: none;
+}
+
+.career-comparison-visibility-control input[data-rikishi-visible-id]:checked ~ .career-comparison-visibility-icon-on {
   display: block;
 }
 
