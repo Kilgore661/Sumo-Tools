@@ -14,7 +14,7 @@ import {
   syncRikishiVisibilityControls,
 } from "./visibility.js";
 
-const TRASH_ICON_PATH = "files/input/trash.svg";
+const TRASH_ICON_PATH = "assets/trash.svg";
 
 function renderCareerComparisonsControls(state) {
   return [
