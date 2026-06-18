@@ -14,6 +14,13 @@ const SUMO_MONTHS = [
   { value: "11", label: "November" },
 ];
 
+const BASHO_NAVIGATION_ICONS = {
+  first: { src: "assets/start.svg", label: "Start" },
+  previous: { src: "assets/back.svg", label: "Back" },
+  next: { src: "assets/next.svg", label: "Next" },
+  last: { src: "assets/end.svg", label: "End" },
+};
+
 function filterValueLabel(filters, filterId, value) {
   const filter = filters.find(candidate => candidate.id === filterId);
   const option = (filter?.values || []).find(candidate => candidate.value === value);
@@ -229,12 +236,20 @@ function renderBashoCalendarControl(state, index) {
     '</select>',
     '</label>',
     '<div class="basho-navigation-buttons" aria-label="Basho navigation">',
-    '<button type="button" data-basho-nav="first">&lt;&lt;</button>',
-    '<button type="button" data-basho-nav="previous">&lt;</button>',
-    '<button type="button" data-basho-nav="next">&gt;</button>',
-    '<button type="button" data-basho-nav="last">&gt;&gt;</button>',
+    renderBashoNavigationButton("first"),
+    renderBashoNavigationButton("previous"),
+    renderBashoNavigationButton("next"),
+    renderBashoNavigationButton("last"),
     '</div>',
     '</div>'
+  ].join("");
+}
+function renderBashoNavigationButton(direction) {
+  const icon = BASHO_NAVIGATION_ICONS[direction];
+  return [
+    `<button type="button" data-basho-nav="${escapeHtml(direction)}" aria-label="${escapeHtml(icon.label)}" title="${escapeHtml(icon.label)}">`,
+    `<img class="basho-navigation-icon" src="${escapeHtml(icon.src)}" alt="" aria-hidden="true" draggable="false">`,
+    '</button>',
   ].join("");
 }
 function optionHtml(value, selected) {
