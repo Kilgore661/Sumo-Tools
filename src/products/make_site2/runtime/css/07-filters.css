@@ -81,6 +81,11 @@
   width: 24px;
 }
 
+.basho-navigation-buttons button[data-basho-nav="first"],
+.basho-navigation-buttons button[data-basho-nav="last"] {
+  width: 28px;
+}
+
 .basho-navigation-buttons button:focus-visible {
   outline: 1px solid currentColor;
   outline-offset: 2px;
@@ -94,4 +99,9 @@
   max-width: none;
   pointer-events: none;
   width: auto;
+}
+
+.basho-navigation-buttons button[data-basho-nav="first"] .basho-navigation-icon,
+.basho-navigation-buttons button[data-basho-nav="last"] .basho-navigation-icon {
+  height: 28px;
 }
