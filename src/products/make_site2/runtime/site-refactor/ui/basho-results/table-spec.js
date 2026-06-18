@@ -28,11 +28,6 @@ const TRANSITIONAL_TABLE_SPEC = [
     }),
   ]),
   group("changes", "Next Basho", [
-    column("delta_equelo", "ΔEq", {
-      help: "Difference in rating.",
-      sort_kind: "numeric",
-      presentation: PRESENTATION.RATING,
-    }),
     group("movement", "⇅", [
       column("bp", "Chii", {
         help: "See Notes.",
@@ -62,6 +57,11 @@ function recordSpec() {
           presentation: PRESENTATION.RANK_CODE,
         }),
         column("equelo", "Eq", { help: "Equelo rating.", sort_kind: "numeric", presentation: PRESENTATION.RATING }),
+        column("delta_equelo", "ΔEq", {
+          help: "Difference in rating.",
+          sort_kind: "numeric",
+          presentation: PRESENTATION.RATING,
+        }),
       ]),
       group("analysis", "Ratings Fit", [
         group("banzuke_error", "ΔBZ", [
