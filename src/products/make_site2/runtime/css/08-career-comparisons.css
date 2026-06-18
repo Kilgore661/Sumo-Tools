@@ -92,27 +92,25 @@
 .career-comparison-remove-control {
   align-items: center;
   appearance: none;
-  background: transparent;
+  background-color: currentColor;
   border: 0;
   color: inherit;
   display: inline-flex;
+  height: 0.72em;
+  height: 1cap;
   justify-content: center;
   line-height: 1;
   margin: 0;
+  mask: url("../../assets/trash.svg") center / contain no-repeat;
   padding: 0;
+  width: 0.72em;
+  width: 1cap;
+  -webkit-mask: url("../../assets/trash.svg") center / contain no-repeat;
 }
 
 .career-comparison-remove-control:focus-visible {
   outline: 1px solid currentColor;
   outline-offset: 2px;
-}
-
-.career-comparison-remove-icon {
-  display: block;
-  height: 0.72em;
-  height: 1cap;
-  width: 0.72em;
-  width: 1cap;
 }
 
 .career-comparison-selected input[data-rikishi-visible-id] {
