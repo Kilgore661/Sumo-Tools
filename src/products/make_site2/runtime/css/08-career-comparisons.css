@@ -92,19 +92,24 @@
 .career-comparison-remove-control {
   align-items: center;
   appearance: none;
-  background: #ff00ff;
-  border: 2px solid #ffff00;
-  box-sizing: border-box;
+  background-color: currentColor;
+  border: 0;
   color: inherit;
   display: inline-flex;
   height: 24px;
   justify-content: center;
   line-height: 1;
   margin: 0;
-  mask: none;
+  mask-image: url("../../assets/trash.svg");
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: 220% 220%;
   padding: 0;
   width: 24px;
-  -webkit-mask: none;
+  -webkit-mask-image: url("../../assets/trash.svg");
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: 220% 220%;
 }
 
 .career-comparison-remove-control:focus-visible {
