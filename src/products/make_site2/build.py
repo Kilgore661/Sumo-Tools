@@ -51,6 +51,10 @@ STATIC_ASSETS = {
     "trash.svg": INPUT_ASSET_ROOT / "trash.svg",
     "eye.svg": INPUT_ASSET_ROOT / "eye.svg",
     "eye-closed.svg": INPUT_ASSET_ROOT / "eye-closed.svg",
+    "start.svg": INPUT_ASSET_ROOT / "start.svg",
+    "back.svg": INPUT_ASSET_ROOT / "back.svg",
+    "next.svg": INPUT_ASSET_ROOT / "next.svg",
+    "end.svg": INPUT_ASSET_ROOT / "end.svg",
 }
 MODULE_IMPORT_RE = re.compile(
     r'(?P<prefix>(?:from\s+|import\s+)["\'])(?P<path>\.{1,2}/[^"\']+\.js)(?P<suffix>["\'])'
