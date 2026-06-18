@@ -69,8 +69,10 @@ function bashoResultsVisiblePaths(state) {
   }
   if (state.rating_context) {
     if (state.previous_context) visible.push("before.context.skill.equelo");
-    visible.push("selected.context.skill.equelo");
-    if (state.changes_context) visible.push("changes.delta_equelo");
+    visible.push(
+      "selected.context.skill.equelo",
+      "selected.context.skill.delta_equelo",
+    );
   }
   if (state.analysis_context) {
     if (state.previous_context) {
