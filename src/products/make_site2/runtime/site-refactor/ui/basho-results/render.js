@@ -72,6 +72,7 @@ function renderNestedHeaderCell(cell, leaf, sortState, boundaries = null) {
     `style="text-align: ${alignment};"`,
     ...groupBoundaryAttributes(groupPosition),
   ];
+  if (String(cell.label || "").trim()) attributes.push('data-heading-label="true"');
   if (leaf?.role === "row_number") attributes.push('data-column-id="row_number"');
   if (!isSortableLeaf(leaf)) {
     return `<th ${attributes.join(" ")}>${renderLabelWithHelp(cell.label, cell.help, { noteId: cell.note_id })}</th>`;
