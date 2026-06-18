@@ -124,6 +124,10 @@
   border-right: 1px solid rgba(255, 255, 255, 0.35);
 }
 
+.artifact-table-header.brb-redesign-table th[data-heading-label="true"] {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+}
+
 .artifact-table-body tbody tr:first-child td,
 .sectioned-table tbody tr:first-child td {
   border-top: 1px solid rgba(255, 255, 255, 0.35);
