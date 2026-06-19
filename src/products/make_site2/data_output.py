@@ -13,6 +13,7 @@ from src.analysis.sumo_history.basho_results.build import (
 )
 from src.analysis.sumo_history.basho_results.dates import represented_dates
 from src.analysis.sumo_history.basho_results.reports import write_index, write_payload
+from src.analysis.sumo_history.records.highest_equelo import build_highest_equelo_outputs
 from src.infra.get_bios.FullShikonaStore import FullShikonaStore
 from src.infra.persistence.annotated_serialiser import load_history_with_annotations
 from src.sumo_core.History import History
@@ -60,6 +61,12 @@ MOST_CAREER_LOSSES_ROUTE_DATA_DIR = (
     Path("sumo-history")
     / "records"
     / "most-career-losses"
+    / "data"
+)
+HIGHEST_EQUELO_ROUTE_DATA_DIR = (
+    Path("sumo-history")
+    / "records"
+    / "highest-equelo"
     / "data"
 )
 TYPICAL_EQUELO_VALUES_ROUTE_DATA_DIR = (
@@ -132,6 +139,14 @@ MOST_CAREER_LOSSES_SOURCE_ROOT = (
     / "records"
     / "career_losses"
 )
+HIGHEST_EQUELO_SOURCE_ROOT = (
+    Path("files")
+    / "output"
+    / "analysis"
+    / "sumo_history"
+    / "records"
+    / "highest_equelo"
+)
 TYPICAL_EQUELO_VALUES_SOURCE_ROOT = (
     Path("files")
     / "output"
@@ -194,6 +209,11 @@ class MostCareerWinsDataOutput:
 
 @dataclass(frozen=True, kw_only=True)
 class MostCareerLossesDataOutput:
+    csv_path: Path
+
+
+@dataclass(frozen=True, kw_only=True)
+class HighestEqueloDataOutput:
     csv_path: Path
 
 
@@ -434,6 +454,35 @@ def copy_most_career_losses_data_output(
         target_name="career_losses.csv",
     )
     return MostCareerLossesDataOutput(csv_path=csv_path)
+
+
+def copy_highest_equelo_data_output(
+    *,
+    output_root: Path,
+) -> HighestEqueloDataOutput:
+    """Copy the Highest Equelo CSV into the make_site2 output tree."""
+
+    csv_path = copy_single_csv_chart_data_output(
+        output_root=output_root,
+        route_data_dir=HIGHEST_EQUELO_ROUTE_DATA_DIR,
+        source_path=HIGHEST_EQUELO_SOURCE_ROOT / "highest_equelo.csv",
+        target_name="highest_equelo.csv",
+    )
+    return HighestEqueloDataOutput(csv_path=csv_path)
+
+
+def build_highest_equelo_data_output(
+    *,
+    history: History,
+    output_root: Path,
+) -> HighestEqueloDataOutput:
+    """Build and stage the Highest Equelo CSV for the selected History."""
+
+    build_highest_equelo_outputs(
+        history=history,
+        output_root=HIGHEST_EQUELO_SOURCE_ROOT,
+    )
+    return copy_highest_equelo_data_output(output_root=output_root)
 
 
 def copy_typical_equelo_values_data_output(

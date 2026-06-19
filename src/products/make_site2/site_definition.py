@@ -175,6 +175,17 @@ PAGES = PageRegistry(
                 producer="sumo_history.records.career_losses",
             ),
         ),
+        "highest_equelo": PageDefinition(
+            id="highest_equelo",
+            title="Highest Equelo",
+            summary="Rikishi ranked by maximum observed fixed_v2 day-end Equelo rating.",
+            status=PageStatus.PROMOTED,
+            artifact=artifact(
+                "highest_equelo",
+                "table",
+                producer="sumo_history.records.highest_equelo",
+            ),
+        ),
         "typical_equelo_values": PageDefinition(
             id="typical_equelo_values",
             title="Typical Equelo Ratings",

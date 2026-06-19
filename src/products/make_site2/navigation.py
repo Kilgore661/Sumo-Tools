@@ -292,6 +292,12 @@ NAVIGATION = NavigationTree(
                     "most-career-losses",
                     page_id="most_career_losses",
                 ),
+                nav(
+                    "highest_equelo",
+                    "Highest Equelo",
+                    "highest-equelo",
+                    page_id="highest_equelo",
+                ),
             ),
             nav(
                 "goats",

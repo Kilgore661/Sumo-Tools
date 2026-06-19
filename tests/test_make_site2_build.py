@@ -55,7 +55,17 @@ def test_make_site2_build_uses_live_store_when_no_history_zip_is_given(
     )
     monkeypatch.setattr(
         make_site2_build,
+        "materialize_career_length_longest_views",
+        lambda **kwargs: None,
+    )
+    monkeypatch.setattr(
+        make_site2_build,
         "copy_typical_equelo_values_data_output",
+        lambda **kwargs: None,
+    )
+    monkeypatch.setattr(
+        make_site2_build,
+        "build_highest_equelo_data_output",
         lambda **kwargs: None,
     )
     monkeypatch.setattr(
@@ -144,7 +154,17 @@ def test_make_site2_build_uses_history_zip_when_given(
     )
     monkeypatch.setattr(
         make_site2_build,
+        "materialize_career_length_longest_views",
+        lambda **kwargs: None,
+    )
+    monkeypatch.setattr(
+        make_site2_build,
         "copy_typical_equelo_values_data_output",
+        lambda **kwargs: None,
+    )
+    monkeypatch.setattr(
+        make_site2_build,
+        "build_highest_equelo_data_output",
         lambda **kwargs: None,
     )
     monkeypatch.setattr(
@@ -234,7 +254,17 @@ def test_make_site2_build_builds_career_comparisons_from_selected_history(
     )
     monkeypatch.setattr(
         make_site2_build,
+        "materialize_career_length_longest_views",
+        lambda **kwargs: None,
+    )
+    monkeypatch.setattr(
+        make_site2_build,
         "copy_typical_equelo_values_data_output",
+        lambda **kwargs: None,
+    )
+    monkeypatch.setattr(
+        make_site2_build,
+        "build_highest_equelo_data_output",
         lambda **kwargs: None,
     )
     monkeypatch.setattr(

@@ -17,6 +17,7 @@ from .data_output import (
     CAREER_LENGTH_SOURCE_ROOT,
     build_basho_results_data_output,
     build_career_comparisons_data_output,
+    build_highest_equelo_data_output,
     copy_banzuke_changes_data_output,
     copy_banzuke_division_by_era_data_output,
     copy_career_length_data_output,
@@ -123,6 +124,10 @@ def build_site(
     copy_most_consecutive_bouts_data_output(output_root=output_root)
     copy_most_career_wins_data_output(output_root=output_root)
     copy_most_career_losses_data_output(output_root=output_root)
+    build_highest_equelo_data_output(
+        history=resolved_history,
+        output_root=output_root,
+    )
     copy_typical_equelo_values_data_output(output_root=output_root)
     copy_win_probability_by_standing_data_output(output_root=output_root)
     plan = build_publication_plan(SITE)

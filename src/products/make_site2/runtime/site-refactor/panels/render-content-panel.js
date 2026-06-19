@@ -188,12 +188,13 @@ async function renderGenericTableContentPanel(panel, artifact, overrideState = n
   const state = overrideState || resolveFilterState(filters, readFilterUrlState(filters));
   const rows = await fetchCsv(artifact.rows_source.path);
   writePanelUrl(panel.page_id, filters, state, { replace: true });
+  const contentBodyClass = filters.length ? "content-body" : "content-body content-body-no-filters";
 
   contentPanel.innerHTML = [
     '<section class="content-panel">',
     `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
     renderContentSummary(panel.heading.summary),
-    '<div class="content-body">',
+    `<div class="${contentBodyClass}">`,
     renderFilterSection(panel.contents.filter_section, state),
     '<section class="pa-panel">',
     '<div class="pa-slot">',

@@ -5,6 +5,7 @@ from src.products.make_site2.manifest.artifacts import (
     CAREER_LENGTH_ARTIFACT,
     DIVISION_STABILITY_ARTIFACT,
     FIRST_CHII_APPEARANCE_ARTIFACT,
+    HIGHEST_EQUELO_ARTIFACT,
     MAKUUCHI_RANK_BY_ERA_ARTIFACT,
     RANK_AT_RETIREMENT_ARTIFACT,
     STANDINGS_BY_WINS_ARTIFACT,
@@ -88,6 +89,11 @@ def test_publication_plan_resolves_copied_navigation_routes() -> None:
         "rating-and-rank",
         "typical-equelo-values",
     )
+    assert plan.pages["highest_equelo"].route.parts == (
+        "sumo-history",
+        "records",
+        "highest-equelo",
+    )
 
 
 def test_navigation_bar_uses_canonical_default_view_links_without_rendering_pages() -> None:
@@ -153,6 +159,12 @@ def test_navigation_bar_uses_canonical_default_view_links_without_rendering_page
     typical_equelo_values = next(
         item for item in rating_and_rank.children if item.id == "typical_equelo_values"
     )
+    records = next(
+        item for item in sumo_history.children if item.id == "records"
+    )
+    highest_equelo = next(
+        item for item in records.children if item.id == "highest_equelo"
+    )
 
     assert basho_results.included
     assert basho_results.href == (
@@ -183,6 +195,8 @@ def test_navigation_bar_uses_canonical_default_view_links_without_rendering_page
     assert first_chii_appearance.href == "?page=first_chii_appearance"
     assert typical_equelo_values.included
     assert typical_equelo_values.href == "?page=typical_equelo_values"
+    assert highest_equelo.included
+    assert highest_equelo.href == "?page=highest_equelo"
     assert artifact_refs(plan)["basho_results_browser"].kind == "table"
 
 
@@ -206,6 +220,7 @@ def test_site_shell_is_rendered_from_ui_manifest() -> None:
     assert 'data-page-id="rank_at_retirement"' in html
     assert 'data-page-id="career_length"' in html
     assert 'data-page-id="typical_equelo_values"' in html
+    assert 'data-page-id="highest_equelo"' in html
     assert '<main class="site-main" aria-label="Page content">' in html
     assert "Basho Results" in html
     assert '<table class="brb-table">' not in html
@@ -467,6 +482,27 @@ def test_runtime_manifest_declares_typical_equelo_values_sectioned_table() -> No
     ]
     assert [column["id"] for column in artifact["columns"]] == ["label", "rating"]
     assert [column["sort_kind"] for column in artifact["columns"]] == ["none", "none"]
+
+
+def test_runtime_manifest_declares_highest_equelo_table() -> None:
+    manifest = build_runtime_manifest(build_publication_plan(SITE))
+    panel = content_panel_by_artifact(manifest, HIGHEST_EQUELO_ARTIFACT.id)
+    artifact = manifest["artifacts"]["highest_equelo"]
+
+    assert filter_section(panel) is None
+    assert artifact["kind"] == "table"
+    assert artifact["renderer"] == "generic_table"
+    assert artifact["rows_source"]["path"] == (
+        "sumo-history/records/highest-equelo/data/highest_equelo.csv"
+    )
+    assert [column["id"] for column in artifact["columns"]] == [
+        "row_number",
+        "position",
+        "shikona",
+        "rating",
+        "date",
+    ]
+    assert artifact["default_sort_column"] == "position"
 
 
 def test_brb_filter_defaults_and_url_keys_match_current_public_site() -> None:

@@ -194,6 +194,7 @@ function bashoNavigationState(direction, index, state) {
 }
 // Render all controls for a panel FilterSection.
 function renderFilterSection(filterSection, state, index, rowsBySource = {}) {
+  if (!filterSection) return "";
   if (!filterSection.filters.length) return "";
   const filters = filterSection.filters;
   const bashoCalendar = filters.some(filter => filter.id === "basho_year") &&
