@@ -15,9 +15,9 @@ body.site-context-local {
 }
 
 body.site-context-remote {
-  --page-bg: #3b0508;
-  --nav-bg: #3b0508;
-  --content-bg: #4a090d;
+  --page-bg: #071733;
+  --nav-bg: #071733;
+  --content-bg: #0b1d3e;
 }
 
 body.site-context-preview {
