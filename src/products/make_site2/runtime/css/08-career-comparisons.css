@@ -112,10 +112,11 @@
 .career-comparison-remove-icon {
   display: block;
   filter: brightness(0) invert(1);
-  height: 24px;
+  height: 16pt;
   max-height: none;
   max-width: none;
-  width: auto;
+  object-fit: contain;
+  width: 16pt;
 }
 
 .career-comparison-visibility-control {
@@ -146,11 +147,12 @@
 .career-comparison-visibility-icon {
   display: block;
   filter: brightness(0) invert(1);
-  height: 24px;
+  height: 16pt;
   max-height: none;
   max-width: none;
+  object-fit: contain;
   pointer-events: none;
-  width: auto;
+  width: 16pt;
 }
 
 .career-comparison-visibility-icon-off {
