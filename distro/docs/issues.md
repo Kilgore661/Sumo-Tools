@@ -2,15 +2,15 @@
 
 ## Legacy `files/input/bios.json` dependency
 
-During the clean-room `make_site2` bootstrap, `src.analysis.equelo.expt2.run_all`
+During the clean-room `make_site2` bootstrap, the Equelo refresh path
 failed because it reads:
 
 ```text
 files/input/bios.json
 ```
 
-This is a true current input dependency for the Equelo pipeline, not a generated
-`files/output` artifact in the path tested so far.
+This remains a true current input dependency for the fixed-supported Equelo
+pipeline, not a generated `files/output` artifact in the path tested so far.
 
 However, `bios.json` is legacy data. It should eventually be replaced by a
 current artifact produced by the `src.infra.get_bios` pipeline. That pipeline

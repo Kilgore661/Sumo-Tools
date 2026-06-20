@@ -5,7 +5,7 @@
 #
 #   C:\Users\kilgo\Sumo-Tools> .\_boot.ps1
 #
-# Slow internet refresh stages and the fixed-point solver are left commented.
+# Slow internet refresh stages and the fixed-supported Equelo refresh are left commented.
 # Use the commented stages when rebuilding the corresponding cached artifacts
 # rather than consuming an extended distro/cache.
 
@@ -33,6 +33,7 @@ function Run {
 #   files/output/current standings/
 #   files/output/HTML results/
 #   files/output/infra/get_bios/rikishi/
+#   files/output/Equelo/fixed_supported/
 
 # Downloader: refresh raw banzuke and daily-result HTML from SumoDB.
 # Run this only when the raw source cache is absent or intentionally refreshed.
@@ -49,15 +50,9 @@ Run "py -m src.infra.parser.parser2"
 #
 # Once it reports DORMANT, continue this script in the original terminal.
 
-# Fixed-point solver: slow. Required to regenerate
-# files/output/Equelo/expt2_combined_final.csv, consumed by fixed_v2.
-# Run "py -m src.analysis.equelo.expt2.run_all --start 1958 --end 2026 --modern-end-year 2026 --k-policy divisional --collapse annotation-only"
-
-# Current Equelo process-rating outputs.
-Run "py -m src.analysis.equelo.fixed_v2"
-
-# Public Equelo landmark bundle consumed by make_site2.
-Run "py -m src.analysis.equelo.fixed_v2.v5_landmarks"
+# Fixed-supported Equelo refresh: slow. Regenerates the master chii
+# initial-rating map, process/day-end ratings, and Typical Equelo landmarks.
+# Run "py -m src.analysis.equelo.fixed_supported"
 
 # Downloader: refresh missing raw rikishi bio HTML from SumoDB.
 # Run this only when files/output/infra/get_bios/rikishi/ is absent or stale.
@@ -76,9 +71,13 @@ Run "py -m src.analysis.persistence --num-basho 10"
 Run "py -m src.misc.first_appearance"
 Run "py -m src.analysis.sumo_history.career_lifecycle.rank_at_retirement"
 Run "py -m src.analysis.sumo_history.career_lifecycle.career_length"
+Run "py -m src.analysis.sumo_history.records.consecutive_bouts"
+Run "py -m src.analysis.sumo_history.records.career_wins"
+Run "py -m src.analysis.sumo_history.records.career_losses"
+Run "py -m src.analysis.sumo_history.records.highest_equelo"
 
 # Win-probability-by-standing producer. trace_main depends on the empirical
-# matchup output and fixed_v2 entrant initial ratings.
+# matchup output and fixed-supported chii initial ratings.
 Run "py -m src.analysis.probability.matchups"
 Run "py -m src.analysis.probability.matchups.trace_main"
 

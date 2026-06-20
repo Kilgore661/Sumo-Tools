@@ -31,7 +31,7 @@ py distro/package_make_site2.py
 ```
 
 This includes the true input files and writes a distro-specific `_boot.ps1`
-with the downloader stages and slow fixed-point solver enabled.
+with the downloader stages and fixed-supported Equelo refresh enabled.
 
 Extended distro:
 

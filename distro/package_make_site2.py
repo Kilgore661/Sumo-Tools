@@ -47,7 +47,7 @@ EXTENDED_CACHE_PATHS = (
     Path("files/output/current standings"),
     Path("files/output/HTML results"),
     Path("files/output/infra/get_bios/rikishi"),
-    Path("files/output/Equelo/expt2_combined_final.csv"),
+    Path("files/output/Equelo/fixed_supported"),
 )
 
 EXCLUDED_DIR_NAMES = frozenset(
@@ -105,7 +105,7 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help=(
             "Also include bulky generated caches that shorten bootstrap time, "
-            "such as downloaded SumoDB HTML and the slow Equelo solver output. "
+            "such as downloaded SumoDB HTML and fixed-supported Equelo output. "
             "The bundled _boot.ps1 will use those caches instead of refreshing "
             "them from scratch."
         ),
@@ -277,14 +277,8 @@ def make_boot_script(*, extended: bool) -> str:
         '# Run "py -m src.infra.bootstrap_sources"': (
             'Run "py -m src.infra.bootstrap_sources"'
         ),
-        (
-            "# Run \"py -m src.analysis.equelo.expt2.run_all --start 1958 "
-            "--end 2026 --modern-end-year 2026 --k-policy divisional "
-            "--collapse annotation-only\""
-        ): (
-            "Run \"py -m src.analysis.equelo.expt2.run_all --start 1958 "
-            "--end 2026 --modern-end-year 2026 --k-policy divisional "
-            "--collapse annotation-only\""
+        '# Run "py -m src.analysis.equelo.fixed_supported"': (
+            'Run "py -m src.analysis.equelo.fixed_supported"'
         ),
         '# Run "py -m src.infra.get_bios"': 'Run "py -m src.infra.get_bios"',
     }
@@ -293,8 +287,8 @@ def make_boot_script(*, extended: bool) -> str:
             raise ValueError(f"could not find _boot.ps1 line to rewrite: {old}")
         text = text.replace(old, new)
     text = text.replace(
-        "# Slow internet refresh stages and the fixed-point solver are left commented.",
-        "# Slow internet refresh stages and the fixed-point solver are enabled.",
+        "# Slow internet refresh stages and the fixed-supported Equelo refresh are left commented.",
+        "# Slow internet refresh stages and the fixed-supported Equelo refresh are enabled.",
     )
     text = text.replace(
         "# Use the commented stages when rebuilding the corresponding cached artifacts\n"
@@ -312,8 +306,8 @@ def make_distro_readme(*, extended: bool) -> str:
         if extended
         else (
             "This zip is a basic distro. It omits bulky generated caches, so "
-            "its bundled _boot.ps1 enables the downloader stages and the slow "
-            "fixed-point solver.\n"
+            "its bundled _boot.ps1 enables the downloader stages and the "
+            "fixed-supported Equelo refresh.\n"
         )
     )
     return f"""Sumo-Tools make_site2 distro
