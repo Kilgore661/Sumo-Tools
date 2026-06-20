@@ -139,3 +139,41 @@ The most important sequencing rule is:
 Do not let the experiment become production merely because it currently works.
 The production boundary should be deliberate, named, documented, and regression
 tested before `make_site2` is permanently switched over.
+
+## Current Conformance Notes
+
+The waterfall target is now split across:
+
+- `src/analysis/equelo/docs/Fixed Supported Requirements.md`
+- `src/analysis/equelo/docs/Fixed Supported Design.md`
+
+The current implementation is not yet production-shaped. Known gaps:
+
+- The accepted production name is `fixed_supported`, but the working code still
+  lives mostly under `experiments/support_domain_fp` and patched `fixed_v2`
+  entrypoints.
+- The support-domain experiment can produce the accepted `min_app=60` result,
+  but the production API for that result does not yet exist.
+- The master chii initial-rating map is currently produced by an experimental
+  completer with hard-coded latest-sweep lookup and experiment output paths.
+- The completed map still uses legacy file names such as
+  `entrant_initial_ratings.csv`, which can obscure that the artifact is keyed by
+  chii rather than rikishi.
+- Metadata exists, but it does not yet fully express the production support
+  rule, support collapse policy, completion rule, tie-break rule, and base
+  convention as a stable contract.
+- `fixed_v2` has temporary hooks to accept a completed initial-rating CSV.
+  Those hooks proved feasibility, but they are not the final production
+  boundary.
+- `make_site2` contains temporary wiring to experiment outputs. That must be
+  removed before final production wiring.
+- Regression checks need to be written around the production API, not around
+  manually chosen experiment folders.
+
+The next implementation task is to create the `fixed_supported` production
+boundary and move only the conforming pieces of the experiment behind it.
+
+Implementation should be guided by:
+
+- `src/analysis/equelo/docs/Fixed Supported Implementation Target.md`
+- `src/analysis/equelo/docs/Fixed Supported Regression Test Design.md`
