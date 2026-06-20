@@ -223,7 +223,7 @@ def build_report_side(
 def format_equelo(rating: float | None) -> str:
     """
     Contract:
-        rating is a fixed_v2 Equelo rating, or None where Equelo has no rating
+        rating is a fixed-supported Equelo rating, or None where Equelo has no rating
         for the represented observable-domain chii.
 
         Returns the browser display value rounded to the nearest integer, or a

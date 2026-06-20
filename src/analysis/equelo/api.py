@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum, auto
 
-from src.analysis.equelo.fixed_v2.api import (
+from src.analysis.equelo.fixed_supported.api import (
     DayEndRatings,
     EntrantInitialRatings,
     load_day_end_ratings,
@@ -43,7 +43,7 @@ class EntrantRatingDomain:
 
 @dataclass(frozen=True)
 class EqueloLookup:
-    """Cached fixed_v2 Equelo lookup for one selected History."""
+    """Cached fixed-supported Equelo lookup for one selected History."""
 
     history: History
     before_ratings: dict[Date, dict[RikId, float | None]]
@@ -125,7 +125,7 @@ def get_equelo(
     h: History,
     when: EqueloTiming = EqueloTiming.AFTER,
 ) -> float | None:
-    """Return the fixed_v2 Equelo rating for a represented rikishi."""
+    """Return the fixed-supported Equelo rating for a represented rikishi."""
 
     key = id(h)
     if key not in _LOOKUPS_BY_HISTORY:

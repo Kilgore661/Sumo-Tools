@@ -178,7 +178,7 @@ PAGES = PageRegistry(
         "highest_equelo": PageDefinition(
             id="highest_equelo",
             title="Highest Equelo",
-            summary="Rikishi ranked by maximum observed fixed_v2 day-end Equelo rating.",
+            summary="Rikishi ranked by maximum observed fixed-supported day-end Equelo rating.",
             status=PageStatus.PROMOTED,
             artifact=artifact(
                 "highest_equelo",

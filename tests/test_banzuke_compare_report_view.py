@@ -1,7 +1,9 @@
 from types import SimpleNamespace
+from types import MappingProxyType
 
 from src.analysis.banzuke_compare.classes import BanzukeChange, BanzukeDiff
 from src.analysis.banzuke_compare.report_view import build_report_side
+from src.infra.get_bios.FullShikonaStore import FullShikonaStore
 from src.sumo_core.BasicEnums import Division, Side
 from src.sumo_core.BasicPrimitives import RikId, Shikona
 from src.sumo_core.Chii import Chii
@@ -46,7 +48,9 @@ def test_build_report_side_uses_public_shikona_without_changing_graph_shikona(
         diff=diff,
         change=change,
         equelo_snapshot=FakeEqueloSnapshot(),
-        public_shikona_by_rikid={rikishi_id: Shikona("Hakuho Sho")},
+        full_shikona_store=FullShikonaStore(
+            MappingProxyType({rikishi_id: "Hakuho Sho"})
+        ),
     )
 
     assert side.shikona == Shikona("Hakuho Sho")

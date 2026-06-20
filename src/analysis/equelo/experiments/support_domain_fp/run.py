@@ -23,6 +23,7 @@ from src.analysis.equelo.support_domain.reports import write_support_domain_repo
 from src.analysis.probability.builder import load_ratings_csv
 from src.infra.live_store.api import get_history
 from src.sumo_core.Chii import Chii
+from src.sumo_core.History import History
 
 from .history import (
     FilteredHistory,
@@ -116,6 +117,7 @@ def run_experiment(
     modern_end_year: int,
     output_root: Path,
     fp_source: Path,
+    raw_history: History | None = None,
 ) -> ExperimentOutputs:
     run_dir = _create_run_dir(
         output_root,
@@ -127,7 +129,7 @@ def run_experiment(
     print(f"[support-domain-fp] run_dir={run_dir}")
     print("[support-domain-fp] loading history")
     oracle = make_oracle(
-        get_history(),
+        get_history() if raw_history is None else raw_history,
         load_bios(),
         collapse_mode=oracle_collapse_mode(),
     )

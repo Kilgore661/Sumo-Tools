@@ -5,7 +5,7 @@ import json
 from dataclasses import asdict
 from pathlib import Path
 
-from src.analysis.equelo.fixed_v2 import model as fixed_v2_model
+from src.analysis.equelo.fixed_supported import model as fixed_supported_model
 from src.analysis.probability.matchups.traces import (
     EqueloTracePoint,
     ObservedTracePoint,
@@ -26,7 +26,7 @@ def write_win_probability_by_standing_bundle(
     observed_points: tuple[ObservedTracePoint, ...],
     equelo_points: tuple[EqueloTracePoint, ...],
     sideless_ratings: tuple[SidelessRating, ...],
-    fixed_v2_output_root: Path,
+    rating_output_root: Path,
     q: float,
     default_trace: str,
 ) -> dict[str, Path]:
@@ -46,7 +46,7 @@ def write_win_probability_by_standing_bundle(
         observed_points=observed_points,
         equelo_points=equelo_points,
         sideless_ratings=sideless_ratings,
-        fixed_v2_output_root=fixed_v2_output_root,
+        rating_output_root=rating_output_root,
         q=q,
     )
     return paths
@@ -158,7 +158,7 @@ def _write_metadata(
     observed_points: tuple[ObservedTracePoint, ...],
     equelo_points: tuple[EqueloTracePoint, ...],
     sideless_ratings: tuple[SidelessRating, ...],
-    fixed_v2_output_root: Path,
+    rating_output_root: Path,
     q: float,
 ) -> None:
     observed_keys = {(row.selected_chii, row.opponent_chii) for row in observed_points}
@@ -169,16 +169,16 @@ def _write_metadata(
         "missing_equelo_trace_points": len(observed_keys - equelo_keys),
         "sideless_rating_count": len(sideless_ratings),
         "rating_source": (
-            "fixed_v2 entrant-initial BP ratings averaged by sideless chii"
+            "fixed-supported chii initial ratings averaged by sideless chii"
         ),
-        "fixed_v2_rating_source": str(
-            fixed_v2_output_root / fixed_v2_model.ENTRANT_INITIAL_RATINGS_FILE_NAME
+        "rating_source_path": str(
+            rating_output_root / fixed_supported_model.ENTRANT_INITIAL_RATINGS_FILE_NAME
         ),
         "q": q,
         "domain_policy": (
             "Observed and Equelo trace points are restricted to sideless chii "
-            "represented in the curated fixed_v2/v5 rating domain. The domain "
-            "uses fixed_v2 entrant-initial BP ratings, excludes deleted rare "
+            "represented in the curated rating domain. The domain "
+            "uses fixed-supported chii initial ratings, excludes deleted rare "
             "slots such as M18-M22 and J13-J24, and caps the lower bound at "
             "Jd100w."
         ),

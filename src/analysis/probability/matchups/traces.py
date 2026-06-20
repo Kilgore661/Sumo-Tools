@@ -5,8 +5,8 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
-from src.analysis.equelo.fixed_v2 import model as fixed_v2_model
-from src.analysis.equelo.fixed_v2.api import load_entrant_initial_ratings
+from src.analysis.equelo.fixed_supported import model as fixed_supported_model
+from src.analysis.equelo.fixed_supported.api import load_entrant_initial_ratings
 from src.analysis.equelo.fixed_v1.initial_rating import V1_MAX_CHII, V4_DELETE_ORDINALS
 from src.analysis.equelo.expt1.simulate import expect
 from src.sumo_core.BasicEnums import Side
@@ -68,9 +68,9 @@ def build_observed_trace_points(sideless_pair_csv: Path) -> tuple[ObservedTraceP
 
 def build_sideless_ratings(
     *,
-    output_root: Path = fixed_v2_model.OUTPUT_ROOT,
+    output_root: Path = fixed_supported_model.OUTPUT_ROOT,
 ) -> tuple[SidelessRating, ...]:
-    """Average fixed_v2 entrant-initial BP ratings by sideless chii."""
+    """Average fixed-supported chii initial ratings by sideless chii."""
     ratings = load_entrant_initial_ratings(output_root=output_root)
     buckets: dict[int, list[tuple[Chii, float]]] = {}
 
@@ -155,7 +155,7 @@ def write_trace_outputs(
     observed_points: tuple[ObservedTracePoint, ...],
     sideless_ratings: tuple[SidelessRating, ...],
     equelo_points: tuple[EqueloTracePoint, ...],
-    fixed_v2_output_root: Path,
+    rating_output_root: Path,
     q: float,
 ) -> dict[str, Path]:
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -173,7 +173,7 @@ def write_trace_outputs(
         observed_points=observed_points,
         sideless_ratings=sideless_ratings,
         equelo_points=equelo_points,
-        fixed_v2_output_root=fixed_v2_output_root,
+        rating_output_root=rating_output_root,
         q=q,
     )
     return paths
@@ -230,7 +230,7 @@ def _write_trace_metadata(
     observed_points: tuple[ObservedTracePoint, ...],
     sideless_ratings: tuple[SidelessRating, ...],
     equelo_points: tuple[EqueloTracePoint, ...],
-    fixed_v2_output_root: Path,
+    rating_output_root: Path,
     q: float,
 ) -> None:
     observed_keys = {(row.selected_chii, row.opponent_chii) for row in observed_points}
@@ -240,16 +240,16 @@ def _write_trace_metadata(
         "equelo_trace_points": len(equelo_points),
         "missing_equelo_trace_points": len(observed_keys - equelo_keys),
         "sideless_rating_count": len(sideless_ratings),
-        "fixed_v2_output_root": str(fixed_v2_output_root),
-        "rating_source": "fixed_v2 entrant-initial BP ratings averaged by sideless chii",
-        "fixed_v2_raw_rating_source": str(
-            fixed_v2_output_root / fixed_v2_model.ENTRANT_INITIAL_RATINGS_FILE_NAME
+        "rating_output_root": str(rating_output_root),
+        "rating_source": "fixed-supported chii initial ratings averaged by sideless chii",
+        "raw_rating_source": str(
+            rating_output_root / fixed_supported_model.ENTRANT_INITIAL_RATINGS_FILE_NAME
         ),
         "q": q,
         "domain_policy": (
             "Observed and Equelo trace points are restricted to sideless chii "
-            "represented in the curated fixed_v2/v5 rating domain. The domain "
-            "uses fixed_v2 entrant-initial BP ratings, excludes deleted rare "
+            "represented in the curated rating domain. The domain "
+            "uses fixed-supported chii initial ratings, excludes deleted rare "
             "slots such as M18-M22 and J13-J24, and caps the lower bound at "
             "Jd100w."
         ),
@@ -267,6 +267,6 @@ def _remove_side(chii: Chii) -> Chii:
 
 
 def _is_curated_rating_domain_chii(chii: Chii) -> bool:
-    """Return True for BP slots retained by the fixed_v2/v5 domain policy."""
+    """Return True for chii retained by the public rating-domain policy."""
     ordinal = chii.ordinal()
     return ordinal <= V1_MAX_CHII and ordinal not in V4_DELETE_ORDINALS

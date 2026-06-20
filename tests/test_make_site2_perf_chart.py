@@ -1,7 +1,9 @@
 import json
+from types import MappingProxyType
 from pathlib import Path
 
 from src.analysis.equelo.api import EqueloLookup, EqueloTiming, no_rating
+from src.infra.get_bios.FullShikonaStore import FullShikonaStore
 from src.sumo_core.Banzuke import Banzuke, RikChii, RikShikona
 from src.sumo_core.BashoState import BashoState
 from src.sumo_core.BasicPrimitives import Day, Month, RikId, Riks, Shikona, Year
@@ -46,11 +48,15 @@ def test_write_master_data_builds_all_rikishi_points_and_size_report(
         },
     )
     monkeypatch.setattr(
-        "src.products.make_site2.perf_chart.build.make_public_shikona",
-        lambda history: {
-            RikId(1): Shikona("Alpha"),
-            RikId(2): Shikona("Beta"),
-        },
+        "src.products.make_site2.perf_chart.build.FullShikonaStore.from_sources",
+        lambda history: FullShikonaStore(
+            MappingProxyType(
+                {
+                    RikId(1): "Alpha",
+                    RikId(2): "Beta",
+                }
+            )
+        ),
     )
 
     output = write_master_data(
@@ -103,16 +109,20 @@ def test_make_js_input_keeps_rikishi_id_and_public_shikona_separate() -> None:
             str(Chii.from_str("J1w").ordinal()): 1101.0,
         },
     )
-    public_shikona_by_rikid = {
-        RikId(7701): Shikona("Fred Senior"),
-        RikId(7702): Shikona("Fred Junior"),
-    }
+    full_shikona_store = FullShikonaStore(
+        MappingProxyType(
+            {
+                RikId(7701): "Fred Senior",
+                RikId(7702): "Fred Junior",
+            }
+        )
+    )
 
     assert make_js_input(
         history=history,
         dates=(date,),
         equelo_lookup=equelo_lookup,
-        public_shikona_by_rikid=public_shikona_by_rikid,
+        full_shikona_store=full_shikona_store,
     ) == {
         "7701": [["1980/01", "Fred Senior", "J1e", 1100.0]],
         "7702": [["1980/01", "Fred Junior", "J1w", 1101.0]],

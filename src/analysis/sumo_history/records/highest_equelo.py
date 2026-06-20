@@ -1,4 +1,4 @@
-"""Produce highest fixed_v2 Equelo rating records."""
+"""Produce highest fixed-supported Equelo rating records."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Iterable
 
-from src.analysis.equelo.fixed_v2.api import DayEndRatings, load_day_end_ratings
+from src.analysis.equelo.fixed_supported.api import DayEndRatings, load_day_end_ratings
 from src.infra.get_bios.FullShikonaStore import FullShikonaStore
 from src.infra.persistence.annotated_serialiser import load_history_with_annotations
 from src.sumo_core.BasicPrimitives import RikId
@@ -85,7 +85,7 @@ def highest_equelo_rows(
     full_shikona_store: FullShikonaStore,
     represented_dates: frozenset[str] | None = None,
 ) -> list[HighestEqueloRow]:
-    """Return all rikishi ranked by maximum observed fixed_v2 day-end rating."""
+    """Return all rikishi ranked by maximum observed fixed-supported day-end rating."""
 
     records = highest_equelo_records(
         day_end_ratings,
@@ -117,7 +117,7 @@ def highest_equelo_records(
     *,
     represented_dates: frozenset[str] | None = None,
 ) -> dict[RikId, HighestEqueloRecord]:
-    """Return the maximum fixed_v2 day-end rating point for each rikishi."""
+    """Return the maximum fixed-supported day-end rating point for each rikishi."""
 
     records: dict[RikId, HighestEqueloRecord] = {}
     for date in sorted(day_end_ratings):
@@ -168,7 +168,7 @@ def build_parser() -> argparse.ArgumentParser:
     """Build the command-line interface."""
 
     parser = argparse.ArgumentParser(
-        description="Produce highest fixed_v2 Equelo rating records."
+        description="Produce highest fixed-supported Equelo rating records."
     )
     parser.add_argument(
         "--output-root",
@@ -184,7 +184,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--day-end-ratings-root",
         type=Path,
-        help="Directory containing fixed_v2 day_end_ratings.json.",
+        help="Directory containing fixed-supported day_end_ratings.json.",
     )
     return parser
 

@@ -7,7 +7,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from src.analysis.equelo.api import EntrantRatingDomain
-from src.analysis.equelo.fixed_v2.api import (
+from src.analysis.equelo.fixed_supported.api import (
     load_day_end_ratings,
     load_entrant_initial_ratings,
 )
@@ -20,10 +20,10 @@ from src.sumo_core.History import Date
 class EqueloSnapshot:
     """
     Contract:
-        ratings contains the fixed_v2 day-end Equelo ratings for the latest
+        ratings contains fixed-supported day-end Equelo ratings for the latest
         completed basho before the requested banzuke date.  Rikishi absent
         from that snapshot are new entrants for rating purposes and receive
-        the public fixed_v2 entry rating for their current chii.
+        the fixed-supported chii initial rating for their current chii.
     """
 
     date: Date
@@ -37,7 +37,7 @@ class EqueloSnapshot:
             rikishi_id and chii identify a rikishi on the current banzuke.
 
             Returns the persisted day-end rating when present, otherwise the
-            public fixed_v2 entry rating implied by chii.
+            fixed-supported chii initial rating implied by chii.
         """
 
         if rikishi_id in self.ratings:
@@ -51,7 +51,7 @@ def load_latest_equelo_snapshot_before(date: Date) -> EqueloSnapshot:
     Contract:
         date is the banzuke date being published.
 
-        Returns the latest fixed_v2 day-end rating snapshot whose basho date is
+        Returns the latest fixed-supported day-end rating snapshot whose basho date is
         earlier than date. Missing files and missing dates are contract
         violations and are allowed to fail noisily.
     """
@@ -80,7 +80,7 @@ def load_latest_equelo_snapshot_before(date: Date) -> EqueloSnapshot:
 def parse_date(value: str) -> Date:
     """
     Contract:
-        value is the fixed_v2 JSON date key, formatted as YYYY/MM.
+        value is the fixed-supported JSON date key, formatted as YYYY/MM.
     """
 
     year, month = value.split("/")

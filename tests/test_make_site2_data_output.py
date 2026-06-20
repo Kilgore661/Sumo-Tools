@@ -54,10 +54,10 @@ def test_build_basho_results_data_output_reuses_public_shikona_map(
 ) -> None:
     history = object()
     ratings = object()
-    public_shikona_by_rikid = object()
+    full_shikona_store = object()
     dates = ("1980/01", "1980/03")
     seen_maps = []
-    make_public_calls = []
+    store_calls = []
 
     monkeypatch.setattr(
         "src.products.make_site2.data_output.represented_dates",
@@ -76,23 +76,23 @@ def test_build_basho_results_data_output_reuses_public_shikona_map(
         lambda supplied_history: ratings,
     )
 
-    def fake_make_public_shikona(supplied_history):
-        make_public_calls.append(supplied_history)
-        return public_shikona_by_rikid
+    def fake_full_shikona_store_from_sources(supplied_history):
+        store_calls.append(supplied_history)
+        return full_shikona_store
 
     def fake_build_payload_rows(
         *,
         history,
         date,
         ratings,
-        public_shikona_by_rikid,
+        full_shikona_store,
     ):
-        seen_maps.append(public_shikona_by_rikid)
+        seen_maps.append(full_shikona_store)
         return (f"row:{date}",)
 
     monkeypatch.setattr(
-        "src.products.make_site2.data_output.make_public_shikona",
-        fake_make_public_shikona,
+        "src.products.make_site2.data_output.FullShikonaStore.from_sources",
+        fake_full_shikona_store_from_sources,
     )
     monkeypatch.setattr(
         "src.products.make_site2.data_output.build_payload_rows",
@@ -108,8 +108,8 @@ def test_build_basho_results_data_output_reuses_public_shikona_map(
         output_root=tmp_path,
     )
 
-    assert make_public_calls == [history]
-    assert seen_maps == [public_shikona_by_rikid, public_shikona_by_rikid]
+    assert store_calls == [history]
+    assert seen_maps == [full_shikona_store, full_shikona_store]
     assert output.payload_paths == (
         tmp_path / "sumo-history" / "basho-results" / "data" / "1980/01.csv",
         tmp_path / "sumo-history" / "basho-results" / "data" / "1980/03.csv",
@@ -368,7 +368,7 @@ def test_copy_typical_equelo_values_data_output_stages_only_csv(
         / "files"
         / "output"
         / "Equelo"
-        / "fixed_v2"
+        / "fixed_supported"
         / "landmarks"
         / "site"
         / "typical_equelo_values"

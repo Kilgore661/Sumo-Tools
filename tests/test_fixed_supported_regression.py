@@ -7,7 +7,16 @@ from src.analysis.equelo.experiments.support_domain_fp.complete_initial_ratings 
     CompletedInitialRating,
     complete_initial_ratings,
     nearest_supported_chii,
-    write_outputs,
+)
+from src.analysis.equelo.fixed_supported.api import (
+    load_master_chii_initial_rating_map,
+    master_chii_initial_rating_map_metadata_path,
+    master_chii_initial_rating_map_path,
+)
+from src.analysis.equelo.fixed_supported.master_map import (
+    rows_from_completed,
+    write_master_chii_initial_rating_map,
+    write_master_map_metadata,
 )
 from src.analysis.equelo.support_domain.policy import collapse_chii
 from src.sumo_core.Chii import Chii
@@ -95,7 +104,7 @@ def test_complete_initial_ratings_fails_loudly_without_supported_source() -> Non
         )
 
 
-def test_completed_initial_rating_outputs_keep_chii_map_and_audit_sources(tmp_path) -> None:
+def test_master_map_outputs_keep_chii_map_and_audit_sources(tmp_path) -> None:
     direct = CompletedInitialRating(
         chii=Chii.from_str("Jk64w"),
         initial_rating=1510.25,
@@ -111,26 +120,32 @@ def test_completed_initial_rating_outputs_keep_chii_map_and_audit_sources(tmp_pa
         source_kind="nearest_supported",
     )
 
-    outputs = write_outputs(
-        [direct, filled],
-        output_root=tmp_path,
+    map_path = write_master_chii_initial_rating_map(
+        master_chii_initial_rating_map_path(tmp_path),
+        rows_from_completed([direct, filled]),
+    )
+    metadata_path = write_master_map_metadata(
+        master_chii_initial_rating_map_metadata_path(tmp_path),
+        master_map_path=map_path,
         source_csv=tmp_path / "supported.csv",
-        sweep_dir=tmp_path / "sweep",
+        direct_count=1,
+        nearest_supported_count=1,
+        required_chii_count=2,
     )
 
-    with outputs.initial_ratings_csv.open(newline="", encoding="utf-8") as f:
+    with map_path.open(newline="", encoding="utf-8") as f:
         initial_rows = list(csv.DictReader(f))
     assert [row["chii"] for row in initial_rows] == ["Jk64w", "Jk65e"]
-    assert set(initial_rows[0]) == {"chii", "ordinal", "initial_rating"}
+    assert initial_rows[0]["source_kind"] == "direct"
+    assert initial_rows[0]["source_chii"] == "Jk64w"
+    assert initial_rows[1]["source_kind"] == "nearest_supported"
+    assert initial_rows[1]["source_chii"] == "Jk64w"
 
-    with outputs.audit_csv.open(newline="", encoding="utf-8") as f:
-        audit_rows = list(csv.DictReader(f))
-    assert audit_rows[0]["source_kind"] == "direct"
-    assert audit_rows[0]["source_chii"] == "Jk64w"
-    assert audit_rows[1]["source_kind"] == "nearest_supported"
-    assert audit_rows[1]["source_chii"] == "Jk64w"
+    loaded_rows = load_master_chii_initial_rating_map(tmp_path)
+    assert [row.chii for row in loaded_rows] == ["Jk64w", "Jk65e"]
 
-    manifest = json.loads(outputs.manifest_json.read_text(encoding="utf-8"))
+    manifest = json.loads(metadata_path.read_text(encoding="utf-8"))
     assert manifest["required_chii_count"] == 2
     assert manifest["direct_count"] == 1
     assert manifest["nearest_supported_count"] == 1
+    assert manifest["policy"]["model_version"] == "fixed_supported"
