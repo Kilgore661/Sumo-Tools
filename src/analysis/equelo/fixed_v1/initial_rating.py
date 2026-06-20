@@ -80,8 +80,8 @@ class InitialRatingCurve:
         """Build the v5-style curated curve from ordinal-keyed ratings."""
 
         # NOTE:
-        # This constructor was added post hoc during the fixed_v2
-        # "Brierless Pivot" investigation in order to reuse the original
+        # This constructor was added post hoc during the Brierless
+        # investigation in order to reuse the original
         # fixed_v1 cleaning/smoothing pipeline with arbitrary ordinal?rating
         # mappings. The original module was written specifically around the
         # fixed_v1/Brier entrant-rating workflow and did not expose a

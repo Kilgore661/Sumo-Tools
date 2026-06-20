@@ -186,8 +186,9 @@ the later fixed-supported replacement also removed the unsupported low-rank
 fixed-point artifacts exposed by Highest Equelo. Brier remains a historical
 comparison layer rather than the current rating source.
 
-The longer investigation lives in
-`src/analysis/equelo/docs/Brierless Pivot.md`.
+The detailed Brierless pivot investigation has been deleted with the fixed-v2
+archive material. Its retained conclusion is that Brier compression is a
+historical comparison layer rather than the current rating source.
 
 ## Chii Wording
 

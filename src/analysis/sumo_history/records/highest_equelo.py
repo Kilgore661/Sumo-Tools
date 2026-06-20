@@ -10,6 +10,7 @@ from typing import Iterable
 
 from src.analysis.equelo.fixed_supported.api import DayEndRatings, load_day_end_ratings
 from src.infra.get_bios.FullShikonaStore import FullShikonaStore
+from src.infra.live_store.api import get_history
 from src.infra.persistence.annotated_serialiser import load_history_with_annotations
 from src.sumo_core.BasicPrimitives import RikId
 from src.sumo_core.History import History
@@ -62,6 +63,8 @@ def build_highest_equelo_outputs(
     shikona_store = (
         full_shikona_store
         if full_shikona_store is not None
+        else FullShikonaStore.from_sources(history)
+        if history is not None
         else FullShikonaStore.from_json()
     )
     rows = highest_equelo_rows(
@@ -200,7 +203,7 @@ def main() -> None:
     """Run the producer."""
 
     args = build_parser().parse_args()
-    history = load_history_from_zip(args.history_zip) if args.history_zip else None
+    history = load_history_from_zip(args.history_zip) if args.history_zip else get_history()
     day_end_ratings = (
         load_day_end_ratings(output_root=args.day_end_ratings_root)
         if args.day_end_ratings_root

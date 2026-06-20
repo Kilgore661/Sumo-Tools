@@ -31,7 +31,6 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--sideless-pair-csv", type=Path, default=SIDELESS_PAIR_CSV)
     parser.add_argument("--output-dir", type=Path, default=OUTPUT_DIR)
     parser.add_argument(
-        "--fixed-v2-output-root",
         "--rating-output-root",
         dest="rating_output_root",
         type=Path,

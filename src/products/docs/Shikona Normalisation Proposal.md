@@ -33,8 +33,8 @@ This affects public display, search, selectors, links, persisted site-facing
 artifacts and integrity checking. A public product cannot safely treat a
 shikona string as rikishi identity.
 
-The immediate trigger is rikishi selection for the Rikishi Skill Trajectory
-chart, but the issue is broader than that chart.
+The immediate trigger was rikishi selection for the charting work that became
+Rikishi History / Career Comparisons, but the issue is broader than that chart.
 
 ---
 

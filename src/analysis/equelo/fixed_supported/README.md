@@ -27,7 +27,7 @@ Fixed-supported Equelo instead:
 
 The package boundary is the artifact set, not the solver internals. Consumers
 should use `src.analysis.equelo.api` or the generated files, not experiment
-folders or legacy `fixed_v2` modules.
+folders or legacy implementation modules.
 
 ## Main Entry Points
 

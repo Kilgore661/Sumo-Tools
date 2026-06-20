@@ -12,11 +12,11 @@ to this target.
 
 The production package shall be named `fixed_supported`.
 
-Code outside the package shall not import from
-`src.analysis.equelo.experiments.support_domain_fp` to produce public Equelo
-artifacts.
+Code outside the package shall not import from experiment folders to produce
+public Equelo artifacts.
 
-Experiment modules may remain as research history, but they shall not be the
+The support-domain experiment modules used to derive fixed-supported Equelo
+have been deleted as historical scaffolding. They shall not reappear as the
 production API.
 
 ## Entry Points
@@ -161,13 +161,9 @@ before the final production switch is accepted.
 
 ## Legacy Code
 
-Legacy `fixed_v2` code may remain only until the archive/deletion pass is
-complete. It is not a production fallback.
-
-Once `fixed_supported` is production and regression-tested, legacy v2 code and
-the development/test scaffolding used to derive it should be moved to a clear
-archive location or deleted. It should not remain the conceptual owner of the
-new model.
+Legacy `fixed_v2` code and the development/test scaffolding used to derive
+fixed-supported Equelo have been deleted. They are not a production fallback
+and should not remain the conceptual owner of the model.
 
 ## File Size And Shape
 
