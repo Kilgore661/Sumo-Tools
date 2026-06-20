@@ -161,11 +161,13 @@ before the final production switch is accepted.
 
 ## Legacy Code
 
-Legacy `fixed_v2` code may remain during migration as a reference and fallback.
+Legacy `fixed_v2` code may remain only until the archive/deletion pass is
+complete. It is not a production fallback.
 
-Once `fixed_supported` is production and regression-tested, legacy v2 code
-should be moved to a clear archive location. It should not remain the conceptual
-owner of the new model.
+Once `fixed_supported` is production and regression-tested, legacy v2 code and
+the development/test scaffolding used to derive it should be moved to a clear
+archive location or deleted. It should not remain the conceptual owner of the
+new model.
 
 ## File Size And Shape
 

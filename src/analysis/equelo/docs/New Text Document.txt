@@ -1,5 +1,14 @@
 # Proposal: Sequential Bradley–Terry (Elo-style) Model with Gaussian-Regularized MAP Updates for Sumo Ratings
 
+## Status
+
+Historical / deletion candidate.
+
+This draft is early proposal material, not current Equelo implementation
+guidance. Preserve only if needed for archive archaeology.
+
+---
+
 ## 1. Overview
 
 We propose a rating system for professional sumo that combines:
@@ -452,4 +461,3 @@ This yields a rating system that is:
 * easy to implement,
 * computationally light,
 * and statistically well-founded.
-

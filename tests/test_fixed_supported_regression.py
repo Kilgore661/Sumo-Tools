@@ -3,8 +3,9 @@ import json
 
 import pytest
 
-from src.analysis.equelo.experiments.support_domain_fp.complete_initial_ratings import (
+from src.analysis.equelo.fixed_supported.policy import (
     CompletedInitialRating,
+    collapse_chii,
     complete_initial_ratings,
     nearest_supported_chii,
 )
@@ -18,7 +19,6 @@ from src.analysis.equelo.fixed_supported.master_map import (
     write_master_chii_initial_rating_map,
     write_master_map_metadata,
 )
-from src.analysis.equelo.support_domain.policy import collapse_chii
 from src.sumo_core.Chii import Chii
 
 

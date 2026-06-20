@@ -50,9 +50,10 @@ The Equelo package distinguishes operational process ratings from public
 rating landmarks.
 
 Current Equelo policy is that ordinary new-data refreshes regenerate
-operational fixed_v2 process ratings when downstream pages need current
+operational fixed-supported process ratings when downstream pages need current
 individual rikishi ratings. They do not automatically regenerate the public
-`Typical Equelo Ratings` landmark bundle.
+`Typical Equelo Ratings` landmark bundle except as part of the accepted
+fixed-supported refresh path.
 
 Refreshing `Typical Equelo Ratings` is allowed, but it is an explicit
 public-scale decision rather than an automatic consequence of a new basho or a

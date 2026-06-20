@@ -6,16 +6,11 @@ import argparse
 from dataclasses import dataclass
 from pathlib import Path
 
-from src.analysis.equelo.experiments.support_domain_fp.complete_initial_ratings import (
-    complete_initial_ratings,
-    required_chii_for_simulation,
-)
-from src.analysis.equelo.experiments.support_domain_fp.run import run_experiment
 from src.analysis.equelo.expt1.Oracle import make_oracle
-from src.analysis.equelo.fixed_v2.build import load_bios, oracle_collapse_mode
 from src.analysis.probability.builder import load_ratings_csv
 from src.infra.live_store.api import get_history
 from src.sumo_core.Chii import Chii
+from src.sumo_core.History import History
 
 from .api import (
     master_chii_initial_rating_map_metadata_path,
@@ -29,6 +24,9 @@ from .master_map import (
     write_master_map_metadata,
 )
 from .model import OUTPUT_ROOT, SUPPORT_THRESHOLD
+from .policy import complete_initial_ratings
+from .solver import run_supported_solve
+from .build import load_bios, oracle_collapse_mode
 
 
 @dataclass(frozen=True)
@@ -54,18 +52,14 @@ def refresh_fixed_supported(
     """Run the explicit slow generation workflow."""
 
     raw_history = get_history()
-    solver_outputs = run_experiment(
-        threshold=0.01,
-        domain="min-appearances",
-        max_chii=Chii.from_str("Jd100w"),
+    solver_outputs = run_supported_solve(
+        raw_history=raw_history,
         min_appearances=min_appearances,
         epsilon=epsilon,
         max_iter=max_iter,
         modern_start_year=modern_start_year,
         modern_end_year=modern_end_year,
         output_root=output_root / "solver_runs",
-        fp_source=Path("files/output/Equelo/expt2_combined_final.csv"),
-        raw_history=raw_history,
     )
     if solver_outputs.combined_final_csv is None:
         raise ValueError("Fixed-supported solver did not write a combined final CSV")
@@ -155,6 +149,16 @@ def main() -> None:
     print(f"Day-end ratings: {outputs.process_outputs['day_end_ratings']}")
     if outputs.landmarks_csv is not None:
         print(f"Typical Equelo Values: {outputs.landmarks_csv}")
+
+
+def required_chii_for_simulation(history: History) -> set[Chii]:
+    """Return every chii the process-rating simulation may encounter."""
+
+    return {
+        chii
+        for basho in history.values()
+        for chii in basho.banzuke.rikchii.values()
+    }
 
 
 if __name__ == "__main__":

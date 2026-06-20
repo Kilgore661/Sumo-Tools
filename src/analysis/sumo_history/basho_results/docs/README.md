@@ -29,11 +29,13 @@ src/analysis/sumo_history/basho_results/
 The first producer should target historical completed-basho mode and emit enough
 data/config for make_site to render a selectable basho results table.
 
-The initial implementation should use fixed_v2 process ratings:
+The implementation should use fixed-supported process ratings through the
+public Equelo API:
 
 ```text
-files/output/Equelo/fixed_v2/day_end_ratings.json
-files/output/Equelo/fixed_v2/entrant_initial_ratings.json
+src.analysis.equelo.api.EqueloLookup
+files/output/Equelo/fixed_supported/day_end_ratings.json
+files/output/Equelo/fixed_supported/master_chii_initial_rating_map.csv
 ```
 
 `Typical Equelo Ratings` are public landmarks only.  They must not be used as
@@ -45,7 +47,7 @@ Likely producer responsibilities include:
 
 * valid-basho date index construction;
 * selected-basho membership and score extraction;
-* fixed_v2 start/end rating lookup;
+* fixed-supported start/end rating lookup;
 * record formatting;
 * division and banzuke slot ordering helpers;
 * BRB row/config/output dataclasses;
@@ -64,4 +66,3 @@ Use this folder for implementation notes about:
 * validation findings;
 * payload-size decisions;
 * reusable helpers promoted out of BRB-local code.
-

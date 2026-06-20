@@ -2,11 +2,12 @@
 
 ## Status
 
-Investigation note and work plan.
+Historical / deletion candidate.
 
-This document records the current investigation into Chii aggregation policy for
-the matchup probability work and, in particular, the `make_site2` page 6.3.1
-`Win Probability by Standing`.
+This work plan records probability/matchup thinking from the fixed-v2 period.
+It contains terminology and artifact references that predate the fixed-supported
+Equelo replacement. Preserve only if needed for archive archaeology; do not use
+it as current implementation guidance without a fresh rewrite.
 
 The current selected-BP implementation is now understood and repaired. The
 public-category aggregation design remains unsettled.

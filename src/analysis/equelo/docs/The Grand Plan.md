@@ -4,6 +4,15 @@ Here’s a revised draft that incorporates your key correction about **torikumi*
 
 # Proposal: An Elo-like Rating System for Professional Sumo
 
+## Status
+
+Historical / deletion candidate.
+
+This draft is early proposal material, not current Equelo implementation
+guidance. Preserve only if needed for archive archaeology.
+
+---
+
 ## 1. Purpose
 
 This document outlines a proposal for implementing an Elo-like rating system for professional sumo as a supplementary tool for analysing relative competitive strength.

@@ -1,5 +1,16 @@
 # BRB Producer Implementation Proposal
 
+## Status
+
+Historical / deletion candidate.
+
+This proposal belongs to the pre-fixed-supported implementation period. The
+current producer uses the public Equelo API and fixed-supported artifacts; do
+not treat the fixed-v2 paths or implementation sequence below as current
+guidance. Preserve only if needed for archive archaeology.
+
+---
+
 ## Purpose
 
 Implement the producer for the Basho Results Browser (BRB).

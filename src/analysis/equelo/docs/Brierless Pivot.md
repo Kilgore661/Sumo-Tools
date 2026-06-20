@@ -1,5 +1,15 @@
 # Equelo Experiment Proposal: FP vs Brier vs Sanitised Ratings
 
+## Status
+
+Historical / deletion candidate.
+
+This document records the investigation that led from the Brier-compressed
+path toward fixed-v2. It has been superseded for production by fixed-supported
+Equelo. Preserve only if needed for archive archaeology.
+
+---
+
 ## Purpose
 
 Investigate whether the unexpectedly large gap between:

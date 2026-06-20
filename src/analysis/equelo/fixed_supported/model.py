@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from src.analysis.equelo.config_main import INITIAL_ELO
-from src.analysis.equelo.fixed_v2.model import K_CONFIG, K_POLICY, Q
+from src.analysis.equelo.expt1.params import DEFAULT_K_CONFIG_PATH
 
 
 MODEL_VERSION = "fixed_supported"
@@ -28,6 +28,10 @@ SUPPORT_THRESHOLD = 60
 COMPLETION_POLICY = "nearest_supported_chii_by_ordinal"
 COMPLETION_TIE_BREAK = "stronger_lower_ordinal"
 BASE_CONVENTION = INITIAL_ELO
+Q = 900.0
+K_POLICY = "divisional"
+K_CONFIG = DEFAULT_K_CONFIG_PATH
+COLLAPSE_MODE = "annotation-only"
 
 
 def policy_metadata() -> dict[str, object]:
@@ -45,4 +49,3 @@ def policy_metadata() -> dict[str, object]:
         "k_policy": K_POLICY,
         "k_config": str(K_CONFIG),
     }
-

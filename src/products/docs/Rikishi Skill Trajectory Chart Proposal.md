@@ -2,12 +2,12 @@
 
 ## Status
 
-Proposal note.
+Historical / deletion candidate.
 
-This document records a proposed Plotly chart for comparing rikishi skill
-trajectories over time. It belongs in `src/products/docs` while the shape is
-still being settled. Once the model is stable, the relevant contract should be
-integrated into `src/products/make_site2/docs`.
+This proposal predates the current Career Comparisons implementation and the
+fixed-supported Equelo replacement. Preserve only if needed for archive
+archaeology; do not treat its fixed-v2 rating-source notes as current
+implementation guidance.
 
 ---
 

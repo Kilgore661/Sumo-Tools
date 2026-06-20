@@ -2,12 +2,13 @@
 
 ## Status
 
-Handoff plan.
+Historical / deletion candidate after archive.
 
-The support-domain feasibility study is accepted. The next task is not to
-document the experimental code as-is. The next task is to write the waterfall
-docs for the Equelo replacement we want, test whether the experiment matches
-that intended design, and only then tidy and wire the code.
+This handoff plan recorded the transition from the accepted support-domain
+feasibility study to the fixed-supported production implementation. The
+current normative docs are the fixed-supported requirements, design,
+implementation target and regression test design. Preserve this plan only if
+needed for archive archaeology.
 
 ## Aim
 

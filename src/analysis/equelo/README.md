@@ -29,12 +29,13 @@ Bulk producers should construct an `EqueloLookup` once and call its
 `get_equelo(...)` method. This uses the same contract while avoiding repeated
 loading and context construction.
 
-For first appearances, the API uses the fixed_v2 entrant-initial rating for the
-annotation-free chii when one exists. If the chii is in the explicit no-rating
-domain, the rating is `None`.
+For first appearances, the API uses the fixed-supported chii initial rating for
+the annotation-free chii when one exists. If the chii is in the explicit
+no-rating domain, the rating is `None`.
 
 ## Current Scope
 
-Basho Results uses this API for before/after rating display. Other consumers
-should migrate only after their timing and public-display semantics are
-reviewed.
+Basho Results, Career Comparisons, Banzuke Changes, Highest Equelo, Typical
+Equelo Values, and related `make_site2` producers use fixed-supported Equelo
+artifacts through this package boundary. New consumers should still review
+their timing and public-display semantics before adopting a lookup.

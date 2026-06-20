@@ -194,7 +194,7 @@ PAGES = PageRegistry(
             artifact=artifact(
                 "typical_equelo_values",
                 "sectioned_table",
-                producer="equelo.fixed_v2.v5_landmarks",
+                producer="equelo.fixed_supported.landmarks",
             ),
         ),
     }

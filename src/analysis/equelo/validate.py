@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from src.analysis.equelo.api import annotation_free_chii, no_rating
-from src.analysis.equelo.fixed_v2.api import (
+from src.analysis.equelo.fixed_supported.api import (
     EntrantInitialRatings,
     load_entrant_initial_ratings,
 )
@@ -37,7 +37,7 @@ def write_obscure_chii_report(
     entrant_initial_ratings: EntrantInitialRatings,
     output_path: Path = DEFAULT_OUTPUT_PATH,
 ) -> Path:
-    """Write raw-History chii that lack fixed_v2 entrant ratings."""
+    """Write raw-History chii that lack fixed-supported chii initial ratings."""
 
     rows = obscure_chii_rows(
         history=history,
