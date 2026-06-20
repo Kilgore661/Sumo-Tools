@@ -3,7 +3,7 @@
 # Empirical bootstrap/build sequence for make_site2 from a clean checkout.
 # Run from the repository root, for example:
 #
-#   C:\Users\kilgo\Sumo-Tools> .\_boot.ps1
+#   C:\Users\me\Sumo-Tools> .\_boot.ps1
 #
 # Slow internet refresh stages and the fixed-supported Equelo refresh are left commented.
 # Use the commented stages when rebuilding the corresponding cached artifacts
