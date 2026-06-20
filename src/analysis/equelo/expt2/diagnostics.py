@@ -110,13 +110,41 @@ class IterationDiagnosticsWriter:
         with open(path, "w", newline="", encoding="utf-8") as f:
             writer = csv.writer(f)
             metadata_keys = sorted(self.metadata)
-            header = ["iter", "delta", "shift", "iter_seconds"]
+            header = [
+                "iter",
+                "delta",
+                "shift",
+                "iter_seconds",
+                "max_delta_chii",
+                "max_delta_value",
+                "max_delta_count",
+                "max_delta_previous",
+                "max_delta_raw",
+                "max_delta_next",
+                "max_delta_raw_minus_previous",
+            ]
             header.extend(metadata_keys)
             header.extend(str(chii) for chii in self.probes)
             header.extend(f"n_{chii}" for chii in self.probes)
             writer.writerow(header)
             for row in self._rows:
-                values = [row.iteration, row.delta, row.shift, row.iter_seconds]
+                values = [
+                    row.iteration,
+                    row.delta,
+                    row.shift,
+                    row.iter_seconds,
+                    "" if row.max_delta_chii is None else str(row.max_delta_chii),
+                    "" if row.max_delta_value is None else row.max_delta_value,
+                    "" if row.max_delta_count is None else row.max_delta_count,
+                    "" if row.max_delta_previous is None else row.max_delta_previous,
+                    "" if row.max_delta_raw is None else row.max_delta_raw,
+                    "" if row.max_delta_next is None else row.max_delta_next,
+                    (
+                        ""
+                        if row.max_delta_raw is None or row.max_delta_previous is None
+                        else row.max_delta_raw - row.max_delta_previous
+                    ),
+                ]
                 values.extend(self.metadata[key] for key in metadata_keys)
                 values.extend(row.probe_values[chii] for chii in self.probes)
                 values.extend(row.probe_counts[chii] for chii in self.probes)
@@ -133,7 +161,15 @@ class IterationDiagnosticsWriter:
             f"{'secs':>{TIME_WIDTH}}"
         )
         probe_value_cols = " ".join(f"{str(chii):>{VALUE_WIDTH}}" for chii in self.probes)
-        return f"{left}  {probe_value_cols}"
+        return (
+            f"{left}  "
+            f"{'max_delta':>{VALUE_WIDTH}} "
+            f"{'n':>{COUNT_WIDTH}} "
+            f"{'raw-prev':>{DELTA_WIDTH}} "
+            f"{'raw':>{VALUE_WIDTH}} "
+            f"{'next':>{VALUE_WIDTH}}  "
+            f"{probe_value_cols}"
+        )
 
     def _counts_line(self) -> str:
         assert self._cached_probe_counts is not None
@@ -142,7 +178,15 @@ class IterationDiagnosticsWriter:
             f"{('n_' + str(chii) + '=' + str(self._cached_probe_counts[chii])):>{VALUE_WIDTH}}"
             for chii in self.probes
         )
-        return f"{left}  {count_cols}"
+        return (
+            f"{left}  "
+            f"{'':>{VALUE_WIDTH}} "
+            f"{'':>{COUNT_WIDTH}} "
+            f"{'':>{DELTA_WIDTH}} "
+            f"{'':>{VALUE_WIDTH}} "
+            f"{'':>{VALUE_WIDTH}}  "
+            f"{count_cols}"
+        )
 
     def _format_row(self, row: IterationDiagnosticsRow) -> str:
         left = (
@@ -151,10 +195,28 @@ class IterationDiagnosticsWriter:
             f"{row.shift:>{SHIFT_WIDTH}.6f} "
             f"{row.iter_seconds:>{TIME_WIDTH}.3f}"
         )
+        max_delta = "" if row.max_delta_chii is None else str(row.max_delta_chii)
+        max_count = "" if row.max_delta_count is None else str(row.max_delta_count)
+        raw_minus_previous = (
+            None
+            if row.max_delta_raw is None or row.max_delta_previous is None
+            else row.max_delta_raw - row.max_delta_previous
+        )
+        raw_minus_previous_text = "" if raw_minus_previous is None else f"{raw_minus_previous:.3f}"
+        raw_text = "" if row.max_delta_raw is None else f"{row.max_delta_raw:.3f}"
+        next_text = "" if row.max_delta_next is None else f"{row.max_delta_next:.3f}"
         probe_value_cols = " ".join(
             f"{row.probe_values[chii]:>{VALUE_WIDTH}.3f}" for chii in self.probes
         )
-        return f"{left}  {probe_value_cols}"
+        return (
+            f"{left}  "
+            f"{max_delta:>{VALUE_WIDTH}} "
+            f"{max_count:>{COUNT_WIDTH}} "
+            f"{raw_minus_previous_text:>{DELTA_WIDTH}} "
+            f"{raw_text:>{VALUE_WIDTH}} "
+            f"{next_text:>{VALUE_WIDTH}}  "
+            f"{probe_value_cols}"
+        )
 
     def summary_line(self) -> str | None:
         if not self._rows:

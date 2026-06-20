@@ -33,6 +33,12 @@ class IterationDiagnosticsRow:
     iter_seconds: float
     probe_values: dict[Chii, float]
     probe_counts: dict[Chii, int]
+    max_delta_chii: Chii | None = None
+    max_delta_value: float | None = None
+    max_delta_count: int | None = None
+    max_delta_previous: float | None = None
+    max_delta_raw: float | None = None
+    max_delta_next: float | None = None
 
 
 class IterationDiagnosticsSink(Protocol):

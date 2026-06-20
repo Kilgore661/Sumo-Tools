@@ -181,6 +181,11 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         help="Restrict rating dates to those represented by this History zip.",
     )
+    parser.add_argument(
+        "--day-end-ratings-root",
+        type=Path,
+        help="Directory containing fixed_v2 day_end_ratings.json.",
+    )
     return parser
 
 
@@ -196,7 +201,13 @@ def main() -> None:
 
     args = build_parser().parse_args()
     history = load_history_from_zip(args.history_zip) if args.history_zip else None
+    day_end_ratings = (
+        load_day_end_ratings(output_root=args.day_end_ratings_root)
+        if args.day_end_ratings_root
+        else None
+    )
     outputs = build_highest_equelo_outputs(
+        day_end_ratings=day_end_ratings,
         history=history,
         output_root=args.output_root,
     )

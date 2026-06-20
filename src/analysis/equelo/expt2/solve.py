@@ -67,6 +67,16 @@ def max_abs_difference(a: ChiiRatings, b: ChiiRatings) -> float:
     return max(abs(a[chii] - b[chii]) for chii in a)
 
 
+def max_abs_difference_with_chii(a: ChiiRatings, b: ChiiRatings) -> tuple[float, Chii | None]:
+    """Return the sup-norm distance and the chii attaining it."""
+
+    if not a and not b:
+        return 0.0, None
+
+    max_chii = max(a, key=lambda chii: abs(a[chii] - b[chii]))
+    return abs(a[max_chii] - b[max_chii]), max_chii
+
+
 
 def _chii_domain(history: History) -> set[Chii]:
     return {chii for basho in history.values() for chii in basho.banzuke.rikchii.values()}
@@ -182,7 +192,7 @@ def solve(
         raw = aggregate(history, results)
         norm = normalise(raw.mean_by_chii, base)
         mu_next = norm.mu
-        final_delta = max_abs_difference(mu_next, mu)
+        final_delta, max_delta_chii = max_abs_difference_with_chii(mu_next, mu)
         iter_seconds = time.perf_counter() - iter_started_at
 
         if diagnostics is not None:
@@ -195,6 +205,12 @@ def solve(
                     iter_seconds=iter_seconds,
                     probe_values=pv,
                     probe_counts=pc,
+                    max_delta_chii=max_delta_chii,
+                    max_delta_value=final_delta,
+                    max_delta_count=None if max_delta_chii is None else raw.count_by_chii[max_delta_chii],
+                    max_delta_previous=None if max_delta_chii is None else mu[max_delta_chii],
+                    max_delta_raw=None if max_delta_chii is None else raw.mean_by_chii[max_delta_chii],
+                    max_delta_next=None if max_delta_chii is None else mu_next[max_delta_chii],
                 )
             )
 
@@ -413,7 +429,7 @@ def _solve_from_initial_mu(
         raw = aggregate(history, results)
         norm = normalise(raw.mean_by_chii, base)
         mu_next = norm.mu
-        final_delta = max_abs_difference(mu_next, mu)
+        final_delta, max_delta_chii = max_abs_difference_with_chii(mu_next, mu)
         iter_seconds = time.perf_counter() - iter_started_at
 
         if diagnostics is not None:
@@ -426,6 +442,12 @@ def _solve_from_initial_mu(
                     iter_seconds=iter_seconds,
                     probe_values=pv,
                     probe_counts=pc,
+                    max_delta_chii=max_delta_chii,
+                    max_delta_value=final_delta,
+                    max_delta_count=None if max_delta_chii is None else raw.count_by_chii[max_delta_chii],
+                    max_delta_previous=None if max_delta_chii is None else mu[max_delta_chii],
+                    max_delta_raw=None if max_delta_chii is None else raw.mean_by_chii[max_delta_chii],
+                    max_delta_next=None if max_delta_chii is None else mu_next[max_delta_chii],
                 )
             )
 
@@ -482,4 +504,3 @@ def _solve_from_initial_mu(
 # Backward-compatible aliases for any in-package callers not yet updated.
 solve_variant_a = solve_variant_naive
 solve_variant_b = solve_variant_combined
-

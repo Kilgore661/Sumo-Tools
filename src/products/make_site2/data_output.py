@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from src.analysis.equelo.api import EqueloLookup
+from src.analysis.equelo.fixed_v2.api import load_day_end_ratings
 from src.analysis.sumo_history.basho_results.build import (
     build_index,
     build_payload_rows,
@@ -147,11 +148,21 @@ HIGHEST_EQUELO_SOURCE_ROOT = (
     / "records"
     / "highest_equelo"
 )
+HIGHEST_EQUELO_EXPERIMENTAL_DAY_END_ROOT = (
+    Path("files")
+    / "output"
+    / "Equelo"
+    / "experiments"
+    / "support_domain_fp"
+    / "fixed_v2_min_app_60"
+)
 TYPICAL_EQUELO_VALUES_SOURCE_ROOT = (
     Path("files")
     / "output"
     / "Equelo"
-    / "fixed_v2"
+    / "experiments"
+    / "support_domain_fp"
+    / "fixed_v2_min_app_60"
     / "landmarks"
     / "site"
     / "typical_equelo_values"
@@ -479,6 +490,9 @@ def build_highest_equelo_data_output(
     """Build and stage the Highest Equelo CSV for the selected History."""
 
     build_highest_equelo_outputs(
+        day_end_ratings=load_day_end_ratings(
+            output_root=HIGHEST_EQUELO_EXPERIMENTAL_DAY_END_ROOT,
+        ),
         history=history,
         output_root=HIGHEST_EQUELO_SOURCE_ROOT,
     )

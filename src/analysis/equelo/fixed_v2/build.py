@@ -48,20 +48,39 @@ M13_TO_J1_START_ORDINAL = Chii.from_str("M13e").ordinal()
 M13_TO_J1_END_ORDINAL = Chii.from_str("J1w").ordinal()
 
 
-def build_fixed_v2(output_root: Path = OUTPUT_ROOT) -> dict[str, Path]:
+def build_fixed_v2(
+    output_root: Path = OUTPUT_ROOT,
+    *,
+    entrant_initial_ratings_source: Path | None = None,
+) -> dict[str, Path]:
     """Generate and persist the fixed_v2 Equelo rating series."""
 
     raw_history = get_history()
-    result, cleaned_history, entrant_initial_ratings = compute_fixed_v2(raw_history)
+    result, cleaned_history, entrant_initial_ratings = compute_fixed_v2(
+        raw_history,
+        entrant_initial_ratings_source=entrant_initial_ratings_source,
+    )
     return write_outputs(
         history=cleaned_history,
         day_end_ratings=result.day_end_ratings,
         entrant_initial_ratings=entrant_initial_ratings,
         output_root=output_root,
+        model_metadata_overrides=(
+            {
+                "entrant_policy": "completed_support_domain_initial_ratings",
+                "fixed_point_source": str(entrant_initial_ratings_source),
+            }
+            if entrant_initial_ratings_source is not None
+            else None
+        ),
     )
 
 
-def compute_fixed_v2(raw_history: History) -> tuple[SimulationResult, History, ChiiRatings]:
+def compute_fixed_v2(
+    raw_history: History,
+    *,
+    entrant_initial_ratings_source: Path | None = None,
+) -> tuple[SimulationResult, History, ChiiRatings]:
     """Compute fixed_v2 ratings from a supplied raw History."""
 
     oracle = make_oracle(
@@ -74,7 +93,11 @@ def compute_fixed_v2(raw_history: History) -> tuple[SimulationResult, History, C
         q=Q,
         config_path=K_CONFIG,
     )
-    entrant_initial_ratings = fixed_point_ratings()
+    entrant_initial_ratings = (
+        completed_initial_ratings(source=entrant_initial_ratings_source)
+        if entrant_initial_ratings_source is not None
+        else fixed_point_ratings()
+    )
     result = simulate(
         history=oracle.history,
         params=params,
@@ -98,6 +121,17 @@ def fixed_point_ratings(*, source: Path = FP_SOURCE) -> ChiiRatings:
     """Return the fixed_v2 raw fixed-point chii-to-entrant-rating map."""
 
     return load_ratings_csv(source)
+
+
+def completed_initial_ratings(*, source: Path) -> ChiiRatings:
+    """Return a completed chii-to-entrant-rating map from a support-domain CSV."""
+
+    ratings: ChiiRatings = {}
+    with source.open("r", newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            ratings[Chii.from_str(row["chii"])] = float(row["initial_rating"])
+    return ratings
 
 
 def make_chii_initialiser(ratings: ChiiRatings) -> EntrantInitialiser:

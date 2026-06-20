@@ -41,6 +41,15 @@ def parse_args() -> argparse.Namespace:
         default=BRIER_ALPHA,
         help="Legacy Brier contraction alpha used for the comparison column.",
     )
+    parser.add_argument(
+        "--entrant-initial-ratings-source",
+        type=Path,
+        help=(
+            "Experimental completed entrant initial ratings CSV. If supplied, "
+            "fixed_v2 simulation uses this total chii-rating surface instead "
+            "of the raw Expt2 fixed-point source."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -48,7 +57,10 @@ def main() -> None:
     args = parse_args()
 
     if not args.comparison_only:
-        outputs = build_fixed_v2(output_root=args.output_root)
+        outputs = build_fixed_v2(
+            output_root=args.output_root,
+            entrant_initial_ratings_source=args.entrant_initial_ratings_source,
+        )
         print(f"Wrote metadata: {outputs['metadata']}")
         print(f"Wrote day-end ratings: {outputs['day_end_ratings']}")
         print(f"Wrote entrant initial ratings: {outputs['entrant_initial_ratings']}")

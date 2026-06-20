@@ -26,6 +26,7 @@ def write_outputs(
     day_end_ratings: RatingsByDate,
     entrant_initial_ratings: dict[Chii, float],
     output_root: Path = OUTPUT_ROOT,
+    model_metadata_overrides: dict[str, object] | None = None,
 ) -> dict[str, Path]:
     """
     Write fixed_v2 day-end ratings, entrant initial ratings, and metadata.
@@ -52,6 +53,7 @@ def write_outputs(
         history=history,
         day_end_ratings=ratings_payload,
         entrant_initial_ratings=entrant_payload,
+        model_metadata_overrides=model_metadata_overrides,
     )
     write_json(metadata_path, metadata_payload)
 
@@ -107,6 +109,7 @@ def build_metadata(
     history: History,
     day_end_ratings: dict[str, dict[str, dict[str, float]]],
     entrant_initial_ratings: dict[str, float],
+    model_metadata_overrides: dict[str, object] | None = None,
 ) -> dict[str, object]:
     """Build metadata for a fixed_v2 output set."""
 
@@ -118,6 +121,10 @@ def build_metadata(
         for ratings in days.values()
     )
 
+    model = model_metadata()
+    if model_metadata_overrides:
+        model.update(model_metadata_overrides)
+
     return {
         "model_version": MODEL_VERSION,
         "generated_at": datetime.now().astimezone().isoformat(),
@@ -127,7 +134,7 @@ def build_metadata(
         "rating_points": rating_points,
         "rating_count": rating_count,
         "entrant_initial_rating_count": len(entrant_initial_ratings),
-        "model": model_metadata(),
+        "model": model,
     }
 
 

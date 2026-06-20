@@ -11,6 +11,7 @@ without changing the site-building API.
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 from pathlib import Path
 
@@ -32,8 +33,7 @@ from src.analysis.equelo.fixed_v1.v5_landmarks import (
     _write_dataclass_csv,
     _write_page_json,
 )
-from src.analysis.probability.builder import load_ratings_csv
-
+from src.sumo_core.Chii import Chii
 from .build import to_ordinal_ratings
 from .model import FP_SOURCE, MODEL_VERSION, OUTPUT_ROOT
 
@@ -47,9 +47,21 @@ def fixed_v2_initial_rating_curve(
 ) -> InitialRatingCurve:
     """Build the fixed_v2 public curve from raw Expt2 fixed-point ratings."""
 
-    fp_by_chii = load_ratings_csv(fp_source)
+    fp_by_chii = load_initial_rating_rows(fp_source)
     fp_by_ordinal = to_ordinal_ratings(fp_by_chii)
     return InitialRatingCurve.from_ordinal_ratings(fp_by_ordinal)
+
+
+def load_initial_rating_rows(path: Path):
+    """Load chii ratings from either fixed-point or completed-initial CSVs."""
+
+    ratings = {}
+    with path.open("r", newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            rating_text = row.get("rating", "") or row["initial_rating"]
+            ratings[Chii.from_str(row["chii"])] = float(rating_text)
+    return ratings
 
 
 def write_typical_equelo_outputs(
