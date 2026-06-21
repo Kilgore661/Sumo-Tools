@@ -5,6 +5,8 @@ import { renderLabelWithHelp } from "../help.js";
 
 const tableSortStates = new Map();
 const SHIKONA_LINK_HELP = "Click for SumoDB; Alt-click for chart.";
+const BASHO_DATE_LINK_HELP = "Click for SumoDB; Alt-click for this site.";
+const EQUELO_LINK_HELP = "Click for ratings chart.";
 
 function decimal(value, places) {
   return Number(value).toFixed(places);
@@ -152,12 +154,68 @@ function renderRikishiLink(shikona, rikishiId) {
 }
 
 function careerComparisonHref(rikishiId) {
+  return careerComparisonChartHref(rikishiId, {
+    skill: "chii",
+    log: true,
+  });
+}
+
+function careerComparisonChartHref(rikishiId, { skill, log }) {
   return [
     "index.html?page=career_comparisons",
-    "skill=chii",
+    `skill=${encodeURIComponent(skill)}`,
     "x=date",
-    "log=true",
+    `log=${log ? "true" : "false"}`,
     `rikishi=${encodeURIComponent(rikishiId)}`,
+  ].join("&");
+}
+
+// Render a site link to the Equelo chart for one rikishi.
+function renderEqueloChartLink(rating, rikishiId) {
+  const label = String(rating || "");
+  if (!rikishiId) return escapeHtml(label);
+  const escapedLabel = escapeHtml(label);
+  const escapedHelp = escapeHtml(EQUELO_LINK_HELP);
+  return [
+    `<a class="equelo-link help-popover" href="${escapeHtml(careerComparisonChartHref(rikishiId, { skill: "equelo", log: false }))}"`,
+    ` data-help="${escapedHelp}" aria-label="${escapedLabel}: ${escapedHelp}">`,
+    escapedLabel,
+    '</a>',
+  ].join("");
+}
+
+// Render a basho-date link to SumoDB, with Alt-click opening this site.
+function renderBashoDateLink(date) {
+  const label = String(date || "");
+  const basho = bashoKeyFromDateLabel(label);
+  if (!basho) return escapeHtml(label);
+  const escapedLabel = escapeHtml(label);
+  const escapedHelp = escapeHtml(BASHO_DATE_LINK_HELP);
+  return [
+    `<a class="basho-date-link help-popover" href="https://sumodb.sumogames.de/Banzuke.aspx?b=${encodeURIComponent(basho)}"`,
+    ` target="_blank" rel="noopener" data-help="${escapedHelp}"`,
+    ` data-alt-href="${escapeHtml(bashoResultsHref(basho))}" aria-label="${escapedLabel}: ${escapedHelp}">`,
+    escapedLabel,
+    '</a>',
+  ].join("");
+}
+
+function bashoKeyFromDateLabel(label) {
+  const match = /^(\d{4})\/(\d{2})(?:\/\d{2})?$/.exec(label);
+  return match ? `${match[1]}${match[2]}` : "";
+}
+
+function bashoResultsHref(basho) {
+  return [
+    "index.html?page=basho_results_browser",
+    `year=${encodeURIComponent(basho.slice(0, 4))}`,
+    `month=${encodeURIComponent(basho.slice(4, 6))}`,
+    "division=makuuchi",
+    "previous=false",
+    "changes=true",
+    "ratings=false",
+    "analysis=false",
+    "nu_chii=false",
   ].join("&");
 }
 
@@ -181,5 +239,8 @@ export {
   toggledSortDirection,
   tableCellAttributes,
   renderRikishiLink,
+  renderBashoDateLink,
+  renderEqueloChartLink,
   careerComparisonHref,
+  careerComparisonChartHref,
 };

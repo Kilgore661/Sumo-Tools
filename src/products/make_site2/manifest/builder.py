@@ -109,7 +109,7 @@ PANEL_DECLARATIONS: dict[str, PanelDeclaration] = {
         artifact=a.MOST_CAREER_LOSSES_ARTIFACT,
     ),
     "highest_equelo": PanelDeclaration(
-        filters=(),
+        filters=f.HIGHEST_EQUELO_FILTERS,
         artifact=a.HIGHEST_EQUELO_ARTIFACT,
     ),
     "career_comparisons": PanelDeclaration(

@@ -19,7 +19,7 @@ let hoverShowTimer = null;
 let pendingHoverTarget = null;
 let hideStartedAt = 0;
 let hideRemainingMs = HELP_POPOVER_LIFETIME_MS;
-let shikonaLinkHandlerInstalled = false;
+let altLinkHandlerInstalled = false;
 
 function renderLabelWithHelp(label, help, options = {}) {
   if (!help) return escapeHtml(label);
@@ -56,7 +56,7 @@ function installHelpPopovers() {
   if (helpLayer) return;
   syncHelpMarkerDebugMode();
   installNoteHighlightStyle();
-  installShikonaLinkAffordance();
+  installAltLinkAffordance();
   helpLayer = document.createElement("div");
   helpLayer.className = "help-popover-layer";
   helpLayer.hidden = true;
@@ -120,13 +120,13 @@ function syncHelpMarkerDebugMode() {
   document.body.classList.toggle("debug-show-notes", params.get("debug_show_notes") === "true");
 }
 
-function installShikonaLinkAffordance() {
-  if (shikonaLinkHandlerInstalled) return;
-  shikonaLinkHandlerInstalled = true;
+function installAltLinkAffordance() {
+  if (altLinkHandlerInstalled) return;
+  altLinkHandlerInstalled = true;
   document.addEventListener("click", event => {
     if (!event.altKey) return;
     const link = event.target instanceof Element
-      ? event.target.closest(".shikona-link[data-alt-href]")
+      ? event.target.closest("a[data-alt-href]")
       : null;
     if (!link) return;
     event.preventDefault();
@@ -258,7 +258,7 @@ function positionHelpPopover() {
 
 export {
   installHelpPopovers,
-  installShikonaLinkAffordance,
+  installAltLinkAffordance,
   renderLabelWithHelp,
   containsExactNotes,
   hideHelpPopover,

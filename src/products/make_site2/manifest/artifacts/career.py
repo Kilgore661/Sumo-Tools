@@ -124,6 +124,7 @@ HIGHEST_EQUELO_ARTIFACT = TableArtifact(
         TableColumn(id="row_number", heading="", sort_kind="none", align="right"),
         TableColumn(id="position", heading="#", source_field="position", sort_key="position", sort_kind="numeric", sort_default_direction="ascending", align="right"),
         TableColumn(id="shikona", heading="Shikona", source_field="shikona", sort_kind="text", align="left"),
+        TableColumn(id="chii", heading="Chii", source_field="chii", sort_key="chii_ordinal", sort_kind="chii_ordinal", align="left"),
         TableColumn(id="rating", heading="Equelo", source_field="rating", sort_kind="numeric", align="right"),
         TableColumn(id="date", heading="Date", source_field="date", help="year/month/day of basho", sort_kind="text", align="left"),
     ),

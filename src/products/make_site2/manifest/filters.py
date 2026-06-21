@@ -231,6 +231,16 @@ MOST_CONSECUTIVE_BOUTS_FILTERS = (
     ),
 )
 
+HIGHEST_EQUELO_FILTERS = (
+    Filter(
+        id="current_only",
+        label="Current only?",
+        control="checkbox",
+        default=False,
+        url_key="current_only",
+    ),
+)
+
 MOST_CAREER_WINS_FILTERS = (
     Filter(
         id="include_retired",

@@ -13,6 +13,7 @@ from src.infra.get_bios.FullShikonaStore import FullShikonaStore
 from src.infra.live_store.api import get_history
 from src.infra.persistence.annotated_serialiser import load_history_with_annotations
 from src.sumo_core.BasicPrimitives import RikId
+from src.sumo_core.Chii import Chii
 from src.sumo_core.History import History
 
 
@@ -40,6 +41,9 @@ class HighestEqueloRow:
     position: int
     rikishi_id: int
     shikona: str
+    active: bool
+    chii: str
+    chii_ordinal: int | str
     rating: str
     date: str
 
@@ -71,6 +75,8 @@ def build_highest_equelo_outputs(
         day_end_ratings=ratings,
         full_shikona_store=shikona_store,
         represented_dates=represented_date_labels(history),
+        active_rikishi=current_banzuke_rikishi(history),
+        chii_by_rikishi_and_date=chii_by_rikishi_and_date(history),
     )
 
     output_root.mkdir(parents=True, exist_ok=True)
@@ -87,6 +93,8 @@ def highest_equelo_rows(
     day_end_ratings: DayEndRatings,
     full_shikona_store: FullShikonaStore,
     represented_dates: frozenset[str] | None = None,
+    active_rikishi: frozenset[RikId] | None = None,
+    chii_by_rikishi_and_date: dict[tuple[RikId, str], Chii] | None = None,
 ) -> list[HighestEqueloRow]:
     """Return all rikishi ranked by maximum observed fixed-supported day-end rating."""
 
@@ -104,15 +112,42 @@ def highest_equelo_rows(
         ),
     )
     return [
-        HighestEqueloRow(
+        highest_equelo_row(
             position=index,
-            rikishi_id=int(record.rikishi_id),
-            shikona=full_shikona_store.full_shikona(record.rikishi_id),
-            rating=f"{record.rating:.3f}",
-            date=record.point.label(),
+            record=record,
+            full_shikona_store=full_shikona_store,
+            active_rikishi=active_rikishi,
+            chii_by_rikishi_and_date=chii_by_rikishi_and_date,
         )
         for index, record in enumerate(ranked, start=1)
     ]
+
+
+def highest_equelo_row(
+    *,
+    position: int,
+    record: HighestEqueloRecord,
+    full_shikona_store: FullShikonaStore,
+    active_rikishi: frozenset[RikId] | None,
+    chii_by_rikishi_and_date: dict[tuple[RikId, str], Chii] | None,
+) -> HighestEqueloRow:
+    """Return one site-facing row for a highest-rating record."""
+
+    chii = (
+        chii_by_rikishi_and_date.get((record.rikishi_id, record.point.date))
+        if chii_by_rikishi_and_date is not None
+        else None
+    )
+    return HighestEqueloRow(
+        position=position,
+        rikishi_id=int(record.rikishi_id),
+        shikona=full_shikona_store.full_shikona(record.rikishi_id),
+        active=active_rikishi is not None and record.rikishi_id in active_rikishi,
+        chii=str(chii) if chii is not None else "",
+        chii_ordinal=chii.ordinal() if chii is not None else "",
+        rating=f"{record.rating:.3f}",
+        date=record.point.label(),
+    )
 
 
 def highest_equelo_records(
@@ -150,6 +185,28 @@ def represented_date_labels(history: History | None) -> frozenset[str] | None:
     if history is None:
         return None
     return frozenset(str(date) for date in history)
+
+
+def current_banzuke_rikishi(history: History | None) -> frozenset[RikId] | None:
+    """Return rikishi present on the latest represented banzuke."""
+
+    if history is None:
+        return None
+    latest_date = max(history)
+    return frozenset(history(latest_date).banzuke.riks)
+
+
+def chii_by_rikishi_and_date(history: History | None) -> dict[tuple[RikId, str], Chii] | None:
+    """Return banzuke chii keyed by rikishi id and display date."""
+
+    if history is None:
+        return None
+    return {
+        (rikishi_id, str(date)): state.banzuke.get_chii(rikishi_id)
+        for date in sorted(history)
+        for state in (history(date),)
+        for rikishi_id in state.banzuke.riks
+    }
 
 
 def write_dataclass_csv(rows: Iterable[object], output_path: Path) -> None:

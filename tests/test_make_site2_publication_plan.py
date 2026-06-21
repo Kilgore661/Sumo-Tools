@@ -488,8 +488,12 @@ def test_runtime_manifest_declares_highest_equelo_table() -> None:
     manifest = build_runtime_manifest(build_publication_plan(SITE))
     panel = content_panel_by_artifact(manifest, HIGHEST_EQUELO_ARTIFACT.id)
     artifact = manifest["artifacts"]["highest_equelo"]
+    filters = filter_section(panel)["filters"]
 
-    assert filter_section(panel) is None
+    assert [item["id"] for item in filters] == ["current_only"]
+    assert filters[0]["label"] == "Current only?"
+    assert filters[0]["control"] == "checkbox"
+    assert filters[0]["default"] is False
     assert artifact["kind"] == "table"
     assert artifact["renderer"] == "generic_table"
     assert artifact["rows_source"]["path"] == (
@@ -499,9 +503,12 @@ def test_runtime_manifest_declares_highest_equelo_table() -> None:
         "row_number",
         "position",
         "shikona",
+        "chii",
         "rating",
         "date",
     ]
+    assert artifact["columns"][3]["sort_key"] == "chii_ordinal"
+    assert artifact["columns"][3]["sort_kind"] == "chii_ordinal"
     assert artifact["default_sort_column"] == "position"
 
 

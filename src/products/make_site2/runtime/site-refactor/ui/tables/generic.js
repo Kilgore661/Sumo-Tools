@@ -4,6 +4,8 @@ import { escapeHtml } from "../../utils/html.js";
 import { dateLikeDisplay } from "../../utils/display.js";
 import {
   currentTableSortState,
+  renderBashoDateLink,
+  renderEqueloChartLink,
   renderTableHeading,
   renderRikishiLink,
   sortRows,
@@ -97,7 +99,7 @@ function renderGenericTable(artifact, rows, state) {
     ...sortedRows.map((row, index) => [
       '<tr>',
       ...artifact.columns.map(column =>
-        `<td ${tableCellAttributes(column)}>${genericCellValue(column, row, index)}</td>`
+        `<td ${tableCellAttributes(column)}>${genericCellValue(column, row, index, artifact)}</td>`
       ),
       '</tr>'
     ].join("")),
@@ -109,8 +111,14 @@ function renderGenericTable(artifact, rows, state) {
 function genericRowsForState(rows, state, artifact = null) {
   if (artifact?.id === "most_career_wins") return careerWinsRowsForState(rows, state);
   if (artifact?.id === "most_career_losses") return careerLossesRowsForState(rows, state);
+  if (artifact?.id === "highest_equelo") return highestEqueloRowsForState(rows, state);
   if (!state?.clean_only) return rows;
   return rows.filter(row => String(row.clean) === "True");
+}
+
+function highestEqueloRowsForState(rows, state) {
+  if (!state?.current_only) return rows;
+  return rows.filter(row => String(row.active) === "True");
 }
 
 function careerWinsRowsForState(rows, state) {
@@ -151,7 +159,7 @@ function careerLossesRowsForState(rows, state) {
     }));
 }
 
-function genericCellValue(column, row, index) {
+function genericCellValue(column, row, index, artifact = null) {
   if (column.id === "row_number") return escapeHtml(String(index + 1));
   if (column.id === "clean") return String(row[column.source_field || column.id]) === "True" ? "✓" : "";
   if (column.id === "win_rate") {
@@ -162,6 +170,12 @@ function genericCellValue(column, row, index) {
     return renderRikishiLink(row[column.source_field || column.id] || "", row.rikishi_id);
   }
   const value = row[column.source_field || column.id] || "";
+  if (artifact?.id === "highest_equelo" && column.id === "date") {
+    return renderBashoDateLink(value);
+  }
+  if (artifact?.id === "highest_equelo" && column.id === "rating") {
+    return renderEqueloChartLink(value, row.rikishi_id);
+  }
   return escapeHtml(isDateLikeColumn(column) ? dateLikeDisplay(value) : value);
 }
 
