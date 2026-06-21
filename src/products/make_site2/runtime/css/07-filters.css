@@ -97,7 +97,7 @@
 .basho-navigation-icon {
   display: block;
   filter: brightness(0) invert(1);
-  height: 24px;
+  height: 20px;
   max-height: none;
   max-width: none;
   pointer-events: none;
@@ -106,5 +106,5 @@
 
 .basho-navigation-buttons button[data-basho-nav="first"] .basho-navigation-icon,
 .basho-navigation-buttons button[data-basho-nav="last"] .basho-navigation-icon {
-  height: 28px;
+  height: 22px;
 }
