@@ -148,7 +148,8 @@ class DiagnosticsCollector:
         date: Date,
         day: Day,
         bout: BoutResult,
-        delta: float,
+        delta1: float,
+        delta2: float,
         r1_before: float,
         r2_before: float,
         r1_after: float,
@@ -157,7 +158,7 @@ class DiagnosticsCollector:
         rating_mass_after: float,
     ) -> None:
         del date, day, bout, r1_before, r2_before, r1_after, r2_after
-        self._current_basho_abs_updates.append(abs(delta))
+        self._current_basho_abs_updates.append((abs(delta1) + abs(delta2)) / 2.0)
         abs_mass_change = abs(rating_mass_after - rating_mass_before)
         if abs_mass_change > self._max_abs_bout_mass_change:
             self._max_abs_bout_mass_change = abs_mass_change

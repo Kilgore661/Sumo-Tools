@@ -74,7 +74,8 @@ class BoundaryAdjustmentCollector:
         date: Date,
         day: Day,
         bout: BoutResult,
-        delta: float,
+        delta1: float,
+        delta2: float,
         r1_before: float,
         r2_before: float,
         r1_after: float,
@@ -82,7 +83,7 @@ class BoundaryAdjustmentCollector:
         rating_mass_before: float,
         rating_mass_after: float,
     ) -> None:
-        del date, day, bout, delta, r1_before, r2_before, r1_after, r2_after, rating_mass_before, rating_mass_after
+        del date, day, bout, delta1, delta2, r1_before, r2_before, r1_after, r2_after, rating_mass_before, rating_mass_after
 
     def on_ignored_bout(self, date: Date, day: Day, bout: BoutResult) -> None:
         del date, day, bout

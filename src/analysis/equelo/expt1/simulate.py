@@ -88,7 +88,8 @@ class SimulationObserver(Protocol):
         date: Date,
         day: Day,
         bout: BoutResult,
-        delta: float,
+        delta1: float,
+        delta2: float,
         r1_before: float,
         r2_before: float,
         r1_after: float,
@@ -213,9 +214,10 @@ def _apply_bout_result(
 
     ``fusen`` and ``blank`` are treated as non-rating events.
 
-    For every scored bout, rating mass is conserved exactly up to numerical
-    precision because one competitor gains ``delta`` and the other loses the
-    same ``delta``.
+    For every scored bout, each competitor's own K-factor is applied. With a
+    constant K-factor this is exactly zero-sum; with a divisional K-factor,
+    cross-division bouts may change total rating mass because the two update
+    magnitudes can differ.
     """
     if bout.decision in ("fusen", "blank"):
         if observer is not None:
@@ -231,21 +233,27 @@ def _apply_bout_result(
 
     actual_a = 1.0 if bout.outcome1.name == "W" else 0.0
     expected_a = expect(ra_before, rb_before, params.q)
+    actual_b = 1.0 - actual_a
+    expected_b = 1.0 - expected_a
 
     ordinal_a = banzuke.rikchii[r1].ordinal()
-    k = params.k(ordinal_a)
+    ordinal_b = banzuke.rikchii[r2].ordinal()
+    k_a = params.k(ordinal_a)
+    k_b = params.k(ordinal_b)
 
-    delta = k * (actual_a - expected_a)
+    delta_a = k_a * (actual_a - expected_a)
+    delta_b = k_b * (actual_b - expected_b)
 
-    current_ratings[r1] += delta
-    current_ratings[r2] -= delta
+    current_ratings[r1] += delta_a
+    current_ratings[r2] += delta_b
 
     if observer is not None:
         observer.on_bout(
             date=date,
             day=day,
             bout=bout,
-            delta=delta,
+            delta1=delta_a,
+            delta2=delta_b,
             r1_before=ra_before,
             r2_before=rb_before,
             r1_after=current_ratings[r1],
