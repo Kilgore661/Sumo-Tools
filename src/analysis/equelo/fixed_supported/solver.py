@@ -19,7 +19,7 @@ from src.analysis.equelo.expt2.solve import solve_variant_combined
 from src.sumo_core.Chii import Chii
 from src.sumo_core.History import History
 
-from .build import load_bios, oracle_collapse_mode
+from .build import oracle_collapse_mode
 from .model import K_CONFIG, K_POLICY, OUTPUT_ROOT, Q
 from .support import FilteredHistory, build_min_appearances_filtered_history
 
@@ -50,7 +50,6 @@ def run_supported_solve(
     print("[fixed-supported] preparing cleaned history")
     oracle = make_oracle(
         raw_history,
-        load_bios(),
         collapse_mode=oracle_collapse_mode(),
     )
     filtered = build_min_appearances_filtered_history(

@@ -2,17 +2,14 @@
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Callable
 
-from src.analysis.equelo.config_main import BIOS_PATH
 from src.analysis.equelo.expt1.Oracle import make_oracle
 from src.analysis.equelo.expt1.params import build_elo_params
 from src.analysis.equelo.expt1.simulate import SimulationMode, SimulationResult, simulate
 from src.analysis.probability.builder import load_ratings_csv
 from src.infra.live_store.api import get_history
-from src.sumo_core.BasicPrimitives import RikId
 from src.sumo_core.Chii import Chii
 from src.sumo_core.History import History
 
@@ -57,7 +54,6 @@ def compute_fixed_v1(raw_history: History) -> tuple[SimulationResult, History, C
 
     oracle = make_oracle(
         raw_history,
-        load_bios(),
         collapse_mode=oracle_collapse_mode(),
     )
     params = build_elo_params(
@@ -74,15 +70,6 @@ def compute_fixed_v1(raw_history: History) -> tuple[SimulationResult, History, C
     )
 
     return result, oracle.history, entrant_initial_ratings
-
-
-def load_bios() -> dict[RikId, dict]:
-    """Load bios for Oracle construction."""
-
-    with BIOS_PATH.open("r", encoding="utf-8") as f:
-        raw_bios = json.load(f)
-
-    return {RikId(int(key)): value for key, value in raw_bios.items()}
 
 
 def scaled_fixed_point_ratings(

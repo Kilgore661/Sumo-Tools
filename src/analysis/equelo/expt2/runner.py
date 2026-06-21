@@ -10,9 +10,7 @@ from typing import Any
 
 from src.infra.config import EPOCH
 from ....infra.connect import connect
-from ....sumo_core.BasicPrimitives import RikId
-
-from ..config_main import BIOS_PATH, CONSTANT_K, OUTPUT_ROOT
+from ..config_main import CONSTANT_K, OUTPUT_ROOT
 from ..expt1.Oracle import make_oracle
 from ..expt1.params import DEFAULT_K_CONFIG_PATH, build_elo_params
 from ..expt1.simulate import SimulationMode
@@ -201,12 +199,8 @@ def _expanded_command(module_name: str, params: dict[str, object]) -> str:
 
 def _load_history_and_params(args: argparse.Namespace):
     raw_history = connect(args.start, args.end, use_zip=args.zip)
-    with open(BIOS_PATH, "r", encoding="utf-8") as f:
-        raw_bios = json.load(f)
-    bios = {RikId(int(k)): v for k, v in raw_bios.items()}
     oracle = make_oracle(
         raw_history,
-        bios,
         collapse_mode=oracle_collapse_mode_from_args(args),
     )
     params = build_elo_params(

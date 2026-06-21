@@ -3,12 +3,9 @@ from __future__ import annotations
 
 import argparse
 import csv
-import json
 from pathlib import Path
 
 from src.infra.connect import connect
-from src.sumo_core.BasicPrimitives import RikId
-from src.analysis.equelo.config_main import BIOS_PATH
 from src.analysis.equelo.expt1.Oracle import make_oracle
 from src.analysis.probability.builder import load_ratings_csv
 from src.analysis.probability.__main__ import _load_manifest, _evaluation_year_bounds
@@ -176,13 +173,8 @@ def main() -> None:
     eval_start, eval_end = _evaluation_year_bounds(manifest, args.ratings_stage)
     raw_history = connect(eval_start, eval_end, use_zip=args.zip)
 
-    with open(BIOS_PATH, "r", encoding="utf-8") as f:
-        raw_bios = json.load(f)
-    bios = {RikId(int(k)): v for k, v in raw_bios.items()}
-
     oracle = make_oracle(
         raw_history,
-        bios,
         collapse_mode="annotation_only",
     )
 

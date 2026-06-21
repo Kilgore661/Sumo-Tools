@@ -10,6 +10,5 @@ from pathlib import Path
 
 """File-system paths used by Expt1 orchestration and diagnostics."""
 
-BIOS_PATH = Path("files/input/bios.json")
 OUTPUT_ROOT = Path("files/output/Equelo")
 EQUELO_RATINGS = OUTPUT_ROOT / "equelo.csv"

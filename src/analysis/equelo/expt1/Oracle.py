@@ -9,7 +9,7 @@ shared infrastructure.
 """
 
 from dataclasses import dataclass
-from typing import Any, Callable
+from typing import Callable
 
 from ....sumo_core.BasicEnums import MSD, Division, Annotation, Side
 from ....sumo_core.BasicPrimitives import RikId, Riks, Torikumi
@@ -20,7 +20,6 @@ from ....sumo_core.History import History
 from ....sumo_core.Summary import Summary, DailyResults, ResultLookup
 
 
-Bios = dict[RikId, dict[str, Any]]
 ChiiCollapseFn = Callable[[Chii], Chii]
 
 
@@ -29,7 +28,6 @@ class Oracle:
     """Cleaned historical input for Elo simulation."""
 
     history: History
-    bios: Bios
 
 
 def _is_sekitori(chii: Chii) -> bool:
@@ -193,7 +191,6 @@ def _filter_basho_1989_onward(
 
 def make_oracle(
     history: History,
-    bios: Bios,
     *,
     collapse_mode: str = "annotation_only",
 ) -> Oracle:
@@ -230,4 +227,4 @@ def make_oracle(
 
         clean_history[date] = clean_basho
 
-    return Oracle(history=clean_history, bios=bios)
+    return Oracle(history=clean_history)

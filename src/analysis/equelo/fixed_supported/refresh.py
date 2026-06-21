@@ -26,7 +26,7 @@ from .master_map import (
 from .model import OUTPUT_ROOT, SUPPORT_THRESHOLD
 from .policy import complete_initial_ratings
 from .solver import run_supported_solve
-from .build import load_bios, oracle_collapse_mode
+from .build import oracle_collapse_mode
 
 
 @dataclass(frozen=True)
@@ -66,7 +66,6 @@ def refresh_fixed_supported(
 
     history = make_oracle(
         raw_history,
-        load_bios(),
         collapse_mode=oracle_collapse_mode(),
     ).history
     completed = complete_initial_ratings(

@@ -9,7 +9,6 @@ logic lives in :mod:`expt1.simulate` and related modules.
 
 import argparse
 import datetime
-import json
 from pathlib import Path
 
 from src.infra.config import EPOCH
@@ -17,7 +16,7 @@ from ....infra.connect import connect
 from ....sumo_core.BasicPrimitives import RikId, Day, Year, Month
 from ....sumo_core.History import Date
 
-from ..config_main import BIOS_PATH, INITIAL_ELO, INITIAL_Q, CONSTANT_K
+from ..config_main import INITIAL_ELO, INITIAL_Q, CONSTANT_K
 from .diagnostics import DiagnosticsCollector
 from .initialisation import constant_initialiser
 from .Oracle import make_oracle
@@ -83,11 +82,7 @@ def main() -> None:
 
     raw_history = connect(args.start, args.end, use_zip=args.zip)
 
-    with open(BIOS_PATH, "r", encoding="utf-8") as f:
-        raw_bios = json.load(f)
-    bios = {RikId(int(k)): v for k, v in raw_bios.items()}
-
-    oracle = make_oracle(raw_history, bios)
+    oracle = make_oracle(raw_history)
     params = build_elo_params(
         k_policy=args.k_policy,
         b=args.b,

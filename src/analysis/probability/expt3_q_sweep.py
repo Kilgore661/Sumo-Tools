@@ -3,15 +3,12 @@ from __future__ import annotations
 import argparse
 import csv
 import datetime
-import json
 from dataclasses import dataclass
 from pathlib import Path
 
 from src.infra.config import EPOCH
 from src.infra.connect import connect
-from src.sumo_core.BasicPrimitives import RikId
-
-from src.analysis.equelo.config_main import BIOS_PATH, INITIAL_ELO, CONSTANT_K
+from src.analysis.equelo.config_main import INITIAL_ELO, CONSTANT_K
 from src.analysis.equelo.expt1.Oracle import make_oracle
 from src.analysis.equelo.expt1.initialisation import constant_initialiser
 from src.analysis.equelo.expt1.params import DEFAULT_K_CONFIG_PATH, build_elo_params
@@ -322,11 +319,7 @@ def main() -> None:
 
     raw_history = connect(args.start, args.end, use_zip=args.zip)
 
-    with open(BIOS_PATH, "r", encoding="utf-8") as f:
-        raw_bios = json.load(f)
-    bios = {RikId(int(k)): v for k, v in raw_bios.items()}
-
-    oracle = make_oracle(raw_history, bios)
+    oracle = make_oracle(raw_history)
     history = oracle.history
 
     rows: list[SweepRow] = []

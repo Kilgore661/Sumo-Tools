@@ -58,7 +58,6 @@ def compute_empirical_matchups(
     """Compute annotation-collapsed, side-preserving observed matchup data."""
     oracle = make_oracle(
         raw_history,
-        bios={},
         collapse_mode=ORACLE_COLLAPSE_MODE,
     )
     history = oracle.history

@@ -6,12 +6,10 @@ import json
 from pathlib import Path
 from typing import Callable
 
-from src.analysis.equelo.config_main import BIOS_PATH
 from src.analysis.equelo.expt1.Oracle import make_oracle
 from src.analysis.equelo.expt1.params import build_elo_params
 from src.analysis.equelo.expt1.simulate import SimulationMode, simulate
 from src.infra.live_store.api import get_history
-from src.sumo_core.BasicPrimitives import RikId
 from src.sumo_core.Chii import Chii
 from src.sumo_core.History import History
 
@@ -76,7 +74,6 @@ def compute_process_ratings(
 
     oracle = make_oracle(
         raw_history,
-        load_bios(),
         collapse_mode=oracle_collapse_mode(),
     )
     params = build_elo_params(
@@ -92,15 +89,6 @@ def compute_process_ratings(
         mode=SimulationMode.CLOSED,
     )
     return result, oracle.history, entrant_initial_ratings
-
-
-def load_bios() -> dict[RikId, dict]:
-    """Load bios for Oracle construction."""
-
-    return {
-        RikId(int(key)): value
-        for key, value in json.loads(BIOS_PATH.read_text(encoding="utf-8")).items()
-    }
 
 
 def make_chii_initialiser(ratings: ChiiRatings) -> EntrantInitialiser:

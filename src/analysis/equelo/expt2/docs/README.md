@@ -695,10 +695,6 @@ Resolved as the default constant K when `--k-policy constant` and no explicit `-
 
 Resolved as the default K-config path when `--k-policy divisional` and no explicit `--k-config` is supplied. 
 
-### `BIOS_PATH`
-
-Used while building the oracle-cleaned history that is passed into the solver wrappers. 
-
 ### `OUTPUT_ROOT`
 
 Used as the base directory for default final CSVs and diagnostics outputs.
@@ -716,7 +712,6 @@ The runner always does:
 ```python
 oracle = make_oracle(
     raw_history,
-    bios,
     collapse_mode=oracle_collapse_mode_from_args(args),
 )
 ```
@@ -780,7 +775,6 @@ A reproducible Expt2 solve is determined by:
 * `INITIAL_ELO`
 * `CONSTANT_K`
 * `DEFAULT_K_CONFIG_PATH`
-* `BIOS_PATH`
 * `OUTPUT_ROOT`
 
 ### Fixed wiring

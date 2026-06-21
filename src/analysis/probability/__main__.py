@@ -6,8 +6,6 @@ from pathlib import Path
 from src.infra.config import EPOCH
 
 from ...infra.connect import connect
-from ...sumo_core.BasicPrimitives import RikId
-from ..equelo.config_main import BIOS_PATH
 from ..equelo.expt1.Oracle import make_oracle
 from .builder import (
     build_calibration_rows,
@@ -170,13 +168,8 @@ def main() -> None:
 
     raw_history = connect(eval_start, eval_end, use_zip=args.zip)
 
-    with open(BIOS_PATH, "r", encoding="utf-8") as f:
-        raw_bios = json.load(f)
-    bios = {RikId(int(k)): v for k, v in raw_bios.items()}
-
     oracle = make_oracle(
         raw_history,
-        bios,
         collapse_mode="annotation_only",
     )
 

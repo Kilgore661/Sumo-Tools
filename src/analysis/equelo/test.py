@@ -1,7 +1,6 @@
 import argparse
 import datetime
 import gzip
-import json
 import pickle
 from dataclasses import dataclass
 from time import time
@@ -11,7 +10,7 @@ from src.infra.connect import connect
 from src.sumo_core.Chii import Chii
 from src.sumo_core.BasicPrimitives import RikId
 
-from src.analysis.equelo.config_main import BIOS_PATH, OUTPUT_ROOT
+from src.analysis.equelo.config_main import OUTPUT_ROOT
 from src.analysis.equelo.expt1.Oracle import make_oracle
 from src.analysis.equelo.expt1.params import EloParams
 from src.analysis.equelo.expt1.simulate import SimulationMode, simulate
@@ -42,12 +41,6 @@ def load_ratings_from_zip() -> Ratings:
         raise RuntimeError(f"Ratings zip not found: {RATINGS_ZIP}")
     with gzip.open(RATINGS_ZIP, "rb") as f:
         return pickle.load(f)
-
-
-def load_bios() -> dict[RikId, dict]:
-    with open(BIOS_PATH, "r", encoding="utf-8") as f:
-        raw_bios = json.load(f)
-    return {RikId(int(k)): v for k, v in raw_bios.items()}
 
 
 def validate_years(start: int, end: int) -> None:
@@ -99,8 +92,7 @@ def main():
     raw_history = connect(args.start, args.end, use_zip=args.zip)
     print(f"{time() - t0:.0f} seconds.")
 
-    bios = load_bios()
-    oracle = make_oracle(raw_history, bios)
+    oracle = make_oracle(raw_history)
 
     dates = sorted(oracle.history.keys())
     print(f"{len(dates)} basho, {dates[0]} to {dates[-1]}")
