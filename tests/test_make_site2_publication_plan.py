@@ -315,10 +315,10 @@ def test_runtime_manifest_declares_standings_ui_and_artifact_semantics() -> None
         "current-sumo/standings-by-wins/data/site_config.json"
     )
     assert artifact["data_sources"][5]["filter_value"] == "6"
-    assert artifact["data_sources"][5]["path"] == (
-        "current-sumo/standings-by-wins/data/"
-        "multiple basho standings view (2026_03, BACKWARDS, 6).csv"
+    assert artifact["data_sources"][5]["path"].startswith(
+        "current-sumo/standings-by-wins/data/multiple basho standings view "
     )
+    assert artifact["data_sources"][5]["path"].endswith(", BACKWARDS, 6).csv")
 
 
 def test_runtime_manifest_declares_banzuke_era_chart_semantics() -> None:

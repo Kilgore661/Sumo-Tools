@@ -58,6 +58,34 @@
   max-width: 100%;
   min-height: 0;
   overflow: auto;
+  scrollbar-color: rgba(255, 255, 255, 0.38) transparent;
+  scrollbar-width: auto;
+}
+
+.artifact-table-frame:hover .artifact-table-body-region,
+.artifact-table-frame:focus-within .artifact-table-body-region {
+  scrollbar-color: rgba(255, 255, 255, 0.58) transparent;
+}
+
+.artifact-table-body-region::-webkit-scrollbar {
+  height: 12px;
+  width: 12px;
+}
+
+.artifact-table-body-region::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.artifact-table-body-region::-webkit-scrollbar-thumb {
+  background-clip: content-box;
+  background-color: rgba(255, 255, 255, 0.38);
+  border: 3px solid transparent;
+  border-radius: 999px;
+}
+
+.artifact-table-frame:hover .artifact-table-body-region::-webkit-scrollbar-thumb,
+.artifact-table-frame:focus-within .artifact-table-body-region::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.58);
 }
 
 .artifact-table-header,

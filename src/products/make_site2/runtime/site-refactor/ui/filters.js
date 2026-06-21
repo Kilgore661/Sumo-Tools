@@ -62,10 +62,21 @@ function resolveStandingsDivision(config, selectedDivision) {
   const divisions = ["all", "makuuchi", "juryo", "makushita", "sandanme", "jonidan", "jonokuchi"];
   return divisions.includes(selectedDivision) ? selectedDivision : config.default_division;
 }
-function selectedStandingsSource(artifact, state) {
-  return artifact.data_sources.find(source =>
+function selectedStandingsSource(artifact, state, config = null) {
+  const declaredSource = artifact.data_sources.find(source =>
     String(source.filter_value) === String(state[artifact.selector_filter_id])
   );
+  if (!config?.anchor_token || !config?.direction || !declaredSource) {
+    return declaredSource;
+  }
+  const window = String(state[artifact.selector_filter_id]);
+  const filename = `multiple basho standings view (${config.anchor_token}, ${config.direction}, ${window})`;
+  const dataRoot = artifact.config_source.path.replace(/[^/]+$/, "");
+  return {
+    ...declaredSource,
+    path: `${dataRoot}${filename}.csv`,
+    metadata_path: `${dataRoot}${filename}.json`,
+  };
 }
 // Attach filter controls and rerender the panel on change.
 function wireFilterSection(panel, state, renderPanel, index = null) {

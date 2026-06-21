@@ -1,6 +1,7 @@
 // Shared table sorting, heading and cell-link helpers.
 
 import { escapeHtml } from "../../utils/html.js";
+import { dateLikeDisplay } from "../../utils/display.js";
 import { renderLabelWithHelp } from "../help.js";
 
 const tableSortStates = new Map();
@@ -189,7 +190,8 @@ function renderBashoDateLink(date) {
   const label = String(date || "");
   const basho = bashoKeyFromDateLabel(label);
   if (!basho) return escapeHtml(label);
-  const escapedLabel = escapeHtml(label);
+  const displayLabel = dateLikeDisplay(label);
+  const escapedLabel = escapeHtml(displayLabel);
   const escapedHelp = escapeHtml(BASHO_DATE_LINK_HELP);
   return [
     `<a class="basho-date-link help-popover" href="https://sumodb.sumogames.de/Banzuke.aspx?b=${encodeURIComponent(basho)}"`,
@@ -201,7 +203,7 @@ function renderBashoDateLink(date) {
 }
 
 function bashoKeyFromDateLabel(label) {
-  const match = /^(\d{4})\/(\d{2})(?:\/\d{2})?$/.exec(label);
+  const match = /^(\d{4})[/-](\d{2})(?:[/-]\d{2})?$/.exec(label);
   return match ? `${match[1]}${match[2]}` : "";
 }
 

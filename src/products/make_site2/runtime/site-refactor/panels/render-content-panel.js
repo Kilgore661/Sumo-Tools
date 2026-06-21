@@ -219,7 +219,7 @@ async function renderStandingsContentPanel(panel, artifact, overrideState = null
   const config = await fetchJson(artifact.config_source.path);
   state.current_num_basho = resolveStandingsWindow(config, state.current_num_basho);
   state.division = resolveStandingsDivision(config, state.division);
-  const source = selectedStandingsSource(artifact, state);
+  const source = selectedStandingsSource(artifact, state, config);
   const rows = await fetchCsv(source.path);
   writePanelUrl(panel.page_id, filters, state, { replace: true });
   const filteredRows = standingsRowsForState(rows, state);
