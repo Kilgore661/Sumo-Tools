@@ -20,6 +20,7 @@ let pendingHoverTarget = null;
 let hideStartedAt = 0;
 let hideRemainingMs = HELP_POPOVER_LIFETIME_MS;
 let altLinkHandlerInstalled = false;
+let keyboardNavigationActive = false;
 
 function renderLabelWithHelp(label, help, options = {}) {
   if (!help) return escapeHtml(label);
@@ -72,12 +73,23 @@ function installHelpPopovers() {
     if (event.relatedTarget instanceof Node && target.contains(event.relatedTarget)) return;
     if (target === pendingHoverTarget) cancelScheduledHelpPopover();
   });
+  document.addEventListener("keydown", event => {
+    if (event.key === "Tab" || event.key.startsWith("Arrow")) {
+      keyboardNavigationActive = true;
+    }
+  });
   document.addEventListener("focusin", event => {
+    if (!keyboardNavigationActive) return;
     const target = helpTargetFromEvent(event);
     if (target) {
       cancelScheduledHelpPopover();
       showHelpPopover(target);
     }
+  });
+  document.addEventListener("pointerdown", event => {
+    keyboardNavigationActive = false;
+    if (event.target instanceof Node && helpLayer.contains(event.target)) return;
+    if (helpTargetFromEvent(event)) hideHelpPopover();
   });
   helpLayer.addEventListener("pointerover", () => {
     if (helpLayer.dataset.notesPopover === "true") pauseHideCountdown();
@@ -112,6 +124,13 @@ function installHelpPopovers() {
   });
   window.addEventListener("resize", () => positionHelpPopover(), { passive: true });
   window.addEventListener("popstate", () => syncHelpMarkerDebugMode());
+  window.addEventListener("pagehide", () => hideHelpPopover());
+  window.addEventListener("pageshow", () => {
+    keyboardNavigationActive = false;
+    hideHelpPopover();
+    window.requestAnimationFrame(hideHelpPopover);
+    window.setTimeout(hideHelpPopover, 0);
+  });
   document.addEventListener("scroll", () => positionHelpPopover(), { capture: true, passive: true });
 }
 

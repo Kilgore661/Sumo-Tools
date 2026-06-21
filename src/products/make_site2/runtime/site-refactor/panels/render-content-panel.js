@@ -7,6 +7,7 @@ import { fetchCsv, fetchJson } from "../data/http.js";
 import { renderCareerComparisonsChart, renderCareerComparisonsControls, renderCareerLengthArtifact, renderCareerLengthPlot, renderCategoryBarChart, renderCategoryBarPlot, renderFinishByChiiChart, renderFinishByChiiPlot, renderGroupedLineChart, renderGroupedLinePlot, renderOrderedBarChart, renderOrderedBarPlot, renderStackedBarChart, renderStackedBarPlot, renderStandingWinProbabilityChart, renderStandingWinProbabilityPlot, resolveCareerLengthView, resolveFilterValue, resolveSelectedDataSourceId, wireCareerComparisonsControls, wireCareerLengthTableSorting } from "../ui/charts.js";
 import { buildBashoResultsPresentationModel, renderBashoResultsPresentationTable, wireBashoResultsPresentationSorting } from "../ui/basho-results-table.js";
 import { filterValueLabel, monthLabel, renderFilterSection, resolveBanzukeChangesDivision, resolveBashoCalendarState, resolveFilterState, resolveSelectedDataValue, resolveSelectedDivision, resolveSelectedFilterValueFromSource, resolveStandingsDivision, resolveStandingsWindow, selectedIndexEntry, selectedStandingsSource, wireFilterSection } from "../ui/filters.js";
+import { hideHelpPopover } from "../ui/help.js";
 import { wirePAPanelLayout } from "../ui/layout.js";
 import { renderNotes, wireNotesPanel } from "../ui/notes.js";
 import { banzukeScanColumns, renderBanzukeChangesTable, renderGenericTable, renderIndexedTable, renderSectionedTable, renderStandingsTable, standingsRowsForState, wireTableSorting } from "../ui/tables.js";
@@ -14,6 +15,7 @@ import { escapeHtml } from "../utils/html.js";
 
 // Dispatch a manifest-declared ContentPanel to the renderer for its PA kind.
 async function renderContentPanel(panel, overrideState = null) {
+  hideHelpPopover();
   const artifactId = panel.contents.pa_panel.pa.artifact_id;
   const declaredArtifact = getRuntimeManifest().artifacts[artifactId];
   if (!declaredArtifact) throw new Error(`Unknown artifact: ${artifactId}`);

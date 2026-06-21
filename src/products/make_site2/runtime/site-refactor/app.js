@@ -6,7 +6,7 @@ import { getRuntimeManifest, setRuntimeManifest } from "./core/manifest-store.js
 import { PAGE_PARAM, cleanPageParam, normalizeEmbeddedPageParams, writeCanonicalViewUrl } from "./core/url-state.js";
 import { fetchJson } from "./data/http.js";
 import { renderContentPanel } from "./panels/render-content-panel.js";
-import { installHelpPopovers } from "./ui/help.js";
+import { hideHelpPopover, installHelpPopovers } from "./ui/help.js";
 import { bootLayoutDebug } from "./ui/layout-debug.js";
 import { bootNavigationToggle } from "./ui/navigation-toggle.js";
 import { escapeHtml } from "./utils/html.js";
@@ -55,6 +55,7 @@ function loadStateFromUrl() {
   selectPage(pageId, { canonicalizeUnfilteredView: true, validateUrlKeys: true });
 }
 function renderLandingPanel() {
+  hideHelpPopover();
   const context = siteContext();
   contentPanel.innerHTML = [
     '<section class="landing-panel">',
