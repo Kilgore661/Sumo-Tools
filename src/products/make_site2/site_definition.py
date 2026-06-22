@@ -189,7 +189,7 @@ PAGES = PageRegistry(
         "typical_equelo_values": PageDefinition(
             id="typical_equelo_values",
             title="Typical Equelo Ratings",
-            summary="Approximate rating landmarks for familiar rank labels.",
+            summary="Approximate rating landmarks for familiar chii.",
             status=PageStatus.PROMOTED,
             artifact=artifact(
                 "typical_equelo_values",
