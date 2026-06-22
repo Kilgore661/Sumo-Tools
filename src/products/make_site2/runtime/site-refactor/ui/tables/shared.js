@@ -136,7 +136,9 @@ function toggledSortDirection(direction) {
 }
 
 function tableCellAttributes(column) {
-  return `data-column-id="${escapeHtml(column.id)}"`;
+  const attributes = [`data-column-id="${escapeHtml(column.id)}"`];
+  if (column.align) attributes.push(`data-align="${escapeHtml(column.align)}"`);
+  return attributes.join(" ");
 }
 
 // Render the standard external SumoDB rikishi link.

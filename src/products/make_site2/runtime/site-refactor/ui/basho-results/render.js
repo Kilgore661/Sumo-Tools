@@ -63,7 +63,7 @@ function renderNestedHead(nodes, visiblePaths, leaves = null, sortState = null, 
 
 function renderNestedHeaderCell(cell, leaf, sortState, boundaries = null) {
   const presentation = leaf?.presentation || PRESENTATION.DEFAULT;
-  const alignment = headingAlignment(presentation);
+  const alignment = cell.is_group ? "center" : headingAlignment(presentation);
   const groupPosition = cell.is_group ? "only" : boundaries?.position(cell.path);
   const attributes = [
     `colspan="${cell.colspan}"`,
@@ -236,15 +236,20 @@ function valueAtPath(row, path) {
   return String(value);
 }
 
-function headingAlignment(presentation) {
-  if (presentation === PRESENTATION.NAME) return "left";
+function headingAlignment(_presentation) {
   return "center";
 }
 
 function valueAlignment(presentation) {
-  if (presentation === PRESENTATION.NAME) return "left";
-  if (presentation === PRESENTATION.RATING || presentation === PRESENTATION.NUMERIC_MAGNITUDE) return "right";
-  return "center";
+  if (
+    presentation === PRESENTATION.RATING ||
+    presentation === PRESENTATION.NUMERIC_MAGNITUDE ||
+    presentation === PRESENTATION.COMPACT_COUNT
+  ) return "right";
+  if (
+    presentation === PRESENTATION.SPECIAL_NON_NUMERIC
+  ) return "center";
+  return "left";
 }
 
 function buttonMarginStyle(alignment) {

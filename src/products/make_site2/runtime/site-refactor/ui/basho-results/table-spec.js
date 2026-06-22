@@ -3,13 +3,13 @@
 const PRESENTATION = {
   DEFAULT: "default",
   NAME: "name",
-  RANK_CODE: "rank_code",
+  RANK: "rank",
   RATING: "rating",
   COMPACT_COUNT: "compact_count",
-  MOVEMENT_SYMBOL: "movement_symbol",
+  SPECIAL_NON_NUMERIC: "special_non_numeric",
   NUMERIC_MAGNITUDE: "numeric_magnitude",
   COMPACT_TEXT: "compact_text",
-};
+  };
 
 const PRIZE_DISPLAY_ORDER = ["Y", "D", "J", "K", "S", "G"];
 
@@ -24,7 +24,7 @@ const TRANSITIONAL_TABLE_SPEC = [
     column("next_bp", "nuChii", {
       sort_kind: "chii_ordinal",
       sort_path: "next_bp_ordinal",
-      presentation: PRESENTATION.RANK_CODE,
+      presentation: PRESENTATION.RANK,
     }),
   ]),
   group("changes", "Next Basho", [
@@ -34,14 +34,14 @@ const TRANSITIONAL_TABLE_SPEC = [
         note_id: "note_chii_movement",
         sort_kind: "movement_symbol",
         sort_default_direction: "descending",
-        presentation: PRESENTATION.MOVEMENT_SYMBOL,
+        presentation: PRESENTATION.SPECIAL_NON_NUMERIC,
       }),
       column("division", "Div", {
         help: "See Notes.",
         note_id: "note_division_movement",
         sort_kind: "movement_symbol",
         sort_default_direction: "descending",
-        presentation: PRESENTATION.MOVEMENT_SYMBOL,
+        presentation: PRESENTATION.SPECIAL_NON_NUMERIC,
       }),
     ], { help: "See Notes.", note_id: "note_movement" }),
   ]),
@@ -54,7 +54,7 @@ function recordSpec() {
         column("bp", "Chii", {
           sort_kind: "chii_ordinal",
           sort_path: "bp_ordinal",
-          presentation: PRESENTATION.RANK_CODE,
+          presentation: PRESENTATION.RANK,
         }),
         column("equelo", "Eq", { help: "Equelo rating.", sort_kind: "numeric", presentation: PRESENTATION.RATING }),
         column("delta_equelo", "ΔEq", {
@@ -68,14 +68,14 @@ function recordSpec() {
           column("direction", "Dir", {
             sort_kind: "movement_symbol",
             sort_default_direction: "descending",
-            presentation: PRESENTATION.MOVEMENT_SYMBOL,
+            presentation: PRESENTATION.SPECIAL_NON_NUMERIC,
           }),
           column("magnitude", "Mag", { sort_kind: "numeric", presentation: PRESENTATION.NUMERIC_MAGNITUDE }),
         ]),
         column("rbbp", "Eq Chii", {
           sort_kind: "chii_ordinal",
           sort_path: "rbbp_ordinal",
-          presentation: PRESENTATION.RANK_CODE,
+          presentation: PRESENTATION.RANK,
         }),
       ], { help: "See TBD" }),
     ]),
@@ -86,7 +86,7 @@ function recordSpec() {
       column("prizes", "📦", {
         sort_kind: "prize_set",
         sort_default_direction: "descending",
-        presentation: PRESENTATION.COMPACT_TEXT,
+        presentation: PRESENTATION.SPECIAL_NON_NUMERIC,
       }),
     ], { help: "See Notes.", note_id: "note_result" }),
   ];

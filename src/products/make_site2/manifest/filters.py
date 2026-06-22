@@ -84,7 +84,7 @@ BANZUKE_CHANGES_FILTERS = (
     ),
     Filter(id="context", label="Previous Basho", control="checkbox", default=False, url_key="context"),
     Filter(id="banzuke_style", label="Banzuke Style", control="checkbox", default=True, url_key="banzuke_style"),
-    Filter(id="delta", label="Δ", control="checkbox", default=False, url_key="delta", help="Size of movement. See Notes."),
+    Filter(id="delta", label="ΔBz", control="checkbox", default=False, url_key="delta", help="Size of movement. See Notes."),
     Filter(
         id="equelo",
         label="Equelo Ratings",

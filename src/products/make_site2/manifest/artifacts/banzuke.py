@@ -17,7 +17,7 @@ BANZUKE_CHANGES_ARTIFACT = BanzukeChangesArtifact(
     rows_source=DataSource(id="banzuke_change_report", label="Banzuke Change Report", path="current-sumo/banzuke-changes/data/banzuke_change_report.csv", media_type="text/csv"),
     notes=(
         Note(id="note_result", applies_to=("context",), text="In Result, arrows show movement between rank groups such as Maegashira, Komusubi, Sekiwake, Ozeki, Yokozuna or the lower divisions. This differs from the movement column, which shows movement up or down in banzuke slot order."),
-        Note(id="note_delta", applies_to=("delta",), text="Δ measures how many east/west banzuke slots a rikishi moved. A full numbered rank change, such as M2e to M3e, counts as two slots."),
+        Note(id="note_delta", applies_to=("delta",), text="ΔBz measures how many east/west banzuke slots a rikishi moved. A full numbered rank change, such as M2e to M3e, counts as two slots."),
         Note(id="note_banzuke_style_sorting", applies_to=("banzuke_style",), text="Sorting is not available in banzuke-style view because the layout preserves the East/West banzuke structure. Disable banzuke-style view to sort."),
     ),
 )

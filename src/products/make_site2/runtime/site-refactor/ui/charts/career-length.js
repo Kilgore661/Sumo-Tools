@@ -1,6 +1,6 @@
 // Career Length chart/table runtime view handling.
 
-import { currentTableSortState, decimal, renderRikishiLink, renderTableHeading, sortRows, wireTableSorting } from "../tables.js";
+import { currentTableSortState, decimal, renderRikishiLink, renderTableHeading, sortRows, tableCellAttributes, wireTableSorting } from "../tables.js";
 import { dateLikeDisplay } from "../../utils/display.js";
 import { escapeHtml } from "../../utils/html.js";
 import { PLOTLY_CONFIG, axisTitle } from "./shared.js";
@@ -88,7 +88,7 @@ function careerLengthTableArtifact(columns) {
 }
 
 function careerLengthCellAttributes(column) {
-  return `data-column-id="${escapeHtml(column.id)}"`;
+  return tableCellAttributes(column);
 }
 
 function wireCareerLengthTableSorting(panel, renderPanel) {

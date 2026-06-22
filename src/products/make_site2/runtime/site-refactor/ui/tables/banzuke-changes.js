@@ -53,8 +53,8 @@ function renderBanzukeStyleTable(rows, state) {
     `<th colspan="${westColumns.length}" ${banzukeGroupAttributes("west", "only")}>West</th>`,
     '</tr>',
     '<tr>',
-    ...eastColumns.map(column => `<th>${renderLabelWithHelp(column.heading, column.help, { noteId: column.note_id })}</th>`),
-    ...westColumns.map(column => `<th>${renderLabelWithHelp(column.heading, column.help, { noteId: column.note_id })}</th>`),
+    ...eastColumns.map(column => renderBanzukeStyleHeadingCell(column)),
+    ...westColumns.map(column => renderBanzukeStyleHeadingCell(column)),
     '</tr>',
     '</thead>',
     '<tbody>',
@@ -108,13 +108,13 @@ function banzukeSideColumns(side, state) {
   const direction = { id: "direction", heading: "⇅", help: "Banzuke movement.", side };
   const columns = [];
 
-  if (state.equelo) columns.push({ id: "equelo", heading: "Equelo", help: "Model rating. See Ratings & Models.", side });
+  if (state.equelo) columns.push({ id: "equelo", heading: "Equelo", help: "Model rating. See Ratings & Models.", side, align: "right" });
   if (state.context) {
     columns.push({ id: "old_chii", heading: "Previous Chii", side });
     columns.push({ id: "result", heading: "Result", help: "Result movement means rank-group movement. See Notes.", note_id: "note_result", side });
   }
   columns.push(direction);
-  if (state.delta) columns.push({ id: "delta", heading: "Δ", help: "Size of movement. See Notes.", note_id: "note_delta", side });
+  if (state.delta) columns.push({ id: "delta", heading: "ΔBz", help: "Size of movement. See Notes.", note_id: "note_delta", side, align: "right" });
 
   if (side === "east") return [...columns, identity];
   return [identity, ...columns.reverse()];
@@ -127,12 +127,12 @@ function banzukeScanColumns(state) {
     { id: "shikona", heading: "Shikona", help: "Rikishi fighting name.", sort_kind: "text" },
     { id: "direction", heading: "⇅", help: "Banzuke movement.", sort_kind: "text" },
   ];
-  if (state.delta) columns.push({ id: "delta", heading: "Δ", help: "Size of movement. See Notes.", note_id: "note_delta", sort_kind: "numeric" });
+  if (state.delta) columns.push({ id: "delta", heading: "ΔBz", help: "Size of movement. See Notes.", note_id: "note_delta", sort_kind: "numeric", align: "right" });
   if (state.context) {
     columns.push({ id: "result", heading: "Result", help: "Result movement means rank-group movement. See Notes.", note_id: "note_result", sort_kind: "record" });
     columns.push({ id: "old_chii", heading: "Previous Chii", sort_kind: "chii_ordinal" });
   }
-  if (state.equelo) columns.push({ id: "equelo", heading: "Equelo", help: "Model rating. See Ratings & Models.", sort_kind: "numeric" });
+  if (state.equelo) columns.push({ id: "equelo", heading: "Equelo", help: "Model rating. See Ratings & Models.", sort_kind: "numeric", align: "right" });
   return columns;
 }
 
@@ -141,21 +141,21 @@ function banzukeRowNumberColumn() {
 }
 
 function renderBanzukeStyleRowNumberCell(index) {
-  return `<td ${banzukeGroupAttributes("row_number", "only")}>${escapeHtml(String(index + 1))}</td>`;
+  return `<td ${banzukeGroupAttributes("row_number", "only", "right")}>${escapeHtml(String(index + 1))}</td>`;
 }
 
 function renderBanzukeSideCell(row, column, groupPosition = "") {
   const rikishiId = row[`${column.side}_rikishi_id`];
-  const attributes = banzukeCellAttributes(column.id, groupPosition);
+  const attributes = banzukeCellAttributes(column, groupPosition);
   if (!rikishiId) return `<td${attributes}></td>`;
   return `<td${attributes}>${banzukeSideValue(row, column.side, column.id)}</td>`;
 }
 
 function renderBanzukeScanCell(row, side, column, index) {
   if (column.id === "row_number") {
-    return `<td${banzukeCellAttributes(column.id)}>${escapeHtml(String(index + 1))}</td>`;
+    return `<td${banzukeCellAttributes(column)}>${escapeHtml(String(index + 1))}</td>`;
   }
-  return `<td${banzukeCellAttributes(column.id)}>${banzukeSideValue(row, side, column.id)}</td>`;
+  return `<td${banzukeCellAttributes(column)}>${banzukeSideValue(row, side, column.id)}</td>`;
 }
 
 function currentBanzukeScanSortState(artifact, columns) {
@@ -211,20 +211,32 @@ function banzukeChiiOrdinal(chii, side) {
   return level * 100000 + number * 2 + sideOffset;
 }
 
-function banzukeCellAttributes(columnId, groupPosition = "") {
-  const attributes = [];
-  if (columnId === "row_number" || columnId === "shikona") {
-    attributes.push(`data-column-id="${escapeHtml(columnId)}"`);
-  }
+function renderBanzukeStyleHeadingCell(column) {
+  const attributes = banzukeCellAttributeParts(column);
+  return `<th ${attributes.join(" ")}>${renderLabelWithHelp(column.heading, column.help, { noteId: column.note_id })}</th>`;
+}
+
+function banzukeCellAttributes(column, groupPosition = "") {
+  const attributes = banzukeCellAttributeParts(column);
   if (groupPosition) attributes.push(...banzukeGroupBoundaryAttributes(groupPosition));
   return attributes.length ? ` ${attributes.join(" ")}` : "";
 }
 
-function banzukeGroupAttributes(id, groupPosition) {
-  return [
+function banzukeCellAttributeParts(column) {
+  const columnId = typeof column === "string" ? column : column.id;
+  const align = typeof column === "string" ? "" : column.align;
+  const attributes = [`data-column-id="${escapeHtml(columnId)}"`];
+  if (align) attributes.push(`data-align="${escapeHtml(align)}"`);
+  return attributes;
+}
+
+function banzukeGroupAttributes(id, groupPosition, align = "") {
+  const attributes = [
     `data-column-id="${escapeHtml(id)}"`,
     ...banzukeGroupBoundaryAttributes(groupPosition),
-  ].join(" ");
+  ];
+  if (align) attributes.push(`data-align="${escapeHtml(align)}"`);
+  return attributes.join(" ");
 }
 
 function banzukeGroupBoundaryAttributes(groupPosition) {
