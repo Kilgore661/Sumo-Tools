@@ -8,6 +8,7 @@ from pathlib import Path
 
 from src.analysis.equelo.api import EqueloLookup
 from src.analysis.equelo.fixed_supported.api import load_day_end_ratings
+from src.analysis.equelo.rating_change_tables import build_rating_changes_outputs
 from src.analysis.equelo.fixed_supported.model import (
     TYPICAL_EQUELO_VALUES_SOURCE_ROOT,
 )
@@ -167,6 +168,8 @@ MAKUUCHI_RANK_BY_ERA_SOURCE_ROOT = (
 )
 STANDINGS_ROUTE_DATA_DIR = Path("current-sumo") / "standings-by-wins" / "data"
 STANDINGS_SOURCE_ROOT = Path("files") / "output" / "standings" / "publisher" / "latest_data"
+RATING_CHANGES_ROUTE_DATA_DIR = Path("current-sumo") / "rating-changes" / "data"
+RATING_CHANGES_WINDOW_VALUES = ("1", "2", "3", "4", "5", "6", "12")
 PERF_CHART_SOURCE_ROOT = Path("files") / "output" / "perf_chart" / "career_comparisons"
 
 
@@ -232,6 +235,12 @@ class BanzukeChangesDataOutput:
 class StandingsDataOutput:
     site_config_path: Path
     data_paths: tuple[Path, ...]
+
+
+@dataclass(frozen=True, kw_only=True)
+class RatingChangesDataOutput:
+    index_path: Path
+    payload_paths: tuple[Path, ...]
 
 
 def load_history_from_zip(path: Path) -> History:
@@ -580,6 +589,24 @@ def copy_banzuke_changes_data_output(*, output_root: Path) -> BanzukeChangesData
     return BanzukeChangesDataOutput(
         site_config_path=site_config_path,
         report_csv_path=report_csv_path,
+    )
+
+
+def build_rating_changes_data_output(
+    *,
+    history: History,
+    output_root: Path,
+) -> RatingChangesDataOutput:
+    """Build production Rating Changes index and CSV payloads for make_site2."""
+
+    outputs = build_rating_changes_outputs(
+        history=history,
+        output_root=output_root / RATING_CHANGES_ROUTE_DATA_DIR,
+        windows=tuple(int(value) for value in RATING_CHANGES_WINDOW_VALUES),
+    )
+    return RatingChangesDataOutput(
+        index_path=outputs.index_path,
+        payload_paths=outputs.payload_paths,
     )
 
 

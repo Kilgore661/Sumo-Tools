@@ -70,7 +70,8 @@ try {
     # Once it reports DORMANT, continue this script in the original terminal.
 
     # Fixed-supported Equelo refresh: slow. Regenerates the master chii
-    # initial-rating map, process/day-end ratings, and Typical Equelo landmarks.
+    # initial-rating map and process/day-end ratings consumed by Equelo-based
+    # downstream producers such as Highest Equelo, Typical Equelo, and Rating Changes.
     # Run "py -m src.analysis.equelo.fixed_supported"
 
     # Downloader: refresh missing raw rikishi bio HTML from SumoDB.
@@ -94,6 +95,7 @@ try {
     Run "py -m src.analysis.sumo_history.records.career_wins"
     Run "py -m src.analysis.sumo_history.records.career_losses"
     Run "py -m src.analysis.sumo_history.records.highest_equelo"
+    Run "py -m src.analysis.equelo.rating_change_tables"
 
     # Win-probability-by-standing producer. trace_main depends on the empirical
     # matchup output and fixed-supported chii initial ratings.

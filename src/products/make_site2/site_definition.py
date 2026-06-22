@@ -39,6 +39,17 @@ PAGES = PageRegistry(
                 producer="standings",
             ),
         ),
+        "rating_changes": PageDefinition(
+            id="rating_changes",
+            title="Rating Changes",
+            summary="Rikishi ranked by Equelo change over a selected recent-basho window.",
+            status=PageStatus.PROMOTED,
+            artifact=artifact(
+                "rating_changes",
+                "table",
+                producer="equelo.rating_changes",
+            ),
+        ),
         "finish_by_chii": PageDefinition(
             id="finish_by_chii",
             title="Finish Chances by Wins",

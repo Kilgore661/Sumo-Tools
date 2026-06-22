@@ -25,3 +25,5 @@ from .ratings import (
     TYPICAL_EQUELO_VALUES_ARTIFACT,
     WIN_PROBABILITY_BY_STANDING_ARTIFACT,
 )
+
+from .rating_changes import RATING_CHANGES_ARTIFACT

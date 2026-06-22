@@ -70,6 +70,12 @@ NAVIGATION = NavigationTree(
                 nav("rating_movers", "Rating movers", "rating-movers"),
                 nav("banzuke_movers", "Banzuke movers", "banzuke-movers"),
             ),
+            nav(
+                "rating_changes",
+                "Rating changes",
+                "rating-changes",
+                page_id="rating_changes",
+            ),
         ),
         nav(
             "rikishi",

@@ -64,6 +64,10 @@ PANEL_DECLARATIONS: dict[str, PanelDeclaration] = {
         filters=f.STANDINGS_FILTERS,
         artifact=a.STANDINGS_BY_WINS_ARTIFACT,
     ),
+    "rating_changes": PanelDeclaration(
+        filters=f.RATING_CHANGES_FILTERS,
+        artifact=a.RATING_CHANGES_ARTIFACT,
+    ),
     "finish_by_chii": PanelDeclaration(
         filters=f.FINISH_BY_CHII_FILTERS,
         artifact=a.FINISH_BY_CHII_ARTIFACT,

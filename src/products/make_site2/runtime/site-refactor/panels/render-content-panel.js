@@ -6,6 +6,7 @@ import { readFilterUrlState, writePanelUrl } from "../core/url-state.js";
 import { fetchCsv, fetchJson } from "../data/http.js";
 import { renderCareerComparisonsChart, renderCareerComparisonsControls, renderCareerLengthArtifact, renderCareerLengthPlot, renderCategoryBarChart, renderCategoryBarPlot, renderFinishByChiiChart, renderFinishByChiiPlot, renderGroupedLineChart, renderGroupedLinePlot, renderOrderedBarChart, renderOrderedBarPlot, renderStackedBarChart, renderStackedBarPlot, renderStandingWinProbabilityChart, renderStandingWinProbabilityPlot, resolveCareerLengthView, resolveFilterValue, resolveSelectedDataSourceId, wireCareerComparisonsControls, wireCareerLengthTableSorting } from "../ui/charts.js";
 import { buildBashoResultsPresentationModel, renderBashoResultsPresentationTable, wireBashoResultsPresentationSorting } from "../ui/basho-results-table.js";
+import { buildRatingChangesPresentationModel, renderRatingChangesPresentationTable, selectedRatingChangesEntry, wireRatingChangesPresentationSorting } from "../ui/rating-changes-table.js";
 import { filterValueLabel, monthLabel, renderFilterSection, resolveBanzukeChangesDivision, resolveBashoCalendarState, resolveFilterState, resolveSelectedDataValue, resolveSelectedDivision, resolveSelectedFilterValueFromSource, resolveStandingsDivision, resolveStandingsWindow, selectedIndexEntry, selectedStandingsSource, wireFilterSection } from "../ui/filters.js";
 import { hideHelpPopover } from "../ui/help.js";
 import { wirePAPanelLayout } from "../ui/layout.js";
@@ -65,7 +66,8 @@ async function renderIndexedTableContentPanel(panel, artifact, overrideState = n
   const filters = panel.contents.filter_section.filters;
   const state = overrideState || resolveFilterState(filters, readFilterUrlState(filters));
   const index = await fetchJson(artifact.indexed_source.index_path);
-  let selectedEntry = selectedIndexEntry(index, state[artifact.selector_filter_id]);
+  let selectedEntry = null;
+
   if (artifact.id === "basho_results_browser") {
     const selectedBasho = resolveBashoCalendarState(index, state);
     state.basho_year = selectedBasho.year;
@@ -77,23 +79,50 @@ async function renderIndexedTableContentPanel(panel, artifact, overrideState = n
       renderNoBashoContentPanel(selectedBasho);
       return;
     }
+  } else if (artifact.id === "rating_changes") {
+    selectedEntry = selectedRatingChangesEntry(index, state[artifact.selector_filter_id]);
+    if (!selectedEntry) {
+      throw new Error("No Rating Changes data sources are available");
+    }
+    state[artifact.selector_filter_id] = String(selectedEntry.n);
   } else {
+    selectedEntry = selectedIndexEntry(index, state[artifact.selector_filter_id]);
     state[artifact.selector_filter_id] = selectedEntry.basho;
   }
+
   const payloadPath = selectedEntry[artifact.indexed_source.payload_path_field];
   const dataRoot = artifact.indexed_source.index_path.replace(/[^/]+$/, "");
   const rows = await fetchCsv(`${dataRoot}${payloadPath.replace(/^data\//, "")}`);
-  state.division = resolveSelectedDivision(rows, state.division);
-  writePanelUrl(panel.page_id, filters, state, { replace: true });
-  const filteredRows = rows.filter(row => row.division_id === state.division);
-  const presentationModel = artifact.id === "basho_results_browser"
-    ? buildBashoResultsPresentationModel({
+
+  let filteredRows = rows;
+  let presentationModel = null;
+  if (artifact.id === "basho_results_browser") {
+    state.division = resolveSelectedDivision(rows, state.division);
+    filteredRows = rows.filter(row => row.division_id === state.division);
+    presentationModel = buildBashoResultsPresentationModel({
       rows: filteredRows,
       state,
       entry: selectedEntry,
       title: bashoResultsTitle(state, selectedEntry, filters),
-    })
-    : null;
+    });
+  } else if (artifact.id === "rating_changes") {
+    state.division = resolveFilterValue(filters, "division", state.division);
+    filteredRows = state.division === "all"
+      ? rows
+      : rows.filter(row => row.division_id === state.division);
+    presentationModel = buildRatingChangesPresentationModel({
+      artifact,
+      rows: filteredRows,
+      state,
+      entry: selectedEntry,
+      title: ratingChangesTitle(state, selectedEntry, filters),
+    });
+  } else {
+    state.division = resolveSelectedDivision(rows, state.division);
+    filteredRows = rows.filter(row => row.division_id === state.division);
+  }
+
+  writePanelUrl(panel.page_id, filters, state, { replace: true });
 
   contentPanel.innerHTML = [
     '<section class="content-panel">',
@@ -103,7 +132,9 @@ async function renderIndexedTableContentPanel(panel, artifact, overrideState = n
     renderFilterSection(panel.contents.filter_section, state, index),
     '<section class="pa-panel">',
     '<div class="pa-slot">',
-    presentationModel
+    artifact.id === "rating_changes"
+      ? renderRatingChangesPresentationTable(presentationModel)
+      : presentationModel
       ? renderBashoResultsPresentationTable(presentationModel)
       : [
         renderArtifactTitleBlock(artifact, state, selectedEntry, filters),
@@ -116,7 +147,9 @@ async function renderIndexedTableContentPanel(panel, artifact, overrideState = n
     '</section>'
   ].join("");
   wireFilterSection(panel, state, renderContentPanel, index);
-  if (presentationModel) {
+  if (artifact.id === "rating_changes") {
+    wireRatingChangesPresentationSorting(panel, presentationModel, renderContentPanel);
+  } else if (presentationModel) {
     wireBashoResultsPresentationSorting(panel, presentationModel, renderContentPanel);
   } else {
     wireTableSorting(panel, artifact, renderContentPanel);
@@ -510,6 +543,10 @@ function renderArtifactTitleBlock(artifact, state, entry, filters) {
 function artifactTitle(artifact, state, entry, filters) {
   if (artifact.id !== "basho_results_browser") return "";
   return bashoResultsTitle(state, entry, filters);
+}
+function ratingChangesTitle(state, entry, filters) {
+  const windowLabel = filterValueLabel(filters, "n", state.n) || entry.label || state.n;
+  return `Latest ${windowLabel}-basho rating changes`;
 }
 function bashoResultsTitle(state, entry, filters) {
   const division = filterValueLabel(filters, "division", state.division) || state.division || "";

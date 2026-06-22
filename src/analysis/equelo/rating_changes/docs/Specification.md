@@ -51,17 +51,24 @@ Normalised
 
 Changing these filters must not require a new producer dataset. They alter the visible projection of the selected `n` data.
 
-## 4. Data grain
+## 4. Data grain and indexed-source contract
 
-The producer/build path must provide one logical table per supported `n` for the latest represented basho.
-
-The implementation may store these as separate CSVs, an index plus payloads, or another static-site-friendly structure. The important contract is the grain:
+The producer/build path must provide one logical table per supported `n` for the latest represented basho. The important data grain is:
 
 ```text
 latest represented basho × n
 ```
 
-The data for a selected `n` must contain enough information to render all projections described below.
+For the make_site2 public page, Rating Changes follows the Basho Results-style indexed table pattern. The site build provides an index plus CSV payloads:
+
+```text
+current-sumo/rating-changes/data/rating_changes_index.json
+current-sumo/rating-changes/data/<payload for n>.csv
+```
+
+The exact payload filenames are not semantically important. The index is the contract between the producer/build step and the runtime artifact. Each index entry represents one supported `n` value and must provide enough information for the runtime to select the corresponding CSV payload, including a `payload_path` field.
+
+The CSV payload for a selected `n` must contain enough information to render all projections described below.
 
 ## 5. Required row fields
 
@@ -74,6 +81,7 @@ The logical row model must provide these values, whether as stored fields or der
 ```text
 rikishi_id
 shikona
+division_id
 chii_at_start
 chii_ordinal_at_start
 chii_at_end
@@ -91,6 +99,9 @@ rikishi_id
 
 shikona
   displayed as the row identity
+
+division_id
+  used by the Division filter; it is derived from end-of-window chii and uses the same ids as Banzuke Changes, with `all` handled as a filter value rather than a row value
 
 chii_at_start, chii_at_end
   displayed as rank/chii context

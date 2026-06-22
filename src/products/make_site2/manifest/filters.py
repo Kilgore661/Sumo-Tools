@@ -24,6 +24,22 @@ STANDINGS_WINDOW_VALUES = tuple(
     for value in (1, 2, 3, 4, 5, 6, 12, 18, 24, 36, 60)
 )
 
+RATING_CHANGES_WINDOW_VALUES = tuple(
+    FilterValue(value=str(value), label=str(value))
+    for value in (1, 2, 3, 4, 5, 6, 12)
+)
+
+RATING_CHANGES_BASIS_VALUES = (
+    FilterValue(value="expected", label="Expected"),
+    FilterValue(value="actual", label="Actual"),
+    FilterValue(value="both", label="Both"),
+)
+
+RATING_CHANGES_DIVISION_FILTER_VALUES = (
+    *DIVISION_FILTER_VALUES,
+    FilterValue(value="all", label="All"),
+)
+
 WIN_PROBABILITY_BY_STANDING_DIVISION_FILTER_VALUES = (
     FilterValue(value="All", label="All"),
     FilterValue(value="Makuuchi", label="Makuuchi"),
@@ -70,6 +86,42 @@ STANDINGS_FILTERS = (
         default="makuuchi",
         url_key="division",
         values=STANDINGS_DIVISION_FILTER_VALUES,
+    ),
+)
+
+RATING_CHANGES_FILTERS = (
+    Filter(
+        id="division",
+        label="Division",
+        control="select",
+        default="makuuchi",
+        url_key="division",
+        values=RATING_CHANGES_DIVISION_FILTER_VALUES,
+    ),
+    Filter(
+        id="n",
+        label="Basho",
+        control="select",
+        default="6",
+        url_key="n",
+        values=RATING_CHANGES_WINDOW_VALUES,
+        help="Trailing basho window size.",
+    ),
+    Filter(
+        id="basis",
+        label="Basis",
+        control="select",
+        default="expected",
+        url_key="basis",
+        values=RATING_CHANGES_BASIS_VALUES,
+    ),
+    Filter(
+        id="normalised",
+        label="Normalised",
+        control="checkbox",
+        default=False,
+        url_key="normalised",
+        help="Show K-normalised per-bout measures.",
     ),
 )
 

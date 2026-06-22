@@ -44,7 +44,14 @@ latest represented basho × n
 
 The supported `n` values should be the fixed public selector values from the specification. The producer/build path should provide one logical raw table for each supported `n`.
 
-The output format should be static-site-friendly. Separate CSV files are acceptable and likely, but the important contract is the data grain and logical row model, not the exact file naming convention used by the prototype.
+For the make_site2 implementation, Rating Changes uses the same broad indexed-table source pattern as Basho Results Browser. The build output should include:
+
+```text
+current-sumo/rating-changes/data/rating_changes_index.json
+current-sumo/rating-changes/data/<payload for n>.csv
+```
+
+Each index entry represents one supported `n` value and supplies the CSV `payload_path` that the runtime artifact should load when that `n` is selected. The exact payload filenames are not important so long as the index is correct and stable.
 
 The producer should calculate or provide enough data for the bridge to render:
 
@@ -120,9 +127,15 @@ page id: rating_changes
 title: Rating Changes
 ```
 
-The artifact should be a table artifact with:
+The artifact should be an indexed table-style artifact with:
 
 ```text
+index path:
+  current-sumo/rating-changes/data/rating_changes_index.json
+
+payload path field:
+  payload_path
+
 main data selector:
   n
 
@@ -178,6 +191,8 @@ Context is always visible.
 
 `Basis` controls whether `Expected`, `Actual`, or both groups are visible.
 
+`Division` filters rows by end-of-window division after the selected CSV has loaded. Its values match Banzuke Changes division ids, with `All` appended as an unfiltered option.
+
 `Normalised` controls whether K-normalised per-bout terminal columns are visible inside the selected basis groups.
 
 The table should not be rendered as a generic flat table with hand-written heading hacks. It should be represented as a grouped table model, as far as the current make_site2 UI model allows.
@@ -209,7 +224,7 @@ Important differences from Basho Results Browser:
 
 ```text
 no public basho calendar selector in v1
-no division filter in v1
+Division is present in v1 as a row filter; it does not select a payload.
 one main data selector: n
 fewer projection axes
 smaller grouped table
