@@ -116,6 +116,10 @@ PANEL_DECLARATIONS: dict[str, PanelDeclaration] = {
         filters=f.HIGHEST_EQUELO_FILTERS,
         artifact=a.HIGHEST_EQUELO_ARTIFACT,
     ),
+    "longest_careers": PanelDeclaration(
+        filters=f.LONGEST_CAREERS_FILTERS,
+        artifact=a.LONGEST_CAREERS_ARTIFACT,
+    ),
     "career_comparisons": PanelDeclaration(
         filters=f.CAREER_COMPARISONS_FILTERS,
         artifact=a.CAREER_COMPARISONS_ARTIFACT,

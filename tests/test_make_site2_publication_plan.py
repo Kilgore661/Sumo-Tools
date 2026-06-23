@@ -6,6 +6,7 @@ from src.products.make_site2.manifest.artifacts import (
     DIVISION_STABILITY_ARTIFACT,
     FIRST_CHII_APPEARANCE_ARTIFACT,
     HIGHEST_EQUELO_ARTIFACT,
+    LONGEST_CAREERS_ARTIFACT,
     MAKUUCHI_RANK_BY_ERA_ARTIFACT,
     RANK_AT_RETIREMENT_ARTIFACT,
     STANDINGS_BY_WINS_ARTIFACT,
@@ -94,6 +95,11 @@ def test_publication_plan_resolves_copied_navigation_routes() -> None:
         "records",
         "highest-equelo",
     )
+    assert plan.pages["longest_careers"].route.parts == (
+        "sumo-history",
+        "records",
+        "longest-careers",
+    )
 
 
 def test_navigation_bar_uses_canonical_default_view_links_without_rendering_pages() -> None:
@@ -165,6 +171,9 @@ def test_navigation_bar_uses_canonical_default_view_links_without_rendering_page
     highest_equelo = next(
         item for item in records.children if item.id == "highest_equelo"
     )
+    longest_careers = next(
+        item for item in records.children if item.id == "longest_careers"
+    )
 
     assert basho_results.included
     assert basho_results.href == (
@@ -197,6 +206,9 @@ def test_navigation_bar_uses_canonical_default_view_links_without_rendering_page
     assert typical_equelo_values.href == "?page=typical_equelo_values"
     assert highest_equelo.included
     assert highest_equelo.href == "?page=highest_equelo"
+    assert longest_careers.included
+    assert longest_careers.href == "?page=longest_careers&active=true"
+    assert [item.id for item in records.children][-1] == "longest_careers"
     assert artifact_refs(plan)["basho_results_browser"].kind == "table"
 
 
@@ -221,6 +233,7 @@ def test_site_shell_is_rendered_from_ui_manifest() -> None:
     assert 'data-page-id="career_length"' in html
     assert 'data-page-id="typical_equelo_values"' in html
     assert 'data-page-id="highest_equelo"' in html
+    assert 'data-page-id="longest_careers"' in html
     assert '<main class="site-main" aria-label="Page content">' in html
     assert "Basho Results" in html
     assert '<table class="brb-table">' not in html
@@ -429,7 +442,7 @@ def test_runtime_manifest_declares_rank_at_retirement_chart_semantics() -> None:
     ]
 
 
-def test_runtime_manifest_declares_career_length_as_flat_g1_view_selector() -> None:
+def test_runtime_manifest_declares_career_length_as_chart_view_selector() -> None:
     manifest = build_runtime_manifest(build_publication_plan(SITE))
     panel = content_panel_by_artifact(manifest, CAREER_LENGTH_ARTIFACT.id)
     artifact = manifest["artifacts"]["career_length"]
@@ -442,23 +455,48 @@ def test_runtime_manifest_declares_career_length_as_flat_g1_view_selector() -> N
         "pmf",
         "cdf",
         "survival",
-        "longest",
     ]
     assert artifact["kind"] == "chart"
     assert artifact["renderer"] == "career_length"
     assert artifact["data_binding"] == {
         "kind": "csv_set",
-        "sources": ["distribution", "pmf", "cdf", "survival", "longest"],
+        "sources": ["distribution", "pmf", "cdf", "survival"],
     }
     assert artifact["data_sources"][0]["path"] == (
         "sumo-history/career-lifecycle/career-length/data/distribution.csv"
     )
-    assert artifact["data_sources"][4]["path"] == (
-        "sumo-history/career-lifecycle/career-length/data/longest.csv"
-    )
     assert artifact["provenance"]["views"]["distribution"]["kind"] == "stacked_bar"
-    assert artifact["provenance"]["views"]["longest"]["kind"] == "table"
-    assert artifact["provenance"]["views"]["longest"]["columns"][1]["id"] == "shikona"
+    assert "longest" not in artifact["provenance"]["views"]
+
+
+def test_runtime_manifest_declares_longest_careers_records_table() -> None:
+    manifest = build_runtime_manifest(build_publication_plan(SITE))
+    panel = content_panel_by_artifact(manifest, LONGEST_CAREERS_ARTIFACT.id)
+    artifact = manifest["artifacts"]["longest_careers"]
+    filters = filter_section(panel)["filters"]
+
+    assert [item["id"] for item in filters] == ["show_active"]
+    assert filters[0]["label"] == "Show Active?"
+    assert filters[0]["control"] == "checkbox"
+    assert filters[0]["default"] is True
+    assert artifact["kind"] == "table"
+    assert artifact["renderer"] == "generic_table"
+    assert artifact["rows_source"]["path"] == (
+        "sumo-history/records/longest-careers/data/longest.csv"
+    )
+    assert [column["id"] for column in artifact["columns"]] == [
+        "row_number",
+        "rank",
+        "shikona",
+        "first_appearance",
+        "last_appearance",
+        "participation_years",
+        "gap_basho_count",
+    ]
+    assert artifact["columns"][1]["heading"] == "#"
+    assert artifact["columns"][1]["sort_default_direction"] == "ascending"
+    assert artifact["default_sort_column"] == "rank"
+    assert note_ids(panel) == ["observed_career_length", "bg_count"]
 
 
 def test_runtime_manifest_declares_typical_equelo_values_sectioned_table() -> None:

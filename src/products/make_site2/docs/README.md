@@ -31,6 +31,7 @@ Then read the detailed model/design document for the area being changed:
 | Most Consecutive Bouts (7.4.1) page contract | `02.6 Specification - Most Consecutive Bouts.md` |
 | Most Career Wins (7.4.2) page contract | `02.7 Specification - Most Career Wins.md` |
 | Most Career Losses (7.4.3) page contract | `02.8 Specification - Most Career Losses.md` |
+| Longest Careers Records page contract | `02.9 Specification - Longest Careers.md` |
 | HTML/CSS/runtime realisation | `05 Rendering Design.md` and `06 Rendering Audit and Changes.md` |
 | Build output, runtime state, data staging | `07 Build, Output and Runtime Design.md` |
 | Producer boundaries and migration | `08 Producer Integration and Migration.md` |
@@ -115,6 +116,10 @@ Implemented and verified:
   options.
 - Most Career Losses (7.4.3) is a promoted ordinary table PA under
   Sumo History > Records, with the same public options as Most Career Wins.
+- Longest Careers is a promoted ordinary table PA under Sumo History > Records,
+  with a `Show Active?` option and SumoDB-linked shikona values. It uses the
+  Career Length producer's longest-careers output, but it is no longer a view
+  owned by the Career Length page.
 
 Known gaps:
 

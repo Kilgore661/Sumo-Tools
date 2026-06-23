@@ -304,6 +304,12 @@ NAVIGATION = NavigationTree(
                     "highest-equelo",
                     page_id="highest_equelo",
                 ),
+                nav(
+                    "longest_careers",
+                    "Longest careers",
+                    "longest-careers",
+                    page_id="longest_careers",
+                ),
             ),
             nav(
                 "goats",

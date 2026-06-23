@@ -14,6 +14,7 @@ This document is now a contents page. The specification content has been split i
 6. [02.6 Specification - Most Consecutive Bouts](02.6%20Specification%20-%20Most%20Consecutive%20Bouts.md)
 7. [02.7 Specification - Most Career Wins](02.7%20Specification%20-%20Most%20Career%20Wins.md)
 8. [02.8 Specification - Most Career Losses](02.8%20Specification%20-%20Most%20Career%20Losses.md)
+9. [02.9 Specification - Longest Careers](02.9%20Specification%20-%20Longest%20Careers.md)
 
 ## Reading Notes
 
@@ -21,3 +22,4 @@ Read `02.1` and `02.2` for the general public-site contract. Read `02.3` or `02.
 Read `02.6` for the first Records page and its ordinary flat-table contract.
 Read `02.7` for the career-wins Records page.
 Read `02.8` for the career-losses Records page.
+Read `02.9` for the longest-careers Records page.

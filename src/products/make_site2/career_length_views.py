@@ -8,10 +8,10 @@ from pathlib import Path
 from src.analysis.sumo_history.constants import TOP_N_LIMIT
 
 
-CAREER_LENGTH_ROUTE_DATA_DIR = (
+LONGEST_CAREERS_ROUTE_DATA_DIR = (
     Path("sumo-history")
-    / "career-lifecycle"
-    / "career-length"
+    / "records"
+    / "longest-careers"
     / "data"
 )
 
@@ -25,7 +25,8 @@ def materialize_career_length_longest_views(
 ) -> None:
     """Create ranked Longest population views consumed directly by the runtime."""
 
-    route_data_root = output_root / CAREER_LENGTH_ROUTE_DATA_DIR
+    route_data_root = output_root / LONGEST_CAREERS_ROUTE_DATA_DIR
+    route_data_root.mkdir(parents=True, exist_ok=True)
     source_rows = _read_rows(_source_rikishi_csv(source_root))
     all_rows = _ranked_rows(_longest(source_rows), population="all")
     non_active_rows = _ranked_rows(
@@ -33,7 +34,6 @@ def materialize_career_length_longest_views(
         population="non_active",
     )
     _write_rows([*all_rows, *non_active_rows], route_data_root / "longest.csv")
-    _write_rows(non_active_rows, route_data_root / "longest_non_active.csv")
 
 
 def _source_rikishi_csv(source_root: Path) -> Path:

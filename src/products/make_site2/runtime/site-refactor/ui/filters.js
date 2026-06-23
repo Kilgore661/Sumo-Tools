@@ -223,7 +223,6 @@ function renderFilterSection(filterSection, state, index, rowsBySource = {}) {
 }
 function isFilterVisible(filter, state, bashoCalendar) {
   if (bashoCalendar && (filter.id === "basho_year" || filter.id === "basho_month")) return false;
-  if (filter.id === "show_active") return state.view === "longest";
   return true;
 }
 function renderFilterListItem(filter, state, index, rowsBySource) {

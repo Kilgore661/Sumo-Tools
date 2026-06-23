@@ -197,6 +197,17 @@ PAGES = PageRegistry(
                 producer="sumo_history.records.highest_equelo",
             ),
         ),
+        "longest_careers": PageDefinition(
+            id="longest_careers",
+            title="Longest Careers",
+            summary="Rikishi ranked by observed elapsed career length.",
+            status=PageStatus.PROMOTED,
+            artifact=artifact(
+                "longest_careers",
+                "table",
+                producer="sumo_history.career_lifecycle.career_length",
+            ),
+        ),
         "typical_equelo_values": PageDefinition(
             id="typical_equelo_values",
             title="Typical Equelo Ratings",

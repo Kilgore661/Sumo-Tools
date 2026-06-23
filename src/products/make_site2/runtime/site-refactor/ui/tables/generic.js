@@ -112,8 +112,14 @@ function genericRowsForState(rows, state, artifact = null) {
   if (artifact?.id === "most_career_wins") return careerWinsRowsForState(rows, state);
   if (artifact?.id === "most_career_losses") return careerLossesRowsForState(rows, state);
   if (artifact?.id === "highest_equelo") return highestEqueloRowsForState(rows, state);
+  if (artifact?.id === "longest_careers") return longestCareersRowsForState(rows, state);
   if (!state?.clean_only) return rows;
   return rows.filter(row => String(row.clean) === "True");
+}
+
+function longestCareersRowsForState(rows, state) {
+  const population = state?.show_active === false ? "non_active" : "all";
+  return rows.filter(row => String(row.longest_population || "all") === population);
 }
 
 function highestEqueloRowsForState(rows, state) {
@@ -165,6 +171,10 @@ function genericCellValue(column, row, index, artifact = null) {
   if (column.id === "win_rate") {
     const value = row[column.source_field || column.id] || "";
     return value ? `${escapeHtml(value)}%` : "";
+  }
+  if (artifact?.id === "longest_careers" && column.id === "participation_years") {
+    const value = Number(row[column.source_field || column.id]);
+    return Number.isFinite(value) ? escapeHtml(value.toFixed(2)) : "";
   }
   if (column.id === "shikona") {
     return renderRikishiLink(row[column.source_field || column.id] || "", row.rikishi_id);
@@ -231,6 +241,7 @@ export {
   renderIndexedTable,
   renderGenericTable,
   genericRowsForState,
+  longestCareersRowsForState,
   genericCellValue,
   isColumnVisible,
   cellValue,

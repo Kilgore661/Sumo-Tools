@@ -1,6 +1,7 @@
 from src.products.make_site2.manifest.artifacts import (
     BANZUKE_CHANGES_ARTIFACT,
     BASHO_RESULTS_ARTIFACT,
+    LONGEST_CAREERS_ARTIFACT,
     STANDINGS_BY_WINS_ARTIFACT,
 )
 from src.products.make_site2.publication_model import build_publication_plan
@@ -48,3 +49,16 @@ def test_banzuke_changes_declares_banzuke_style_sorting_note() -> None:
     notes = {note["id"]: note for note in artifact["notes"]}
 
     assert notes["note_banzuke_style_sorting"]["applies_to"] == ["banzuke_style"]
+
+
+def test_longest_careers_columns_declare_ranked_table_sort_values() -> None:
+    manifest = build_runtime_manifest(build_publication_plan(SITE))
+    artifact = manifest["artifacts"][LONGEST_CAREERS_ARTIFACT.id]
+    columns = artifact["columns"]
+
+    assert column_by_id(columns, "row_number")["sort_kind"] == "none"
+    assert column_by_id(columns, "rank")["sort_kind"] == "numeric"
+    assert column_by_id(columns, "rank")["sort_default_direction"] == "ascending"
+    assert column_by_id(columns, "shikona")["sort_kind"] == "text"
+    assert column_by_id(columns, "participation_years")["sort_kind"] == "numeric"
+    assert column_by_id(columns, "gap_basho_count")["sort_kind"] == "numeric"

@@ -44,24 +44,37 @@ RANK_AT_RETIREMENT_ARTIFACT = ChartArtifact(
 
 CAREER_LENGTH_ARTIFACT = ChartArtifact(
     id="career_length", heading="Career Length", kind="chart", renderer="career_length",
-    data_binding=DataBinding(kind="csv_set", sources=("distribution", "pmf", "cdf", "survival", "longest")),
+    data_binding=DataBinding(kind="csv_set", sources=("distribution", "pmf", "cdf", "survival")),
     data_sources=(
         DataSource(id="distribution", label="Distribution", path="sumo-history/career-lifecycle/career-length/data/distribution.csv", media_type="text/csv"),
         DataSource(id="pmf", label="PMF", path="sumo-history/career-lifecycle/career-length/data/pmf.csv", media_type="text/csv"),
         DataSource(id="cdf", label="CDF", path="sumo-history/career-lifecycle/career-length/data/cdf.csv", media_type="text/csv"),
         DataSource(id="survival", label="Survival", path="sumo-history/career-lifecycle/career-length/data/survival.csv", media_type="text/csv"),
-        DataSource(id="longest", label="Longest", path="sumo-history/career-lifecycle/career-length/data/longest.csv", media_type="text/csv"),
     ),
     provenance={"views": {
         "distribution": {"kind": "stacked_bar", "label": "Distribution", "x": "nearest_years", "y": ("retired_count", "active_count"), "series_labels": ("Retired", "Active"), "x_label": "Nearest integer years", "y_label": "Rikishi count"},
         "pmf": {"kind": "line", "label": "PMF", "x": "nearest_years", "y": "probability", "x_label": "Nearest integer years", "y_label": "Probability", "tickformat": ".0%"},
         "cdf": {"kind": "line", "label": "CDF", "x": "nearest_years", "y": "cumulative_probability", "x_label": "Nearest integer years", "y_label": "Cumulative probability", "tickformat": ".0%"},
         "survival": {"kind": "line", "label": "Survival", "x": "nearest_years", "y": "survival_probability", "x_label": "Nearest integer years", "y_label": "Survival probability", "tickformat": ".0%"},
-        "longest": {"kind": "table", "label": "Longest Careers", "columns": [{"id": "rank", "heading": "#", "source_field": "rank", "align": "right"}, {"id": "shikona", "heading": "Shikona", "source_field": "shikona", "align": "left", "link": "rikishi"}, {"id": "first_appearance", "heading": "First", "source_field": "first_appearance", "align": "left"}, {"id": "last_appearance", "heading": "Last", "source_field": "last_appearance", "align": "left"}, {"id": "participation_years", "heading": "Years", "source_field": "participation_years", "align": "right", "formatter": "decimal_2", "help": "See Notes", "note_id": "observed_career_length"}, {"id": "gap_basho_count", "heading": "Bg", "source_field": "gap_basho_count", "align": "right", "help": "See Notes", "note_id": "bg_count"}, {"id": "active", "heading": "Active", "source_field": "active", "align": "center"}]},
     }},
+)
+
+LONGEST_CAREERS_ARTIFACT = TableArtifact(
+    id="longest_careers", heading="Longest Careers", kind="table", renderer="generic_table",
+    rows_source=DataSource(id="longest", label="Longest careers", path="sumo-history/records/longest-careers/data/longest.csv", media_type="text/csv"),
+    columns=(
+        TableColumn(id="row_number", heading="", sort_kind="none", align="right"),
+        TableColumn(id="rank", heading="#", source_field="rank", sort_key="rank", sort_kind="numeric", sort_default_direction="ascending", align="right"),
+        TableColumn(id="shikona", heading="Shikona", source_field="shikona", sort_kind="text", align="left"),
+        TableColumn(id="first_appearance", heading="First", source_field="first_appearance", sort_kind="text", align="left"),
+        TableColumn(id="last_appearance", heading="Last", source_field="last_appearance", sort_kind="text", align="left"),
+        TableColumn(id="participation_years", heading="Years", source_field="participation_years", help="See Notes", sort_kind="numeric", align="right", note_id="observed_career_length"),
+        TableColumn(id="gap_basho_count", heading="Bg", source_field="gap_basho_count", help="See Notes", sort_kind="numeric", align="right", note_id="bg_count"),
+    ),
+    default_sort_column="rank",
     notes=(
         Note(id="observed_career_length", applies_to=("all",), text="Years is the observed career length: the elapsed time between the first and last banzuke appearances in the prepared history."),
-        Note(id="bg_count", applies_to=("longest",), text="Bg is the number of basho for which the rikishi was absent."),
+        Note(id="bg_count", applies_to=("all",), text="Bg is the number of basho for which the rikishi was absent."),
     ),
 )
 

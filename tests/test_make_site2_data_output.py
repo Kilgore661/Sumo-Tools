@@ -15,6 +15,9 @@ from src.products.make_site2.data_output import (
     copy_typical_equelo_values_data_output,
     copy_win_probability_by_standing_data_output,
 )
+from src.products.make_site2.career_length_views import (
+    materialize_career_length_longest_views,
+)
 from src.products.make_site2.perf_chart.build import MasterDataOutput
 
 
@@ -347,7 +350,6 @@ def test_copy_career_length_data_output_stages_csv_set(
     assert sorted(path.name for path in output.data_paths) == [
         "cdf.csv",
         "distribution.csv",
-        "longest.csv",
         "pmf.csv",
         "survival.csv",
     ]
@@ -356,6 +358,63 @@ def test_copy_career_length_data_output_stages_csv_set(
         assert path.read_text(encoding="utf-8") == path.name
     assert not (route_data_root / "page.json").exists()
     assert not (route_data_root / "metadata.json").exists()
+    assert not (route_data_root / "longest.csv").exists()
+
+
+def test_materialize_career_length_longest_views_stages_records_csv(
+    tmp_path: Path,
+) -> None:
+    source_root = (
+        tmp_path
+        / "files"
+        / "output"
+        / "career_length"
+        / "site"
+        / "career_length_1958_01_to_2026_05"
+    )
+    source_root.mkdir(parents=True)
+    rikishi_csv = source_root.parents[1] / f"{source_root.name}_rikishi.csv"
+    rikishi_csv.write_text(
+        "\n".join(
+            [
+                "rikishi_id,shikona,first_index,first_appearance,last_appearance,participation_years,gap_basho_count,active",
+                "1,A,10,1980/01,1990/01,10.0,0,False",
+                "2,B,5,1975/01,1995/01,20.0,1,True",
+                "3,C,8,1978/01,1996/01,18.0,2,False",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    materialize_career_length_longest_views(
+        output_root=tmp_path / "site",
+        source_root=source_root,
+    )
+
+    records_csv = (
+        tmp_path
+        / "site"
+        / "sumo-history"
+        / "records"
+        / "longest-careers"
+        / "data"
+        / "longest.csv"
+    )
+    career_length_csv = (
+        tmp_path
+        / "site"
+        / "sumo-history"
+        / "career-lifecycle"
+        / "career-length"
+        / "data"
+        / "longest.csv"
+    )
+    text = records_csv.read_text(encoding="utf-8")
+
+    assert "longest_population" in text
+    assert "all" in text
+    assert "non_active" in text
+    assert not career_length_csv.exists()
 
 
 def test_copy_typical_equelo_values_data_output_stages_only_csv(

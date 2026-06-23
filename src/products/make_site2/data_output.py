@@ -408,7 +408,7 @@ def copy_career_length_data_output(
         shutil.rmtree(route_data_root)
     route_data_root.mkdir(parents=True, exist_ok=True)
 
-    names = ("distribution.csv", "pmf.csv", "cdf.csv", "survival.csv", "longest.csv")
+    names = ("distribution.csv", "pmf.csv", "cdf.csv", "survival.csv")
     data_paths = tuple(route_data_root / name for name in names)
     for name, target_path in zip(names, data_paths, strict=True):
         shutil.copy2(CAREER_LENGTH_SOURCE_ROOT / name, target_path)

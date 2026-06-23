@@ -569,6 +569,28 @@ state. `make_site2` owns the page location, filters, table column model,
 SumoDB shikona links, popovers and runtime projection of the selected option
 state.
 
+### 16.7 Longest Careers
+
+Longest Careers is the fourth promoted Records table under Sumo History. It is
+the Records-owned superlative presentation of the longest-careers material that
+was previously exposed as the `Longest` view inside Career Length.
+
+The producer remains
+`src.analysis.sumo_history.career_lifecycle.career_length`. It writes and
+`make_site2` materializes the ranked longest-career populations consumed by the
+runtime. The staged data path is:
+
+```text
+sumo-history/records/longest-careers/data/longest.csv
+```
+
+The PA contract is specified in
+`02.9 Specification - Longest Careers.md`. The producer owns History-derived
+career spans, observed elapsed years, banzuke-gap counts, active/non-active
+classification, and top-N ranking within each population. `make_site2` owns the
+Records page location, `Show Active?` filter, table column model, SumoDB
+shikona links, popovers and runtime projection of the selected population.
+
 ---
 
 ## 17. Suggested Migration Sequence

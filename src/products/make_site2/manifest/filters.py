@@ -261,9 +261,11 @@ CAREER_LENGTH_FILTERS = (
             FilterValue(value="pmf", label="PMF"),
             FilterValue(value="cdf", label="CDF"),
             FilterValue(value="survival", label="Survival"),
-            FilterValue(value="longest", label="Longest"),
         ),
     ),
+)
+
+LONGEST_CAREERS_FILTERS = (
     Filter(
         id="show_active",
         label="Show Active?",
