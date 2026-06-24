@@ -31,6 +31,20 @@ PAGES = PageRegistry(
             status=PageStatus.PROMOTED,
             artifact=artifact("why_ratings", "prose"),
         ),
+        "elo_explanation": PageDefinition(
+            id="elo_explanation",
+            title="Elo Ratings",
+            summary="",
+            status=PageStatus.PROMOTED,
+            artifact=artifact("elo_explanation", "prose"),
+        ),
+        "equelo_explanation": PageDefinition(
+            id="equelo_explanation",
+            title="Equelo Ratings",
+            summary="",
+            status=PageStatus.PROMOTED,
+            artifact=artifact("equelo_explanation", "prose"),
+        ),
         "banzuke_changes": PageDefinition(
             id="banzuke_changes",
             title="Most Recent Banzuke",

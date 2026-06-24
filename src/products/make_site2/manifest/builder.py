@@ -60,6 +60,14 @@ PANEL_DECLARATIONS: dict[str, PanelDeclaration] = {
         filters=(),
         artifact=a.WHY_RATINGS_ARTIFACT,
     ),
+    "elo_explanation": PanelDeclaration(
+        filters=(),
+        artifact=a.ELO_EXPLANATION_ARTIFACT,
+    ),
+    "equelo_explanation": PanelDeclaration(
+        filters=(),
+        artifact=a.EQUELO_EXPLANATION_ARTIFACT,
+    ),
     "banzuke_changes": PanelDeclaration(
         filters=f.BANZUKE_CHANGES_FILTERS,
         artifact=a.BANZUKE_CHANGES_ARTIFACT,

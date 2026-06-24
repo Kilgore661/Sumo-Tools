@@ -133,20 +133,26 @@ PUBLIC_NAVIGATION = NavigationTree(
                         page_id="rank_at_retirement",
                     ),
                 ),
-        nav(
-                    "equelo_ratings",
+            nav(
+                "equelo_ratings",
+                "Equelo Ratings",
+                "equelo-ratings",
+                nav("why_ratings", "Why ratings?", "why-ratings", page_id="why_ratings"),
+                nav("elo_explanation", "Elo Ratings", "elo-explanation", page_id="elo_explanation"),
+                nav(
+                    "equelo_explanation",
                     "Equelo Ratings",
-                    "equelo-ratings",
-                    nav("why_ratings", "Why ratings?", "why-ratings", page_id="why_ratings"),
-                    nav("elo_equelo_explanation", "Elo / Equelo explanation", "elo-equelo-explanation"),
-                    nav("assumptions_caveats", "Assumptions and caveats", "assumptions-caveats"),
-                    nav(
-                        "typical_equelo_values",
-                        "Typical Equelo ratings",
-                        "typical-equelo-values",
-                        page_id="typical_equelo_values",
-                    ),
+                    "equelo-explanation",
+                    page_id="equelo_explanation",
                 ),
+                nav("assumptions_caveats", "Assumptions and caveats", "assumptions-caveats"),
+                nav(
+                    "typical_equelo_values",
+                    "Typical Equelo ratings",
+                    "typical-equelo-values",
+                    page_id="typical_equelo_values",
+                ),
+            )
     ),
 )
 

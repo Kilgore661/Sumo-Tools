@@ -28,4 +28,9 @@ from .ratings import (
 )
 
 from .rating_changes import RATING_CHANGES_ARTIFACT
-from .prose import WHAT_THIS_SITE_IS_ARTIFACT, WHY_RATINGS_ARTIFACT
+from .prose import (
+    ELO_EXPLANATION_ARTIFACT,
+    EQUELO_EXPLANATION_ARTIFACT,
+    WHAT_THIS_SITE_IS_ARTIFACT,
+    WHY_RATINGS_ARTIFACT,
+)

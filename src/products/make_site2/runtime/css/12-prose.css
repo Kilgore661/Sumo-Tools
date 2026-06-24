@@ -1,3 +1,11 @@
+.prose {
+  align-self: flex-start;
+  box-sizing: border-box;
+  max-width: 800px;
+  padding: 0 1rem 1rem;
+  width: 100%;
+}
+
 .prose a {
   font-style: italic;
   text-decoration: none;

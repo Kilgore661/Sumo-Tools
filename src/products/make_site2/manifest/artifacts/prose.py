@@ -20,3 +20,19 @@ WHY_RATINGS_ARTIFACT = ProseArtifact(
     renderer="prose",
     path="prose/Why ratings.html",
 )
+
+ELO_EXPLANATION_ARTIFACT = ProseArtifact(
+    id="elo_explanation",
+    heading="Elo Ratings",
+    kind="prose",
+    renderer="prose",
+    path="prose/Elo Ratings.html",
+)
+
+EQUELO_EXPLANATION_ARTIFACT = ProseArtifact(
+    id="equelo_explanation",
+    heading="Equelo Ratings",
+    kind="prose",
+    renderer="prose",
+    path="prose/Equelo Ratings.html",
+)
