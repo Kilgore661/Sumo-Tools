@@ -1,1 +1,0 @@
-Have a look at the Rikish selector in page=career_comparisons. I would like to replace the year and month selectors in page=basho_results_browser with the same sort of thing. As the user starts typing 2, 0, 1, 6, ... heading for 2016/07 say, the dropdown refines the possible dates so the user can just click on what they want
