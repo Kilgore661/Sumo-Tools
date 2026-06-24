@@ -114,14 +114,6 @@ Deployment targets:
         ),
     )
     parser.add_argument(
-        "--full-nav",
-        action="store_true",
-        help=(
-            "Publish the complete declared navigation tree. Leave unset to "
-            "publish only clickable navigation nodes and their ancestors."
-        ),
-    )
-    parser.add_argument(
         "--no-basho",
         action="store_true",
         help=(
@@ -180,8 +172,6 @@ def reject_conflicting_modes(args: argparse.Namespace) -> None:
         raise SystemExit("--short and --history-zip cannot be used together")
     if args.no_build and args.prod:
         raise SystemExit("--prod does not apply with --no-build")
-    if args.no_build and args.full_nav:
-        raise SystemExit("--full-nav does not apply with --no-build")
     if args.no_build and args.no_basho:
         raise SystemExit("--no-basho does not apply with --no-build")
     if args.no_build and args.one_basho:
@@ -210,7 +200,6 @@ def main() -> None:
             "output_root": args.output,
             "basho_results_payload_mode": resolve_basho_results_payload_mode(args),
             "cache_mode": resolve_cache_mode(args),
-            "full_navigation": args.full_nav,
         }
         history_zip = resolve_history_zip(args)
         if history_zip is not None:

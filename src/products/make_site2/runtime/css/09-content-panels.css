@@ -18,6 +18,23 @@
   font-weight: 700;
 }
 
+.landing-quote {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+  text-align: center;
+}
+
+.landing-quote p {
+  margin: 0;
+}
+
+.landing-quote footer {
+  font-size: 1rem;
+  font-weight: 400;
+  margin-top: 0.75rem;
+}
+
 .pa-slot {
   align-items: center;
   display: flex;
@@ -63,7 +80,7 @@
 
 .notes-hider-strip {
   align-items: center;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--toggle-strip-bg);
   display: flex;
   justify-content: center;
 }

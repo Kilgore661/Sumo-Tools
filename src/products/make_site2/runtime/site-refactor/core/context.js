@@ -14,7 +14,11 @@ function siteContext() {
     return { id: "remote", label: "Remote Site", titlePrefix: "REMOTE" };
   }
   if (hostname.startsWith("192.168.")) {
-    return { id: "local", label: "Danger Dr. Smith! Waterfall model detected! - B-9" };
+    return {
+      id: "local",
+      quote: "Danger! Danger Dr. Smith! Waterfall model detected!",
+      byline: "B-9"
+    };
   }
   return { id: "preview", label: "Preview Site", titlePrefix: "PREVIEW" };
 }

@@ -57,6 +57,17 @@ function loadStateFromUrl() {
 function renderLandingPanel() {
   hideHelpPopover();
   const context = siteContext();
+  if (context.quote) {
+    contentPanel.innerHTML = [
+      '<section class="landing-panel">',
+      '<blockquote class="landing-quote">',
+      `<p>${escapeHtml(context.quote)}</p>`,
+      context.byline ? `<footer>— ${escapeHtml(context.byline)}</footer>` : '',
+      '</blockquote>',
+      '</section>'
+    ].join("");
+    return;
+  }
   contentPanel.innerHTML = [
     '<section class="landing-panel">',
     `<h2>${escapeHtml(context.label)}</h2>`,

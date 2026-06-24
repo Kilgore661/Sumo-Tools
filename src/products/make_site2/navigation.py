@@ -49,17 +49,29 @@ NAVIGATION = NavigationTree(
                 "Notes and caveats",
                 "notes-and-caveats",
             ),
+            nav(
+                "quick_basho_results_browser",
+                "Basho Results",
+                "basho-results",
+                page_id="basho_results_browser",
+            ),
+            nav(
+                "quick_banzuke_changes",
+                "Most Recent Banzuke",
+                "banzuke-changes",
+                page_id="banzuke_changes",
+            ),
+            nav(
+                "quick_goats",
+                "GOATs",
+                "goats",
+                href=GOATS_HREF,
+            ),
         ),
         nav(
             "current_sumo",
             "Current Sumo",
             "current-sumo",
-            nav(
-                "banzuke_changes",
-                "Most recent banzuke",
-                "banzuke-changes",
-                page_id="banzuke_changes",
-            ),
             nav("current_ratings", "Current ratings", "current-ratings"),
             nav(
                 "current_leaders",
@@ -247,12 +259,6 @@ NAVIGATION = NavigationTree(
             "Sumo History",
             "sumo-history",
             nav(
-                "basho_results_browser",
-                "Basho results",
-                "basho-results",
-                page_id="basho_results_browser",
-            ),
-            nav(
                 "population_history",
                 "Population History",
                 "population-history",
@@ -310,12 +316,6 @@ NAVIGATION = NavigationTree(
                     "longest-careers",
                     page_id="longest_careers",
                 ),
-            ),
-            nav(
-                "goats",
-                "GOATs",
-                "goats",
-                href=GOATS_HREF,
             ),
         ),
         nav(

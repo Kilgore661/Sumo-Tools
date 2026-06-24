@@ -225,7 +225,7 @@ PAGES = PageRegistry(
 
 SITE = SiteDefinition(
     id="sumo_lab",
-    title="Gaspode-san's\nSumo Lab",
+    title="The Sumo Lab",
     navigation=NAVIGATION,
     pages=PAGES,
 )

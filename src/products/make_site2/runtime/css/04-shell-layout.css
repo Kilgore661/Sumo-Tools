@@ -13,6 +13,11 @@
   width: max-content;
 }
 
+.site-nav-collapsed {
+  grid-template-columns: 1.25rem;
+  width: 1.25rem;
+}
+
 .site-main {
   min-height: 0;
   overflow: hidden;

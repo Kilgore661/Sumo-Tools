@@ -2,6 +2,7 @@
   --page-bg: #071733;
   --nav-bg: #071733;
   --content-bg: #0b1d3e;
+  --toggle-strip-bg: #1f2e48;
   --page-fg: #ffffff;
   --artifact-row-odd-bg: #182948;
   --artifact-row-even-bg: #253552;
@@ -12,16 +13,19 @@ body.site-context-local {
   --page-bg: #071733;
   --nav-bg: #071733;
   --content-bg: #0b1d3e;
+  --toggle-strip-bg: #1f2e48;
 }
 
 body.site-context-remote {
   --page-bg: #071733;
   --nav-bg: #071733;
   --content-bg: #0b1d3e;
+  --toggle-strip-bg: #1f2e48;
 }
 
 body.site-context-preview {
   --page-bg: #063819;
   --nav-bg: #063819;
   --content-bg: #084821;
+  --toggle-strip-bg: #1f2e48;
 }

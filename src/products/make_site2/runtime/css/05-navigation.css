@@ -12,53 +12,76 @@
 
 .nav-hider-strip {
   align-items: center;
+  background: var(--toggle-strip-bg);
   display: flex;
   justify-content: center;
 }
 
+
 .nav-content {
+  border-left: 1px solid rgba(255, 255, 255, 0.5);
+  padding-inline-start: 5px;
+  box-sizing: border-box;
   display: grid;
   grid-template-rows: auto auto minmax(0, 1fr);
   min-height: 0;
   overflow: hidden;
+  padding-inline-end: 1.5rem;
 }
 
 .nav-content[hidden] {
   display: none;
 }
 
+.nav-tree-panels {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.nav-tree-panel {
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  min-height: 0;
+  padding-top: 0.5rem;
+}
+
+.nav-tree-panel h2 {
+  font-size: 16px;
+  margin: 0 0 0.35rem;
+}
+
+.public-nav-tree-panel {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.public-nav-tree-panel > .nav-list {
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.research-nav-tree-panel > .nav-list {
+  max-height: 12rem;
+  overflow-y: auto;
+}
+
 .nav-list {
-  counter-reset: nav-item;
   font-size: 13px;
   line-height: 1.45;
   list-style: none;
-}
-
-.nav-content > .nav-list {
-  min-height: 0;
-  overflow-y: auto;
+  margin: 0;
   padding-left: 0;
 }
 
 .nav-list .nav-list {
-  padding-left: 2em;
-}
-
-.nav-list li {
-  counter-increment: nav-item;
-}
-
-.nav-link::before,
-.nav-label::before {
-  content: counters(nav-item, ".") ". ";
+  padding-left: 1.25em;
 }
 
 .nav-label {
   color: rgba(255, 255, 255, 0.5);
-}
-
-.quick-link::before {
-  content: none;
 }
 
 .site-title {

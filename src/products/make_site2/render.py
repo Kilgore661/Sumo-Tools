@@ -6,6 +6,7 @@ not invent page structure or artifact details.
 
 from __future__ import annotations
 
+from dataclasses import replace
 from html import escape
 from urllib.parse import urlencode
 
@@ -13,7 +14,7 @@ from .publication_model import NavigationItem
 from .ui_model import NavigationBar, NavigationQuickLink, PublicSiteShell
 
 
-NAV_WIDTH_STYLE = ".site-nav { padding-inline-end: 1.5rem; }"
+RESEARCH_PAGE_IDS = frozenset({"standings_by_wins"})
 
 
 def render_site_shell(
@@ -39,7 +40,6 @@ def render_site_shell(
                 '<link rel="stylesheet" '
                 f'href="{escape(cache_busted_url("runtime/site.css", cache_mode=cache_mode, cache_bust_token=cache_bust_token, cache_bust_param=cache_bust_param))}">'
             ),
-            f"<style>{NAV_WIDTH_STYLE}</style>",
             '<link rel="icon" href="/Sumo/meepinvert.png" type="image/png">',
             f"<title>{escape(render_document_title(shell.navigation_bar.heading))}</title>",
             '<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>',
@@ -100,6 +100,7 @@ def cache_busted_url(
 
 
 def render_navigation_bar(navigation_bar: NavigationBar) -> str:
+    public_tree, research_tree = split_navigation_tree(navigation_bar.navigation_tree)
     return "\n".join(
         (
             '<nav id="site-nav" class="site-nav" data-nav-panel aria-label="Site navigation">',
@@ -109,11 +110,70 @@ def render_navigation_bar(navigation_bar: NavigationBar) -> str:
             '<div id="site-nav-content" class="nav-content" data-nav-content>',
             f'<h1 class="site-title">{render_visible_title(navigation_bar.heading)}</h1>',
             render_quick_links(navigation_bar),
-            '<ol class="nav-list">',
-            *[render_navigation_item(item) for item in navigation_bar.navigation_tree],
-            "</ol>",
+            '<div class="nav-tree-panels">',
+            render_navigation_panel(
+                panel_id="public-nav-tree",
+                heading="Contents",
+                items=public_tree,
+                modifier="public-nav-tree-panel",
+            ),
+            render_navigation_panel(
+                panel_id="research-nav-tree",
+                heading="Research",
+                items=research_tree,
+                modifier="research-nav-tree-panel",
+            ),
+            "</div>",
             "</div>",
             "</nav>",
+        )
+    )
+
+
+def split_navigation_tree(
+    items: tuple[NavigationItem, ...],
+) -> tuple[tuple[NavigationItem, ...], tuple[NavigationItem, ...]]:
+    public_items: list[NavigationItem] = []
+    research_items: list[NavigationItem] = []
+    for item in items:
+        public_item, research_item = split_navigation_item(item)
+        if public_item is not None:
+            public_items.append(public_item)
+        if research_item is not None:
+            research_items.append(research_item)
+    return tuple(public_items), tuple(research_items)
+
+
+def split_navigation_item(
+    item: NavigationItem,
+) -> tuple[NavigationItem | None, NavigationItem | None]:
+    public_children, research_children = split_navigation_tree(item.children)
+    belongs_to_research = item.page_id in RESEARCH_PAGE_IDS
+
+    public_item = None if belongs_to_research else replace(item, children=public_children)
+    research_item = (
+        replace(item, children=research_children)
+        if belongs_to_research or research_children
+        else None
+    )
+    return public_item, research_item
+
+
+def render_navigation_panel(
+    *,
+    panel_id: str,
+    heading: str,
+    items: tuple[NavigationItem, ...],
+    modifier: str,
+) -> str:
+    return "\n".join(
+        (
+            f'<section id="{escape(panel_id)}" class="nav-tree-panel {escape(modifier)}" aria-labelledby="{escape(panel_id)}-heading">',
+            f'<h2 id="{escape(panel_id)}-heading">{escape(heading)}</h2>',
+            '<ul class="nav-list">',
+            *[render_navigation_item(item) for item in items],
+            "</ul>",
+            "</section>",
         )
     )
 
@@ -125,9 +185,9 @@ def render_quick_links(navigation_bar: NavigationBar) -> str:
         (
             '<section class="quick-links" aria-labelledby="quick-links-heading">',
             '<h2 id="quick-links-heading">Quick Links</h2>',
-            '<ol class="quick-links-list">',
+            '<ul class="quick-links-list">',
             *[render_quick_link(link) for link in navigation_bar.quick_links],
-            "</ol>",
+            "</ul>",
             "</section>",
         )
     )
@@ -159,7 +219,7 @@ def render_navigation_toggle(navigation_bar: NavigationBar) -> str:
 
 def render_navigation_item(item: NavigationItem) -> str:
     children = "\n".join(render_navigation_item(child) for child in item.children)
-    child_list = f'\n<ol class="nav-list">\n{children}\n</ol>' if children else ""
+    child_list = f'\n<ul class="nav-list">\n{children}\n</ul>' if children else ""
     return "\n".join(
         (
             "<li>",
