@@ -43,6 +43,7 @@ PUBLIC_NAVIGATION = NavigationTree(
                         "site_orientation",
                         "What this site is",
                         "what-this-site-is",
+                        page_id="what_this_site_is",
                     ),
                     nav(
                         "site_notes_caveats",
@@ -136,7 +137,7 @@ PUBLIC_NAVIGATION = NavigationTree(
                     "equelo_ratings",
                     "Equelo Ratings",
                     "equelo-ratings",
-                    nav("why_ratings", "Why ratings?", "why-ratings"),
+                    nav("why_ratings", "Why ratings?", "why-ratings", page_id="why_ratings"),
                     nav("elo_equelo_explanation", "Elo / Equelo explanation", "elo-equelo-explanation"),
                     nav("assumptions_caveats", "Assumptions and caveats", "assumptions-caveats"),
                     nav(

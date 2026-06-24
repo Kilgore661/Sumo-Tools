@@ -14,6 +14,12 @@ async function fetchCsv(path) {
   if (!response.ok) throw new Error(`Could not load ${path}`);
   return parseCsv(await response.text());
 }
+// Fetch a generated text asset.
+async function fetchText(path) {
+  const response = await fetch(cacheBustedUrl(path));
+  if (!response.ok) throw new Error(`Could not load ${path}`);
+  return response.text();
+}
 // Preserve build cache-busting when the page URL carries a runtime token.
 function cacheBustedUrl(path) {
   if (document.body.dataset.cacheMode !== "dev" || !document.body.dataset.cacheBust) {
@@ -24,4 +30,4 @@ function cacheBustedUrl(path) {
   return url.toString();
 }
 
-export { fetchJson, fetchCsv, cacheBustedUrl };
+export { fetchJson, fetchCsv, fetchText, cacheBustedUrl };

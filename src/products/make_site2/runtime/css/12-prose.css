@@ -1,0 +1,9 @@
+.prose a {
+  font-style: italic;
+  text-decoration: none;
+}
+
+.prose a:hover,
+.prose a:focus {
+  text-decoration: underline;
+}

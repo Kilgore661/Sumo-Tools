@@ -12,6 +12,7 @@ ArtifactKind = Literal[
     "sectioned_table",
     "table",
     "chart",
+    "prose",
     "banzuke_changes",
     "standings",
 ]
@@ -193,4 +194,14 @@ class ChartArtifact:
     x_axis: ChartAxis | None = None
     y_axis: ChartAxis | None = None
     provenance: dict[str, Any] = field(default_factory=dict)
+    notes: tuple[Note, ...] = ()
+
+
+@dataclass(frozen=True, kw_only=True)
+class ProseArtifact:
+    id: str
+    heading: str
+    kind: ArtifactKind
+    renderer: str
+    path: str
     notes: tuple[Note, ...] = ()

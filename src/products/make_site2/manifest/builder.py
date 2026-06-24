@@ -52,6 +52,14 @@ class PanelDeclaration:
 
 
 PANEL_DECLARATIONS: dict[str, PanelDeclaration] = {
+    "what_this_site_is": PanelDeclaration(
+        filters=(),
+        artifact=a.WHAT_THIS_SITE_IS_ARTIFACT,
+    ),
+    "why_ratings": PanelDeclaration(
+        filters=(),
+        artifact=a.WHY_RATINGS_ARTIFACT,
+    ),
     "banzuke_changes": PanelDeclaration(
         filters=f.BANZUKE_CHANGES_FILTERS,
         artifact=a.BANZUKE_CHANGES_ARTIFACT,

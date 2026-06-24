@@ -17,6 +17,20 @@ def artifact(id: str, kind: str, *, producer: str | None = None) -> ArtifactRef:
 
 PAGES = PageRegistry(
     pages={
+        "what_this_site_is": PageDefinition(
+            id="what_this_site_is",
+            title="What this site is",
+            summary="",
+            status=PageStatus.PROMOTED,
+            artifact=artifact("what_this_site_is", "prose"),
+        ),
+        "why_ratings": PageDefinition(
+            id="why_ratings",
+            title="Why ratings?",
+            summary="",
+            status=PageStatus.PROMOTED,
+            artifact=artifact("why_ratings", "prose"),
+        ),
         "banzuke_changes": PageDefinition(
             id="banzuke_changes",
             title="Most Recent Banzuke",

@@ -3,7 +3,7 @@
 import { contentPanel } from "../core/dom.js";
 import { getRuntimeManifest } from "../core/manifest-store.js";
 import { readFilterUrlState, writePanelUrl } from "../core/url-state.js";
-import { fetchCsv, fetchJson } from "../data/http.js";
+import { fetchCsv, fetchJson, fetchText } from "../data/http.js";
 import { renderCareerComparisonsChart, renderCareerComparisonsControls, renderCareerLengthArtifact, renderCareerLengthPlot, renderCategoryBarChart, renderCategoryBarPlot, renderFinishByChiiChart, renderFinishByChiiPlot, renderGroupedLineChart, renderGroupedLinePlot, renderOrderedBarChart, renderOrderedBarPlot, renderStackedBarChart, renderStackedBarPlot, renderStandingWinProbabilityChart, renderStandingWinProbabilityPlot, resolveCareerLengthView, resolveFilterValue, resolveSelectedDataSourceId, wireCareerComparisonsControls } from "../ui/charts.js";
 import { buildBashoResultsPresentationModel, renderBashoResultsPresentationTable, wireBashoResultsPresentationSorting } from "../ui/basho-results-table.js";
 import { buildRatingChangesPresentationModel, renderRatingChangesPresentationTable, selectedRatingChangesEntry, wireRatingChangesPresentationSorting } from "../ui/rating-changes-table.js";
@@ -43,6 +43,10 @@ async function renderContentPanel(panel, overrideState = null) {
   }
   if (artifact.kind === "chart") {
     await renderChartContentPanel(panel, artifact, overrideState);
+    return;
+  }
+  if (artifact.kind === "prose") {
+    await renderProseContentPanel(panel, artifact);
     return;
   }
   throw new Error(`Unsupported artifact kind: ${artifact.kind}`);
@@ -242,6 +246,27 @@ async function renderGenericTableContentPanel(panel, artifact, overrideState = n
   ].join("");
   wireFilterSection(panel, state, renderContentPanel);
   wireTableSorting(panel, artifact, renderContentPanel);
+  wireNotesPanel();
+  wirePAPanelLayout();
+}
+async function renderProseContentPanel(panel, artifact) {
+  const html = await fetchText(artifact.path);
+  writePanelUrl(panel.page_id, [], {}, { replace: true });
+
+  contentPanel.innerHTML = [
+    '<section class="content-panel">',
+    `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
+    renderContentSummary(panel.heading.summary),
+    '<div class="content-body content-body-no-filters">',
+    '<section class="pa-panel">',
+    '<div class="pa-slot">',
+    `<article class="prose">${html}</article>`,
+    '</div>',
+    renderNotes(artifact, {}),
+    '</section>',
+    '</div>',
+    '</section>'
+  ].join("");
   wireNotesPanel();
   wirePAPanelLayout();
 }
@@ -554,4 +579,4 @@ function bashoResultsTitle(state, entry, filters) {
   return `${division} Results for ${label}`;
 }
 
-export { renderContentPanel, renderIndexedTableContentPanel, renderBanzukeChangesContentPanel, renderSectionedTableContentPanel, renderGenericTableContentPanel, renderStandingsContentPanel, renderChartContentPanel, renderStandingWinProbabilityContentPanel, renderCareerLengthContentPanel, renderCareerComparisonsContentPanel, renderFinishByChiiContentPanel, renderStackedBarChartContentPanel, renderGroupedLineChartContentPanel, renderOrderedBarChartContentPanel, renderCategoryBarChartContentPanel, fetchArtifactCsvSet, renderArtifactTitleBlock, artifactTitle, bashoResultsTitle, renderNoBashoContentPanel, artifactForPAPanel };
+export { renderContentPanel, renderIndexedTableContentPanel, renderBanzukeChangesContentPanel, renderSectionedTableContentPanel, renderGenericTableContentPanel, renderProseContentPanel, renderStandingsContentPanel, renderChartContentPanel, renderStandingWinProbabilityContentPanel, renderCareerLengthContentPanel, renderCareerComparisonsContentPanel, renderFinishByChiiContentPanel, renderStackedBarChartContentPanel, renderGroupedLineChartContentPanel, renderOrderedBarChartContentPanel, renderCategoryBarChartContentPanel, fetchArtifactCsvSet, renderArtifactTitleBlock, artifactTitle, bashoResultsTitle, renderNoBashoContentPanel, artifactForPAPanel };

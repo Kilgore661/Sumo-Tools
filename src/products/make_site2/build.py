@@ -47,6 +47,7 @@ REPO_ROOT = PACKAGE_ROOT.parents[2]
 DEFAULT_OUTPUT_ROOT = REPO_ROOT / "files" / "output" / "make_site2"
 RUNTIME_CSS_SOURCE_ROOT = PACKAGE_ROOT / "runtime" / "css"
 RUNTIME_MODULE_SOURCE_ROOT = PACKAGE_ROOT / "runtime" / "site-refactor"
+PROSE_SOURCE_ROOT = PACKAGE_ROOT / "prose"
 INPUT_ASSET_ROOT = REPO_ROOT / "files" / "input"
 OUTPUT_ASSET_ROOT_NAME = "assets"
 STATIC_ASSETS = {
@@ -155,6 +156,7 @@ def build_site(
         output_root / "runtime" / "site.css",
     )
     copy_static_assets(output_root=output_root)
+    copy_prose(output_root=output_root)
     copy_runtime_css(output_root=output_root)
     copy_runtime_modules(
         output_root=output_root,
@@ -177,6 +179,17 @@ def copy_static_assets(*, output_root: Path) -> None:
         if not source.is_file():
             raise FileNotFoundError(f"Static asset not found: {source}")
         shutil.copyfile(source, asset_output_root / output_name)
+
+
+def copy_prose(*, output_root: Path) -> None:
+    """Copy prose artifacts into the generated static site tree."""
+
+    if not PROSE_SOURCE_ROOT.is_dir():
+        return
+    shutil.copytree(
+        PROSE_SOURCE_ROOT,
+        output_root / "prose",
+    )
 
 
 def copy_runtime_css(*, output_root: Path) -> None:
