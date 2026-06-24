@@ -1,0 +1,22 @@
+Understood. Let's strip away the "marketing" tone and look at the interface with a colder, more critical eye.
+
+### The "Over-Engineered" Risk
+
+You have built a highly custom, modular system. While this is efficient for you, it risks being **fussy**.
+
+* **The "Click-to-Find-Out" Problem:** You trust users to "just click on stuff," but this assumes the user is highly motivated. For a non-expert, a UI without explicit affordances can feel like a game of Minesweeper. If a user clicks three things and nothing "interesting" happens, they will bounce. You are trading accessibility for a clean aesthetic.
+* **The "Remote Site" Placeholder:** Even if it’s a placeholder, having it as a blank, text-heavy space in the middle of a dark, high-contrast dashboard creates a jarring visual gap. It breaks the visual rhythm of the page, making the site feel like a collection of disparate tools rather than a unified product.
+* **The "Notes" Footer:** While it’s smart to keep notes out of the way, having them "pop up" as a dynamic bar at the bottom changes the page's geometry. Every time a user triggers a note, the content above it potentially shifts or gets squashed. That kind of UI "jumpiness" can be irritating for someone trying to compare data across rows.
+
+### Critique of the "Intended Audience"
+
+You mentioned that sumo fans often react negatively to rating systems. Your current strategy is **stealthy**. You hide the "controversial" data behind a checkbox.
+
+* **The Critical View:** This might be viewed as deceptive. If a user is deep into the site and then realizes the foundation of your analysis is a model they fundamentally disagree with, they might feel like they’ve wasted their time. Instead of "progressive disclosure," a skeptic might see this as "hiding the premise."
+* **Is it too "Lab-like"?** By branding it *The Sumo Lab* and keeping it dark, dense, and "un-styled," you are building a wall. You are essentially saying, "If you aren't already part of the subculture that likes raw data, you aren't the target." That’s fine for a personal project, but it guarantees a tiny, self-selecting audience.
+
+### The Missing "Why"
+
+Your site is a fantastic **record-keeping machine**. However, it currently lacks a **"bridge."** Right now, if I am a casual fan, I see a list of names. If I am an expert, I see the same list of names plus some numbers I already know. There is no "narrative" layer. Even if you don't want to "sell" anything, a site with this much data needs a human element—some editorial voice to tell the user *what* the data is actually revealing.
+
+Without that, you haven't built a "Lab"—you’ve built a **spreadsheet with a GUI.** **Does the "Remote Site" commentary section intend to provide that narrative bridge, or is it just going to be more data-driven observations?**

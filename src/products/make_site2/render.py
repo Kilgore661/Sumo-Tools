@@ -112,12 +112,14 @@ def render_navigation_bar(navigation_bar: NavigationBar) -> str:
                 heading="Contents",
                 items=navigation_bar.navigation_tree,
                 modifier="public-nav-tree-panel",
+                collapsed=False,
             ),
             render_navigation_panel(
                 panel_id="research-nav-tree",
                 heading="Research",
                 items=navigation_bar.research_navigation_tree,
                 modifier="research-nav-tree-panel",
+                collapsed=True,
             ),
             "</div>",
             "</div>",
@@ -132,12 +134,20 @@ def render_navigation_panel(
     heading: str,
     items: tuple[NavigationItem, ...],
     modifier: str,
+    collapsed: bool,
 ) -> str:
+    escaped_panel_id = escape(panel_id)
+    escaped_heading = escape(heading)
+    body_id = f"{escaped_panel_id}-body"
+    expanded = "false" if collapsed else "true"
+    toggle_label = f"Show {heading}" if collapsed else f"Hide {heading}"
+    hidden = " hidden" if collapsed else ""
+    chevron = "˅" if collapsed else "˄"
     return "\n".join(
         (
-            f'<section id="{escape(panel_id)}" class="nav-tree-panel {escape(modifier)}" aria-labelledby="{escape(panel_id)}-heading">',
-            f'<h2 id="{escape(panel_id)}-heading">{escape(heading)}</h2>',
-            '<ul class="nav-list">',
+            f'<section id="{escaped_panel_id}" class="nav-tree-panel {escape(modifier)}" aria-labelledby="{escaped_panel_id}-heading" data-nav-tree-panel>',
+            f'<h2 id="{escaped_panel_id}-heading" class="nav-tree-heading"><span>{escaped_heading}</span><button class="nav-tree-toggle" type="button" data-nav-tree-toggle aria-controls="{body_id}" aria-expanded="{expanded}" aria-label="{escape(toggle_label)}" title="{escape(toggle_label)}">{chevron}</button></h2>',
+            f'<ul id="{body_id}" class="nav-list" data-nav-tree-body{hidden}>',
             *[render_navigation_item(item) for item in items],
             "</ul>",
             "</section>",

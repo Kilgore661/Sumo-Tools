@@ -119,6 +119,18 @@ PUBLIC_NAVIGATION = NavigationTree(
                         "makuuchi-rank-by-era",
                         page_id="makuuchi_rank_by_era",
                     ),
+                    nav(
+                        "history_career_length",
+                        "Career length",
+                        "career-length",
+                        page_id="career_length",
+                    ),
+                    nav(
+                        "rank_at_retirement",
+                        "Rank at retirement",
+                        "rank-at-retirement",
+                        page_id="rank_at_retirement",
+                    ),
                 ),
         nav(
                     "equelo_ratings",
@@ -302,23 +314,6 @@ RESEARCH_NAVIGATION = NavigationTree(
                         nav("division_sizes_over_time", "Division sizes over time", "division-sizes-over-time"),
                         nav("banzuke_population", "Banzuke population", "banzuke-population"),
                     ),
-                    nav(
-                        "career_lifecycle",
-                        "Career Lifecycle",
-                        "career-lifecycle",
-                        nav(
-                            "history_career_length",
-                            "Career length",
-                            "career-length",
-                            page_id="career_length",
-                        ),
-                        nav(
-                            "rank_at_retirement",
-                            "Rank at retirement",
-                            "rank-at-retirement",
-                            page_id="rank_at_retirement",
-                        ),
-                    ),
                 ),
         nav(
                     "data_notes",
@@ -341,7 +336,7 @@ RESEARCH_NAVIGATION = NavigationTree(
             "standings_by_wins",
             "Rolling wins-based ranking",
             "standings-by-wins",
-            href="index.html?page=standings_by_wins&view=standard&num_basho=6&current_only=true&division=makuuchi",
+            page_id="standings_by_wins",
         ),
         ),
     ),

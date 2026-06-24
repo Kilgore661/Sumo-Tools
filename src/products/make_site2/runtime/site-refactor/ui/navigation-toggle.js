@@ -17,7 +17,35 @@ function bootNavigationToggle() {
     window.localStorage.setItem(storageKey, String(collapsed));
     resizePlotlyCharts();
   });
+
+  bootNavigationTreeToggles(content);
 }
+
+function bootNavigationTreeToggles(root) {
+  root.querySelectorAll("[data-nav-tree-panel]").forEach(panel => {
+    const toggle = panel.querySelector("[data-nav-tree-toggle]");
+    const body = panel.querySelector("[data-nav-tree-body]");
+    if (!toggle || !body) return;
+    const initiallyCollapsed = toggle.getAttribute("aria-expanded") === "false";
+    applyNavigationTreeCollapsedState(panel, body, toggle, initiallyCollapsed);
+    toggle.addEventListener("click", () => {
+      const collapsed = !body.hidden;
+      applyNavigationTreeCollapsedState(panel, body, toggle, collapsed);
+      resizePlotlyCharts();
+    });
+  });
+}
+
+function applyNavigationTreeCollapsedState(panel, body, toggle, collapsed) {
+  const heading = panel.querySelector(".nav-tree-heading span")?.textContent || "navigation section";
+  panel.classList.toggle("nav-tree-panel-collapsed", collapsed);
+  body.hidden = collapsed;
+  toggle.textContent = collapsed ? "˅" : "˄";
+  toggle.setAttribute("aria-label", collapsed ? `Show ${heading}` : `Hide ${heading}`);
+  toggle.title = collapsed ? `Show ${heading}` : `Hide ${heading}`;
+  toggle.setAttribute("aria-expanded", collapsed ? "false" : "true");
+}
+
 // Apply the collapsed state to shell classes, ARIA state and Plotly sizing.
 function applyNavigationCollapsedState(shell, panel, content, toggle, collapsed) {
   shell.classList.toggle("nav-collapsed", collapsed);
@@ -39,4 +67,9 @@ function resizePlotlyCharts() {
   });
 }
 
-export { bootNavigationToggle, applyNavigationCollapsedState, resizePlotlyCharts };
+export {
+  bootNavigationToggle,
+  applyNavigationCollapsedState,
+  applyNavigationTreeCollapsedState,
+  resizePlotlyCharts,
+};

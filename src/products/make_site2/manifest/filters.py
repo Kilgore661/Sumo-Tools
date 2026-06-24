@@ -181,7 +181,7 @@ BRB_FILTERS = (
         id="changes_context",
         label="Next Basho",
         control="checkbox",
-        default=True,
+        default=False,
         url_key="changes",
     ),
     Filter(

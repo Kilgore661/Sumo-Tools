@@ -27,6 +27,7 @@
   min-height: 0;
   overflow: hidden;
   padding-inline-end: 1.5rem;
+  width: 340px;
 }
 
 .nav-content[hidden] {
@@ -47,9 +48,26 @@
   padding-top: 0.5rem;
 }
 
-.nav-tree-panel h2 {
+.nav-tree-heading {
+  align-items: center;
+  display: flex;
   font-size: 16px;
+  justify-content: space-between;
   margin: 0 0 0.35rem;
+}
+
+.nav-tree-toggle {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0.1rem 0.35rem;
+}
+
+.nav-tree-panel-collapsed > .nav-list {
+  display: none;
 }
 
 .public-nav-tree-panel > .nav-list {
