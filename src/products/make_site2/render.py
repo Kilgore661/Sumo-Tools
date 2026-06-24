@@ -6,15 +6,12 @@ not invent page structure or artifact details.
 
 from __future__ import annotations
 
-from dataclasses import replace
 from html import escape
 from urllib.parse import urlencode
 
 from .publication_model import NavigationItem
 from .ui_model import NavigationBar, NavigationQuickLink, PublicSiteShell
 
-
-RESEARCH_PAGE_IDS = frozenset({"standings_by_wins"})
 
 
 def render_site_shell(
@@ -100,7 +97,6 @@ def cache_busted_url(
 
 
 def render_navigation_bar(navigation_bar: NavigationBar) -> str:
-    public_tree, research_tree = split_navigation_tree(navigation_bar.navigation_tree)
     return "\n".join(
         (
             '<nav id="site-nav" class="site-nav" data-nav-panel aria-label="Site navigation">',
@@ -114,13 +110,13 @@ def render_navigation_bar(navigation_bar: NavigationBar) -> str:
             render_navigation_panel(
                 panel_id="public-nav-tree",
                 heading="Contents",
-                items=public_tree,
+                items=navigation_bar.navigation_tree,
                 modifier="public-nav-tree-panel",
             ),
             render_navigation_panel(
                 panel_id="research-nav-tree",
                 heading="Research",
-                items=research_tree,
+                items=navigation_bar.research_navigation_tree,
                 modifier="research-nav-tree-panel",
             ),
             "</div>",
@@ -128,35 +124,6 @@ def render_navigation_bar(navigation_bar: NavigationBar) -> str:
             "</nav>",
         )
     )
-
-
-def split_navigation_tree(
-    items: tuple[NavigationItem, ...],
-) -> tuple[tuple[NavigationItem, ...], tuple[NavigationItem, ...]]:
-    public_items: list[NavigationItem] = []
-    research_items: list[NavigationItem] = []
-    for item in items:
-        public_item, research_item = split_navigation_item(item)
-        if public_item is not None:
-            public_items.append(public_item)
-        if research_item is not None:
-            research_items.append(research_item)
-    return tuple(public_items), tuple(research_items)
-
-
-def split_navigation_item(
-    item: NavigationItem,
-) -> tuple[NavigationItem | None, NavigationItem | None]:
-    public_children, research_children = split_navigation_tree(item.children)
-    belongs_to_research = item.page_id in RESEARCH_PAGE_IDS
-
-    public_item = None if belongs_to_research else replace(item, children=public_children)
-    research_item = (
-        replace(item, children=research_children)
-        if belongs_to_research or research_children
-        else None
-    )
-    return public_item, research_item
 
 
 def render_navigation_panel(

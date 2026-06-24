@@ -105,4 +105,5 @@ class SiteDefinition:
     id: str
     title: str
     navigation: NavigationTree
+    research_navigation: NavigationTree
     pages: PageRegistry

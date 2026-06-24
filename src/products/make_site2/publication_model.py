@@ -32,6 +32,7 @@ class PublicationPlan:
     routes: Mapping[str, PageRoute]
     pages: Mapping[str, PlannedPage]
     navigation_tree: tuple[NavigationItem, ...]
+    research_navigation_tree: tuple[NavigationItem, ...]
 
 
 DEFAULT_INCLUDED_STATUSES = frozenset({PageStatus.PROMOTED})
@@ -52,11 +53,16 @@ def build_publication_plan(
         _navigation_item(child, routes, planned_pages)
         for child in site.navigation.children
     )
+    research_navigation_tree = tuple(
+        _navigation_item(child, routes, planned_pages)
+        for child in site.research_navigation.children
+    )
     return PublicationPlan(
         site=site,
         routes=routes,
         pages=planned_pages,
         navigation_tree=navigation_tree,
+        research_navigation_tree=research_navigation_tree,
     )
 
 

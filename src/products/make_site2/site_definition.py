@@ -8,7 +8,7 @@ that can later be resolved into the Publication UI Model.
 from __future__ import annotations
 
 from .models import ArtifactRef, PageDefinition, PageRegistry, PageStatus, SiteDefinition
-from .navigation import NAVIGATION
+from .navigation import PUBLIC_NAVIGATION, RESEARCH_NAVIGATION
 
 
 def artifact(id: str, kind: str, *, producer: str | None = None) -> ArtifactRef:
@@ -226,6 +226,7 @@ PAGES = PageRegistry(
 SITE = SiteDefinition(
     id="sumo_lab",
     title="The Sumo Lab",
-    navigation=NAVIGATION,
+    navigation=PUBLIC_NAVIGATION,
+    research_navigation=RESEARCH_NAVIGATION,
     pages=PAGES,
 )

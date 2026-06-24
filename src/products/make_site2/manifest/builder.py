@@ -34,7 +34,7 @@ class QuickLinkDeclaration:
     href: str | None = None
 
 
-GOATS_HREF = "?page=career_comparisons&skill=equelo&x=date&log=true&rikishi=1123%2C3987%2C1354%2C2%2C3%2C4080"
+GOATS_HREF = "index.html?page=career_comparisons&skill=equelo&x=date&log=true&rikishi=1123%2C3987%2C1354%2C2%2C3%2C4080"
 
 QUICK_LINKS: tuple[QuickLinkDeclaration, ...] = ()
 
@@ -151,6 +151,11 @@ def build_public_site_shell(plan: PublicationPlan) -> PublicSiteShell:
                 renderable_page_ids,
                 declaration_by_page_id,
             ),
+            research_navigation_tree=renderable_navigation_tree(
+                plan.research_navigation_tree,
+                renderable_page_ids,
+                declaration_by_page_id,
+            ),
             collapse_control=NavigationCollapseControl(
                 enabled=True,
                 storage_key="gaspodeSumoLab.makeSite2.navCollapsed",
@@ -199,7 +204,7 @@ def canonical_default_view_href(page_id: str, filters: tuple[Filter, ...]) -> st
         (filter.url_key or filter.id, serialize_filter_value(filter.default))
         for filter in filters
     )
-    return f"?{urlencode(state)}"
+    return f"index.html?{urlencode(state)}"
 
 
 def serialize_filter_value(value: str | bool) -> str:

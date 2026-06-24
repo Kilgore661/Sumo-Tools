@@ -33,6 +33,7 @@ class NavigationBar:
     heading: str
     quick_links: tuple[NavigationQuickLink, ...]
     navigation_tree: tuple[NavigationItem, ...]
+    research_navigation_tree: tuple[NavigationItem, ...]
     collapse_control: NavigationCollapseControl
 
 

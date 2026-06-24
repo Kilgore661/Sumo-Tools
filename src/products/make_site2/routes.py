@@ -37,6 +37,7 @@ def derive_page_routes(site: SiteDefinition) -> Mapping[str, PageRoute]:
             walk(child, parts)
 
     walk(site.navigation, ())
+    walk(site.research_navigation, ())
     return routes
 
 
