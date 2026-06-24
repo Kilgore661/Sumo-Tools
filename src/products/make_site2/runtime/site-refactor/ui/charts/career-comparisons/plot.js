@@ -11,7 +11,7 @@ function renderCareerComparisonsPlot(artifact, state, data) {
   updateCareerComparisonCaption(artifact, data);
   if (!careerComparisonsState.selectedRikishiIds.length) {
     if (window.Plotly && host.on) Plotly.purge(host);
-    host.innerHTML = '<p class="career-comparison-empty">Select one or more rikishi.</p>';
+    host.innerHTML = '<p class="career-comparison-empty">Add one or more rikishi.</p>';
     return;
   }
   if (!window.Plotly) {

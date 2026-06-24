@@ -41,12 +41,13 @@ function renderCareerComparisonsControls(state) {
     `<span>${renderLabelWithHelp("Compress", "Compress lower banzuke divisions.")}</span>`,
     '</label>',
     '<div class="career-comparison-selector">',
+    '<span class="career-comparison-selector-caption">Selected Rikishi</span>',
+    '<ul class="career-comparison-selected" aria-label="Selected rikishi"></ul>',
     '<label class="filter-control career-comparison-search">',
-    '<span>Rikishi</span>',
+    '<span>Add</span>',
     '<input type="text" name="rikishi_search" autocomplete="off" list="career-comparison-candidates" autofocus tabindex="0">',
     '</label>',
     '<datalist id="career-comparison-candidates"></datalist>',
-    '<ul class="career-comparison-selected" aria-label="Selected rikishi"></ul>',
     '</div>',
     '</form>',
   ].join("");
@@ -214,6 +215,10 @@ function addSelectedRikishi(label, optionsByLabel) {
 }
 
 function renderSelectedRikishiList(selectedList, optionsById) {
+  if (!careerComparisonsState.selectedRikishiIds.length) {
+    selectedList.innerHTML = '<li class="career-comparison-selected-empty">(None.)</li>';
+    return;
+  }
   selectedList.innerHTML = careerComparisonsState.selectedRikishiIds
     .map(id => {
       const option = optionsById.get(id);
@@ -222,13 +227,24 @@ function renderSelectedRikishiList(selectedList, optionsById) {
       const escapedLabel = escapeHtml(option.label);
       return [
         '<li>',
-        `<span>${escapedLabel}</span>`,
+        '<span class="career-comparison-selected-row">',
+        renderSelectedRikishiLink(option.label, id),
         `<button type="button" class="career-comparison-remove-control" data-rikishi-id="${escapedId}" aria-label="Remove ${escapedLabel}" title="Remove ${escapedLabel}"><img class="career-comparison-remove-icon" src="${TRASH_ICON_PATH}" alt="" aria-hidden="true" draggable="false"></button>`,
         `<label class="career-comparison-visibility-control" title="Show/hide ${escapedLabel} traces"><input type="checkbox" data-rikishi-visible-id="${escapedId}" checked aria-label="Show ${escapedLabel} traces"><img class="career-comparison-visibility-icon career-comparison-visibility-icon-on" src="${EYE_ICON_PATH}" alt="" aria-hidden="true" draggable="false"><img class="career-comparison-visibility-icon career-comparison-visibility-icon-off" src="${EYE_CLOSED_ICON_PATH}" alt="" aria-hidden="true" draggable="false"></label>`,
+        '</span>',
         '</li>',
       ].join("");
     })
     .join("");
+}
+
+function renderSelectedRikishiLink(label, rikishiId) {
+  return [
+    `<a class="shikona-link" href="https://sumodb.sumogames.de/Rikishi.aspx?r=${encodeURIComponent(rikishiId)}"`,
+    ' target="_blank" rel="noopener">',
+    escapeHtml(label),
+    '</a>',
+  ].join("");
 }
 
 export {
@@ -244,4 +260,5 @@ export {
   refreshCareerComparisonDatalist,
   addSelectedRikishi,
   renderSelectedRikishiList,
+  renderSelectedRikishiLink,
 };
