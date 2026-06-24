@@ -68,7 +68,7 @@ function wireCareerComparisonsControls(panel, artifact, state, data, writeState)
   if (!form) return;
   readCareerComparisonSelectionFromUrl(data);
   const options = careerComparisonRikishiOptions(data);
-  const optionsByLabel = new Map(options.map(option => [option.label, option]));
+  const optionsByLabel = new Map(options.map(option => [canonicalRikishiLabel(option.label), option]));
   const optionsById = new Map(options.map(option => [option.id, option]));
   const input = form.elements.rikishi_search;
   const datalist = form.querySelector("#career-comparison-candidates");
@@ -94,11 +94,19 @@ function wireCareerComparisonsControls(panel, artifact, state, data, writeState)
     }
     updateCareerComparisonCandidates(input, datalist, options);
   });
+  input.addEventListener("focus", () => {
+    refreshCareerComparisonDatalist(input, datalist, options);
+  });
+  input.addEventListener("click", () => {
+    refreshCareerComparisonDatalist(input, datalist, options);
+  });
   input.addEventListener("change", () => {
     enableCareerComparisonDatalist(input);
     if (consumeExactRikishiSelection(input, optionsByLabel, datalist, selectedList, options, optionsById)) {
       applyState();
+      return;
     }
+    updateCareerComparisonCandidates(input, datalist, options);
   });
   selectedList.addEventListener("click", event => {
     const button = event.target.closest("button[data-rikishi-id]");
@@ -168,7 +176,7 @@ function updateCareerComparisonCandidates(input, datalist, options) {
 }
 
 function consumeExactRikishiSelection(input, optionsByLabel, datalist, selectedList, options, optionsById) {
-  const label = input.value.trim();
+  const label = canonicalRikishiLabel(input.value);
   if (!optionsByLabel.has(label)) return false;
   addSelectedRikishi(label, optionsByLabel);
   input.value = "";
@@ -179,10 +187,19 @@ function consumeExactRikishiSelection(input, optionsByLabel, datalist, selectedL
   return true;
 }
 
+function canonicalRikishiLabel(value) {
+  return String(value).trim().toLowerCase();
+}
+
 function enableCareerComparisonDatalist(input) {
   if (!input.hasAttribute("list")) {
     input.setAttribute("list", "career-comparison-candidates");
   }
+}
+
+function refreshCareerComparisonDatalist(input, datalist, options) {
+  enableCareerComparisonDatalist(input);
+  updateCareerComparisonCandidates(input, datalist, options);
 }
 
 function addSelectedRikishi(label, optionsByLabel) {
@@ -222,7 +239,9 @@ export {
   careerComparisonControlState,
   updateCareerComparisonCandidates,
   consumeExactRikishiSelection,
+  canonicalRikishiLabel,
   enableCareerComparisonDatalist,
+  refreshCareerComparisonDatalist,
   addSelectedRikishi,
   renderSelectedRikishiList,
 };
