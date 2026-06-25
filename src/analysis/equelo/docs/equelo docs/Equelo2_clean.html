@@ -1,0 +1,97 @@
+<h2>The Core Idea</h2>
+
+<p>Equelo addresses these problems by changing the way rikishi enter and leave the rating system.</p>
+
+<p>Instead of assuming that every rikishi starts at the same arbitrary rating, Equelo assigns entrant ratings according to chii: the banzuke rank held by the rikishi at the relevant point. The question then becomes: what rating should a given chii have?</p>
+
+<p>The answer is not chosen by hand. Equelo estimates chii-based initial ratings by a fixed-point process. In broad terms:</p>
+
+<ol>
+  <li>start with a constant provisional initial rating for every chii;</li>
+  <li>run the Elo-like rating calculation through the historical results;</li>
+  <li>aggregate the resulting ratings by chii;</li>
+  <li>normalise the aggregated chii values according to the baseline convention;</li>
+  <li>use those normalised chii values as the next provisional initial ratings;</li>
+  <li>repeat until the chii values stop changing, or change only negligibly.</li>
+</ol>
+
+<p>If this process converges, the result is a self-consistent mapping from chii to rating. A yokozuna initial rating is not asserted in advance; it is the rating that the system settles on for yokozuna in the context of the available historical data and the model assumptions. The same is true for ozeki, maegashira, juryo, makushita, and so on.</p>
+
+<p>This solves the start-up problem in a principled way. It does not say that the banzuke is perfect. It says that the banzuke is evidence. A rank is the result of previous performance and judgement, and therefore contains information that should not be thrown away merely because some bout records are missing.</p>
+
+<aside class="assumption" id="assumption-fixed-point">
+  <h3>Assumption 2: fixed-point stability is meaningful</h3>
+  <p>Equelo treats a stable chii-rating map as meaningful within the model. If using a map as input reproduces approximately the same map as output, the resulting values are treated as self-consistent estimates. This does not make them true in an absolute sense. It means they are stable under the defined process.</p>
+</aside>
+
+<h2>Mean Conservation</h2>
+
+<p>The fixed-point idea deals with initial ratings. It does not, by itself, solve rating inflation.</p>
+
+<p>Suppose there are $n$ active rikishi and the baseline rating is $b$. If every rikishi initially has rating $b$, then the total number of rating points in the active system is</p>
+
+\[
+nb
+\]
+
+<p>and the average rating is $b$.</p>
+
+<p>In a closed population, zero-sum bout updates preserve that total. But sumo is not a closed population. Rikishi enter and leave. If, as often happens, a new rikishi enters in a low division with an initial allocation of rating points, loses repeatedly, and then leaves, the points he lost have not disappeared. They have been transferred to other active rikishi. Over time, through the ordinary movement of wins, promotions, and stronger rikishi beating weaker rikishi, such points tend to move up the rating system. Without a mean-conservation rule, this creates a route by which entry and exit mechanics can inflate the ratings of stronger rikishi.</p>
+
+<p>Equelo therefore uses a mean-conservation rule. When the active population changes, ratings are adjusted so that the average active rating remains at the baseline value $b$. Equivalently, if there are $n$ active rikishi, the active rating pool is kept centred on total mass $nb$.</p>
+
+<p>This adjustment is not a claim about any individual bout. It is a scale-preserving rule. It says that changes in the number and composition of active rikishi should not, by themselves, move the meaning of the rating scale. Without such a rule, the rating system could confuse population mechanics with performance.</p>
+
+<p>This is one of the places where the model is doing visible work. Mean conservation is a deliberate modelling choice. It is not something observed directly in the world. The justification is that, without it, the rating scale can drift for reasons that are not the performance of any particular rikishi.</p>
+
+<aside class="assumption" id="assumption-mean-conservation">
+  <h3>Assumption 3: the active rating mean should be conserved</h3>
+  <p>Equelo assumes that changes in the size and composition of the active population should not move the meaning of the rating scale. This is a modelling choice. It is justified by the need to distinguish performance changes from rating-mass changes caused by entry and retirement.</p>
+</aside>
+
+<h2>Rank-Based Initial Ratings</h2>
+
+<p>The fixed-point procedure gives Equelo a way to infer initial ratings from chii. Conceptually, the procedure can be written as an iteration. The first map is constant:</p>
+
+\[
+I_0(c) = b
+\]
+
+<p>for every chii $c$. Running the rating system with the current initial map produces ratings. Those ratings are aggregated by chii and then normalised to produce the next map:</p>
+
+\[
+I_{t+1} = N(A(S(I_t))).
+\]
+
+<p>Here $S(I_t)$ denotes the simulation run using the current initial-rating map, $A$ denotes the aggregation rule used to extract representative chii values from the simulated ratings, and $N$ denotes the normalising operator that recentres the resulting chii map according to the baseline convention.</p>
+
+<p>A fixed point is reached when, for practical purposes,</p>
+
+\[
+I_{t+1}(c) pprox I_t(c)
+\]
+
+<p>for all chii being estimated. At that point the chii ratings are self-consistent: using them as inputs reproduces them as outputs.</p>
+
+<p>That does not make them metaphysically true. It means they are stable under the defined process. This is still useful. If the method says that a given rank has a certain rating value, that value is not arbitrary. It is the value implied by the interaction of the banzuke, the bout records, the update rule, and the normalisation rule.</p>
+
+<h2>Historical Coverage and the 1989 Problem</h2>
+
+<p>The historical data are not uniform. There are banzuke records throughout the period of interest, but complete lower-division bout results are only available from a later point, namely January 1989. This creates a choice.</p>
+
+<p>One possibility is to start the entire rating system only when full lower-division data are available. That gives a cleaner dataset, but throws away decades of sekitori history and, to some extent, lower-division history where it does exist before 1989.</p>
+
+<p>Another possibility is to start earlier and use only the available results. That preserves the sekitori history, but leaves lower-division ratings poorly anchored before the lower-division records become complete.</p>
+
+<p>Equelo takes a third approach. It uses the complete-data period to learn what ranks mean across the full banzuke, including the lower divisions. It then uses those rank values when earlier incomplete records require them. For example, if a makushita rikishi appears in an early, pre-1989, sekitori-adjacent bout, the system can assign him a rating based on the calibrated value of his rank, even though his full lower-division history is not available.</p>
+
+<p>This is a reconstruction method, not time travel. The later record is not used to invent missing earlier bouts. It is used to calibrate the relationship between rank and rating. The earlier partial record is then interpreted using that calibration.</p>
+
+<aside class="assumption" id="assumption-later-data">
+  <h3>Assumption 4: later complete data can calibrate earlier incomplete data</h3>
+  <p>Equelo uses the better-recorded period from January 1989 onward to estimate rank-rating relationships across the full banzuke. It then applies those relationships cautiously to earlier periods where the banzuke exists but lower-division bout records are incomplete. This assumes that later rank-rating relationships are useful guides to earlier ones.</p>
+</aside>
+
+<p>This should be stated plainly because it is an obvious objection. Equelo sometimes uses information learned from the better-recorded later period to interpret the worse-recorded earlier period. That is true. The justification is that the banzuke exists throughout, and the later complete record gives us a way to estimate what those ranks mean on the rating scale.</p>
+
+<p>The resulting early lower-division ratings should therefore be treated as model-derived estimates. They are not directly observed historical facts. Their reliability depends on the assumption that later rank-rating relationships are useful guides to earlier rank-rating relationships.</p>

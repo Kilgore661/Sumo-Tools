@@ -1,0 +1,86 @@
+<h2>Support and Completion</h2>
+
+<p>The fixed-point idea suggests that every chii can receive its own independently estimated rating. In practice, this is not always safe.</p>
+
+<p>Some chii have plenty of observations and are well supported. Others are rare, historically contingent, or populated by only a handful of rikishi. In those cases the fixed-point process can produce values that are technically implied by the iteration but not substantively credible. A rank with very few observations may be dominated by one unusual rikishi, one unusual basho, or the mechanics of the iteration itself.</p>
+
+<p>This is not hypothetical. Earlier experiments produced pathological values for sparsely supported lower-division ranks. A rank with almost no support could acquire an absurd initial rating because the system had too little independent evidence to discipline the estimate.</p>
+
+<p>The current production approach therefore distinguishes between supported and unsupported chii. Supported chii receive direct estimates. Unsupported chii are completed by a defined rule, typically by borrowing from the nearest supported chii in rank order. This means the final entrant-rating map is not a raw fixed-point table. It is a completed map: partly direct estimates, partly deterministic completions.</p>
+
+<aside class="assumption" id="assumption-unsupported-chii">
+  <h3>Assumption 5: unsupported chii should be completed, not independently estimated</h3>
+  <p>Equelo assumes that it is better to use a defined completion rule for poorly supported chii than to preserve raw estimates that look precise but are not disciplined by enough data. This is a pragmatic intervention, and it is part of the definition of the system as actually used.</p>
+</aside>
+
+<p>This is a pragmatic intervention, but it is not a hidden one. It should be part of the definition of the system. Equelo, as actually used, includes support filtering and completion. The goal is not to pretend that every rank has enough information to stand on its own. The goal is to use independent estimates where they are supported and avoid giving false precision where they are not.</p>
+
+<h2>What Equelo Produces</h2>
+
+<p>Equelo produces several different kinds of output, and they should not be confused.</p>
+
+<p>The first is the <strong>entrant initial-rating map</strong>. This gives the rating assigned to a rikishi when the system needs an initial value based on his chii. It is a runtime artefact used by the rating process itself. In the current implementation, this map is keyed by chii ordinal and contains the final initial ratings used by the simulation.</p>
+
+<p>The second is the <strong>master chii initial-rating map</strong>. This is the explanatory version of the entrant map. It records the chii, its ordinal, the initial rating, and information about whether the value is directly estimated or completed from another supported chii. This is the artefact that should be used when explaining how the initial-rating system works.</p>
+
+<p>The third is the <strong>day-end rating output</strong>. This records the ratings of rikishi after the day’s bouts have been processed. These ratings are the main historical time series: they allow us to look at the rise, decline, recovery, or stagnation of individual rikishi.</p>
+
+<p>Public rank-value artefacts derived from these outputs need to report what the model found, not what the rank curve feels as if it should have found. A smoothed monotone table of “typical” ratings by rank may look attractive, but if the raw model says that some lower rank has a higher observed or estimated rating than a rank above it, smoothing that away is not a description. It is a normative curve masquerading as a descriptive one.</p>
+
+<p>For that reason, if the rank-rating curve is not monotone, the public account should say so. The anomaly is not something to hide. It is something to analyse.</p>
+
+<h2>What the Ratings Mean</h2>
+
+<p>An Eq rating is a model-derived comparative rating. It is not an absolute measure of ability. Like Elo, its predictive meaning lies wholly in differences between ratings. A rikishi with a higher rating has stronger evidence of performance within the rating system than a rikishi with a lower rating.</p>
+
+<p>That last phrase matters: <em>within the rating system</em>. Eq ratings are not independent facts about the world. They are outputs of a defined process. That process uses results, rank-based initialisation, support filtering, completion, and mean conservation. The ratings mean what they mean under those assumptions.</p>
+
+<aside class="assumption" id="assumption-rating-differences">
+  <h3>Assumption 6: rating differences carry the predictive meaning</h3>
+  <p>The absolute numbers are placed on a scale by convention. The comparisons made by the system are driven by differences between ratings.</p>
+</aside>
+
+<p>This makes the ratings useful, but it also limits them. If Eq says that one rikishi is ahead of another, that is evidence generated by the model. It is not a final judgement. If Eq disagrees with the banzuke, the disagreement is interesting. It may indicate that the banzuke is slow to reflect a change in performance. It may indicate that Eq has noticed something useful. It may also indicate that the model is being distorted by missing data, rank composition, population churn, or some other artefact.</p>
+
+<p>The purpose of defining Equelo carefully is to make those disagreements interpretable. If we know exactly what the system does, we can ask better questions when it produces surprising results.</p>
+
+<h2>Analysing the Raw Results</h2>
+
+<p>The raw results are not perfectly tidy. In particular, the rank-rating curve is not always monotone. One would naturally expect higher ranks to have higher ratings than lower ranks. Broadly, that is true. But there are local exceptions.</p>
+
+<p>The lower maegashira ranks appear to be one such region. There is a local minimum around the lower maegashira area: ranks below that point may receive higher Eq values than ranks immediately above it. This is surprising. It is not what a simple reading of the banzuke would suggest.</p>
+
+<p>There are also lower-division problems. One problem is sparse chii: if a rank is represented by too few observations, the raw fixed-point process can produce values that are implausibly high or otherwise unstable. These cases are a warning that the fixed-point process is not magic. It needs sufficient support to produce estimates that deserve confidence.</p>
+
+<p>A second problem is churn. Jonokuchi, and to some extent the lower part of Jonidan, contain many rikishi who do not remain in the system for long. Elo-like systems work best when competitors form a reasonably connected population. If a large share of the population leaves after only a few ranking events, the assumptions behind the rating process become weaker. In that situation, the problem may not be a special defect of Equelo. It may be a limit of applying Elo-style dynamics to a very unstable population.</p>
+
+<aside class="assumption" id="assumption-lower-division-churn">
+  <h3>Assumption 7: lower-division churn does not invalidate the rating process</h3>
+  <p>Equelo applies Elo-like dynamics throughout the banzuke, including regions with high turnover. This assumption may be least secure in Jonokuchi and low Jonidan. For now, those ranks remain included because they are part of the banzuke and part of the career path of rikishi who later matter to the upper divisions, but claims based on those regions should be weaker.</p>
+</aside>
+
+<p>These anomalies create an interpretive problem. They may reflect real structure in the data. They may reflect the composition of rikishi at particular ranks: promoted rikishi, demoted rikishi, injured returners, short-career wrestlers, boundary effects, or churn. They may reflect schedule effects or missing records. Or they may reflect defects in the model.</p>
+
+<p>The correct response is not to smooth them away and pretend the model produced the shape we expected. The correct response is to report the raw behaviour, identify the places where it conflicts with expectation, and then investigate possible explanations.</p>
+
+<h2>Epistemology and Pragmatism</h2>
+
+<p>Equelo sits between two pressures.</p>
+
+<p>On one side is the epistemological question: how much of this is a principled mathematical account of performance, and how much is a pragmatic construction designed to make an imperfect model usable? Very few mathematical accounts of the world are exact, and statistical or rating systems are especially dependent on modelling choices. Mean conservation, support filtering, and completion rules are not facts about sumo. They are decisions about how to represent sumo in a rating system.</p>
+
+<p>On the other side is the pragmatic question: how much does that matter? The purpose of the site is not to prove the final truth about sumo. It is to produce interesting, transparent, and repeatable ways of looking at sumo history. If Equelo gives useful trajectories, comparisons, and puzzles, then it has value even if it is not perfect.</p>
+
+<p>The danger is overclaiming. If Eq is used to assert something bold on the basis of thin evidence, a critic can reasonably say that the conclusion is only as good as the model. If the model has known rough edges, those rough edges matter.</p>
+
+<p>The answer is not to abandon the model, and not to hide the rough edges. The answer is to calibrate the claims:</p>
+
+<ul>
+  <li>When Eq follows the banzuke and common sense, it gives a useful numerical version of an already plausible story.</li>
+  <li>When Eq diverges from the banzuke, the divergence is a prompt for investigation, not an automatic discovery.</li>
+  <li>When Eq produces a surprising rank-level pattern, the pattern should be shown and analysed, not replaced by a smoother curve.</li>
+  <li>When the data are sparse, claims should be weaker.</li>
+  <li>When the population has very high churn, claims should be weaker again.</li>
+</ul>
+
+<p>This gives a sensible way to use the ratings. Equelo is a lens. A lens can reveal structure, but it can also distort. The point is to know the shape of the lens.</p>

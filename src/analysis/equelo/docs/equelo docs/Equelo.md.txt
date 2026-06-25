@@ -1,0 +1,46 @@
+# What is Equelo?
+
+Equelo, or Eq, is an Elo-like rating system for Grand Sumo. It starts from the same basic idea as Elo: a rikishi has a numerical rating, and that rating changes after a bout according to the result and the rating of the opponent. Beating a stronger opponent is worth more than beating a weaker one; losing to a weaker opponent costs more than losing to a stronger one. In that sense Eq belongs to the Elo family of rating systems.
+
+However, Equelo is not simply Elo applied to sumo. It was developed because ordinary Elo has two problems when used with historical sumo data.
+
+The first problem is initialisation. In ordinary Elo, everyone is usually given the same initial rating. That is simple, but it is not realistic. A yokozuna, an ozeki, a mid-maegashira, and a new juryo rikishi are not equally strong merely because the rating calculation has just begun. If everyone starts from the same number, the early ratings contain a start-up distortion: the system needs time to move rikishi towards ratings that better reflect their actual level.
+
+The second problem is historical data coverage. Since January 1958 there is a banzuke for every basho, so we know who was ranked where. But the bout records are not equally complete for all divisions throughout the period. Sekitori results are available across the whole period, but complete lower-division results are only available from 1989. Before that, lower-division coverage gradually improves from none to complete. This matters because a sekitori rikishi does not arrive in juryo from nowhere. He brings a lower-division history with him. If that history is missing, ordinary Elo has no direct way to know what his rating should be when he first appears in the recorded sekitori results.
+
+Equelo addresses these problems by treating rank as evidence.
+
+This is a natural thing to do in sumo. A banzuke rank is not an arbitrary label. It is the result of previous performance, judged through the traditional ranking process. Equelo does not replace the banzuke and does not assume that the banzuke is perfect. Instead, it uses the banzuke as a source of prior information. Where bout results are known, they are used directly. Where a rikishi enters the calculation, his rank supplies an initial rating estimate.
+
+The question is then: what rating should each rank have?
+
+Equelo answers this by a fixed-point procedure. Start with a simple set of initial ratings. Run the Elo-like calculation through the available historical results. At the end, aggregate the resulting ratings by rank. These aggregated rank ratings are then fed back in as the next set of initial ratings, and the calculation is run again. The process is repeated until the rank ratings stop changing, or change only negligibly.
+
+If the process converges, the result is a self-consistent mapping from rank to rating. A yokozuna rating is not chosen by hand. Nor is an M8 rating, or a Juryo 10 rating, or a Makushita 20 rating. Each is the rating that makes the overall historical calculation stable when ranks are used as starting information.
+
+This fixed-point procedure solves the start-up problem. In ordinary Elo, the beginning of the calculation is special because everyone starts from an arbitrary common value. In Equelo, once the fixed-point rank ratings have been found, a rikishi starts from the rating implied by his rank. A yokozuna starts like a yokozuna; a juryo rikishi starts like a juryo rikishi; a makushita rikishi starts like a makushita rikishi. The rating system does not have to spend several basho discovering facts that the banzuke already contains.
+
+There is a separate problem: inflation.
+
+In an Elo system, individual bouts are zero-sum: one rikishi gains the points that the other rikishi loses. But the active population is not fixed. Rikishi enter and leave. New low-ranked rikishi bring rating points into the system, some of those points move upwards through wins and promotions, and when higher-ranked rikishi retire the points removed from the system need not balance the points introduced. Over time, this can cause the average rating to drift. If the rating scale drifts, comparisons across eras become unsafe.
+
+Equelo therefore includes a normalisation step. Suppose there are (n) active rikishi and the baseline rating is (b). The total number of rating points in the system should be (nb), so the average active rating should remain (b). Whenever rikishi enter or leave the active population, ratings are adjusted so that the active-population average remains fixed at (b).
+
+This is what controls inflation. The fixed-point procedure gives ranks stable rating values; the normalisation procedure keeps the rating scale itself from drifting over time. The two mechanisms do different jobs, and both are needed.
+
+Together, they give Equelo its central interpretation:
+
+Equelo is an Elo-like rating system in which bout results move ratings, banzuke ranks provide calibrated starting information, and the total rating scale is normalised so that comparisons remain meaningful across time.
+
+This also explains why Eq can be extended beyond the period of complete lower-division data.
+
+For the period from 1989 onwards, complete bout records allow Equelo to estimate ratings for all ranks, including the lower divisions. Once those full-banzuke rank values have been estimated, they can be used when lower-division rikishi appear in the earlier incomplete record. This happens, for example, when a juryo rikishi faces a makushita opponent drafted in to make up the numbers, or when partial lower-division results begin to appear before full coverage is available.
+
+This is a stretch, and it should be understood honestly. Equelo does not recover missing bouts. It does not prove what every lower-division rikishi’s rating “really was” before complete records existed. What it does is use the complete-data era to calibrate what ranks mean, then uses that calibration to interpret earlier partial data. The later record is used to learn the rank-to-rating scale; it is not used to invent historical results.
+
+The result is not perfect historical knowledge, but it is better than treating missing information as if it did not matter. Where bouts are known, they affect ratings directly. Where bouts are missing, the banzuke supplies information. Equelo combines those two sources in a single internally consistent system.
+
+This is why Equelo is useful for sumo. It respects the traditional banzuke because rank is treated as meaningful evidence. It improves on plain Elo because it avoids arbitrary initial ratings and controls rating inflation. It also makes better use of incomplete historical data, because it can use the banzuke as a calibrated guide when bout records are missing.
+
+The aim is not to replace the banzuke, and not to claim that Eq ratings reveal a hidden, exact measure of true ability. The aim is more modest: to produce transparent, historically calibrated, inflation-controlled ratings that can be used to compare rikishi performance within and across eras.
+

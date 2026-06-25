@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>What is an Elo Rating?</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body>
+<article class="prose">
+  <h1>What is an Elo Rating?</h1>
+
+  <p>An Elo rating is a numerical measure of performance. It was originally developed for chess, but the underlying idea is more general. It can be applied to any activity in which competitors meet one another in pairs and the result of each contest can be recorded as a win or a loss.</p>
+
+  <p>Grand Sumo is a natural place to consider such a system. Rikishi do not all face the same opponents, and a simple count of wins does not tell the whole story. A win over a yokozuna is not the same kind of evidence as a win over a struggling maegashira. A rating system should take account of the strength of the opponent.</p>
+
+  <p>The central idea of Elo is that ratings change in proportion to expectations. If a highly rated rikishi beats a much lower-rated opponent, the result is unsurprising and the rating change should be small. If the lower-rated rikishi wins, the result is more informative and the rating change should be larger. Elo is not merely a way of counting wins; it is a way of weighting results by how surprising they were.</p>
+
+  <p>Suppose rikishi $r$ has rating $E_r$, and rikishi $s$ has rating $E_s$. The first important point is that the absolute values of $E_r$ and $E_s$ are not meaningful on their own. An Elo rating is not like a height, a weight, or a number of wins. A rating of 1800 does not mean anything in isolation.</p>
+
+  <p>What matters is the relationship between ratings. In particular, Elo uses the difference $E_s - E_r$ to estimate the probability that $r$ beats $s$:</p>
+
+  $$
+  p_{r,s} = {1 \over 1 + 10^{(E_s - E_r)/q}}.
+  $$
+
+  <p>Here $q$ is a parameter controlling how sensitive the probability is to rating differences. If the two rikishi have the same rating, then $E_s-E_r=0$, so $p_{r,s}=0.5$. If $r$ has a higher rating than $s$, then $p_{r,s}$ is greater than 0.5. If $r$'s rating is much higher, then $p_{r,s}$ is close to 1, though never exactly 1.</p>
+
+  <p>After a bout, the rating update is based on the difference between the actual result and the expected result. Let</p>
+
+  $$
+  w_r =
+  \begin{cases}
+  1 & \text{if } r \text{ wins},\\
+  0 & \text{if } r \text{ loses}.
+  \end{cases}
+  $$
+
+  <p>The change in $r$'s rating is</p>
+
+  $$
+  \Delta E_r = k(w_r - p_{r,s}),
+  $$
+
+  <p>where $k$ controls the maximum size of the rating change from one bout. The opponent receives the opposite change:</p>
+
+  $$
+  \Delta E_s = -\Delta E_r.
+  $$
+
+  <p>So each bout is zero-sum. One rikishi gains exactly the points that the other rikishi loses.</p>
+
+  <p>For example, suppose Abi has rating 2042 and Oho has rating 1865, with $q=400$ and $k=35$. Abi's estimated probability of beating Oho is</p>
+
+  $$
+  p_{\text{Abi},\text{Oho}}
+  =
+  {1 \over 1 + 10^{(1865-2042)/400}}
+  \approx 0.735.
+  $$
+
+  <p>If Abi wins, his gain is</p>
+
+  $$
+  35(1 - 0.735) \approx 9.3.
+  $$
+
+  <p>If Abi loses, his change is</p>
+
+  $$
+  35(0 - 0.735) \approx -25.7.
+  $$
+
+  <p>The same bout therefore has very different rating consequences depending on whether the result confirms or contradicts the ratings.</p>
+
+  <p>There are several features of this system worth emphasising.</p>
+
+  <p>First, the calculation is transparent. Once the initial ratings and parameters have been chosen, ratings change only because of recorded results. The calculation does not directly depend on reputation, popularity, fighting style, injury rumours, or anyone's opinion about how good a rikishi "really" is.</p>
+
+  <p>Second, ratings are comparative. A rating does not measure ability in isolation. It measures performance relative to the other competitors in the same rating pool. The number itself is not the point; the differences between numbers are.</p>
+
+  <p>Third, each bout is zero-sum. A bout redistributes rating points between the two rikishi. It does not create rating points merely because a bout has taken place.</p>
+
+  <p>These properties make Elo attractive. Sumo is full of unequal schedules, changing opposition, promotions, demotions, injuries, absences, and short tournaments. A method that evaluates each result in light of the opponent's rating has obvious appeal.</p>
+
+  <p>However, applying ordinary Elo to historical sumo also raises problems.</p>
+
+  <p>The first problem is the starting point. Elo calculations usually begin by giving every competitor the same initial rating, such as $b=1000$. This is simple, but unrealistic. A yokozuna, an ozeki, a mid-maegashira, and a new juryo rikishi are not equally strong merely because the rating calculation has just begun. The system will move them apart over time, but early ratings are partly distorted by the arbitrary common start.</p>
+
+  <p>The second problem is missing history. A rikishi who appears in the sekitori results did not come from nowhere. He reached juryo by fighting in the lower divisions. If those lower-division bout records are missing, ordinary Elo has no way to use that history directly. This is a serious issue for historical sumo, because complete lower-division results are only available from 1989, whereas sekitori results and banzuke records go back much further.</p>
+
+  <p>The third problem is population change. Individual bouts are zero-sum, but the active population is not fixed. New rikishi enter and old rikishi retire. If new rikishi are assigned rating points when they enter, and retired rikishi remove some other number of points when they leave, the total number of rating points in the active system can drift. This matters because a drift in the rating scale makes comparisons across time less reliable.</p>
+
+  <p>Finally, Elo ratings describe results; they do not explain them. They do not know whether a rikishi was injured, whether he had a favourable style match-up, whether the bout was unusually important, or whether he was returning from absence. Those things may matter, but they are not directly part of the calculation.</p>
+
+  <p>So Elo gives us a powerful starting point: a transparent, opponent-sensitive, difference-based way of turning results into ratings. But plain Elo also leaves several questions unanswered when it is applied to historical sumo data.</p>
+  <h1>TBD</h1>
+  The "Elo Theorem" has finally been proved <a href="https://arxiv.org/abs/2410.09180">here</a> where it says
+  <blockquote>
+The Elo rating system is a popular and widely adopted method for measuring the relative skill levels of players or teams in various sports and competitions. It assigns players numerical ratings and dynamically updates them based on game results and a model parameter  , which determines the sensitivity of rating changes. Assuming random games, this leads to a Markov chain for the evolution of the ratings of the   players in the league. Despite its widespread use, little is known about the long-term behavior of this process. Aiming to fill this gap, in this article we prove that the process converges to its unique equilibrium distribution at an exponential rate in the 2-Wasserstein distance and almost surely. Moreover, we show important properties of the stationary distribution, such as the finiteness of an exponential moment, full support, and convergence to the players' true skills as   decreases, at a rate of       . We also provide Monte Carlo simulations that illustrate some of these properties and offer new insights. 
+  </blockquote>
+  What does this mean for my work on Elo and Equelo? I think nothing, but it might explain why basing any method on Elo will fail.
+</article>
+</body>
+</html>

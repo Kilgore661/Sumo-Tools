@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>What is Equelo?</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\(', '\)']],
+        displayMath: [['$$', '$$'], ['\[', '\]']]
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body>
+<article class="prose">
+
+<h1>What is Equelo?</h1>
+
+<p>Equelo, or Eq, is an Elo-like rating system for Grand Sumo. It starts from the same basic idea as Elo: a rikishi has a numerical rating, and that rating changes after a bout according to the result and the rating of the opponent. Beating a stronger opponent is worth more than beating a weaker one; losing to a weaker opponent costs more than losing to a stronger one. Eq keeps that idea, but it changes the surrounding machinery so that the ratings are better suited to historical sumo data.</p>
+
+<p>The short version is this: Equelo uses Elo-style bout updates, banzuke ranks as calibrated starting information, and a mean-conservation rule to prevent the rating scale from drifting. It is intended to be transparent and useful, but it is not a claim to have discovered the hidden true ability of every rikishi. It is a defined model, and its outputs have to be understood as the outputs of that model.</p>
+
+<p>This distinction matters. Equelo is not pure Elo, and it is not the banzuke in numerical form. It is an attempt to combine two kinds of evidence:</p>
+
+<ul>
+  <li>recorded bout results, which say what happened on the dohyo; and</li>
+  <li>banzuke ranks, which contain information about previous performance, even when the underlying bout records are incomplete.</li>
+</ul>
+
+<p>Where the bout records are complete, Equelo behaves like an Elo-style performance rating system with additional controls. Where the bout records are incomplete, Equelo uses the banzuke as calibrated evidence rather than pretending that missing information does not matter.</p>
+
+<aside class="assumption" id="assumption-banzuke-evidence">
+  <h3>Assumption 1: the banzuke is evidence</h3>
+  <p>A chii is not a perfect measure of strength, and the banzuke is not a rating table. But a rank is not arbitrary. It reflects previous results, institutional judgement, and the constraints of the ranking system. Equelo assumes that this information is worth using, especially where the underlying bout record is incomplete.</p>
+</aside>
+
+<h2>Why Plain Elo Is Not Enough</h2>
+
+<p>Plain Elo is attractive because it is simple and transparent. Once the parameters and starting ratings have been chosen, ratings change because of results. A rikishi gains or loses points according to whether he wins and how strong his opponent was expected to be. This gives a structured account of performance against opposition rather than a simple count of wins.</p>
+
+<p>However, historical sumo creates problems for a direct Elo calculation.</p>
+
+<p>The first problem is the starting point. In a simple Elo system, every competitor is often assigned the same initial rating, say $b=1000$. That is deliberately ignorant: it says that at the start of the calculation, we do not know who is strong and who is weak. This may be a reasonable convention in some settings, but it is not a good description of a banzuke. A yokozuna, an ozeki, a mid-maegashira, and a new juryo rikishi are not equally strong merely because the rating calculation has just begun. The system will move them apart over time, but that means early ratings are partly contaminated by the arbitrary common start.</p>
+
+<p>The second problem is missing history. We have banzuke records going back through the historical period of interest, so we know who was ranked where. But bout records are not equally complete across divisions. Sekitori results are available much further back than complete lower-division results. This matters because a rikishi who first appears in the sekitori results did not come from nowhere. He reached juryo by fighting in the lower divisions. If those lower-division bouts are missing, plain Elo has no direct way to know what his rating should be when he enters the recorded sekitori pool.</p>
+
+<p>The third problem is population change. Individual Elo bouts are normally zero-sum: one rikishi gains what the other loses. But the active population is not fixed. New rikishi enter, old rikishi retire, and the number of active rikishi changes. If entrants bring points into the system and retirees remove some other amount, the total number of rating points in the active population can drift. If the scale drifts, comparisons across time become less reliable.</p>
+
+<p>These problems are not small details. They affect the interpretation of the ratings. If a rating system is meant to compare rikishi across many decades, it needs to say how it handles incomplete records, arbitrary starting assumptions, and an open population.</p>
