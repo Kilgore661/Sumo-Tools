@@ -267,8 +267,14 @@ async function renderProseContentPanel(panel, artifact) {
     '</div>',
     '</section>'
   ].join("");
+  await typesetMathJax(contentPanel);
   wireNotesPanel();
   wirePAPanelLayout();
+}
+
+async function typesetMathJax(root) {
+  if (!window.MathJax?.typesetPromise) return;
+  await window.MathJax.typesetPromise([root]);
 }
 // Render the Standings panel with source, window and division filters.
 async function renderStandingsContentPanel(panel, artifact, overrideState = null) {

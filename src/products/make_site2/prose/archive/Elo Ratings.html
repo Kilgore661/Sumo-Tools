@@ -1,0 +1,344 @@
+<p>An Elo rating is a numercial measure of performance.
+This section covers
+the basic ideas behind the Elo system and the issues faced by those using it.
+Later, we will see how the Elo system has been modified to make an "Elo-like"
+rating system: <a href="index.html?page=equelo_explanation">Equelo</a>.
+<p>That said, let me conclude these opening remarks with a confession: I am not an expert on sumo or Elo and I
+have not spent much time on researching Elo systems beyond the basic
+definitions. It follows that some of what I say here is opinion and
+uninformed by academic standards. On the
+other hand I have spent a great deal of time thinking about what I do know and
+how that could be creatively used. I hope you find it interesting!
+<h1>Tell Me More!</h1>
+<p>In sports like football, all
+competitors play each other in a given league or division, so a simple tally
+of wins or points scored is a reasonable way of rating competitors. In 
+chess and sumo, some
+competitors never face each other, while others may compete multiple times.
+Thus, a simple ranking system based on the number of wins
+is unlikely to represent a
+player's standing accurately. (If you want to jump ahead and see what sumo rankings look like if you just count wins, see <a href="index.html?page=standings_by_wins&view=standard&num_basho=6&current_only=true&division=makuuchi">Rolling Wins-Based Ranking</a>.)
+<p>
+The Elo rating system  was invented by  <a
+href="https://en.chessbase.com/post/arpad-emre-elo-100th-anniversary">Professor Arpad Elő</a> in
+1960 at the request of <a href="https://www.fide.com/">FIDE</a> to provide an
+objective numerical rating
+for chess players. His system is in fact is a way of providing a numerical rating
+for competitors in any activity in which it is not the case that everyone
+competes against everyone else. 
+Elo's system took some time to become accepted
+but has been used by FIDE since 1970 as the primary
+way of ranking players. Elo ratings for sumo is not a new idea but it
+seems be on the fringes of acceptability.
+<p>
+These pages address the question of whether Elo's ideas might be usefully
+applied to sumo ratings. I am certain that I am not the first person to do
+this but I have been unable to find anything on the internet beyond mentions
+in online fora, and my requests for more subtantial work have not been
+successful. (I would welcome references to any work that readers
+know of.)
+<p>
+Here's Elo's idea, as applied to sumo:
+<ol>
+    <li>Initially, all rikishi are given the same numercial rating (1500, say) .</li>
+    <li>When there is a fight between rikishi $r$ and $s$, the change in ratings is "proportional to
+expectations" i.e.:
+<ul>
+<li>
+If $r$ has a much higher rating than $s$ and $r$ wins, then $r$
+should gain very little and $s$ should lose very little.
+</li>
+<li>
+If $r$ has a much higher rating than $s$ and $r$ loses, then $r$ should lose a
+lot of points whilst $s$ gains a lot.
+</li>
+<li>
+If the competitors have about the same rating, then the winner's rating should go
+up and the loser's go down, but the changes should be relatively small.
+</li>
+</ul>
+</ol>
+(There is an implicit third rule: there is no change in Elo rating for
+rikishi that don't fight. Elo's idea was that there was no way of knowing why someone was not available, so one couldn't say whether that player was better or worse. Arguably in sumo, the reason must be that the rikishi is injured, but there's no guarantee that he won't come back much better.)
+
+<p>Of course, the ratings this system produces will depend on the starting
+date, the initial rating and on
+precisely how much change in rating there is for a given difference in rating.
+The important point for me is that the calculations are mathematical; i.e.
+completely transparent and not in any way subjective. This is unlike the banzuke-based
+ranking system as discussed below.
+<p>
+Readers who want to dive straight into the numbers at this point should skip ahead to the
+<a href="http://www.661.org.uk/cgi-bin/index.py?nav=BKQ">The BKQ Model</a>. Here we
+will continue with discussion of more qualitative issues.
+
+<h2>Matters Arising</h2>
+I said above that this site is about whether Elo ratings can be applied to
+sumo. In fact I am biased and I want an Elo-like system to be adopted for sumo &ndash;
+<em>not</em> as a replacement for
+the traditional banzuke-based ranking system &ndash; but as a complementary way to measure
+ability and progress.
+<p>
+I have encountered resistance to the idea of Elo ratings in general and to the
+idea of applying them to sumo. Here I want to raise these issues so that we can later see how Equelo improves on a naive Elo approach.
+
+<a id="expl_inflation"></a>
+<h3>Inflation</h3>
+<p>Elo ratings have faced a notable issue known as "inflation". In chess, this
+phenomenon became evident as top players' Elo ratings significantly surpassed
+those of previous years. For instance, in 1972, Bobby Fischer, widely regarded as one
+of the greatest chess players of all time, achieved the milestone of breaking
+the 2700 barrier &ndash; an event of considerable sensation at the time.
+However, today (July 2025), this achievement has become commonplace, with dozens of
+players now exceeding 2700.</p>
+
+<p>Some people think this inflation is a result of competitors getting better
+over time. It seems feasible that the level of competition in chess has indeed
+improved due to the success and availability of computer chess and the
+application of sports science techniques, including psychology. However, the
+idea that today there are dozens of people "as good as" Bobby Fischer would be
+controversial.</p>
+
+<p>An alternative idea is that the inflation is inherent in the mathematics of
+the Elo system. I have not seen any proof of this per se, but it is certainly
+the case that my Elo ratings for rikishi in sumo also inflate. For example,
+one of the best rikishi ever was <a
+href="https://sumodb.sumogames.de/Rikishi.aspx?r=3987">Taiho</a> who was at
+his peak in March 1969 after an extraordinary run of wins. In an earlier version of this site, his <a
+href="http://www.661.org.uk/cgi-bin/index.py?elo_table=x&year=1969&month=03&div=Makuuchi&attr=Elo">rating
+at that time</a> was 2009 and this was significantly higher than any of his
+contemporaries. However, at the time of writing, 2009 was the rating of a
+sekiwake and I don't think many people would agree that if Taiho were fighting
+today, he would only be a sekiwake. Could it be that the level of competition
+in sumo has risen due to advances in sports sciences? It seems unlikely to me,
+and opinion (at <a
+href="https://www.reddit.com/r/Sumo/comments/1d1w4yo/do_rikishi_benefit_from_sports_science/">r/Sumo</a>)
+is divided. I think it is more likely that inflation is inherent in the Elo
+ratings system.</p>
+
+<p>In fact I would say that is "obvious" that this is the case. The argument is that young men join with a fixed rating and then mostly lose their points to stronger rikishi. Then they leave sumo having "pumped in" more points. Yes, rikishi with stronger ratings retire and "take their points with them", but my previous findings were that on balance there is a net in-flow of points. Moreover, those points slowly accumulate in the top ranks, hence the inflation.
+
+I further speculate that the reason for inflation is that a naive application of Elo's ideas to chess fails because chess is not in fact an example of what Elo was studying. The issue is that Elo assumed:
+<ul>
+    <li>No new players ever joined.</li>
+    <li>No players left.</li>
+</ul>
+This may seem rather surprising given who he was working for! However, he went on to show (I believe, but I have not found the proof) that under the even more unrealistic condition:
+<ul>
+    <li>No player ever improved or got worse.</li>
+</ul>
+that the system would eventually converge to a "true rating".
+<p>
+However, despite these issues, Elo's system was adopted by FIDE (an
+organisation of highly-functioning, often mathematical individuals, I note) because
+they judged it to be a useable and useful system. The one serious issue is
+inflation, but FIDE deal with this with an occasional normalisation of the
+ratings. Again, this system has been in place since <em>1970</em>.
+
+<hr>
+<p>
+My take on inflation is:
+<ul>
+<li>I am mostly interested in the relative performance of today's rikishi and
+there has been no sign of inflation since 2004
+(see <a
+href="http://www.661.org.uk/cgi-bin/index.py?nav=elo_explan#no_infl_since_2004">Analysis</a>).
+</li>
+<li>If you want to compare Elo ratings of rikishi from different eras then you
+can do this using normalisation. This has to be done with care because
+"normalisation" can have different meanings and it is
+all too easy to define the term in an ad hoc or biased way. We will
+return to this subject in
+<a
+href="http://www.661.org.uk/cgi-bin/index.py?nav=elo_analysis#norm">Normalisation</a>.
+</li></ul>
+
+<h3>Convergence</h3>
+Elo's idea was that a competitor's rating would converge to a measure of his
+"true ability" relative to his competitors, thus establishing who was
+"really" the best. However, he was also aware that ratings would only converge if:
+<ul>
+<li>the pool of competitors never changed and</li>
+<li>competitors' ability never changed.</li>
+</ul>
+<p>
+It turns out that you can prove that ratings do converge under these conditions,
+but neither condition holds
+in
+sumo or chess. Nevertheless, Elo ratings &ndash; or at least, a system based
+on Elo's ideas &ndash; have been adopted by the world's chess authority.
+Furthermore, whatever other properties Elo ratings have when applied to sumo, it seems obvious to me that a rikishi who has a
+run of victories will see his Elo ratings rise and they will continue to do so until
+he reaches the upper limit of his capabilities relative to his co-competitors. Conversely, a rikishi on a
+losing run will see his ratings drop until he reaches his natural level.
+<!---These seem like a desirable
+properties of a rating system and you can see this happening in the
+results.-->
+For example, compare
+ <a
+href="http://www.661.org.uk/cgi-bin/index.py?graph=any&new_rik=&r_Midorifuji=Midorifuji&graph_type=elo_by_time">Midorifuji's
+Elo record</a> with <a
+href="https://en.wikipedia.org/wiki/Midorifuji_Kazunari">his story</a>. I
+think there is an excellent correspondence between the two as he progresses
+through the ranks, becomes injured, recovers, continues his ascent to the
+top of maegashira and bobbles about whilst he finds his level.
+<!---href="http://www.661.org.uk/cgi-bin/index.py?graph=any&new_rik=&r_Midorifuji=Midorifuji&graph_type=by_time">banzuke
+ranks</a>  for Midorifuji in the
+period March 2021 through November 2022.)
+having smoothly climbed to 1798, has a bad tournament due to injury in March
+2021 and caused him to be absent in May. He returned in June but wasn't fully
+recovered, but then he continued his curtailed ascent all the way up to for the whole basohad risen steadily to the rank of M10e.
+He only scored 5-10 and was demoted to M15w. It seems likely he was carrying
+an injury because he did not attend the May basho and was subsequently demoted
+to J9w. From there he climbed back up and got as far as M1w. You can see this
+happening <a
+href="http://www.661.org.uk/cgi-bin/index.py?graph=any&new_rik=&r_Midorifuji=Midorifuji&graph_type=by_time">here</a>.
+His Elo rating during this time started at
+Unfortunately he was injured and could not attend the May basho. His rank
+dropped to--> 
+<!---Of course, it may turn out that if Elo ratings
+become widely adopted, as in chess, the basic Elo rating system might need to
+be modified in some way. However, I am not proposing to do that here.--->
+
+<h3>Prediction</h3>
+If you have a numerical rating for two rikishi then you have data for
+assessing
+the probability of one rikishi beating another. In fact Elo's system involves
+something called the "estimated probability of winning". However, 
+Elo himself noted that his system could not allow for factors that may be
+relevant such as:
+<ul>
+<li>Whether one rikishi has a particularly good record against rikishi with a
+particular fighting style, or against a particular opponent.</li>
+<li>Special circumstances e.g., a fight for the yusho.</li>
+<li>Whether a rikishi is carrying or recovering from an injury</li>
+<li>Extraneous factors e.g., having just become a father.</li>
+</ul>
+<p>
+Of course it is difficult to see how any of these ideas can be made measurable, let
+alone incorporate them into a rating system in an objective way.
+<p>As to whether previous performance as measured by Elo ratings is any
+guarantee of future results, this is currently under investigation. 
+
+<!---h1>Why is "Elo"?</h1>
+In chess, some people object to Elo's rating system and
+
+However, the Elo system &ndash; or, strictly
+speaking, "a system based on Elo's ideas" &ndash; has gained
+acceptance by e.g. <a href"https://www.fide.com/">FIDE</a>.
+On the
+other hand, using Elo ratings for sumo remains a fringe idea that has not been
+accepted by e.g. the <a href="https://www.sumo.or.jp/En/">JSA</a>.
+<p>It seems to me that objections to using Elo for sumo fall into two
+categories:
+<ol>
+<li>What's wrong with the current system?</li>
+<li>Elo ratings seem like meaningless numbers.</li>
+</ol--->
+<h3>Adequacy of Banzuke-Based Rankings</h3>
+The current system of rating rikishi by awarding them the status of a given
+chii (rank) such as "Juryo 5 West" has been used since the 1700s. It is
+traditional, meaningful, and, I suspect, attractively mysterious to
+non-Japanese fans. This is true of me and I do not want to see the system
+replaced. However, some people don't see why anyone would need any other way
+of ranking rikishi.
+<p>For me, the issue is that assigning chii involves a subjective element due to the traditional idea that there should only be two rikishi at a given rank.
+As far as I am aware, the motivation for
+this idea is aesthetic: when there are exactly two rikishi at a given rank
+the banzuke has a pleasing symmetry. In practice,
+this "rule" is not strictly followed in the case of san'yaku ranks and in modern 
+sumo there can be any number of rikishi at any san'yaku rank. However, for maegashira
+and below the idea is nearly a cast-iron rule.
+This means that a rikishi might not be promoted to a given rank because there are
+two other rikishi who are deemed by the JSA to have a stronger claim to
+holding that rank. A similar remark applies to demotion.
+<p>The people who make such decisions are highly experienced former rikishi and
+whilst there are occasional controversial decisions, I think it is reasonable
+to assume that there are rational arguments behind every decision.
+Nevertheless, the process contains subjective elements in contast to the
+objective Elo system.
+<!---
+Now, let me emphatically state that I
+have absolute
+confidence that the JSA's Judges Division operates with complete integrity and
+fairness. However, if any subjectivity is allowed then there is the
+possibility of bias and/or corruption. I don't believe this is true of the JSA
+but I do think the possibility exists and I would prefer that not to be the
+case when, I would argue, it is not necessary.--->
+<p>Another issue for me is that the traditional ranks do not tell me as much
+as I would like about a rikishi's performance. Of course, to be a Yokozuna is
+to have demonstrated 
+extraordinarily high levels of performance, but the title does not tell me if the rikishi in question
+hardly ever attends a basho due to
+injury, or happens to be one of the strongest the sport has ever seen, or is
+somewehere in between. Similarly, what does being an "M8" (say) mean beyond "the
+judges think he is better than those ranked M9 and below and worse than those
+ranked M7 and above". That is useful information to be sure, but it doesn't
+tell me if, for example, the rikishi normally fights at M5 but was recently
+injured. In that case, I would think of the guy as being "M5, really".
+I
+believe that Elo ratings are more robust than chii but this another subject
+yet to be investiged.
+
+<a id="other_obj"></a>
+<h3>Other Objections</h3>
+Some people like the idea of a numerical measure of rikishi performance but
+don't understand how Elo works. I have heard people say that a rating of 2100
+(say) is a "meaningless number". I think it is no less meaningful as saying
+that
+the rikishi is M8 (see above): a rating of 2100 means, at the very least, the rikishi is better than those
+with a score of below 2100 and worse than those with a rating of more than
+2100. However, I think there is more to Elo ratings than this as I will try to
+explain below.
+<p>
+There are any number of ways we could assign numbers to rikishi to reflect
+their performance. Each idea comes with its pros and cons. For example, if we
+take a rikishi's rating to be the number of wins he has had,
+then this system is very simple and clearly objective.
+However, a disadvantage is that it does not consider the relative strengths of the rikishi involved: a rikishi gets one point for winning irrespective of his opponent.
+If everybody fought everybody else
+then this would be fair, but this is not the case in sumo. And, as far as I
+know, the choice of who gets to fight who again involves subjectivity. The significance of relative strength is certainly something
+the Judge's Division takes into account but it begs the question: what
+actually is the "strength" of the rikishi? My guess is that experts would say
+it is a combination of a rikishi's current rank, his recent performance, past
+and present injuries and so on, but these are all, essentially, subjective.
+<p>
+Elo's system neatly side-steps this issue by not using "strength" at all:
+way:
+<ul><li>First, we assume we know nothing about any rikishi so assign them all the
+same numerical rating. This number measures nothing per se, but the
+fact that the difference in ratings is zero means that we have no reason to
+distinguish one rikishi from another.
+</li><li>
+The rikishi then fight in pairs for a while and the results recorded. If the rikishi wins then
+his rating goes up and if he loses the rating goes down. On the first day of
+the first basho, eveyone has the same rating so everyone wins or loses the
+same amount: 17.5 (being 0.5*35). On the second day, ratings are either
+1,017.5 or 982.5, so the number of points won or lost is no longer the same.
+This means that by
+the end of the basho winners have higher ratings than losers, and the
+difference in ratings between two rikishi is proportional to the difference in
+the quality of
+their results.
+</li></ul>
+<p>I think it is reasonable to say that those rikishi with higher
+ratings have provided evidence of being "better" than
+those with lower ratings. It is for this reason that I think it is fair to say
+that Elo ratings &ndash; or, to be precise &ndash; <em>the differences between Elo
+ratings</em>
+ are meaningful.
+<p>
+Finally, some people accept that Elo ratings aren't meaningless but object to
+them because of some perceived infelicity. Some of those people have proposed
+alternative systems such as Glicko (which, in contrast to Elo, takes absences into account).
+With sincere apologies to everyone working on such
+ideas, I have to say I haven't looked into these alternatives because I don't
+have the time and Elo is what I am interested in. My goal is to present my perspective and
+hope to convince you that what I say is worth listening to, not to dismiss the
+validity of other viewpoints. It seems likely to me that some readers won't
+want to read any further because of this &ndash; in which case I'm sorry to disappoint you and I respect your choice.
+
+                </td>
+            </tr>
+        </table>

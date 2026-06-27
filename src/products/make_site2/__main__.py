@@ -1,6 +1,7 @@
 """Command entry point for make_site2 builds and deployment."""
 
-from __future__ import annotations
+from time import time
+t0=time()
 
 import argparse
 from pathlib import Path
@@ -227,3 +228,4 @@ def print_elapsed_time(start_time: float) -> None:
 
 if __name__ == "__main__":
     main()
+    print( f'Run complete in {time()-t0:.0f}s' )
