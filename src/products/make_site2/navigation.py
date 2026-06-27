@@ -260,6 +260,12 @@ RESEARCH_NAVIGATION = NavigationTree(
                     "Ratings & Models",
                     "ratings-models",
                     nav(
+                        "equelo_assumptions",
+                        "Assumptions",
+                        "assumptions",
+                        page_id="equelo_assumptions",
+                    ),
+                    nav(
                         "rating_and_rank",
                         "Rating and Rank",
                         "rating-and-rank",

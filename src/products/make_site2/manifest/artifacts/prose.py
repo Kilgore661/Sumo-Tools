@@ -36,3 +36,11 @@ EQUELO_EXPLANATION_ARTIFACT = ProseArtifact(
     renderer="prose",
     path="prose/Equelo Ratings.html",
 )
+
+EQUELO_ASSUMPTIONS_ARTIFACT = ProseArtifact(
+    id="equelo_assumptions",
+    heading="Assumptions",
+    kind="prose",
+    renderer="prose",
+    path="prose/Equelo Assumptions.html",
+)

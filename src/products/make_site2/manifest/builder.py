@@ -68,6 +68,10 @@ PANEL_DECLARATIONS: dict[str, PanelDeclaration] = {
         filters=(),
         artifact=a.EQUELO_EXPLANATION_ARTIFACT,
     ),
+    "equelo_assumptions": PanelDeclaration(
+        filters=(),
+        artifact=a.EQUELO_ASSUMPTIONS_ARTIFACT,
+    ),
     "banzuke_changes": PanelDeclaration(
         filters=f.BANZUKE_CHANGES_FILTERS,
         artifact=a.BANZUKE_CHANGES_ARTIFACT,

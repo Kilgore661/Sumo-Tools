@@ -1,0 +1,71 @@
+<p>
+This page collects the main assumptions behind Equelo in one place. The public
+explanation describes these points in context; this list is intended as a
+more auditable checklist of the modelling choices that shape the ratings.
+</p>
+
+<h3>Assumption 1: the banzuke is evidence</h3>
+
+<p>
+A chii is not a perfect measure of strength, and the banzuke is not a rating
+table. But a rank is not arbitrary. It reflects previous results,
+institutional judgement, and the constraints of the ranking system. Equelo
+uses that information, especially where the underlying bout record is
+incomplete.
+</p>
+
+<h3>Assumption 2: fixed-point stability is meaningful within the model</h3>
+
+<p>
+Equelo estimates chii-based initial ratings by iteration. If using a chii
+rating map as input reproduces approximately the same map as output, the
+resulting values are treated as self-consistent estimates. This does not make
+them true in an absolute sense. It means they are stable under the defined
+process.
+</p>
+
+<h3>Assumption 3: the active rating mean should be conserved</h3>
+
+<p>
+Equelo assumes that changes in the size and composition of the active
+population should not move the meaning of the rating scale. Mean conservation
+is a modelling choice, justified by the need to distinguish performance changes
+from rating-mass changes caused by entry and retirement.
+</p>
+
+<h3>Assumption 4: later complete data can calibrate earlier incomplete data</h3>
+
+<p>
+Complete lower-division bout records are only available from January 1989.
+Equelo uses the better-recorded period to estimate rank-rating relationships
+across the full banzuke, then applies those relationships cautiously to earlier
+periods where the banzuke exists but lower-division bout records are
+incomplete.
+</p>
+
+<h3>Assumption 5: unsupported chii should be completed, not independently estimated</h3>
+
+<p>
+Some chii have too little support to estimate safely on their own. Equelo uses
+a defined completion rule for poorly supported chii rather than preserving raw
+estimates that look precise but are not disciplined by enough data.
+</p>
+
+<h3>Assumption 6: rating differences carry the predictive meaning</h3>
+
+<p>
+The absolute numbers are placed on a scale by convention. The comparisons made
+by the system are driven by differences between ratings. A rating should
+therefore be read as model-derived comparative evidence, not as an absolute
+measure of ability.
+</p>
+
+<h3>Assumption 7: lower-division churn does not by itself invalidate the rating process</h3>
+
+<p>
+Equelo applies Elo-like dynamics throughout the banzuke, including regions with
+high turnover. This assumption is least secure in Jonokuchi and low Jonidan.
+Those ranks remain included because they are part of the banzuke and part of
+the career path of rikishi who later matter to the upper divisions, but claims
+based on those regions should be weaker.
+</p>

@@ -45,6 +45,13 @@ PAGES = PageRegistry(
             status=PageStatus.PROMOTED,
             artifact=artifact("equelo_explanation", "prose"),
         ),
+        "equelo_assumptions": PageDefinition(
+            id="equelo_assumptions",
+            title="Assumptions",
+            summary="",
+            status=PageStatus.PROMOTED,
+            artifact=artifact("equelo_assumptions", "prose"),
+        ),
         "banzuke_changes": PageDefinition(
             id="banzuke_changes",
             title="Most Recent Banzuke",

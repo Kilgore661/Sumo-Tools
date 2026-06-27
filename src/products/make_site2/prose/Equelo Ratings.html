@@ -1,26 +1,10 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>What is Equelo?</title>
-  <script>
-    window.MathJax = {
-      tex: {
-        inlineMath: [['$', '$'], ['\(', '\)']],
-        displayMath: [['$$', '$$'], ['\[', '\]']]
-      }
-    };
-  </script>
-  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
-</head>
-<body>
-<article class="prose">
+<h3>What is Equelo?</h3>
 
-<h1>What is Equelo?</h1>
-<b>Disclaimer</b>
-<p>
-I am not an expert on sumo or Elo and I have not spent much time on researching Elo systems beyond the basic definitions. I am aware that other people have proposed alternative systems such as Glicko (which, in contrast to Elo, takes absences into account). With sincere apologies to everyone working on such ideas, I have to say I haven't looked into these alternatives because I don't have the time. My goal is to present my perspective and hope to convince you that what I say is worth listening to, not to dismiss the validity of other viewpoints. It seems likely to me that some readers won't want to read any further because of this – in which case I'm sorry to disappoint you and I respect your choice. 
 <p>Equelo, or Eq, is an Elo-like rating system for sumo. It starts from the same basic idea as Elo: a rikishi has a numerical rating, and that rating changes after a bout according to the result and the rating of the opponent. Beating a stronger opponent is worth more than beating a weaker one; losing to a weaker opponent costs more than losing to a stronger one. Eq keeps that idea, but it changes the surrounding machinery so that the ratings are better suited to historical sumo data.</p>
+
+<p>The honest claim for Equelo is modest but worthwhile. It does not prove who was truly best, recover missing bouts, eliminate judgement from the interpretation of sumo, or turn the banzuke into a perfect numerical scale. It combines recorded results and banzuke evidence in a transparent rating system designed for an open historical population.</p>
+
+<p>This page is not a literature review of rating systems, and it is not an attempt to settle how sumo should be rated. The purpose is narrower: to describe the model I built, explain why I built it this way, and present the results it produces. If you want a comprehensive academic treatment of rating theory, this is not it. If you want a transparent account of one exploratory model and what it shows when applied to sumo history, that is what I am trying to provide.</p>
 
 <p>The short version is this: Equelo uses Elo-style bout updates, banzuke ranks as calibrated starting information, and a mean-conservation rule to prevent the rating scale from drifting. It is intended to be transparent and useful, but it is not a claim to have discovered the hidden true ability of every rikishi. It is a defined model, and its outputs have to be understood as the outputs of that model.</p>
 
@@ -32,11 +16,6 @@ I am not an expert on sumo or Elo and I have not spent much time on researching 
 </ul>
 
 <p>Where the bout records are complete, Equelo behaves like an Elo-style performance rating system with additional controls. Where the bout records are incomplete, Equelo uses the banzuke as calibrated evidence rather than pretending that missing information does not matter.</p>
-
-<aside class="assumption" id="assumption-banzuke-evidence">
-  <h3>Assumption 1: the banzuke is evidence</h3>
-  <p>A chii is not a perfect measure of strength, and the banzuke is not a rating table. But a rank is not arbitrary. It reflects previous results, institutional judgement, and the constraints of the ranking system. Equelo assumes that this information is worth using, especially where the underlying bout record is incomplete.</p>
-</aside>
 
 <h2>Why Plain Elo Is Not Enough</h2>
 
@@ -72,11 +51,6 @@ I am not an expert on sumo or Elo and I have not spent much time on researching 
 
 <p>This solves the start-up problem in a principled way. It does not say that the banzuke is perfect. It says that the banzuke is evidence. A rank is the result of previous performance and judgement, and therefore contains information that should not be thrown away merely because some bout records are missing.</p>
 
-<aside class="assumption" id="assumption-fixed-point">
-  <h3>Assumption 2: fixed-point stability is meaningful</h3>
-  <p>Equelo treats a stable chii-rating map as meaningful within the model. If using a map as input reproduces approximately the same map as output, the resulting values are treated as self-consistent estimates. This does not make them true in an absolute sense. It means they are stable under the defined process.</p>
-</aside>
-
 <h2>Mean Conservation</h2>
 
 <p>The fixed-point idea deals with initial ratings. It does not, by itself, solve rating inflation.</p>
@@ -95,37 +69,6 @@ and the average rating is $b$.</p>
 
 <p>This is one of the places where the model is doing visible work. Mean conservation is a deliberate modelling choice. It is not something observed directly in the world. The justification is that, without it, the rating scale can drift for reasons that are not the performance of any particular rikishi.</p>
 
-<aside class="assumption" id="assumption-mean-conservation">
-  <h3>Assumption 3: the active rating mean should be conserved</h3>
-  <p>Equelo assumes that changes in the size and composition of the active population should not move the meaning of the rating scale. This is a modelling choice. It is justified by the need to distinguish performance changes from rating-mass changes caused by entry and retirement.</p>
-</aside>
-
-<h2>Rank-Based Initial Ratings</h2>
-
-<p>The fixed-point procedure gives Equelo a way to infer initial ratings from chii. Conceptually, the procedure can be written as an iteration. The first map is constant:</p>
-
-\[
-I_0(c) = b
-\]
-
-<p>for every chii $c$. Running the rating system with the current initial map produces ratings. Those ratings are aggregated by chii and then normalised to produce the next map:</p>
-
-\[
-I_{t+1} = N(A(S(I_t))).
-\]
-
-<p>Here $S(I_t)$ denotes the simulation run using the current initial-rating map, $A$ denotes the aggregation rule used to extract representative chii values from the simulated ratings, and $N$ denotes the normalising operator that recentres the resulting chii map according to the baseline convention.</p>
-
-<p>A fixed point is reached when, for practical purposes,</p>
-
-\[
-I_{t+1}(c) \approx I_t(c)
-\]
-
-<p>for all chii being estimated. At that point the chii ratings are self-consistent: using them as inputs reproduces them as outputs.</p>
-
-<p>That does not make them metaphysically true. It means they are stable under the defined process. This is still useful. If the method says that a given rank has a certain rating value, that value is not arbitrary. It is the value implied by the interaction of the banzuke, the bout records, the update rule, and the normalisation rule.</p>
-
 <h2>Historical Coverage and the 1989 Problem</h2>
 
 <p>The historical data are not uniform. There are banzuke records throughout the period of interest, but complete lower-division bout results are only available from a later point, namely January 1989. This creates a choice.</p>
@@ -137,11 +80,6 @@ I_{t+1}(c) \approx I_t(c)
 <p>Equelo takes a third approach. It uses the complete-data period to learn what ranks mean across the full banzuke, including the lower divisions. It then uses those rank values when earlier incomplete records require them. For example, if a makushita rikishi appears in an early, pre-1989, sekitori-adjacent bout, the system can assign him a rating based on the calibrated value of his rank, even though his full lower-division history is not available.</p>
 
 <p>This is a reconstruction method, not time travel. The later record is not used to invent missing earlier bouts. It is used to calibrate the relationship between rank and rating. The earlier partial record is then interpreted using that calibration.</p>
-
-<aside class="assumption" id="assumption-later-data">
-  <h3>Assumption 4: later complete data can calibrate earlier incomplete data</h3>
-  <p>Equelo uses the better-recorded period from January 1989 onward to estimate rank-rating relationships across the full banzuke. It then applies those relationships cautiously to earlier periods where the banzuke exists but lower-division bout records are incomplete. This assumes that later rank-rating relationships are useful guides to earlier ones.</p>
-</aside>
 
 <p>This should be stated plainly because it is an obvious objection. Equelo sometimes uses information learned from the better-recorded later period to interpret the worse-recorded earlier period. That is true. The justification is that the banzuke exists throughout, and the later complete record gives us a way to estimate what those ranks mean on the rating scale.</p>
 
@@ -156,11 +94,6 @@ I_{t+1}(c) \approx I_t(c)
 
 <p>The current production approach therefore distinguishes between supported and unsupported chii. Supported chii receive direct estimates. Unsupported chii are completed by a defined rule, typically by borrowing from the nearest supported chii in rank order. This means the final entrant-rating map is not a raw fixed-point table. It is a completed map: partly direct estimates, partly deterministic completions.</p>
 
-<aside class="assumption" id="assumption-unsupported-chii">
-  <h3>Assumption 5: unsupported chii should be completed, not independently estimated</h3>
-  <p>Equelo assumes that it is better to use a defined completion rule for poorly supported chii than to preserve raw estimates that look precise but are not disciplined by enough data. This is a pragmatic intervention, and it is part of the definition of the system as actually used.</p>
-</aside>
-
 <p>This is a pragmatic intervention, but it is not a hidden one. It should be part of the definition of the system. Equelo, as actually used, includes support filtering and completion. The goal is not to pretend that every rank has enough information to stand on its own. The goal is to use independent estimates where they are supported and avoid giving false precision where they are not.</p>
 
 <h2>What Equelo Produces</h2>
@@ -171,9 +104,9 @@ I_{t+1}(c) \approx I_t(c)
 
 <p>The second is the <strong>master chii initial-rating map</strong>. This is the explanatory version of the entrant map. It records the chii, its ordinal, the initial rating, and information about whether the value is directly estimated or completed from another supported chii. This is the artefact that should be used when explaining how the initial-rating system works.</p>
 
-<p>The third is the <strong>day-end rating output</strong>. This records the ratings of rikishi after the day’s bouts have been processed. These ratings are the main historical time series: they allow us to look at the rise, decline, recovery, or stagnation of individual rikishi.</p>
+<p>The third is the <strong>day-end rating output</strong>. This records the ratings of rikishi after the day's bouts have been processed. These ratings are the main historical time series: they allow us to look at the rise, decline, recovery, or stagnation of individual rikishi.</p>
 
-<p>Public rank-value artefacts derived from these outputs need to report what the model found, not what the rank curve feels as if it should have found. A smoothed monotone table of “typical” ratings by rank may look attractive, but if the raw model says that some lower rank has a higher observed or estimated rating than a rank above it, smoothing that away is not a description. It is a normative curve masquerading as a descriptive one.</p>
+<p>Public rank-value artefacts derived from these outputs need to report what the model found, not what the rank curve feels as if it should have found. A smoothed monotone table of "typical" ratings by rank may look attractive, but if the raw model says that some lower rank has a higher observed or estimated rating than a rank above it, smoothing that away is not a description. It is a normative curve masquerading as a descriptive one.</p>
 
 <p>For that reason, if the rank-rating curve is not monotone, the public account should say so. The anomaly is not something to hide. It is something to analyse.</p>
 
@@ -182,11 +115,6 @@ I_{t+1}(c) \approx I_t(c)
 <p>An Eq rating is a model-derived comparative rating. It is not an absolute measure of ability. Like Elo, its predictive meaning lies wholly in differences between ratings. A rikishi with a higher rating has stronger evidence of performance within the rating system than a rikishi with a lower rating.</p>
 
 <p>That last phrase matters: <em>within the rating system</em>. Eq ratings are not independent facts about the world. They are outputs of a defined process. That process uses results, rank-based initialisation, support filtering, completion, and mean conservation. The ratings mean what they mean under those assumptions.</p>
-
-<aside class="assumption" id="assumption-rating-differences">
-  <h3>Assumption 6: rating differences carry the predictive meaning</h3>
-  <p>The absolute numbers are placed on a scale by convention. The comparisons made by the system are driven by differences between ratings.</p>
-</aside>
 
 <p>This makes the ratings useful, but it also limits them. If Eq says that one rikishi is ahead of another, that is evidence generated by the model. It is not a final judgement. If Eq disagrees with the banzuke, the disagreement is interesting. It may indicate that the banzuke is slow to reflect a change in performance. It may indicate that Eq has noticed something useful. It may also indicate that the model is being distorted by missing data, rank composition, population churn, or some other artefact.</p>
 
@@ -201,11 +129,6 @@ I_{t+1}(c) \approx I_t(c)
 <p>There are also lower-division problems. One problem is sparse chii: if a rank is represented by too few observations, the raw fixed-point process can produce values that are implausibly high or otherwise unstable. These cases are a warning that the fixed-point process is not magic. It needs sufficient support to produce estimates that deserve confidence.</p>
 
 <p>A second problem is churn. Jonokuchi, and to some extent the lower part of Jonidan, contain many rikishi who do not remain in the system for long. Elo-like systems work best when competitors form a reasonably connected population. If a large share of the population leaves after only a few ranking events, the assumptions behind the rating process become weaker. In that situation, the problem may not be a special defect of Equelo. It may be a limit of applying Elo-style dynamics to a very unstable population.</p>
-
-<aside class="assumption" id="assumption-lower-division-churn">
-  <h3>Assumption 7: lower-division churn does not invalidate the rating process</h3>
-  <p>Equelo applies Elo-like dynamics throughout the banzuke, including regions with high turnover. This assumption may be least secure in Jonokuchi and low Jonidan. For now, those ranks remain included because they are part of the banzuke and part of the career path of rikishi who later matter to the upper divisions, but claims based on those regions should be weaker.</p>
-</aside>
 
 <p>These anomalies create an interpretive problem. They may reflect real structure in the data. They may reflect the composition of rikishi at particular ranks: promoted rikishi, demoted rikishi, injured returners, short-career wrestlers, boundary effects, or churn. They may reflect schedule effects or missing records. Or they may reflect defects in the model.</p>
 
@@ -244,18 +167,10 @@ I_{t+1}(c) \approx I_t(c)
 
 <p>The most delicate use is using Eq to contradict a chii-based fact. If Eq says that a lower-ranked rikishi is stronger than a higher-ranked rikishi, that may be interesting. It may even be persuasive. But the strength of the claim depends on the context: the data support, the period, the rikishi involved, and whether the result is robust under reasonable changes to the method.</p>
 
-<h2>The Honest Claim</h2>
-
-<p>The honest claim for Equelo is modest but worthwhile.</p>
-
-<p>Equelo does not prove who was truly best. It does not recover missing bouts. It does not eliminate judgement from the interpretation of sumo. It does not turn the banzuke into a single perfect numerical scale.</p>
-
-<p>What it does is combine recorded results and banzuke evidence in a transparent rating system designed for an open historical population. It controls rating-scale drift, replaces arbitrary common initial ratings with calibrated chii-based initial ratings, and makes explicit where the data are strong enough to support direct estimates and where completion rules are needed.</p>
-
 <p>That makes Eq useful. It provides a coherent way to ask questions such as:</p>
 
 <ul>
-  <li>How did a rikishi’s performance rating evolve over time?</li>
+  <li>How did a rikishi's performance rating evolve over time?</li>
   <li>How does the rating story compare with the banzuke story?</li>
   <li>Where does the model agree with traditional rank-based intuition?</li>
   <li>Where does it disagree?</li>
@@ -264,6 +179,4 @@ I_{t+1}(c) \approx I_t(c)
 
 <p>Those last questions are not failures of the system. They are part of the point. Equelo is interesting not only when it confirms what we already think, but also when it produces a result that forces us to ask whether the model has found a genuine feature of the data or exposed one of its own weaknesses.</p>
 
-</article>
-</body>
-</html>
+
