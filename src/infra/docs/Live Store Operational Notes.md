@@ -146,6 +146,15 @@ instance identity and lifecycle semantics, such as:
 - clear startup and shutdown commands;
 - consumer diagnostics showing which store was connected.
 
+The current tracker-service proposal records the next intended contract step:
+the published live-store name should identify a data generation, and consumers
+that retain `History` across time should be able to test whether their loaded
+generation is stale. See:
+
+```text
+src/infra/tracker/docs/2026-07 Tracker Service Proposal.md
+```
+
 Until then, the current implementation should be understood as a single-user
 local accelerator that has acquired broader operational importance without yet
 being redesigned for it.

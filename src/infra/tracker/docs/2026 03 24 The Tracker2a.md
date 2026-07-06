@@ -88,6 +88,29 @@ Other functionality remains outside the system unless explicitly promoted.
 
 ---
 
+## 1.8 Service contract direction
+
+The Tracker is service-like in role: it is the long-running provider of the
+maintained `History` representations, including the live data store.
+
+This does not mean it must immediately be installed as an operating-system
+service. In current operation, running it as a foreground console process is
+still valid because the implementation is being hardened and shell diagnostics
+remain useful.
+
+The next service-contract step is to make live-store publication generational.
+The published live-store name should identify the current data generation, and
+consumers that retain `History` across time should be able to test whether the
+generation they loaded is still current.
+
+See:
+
+```text
+src/infra/tracker/docs/2026-07 Tracker Service Proposal.md
+```
+
+---
+
 # 2. Specification
 
 ## 2.1 Basho lifecycle
