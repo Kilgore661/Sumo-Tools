@@ -626,3 +626,81 @@ python -m src.analysis.toy_elo.predictive_convergence_sweep --players 200,250,30
 
 This will create a new timestamped audit directory, but conceptually it
 continues the same experiment from `n = 200`.
+
+## Small-n Oddness
+
+The behavior for small player counts remains odd. A fixed 500-event run over
+`n = 10..20` wrote output under:
+
+```text
+files/output/toy_elo_convergence_sweep/20260706_140301_seed1/
+```
+
+The measured first stable events were:
+
+```text
+n    first_stable_event
+10   304
+11   192
+12   169
+13   163
+14   179
+15   198
+16   158
+17   175
+18   135
+19   164
+20   131
+```
+
+This is smooth-ish, but not very. The most striking feature is still that
+`n = 10` looks unlike the rest of the range. It is possible that ten players
+simply do not generate enough bouts per event for the current stability rule
+to behave in the same way.
+
+To check whether the `n = 10` convergence point was just an artifact of
+stopping too early, we reran `n = 10` with a much longer 5000-event history:
+
+```text
+players = 10
+runs = 100
+events = 5000
+```
+
+That run wrote output under:
+
+```text
+files/output/toy_elo_simulation/20260706_135519_seed1/
+```
+
+The first stable event was still:
+
+```text
+first_stable_event = 304
+```
+
+so increasing the history length from 500 to 5000 did not move the measured
+convergence point down below the value seen for `n = 20`. However, the longer
+run did show that `n = 10` wanders in and out of the stability rule:
+
+```text
+persistence after first stable window = 72.0%
+stable_now in last 1000 events        = 750 / 1000
+last-1000 mean RMSE range             = 1.04 to 5.25
+```
+
+The threshold is `mean RMSE <= 4.0`, so this supports the suspicion that
+`n = 10` is a small-pool/noisy edge case.
+
+This is not worth pursuing immediately, but two questions remain:
+
+```text
+1. Is the small-n explanation correct, and if so should the model or stability
+   rule do anything special about it?
+
+2. What does the local curve look like at other resolutions, for example
+   n = 21, 22, 23, ... or n = 300, 301, 302, ...?
+```
+
+It may turn out that the curve is only smooth-ish everywhere, or that the
+irregularity is mostly a small-n phenomenon. This is TBD.
