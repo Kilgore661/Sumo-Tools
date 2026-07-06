@@ -82,6 +82,7 @@ try {
     Run "py -m src.infra.get_bios.parser"
 
     # Producer bundles consumed directly by make_site2.
+    Run "py -m src.infra.new_banzuke"
     Run "py -m src.analysis.banzuke_compare.publisher"
     Run "py -m src.analysis.standings.publisher"
     Run "py -m src.misc.finish_by_chii"

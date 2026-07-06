@@ -112,6 +112,8 @@ def test_transitional_basho_results_renderer_labels_analysis_as_ratings_fit() ->
     )
 
     assert "Ratings Fit" in html
+    assert "Error" in html
+    assert "\u0394BZ" not in html
     assert "See TBD" in html
 
 

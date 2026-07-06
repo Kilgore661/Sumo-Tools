@@ -64,7 +64,7 @@ function recordSpec() {
         }),
       ]),
       group("analysis", "Ratings Fit", [
-        group("banzuke_error", "ΔBZ", [
+        group("banzuke_error", "Error", [
           column("direction", "Dir", {
             sort_kind: "movement_symbol",
             sort_default_direction: "descending",

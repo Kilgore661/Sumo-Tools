@@ -2,6 +2,8 @@
 Browser-facing report model contract for the Banzuke Change Report.
 """
 
+from typing import Mapping
+
 from .classes import (
     BanzukeChange,
     BanzukeDiff,
@@ -16,6 +18,7 @@ from .results import format_previous_result
 from .shikona_links import graph_shikona_for
 from src.infra.get_bios.FullShikonaStore import FullShikonaStore
 from src.sumo_core.BasicEnums import Division, Side
+from src.sumo_core.BasicPrimitives import RikId
 
 
 DIVISION_ORDER = (
@@ -57,13 +60,14 @@ def build_bcr_report(diff: BanzukeDiff) -> BcrReport:
 
     equelo_snapshot = load_latest_equelo_snapshot_before(diff.source.current_date)
     full_shikona_store = FullShikonaStore.from_sources(diff.source.history)
+    display_labels = build_bcr_display_labels(diff, full_shikona_store)
 
     divisions = tuple(
         build_division_report(
             diff=diff,
             division=division,
             equelo_snapshot=equelo_snapshot,
-            full_shikona_store=full_shikona_store,
+            display_labels=display_labels,
         )
         for division in DIVISION_ORDER
         if any(change.current_division == division for change in diff.changes)
@@ -79,7 +83,7 @@ def build_division_report(
     diff: BanzukeDiff,
     division: Division,
     equelo_snapshot: EqueloSnapshot,
-    full_shikona_store: FullShikonaStore,
+    display_labels: Mapping[RikId, str],
 ) -> BcrDivisionReport:
     """
     Contract:
@@ -102,7 +106,7 @@ def build_division_report(
             diff=diff,
             changes=changes,
             equelo_snapshot=equelo_snapshot,
-            full_shikona_store=full_shikona_store,
+            display_labels=display_labels,
         ),
     )
 
@@ -111,7 +115,7 @@ def build_division_rows(
     diff: BanzukeDiff,
     changes: tuple[BanzukeChange, ...],
     equelo_snapshot: EqueloSnapshot,
-    full_shikona_store: FullShikonaStore,
+    display_labels: Mapping[RikId, str],
 ) -> tuple[BcrReportRow, ...]:
     """
     Contract:
@@ -140,7 +144,7 @@ def build_division_rows(
             diff=diff,
             change=change,
             equelo_snapshot=equelo_snapshot,
-            full_shikona_store=full_shikona_store,
+            display_labels=display_labels,
         )
 
         if change.current_side == Side.EAST:
@@ -195,7 +199,7 @@ def build_report_side(
     diff: BanzukeDiff,
     change: BanzukeChange,
     equelo_snapshot: EqueloSnapshot,
-    full_shikona_store: FullShikonaStore,
+    display_labels: Mapping[RikId, str],
 ) -> BcrReportSide:
     """
     Contract:
@@ -207,7 +211,7 @@ def build_report_side(
     return BcrReportSide(
         rikishi_id=change.rikishi_id,
         chii=str(change.current_chii),
-        shikona=full_shikona_store.full_shikona(change.rikishi_id),
+        shikona=display_labels[change.rikishi_id],
         graph_shikona=graph_shikona_for(change.rikishi_id, change.current_shikona),
         old_chii="" if change.previous_chii is None else str(change.previous_chii),
         previous_result=format_previous_result(change, diff.source.previous_summary),
@@ -218,6 +222,40 @@ def build_report_side(
             equelo_snapshot.rating_for(change.rikishi_id, change.current_chii)
         ),
     )
+
+
+def build_bcr_display_labels(
+    diff: BanzukeDiff,
+    full_shikona_store: FullShikonaStore,
+) -> dict[RikId, str]:
+    """
+    Build the complete display-label map required by Banzuke Changes.
+
+    The two represented input classes are:
+    - rikishi already represented in canonical History
+    - current-only rikishi present in the New Banzuke
+    """
+
+    represented_rikishi = history_rikishi_ids(diff)
+    labels: dict[RikId, str] = {}
+
+    for change in diff.changes:
+        if change.rikishi_id in represented_rikishi:
+            labels[change.rikishi_id] = full_shikona_store.full_shikona(
+                change.rikishi_id
+            )
+        else:
+            labels[change.rikishi_id] = str(change.current_shikona)
+
+    return labels
+
+
+def history_rikishi_ids(diff: BanzukeDiff) -> set[RikId]:
+    """Return all rikishi represented by the canonical History input."""
+    represented: set[RikId] = set()
+    for basho_state in diff.source.history.values():
+        represented.update(basho_state.banzuke.riks)
+    return represented
 
 
 def format_equelo(rating: float | None) -> str:

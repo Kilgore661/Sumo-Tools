@@ -273,7 +273,7 @@ Stress-test the design and implementation.
 
 Examples:
 
-- add `DeltaBZ` / Banzuke Error columns and confirm they fit the model;
+- add `Error` / Banzuke Error columns and confirm they fit the model;
 - add RBBP values and confirm they sit under the intended RBA groups;
 - inspect in-progress basho behaviour when only partial results exist;
 - verify completed-but-no-successor-banzuke behaviour;
