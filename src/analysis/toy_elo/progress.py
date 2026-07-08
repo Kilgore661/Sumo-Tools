@@ -5,9 +5,10 @@ import time
 
 
 class ProgressTimer:
-    def __init__(self, total: int, *, report_every: int) -> None:
+    def __init__(self, total: int, *, report_every: int, label: str = "runs") -> None:
         self.total = total
         self.report_every = report_every
+        self.label = label
         self.start_time = time.perf_counter()
 
     def report(self, completed: int) -> None:
@@ -20,10 +21,10 @@ class ProgressTimer:
         rate = completed / elapsed if elapsed > 0 else 0.0
         remaining = (self.total - completed) / rate if rate > 0 else 0.0
         print(
-            f"runs {completed}/{self.total} "
+            f"{self.label} {completed}/{self.total} "
             f"elapsed {format_duration(elapsed)} "
             f"eta {format_duration(remaining)} "
-            f"({rate:.2f} runs/s)",
+            f"({rate:.2f} {self.label}/s)",
             file=sys.stderr,
         )
 

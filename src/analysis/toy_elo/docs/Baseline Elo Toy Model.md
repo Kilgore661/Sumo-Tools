@@ -704,3 +704,188 @@ This is not worth pursuing immediately, but two questions remain:
 
 It may turn out that the curve is only smooth-ish everywhere, or that the
 irregularity is mostly a small-n phenomenon. This is TBD.
+
+## No-Interaction Split-Division Sweep
+
+The no-interaction split-division run completed under:
+
+```text
+files/output/toy_elo_split_division_sweep/20260706_155350_seed1/
+```
+
+The run used:
+
+```text
+players = 20, 30, 40, 50, 60, 70, 80, 90, 100, 150
+runs = 100
+event_step = 50
+gap = 40
+q = 400
+learning_fraction = 0.125
+```
+
+Each total player count `n` was split into two isolated divisions of size:
+
+```text
+m = n / 2
+```
+
+Within each event, each division ran its own round robin and there were no
+interdivision matches.
+
+The completed summary was:
+
+```text
+n    m    predicted f(m)    internal first stable    full-n baseline
+20   10   120.9             324                      131
+30   15   129.0             135                      197
+40   20   142.4             161                      244
+50   25   161.2             290                      348
+60   30   185.3             189                      446
+70   35   214.7             1141                     563
+80   40   249.4             250                      715
+90   45   289.5             288                      884
+100  50   334.9             335                      1084
+150  75   641.7             652                      2362
+```
+
+The main result is that disconnected divisions learn their internal rating
+geometry but cannot learn the offset between divisions. This is visible in
+the final internal RMSE values, which are small:
+
+```text
+n    top final RMSE    bottom final RMSE
+20   2.13              2.42
+30   2.51              3.24
+40   3.48              3.97
+50   4.12              3.06
+60   3.18              2.84
+70   4.35              3.12
+80   3.23              2.15
+90   3.08              3.09
+100  3.38              3.19
+150  2.83              3.37
+```
+
+It is also visible in the division offset error, which is essentially exact:
+
+```text
+n    division offset error
+20   -400
+30   -600
+40   -800
+50   -1000
+60   -1200
+70   -1400
+80   -1600
+90   -1800
+100  -2000
+150  -3000
+```
+
+Since the hidden gap is `40`, the true mean gap between the two divisions is:
+
+```text
+40 * m = 20n
+```
+
+Both isolated divisions start at the same rating baseline, and Elo updates are
+zero-sum inside each disconnected component. Therefore the learned top-division
+ladder and learned bottom-division ladder sit on top of each other, modulo
+noise. The large whole-system and cross-division errors follow from that
+construction.
+
+This means the ratings themselves are not conceptually missing from the
+interpretation; they are only absent from the printed output. Printing them
+would mainly show two similar local ladders centered at the same baseline,
+modulo sampling noise.
+
+The convergence curve is noisier. For `n >= 80`, and also for `n = 150`, the
+observed internal first stable event is close to the quadratic prediction
+`f(m)`. The values for `n = 20`, `n = 50`, and especially `n = 70` show that
+first stable event remains a threshold statistic rather than a direct law of
+the system.
+
+## Next Experiment: Boundary Rewiring
+
+The boundary-rewiring model is a controlled way to introduce interaction
+between two divisions without changing the number of matches per player.
+
+For even `n`, the two divisions have equal size. For odd `n`, the divisions
+differ by one player:
+
+```text
+top_size = ceil(n / 2)
+bottom_size = floor(n / 2)
+```
+
+The top division has players:
+
+```text
+T_1, T_2, ..., T_top_size
+```
+
+The bottom division has players:
+
+```text
+B_1, B_2, ..., B_bottom_size
+```
+
+where `T_1` is the strongest player in the top division, `T_top_size` is the
+weakest player in the top division, `B_1` is the strongest player in the
+bottom division, and `B_bottom_size` is the weakest player in the bottom
+division.
+
+With no interdivision interaction, one event consists of two independent
+round robins. Every player has exactly:
+
+```text
+division_size - 1
+```
+
+matches.
+
+The boundary-rewiring model introduces a bridge percentage `d`. This is
+converted into a number of matched bridge slots `w`. For each:
+
+```text
+i = 0, 1, ..., w - 1
+```
+
+replace the two internal matches:
+
+```text
+T_(top_size-i)      vs T_(i+1)
+B_(i+1)             vs B_(bottom_size-i)
+```
+
+with the two cross-division matches:
+
+```text
+T_(top_size-i)      vs B_(i+1)
+T_(i+1)             vs B_(bottom_size-i)
+```
+
+For example, at `i = 0`, replace:
+
+```text
+T_top_size   vs T_1
+B_1          vs B_bottom_size
+```
+
+with:
+
+```text
+T_top_size   vs B_1
+T_1          vs B_bottom_size
+```
+
+This is a two-edge rewiring. It preserves the total number of matches and also
+preserves each player's match count: every player still has
+`division_size - 1` matches per event.
+
+The intuition is that each unit of depth opens two links across the boundary:
+one between the weakest top-division player and strongest bottom-division
+player, and one complementary link between the strongest top-side counterpart
+and weakest bottom-side counterpart. The schedule therefore blurs the boundary
+while keeping event size comparable to the no-interaction split model.
