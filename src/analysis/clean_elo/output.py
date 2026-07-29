@@ -44,6 +44,7 @@ def write_outputs(
             date=date,
             snapshot=snapshot,
             history=history,
+            count_absences=count_absences,
         )
         for date, snapshot in sorted(result.basho_ratings.items())
     )
@@ -70,48 +71,71 @@ def write_outputs(
     )
 
 
-def _write_basho_csv(*, path: Path, date, snapshot, history: History) -> Path:
+def _write_basho_csv(
+    *,
+    path: Path,
+    date,
+    snapshot,
+    history: History,
+    count_absences: bool,
+) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     banzuke = history[date].banzuke
     with path.open("w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
-        writer.writerow(
+        header = [
+            "rikid",
+            "shikona",
+            "chii",
+            "chii_ordinal",
+            "initial_rating_before_normalisation",
+            "initial_rating_after_normalisation",
+            "final_rating",
+        ]
+        if count_absences:
+            header.extend(
+                [
+                    "recorded_appearances",
+                    "expected_appearances",
+                    "inferred_absences",
+                    "raw_absence_rating_adjustment",
+                ]
+            )
+        header.extend(
             [
-                "rikid",
-                "shikona",
-                "chii",
-                "chii_ordinal",
-                "initial_rating_before_normalisation",
-                "initial_rating_after_normalisation",
-                "final_rating",
-                "recorded_appearances",
-                "expected_appearances",
-                "inferred_absences",
-                "raw_absence_rating_adjustment",
                 "initial_normalisation_adjustment",
                 "final_normalisation_adjustment",
             ]
         )
+        writer.writerow(header)
         for rikid in sorted(snapshot.final_ratings):
             shikona = banzuke.rikshik.get(rikid)
             chii = banzuke.rikchii.get(rikid)
-            writer.writerow(
-                [
-                    int(rikid),
-                    "" if shikona is None else str(shikona),
-                    "" if chii is None else str(chii),
-                    "" if chii is None else chii.ordinal(),
-                    _number(snapshot.initial_before_normalisation[rikid]),
-                    _number(snapshot.initial_after_normalisation[rikid]),
-                    _number(snapshot.final_ratings[rikid]),
+            row = [
+                int(rikid),
+                "" if shikona is None else str(shikona),
+                "" if chii is None else str(chii),
+                "" if chii is None else chii.ordinal(),
+                _number(snapshot.initial_before_normalisation[rikid]),
+                _number(snapshot.initial_after_normalisation[rikid]),
+                _number(snapshot.final_ratings[rikid]),
+            ]
+            if count_absences:
+                row.extend(
+                    [
                     snapshot.recorded_appearances[rikid],
                     snapshot.expected_appearances[rikid],
                     snapshot.inferred_absences[rikid],
                     _number(snapshot.absence_rating_adjustments[rikid]),
+                    ]
+                )
+            row.extend(
+                [
                     _number(snapshot.initial_normalisation_adjustment),
                     _number(snapshot.final_normalisation_adjustment),
                 ]
             )
+            writer.writerow(row)
     return path
 
 

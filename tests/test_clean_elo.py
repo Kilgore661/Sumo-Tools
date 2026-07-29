@@ -316,7 +316,10 @@ def test_default_ignores_fusen_but_rates_results_with_blank_decision(
         rows = list(csv.DictReader(stream))
     assert {int(row["rikid"]) for row in rows} == {1, 2, 3, 4, 5, 6}
     assert all(row["chii_ordinal"] for row in rows)
-    assert all("inferred_absences" in row for row in rows)
+    assert all("recorded_appearances" not in row for row in rows)
+    assert all("expected_appearances" not in row for row in rows)
+    assert all("inferred_absences" not in row for row in rows)
+    assert all("raw_absence_rating_adjustment" not in row for row in rows)
 
     manifest = json.loads(outputs.manifest_json.read_text(encoding="utf-8"))
     assert manifest["target_mean"] == pytest.approx(DEFAULT_ELO)
@@ -364,7 +367,9 @@ def test_count_absences_rates_paired_fusen() -> None:
     assert result.ignored_fusen_count == 0
 
 
-def test_count_absences_scores_sub_sekitori_basho_shortfall() -> None:
+def test_count_absences_scores_sub_sekitori_basho_shortfall(
+    tmp_path: Path,
+) -> None:
     active1, active2, kyujo = RikId(1), RikId(2), RikId(3)
     date = Date(Year(1989), Month(1))
     bouts_by_day = {
@@ -384,12 +389,13 @@ def test_count_absences_scores_sub_sekitori_basho_shortfall() -> None:
         }
     )
 
-    result = simulate(
+    result, outputs = run_clean_elo(
         history=history,
         start_date=date,
         initial_rating_policy=ConstantInitialRatingPolicy(DEFAULT_ELO),
         k_policy=ConstantKPolicy(20.0),
         count_absences=True,
+        output_root=tmp_path,
     )
 
     snapshot = result.basho_ratings[date]
@@ -402,6 +408,14 @@ def test_count_absences_scores_sub_sekitori_basho_shortfall() -> None:
         DEFAULT_ELO - 70.0 + 70.0 / 3.0
     )
     assert sum(snapshot.final_ratings.values()) / 3 == pytest.approx(DEFAULT_ELO)
+
+    with outputs.basho_csvs[0].open(newline="", encoding="utf-8") as stream:
+        rows = list(csv.DictReader(stream))
+    assert rows
+    assert all("recorded_appearances" in row for row in rows)
+    assert all("expected_appearances" in row for row in rows)
+    assert all("inferred_absences" in row for row in rows)
+    assert all("raw_absence_rating_adjustment" in row for row in rows)
 
 
 def test_default_does_not_initialize_or_score_opponentless_kyujo() -> None:

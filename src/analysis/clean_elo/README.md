@@ -1,7 +1,11 @@
 # Clean Elo
 
-See [docs/Code Description.md](docs/Code%20Description.md) for the detailed
-code and data-flow description.
+See:
+
+- [Code Description](docs/Code%20Description.md) for the detailed code,
+  algorithms, output schemas, and probe methods;
+- [Rating Probe Findings](docs/Rating%20Probe%20Findings.md) for the research
+  questions, 1989+ results, interpretation, and limitations.
 
 `clean_elo` simulates ordinary Elo updates over every available sumo result
 from a supplied start date.
@@ -56,9 +60,11 @@ Each basho CSV contains:
 - the rating at basho entry before normalisation;
 - the rating at basho entry after normalisation;
 - the final rating after results and final normalisation;
-- recorded and expected appearances, inferred absences, and their raw rating
-  adjustment;
 - the initial and final common adjustments.
+
+With absence counting enabled, the CSV uses an extended schema that also
+contains recorded and expected appearances, inferred absences, and their raw
+rating adjustment. With it disabled, those columns are not written.
 
 With absence counting disabled, only represented rikishi appear in a basho
 file. With it enabled, banzuke rikishi subject to absence accounting also
@@ -81,3 +87,59 @@ python -m src.analysis.clean_elo --start 1989/01
 ```
 
 Use `--help` for policy and output options.
+
+## Index probe
+
+The standalone index probe measures the observed chii domain under BP1 through
+BP4:
+
+```powershell
+python -m src.analysis.clean_elo.index_probe --start 1958/01
+```
+
+Each timestamped probe run writes policy summaries, marginal index
+frequencies, frequency bands, raw chii-form frequencies, the complete
+raw-chii-to-index map, true policy conversion exceptions, unbanzuked bout
+endpoints, and a provenance manifest beneath
+`files/output/analysis/clean_elo/index_probe`.
+
+Every emitted index is accompanied by its policy-qualified `index_ordinal`.
+Components removed by a policy are encoded as zero.
+
+## Rating and monotonicity probes
+
+The rating probe associates each rikishi's start-of-basho rating with the
+rikishi's current banzuke index:
+
+```powershell
+python -m src.analysis.clean_elo.rating_probe --start 1989/01
+```
+
+It writes one observation per rikishi-basho, summary statistics by index, and
+interactive Plotly charts beneath
+`files/output/analysis/clean_elo/rating_probe`.
+
+The monotonicity probe consumes one of those
+`index_rating_statistics.csv` files:
+
+```powershell
+python -m src.analysis.clean_elo.monotonicity_probe `
+  files/output/analysis/clean_elo/rating_probe/RUN/index_rating_statistics.csv
+```
+
+It tests the null hypothesis that expected BP4 mean rating is non-increasing
+as the index ordinal worsens. Results are reported separately for M1--M18 and
+for Y--Jd100. The probe fits a weighted non-increasing isotonic regression and
+uses a reproducible parametric bootstrap goodness-of-fit test.
+
+This first test is deliberately naive: it treats the rikishi-basho
+observations as independent and treats their estimated standard errors as
+fixed. The output manifest records these limitations.
+
+For the 1989+ data, the M1--M18 test produced no bootstrap result as extreme as
+the observation in 10,000 simulations (`p = 1/10001` under the plus-one
+calculation). Sensitivity checks show that the rejection is already decisive
+when M16 is included, so it is not an artefact of the six M18 observations.
+This rejects a simple immutable monotonic mapping from BP4 index to mean Elo
+under the naive model; it does not establish that chii fail to measure
+performance in every relevant sense.

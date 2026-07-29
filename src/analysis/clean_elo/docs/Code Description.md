@@ -83,6 +83,193 @@ Provide the command-line application:
 python -m src.analysis.clean_elo --start 1989/01
 ```
 
+### `index_probe.py`
+
+Provides a standalone probe of the chii values actually encountered in
+fights. It applies four nested binning policies:
+
+- BP1 retains the complete chii;
+- BP2 removes annotations and requires an east or west side;
+- BP3 removes annotations and sides;
+- BP4 additionally removes the number from Y/O/S/K indices.
+
+The probe counts bout endpoints rather than banzuke positions. Paired fusen is
+excluded because no fight occurred; an ordinary W/L result with no kimarite is
+included. A bout endpoint whose rikishi ID is absent from that basho's banzuke
+is itemised without attempting to classify it as Mz or a data error. It is not
+treated as a binning-policy conversion failure because there is no source chii
+to convert.
+
+Probe runs are timestamped beneath:
+
+```text
+files/output/analysis/clean_elo/index_probe
+```
+
+They contain:
+
+- `manifest.json`;
+- `policy_summary.csv`;
+- `index_frequencies.csv`;
+- `frequency_bands.csv`;
+- `chii_forms.csv`;
+- `chii_index_map.csv`;
+- `conversion_exceptions.csv`;
+- `missing_banzuke_occurrences.csv`.
+
+The probe verifies the accounting identity that converted and exceptional
+endpoint occurrences, plus missing-banzuke endpoints, sum to twice the number
+of eligible fights.
+
+Every emitted index has an `index_ordinal` using the chii decimal layout.
+Components removed by the selected policy are replaced by zero. The ordinal
+must be interpreted together with its policy because the same integer may
+mean an exact sided chii under BP1 and a collapsed index under BP3 or BP4.
+
+The manifest records the requested start date, actual first and last processed
+dates, observation and eligibility rules, BP1-BP4 definitions, run-wide
+counts, policy summaries, and every output path.
+
+### `rating_probe.py`
+
+Provides a standalone probe of the relationship between start-of-basho Elo
+ratings and banzuke indices:
+
+```powershell
+python -m src.analysis.clean_elo.rating_probe --start 1989/01
+```
+
+The unit of observation is one represented rikishi in one basho. For each
+basho, the probe associates:
+
+- the rikishi's current banzuke chii, converted under BP1 through BP4; and
+- the rikishi's `initial_after_normalisation` rating.
+
+This is intentionally not one observation per bout. A chii describes the
+rikishi's position at the start of the basho. After the first bout, the
+rikishi's changing daily rating is no longer being compared with a newly
+assigned chii. Equivalently, an end-of-basho rating compared with the next
+basho's chii is the same temporal correspondence shifted forward one basho.
+
+Each timestamped run beneath
+`files/output/analysis/clean_elo/rating_probe` writes:
+
+- `index_rating_statistics.csv`;
+- `bp1_standard_error_by_relative_margin_of_error.html`;
+- `bp4_mean_rating_with_ci95.html`;
+- `manifest.json`.
+
+For each index, the CSV contains support \(n\), arithmetic mean, sample
+standard deviation, standard error, a naive Student-t 95% confidence interval,
+and its margin and width.
+
+The measures answer different questions:
+
+- sample standard deviation describes the spread of individual
+  rikishi-basho ratings at an index;
+- standard error estimates uncertainty in the arithmetic mean;
+- the confidence interval expresses that uncertainty on the Elo scale.
+
+The CSV's `naive_relative_margin_of_error` is:
+
+\[
+\frac{\text{95% margin of error}}{|\text{mean rating}|}
+\]
+
+This percentage is descriptive only. Elo has no natural zero and is invariant
+to a common additive shift, whereas this ratio is not. It must not be confused
+with a margin divided by a chosen global or index-specific rating range.
+
+The confidence calculations are labelled `naive` because rikishi-basho
+observations are not independent. The same rikishi may contribute in many
+basho, ratings are generated recursively from earlier bouts, and banzuke
+positions are themselves influenced by results. The current calculations show
+the picture under an independence assumption; they are not the final account
+of sampling uncertainty.
+
+The BP4 mean chart uses a categorical Plotly axis, so every index is spaced
+equally. The blue trace is the mean and the grey vertical marks are the naive
+95% confidence intervals. Its rating axis is limited to the minimum and
+maximum observed mean rating; exceptionally wide intervals at very
+low-support indices can therefore be clipped at the chart boundary.
+
+### `monotonicity_probe.py`
+
+Consumes the BP4 summaries written by `rating_probe.py`:
+
+```powershell
+python -m src.analysis.clean_elo.monotonicity_probe `
+  files/output/analysis/clean_elo/rating_probe/RUN/index_rating_statistics.csv
+```
+
+It tests the null hypothesis:
+
+> Expected BP4 mean start-of-basho Elo rating is non-increasing as index
+> ordinal increases.
+
+Two scopes are reported:
+
+- M1 through M18;
+- Y through Jd100.
+
+The null model is the weighted least-squares non-increasing isotonic
+regression of the observed group means. The weight for index \(i\) is:
+
+\[
+w_i = \frac{1}{SE_i^2}
+\]
+
+The lack-of-fit statistic is:
+
+\[
+Q =
+\sum_i
+\left(
+\frac{\bar R_i-\hat R_i^{\mathrm{iso}}}{SE_i}
+\right)^2
+\]
+
+where \(\bar R_i\) is the observed mean and
+\(\hat R_i^{\mathrm{iso}}\) is the fitted monotonic mean.
+
+The p-value is calculated by a plug-in parametric bootstrap:
+
+1. Generate independent normal group means around the fitted null means,
+   using the observed standard errors.
+2. Refit the isotonic model to each generated dataset.
+3. Recalculate \(Q\).
+4. Count how often the generated statistic is at least the observed one.
+
+The reported p-value uses the plus-one calculation:
+
+\[
+p = \frac{\text{exceedances}+1}{B+1}
+\]
+
+where \(B\) is the number of bootstrap simulations. Consequently, zero
+exceedances from 10,000 simulations is reported as \(1/10001\), not as a
+literal probability of zero.
+
+Each timestamped run beneath
+`files/output/analysis/clean_elo/monotonicity_probe` writes:
+
+- `monotonicity_test_summary.csv`;
+- `monotonicity_fitted_values.csv`;
+- `manifest.json`.
+
+The fitted-values file includes the observed mean, isotonic fitted mean,
+residual, and standardized residual for every tested index. The manifest
+records the null hypothesis, weighting, bootstrap method, source statistics
+file, random seed, and limitations.
+
+This test inherits the rating probe's independence assumption. It additionally
+treats the estimated standard errors as fixed and uses a normal approximation
+for group means. It tests monotonicity of conditional mean Elo by BP4 index;
+it does not test every possible claim about what chii mean.
+
+The numerical 1989+ results and their interpretation are recorded in
+[Rating Probe Findings](Rating%20Probe%20Findings.md).
+
 ## Elo calculation
 
 For ratings \(R_a\) and \(R_b\), the expected score for \(a\) is:
@@ -279,7 +466,8 @@ Directory creation is exclusive. In the unlikely event of a timestamp
 collision, the code selects the next unused second. Existing run directories
 are never reused or overwritten.
 
-Within a run directory, each `basho/YYYY_MM.csv` contains:
+Within a run directory, every `basho/YYYY_MM.csv` contains the ordinary Elo
+schema:
 
 - `rikid`;
 - `shikona`;
@@ -288,18 +476,28 @@ Within a run directory, each `basho/YYYY_MM.csv` contains:
 - initial rating before normalization;
 - initial rating after normalization;
 - final rating after normalization;
+- the common initial normalization adjustment;
+- the common final normalization adjustment.
+
+When `count_absences=True`, the run uses a distinct extended schema that also
+contains:
+
 - recorded appearances;
 - expected appearances;
 - inferred absences;
-- raw absence rating adjustment;
-- the common initial normalization adjustment;
-- the common final normalization adjustment.
+- raw absence rating adjustment.
+
+The absence columns are not written at all when absence counting is disabled.
+Their absence distinguishes “this model does not calculate absences” from an
+extended-schema value of zero, which means that absence accounting was
+performed and found no missing appearances for that rikishi.
 
 Whenever a chii is written, its ordinal is written as a separate field. The
 ordinal is the authoritative identity; the display string is for people.
 
-When absence inference is disabled or does not apply to a rikishi,
-`expected_appearances` is 0 and the absence fields contain zero adjustments.
+Within an extended-schema run, `expected_appearances` is 0 when inference
+cannot be applied to that rikishi because the basho or division does not meet
+the inference preconditions.
 
 `manifest.json` records:
 
