@@ -3,11 +3,11 @@ from __future__ import annotations
 from collections import defaultdict
 from dataclasses import dataclass
 
+from src.analysis.boundary_positions import boundary_positions
 from src.sumo_core.History import Date, History
 
 from .config import ADJACENT_BOUNDARIES
 from .grouping import GroupKey, GroupingName, group_chii
-from .grouping import level_label as chii_level_label
 
 
 @dataclass(frozen=True)
@@ -106,22 +106,6 @@ def collect_tallies(
         groups=groups,
         basho_count=basho_count,
     )
-
-
-def boundary_positions(rikchii: dict) -> dict[object, tuple[str, int, int]]:
-    by_division: dict[str, list[tuple[object, int]]] = defaultdict(list)
-    for rikishi, chii in rikchii.items():
-        by_division[chii_level_label(chii)].append((rikishi, chii.ordinal()))
-
-    positions: dict[object, tuple[str, int, int]] = {}
-    for division, rikishi_ordinals in by_division.items():
-        rikishi_ordinals.sort(key=lambda item: item[1])
-        size = len(rikishi_ordinals)
-        for index, (rikishi, _ordinal) in enumerate(rikishi_ordinals):
-            from_top = index + 1
-            from_bottom = size - index
-            positions[rikishi] = (division, from_top, from_bottom)
-    return positions
 
 
 def increment_boundary_tallies(

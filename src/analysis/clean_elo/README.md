@@ -1,5 +1,33 @@
 # Clean Elo
 
+## Research status
+
+This package is a completed experimental investigation rather than the basis
+of a uniquely correct sumo rating system. Its final research objective was to
+understand precisely why a persistent Elo-like ordering does not correlate
+perfectly with chii, and to find a defensible account of the disagreement.
+
+That objective was not achieved. The experiments established broad agreement
+between rating and chii, identified variable banzuke structure as an important
+part of the lower-maegashira anomaly, and ruled out several simple
+explanations. They did not produce a complete explanation or a principled
+adjustment that makes the two orderings agree. In that limited and explicit
+sense, `clean_elo` is a failed experiment. The negative result is retained
+because it constrains later claims and may be useful to others.
+
+The project no longer assumes that sufficiently deep investigation must yield
+an Elo-like system about which no reasonable observer could disagree. An
+Equelo rating is instead treated as one transparent, reproducible estimate of
+comparative performance. It can be interesting or useful without being a
+perfect representation of ability and without reproducing chii. The
+project-level position and its consequences are set out in
+[What Is an Equelo Rating?](../../../docs/What%20is%20an%20Equelo%20Rating.md).
+
+The implementation and reports below are therefore an experimental record,
+not a recipe for forcing ratings to match the banzuke. Further work should
+test and justify the stated Equelo policies and decide what, if anything, is
+appropriate for a public deliverable.
+
 See:
 
 - [Code Description](docs/Code%20Description.md) for the detailed code,
@@ -143,3 +171,49 @@ when M16 is included, so it is not an artefact of the six M18 observations.
 This rejects a simple immutable monotonic mapping from BP4 index to mean Elo
 under the naive model; it does not establish that chii fail to measure
 performance in every relevant sense.
+
+## Boundary rating probe
+
+The boundary rating probe replaces literal rank number with position relative
+to the current basho's lower Makuuchi boundary:
+
+```powershell
+python -m src.analysis.clean_elo.boundary_rating_probe --start 1989/01
+```
+
+It emits both individual boundary slots and paired no-side groups. The bottom
+two Makuuchi rikishi form `top_bottom_1`, the next two form
+`top_bottom_2`, and so on.
+
+For the 1989+ data, the paired seven-group endpoint difference is -9.31 rather
+than the positive M12-M18 reversal. The naive isotonic test does not reject
+monotonicity (`p = 0.552`). The previously identified reversal is therefore
+not present once the observations are aligned by actual boundary distance.
+
+## BP4 cutoff probe
+
+The BP4 cutoff probe runs the no-replacement lower-maegashira deletion
+experiment for first-excluded ranks 19 through 12:
+
+```powershell
+python -m src.analysis.clean_elo.bp4_cutoff_probe --start 1989/01
+```
+
+For cutoff \(n\), bouts involving M\(n\) through M18 are removed, absence
+inference remains disabled, and Elo is replayed. The reported BP4 sequence is
+Y, O, S, K, and M1 through M\(n-1\). Cutoff 19 is the unmodified baseline.
+
+The console reports the number and location of adjacent mean-rating increases
+for every cutoff. Each timestamped run beneath
+`files/output/analysis/clean_elo/bp4_cutoff_probe` writes the wide cutoff-by-
+rating table, index ordinals, violation details, and a provenance manifest.
+
+The latest 1989+ run is
+`files/output/analysis/clean_elo/bp4_cutoff_probe/2026-07-30_19-15-08`.
+For cutoffs 19 through 12 it found respectively 6, 5, 4, 3, 2, 2, 2, and 3
+point-mean violations. None of the tested deletions produced a monotonic
+sequence. Initially the count fell only because the last violating index was
+removed from scope; stronger cutoffs produced new reversals at M9--M11 and,
+for cutoff 12, at M5--M6. See
+[Rating Probe Findings](docs/Rating%20Probe%20Findings.md) for the full report
+and interpretation.

@@ -193,6 +193,101 @@ equally. The blue trace is the mean and the grey vertical marks are the naive
 maximum observed mean rating; exceptionally wide intervals at very
 low-support indices can therefore be clipped at the chart boundary.
 
+### `boundary_rating_probe.py`
+
+Re-expresses the historical rating curve using position relative to the
+current basho's lower Makuuchi boundary:
+
+```powershell
+python -m src.analysis.clean_elo.boundary_rating_probe --start 1989/01
+```
+
+The shared `analysis.boundary_positions` helper first maps every chii to its
+competitive division. Y/O/S/K/M all belong to Makuuchi. Rikishi are sorted by
+chii ordinal within each division and assigned:
+
+- position from the top;
+- position from the bottom.
+
+The probe retains Makuuchi observations and emits two coordinates:
+
+- `raw_slot`: individual distance from the bottom, beginning at 1;
+- `paired_group`: \(\lceil\text{raw slot}/2\rceil\).
+
+Thus the bottom two rikishi form `top_bottom_1`, the next two form
+`top_bottom_2`, and so forth. This matches the paired boundary groups in
+`toy_elo.boundary_monotonicity` without assuming that a fixed boundary
+distance always has the same literal maegashira number.
+
+Each timestamped run beneath
+`files/output/analysis/clean_elo/boundary_rating_probe` writes:
+
+- `boundary_rating_statistics.csv`;
+- `boundary_curve_summary.csv`;
+- `boundary_curve_fitted_values.csv`;
+- `boundary_curve.html`;
+- `manifest.json`.
+
+The statistics contain the same naive Student-t quantities as `rating_probe`.
+The default seven-group curve is ordered from `top_bottom_7` to
+`top_bottom_1` and is tested with the same inverse-SE weighted isotonic
+parametric bootstrap as `monotonicity_probe`.
+
+The endpoint difference is defined as:
+
+\[
+\bar R_{\mathrm{top\_bottom\_1}}
+-
+\bar R_{\mathrm{top\_bottom\_7}}
+\]
+
+A positive value is an endpoint reversal; a negative value retains the
+expected better-to-worse direction.
+
+### `bp4_cutoff_probe.py`
+
+Runs a series of no-replacement lower-maegashira deletion experiments:
+
+```powershell
+python -m src.analysis.clean_elo.bp4_cutoff_probe --start 1989/01
+```
+
+The runner defaults to first-excluded rank numbers 19, 18, ..., 12. For
+cutoff \(n\):
+
+1. every bout involving a rikishi currently ranked M\(n\) through M18 is
+   removed;
+2. no alternative opponent is supplied and absence inference is disabled;
+3. Elo is replayed from the requested start date;
+4. one start-of-basho rating observation is collected for each represented
+   rikishi at BP4 indices Y, O, S, K, and M1 through M\(n-1\);
+5. adjacent increases in mean rating as the BP4 ordinal worsens are counted
+   as monotonicity violations.
+
+Cutoff 19 is defined as the unmodified baseline and reports Y through M18.
+Cutoff 18 removes M18 bouts and reports through M17; cutoff 17 removes
+M17--M18 bouts and reports through M16; and so on.
+
+The filtered history retains all daily records and rebuilds each day's
+`results_lookup` and `torikumi` from retained bouts. A rikishi's other career
+appearances are unaffected: the bout is removed only when the rikishi
+occupies an excluded rank.
+
+Each timestamped run beneath
+`files/output/analysis/clean_elo/bp4_cutoff_probe` writes:
+
+- `bp4_cutoff_ratings.csv`, a wide table with one row per cutoff and one
+  rating column per BP4 index;
+- `bp4_index_ordinals.csv`, the ordinal corresponding to every table column;
+- `bp4_cutoff_violations.csv`, the location and size of every adjacent
+  increase;
+- `manifest.json`, recording cutoffs, removed and rated bout counts, and
+  violation summaries.
+
+This is a point-mean diagnostic rather than the bootstrap goodness-of-fit
+test used by `monotonicity_probe.py`. Equality is permitted; only a strict
+increase at the next weaker index is counted as a violation.
+
 ### `monotonicity_probe.py`
 
 Consumes the BP4 summaries written by `rating_probe.py`:

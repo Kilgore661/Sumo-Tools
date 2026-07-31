@@ -3,6 +3,10 @@
 `analysis/equelo` owns the Equelo rating model and the public API for reading
 Equelo ratings.
 
+For the project-level meaning, motivation, limitations, and validation
+criteria of an Equelo rating, see
+[`docs/What is an Equelo Rating.md`](../../../docs/What%20is%20an%20Equelo%20Rating.md).
+
 ## Public API
 
 The normative way to obtain an Equelo rating is:
