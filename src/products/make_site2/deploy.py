@@ -269,15 +269,24 @@ def deploy_sftp(
         ensure_remote_tree(sftp, deploy_target.location)
         sources = tuple(path for path in build_output.root.rglob("*") if path.is_file())
         total = len(sources)
-        for source in sources:
-            relative = source.relative_to(build_output.root)
-            remote_file = posixpath.join(
-                deploy_target.location,
-                *relative.parts,
+        uploads = tuple(
+            (
+                source,
+                source.relative_to(build_output.root),
+                posixpath.join(
+                    deploy_target.location,
+                    *source.relative_to(build_output.root).parts,
+                ),
             )
-            if progress_width:
-                print(f"\r{' ' * progress_width}\r", end="", flush=True)
-            ensure_remote_tree(sftp, posixpath.dirname(remote_file))
+            for source in sources
+        )
+        remote_dirs = dict.fromkeys(
+            posixpath.dirname(remote_file)
+            for _, _, remote_file in uploads
+        )
+        for remote_dir in remote_dirs:
+            ensure_remote_tree(sftp, remote_dir)
+        for source, relative, remote_file in uploads:
             message = f"uploading {count + 1}/{total}: {relative.as_posix()}"
             progress_width = max(progress_width, len(message))
             print(f"\r{message.ljust(progress_width)}", end="", flush=True)
