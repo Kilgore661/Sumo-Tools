@@ -38,6 +38,7 @@ Then read the detailed model/design document for the area being changed:
 | Local/remote deployment | `09 Deployment and Operations.md` |
 | Notes, popovers and gloss policy | `11 Notes and Gloss.md` |
 | Notes/gloss review procedure | `How to Review Notes and Gloss.md` |
+| Next rating-statistics tranche | `Rating Statistics Work Plan.md` |
 
 ## Document Authority
 
@@ -50,6 +51,7 @@ Then read the detailed model/design document for the area being changed:
 | Supporting outcome notes | `Basho Results (7.1) Outcome.md` | Historical/supporting account of the 7.1 redesign now folded into `04.5`. |
 | Supporting review procedure | `How to Review Notes and Gloss.md` | Describes how to review Notes/gloss without keeping a change diary. |
 | Supporting policy | `11 Notes and Gloss.md` | Summarises reusable Notes/gloss rules and points unresolved work to `10`. |
+| Active work plan | `Rating Statistics Work Plan.md` | Records the next bounded product tranche and its provisional rating-chii guardrails. |
 | Background / style | `A Appendix - Better Models.md`, `House Style.md` | Useful context, not the main contract. |
 | Historical | `archive/` | Evidence only; do not treat as current unless active docs say so. |
 
