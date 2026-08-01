@@ -1,26 +1,31 @@
-> **Attention:** The content of this document should be moved into the
-> `make_site2` documentation, after which this document should be deleted.
-
 # Rikishi Chooser Interaction Model for `page=career_comparisons`
+
+## Status
+
+Implemented interaction contract. Automated commitment-rule tests pass;
+browser acceptance testing remains to be completed.
 
 ## Purpose
 
-This note describes the interaction semantics of the rikishi chooser used on the `career_comparisons` page, explains why its current behaviour is incorrect, and proposes a better model based on an explicit user commitment event.
+This note describes the interaction semantics of the rikishi chooser used on
+the `career_comparisons` page, explains why its former behaviour was incorrect,
+and records the replacement model based on an explicit user commitment event.
 
-The aim is not to prescribe a particular patch, but to define the behaviour the control should have.
+The interaction contract, rather than incidental event-handler details, governs
+the implementation.
 
 ---
 
-## 1. Current Model
+## 1. Former Model
 
-The chooser is implemented as a text input associated with an HTML `datalist`.
+The chooser was implemented as a text input associated with an HTML `datalist`.
 
 Conceptually, it has two responsibilities:
 
 1. Filter the available rikishi as the user types.
 2. Add a rikishi to the selected set.
 
-At present, these responsibilities are coupled.
+In the former implementation, these responsibilities were coupled.
 
 On every `input` event, the code:
 
@@ -120,7 +125,8 @@ Possible behaviour:
 
 - If a suggestion is actively highlighted, select it.
 - Otherwise, if the input exactly matches one candidate, select that candidate.
-- Otherwise, do nothing or show a validation message.
+- Otherwise, show an alert explaining that the entry is incomplete or
+  ambiguous, preserve the query, and return focus to the input.
 
 ### Clicking or tapping a suggestion
 
@@ -160,11 +166,14 @@ For `Fuji` and `Fujika`, the user can therefore type the complete text `Fujika` 
 
 ---
 
-## 6. Implementation Models
+## 6. Implementation Decision
 
-There are several possible implementation approaches.
+The following models were considered. The explicit custom combobox is the
+implemented design because it can distinguish ordinary typing, keyboard
+commitment, and direct pointer activation without relying on browser-specific
+`datalist` inference.
 
-## 6.1 Minimal change to the existing `datalist` model
+## 6.1 Rejected: minimal change to the existing `datalist` model
 
 The existing input and `datalist` can be retained, but selection must no longer occur in the `input` handler.
 
@@ -209,7 +218,7 @@ On Enter:
 
 ---
 
-## 6.2 Explicit custom combobox
+## 6.2 Implemented: explicit custom combobox
 
 A more controlled design would replace the native `datalist` behaviour with an ARIA combobox and a rendered listbox.
 
@@ -244,11 +253,11 @@ The control would maintain explicit state such as:
 - Requires careful accessibility implementation and testing.
 - Must manage focus, keyboard navigation, and list positioning explicitly.
 
-For a control that is important to the site and may need richer matching later, this is the stronger long-term model.
+This is the implemented model.
 
 ---
 
-## 6.3 Text field plus explicit Add action
+## 6.3 Rejected: text field plus explicit Add action
 
 A simpler alternative is to retain the filtered suggestions but require an Add button or Enter press to commit.
 
@@ -408,7 +417,14 @@ Given candidate `Hakuho`:
 Given several candidates beginning with `Taka`:
 
 - Typing `Taka` filters the list.
-- Pressing Enter without an exact or highlighted candidate does not arbitrarily select one.
+- Pressing Enter without an exact or highlighted candidate displays the
+  incomplete-or-ambiguous alert and does not arbitrarily select one.
+- The query remains available for editing after the alert.
+
+### Blur and Tab
+
+- Moving focus away from the input does not select a rikishi.
+- Pressing Tab does not select a rikishi.
 
 ### Duplicate selection
 
@@ -432,15 +448,17 @@ Given several candidates beginning with `Taka`:
 
 ---
 
-## 11. Recommended Direction
+## 11. Implemented Direction
 
-The immediate correction is conceptually simple:
+The correction follows this rule:
 
 > Remove selection from the `input` event and perform it only in response to an explicit commitment event.
 
-If retaining the native `datalist`, use `input` only for filtering and handle commitment through Enter and browser-confirmed choice events.
-
-For the strongest and most predictable design, implement the chooser as a proper custom combobox/listbox with explicit highlighted-candidate and committed-selection state.
+The chooser is implemented as a custom combobox/listbox with explicit query,
+highlighted-candidate and committed-selection state. Return commits the
+highlighted candidate or an exact unambiguous label. Clicking or tapping a
+candidate commits its rikishi ID immediately. Invalid Return displays an alert
+and preserves the query. Blur and Tab do not commit.
 
 The important design decision is independent of the chosen UI technology:
 

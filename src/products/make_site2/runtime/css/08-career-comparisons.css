@@ -71,6 +71,42 @@
   outline: none;
 }
 
+.career-comparison-combobox {
+  min-width: 0;
+  position: relative;
+}
+
+.career-comparison-candidates {
+  background: var(--content-bg);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-sizing: border-box;
+  color: var(--page-fg);
+  left: 0;
+  list-style: none;
+  margin: 0;
+  max-height: 14rem;
+  overflow-y: auto;
+  padding: 0;
+  position: absolute;
+  right: 0;
+  top: 100%;
+  z-index: 20;
+}
+
+.career-comparison-candidates[hidden] {
+  display: none;
+}
+
+.career-comparison-candidates [role="option"] {
+  cursor: pointer;
+  padding: 0.2rem 0.35rem;
+}
+
+.career-comparison-candidates [role="option"]:hover,
+.career-comparison-candidate-active {
+  background: var(--artifact-row-even-bg);
+}
+
 .career-comparison-selected {
   --career-comparison-bullet-size: 0.45rem;
   display: grid;

@@ -39,6 +39,7 @@ Then read the detailed model/design document for the area being changed:
 | Notes, popovers and gloss policy | `11 Notes and Gloss.md` |
 | Notes/gloss review procedure | `How to Review Notes and Gloss.md` |
 | Next rating-statistics tranche | `Rating Statistics Work Plan.md` |
+| Career Comparisons rikishi chooser | `Rikishi Chooser Interaction Model.md` |
 
 ## Document Authority
 
@@ -52,6 +53,7 @@ Then read the detailed model/design document for the area being changed:
 | Supporting review procedure | `How to Review Notes and Gloss.md` | Describes how to review Notes/gloss without keeping a change diary. |
 | Supporting policy | `11 Notes and Gloss.md` | Summarises reusable Notes/gloss rules and points unresolved work to `10`. |
 | Active work plan | `Rating Statistics Work Plan.md` | Records the next bounded product tranche and its provisional rating-chii guardrails. |
+| Supporting interaction contract | `Rikishi Chooser Interaction Model.md` | Records the implemented query, highlight and commitment semantics for the Career Comparisons rikishi chooser. |
 | Background / style | `A Appendix - Better Models.md`, `House Style.md` | Useful context, not the main contract. |
 | Historical | `archive/` | Evidence only; do not treat as current unless active docs say so. |
 

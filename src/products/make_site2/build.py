@@ -100,6 +100,7 @@ def build_site(
             child.unlink()
     (output_root / "runtime").mkdir(parents=True, exist_ok=True)
 
+    print("starting Basho Results generation")
     build_basho_results_data_output(
         history=resolved_history,
         output_root=output_root,
@@ -111,6 +112,7 @@ def build_site(
     )
     copy_banzuke_changes_data_output(output_root=output_root)
     copy_standings_by_wins_data_output(output_root=output_root)
+    print("starting Rating Changes generation")
     build_rating_changes_data_output(
         history=resolved_history,
         output_root=output_root,

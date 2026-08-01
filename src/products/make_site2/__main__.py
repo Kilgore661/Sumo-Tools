@@ -1,11 +1,10 @@
 """Command entry point for make_site2 builds and deployment."""
 
 from time import time
-t0=time()
+t0 = time()
 
 import argparse
 from pathlib import Path
-from time import perf_counter
 
 from .build import DEFAULT_OUTPUT_ROOT, build_site
 from .deploy import (
@@ -182,7 +181,6 @@ def reject_conflicting_modes(args: argparse.Namespace) -> None:
 
 
 def main() -> None:
-    start_time = perf_counter()
     args = build_parser().parse_args()
     reject_conflicting_modes(args)
     deploy_targets = ()
@@ -208,7 +206,6 @@ def main() -> None:
         build_output = build_site(**kwargs)
         print(f"built {build_output.root}")
     if args.build_only:
-        print_elapsed_time(start_time)
         return
     for target in deploy_targets:
         result = deploy_target(build_output, target)
@@ -218,14 +215,6 @@ def main() -> None:
         )
         if result.public_url:
             print(result.public_url)
-    print_elapsed_time(start_time)
-
-
-def print_elapsed_time(start_time: float) -> None:
-    elapsed = perf_counter() - start_time
-    print(f"completed in {elapsed:.1f} seconds")
-
-
 if __name__ == "__main__":
     main()
-    print( f'Run complete in {time()-t0:.0f}s' )
+    print(f"Run complete in {time() - t0:.0f}s")

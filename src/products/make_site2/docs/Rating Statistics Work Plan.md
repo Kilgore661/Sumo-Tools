@@ -7,6 +7,9 @@ Draft proposal for the next active `make_site2` work tranche.
 This document records the intended direction of work. It is not yet a product
 specification or implementation design.
 
+The rikishi-chooser defect has been implemented against
+`Rikishi Chooser Interaction Model.md`; browser acceptance testing remains.
+
 ## 1. Purpose
 
 The next tranche will:
@@ -156,7 +159,8 @@ landmark table is an observed correspondence.
 
 The tranche should proceed in this order:
 
-1. Record the known defect precisely and define its expected correction.
+1. Complete browser acceptance testing of the implemented rikishi-chooser
+   correction.
 2. Inventory the rating-related artifacts affected by the proposed statistical
    additions.
 3. Classify each artifact as rating-focused, chii-focused or combined.

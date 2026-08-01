@@ -263,6 +263,7 @@ def deploy_sftp(
     deploy_target = resolve_sftp_password(deploy_target)
     transport = connect_sftp_transport(deploy_target)
     count = 0
+    progress_width = 0
     try:
         sftp = paramiko.SFTPClient.from_transport(transport)
         ensure_remote_tree(sftp, deploy_target.location)
@@ -274,8 +275,12 @@ def deploy_sftp(
                 deploy_target.location,
                 *relative.parts,
             )
-            print(f"uploading {count + 1}/{total}: {relative.as_posix()}")
+            if progress_width:
+                print(f"\r{' ' * progress_width}\r", end="", flush=True)
             ensure_remote_tree(sftp, posixpath.dirname(remote_file))
+            message = f"uploading {count + 1}/{total}: {relative.as_posix()}"
+            progress_width = max(progress_width, len(message))
+            print(f"\r{message.ljust(progress_width)}", end="", flush=True)
             sftp.put(str(source), remote_file)
             count += 1
         return DeploymentResult(
@@ -287,4 +292,6 @@ def deploy_sftp(
             file_count=count,
         )
     finally:
+        if progress_width:
+            print()
         transport.close()

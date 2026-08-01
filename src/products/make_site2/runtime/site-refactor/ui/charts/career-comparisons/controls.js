@@ -17,6 +17,9 @@ import {
 const TRASH_ICON_PATH = "assets/trash.svg";
 const EYE_ICON_PATH = "assets/eye.svg";
 const EYE_CLOSED_ICON_PATH = "assets/eye-closed.svg";
+const INVALID_RIKISHI_SELECTION_MESSAGE = (
+  "The rikishi name is incomplete or ambiguous. Choose a rikishi from the dropdown."
+);
 
 function renderCareerComparisonsControls(state) {
   return [
@@ -43,11 +46,13 @@ function renderCareerComparisonsControls(state) {
     '<div class="career-comparison-selector">',
     '<span class="career-comparison-selector-caption">Selected Rikishi</span>',
     '<ul class="career-comparison-selected" aria-label="Selected rikishi"></ul>',
-    '<label class="filter-control career-comparison-search">',
-    '<span>Add</span>',
-    '<input type="text" name="rikishi_search" autocomplete="off" list="career-comparison-candidates" autofocus tabindex="0">',
-    '</label>',
-    '<datalist id="career-comparison-candidates"></datalist>',
+    '<div class="filter-control career-comparison-search">',
+    '<label for="career-comparison-search-input">Add</label>',
+    '<div class="career-comparison-combobox">',
+    '<input id="career-comparison-search-input" type="text" name="rikishi_search" autocomplete="off" role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded="false" aria-controls="career-comparison-candidates" autofocus tabindex="0">',
+    '<ul id="career-comparison-candidates" class="career-comparison-candidates" role="listbox" hidden></ul>',
+    '</div>',
+    '</div>',
     '</div>',
     '</form>',
   ].join("");
@@ -69,11 +74,12 @@ function wireCareerComparisonsControls(panel, artifact, state, data, writeState)
   if (!form) return;
   readCareerComparisonSelectionFromUrl(data);
   const options = careerComparisonRikishiOptions(data);
-  const optionsByLabel = new Map(options.map(option => [canonicalRikishiLabel(option.label), option]));
+  const optionsByLabel = groupCareerComparisonOptionsByLabel(options);
   const optionsById = new Map(options.map(option => [option.id, option]));
   const input = form.elements.rikishi_search;
-  const datalist = form.querySelector("#career-comparison-candidates");
+  const candidateList = form.querySelector("#career-comparison-candidates");
   const selectedList = form.querySelector(".career-comparison-selected");
+  let highlightedRikishiId = null;
   const applyState = () => {
     const nextState = careerComparisonControlState(form, state);
     Object.assign(state, nextState);
@@ -81,33 +87,90 @@ function wireCareerComparisonsControls(panel, artifact, state, data, writeState)
     writeCareerComparisonSelectionToUrl();
     renderCareerComparisonsPlot(artifact, nextState, data);
   };
+  const refreshCandidates = open => {
+    const matches = updateCareerComparisonCandidates(
+      input,
+      candidateList,
+      options,
+      optionsByLabel,
+      open,
+    );
+    if (!matches.some(option => option.id === highlightedRikishiId)) {
+      highlightedRikishiId = null;
+    }
+    setCareerComparisonCandidateHighlight(candidateList, input, highlightedRikishiId);
+    return matches;
+  };
+  const closeCandidates = () => {
+    highlightedRikishiId = null;
+    closeCareerComparisonCandidates(input, candidateList);
+  };
+  const commitOption = option => {
+    if (!addSelectedRikishi(option)) return;
+    input.value = "";
+    closeCandidates();
+    renderSelectedRikishiList(selectedList, optionsById);
+    applyState();
+    input.focus();
+  };
 
-  updateCareerComparisonCandidates(input, datalist, options);
+  refreshCandidates(false);
   renderSelectedRikishiList(selectedList, optionsById);
   renderCareerComparisonsPlot(artifact, state, data);
   focusCareerComparisonSearch(input);
 
   input.addEventListener("input", () => {
-    enableCareerComparisonDatalist(input);
-    if (consumeExactRikishiSelection(input, optionsByLabel, datalist, selectedList, options, optionsById)) {
-      applyState();
-      return;
-    }
-    updateCareerComparisonCandidates(input, datalist, options);
+    highlightedRikishiId = null;
+    refreshCandidates(true);
   });
   input.addEventListener("focus", () => {
-    refreshCareerComparisonDatalist(input, datalist, options);
+    refreshCandidates(true);
   });
   input.addEventListener("click", () => {
-    refreshCareerComparisonDatalist(input, datalist, options);
+    refreshCandidates(true);
   });
-  input.addEventListener("change", () => {
-    enableCareerComparisonDatalist(input);
-    if (consumeExactRikishiSelection(input, optionsByLabel, datalist, selectedList, options, optionsById)) {
-      applyState();
+  input.addEventListener("keydown", event => {
+    if (event.isComposing) return;
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      event.preventDefault();
+      const matches = refreshCandidates(true);
+      highlightedRikishiId = moveCareerComparisonCandidateHighlight(
+        matches,
+        highlightedRikishiId,
+        event.key === "ArrowDown" ? 1 : -1,
+      );
+      setCareerComparisonCandidateHighlight(candidateList, input, highlightedRikishiId);
       return;
     }
-    updateCareerComparisonCandidates(input, datalist, options);
+    if (event.key === "Escape") {
+      event.preventDefault();
+      closeCandidates();
+      return;
+    }
+    if (event.key !== "Enter") return;
+    event.preventDefault();
+    const option = resolveCareerComparisonCandidate(
+      input.value,
+      highlightedRikishiId,
+      optionsByLabel,
+      optionsById,
+      careerComparisonsState.selectedRikishiIds,
+    );
+    if (!option) {
+      window.alert(INVALID_RIKISHI_SELECTION_MESSAGE);
+      input.focus();
+      return;
+    }
+    commitOption(option);
+  });
+  input.addEventListener("blur", closeCandidates);
+  candidateList.addEventListener("pointerdown", event => {
+    if (event.target.closest("[role='option']")) event.preventDefault();
+  });
+  candidateList.addEventListener("click", event => {
+    const candidate = event.target.closest("[data-rikishi-id]");
+    if (!candidate) return;
+    commitOption(optionsById.get(candidate.dataset.rikishiId));
   });
   selectedList.addEventListener("click", event => {
     const button = event.target.closest("button[data-rikishi-id]");
@@ -116,6 +179,7 @@ function wireCareerComparisonsControls(panel, artifact, state, data, writeState)
       .filter(id => id !== button.dataset.rikishiId);
     removeStoredRikishiVisibility(button.dataset.rikishiId);
     renderSelectedRikishiList(selectedList, optionsById);
+    refreshCandidates(document.activeElement === input);
     applyState();
   });
   selectedList.addEventListener("change", event => {
@@ -133,7 +197,6 @@ function wireCareerComparisonsControls(panel, artifact, state, data, writeState)
   });
   form.addEventListener("submit", event => {
     event.preventDefault();
-    applyState();
   });
 }
 
@@ -164,54 +227,113 @@ function careerComparisonControlState(form, state) {
   };
 }
 
-function updateCareerComparisonCandidates(input, datalist, options) {
+function updateCareerComparisonCandidates(
+  input,
+  candidateList,
+  options,
+  optionsByLabel = groupCareerComparisonOptionsByLabel(options),
+  open = true,
+) {
   const query = input.value.trim().toLowerCase();
   const selected = new Set(careerComparisonsState.selectedRikishiIds);
   const matches = options
     .filter(option => !selected.has(option.id))
     .filter(option => !query || option.prefixes.some(prefix => prefix.startsWith(query)))
     .slice(0, careerComparisonsState.candidateLimit);
-  datalist.innerHTML = matches
-    .map(option => `<option value="${escapeHtml(option.label)}"></option>`)
+  candidateList.innerHTML = matches
+    .map(option => [
+      `<li id="${careerComparisonCandidateDomId(option.id)}" role="option"`,
+      ` data-rikishi-id="${escapeHtml(option.id)}" aria-selected="false">`,
+      escapeHtml(careerComparisonCandidateLabel(option, optionsByLabel)),
+      '</li>',
+    ].join(""))
     .join("");
+  const expanded = open && matches.length > 0;
+  candidateList.hidden = !expanded;
+  input.setAttribute("aria-expanded", String(expanded));
+  return matches;
 }
 
-function consumeExactRikishiSelection(input, optionsByLabel, datalist, selectedList, options, optionsById) {
-  const label = canonicalRikishiLabel(input.value);
-  if (!optionsByLabel.has(label)) return false;
-  addSelectedRikishi(label, optionsByLabel);
-  input.value = "";
-  input.removeAttribute("list");
-  datalist.innerHTML = "";
-  updateCareerComparisonCandidates(input, datalist, options);
-  renderSelectedRikishiList(selectedList, optionsById);
-  return true;
+function groupCareerComparisonOptionsByLabel(options) {
+  const optionsByLabel = new Map();
+  for (const option of options) {
+    const label = canonicalRikishiLabel(option.label);
+    const matchingOptions = optionsByLabel.get(label) || [];
+    optionsByLabel.set(label, [...matchingOptions, option]);
+  }
+  return optionsByLabel;
 }
 
 function canonicalRikishiLabel(value) {
   return String(value).trim().toLowerCase();
 }
 
-function enableCareerComparisonDatalist(input) {
-  if (!input.hasAttribute("list")) {
-    input.setAttribute("list", "career-comparison-candidates");
+function careerComparisonCandidateLabel(option, optionsByLabel) {
+  const matches = optionsByLabel.get(canonicalRikishiLabel(option.label));
+  return matches.length === 1 ? option.label : `${option.label} (${option.id})`;
+}
+
+function careerComparisonCandidateDomId(rikishiId) {
+  return `career-comparison-candidate-${encodeURIComponent(rikishiId)}`;
+}
+
+function closeCareerComparisonCandidates(input, candidateList) {
+  candidateList.hidden = true;
+  input.setAttribute("aria-expanded", "false");
+  input.removeAttribute("aria-activedescendant");
+}
+
+function setCareerComparisonCandidateHighlight(candidateList, input, rikishiId) {
+  candidateList.querySelectorAll("[role='option']").forEach(candidate => {
+    const active = candidate.dataset.rikishiId === rikishiId;
+    candidate.setAttribute("aria-selected", String(active));
+    candidate.classList.toggle("career-comparison-candidate-active", active);
+    if (active) candidate.scrollIntoView({ block: "nearest" });
+  });
+  if (rikishiId === null) {
+    input.removeAttribute("aria-activedescendant");
+    return;
   }
+  input.setAttribute("aria-activedescendant", careerComparisonCandidateDomId(rikishiId));
 }
 
-function refreshCareerComparisonDatalist(input, datalist, options) {
-  enableCareerComparisonDatalist(input);
-  updateCareerComparisonCandidates(input, datalist, options);
+function moveCareerComparisonCandidateHighlight(options, currentId, direction) {
+  if (!options.length) return null;
+  const currentIndex = options.findIndex(option => option.id === currentId);
+  if (currentIndex === -1) return direction > 0 ? options[0].id : options[options.length - 1].id;
+  const nextIndex = (currentIndex + direction + options.length) % options.length;
+  return options[nextIndex].id;
 }
 
-function addSelectedRikishi(label, optionsByLabel) {
-  const option = optionsByLabel.get(label);
-  if (!option) return;
-  if (careerComparisonsState.selectedRikishiIds.includes(option.id)) return;
+function resolveCareerComparisonCandidate(
+  query,
+  highlightedRikishiId,
+  optionsByLabel,
+  optionsById,
+  selectedRikishiIds,
+) {
+  const selected = new Set(selectedRikishiIds);
+  if (highlightedRikishiId !== null && !selected.has(highlightedRikishiId)) {
+    return optionsById.get(highlightedRikishiId);
+  }
+  const canonicalQuery = canonicalRikishiLabel(query);
+  const exactMatches = [...optionsById.values()]
+    .filter(option => !selected.has(option.id))
+    .filter(option => (
+      canonicalRikishiLabel(careerComparisonCandidateLabel(option, optionsByLabel))
+      === canonicalQuery
+    ));
+  return exactMatches.length === 1 ? exactMatches[0] : null;
+}
+
+function addSelectedRikishi(option) {
+  if (careerComparisonsState.selectedRikishiIds.includes(option.id)) return false;
   removeStoredRikishiVisibility(option.id);
   careerComparisonsState.selectedRikishiIds = [
     ...careerComparisonsState.selectedRikishiIds,
     option.id,
   ];
+  return true;
 }
 
 function renderSelectedRikishiList(selectedList, optionsById) {
@@ -254,10 +376,14 @@ export {
   focusCareerComparisonSearch,
   careerComparisonControlState,
   updateCareerComparisonCandidates,
-  consumeExactRikishiSelection,
+  groupCareerComparisonOptionsByLabel,
   canonicalRikishiLabel,
-  enableCareerComparisonDatalist,
-  refreshCareerComparisonDatalist,
+  careerComparisonCandidateLabel,
+  careerComparisonCandidateDomId,
+  closeCareerComparisonCandidates,
+  setCareerComparisonCandidateHighlight,
+  moveCareerComparisonCandidateHighlight,
+  resolveCareerComparisonCandidate,
   addSelectedRikishi,
   renderSelectedRikishiList,
   renderSelectedRikishiLink,
