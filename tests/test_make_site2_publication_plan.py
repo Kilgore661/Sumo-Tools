@@ -10,13 +10,14 @@ from src.products.make_site2.manifest.artifacts import (
     MAKUUCHI_RANK_BY_ERA_ARTIFACT,
     RANK_AT_RETIREMENT_ARTIFACT,
     STANDINGS_BY_WINS_ARTIFACT,
-    TYPICAL_EQUELO_VALUES_ARTIFACT,
+    EQUELO_VS_CHII_ARTIFACT,
 )
 from src.products.make_site2.publication_model import (
     artifact_refs,
     build_publication_plan,
 )
 from src.products.make_site2.render import render_site_shell
+from src.products.make_site2.models import PageStatus
 from src.products.make_site2.site_definition import SITE
 from src.products.make_site2.site_manifest import (
     build_public_site_shell,
@@ -85,11 +86,13 @@ def test_publication_plan_resolves_copied_navigation_routes() -> None:
         "career-lifecycle",
         "career-length",
     )
-    assert plan.pages["typical_equelo_values"].route.parts == (
+    assert plan.pages["equelo_vs_chii"].route.parts == (
         "ratings-models",
         "rating-and-rank",
-        "typical-equelo-values",
+        "equelo-vs-chii",
     )
+    assert "typical_equelo_values" not in plan.pages
+    assert SITE.pages.pages["typical_equelo_values"].status == PageStatus.LEGACY
     assert plan.pages["highest_equelo"].route.parts == (
         "sumo-history",
         "records",
@@ -162,8 +165,8 @@ def test_navigation_bar_uses_canonical_default_view_links_without_rendering_page
     rating_and_rank = next(
         item for item in ratings_models.children if item.id == "rating_and_rank"
     )
-    typical_equelo_values = next(
-        item for item in rating_and_rank.children if item.id == "typical_equelo_values"
+    equelo_vs_chii = next(
+        item for item in rating_and_rank.children if item.id == "equelo_vs_chii"
     )
     records = next(
         item for item in sumo_history.children if item.id == "records"
@@ -202,8 +205,8 @@ def test_navigation_bar_uses_canonical_default_view_links_without_rendering_page
     assert division_stability.href == "?page=division_stability"
     assert first_chii_appearance.included
     assert first_chii_appearance.href == "?page=first_chii_appearance"
-    assert typical_equelo_values.included
-    assert typical_equelo_values.href == "?page=typical_equelo_values"
+    assert equelo_vs_chii.included
+    assert equelo_vs_chii.href == "?page=equelo_vs_chii"
     assert highest_equelo.included
     assert highest_equelo.href == "?page=highest_equelo"
     assert longest_careers.included
@@ -231,7 +234,8 @@ def test_site_shell_is_rendered_from_ui_manifest() -> None:
     assert 'data-page-id="first_chii_appearance"' in html
     assert 'data-page-id="rank_at_retirement"' in html
     assert 'data-page-id="career_length"' in html
-    assert 'data-page-id="typical_equelo_values"' in html
+    assert 'data-page-id="typical_equelo_values"' not in html
+    assert 'data-page-id="equelo_vs_chii"' in html
     assert 'data-page-id="highest_equelo"' in html
     assert 'data-page-id="longest_careers"' in html
     assert '<main class="site-main" aria-label="Page content">' in html
@@ -499,27 +503,17 @@ def test_runtime_manifest_declares_longest_careers_records_table() -> None:
     assert note_ids(panel) == ["observed_career_length", "bg_count"]
 
 
-def test_runtime_manifest_declares_typical_equelo_values_sectioned_table() -> None:
+def test_runtime_manifest_declares_equelo_vs_chii_prose() -> None:
     manifest = build_runtime_manifest(build_publication_plan(SITE))
-    panel = content_panel_by_artifact(manifest, TYPICAL_EQUELO_VALUES_ARTIFACT.id)
-    artifact = manifest["artifacts"]["typical_equelo_values"]
+    panel = content_panel_by_artifact(manifest, EQUELO_VS_CHII_ARTIFACT.id)
+    artifact = manifest["artifacts"]["equelo_vs_chii"]
 
     assert filter_section(panel) is None
-    assert note_ids(panel) == ["typical_equelo_values", "jd100"]
-    assert artifact["kind"] == "sectioned_table"
-    assert artifact["renderer"] == "sectioned_table"
-    assert artifact["primary_source"] == "typical_equelo_values"
-    assert artifact["data_sources"][0]["path"] == (
-        "ratings-models/rating-and-rank/"
-        "typical-equelo-values/data/typical_equelo_values.csv"
-    )
-    assert [section["id"] for section in artifact["sections"]] == [
-        "sanyaku",
-        "maegashira",
-        "other",
-    ]
-    assert [column["id"] for column in artifact["columns"]] == ["label", "rating"]
-    assert [column["sort_kind"] for column in artifact["columns"]] == ["none", "none"]
+    assert note_ids(panel) == []
+    assert artifact["kind"] == "prose"
+    assert artifact["renderer"] == "prose"
+    assert artifact["path"] == "prose/Equelo vs Chii.html"
+    assert "typical_equelo_values" not in manifest["artifacts"]
 
 
 def test_runtime_manifest_declares_highest_equelo_table() -> None:

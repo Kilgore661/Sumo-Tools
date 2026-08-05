@@ -2,10 +2,13 @@
 
 ## Status
 
-Draft proposal for the next active `make_site2` work tranche.
+Superseded as an active work proposal.
 
-This document records the intended direction of work. It is not yet a product
-specification or implementation design.
+The proposed rating-statistics enrichment did not proceed. Equelo does not
+currently contain a principled uncertainty model from which the contemplated
+confidence and volatility statistics can be derived. The surviving work on
+replacing `Typical Equelo Ratings` is now planned in
+`docs/Equelo vs Chii Narrative Plan.md`.
 
 The rikishi-chooser defect has been implemented against
 `Rikishi Chooser Interaction Model.md`; browser acceptance testing remains.
@@ -134,14 +137,15 @@ fuller companion account.
 
 ## 7. Typical Equelo Ratings
 
-The present `Typical Equelo Ratings` page is no longer an adequate
-uncomplicated explanation of the Equelo scale.
+The former `Typical Equelo Ratings` page is a legacy artifact and is no longer
+published. Its public route has been replaced by the initially blank
+`equelo_vs_chii` prose artifact.
 
 Its monotonic table contains constructed public rating landmarks. It is not an
 empirical demonstration that historical mean process ratings are monotonic by
 chii.
 
-The table is likely to become an early exhibit in a replacement account
+The legacy table may become an early exhibit in that replacement account
 explaining:
 
 - why a monotonic chii-to-rating ladder is attractive;

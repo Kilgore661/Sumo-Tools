@@ -52,6 +52,13 @@ PAGES = PageRegistry(
             status=PageStatus.PROMOTED,
             artifact=artifact("equelo_assumptions", "prose"),
         ),
+        "equelo_vs_chii": PageDefinition(
+            id="equelo_vs_chii",
+            title="Equelo vs Chii",
+            summary="",
+            status=PageStatus.PROMOTED,
+            artifact=artifact("equelo_vs_chii", "prose"),
+        ),
         "banzuke_changes": PageDefinition(
             id="banzuke_changes",
             title="Most Recent Banzuke",
@@ -247,7 +254,7 @@ PAGES = PageRegistry(
             id="typical_equelo_values",
             title="Typical Equelo Ratings",
             summary="Approximate rating landmarks for familiar ranks.",
-            status=PageStatus.PROMOTED,
+            status=PageStatus.LEGACY,
             artifact=artifact(
                 "typical_equelo_values",
                 "sectioned_table",

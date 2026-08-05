@@ -72,6 +72,10 @@ PANEL_DECLARATIONS: dict[str, PanelDeclaration] = {
         filters=(),
         artifact=a.EQUELO_ASSUMPTIONS_ARTIFACT,
     ),
+    "equelo_vs_chii": PanelDeclaration(
+        filters=(),
+        artifact=a.EQUELO_VS_CHII_ARTIFACT,
+    ),
     "banzuke_changes": PanelDeclaration(
         filters=f.BANZUKE_CHANGES_FILTERS,
         artifact=a.BANZUKE_CHANGES_ARTIFACT,

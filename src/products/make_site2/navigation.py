@@ -152,6 +152,12 @@ PUBLIC_NAVIGATION = NavigationTree(
                     "typical-equelo-values",
                     page_id="typical_equelo_values",
                 ),
+                nav(
+                    "equelo_vs_chii",
+                    "Equelo vs Chii",
+                    "equelo-vs-chii",
+                    page_id="equelo_vs_chii",
+                ),
             )
     ),
 )

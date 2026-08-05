@@ -44,3 +44,11 @@ EQUELO_ASSUMPTIONS_ARTIFACT = ProseArtifact(
     renderer="prose",
     path="prose/Equelo Assumptions.html",
 )
+
+EQUELO_VS_CHII_ARTIFACT = ProseArtifact(
+    id="equelo_vs_chii",
+    heading="Equelo vs Chii",
+    kind="prose",
+    renderer="prose",
+    path="prose/Equelo vs Chii.html",
+)
