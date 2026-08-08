@@ -134,6 +134,12 @@ The package downloads individual rikishi pages, parses headline biographical det
 Refreshing `rikishi_bios.json` from the cached per-rikishi HTML pages is slow
 enough to interrupt normal iteration.
 
+The primary remedy should be incremental parsing rather than merely making a
+full-catalogue parse faster. See
+[`Incremental Bio Refresh Proposal.md`](Incremental%20Bio%20Refresh%20Proposal.md).
+The proposal defines new/changed-page discovery, explicit full rebuilds,
+atomic aggregate updates and integration with the History/publication chain.
+
 Likely hot spots in `src.infra.get_bios.parser`:
 
 * `parse_career_table()` walks every career-table row and scans every cell for

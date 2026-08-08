@@ -1,5 +1,10 @@
 # src/infra/get_bios/parse.py
 
+import sys
+
+print("Attention: there is a proposal src/infra/get_bios/docs/Incremental Bio Refresh Proposal.md to change this code!")
+sys.exit(0)
+
 import csv
 import json
 import re
