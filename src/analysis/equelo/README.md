@@ -1,5 +1,7 @@
 # Equelo
 
+> **WARNING! The elo calcuation code ignores 5.6% of post-1988 bouts simply because there is no kimarite!**
+
 `analysis/equelo` owns the Equelo rating model and the public API for reading
 Equelo ratings.
 
