@@ -14,7 +14,7 @@ from ...sumo_core.Chii import Chii
 # --- Constants and Patterns from the trusted legacy parser ---
 YUSHO_DIR = 'files/output/current standings'
 DIV_PAT = re.compile(r'.*?>(\w+) Yusho Arasoi:</u></b></font>(.*)', re.DOTALL)
-WIN_PAT = re.compile(r'</p>..<p><font size=.2.><b>(\d+) wins?[^<]*</b></font><font size=.1.><br />(.*)', re.DOTALL)
+WIN_PAT = re.compile(r'</p>..?<p><font size=.2.><b>(\d+) wins?[^<]*</b></font><font size=.1.><br />(.*)', re.DOTALL)
 RIK_PAT = re.compile(r'((\S*) <a title=.*?Rikishi.aspx\?r=(\d+).>(\S+) (\S+)</a>(<br />|</font>))(.*)', re.DOTALL)
 
 
