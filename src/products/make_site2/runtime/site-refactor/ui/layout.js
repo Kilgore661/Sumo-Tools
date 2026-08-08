@@ -66,10 +66,13 @@ function updateStickyArtifactHeaders() {
 
 // Synchronize header/body column widths in a scrollable table shell.
 function syncTableShellColumns(shell) {
+  const frame = shell.querySelector(":scope > .artifact-table-frame");
   const headerTable = shell.querySelector(":scope .artifact-table-header-region > table");
-  const bodyTable = shell.querySelector(":scope .artifact-table-body-region > table");
-  if (!headerTable || !bodyTable) return;
+  const bodyRegion = shell.querySelector(":scope .artifact-table-body-region");
+  const bodyTable = bodyRegion?.querySelector(":scope > table");
+  if (!frame || !headerTable || !bodyRegion || !bodyTable) return;
 
+  frame.style.width = "";
   clearColumnWidths(headerTable, bodyTable);
   const headerCells = tableHeaderLeafCells(headerTable);
   const bodyRows = [...bodyTable.querySelectorAll("tbody tr")].slice(0, 25);
@@ -88,6 +91,15 @@ function syncTableShellColumns(shell) {
     return Math.ceil(Math.max(headerWidth, bodyWidth, 24));
   });
   applyColumnWidths(headerTable, bodyTable, widths);
+  // Collapsed cell borders can make the rendered table wider than its assigned
+  // column total. Size the frame from the rendered tables, then reserve the
+  // vertical scrollbar gutter owned by the body.
+  const renderedTableWidth = Math.ceil(Math.max(
+    headerTable.getBoundingClientRect().width,
+    bodyTable.getBoundingClientRect().width,
+  ));
+  const scrollbarGutter = Math.max(0, bodyRegion.offsetWidth - bodyRegion.clientWidth);
+  frame.style.width = `${renderedTableWidth + scrollbarGutter}px`;
 }
 
 function clearColumnWidths(...tables) {

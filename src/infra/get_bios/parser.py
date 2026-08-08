@@ -1,10 +1,6 @@
 # src/infra/get_bios/parse.py
 
 import sys
-
-print("Attention: there is a proposal src/infra/get_bios/docs/Incremental Bio Refresh Proposal.md to change this code!")
-sys.exit(0)
-
 import csv
 import json
 import re
@@ -485,4 +481,6 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    print("Attention: there is a proposal src/infra/get_bios/docs/Incremental Bio Refresh Proposal.md to change this code!")
+    sys.exit(0)
     main()
