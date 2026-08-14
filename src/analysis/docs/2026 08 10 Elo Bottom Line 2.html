@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Elo ratings with known initial strengths</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: Georgia, "Times New Roman", serif;
+      line-height: 1.65;
+    }
+
+    body {
+      max-width: 48rem;
+      margin: 3rem auto;
+      padding: 0 1.25rem;
+    }
+
+    p {
+      margin: 0 0 1.25rem;
+    }
+
+    a {
+      color: #2457a7;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      a {
+        color: #8bb8ff;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <p>
+      Consider an Elo system for \(n\) players in a game with no draws. Suppose
+      that we know each player’s true rating \(b_i\) and use it as their initial
+      Elo rating. We then simulate a continuing series of games, choosing the
+      pair of players for each game uniformly at random and generating the result
+      according to their true ratings. The Elo ratings will not remain fixed at
+      the true ratings. Starting them at the correct values means only that,
+      initially, their expected changes are balanced; the results of actual games
+      will still move them, and a fixed \(K\)-factor ensures that these movements
+      never die away.
+    </p>
+
+    <p>
+      The ratings will tend to be pulled back when they move badly out of line
+      with the players’ true strengths, so large departures are increasingly rare
+      the larger they are. Nevertheless, no finite band around a player’s true
+      rating is guaranteed to contain that player’s Elo rating forever. What
+      eventually settles down is the general pattern of fluctuation. For any
+      chosen band, the proportion of observations lying outside it should
+      eventually level off at some value. For a reasonably wide band this value
+      may be very small, but with a fixed \(K\) it will generally not be zero.
+    </p>
+
+    <p>
+      For very small values of \(K\),
+      <a href="https://arxiv.org/abs/2410.09180">Cortez and Tossounian (2026)</a>
+      show that the average size of the long-run discrepancies from the true
+      ratings is no greater than a constant times \(\sqrt{K}\). Thus reducing
+      \(K\) by a factor of four halves this upper bound, although the exact size
+      of the discrepancies depends on the players and the details of the system.
+      This result does not limit how far an individual rating may occasionally
+      wander. The fluctuations can be reduced by lowering \(K\), but they do not
+      disappear merely because the simulation is run for longer.
+    </p>
+
+    <section aria-labelledby="interested-reader">
+      <h2 id="interested-reader">For the interested reader</h2>
+
+      <p>
+        Some readers may be interested in the roles played by Elo’s two constant
+        parameters \(K\) and \(q\). In the usual Elo convention, where a win has
+        score 1 and a loss has score 0, the expected score for a rating difference
+        \(x\) is
+        \[
+          p(x)=\frac{1}{1+10^{-x/q}}.
+        \]
+        The number \(L\) measures the greatest slope of this curve. That greatest
+        slope occurs at \(x=0\), giving
+        \[
+          L=\max_x p'(x)=\frac{\ln 10}{4q}.
+        \]
+      </p>
+
+      <p>
+        One of the hypotheses that must be satisfied in order to apply Cortez
+        and Tossounian’s results as stated, translated into this usual 0-to-1
+        scoring convention, is \(KL&lt;1\). Consequently,
+        \[
+          K&lt;\frac{1}{L}=\frac{4q}{\ln 10},
+          \qquad
+          \sqrt{K}&lt;2\sqrt{\frac{q}{\ln 10}}.
+        \]
+        For the common choice \(q=400\), this becomes
+        \[
+          K&lt;\frac{1600}{\ln 10}\approx 694.87,
+          \qquad
+          \sqrt{K}&lt;\sqrt{\frac{1600}{\ln 10}}\approx 26.36.
+        \]
+        The statement about \(\sqrt K\) here is simply the result of taking the
+        square root of the general condition on \(K\).
+      </p>
+
+      <p>
+        Their claim that the average long-run discrepancy from the true ratings
+        is no greater than a constant times \(\sqrt K\) requires a further, much
+        stricter condition. For example, suppose that \(q=400\), that the true
+        ratings range from 1000 to 2800, and that their mean is 1900. After
+        centring, the ratings range from \(-900\) to \(900\). Translating their
+        explicit condition into the usual 0-to-1 scoring convention then gives
+        \[
+          K\leq 3.62\times 10^{-7}.
+        \]
+        This is infeasibly small
+        for a practical Elo simulation. It is a sufficient condition supplied
+        by the proof, rather than a claim that the observed \(\sqrt K\) pattern
+        must fail for every larger value of \(K\). If the ratings’ mean is not
+        1900, the numerical condition may be smaller still.
+      </p>
+    </section>
+  </main>
+</body>
+</html>

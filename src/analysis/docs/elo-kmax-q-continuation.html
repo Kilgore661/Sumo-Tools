@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How large can the small-K bound be?</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: Georgia, "Times New Roman", serif;
+      line-height: 1.65;
+      --page-foreground: light-dark(#202124, #f0f0f0);
+      --link: light-dark(#2457a7, #8bb8ff);
+      --plot-series: light-dark(#2457a7, #8bb8ff);
+      --plot-accent: light-dark(#b45309, #f2a65a);
+      --plot-grid: light-dark(rgba(32, 33, 36, 0.14), rgba(240, 240, 240, 0.16));
+      --plot-muted: light-dark(rgba(32, 33, 36, 0.68), rgba(240, 240, 240, 0.68));
+    }
+
+    body {
+      max-width: 48rem;
+      margin: 3rem auto;
+      padding: 0 1.25rem;
+      color: var(--page-foreground);
+    }
+
+    h1 {
+      line-height: 1.25;
+      margin: 0 0 1.75rem;
+    }
+
+    p {
+      margin: 0 0 1.25rem;
+    }
+
+    a {
+      color: var(--link);
+    }
+
+    figure {
+      margin: 2rem 0 0;
+    }
+
+    #kmax-q-r400-chart {
+      width: 100%;
+      height: 430px;
+    }
+
+    figcaption {
+      margin-top: 0.65rem;
+      color: var(--plot-muted);
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        margin-top: 1.5rem;
+      }
+
+      #kmax-q-r400-chart {
+        height: 390px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>How large can the small-\(K\) bound be?</h1>
+
+    <p>
+      This upper bound on \(K\), which we shall call \(K_{\max}\), may seem
+      surprisingly small. A natural question is whether some choices of \(q\)
+      make \(K_{\max}\) substantially larger—perhaps of the order of 10 rating
+      points.
+    </p>
+
+    <p>
+      Write \(R\) for the largest difference between any two true ratings: in
+      other words, the full width of the rating range. With the usual 0-to-1
+      Elo scoring convention, the sufficient upper bound derived from
+      <a href="https://arxiv.org/abs/2410.09180">Cortez and Tossounian’s condition</a>
+      can then be written
+      \[
+        K_{\max}(q,R)
+        =\frac{\ln 10}{2q}
+          \operatorname{sech}^{2}\!\left(
+            \frac{(1+R)\ln 10}{2q}
+          \right).
+      \]
+      Here the midpoint of the rating range has been used as zero. This
+      centring does not alter any Elo probabilities, which depend only on
+      rating differences.
+    </p>
+
+    <p>
+      Thus the bound is not sensitive to the absolute level of the ratings:
+      adding 1,000 points to every rating changes nothing. It is sensitive to
+      the numerical width of the rating range relative to \(q\). To make this
+      concrete, suppose that ratings are intended to run from 1,000 to 1,400.
+      The maximum difference is then \(R=400\). The following plot shows
+      \(K_{\max}(q,400)\) as \(q\) varies.
+    </p>
+
+    <figure>
+      <div
+        id="kmax-q-r400-chart"
+        role="img"
+        aria-label="Interactive plot of K max against q for a full rating span R of 400. The curve peaks near q equals 598 at K max approximately 1.12 times 10 to the minus 3. At q equals 400, K max is approximately 9.47 times 10 to the minus 4."
+      ></div>
+      <figcaption>
+        The horizontal and vertical axes use logarithmic scales. Hover over the
+        curve for numerical values; Plotly’s controls appear at the upper right.
+      </figcaption>
+    </figure>
+  </main>
+
+  <script>
+    (() => {
+      const plot = document.getElementById("kmax-q-r400-chart");
+      const styles = getComputedStyle(document.documentElement);
+      const foreground = styles.getPropertyValue("--page-foreground").trim();
+      const muted = styles.getPropertyValue("--plot-muted").trim();
+      const grid = styles.getPropertyValue("--plot-grid").trim();
+      const series = styles.getPropertyValue("--plot-series").trim();
+      const accent = styles.getPropertyValue("--plot-accent").trim();
+      const ratingSpan = 400;
+      const eta = 1 + ratingSpan;
+      const peakZ = 0.7717023192091041;
+
+      function kMax(q) {
+        const a = Math.log(10) / (2 * q);
+        const c = Math.cosh(a * eta);
+        return a / (c * c);
+      }
+
+      const qValues = [];
+      const samples = 700;
+      const logMin = 2;
+      const logMax = 6;
+      for (let i = 0; i <= samples; i += 1) {
+        const exponent = logMin + (i / samples) * (logMax - logMin);
+        qValues.push(10 ** exponent);
+      }
+
+      const qTypical = 400;
+      const kTypical = kMax(qTypical);
+      const qPeak = Math.log(10) * eta / (2 * peakZ);
+      const kPeak = kMax(qPeak);
+
+      const data = [
+        {
+          x: qValues,
+          y: qValues.map(kMax),
+          type: "scatter",
+          mode: "lines",
+          line: { color: series, width: 3 },
+          hovertemplate: "q = %{x:,.1f}<br>K<sub>max</sub> = %{y:.3e}<extra></extra>",
+          name: "Kmax(q, 400)"
+        },
+        {
+          x: [qTypical],
+          y: [kTypical],
+          type: "scatter",
+          mode: "markers",
+          marker: {
+            color: accent,
+            size: 10,
+            symbol: "diamond",
+            line: { color: foreground, width: 1 }
+          },
+          hovertemplate: "q = 400<br>K<sub>max</sub> = %{y:.3e}<extra></extra>",
+          showlegend: false
+        },
+        {
+          x: [qPeak],
+          y: [kPeak],
+          type: "scatter",
+          mode: "markers",
+          marker: {
+            color: series,
+            size: 11,
+            symbol: "circle",
+            line: { color: foreground, width: 1 }
+          },
+          hovertemplate: "maximum<br>q = %{x:,.1f}<br>K<sub>max</sub> = %{y:.3e}<extra></extra>",
+          showlegend: false
+        }
+      ];
+
+      const exponentTicks = [-6, -5, -4, -3];
+      const tickValues = exponentTicks.map(exponent => 10 ** exponent);
+      const tickLabels = exponentTicks.map(exponent => `1e${String(exponent).replace("-", "−")}`);
+
+      const layout = {
+        autosize: true,
+        margin: { l: 82, r: 24, t: 74, b: 62 },
+        paper_bgcolor: "rgba(0,0,0,0)",
+        plot_bgcolor: "rgba(0,0,0,0)",
+        font: { color: foreground, size: 12 },
+        showlegend: false,
+        hovermode: "closest",
+        xaxis: {
+          title: { text: "Elo scale q (log scale)", font: { color: foreground } },
+          type: "log",
+          range: [logMin, logMax],
+          exponentformat: "e",
+          showexponent: "all",
+          gridcolor: grid,
+          linecolor: foreground,
+          tickfont: { color: muted },
+          fixedrange: false
+        },
+        yaxis: {
+          title: { text: "K<sub>max</sub>(q, 400)", font: { color: foreground } },
+          type: "log",
+          range: [-6.2, -2.85],
+          tickmode: "array",
+          tickvals: tickValues,
+          ticktext: tickLabels,
+          gridcolor: grid,
+          linecolor: foreground,
+          tickfont: { color: muted },
+          fixedrange: false
+        },
+        shapes: [
+          {
+            type: "line",
+            x0: qTypical,
+            x1: qTypical,
+            xref: "x",
+            y0: 0,
+            y1: 1,
+            yref: "paper",
+            line: { color: muted, width: 1, dash: "dash" }
+          }
+        ],
+        annotations: [
+          {
+            x: qTypical,
+            y: kTypical,
+            text: "q = 400<br>K<sub>max</sub> ≈ 9.47×10⁻⁴",
+            showarrow: true,
+            arrowhead: 0,
+            ax: -72,
+            ay: 64,
+            arrowcolor: muted,
+            font: { color: foreground, size: 12 },
+            bgcolor: "rgba(0,0,0,0)",
+            align: "right"
+          },
+          {
+            x: qPeak,
+            y: kPeak,
+            text: "maximum<br>q ≈ 598<br>K<sub>max</sub> ≈ 1.12×10⁻³",
+            showarrow: true,
+            arrowhead: 0,
+            ax: 84,
+            ay: -58,
+            arrowcolor: muted,
+            font: { color: foreground, size: 12 },
+            bgcolor: "rgba(0,0,0,0)",
+            align: "left"
+          }
+        ]
+      };
+
+      const config = {
+        responsive: true,
+        displayModeBar: true,
+        displaylogo: false
+      };
+
+      Plotly.newPlot(plot, data, layout, config);
+    })();
+  </script>
+</body>
+</html>
