@@ -43,6 +43,10 @@ either a defect or an insight.
    existing research record and identifies what each source contributes.
 7. [Open Questions and Experiments](05%20Open%20Questions%20and%20Experiments.md)
    distinguishes established findings, expectations and work still required.
+8. [The M12 Investigation: Status and Next Steps](08%20M12%20Investigation%20-%20Status%20and%20Next%20Steps.md)
+   records the current show-stopper for the Equelo account, what is already
+   known about it, and the investigation required before the draft is treated
+   as finished.
 
 The detailed initial inventory remains in
 [Elo Documentation Rummage](../2026%2008%2014%20Elo%20Documentation%20Rummage.md).
@@ -54,12 +58,41 @@ The detailed initial inventory remains in
 | Casual Elo introduction | Draft written | Suitable for further editorial review |
 | STEM Elo account | Draft written | Needs editorial and source review |
 | Motivation for Equelo | Drafted | Divisional `k`, normalisation and chii-informed initialisation lead into Equelo |
-| STEM Equelo account | Draft written | Covers the three headline changes; needs editorial and source review |
-| Detailed technical account | Not started | Explain exact Elo mechanics first, then exact Equelo mechanics, with formulae, algorithms and worked examples |
+| STEM Equelo account | Draft written; completion paused | Covers the three headline changes; do not finalise before the M12 investigation |
+| Detailed technical account | Not started | Resume after the M12 investigation; explain exact Elo mechanics first, then exact Equelo mechanics |
 | Expert/critical account | Not started | Evaluate foundations, sensitivity, convergence, uncertainty, support and predictive evidence |
 | Basic Elo predictive account | Evidence exists | Needs integration into the story |
 | Equelo predictive account | Experiment required | Must use a directly comparable protocol |
 | Low-support/non-monotonicity account | Investigation open | Must not be explained away or silently smoothed |
+
+## Next steps
+
+Work on the explanatory prose pauses here. The Elo material has open questions
+but no known obstacle to a finished account. The Equelo construction draft is
+substantially complete at STEM level, but it should not be polished into a
+finished document until the lower-maegashira non-monotonicity has been
+investigated.
+
+The immediate research task is the *M12 problem*: ratings fall broadly as
+expected through upper and middle Makuuchi, then rise from about M12 or M13
+towards the lower maegashira ranks. This is not automatically wrong, because
+Equelo is not chii. It is a show-stopper for the documentation because its
+cause is not yet sufficiently understood.
+
+The leading issues are:
+
+- whether low-support fixed-point feedback and repeated normalisation connect
+  the M12 pattern to the known Jk73 failure;
+- how much of the apparent reversal instead comes from treating historically
+  variable literal ranks as stable positions;
+- whether either of Equelo's two normalisation operations amplifies the
+  pattern;
+- whether support-weighted centring or a genuinely support-dependent
+  regularisation is justified.
+
+The evidence, qualifications, proposed experiments and decision rules are set
+out in
+[The M12 Investigation: Status and Next Steps](08%20M12%20Investigation%20-%20Status%20and%20Next%20Steps.md).
 
 ## Working discipline
 
