@@ -530,9 +530,9 @@ def variable_initialiser(chii_ratings: dict[Chii, float]):
     This is used only for the ``expt2_example`` entrant policy. It preserves an
     example of non-constant entrant initialisation at the experiment boundary.
     """
-    def initialise(chii: Chii) -> float:
+    def initialise(context) -> float:
         """Return the supplied rating for the entrant's basho-start Chii."""
-        return float(chii_ratings[chii])
+        return float(chii_ratings[context.chii])
 
     return initialise
 

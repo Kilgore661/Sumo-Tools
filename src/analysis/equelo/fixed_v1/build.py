@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Callable
 
 from src.analysis.equelo.expt1.Oracle import make_oracle
+from src.analysis.equelo.expt1.initialisation import EntrantContext, EntrantInitialiser
 from src.analysis.equelo.expt1.params import build_elo_params
 from src.analysis.equelo.expt1.simulate import SimulationMode, SimulationResult, simulate
 from src.analysis.probability.builder import load_ratings_csv
@@ -25,7 +25,6 @@ from .model import (
 from .output import write_outputs
 
 
-EntrantInitialiser = Callable[[Chii], float]
 ChiiRatings = dict[Chii, float]
 
 
@@ -90,8 +89,8 @@ def scaled_fixed_point_ratings(
 def make_chii_initialiser(ratings: ChiiRatings) -> EntrantInitialiser:
     """Build a chii-based entrant initialiser from an explicit ratings map."""
 
-    def initialise(chii: Chii) -> float:
-        return float(ratings[chii])
+    def initialise(context: EntrantContext) -> float:
+        return float(ratings[context.chii])
 
     return initialise
 

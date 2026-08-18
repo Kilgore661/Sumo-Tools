@@ -1,30 +1,69 @@
-# The M12 Investigation: Status and Next Steps
+# The M12 Problem: Consolidated Research Record
+
+## Purpose and navigation
+
+This is the canonical entry point for project work on the *M12 problem*: the
+rise in experimentally derived initial ratings towards the lower end of
+Makuuchi. It consolidates the question, the successive explanations considered,
+the evidence obtained, where the investigation stopped, and the decision that
+now governs entrant initial ratings.
+
+Read this document for the reasoning and conclusion. Use the two companion
+documents for implementation work:
+
+- [M12 Experiment Catalogue](09%20M12%20Experiment%20Catalogue.md) records the
+  code, commands, parameters, artifacts and headline results needed to reproduce
+  the investigation.
+- [Initial Rating Policy](10%20Initial%20Rating%20Policy.md) is the concise
+  normative decision that the smoothing and predictive-validation work must
+  implement.
+
+Earlier notes remain useful as sources, but they are not current decision
+documents. If an earlier note conflicts with this record or the policy, this
+record and the policy take precedence.
 
 ## Decision
 
-The draft accounts of Elo and Equelo will not yet be turned into finished
-documentation.
+The M12 investigation is closed as a blocker to the Equelo documentation.
+There is no established model that both explains and removes every
+non-monotonicity, and it is not clear that such a model exists. Further attempts
+to account for each local reversal are unlikely to improve the rating product.
 
-There are unanswered questions about Elo, but none currently appears to be a
-show-stopper for explaining the system. Elo has been described many times from
-different perspectives, and its basic construction is straightforward in
-principle.
+Monotonicity is desirable for entrant initialisation, but it is not a required
+property of ratings learned from results. Banzuke rank is a capacity-constrained
+assignment as well as a rough ordering of ability. Changes in division size
+move rikishi across the Makuuchi--Juryo and Juryo--Makushita boundaries and
+change the opponents they are likely to face. Consequently, a timeless
+empirical answer to "what rating belongs to chii c?" is not uniquely identified
+by the available history.
 
-Equelo is in a different position. Its three headline changes can be described,
-but one known feature of the resulting ratings is not yet understood well
-enough for a finished account: the lower-maegashira initial-rating curve stops
-falling at about M12 or M13 and then rises. We call this the *M12 problem*.
+The adopted position is therefore:
 
-The non-monotonicity is not automatically a defect. Equelo ratings are not
-chii, and there is no theorem requiring them to be a monotone transformation
-of chii. The show-stopper is therefore not merely that the curve is surprising.
-It is that we do not yet know how much of the surprise comes from sumo and its
-changing banzuke, and how much comes from Equelo's fixed-point construction,
-normalisation and support policies. A finished account should not imply an
-explanation that has not been established.
+1. The experimental fixed-point curves are evidence about plausible scale and
+   spacing, not definitive estimates of intrinsic ability at each chii.
+2. The maintained entrant priors will be monotone by declared modelling
+   policy. This expresses the weak ordinal information supplied by the
+   banzuke; it is not a claim that the experimental curve was monotone.
+3. A reproducible monotone regularisation, preferably support-weighted isotonic
+   regression, should be used to obtain the maintained curve from the
+   experimental estimates. Any manual adjustment must be explicit and
+   recorded rather than presented as an empirical result.
+4. The exact initial values need only be sensible and stable enough for their
+   purpose. Once bouts are observed, ratings are intended to be driven by
+   performance rather than by the entrant prior.
+5. The principal validation is practical and prospective: Equelo should track
+   subsequent performance, broadly track chii, and have predictive performance
+   at least comparable with Basic Elo under a like-for-like out-of-sample test.
 
-The next work is therefore an investigation of the M12 problem rather than
-further polishing of the Equelo prose.
+This is regularisation rather than concealment. Public documentation must say
+that the initial ratings are chosen monotone priors informed by historical
+experiments. It must not describe the chosen numbers as uniquely estimated
+truths. The experimental outputs should be retained, and may be documented in
+detail, to show why a definitive timeless chii-to-rating mapping was rejected.
+
+The documentation work may now resume. Predictive validation remains required,
+but the existence of non-monotone experimental estimates is no longer a
+show-stopper.
 
 ## The current production result
 
@@ -85,13 +124,13 @@ Sources:
 - [Initial Rating Audit](../../equelo/docs/2026-06-27%20Initial%20Rating%20Audit.md);
 - [Lower-Rank Problems in Equelo](../../equelo/docs/equelo%20docs/lower_rank_problems.md).
 
-## The proposed common mechanism
+## The earlier common-mechanism hypothesis
 
-The natural suspicion is that the M12 problem is a milder version of the Jk73
-problem. There is abundant evidence at M1--M12, followed by progressively less
-evidence at M13--M17. Perhaps low-support lower-maegashira buckets are affected
-by the same fixed-point feedback and repeated normalisation that overwhelmed
-the genuine signal at rare Jonokuchi chii.
+The initial suspicion was that the M12 problem might be a milder version of the
+Jk73 problem. There is abundant evidence at M1--M12, followed by progressively
+less evidence at M13--M17. Perhaps low-support lower-maegashira buckets were
+affected by the same fixed-point feedback and repeated normalisation that
+overwhelmed the genuine signal at rare Jonokuchi chii.
 
 This is not a newly invented explanation. The June 2026 initial-rating audit
 identifies mean normalisation as its main suspect, explicitly connects the
@@ -108,8 +147,14 @@ three things that have not yet been brought to a conclusion:
 Diagnostic artifacts containing observation counts, carried and
 entrant-initialised observations, raw movement and normalisation shifts do
 exist. No findings document completes the proposed comparison, and the current
-code contains no support-weighted normaliser. The common-mechanism hypothesis
-therefore remains plausible but untested.
+code contains no support-weighted normaliser.
+
+The later Clean Elo and boundary results mean that this should no longer be the
+primary M12 hypothesis. Fixed-point normalisation may amplify the literal-rank
+pattern, but it cannot be its sole cause, and historically variable banzuke
+structure explains an important part of the apparent reversal. The Jk73
+support/normalisation failure remains a real historical failure, but the
+supported-domain and nearest-supported completion policies now control it.
 
 ## Evidence against a single-cause explanation
 
@@ -144,9 +189,110 @@ mechanism. Clean Elo still uses population-level normalisation, and the
 fixed-point construction may amplify a pattern that already exists in the
 historical grouping.
 
+## Revised diagnosis: the missing banzuke context
+
+The current aggregation asks, schematically:
+
+```text
+What is the mean rating associated with literal chii c?
+```
+
+That question pools observations from banzuke with different structures. For
+lower Makuuchi, the more complete question is:
+
+```text
+What rating is associated with chii c in a banzuke of structure b?
+```
+
+The relevant structure may include the size of Makuuchi, the number of sanyaku
+and maegashira positions, the lowest maegashira chii, and the rikishi's
+distance from the Makuuchi--Juryo boundary. Historical era may explain
+additional variation, but it should first be tested separately from the actual
+banzuke structure rather than used as an unexplained proxy for it.
+
+This changes the interpretation of the M12 problem. The literal M12--M17
+initial-rating curve is not yet evidence that lower chii correspond to greater
+performance, nor is its shape by itself evidence that Equelo and chii measure
+different things. It is first evidence that the current timeless
+literal-chii-to-rating aggregation combines positions whose structural meaning
+varies between basho.
+
+The fixed-point idea remains potentially useful. It addresses the real
+circularity involved in estimating entrant priors from simulations that need
+entrant priors. What has not been validated is the current factorisation:
+
+```text
+LiteralChii -> InitialRating
+```
+
+This motivated testing whether the appropriate contract might instead be some
+form of:
+
+```text
+(LiteralChii, BanzukeStructure) -> InitialRating
+```
+
+and how a basho-start rating observation might contribute to such a map. The
+later dual-boundary experiment showed that this change alone does not supply
+one definitive full-history solution.
+
+## First context-conditioned Equelo result
+
+An experimental producer now replaces the literal-chii key at the
+Makuuchi--Juryo boundary with a signed position key derived from the complete
+contemporaneous banzuke:
+
+```text
+Makuuchi: negative position from the bottom; bottommost is -1
+Juryo:    position from the top minus one; J1e is 0
+```
+
+The key is assigned before the support filter is applied, so excluding an
+unsupported rikishi cannot move everybody else's boundary position. Other
+divisions retain the fixed-supported literal-chii key. The experiment keeps
+the production `q`, divisional `k`, closed-population normalisation, map
+centring and support threshold.
+
+The relevant question concerns post-1988 Equelo. An initial implementation
+mistakenly followed the production modern-then-full-history process, allowing
+pre-1989 banzuke to affect the fitted map and displaying historical ranks as
+low as M22. That run does not answer the intended monotonicity question.
+
+The corrected producer defaults to 1989 onward and applies that scope before
+cleaning, key assignment, support measurement, solving, process ratings and
+chart aggregation. It also estimates a literal-chii control from the same
+scoped history rather than comparing against the full-history production map.
+
+A 1989--2026 run at a tighter 0.01-point convergence tolerance took 55
+iterations. When the contextual priors are resolved back onto literal
+maegashira chii, the east-side curve is strictly decreasing through the lowest
+rank present, M18e:
+
+| Chii | Scoped literal control | Contextual prior, mean |
+|---|---:|---:|
+| M12e | 1988 | 1979 |
+| M13e | 1986 | 1975 |
+| M14e | 1985 | 1968 |
+| M15e | 1975 | 1959 |
+| M16e | 1996 | 1955 |
+| M17e | 2015 | 1954 |
+| M18e | 2015 | 1951 |
+
+This is evidence for the missing-context diagnosis, not a monotonicity
+constraint or a finished validation. No monotone fitting or post-hoc rank
+banding was applied. The result says that, for the intended post-1988 domain,
+the large lower-maegashira reversal is created by the literal-chii prior
+representation and disappears under the contemporaneous boundary coordinate.
+
+The implementation and its contract are described in
+[`fixed_boundary/README.md`](../../equelo/fixed_boundary/README.md). The
+matched run is recorded under
+`files/output/Equelo/fixed_boundary/2026-08-17_14-30-30`; its responsive Plotly
+charts compare the two post-1988 curves directly.
+
 ## Two different normalisations
 
-The investigation must keep two operations separate.
+The research record must keep two operations separate.
 
 ### Population normalisation
 
@@ -214,99 +360,94 @@ pooled or neighbouring estimate according to support. The maintained
 nearest-supported completion rule already embodies a coarse version of this
 principle for chii below the threshold.
 
-## Proposed investigation
+## Outcome of the investigation
 
-The first analysis should use the complete-results period beginning in 1989.
-This avoids mixing the M12 question immediately with the incomplete historical
-coverage below sekitori. The combined 1958+ calculation should follow as a
-sensitivity check.
+The investigation produced three useful results.
 
-### 1. Reproduce and describe the baseline
+First, the supported-domain policy addresses the Jk73 failure. Chii below the
+support threshold no longer estimate themselves from recycled priors; they are
+completed from a nearby supported chii. The maintained public map must retain
+the provenance of these completed values.
 
-- Reproduce the maintained fixed-supported result with recorded provenance.
-- Report M1--M18 in both literal-chii and boundary-relative coordinates.
-- Record appearances, distinct rikishi, entrant-initialised observations and
-  carried-rating observations for every directly estimated chii.
-- Trace the raw aggregate, common shift and resulting value at every iteration
-  for M12--M18 and selected well- and weakly-supported controls.
+Second, the post-1988 Makuuchi--Juryo boundary coordinate removes most of the
+large literal M12--M17 reversal without imposing monotonicity. This establishes
+that changing banzuke structure is material to the problem.
 
-### 2. Isolate the two normalisation operations
+Third, the independently successful M/J and J/Ms maps cannot be reconciled over
+Juryo by one common additive shift. Their residual disagreement changes
+systematically from the top to the bottom of the division. A position-dependent
+correction would amount to fitting another merge curve, so a joint geometric
+model was tried instead.
 
-Run otherwise matched fixed-point calculations with:
+Fourth, that joint M/J and J/Ms boundary experiment does not yield one timeless
+monotone solution. The tightly converged 1958--2026 run makes the paired M/J
+transition fall in the expected direction, but the Juryo curve rises from
+about J10 and the J14--Ms1 transition rises by about eight points. Tightening
+the convergence tolerance from 1 to 0.01 changes the level slightly but not
+this shape. The result is therefore not a convergence artefact.
 
-1. current departure redistribution and current map centring;
-2. no departure redistribution, with outputs aligned afterwards by a single
-   common shift for comparison;
-3. current departure redistribution and a support-weighted map centre followed
-   by a common shift.
+The natural interpretation is that changes in banzuke capacity alter both rank
+labels and the bout network. Expanding Makuuchi moves upper-Juryo rikishi into
+new maegashira positions; the resulting Juryo vacancies draw in Makushita
+rikishi. Those moves also change opponent selection. A single boundary index
+captures some of this context but not the entire coupled institutional change.
 
-The third variant is expected to leave relative ratings unchanged if the
-translation-invariance reasoning applies cleanly. If it does not, that would
-identify an implementation or changing-domain interaction requiring
-explanation.
+These findings are sufficient to reject a uniquely estimated timeless
+chii-to-rating table. They are not sufficient to justify further model
+complexity, and such complexity is not required to choose useful entrant
+priors.
 
-### 3. Prototype support regularisation separately
+## Earlier monotone smoothing precedent
 
-Pre-specify one or more genuinely differential support rules. For each rule,
-state:
+The decision to adopt monotone entrant priors does not begin from an empty
+repository. The fixed-v1 `v5` work already constructed a curated, strictly
+monotone curve for public rating landmarks, and the current fixed-supported
+landmark producer applies that machinery to the maintained master map.
 
-- which support measure is used;
-- why that measure represents independent evidence;
-- how the rule treats entrant-initialised and carried observations;
-- what happens as support approaches zero or becomes very large;
-- whether any full-history support calculation introduces information from the
-  future into the prior.
+That curve is not currently used to initialise entrants. It deletes selected
+historical ranks, masks the M12--Ms2 bridge and other chosen support, clamps the
+remaining values into a strictly decreasing sequence, and uses a monotone cubic
+to fill the gaps. It is therefore a valuable implementation precedent but not
+the support-weighted isotonic policy adopted here. Its curation choices also
+need to be tested rather than inherited without review.
 
-Compare each result with the baseline, not only for monotonicity but also for
-rating differences, early-career behaviour, convergence, stability across
-support thresholds and eventual predictive performance.
-
-### 4. Repeat the boundary analysis within Equelo
-
-The Clean Elo result should not simply be assumed to transfer to Equelo.
-Calculate the Equelo curve directly by distance from the actual
-Makuuchi--Juryo boundary. Determine how much of the literal M12--M18 rise
-disappears under this coordinate and how much remains.
-
-### 5. Check the Jk73 connection directly
-
-Use deliberately low or absent support thresholds in an experimental output
-area to reproduce the old failure. For representative sparse chii, trace how
-much of each iteration comes from carried bout evidence, the previous entrant
-prior, population normalisation and map centring. Then apply the candidate
-support rules and see whether the mechanism changes in the predicted way.
+The smoothing work should retain this v5-style curve as a comparator. The
+[experiment catalogue](09%20M12%20Experiment%20Catalogue.md) records its exact
+policy and sources.
 
 ## Decision rules
 
-The aim is to understand the result, not to manufacture monotonicity.
-
-- If boundary alignment accounts for the lower-maegashira rise and the
-  normalisation variants do not materially change relative values, retain the
-  model and explain why literal chii are an unstable coordinate in this range.
-- If a current normalisation operation materially amplifies the rise, decide
-  whether its intended scale-stability benefit justifies that distortion or
-  whether the operation should be revised.
-- If support regularisation removes the Jk73 failure and improves stability
-  under independently stated criteria, it may replace the threshold/completion
-  patch even if the final curve is not perfectly monotone.
-- If a proposed rule merely forces the expected banzuke shape without an
-  independent rationale, reject it.
-- If a residual non-monotonicity remains after the mechanisms are understood,
-  report it. Equelo is not chii, and disagreement is not by itself an error.
+- Monotonicity is an explicit property of the adopted entrant-prior policy,
+  not a required property of learned Equelo ratings.
+- The monotone curve must be generated reproducibly and retained with its
+  source estimates, weights, method and any manual adjustments.
+- Do not claim that the adopted number for a chii is uniquely determined by
+  history.
+- Do not add a more complicated banzuke-context model unless it improves an
+  independently stated criterion such as prospective prediction, calibration,
+  early-career behaviour or stability.
+- Compare Basic Elo and Equelo on the same history, eligible bouts, chronology,
+  populations and scoring rules. Fit or select priors using training data only,
+  then evaluate on later bouts.
+- Prefer log loss and Brier loss, accompanied by calibration and results through
+  time, over accuracy alone.
+- Treat material sensitivity to reasonable alternative monotone priors as
+  evidence against the maintained choice. Insensitivity is evidence that the
+  exact starting values are not carrying the result.
 
 ## Completion condition for the documentation
 
-The Equelo draft can become a finished construction account when we can say,
-with evidence, which of the following is true:
+The construction account may proceed once it accurately describes:
 
-1. the M12 pattern is primarily a consequence of grouping historically
-   variable literal ranks;
-2. it is materially amplified by population normalisation, fixed-point
-   normalisation or low-support feedback;
-3. it survives those controls and is a reproducible property of what this
-   particular rating model extracts from the historical population;
-4. it is a mixture of these effects, with their contributions described.
+1. initial ratings as monotone, regularised entrant priors rather than unique
+   empirical chii values;
+2. the method and provenance of the maintained monotone curve;
+3. the support threshold and nearest-supported completion policy;
+4. the distinction between convergence of the experimental fixed point and
+   validation of the adopted priors; and
+5. the limitation created by historically variable banzuke structure.
 
-The answer need not make Equelo monotone. It must make the behaviour
-understandable enough that the finished documentation can distinguish an
-observed result, a modelling consequence and an unresolved limitation.
+Predictive claims require the separate prospective comparison with Basic Elo.
+The construction prose need not wait for a complete causal explanation of the
+remaining experimental non-monotonicity, but it must not imply that such an
+explanation has been established.

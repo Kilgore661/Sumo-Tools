@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 import random
 
+from ..expt1.initialisation import EntrantContext
 from ....sumo_core.Chii import Chii
 
 from .config import (
@@ -37,8 +38,8 @@ def make_initialiser(spec: RunSpec):
 
 
 def _constant_initialiser(value: float):
-    def initialise(chii: Chii) -> float:
-        del chii
+    def initialise(context: EntrantContext) -> float:
+        del context
         return value
 
     return initialise
@@ -48,7 +49,8 @@ def _random_by_chii_initialiser(seed: int):
     rng = random.Random(seed)
     by_chii: dict[Chii, float] = {}
 
-    def initialise(chii: Chii) -> float:
+    def initialise(context: EntrantContext) -> float:
+        chii = context.chii
         if chii not in by_chii:
             by_chii[chii] = rng.uniform(RANDOM_MIN, RANDOM_MAX)
         return by_chii[chii]

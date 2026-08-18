@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Callable
 
 from src.analysis.equelo.expt1.Oracle import make_oracle
+from src.analysis.equelo.expt1.initialisation import EntrantContext, EntrantInitialiser
 from src.analysis.equelo.expt1.params import build_elo_params
 from src.analysis.equelo.expt1.simulate import SimulationMode, simulate
 from src.infra.live_store.api import get_history
@@ -19,7 +19,6 @@ from .model import COLLAPSE_MODE, K_CONFIG, K_POLICY, OUTPUT_ROOT, Q, policy_met
 from .output import write_outputs
 
 
-EntrantInitialiser = Callable[[Chii], float]
 ChiiRatings = dict[Chii, float]
 
 
@@ -94,8 +93,8 @@ def compute_process_ratings(
 def make_chii_initialiser(ratings: ChiiRatings) -> EntrantInitialiser:
     """Build a chii-based entrant initialiser from an explicit ratings map."""
 
-    def initialise(chii: Chii) -> float:
-        return float(ratings[chii])
+    def initialise(context: EntrantContext) -> float:
+        return float(ratings[context.chii])
 
     return initialise
 

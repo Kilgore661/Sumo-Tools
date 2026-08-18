@@ -8,7 +8,7 @@ from ....sumo_core.Chii import Chii
 from ....sumo_core.History import History
 
 from ..config_main import INITIAL_ELO, OUTPUT_ROOT
-from ..expt1.initialisation import EntrantInitialiser
+from ..expt1.initialisation import EntrantContext, EntrantInitialiser
 from ..expt1.params import EloParams
 from ..expt1.simulate import SimulationMode, SimulationResult, simulate
 from .aggregate import aggregate
@@ -34,8 +34,8 @@ def initialise(base: float, chiis: set[Chii]) -> ChiiRatings:
 def make_entrant_initialiser(mu: ChiiRatings) -> EntrantInitialiser:
     """Return the entrant-initialiser induced by the current chii-rating map."""
 
-    def entrant_initialiser(chii) -> float:
-        return mu[chii]
+    def entrant_initialiser(context: EntrantContext) -> float:
+        return mu[context.chii]
 
     return entrant_initialiser
 

@@ -7,8 +7,8 @@ The public entry point is :func:`simulate`.
 Design notes:
     * The simulator accepts an already-sliced ``History``. It performs no date
       filtering or data loading itself.
-    * Entrant initialisation is externalised as a callable over
-      ``(rikid, chii, date)``.
+    * Entrant initialisation is externalised as a callable receiving an
+      ``EntrantContext`` (date, rikishi, chii, and the current banzuke).
     * Conservation is defined on the active basho universe rather than on all
       ratings ever stored in memory.
     * Diagnostics are optional observers and are not part of the return value.
@@ -24,7 +24,7 @@ from ....sumo_core.BashoState import BashoState
 from ....sumo_core.History import History, Date
 from ....sumo_core.Summary import DailyResults, BoutResult
 
-from .initialisation import EntrantInitialiser
+from .initialisation import EntrantContext, EntrantInitialiser
 from .params import EloParams
 
 
@@ -190,7 +190,14 @@ def _initialise_basho_rikishi(
     """
     for rid in banzuke.riks:
         if rid not in current_ratings:
-            rating = entrant_initialiser(banzuke.rikchii[rid])
+            rating = entrant_initialiser(
+                EntrantContext(
+                    date=date,
+                    rikid=rid,
+                    chii=banzuke.rikchii[rid],
+                    banzuke=banzuke,
+                )
+            )
             current_ratings[rid] = rating
             if observer is not None:
                 observer.on_entry(

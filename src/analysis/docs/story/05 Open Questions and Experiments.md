@@ -33,6 +33,12 @@ from being folded into one narrative prematurely.
   normalization and completion rather than direct result evidence.
 - Boundary alignment explains an important part of the apparent literal-rank
   reversal, but does not produce a complete explanation of every disagreement.
+- A tightly converged full-history dual-boundary experiment retains a material
+  Juryo--Makushita reversal. There is no established timeless mapping that
+  removes every reversal across historically different banzuke structures.
+- The project will therefore use a declared monotone regularisation for entrant
+  priors while allowing ratings learned from results to be non-monotone with
+  respect to chii.
 
 ## Expectations requiring care
 
@@ -80,8 +86,14 @@ system without an appropriate temporal design.
 
 ## Equelo mechanical investigations
 
-The normalization/support problem requires a separate track from prediction.
-Questions include:
+The M12/boundary investigation is no longer a blocker to documentation. Its
+artifacts should be preserved, but further mechanical work is deferred unless
+predictive validation or sensitivity testing identifies a practical problem.
+The canonical record is [The M12 Problem: Consolidated Research Record](08%20M12%20Investigation%20-%20Status%20and%20Next%20Steps.md),
+with reproduction details in the
+[M12 Experiment Catalogue](09%20M12%20Experiment%20Catalogue.md) and the adopted
+decision in [Initial Rating Policy](10%20Initial%20Rating%20Policy.md).
+Questions that may be revisited include:
 
 1. How much of each supported chii value comes from direct bout evidence,
    normalization and completion?
@@ -105,8 +117,9 @@ Questions include:
   benefit.
 - If Equelo predicts substantially worse, that is a serious problem,
   particularly for any probability interpretation of rating differences.
-- No public smoothing should silently replace the model's output with the
-  shape expected from chii.
+- The public entrant-prior curve may be monotone by policy, but the smoothing
+  method and its status as regularisation must be explicit. It must not be
+  presented as the unmodified experimental fixed-point output.
 
 ## Documentation work still required
 
@@ -135,5 +148,6 @@ Elo-then-Equelo order used by the existing STEM drafts.
 - Design and run the comparable Equelo predictive experiment.
 - Incorporate its result without retrospectively changing the stated purpose
   of the experiment.
-- Decide how the site communicates low-support Equelo values and visible
-  non-monotonicity.
+- Explain that initial ratings are monotone regularised priors, disclose the
+  support/completion policy, and distinguish them from potentially
+  non-monotone ratings learned from results.

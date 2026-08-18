@@ -113,9 +113,8 @@ def build_params(policy: str, config_path: Path) -> EloParams:
 # -------------------------------
 
 def equelo_initialiser(mu: dict[Chii, float]):
-    def initialise(rikid, chii, date) -> float:
-        del rikid, date
-        return mu[chii]
+    def initialise(context) -> float:
+        return mu[context.chii]
     return initialise
 
 

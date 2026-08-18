@@ -9,6 +9,13 @@ For the project-level meaning, motivation, limitations, and validation
 criteria of an Equelo rating, see
 [`docs/What is an Equelo Rating.md`](../../../docs/What%20is%20an%20Equelo%20Rating.md).
 
+For the lower-maegashira initial-rating problem, start with the
+[consolidated M12 research record](../docs/story/08%20M12%20Investigation%20-%20Status%20and%20Next%20Steps.md).
+Its [experiment catalogue](../docs/story/09%20M12%20Experiment%20Catalogue.md)
+documents the contextual boundary producers in this package, while the
+[initial-rating policy](../docs/story/10%20Initial%20Rating%20Policy.md) governs
+the next smoothing and predictive-validation work.
+
 ## Public API
 
 The normative way to obtain an Equelo rating is:

@@ -73,16 +73,19 @@ The simulator assumes that `k(ordinal)` is defined for all ordinals encountered.
 ### `entrant_initialiser: EntrantInitialiser`
 
 ```
-Callable[[Chii], float]
+Callable[[EntrantContext], float]
 ```
 
 Function used to initialise ratings for rikishi who are active in the current
 basho but do not yet have a rating.
 
-* input: `Chii` (rank information)
+* input: `EntrantContext` containing the date, rikishi id, chii and current
+  banzuke
 * output: initial rating
 
-The simulator does not impose any structure on this function.
+The simulator does not impose any structure on this function. A conventional
+chii-based policy may use only `context.chii`; context-conditioned experiments
+may also use the current banzuke.
 
 ---
 

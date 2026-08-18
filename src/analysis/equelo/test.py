@@ -68,9 +68,8 @@ def parse_args():
 
 
 def equelo_initialiser(mu: dict[Chii, float]):
-    def initialise(rikid, chii, date) -> float:
-        del rikid, date
-        return mu[chii]
+    def initialise(context) -> float:
+        return mu[context.chii]
 
     return initialise
 
