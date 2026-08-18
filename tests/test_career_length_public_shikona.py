@@ -1,4 +1,7 @@
+from types import MappingProxyType
+
 from src.analysis.sumo_history.career_lifecycle import career_length
+from src.infra.get_bios.FullShikonaStore import FullShikonaStore
 from src.sumo_core.Banzuke import Banzuke, RikChii, RikShikona
 from src.sumo_core.BashoState import BashoState
 from src.sumo_core.BasicPrimitives import Day, Month, RikId, Riks, Shikona, Year
@@ -24,9 +27,13 @@ def test_career_spans_use_public_shikona_for_table_display(monkeypatch):
         }
     )
     monkeypatch.setattr(
-        career_length,
-        "make_public_shikona",
-        lambda history: {rikishi_id: Shikona("Public Fred")},
+        career_length.FullShikonaStore,
+        "from_sources",
+        classmethod(
+            lambda cls, history: FullShikonaStore(
+                MappingProxyType({rikishi_id: "Public Fred"})
+            )
+        ),
     )
     monkeypatch.setattr(
         career_length,

@@ -1,5 +1,4 @@
-import sys, io
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', line_buffering=True)
+import sys
 from time import time
 from pdb import set_trace
 t0 = time()
@@ -217,6 +216,11 @@ def parse_and_save_history(start_year, end_year):
 
 ### MODIFIED ### - Main function is now simpler and calls the new orchestrator.
 def main():
+    # Configure the executable's existing stream without replacing it. Replacing
+    # sys.stdout at import time broke callers that install their own stream,
+    # including pytest's collection capture.
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", line_buffering=True)
     logger.initialise(output_dir=OUTPUT_DIR)
     args = parse_args(sys.argv)
     

@@ -5,10 +5,11 @@ import sys
 import pytest
 
 from src.products.make_site2.deploy import (
-    DeploymentConfig,
+    DeployTarget,
     build_output_from_existing,
-    deploy_local,
-    preflight_remote_auth,
+    deploy_sftp,
+    deploy_win_copy,
+    preflight_deploy_target,
 )
 
 
@@ -28,9 +29,14 @@ def test_deploy_local_clean_copies_existing_output(tmp_path: Path) -> None:
     (local_root / "keep.swp").write_text("keep", encoding="utf-8")
 
     build_output = build_output_from_existing(output_root)
-    result = deploy_local(
+    result = deploy_win_copy(
         build_output,
-        DeploymentConfig(local_root=local_root, local_url="http://server/sumo-tools2/"),
+        DeployTarget(
+            name="local",
+            method="win_copy",
+            location=str(local_root),
+            url="http://server/sumo-tools2/",
+        ),
     )
 
     assert result.file_count == 2
@@ -66,11 +72,21 @@ def test_remote_deploy_wrong_password_warns_and_exits_normally(
     output_root.mkdir()
     (output_root / "index.html").write_text("index", encoding="utf-8")
     monkeypatch.setitem(sys.modules, "paramiko", paramiko)
-    monkeypatch.setattr(make_site2_deploy, "get_password", lambda: "wrong")
+    monkeypatch.setattr(make_site2_deploy.getpass, "getpass", lambda prompt: "wrong")
     build_output = build_output_from_existing(output_root)
 
     with pytest.raises(SystemExit) as exc_info:
-        make_site2_deploy.deploy_remote(build_output, DeploymentConfig())
+        deploy_sftp(
+            build_output,
+            DeployTarget(
+                name="remote",
+                method="sftp",
+                location="/remote/sumo-tools2",
+                host="example.test",
+                user="tester",
+                password_required=True,
+            ),
+        )
 
     assert exc_info.value.code == 0
     assert "Warning! Warning! Dr. Smith! Intruder alert!" in capsys.readouterr().out
@@ -98,11 +114,20 @@ def test_remote_preflight_auth_reuses_resolved_password(
         ssh_exception=SimpleNamespace(AuthenticationException=Exception),
     )
     monkeypatch.setitem(sys.modules, "paramiko", paramiko)
-    monkeypatch.setattr(make_site2_deploy, "get_password", lambda: "checked")
+    monkeypatch.setattr(make_site2_deploy.getpass, "getpass", lambda prompt: "checked")
 
-    checked_config = preflight_remote_auth(DeploymentConfig())
+    checked_config = preflight_deploy_target(
+        DeployTarget(
+            name="remote",
+            method="sftp",
+            location="/remote/sumo-tools2",
+            host="example.test",
+            user="tester",
+            password_required=True,
+        )
+    )
 
-    assert checked_config.remote_password == "checked"
+    assert checked_config.password == "checked"
     assert connected_passwords == ["checked"]
 
 
@@ -111,8 +136,6 @@ def test_remote_deploy_reports_upload_progress(
     tmp_path: Path,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    from src.products.make_site2 import deploy as make_site2_deploy
-
     uploaded: list[str] = []
 
     class Transport:
@@ -146,12 +169,18 @@ def test_remote_deploy_reports_upload_progress(
     (output_root / "index.html").write_text("index", encoding="utf-8")
     (output_root / "runtime" / "site.js").write_text("runtime", encoding="utf-8")
     monkeypatch.setitem(sys.modules, "paramiko", paramiko)
-    monkeypatch.setattr(make_site2_deploy, "get_password", lambda: "right")
     build_output = build_output_from_existing(output_root)
 
-    result = make_site2_deploy.deploy_remote(
+    result = deploy_sftp(
         build_output,
-        DeploymentConfig(remote_root="/remote/sumo-tools2"),
+        DeployTarget(
+            name="remote",
+            method="sftp",
+            location="/remote/sumo-tools2",
+            host="example.test",
+            user="tester",
+            password="right",
+        ),
     )
 
     output = capsys.readouterr().out

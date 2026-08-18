@@ -25,6 +25,11 @@ def test_make_site2_build_uses_live_store_when_no_history_zip_is_given(
     )
     monkeypatch.setattr(
         make_site2_build,
+        "build_rating_changes_data_output",
+        lambda **kwargs: None,
+    )
+    monkeypatch.setattr(
+        make_site2_build,
         "build_career_comparisons_data_output",
         lambda **kwargs: None,
     )
@@ -124,6 +129,11 @@ def test_make_site2_build_uses_history_zip_when_given(
     )
     monkeypatch.setattr(
         make_site2_build,
+        "build_rating_changes_data_output",
+        lambda **kwargs: None,
+    )
+    monkeypatch.setattr(
+        make_site2_build,
         "build_career_comparisons_data_output",
         lambda **kwargs: None,
     )
@@ -220,6 +230,11 @@ def test_make_site2_build_builds_career_comparisons_from_selected_history(
     monkeypatch.setattr(
         make_site2_build,
         "build_basho_results_data_output",
+        lambda **kwargs: None,
+    )
+    monkeypatch.setattr(
+        make_site2_build,
+        "build_rating_changes_data_output",
         lambda **kwargs: None,
     )
     monkeypatch.setattr(

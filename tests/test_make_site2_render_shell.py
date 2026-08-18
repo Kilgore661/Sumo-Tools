@@ -24,6 +24,7 @@ def test_navigation_hider_is_structural_part_of_navigation_bar() -> None:
                     included=True,
                 ),
             ),
+            research_navigation_tree=(),
             collapse_control=NavigationCollapseControl(
                 enabled=True,
                 storage_key="test.nav",
@@ -70,11 +71,11 @@ def test_goats_quick_link_uses_deep_link_href_without_page_intercept() -> None:
     html = render_site_shell(shell)
 
     href = (
-        "http://192.168.0.6/sumo-tools2/?"
+        "index.html?"
         "page=career_comparisons&amp;skill=equelo&amp;x=date&amp;log=true&amp;"
         "rikishi=1123%2C3987%2C1354%2C2%2C3%2C4080"
     )
     assert (
-        f'<a class="quick-link nav-link" href="{href}">GOATs</a>'
+        f'<a class="nav-link" href="{href}">GOATs</a>'
         in html
     )

@@ -1,5 +1,8 @@
+from types import MappingProxyType
+
 from src.analysis.equelo.api import EqueloLookup
 from src.analysis.sumo_history.basho_results import build
+from src.infra.get_bios.FullShikonaStore import FullShikonaStore
 from src.sumo_core.Banzuke import Banzuke, RikChii, RikShikona
 from src.sumo_core.BashoState import BashoState
 from src.sumo_core.BasicPrimitives import Day, Month, RikId, Riks, Shikona, Year
@@ -29,16 +32,18 @@ def test_basho_results_uses_public_shikona_for_display(monkeypatch):
     )
     monkeypatch.setattr(
         build,
-        "make_public_shikona",
-        lambda history: {rikishi_id: Shikona("Terao")},
-    )
-    monkeypatch.setattr(
-        build,
         "graph_shikona_for",
         lambda rikishi_id, fallback: f"graph:{fallback}",
     )
 
-    rows = build.build_payload_rows(history=history, date=date, ratings=ratings)
+    rows = build.build_payload_rows(
+        history=history,
+        date=date,
+        ratings=ratings,
+        full_shikona_store=FullShikonaStore(
+            MappingProxyType({rikishi_id: "Terao"})
+        ),
+    )
 
     assert len(rows) == 1
     assert rows[0].rikishi_id == "6472"

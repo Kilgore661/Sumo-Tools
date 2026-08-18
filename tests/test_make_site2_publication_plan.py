@@ -46,25 +46,23 @@ def test_publication_plan_resolves_copied_navigation_routes() -> None:
 
     assert "basho_results_browser" in plan.pages
     assert plan.pages["basho_results_browser"].route.parts == (
-        "sumo-history",
+        "home",
         "basho-results",
     )
     assert plan.pages["banzuke_changes"].route.parts == (
-        "current-sumo",
+        "home",
         "banzuke-changes",
     )
     assert plan.pages["standings_by_wins"].route.parts == (
-        "current-sumo",
+        "lab-archive",
         "standings-by-wins",
     )
     assert plan.pages["banzuke_division_by_era"].route.parts == (
-        "banzuke-rank",
-        "banzuke-structure-over-time",
+        "miscellaneous-stats",
         "banzuke-division-by-era",
     )
     assert plan.pages["makuuchi_rank_by_era"].route.parts == (
-        "banzuke-rank",
-        "banzuke-structure-over-time",
+        "miscellaneous-stats",
         "makuuchi-rank-by-era",
     )
     assert plan.pages["division_stability"].route.parts == (
@@ -77,29 +75,24 @@ def test_publication_plan_resolves_copied_navigation_routes() -> None:
         "first-chii-appearance",
     )
     assert plan.pages["rank_at_retirement"].route.parts == (
-        "sumo-history",
-        "career-lifecycle",
+        "miscellaneous-stats",
         "rank-at-retirement",
     )
     assert plan.pages["career_length"].route.parts == (
-        "sumo-history",
-        "career-lifecycle",
+        "miscellaneous-stats",
         "career-length",
     )
     assert plan.pages["equelo_vs_chii"].route.parts == (
-        "ratings-models",
-        "rating-and-rank",
+        "equelo-ratings",
         "equelo-vs-chii",
     )
     assert "typical_equelo_values" not in plan.pages
     assert SITE.pages.pages["typical_equelo_values"].status == PageStatus.LEGACY
     assert plan.pages["highest_equelo"].route.parts == (
-        "sumo-history",
         "records",
         "highest-equelo",
     )
     assert plan.pages["longest_careers"].route.parts == (
-        "sumo-history",
         "records",
         "longest-careers",
     )
@@ -108,47 +101,36 @@ def test_publication_plan_resolves_copied_navigation_routes() -> None:
 def test_navigation_bar_uses_canonical_default_view_links_without_rendering_pages() -> None:
     plan = build_publication_plan(SITE)
     shell = build_public_site_shell(plan)
-    sumo_history = next(
-        item for item in shell.navigation_bar.navigation_tree if item.id == "sumo_history"
+    home = next(
+        item for item in shell.navigation_bar.navigation_tree if item.id == "home"
     )
     basho_results = next(
-        item for item in sumo_history.children if item.id == "basho_results_browser"
-    )
-    career_lifecycle = next(
-        item for item in sumo_history.children if item.id == "career_lifecycle"
-    )
-    rank_at_retirement = next(
-        item for item in career_lifecycle.children if item.id == "rank_at_retirement"
-    )
-    career_length = next(
-        item for item in career_lifecycle.children if item.id == "history_career_length"
-    )
-    current_sumo = next(
-        item for item in shell.navigation_bar.navigation_tree if item.id == "current_sumo"
+        item for item in home.children if item.id == "quick_basho_results_browser"
     )
     banzuke_changes = next(
-        item for item in current_sumo.children if item.id == "banzuke_changes"
+        item for item in home.children if item.id == "quick_banzuke_changes"
     )
-    standings = next(
-        item for item in current_sumo.children if item.id == "standings_by_wins"
-    )
-    banzuke_rank = next(
-        item for item in shell.navigation_bar.navigation_tree if item.id == "banzuke_rank"
-    )
-    banzuke_structure = next(
+    miscellaneous_stats = next(
         item
-        for item in banzuke_rank.children
-        if item.id == "banzuke_structure_over_time"
+        for item in shell.navigation_bar.navigation_tree
+        if item.id == "miscellaneous_stats"
+    )
+    career_length = next(
+        item for item in miscellaneous_stats.children if item.id == "history_career_length"
+    )
+    rank_at_retirement = next(
+        item for item in miscellaneous_stats.children if item.id == "rank_at_retirement"
     )
     banzuke_division_by_era = next(
-        item
-        for item in banzuke_structure.children
-        if item.id == "banzuke_division_by_era"
+        item for item in miscellaneous_stats.children if item.id == "banzuke_division_by_era"
     )
     makuuchi_rank_by_era = next(
+        item for item in miscellaneous_stats.children if item.id == "makuuchi_rank_by_era"
+    )
+    banzuke_rank = next(
         item
-        for item in banzuke_structure.children
-        if item.id == "makuuchi_rank_by_era"
+        for item in shell.navigation_bar.research_navigation_tree
+        if item.id == "banzuke_rank"
     )
     division_stability = next(
         item for item in banzuke_rank.children if item.id == "division_stability"
@@ -160,16 +142,13 @@ def test_navigation_bar_uses_canonical_default_view_links_without_rendering_page
         item for item in rank_history.children if item.id == "first_chii_appearance"
     )
     ratings_models = next(
-        item for item in shell.navigation_bar.navigation_tree if item.id == "ratings_models"
-    )
-    rating_and_rank = next(
-        item for item in ratings_models.children if item.id == "rating_and_rank"
+        item for item in shell.navigation_bar.navigation_tree if item.id == "equelo_ratings"
     )
     equelo_vs_chii = next(
-        item for item in rating_and_rank.children if item.id == "equelo_vs_chii"
+        item for item in ratings_models.children if item.id == "equelo_vs_chii"
     )
     records = next(
-        item for item in sumo_history.children if item.id == "records"
+        item for item in shell.navigation_bar.navigation_tree if item.id == "records"
     )
     highest_equelo = next(
         item for item in records.children if item.id == "highest_equelo"
@@ -177,40 +156,49 @@ def test_navigation_bar_uses_canonical_default_view_links_without_rendering_page
     longest_careers = next(
         item for item in records.children if item.id == "longest_careers"
     )
+    lab_archive = next(
+        item
+        for item in shell.navigation_bar.research_navigation_tree
+        if item.id == "research_lab_archive"
+    )
+    standings = next(
+        item for item in lab_archive.children if item.id == "standings_by_wins"
+    )
 
     assert basho_results.included
     assert basho_results.href == (
-        "?page=basho_results_browser&basho=latest&division=makuuchi"
-        "&previous=false&changes=true&ratings=false&analysis=false&nu_chii=false"
+        "index.html?page=basho_results_browser&year=latest&month=latest"
+        "&division=makuuchi&previous=false&changes=false&ratings=false"
+        "&analysis=false&nu_chii=false"
     )
     assert rank_at_retirement.included
-    assert rank_at_retirement.href == "?page=rank_at_retirement"
+    assert rank_at_retirement.href == "index.html?page=rank_at_retirement"
     assert career_length.included
-    assert career_length.href == "?page=career_length&view=distribution"
+    assert career_length.href == "index.html?page=career_length&view=distribution"
     assert banzuke_changes.included
     assert banzuke_changes.href == (
-        "?page=banzuke_changes&division=makuuchi&context=false"
+        "index.html?page=banzuke_changes&division=makuuchi&context=false"
         "&banzuke_style=true&delta=false&equelo=false"
     )
     assert standings.included
     assert standings.href == (
-        "?page=standings_by_wins&view=standard&num_basho=6"
+        "index.html?page=standings_by_wins&view=standard&num_basho=6"
         "&current_only=true&division=makuuchi"
     )
     assert banzuke_division_by_era.included
-    assert banzuke_division_by_era.href == "?page=banzuke_division_by_era"
+    assert banzuke_division_by_era.href == "index.html?page=banzuke_division_by_era"
     assert makuuchi_rank_by_era.included
-    assert makuuchi_rank_by_era.href == "?page=makuuchi_rank_by_era"
+    assert makuuchi_rank_by_era.href == "index.html?page=makuuchi_rank_by_era"
     assert division_stability.included
-    assert division_stability.href == "?page=division_stability"
+    assert division_stability.href == "index.html?page=division_stability"
     assert first_chii_appearance.included
-    assert first_chii_appearance.href == "?page=first_chii_appearance"
+    assert first_chii_appearance.href == "index.html?page=first_chii_appearance"
     assert equelo_vs_chii.included
-    assert equelo_vs_chii.href == "?page=equelo_vs_chii"
+    assert equelo_vs_chii.href == "index.html?page=equelo_vs_chii"
     assert highest_equelo.included
-    assert highest_equelo.href == "?page=highest_equelo"
+    assert highest_equelo.href == "index.html?page=highest_equelo&current_only=false"
     assert longest_careers.included
-    assert longest_careers.href == "?page=longest_careers&active=true"
+    assert longest_careers.href == "index.html?page=longest_careers&active=true"
     assert [item.id for item in records.children][-1] == "longest_careers"
     assert artifact_refs(plan)["basho_results_browser"].kind == "table"
 
@@ -271,7 +259,8 @@ def test_runtime_manifest_declares_brb_ui_and_artifact_semantics() -> None:
 
     assert brb_panel["contents"]["pa_panel"]["pa"]["artifact_id"] == BASHO_RESULTS_ARTIFACT.id
     assert [item["id"] for item in filters] == [
-        "basho_date",
+        "basho_year",
+        "basho_month",
         "division",
         "previous_context",
         "changes_context",
@@ -281,7 +270,8 @@ def test_runtime_manifest_declares_brb_ui_and_artifact_semantics() -> None:
     ]
     assert filters[0]["control"] == "select"
     assert filters[1]["control"] == "select"
-    assert filters[2]["control"] == "checkbox"
+    assert filters[2]["control"] == "select"
+    assert filters[3]["control"] == "checkbox"
     assert brb_artifact["kind"] == "indexed_table"
     assert brb_artifact["indexed_source"]["index_path"] == (
         "sumo-history/basho-results/data/basho_results_index.json"
@@ -551,16 +541,19 @@ def test_brb_filter_defaults_and_url_keys_match_current_public_site() -> None:
         item["id"]: item for item in filter_section(brb_panel)["filters"]
     }
 
-    assert filters["basho_date"]["default"] == "latest"
-    assert filters["basho_date"]["control"] == "select"
-    assert filters["basho_date"]["url_key"] == "basho"
+    assert filters["basho_year"]["default"] == "latest"
+    assert filters["basho_year"]["control"] == "select"
+    assert filters["basho_year"]["url_key"] == "year"
+    assert filters["basho_month"]["default"] == "latest"
+    assert filters["basho_month"]["control"] == "select"
+    assert filters["basho_month"]["url_key"] == "month"
     assert filters["division"]["default"] == "makuuchi"
     assert filters["division"]["control"] == "select"
     assert filters["division"]["url_key"] == "division"
     assert filters["previous_context"]["default"] is False
     assert filters["previous_context"]["control"] == "checkbox"
     assert filters["previous_context"]["url_key"] == "previous"
-    assert filters["changes_context"]["default"] is True
+    assert filters["changes_context"]["default"] is False
     assert filters["changes_context"]["control"] == "checkbox"
     assert filters["changes_context"]["url_key"] == "changes"
     assert filters["rating_context"]["default"] is False
