@@ -29,6 +29,13 @@ Here `delta` is the largest absolute change in any normalised prior between two
 successive fixed-point iterations. It is a step-size condition, not a proven
 bound on distance from the limiting fixed point.
 
+The divisional policy means K=10 for Yokozuna through Komusubi, K=15 for
+Maegashira, K=25 for Juryo, and K=35 for Makushita and below. Each rikishi uses
+their own current-chii K in a bout. Thus the model changes K at both boundaries
+under investigation, and an M/J or J/Ms bout can use different K values for
+its two competitors. The experiments below compare prior representations
+while holding that policy fixed; they are not constant-K controls.
+
 ## 1. Fixed-point literal-chii baseline
 
 ### Question
@@ -338,6 +345,9 @@ epsilon-1 stopping artefact.
   flows and bout networks.
 - One timeless dual-boundary map does not explain or remove all observed
   non-monotonicity.
+- This is a result for closed-population Equelo with divisional K. Because K
+  changes at the J/Ms boundary, the experiment does not identify banzuke
+  structure as the sole cause of the returned reversal.
 
 ## 8. Historical curated monotone landmark curve
 
@@ -401,7 +411,10 @@ The combined record supports the following claims:
    not produce a unique monotone full-history mapping.
 5. Convergence establishes self-consistency under the chosen representation;
    it does not establish that the representation is the right one.
-6. No further contextual model is currently justified by an independently
+6. Divisional K is an unresolved boundary confounder: its discontinuities
+   coincide with M/J and J/Ms, and no retained constant-K sensitivity run
+   separates its effect from banzuke context.
+7. No further contextual model is currently justified by an independently
    demonstrated practical benefit.
 
 These conclusions motivate a transparent monotone entrant-prior policy and a

@@ -189,6 +189,39 @@ mechanism. Clean Elo still uses population-level normalisation, and the
 fixed-point construction may amplify a pattern that already exists in the
 historical grouping.
 
+### Model-conditional finding: divisional K is a boundary confounder
+
+Every Clean Elo, fixed-supported and contextual-boundary result cited here was
+obtained under the maintained divisional K policy:
+
+| Rank region | K |
+|---|---:|
+| Yokozuna through Komusubi | 10 |
+| Maegashira | 15 |
+| Juryo | 25 |
+| Makushita and below | 35 |
+
+K therefore changes at exactly the Makuuchi--Juryo and Juryo--Makushita
+boundaries whose irregularities this investigation studies. Each rikishi is
+updated using the K belonging to that rikishi's current chii. In a
+cross-division bout the two competitors can consequently use different K
+values, so the bout need not transfer equal numbers of rating points in each
+direction. Closed-population mean restoration controls the overall scale but
+does not prove that these local K discontinuities are irrelevant to the fitted
+shape.
+
+The boundary experiments changed the representation of entrant priors while
+holding this K policy fixed. They therefore show what boundary-relative
+representations do **within the chosen Equelo model**; they do not isolate
+banzuke geometry from divisional K. The divisional policy could cause or
+contribute to some of the M/J and J/Ms irregularity. No retained constant-K
+sensitivity run establishes how much.
+
+This qualification weakens a causal interpretation, not the practical
+decision. A constant-K sensitivity comparison would be epistemically useful,
+but a monotone entrant prior does not require proof that divisional K caused,
+or did not cause, the experimental reversals.
+
 ## Revised diagnosis: the missing banzuke context
 
 The current aggregation asks, schematically:
@@ -384,7 +417,9 @@ monotone solution. The tightly converged 1958--2026 run makes the paired M/J
 transition fall in the expected direction, but the Juryo curve rises from
 about J10 and the J14--Ms1 transition rises by about eight points. Tightening
 the convergence tolerance from 1 to 0.01 changes the level slightly but not
-this shape. The result is therefore not a convergence artefact.
+this shape. The result is therefore not an epsilon-1 stopping artefact. It
+remains conditional on the divisional K policy and cannot establish that the
+remaining boundary reversal is caused by banzuke structure alone.
 
 The natural interpretation is that changes in banzuke capacity alter both rank
 labels and the bout network. Expanding Makuuchi moves upper-Juryo rikishi into
@@ -395,7 +430,8 @@ captures some of this context but not the entire coupled institutional change.
 These findings are sufficient to reject a uniquely estimated timeless
 chii-to-rating table. They are not sufficient to justify further model
 complexity, and such complexity is not required to choose useful entrant
-priors.
+priors. In particular, they do not identify the separate causal contributions
+of banzuke geometry, opponent selection, population handling and the K-policy.
 
 ## Earlier monotone smoothing precedent
 
@@ -446,6 +482,10 @@ The construction account may proceed once it accurately describes:
 4. the distinction between convergence of the experimental fixed point and
    validation of the adopted priors; and
 5. the limitation created by historically variable banzuke structure.
+
+The construction account must also make clear that these findings were
+obtained with divisional K, whose discontinuities coincide with M/J and J/Ms,
+and that no constant-K control has isolated its contribution.
 
 Predictive claims require the separate prospective comparison with Basic Elo.
 The construction prose need not wait for a complete causal explanation of the

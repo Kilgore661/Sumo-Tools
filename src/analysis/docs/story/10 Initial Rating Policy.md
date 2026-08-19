@@ -28,7 +28,8 @@ monotone with respect to it.
 2. Monotonicity is imposed as transparent ordinal regularisation, not reported
    as a finding of the fixed-point experiments.
 3. The empirical source curve, support, smoothing method and resulting curve
-   must be retained together with provenance.
+   must be retained together with provenance, including the K-policy under
+   which the source curve was estimated.
 4. Support-weighted non-increasing isotonic regression is the preferred first
    implementation. It provides the closest reproducible monotone curve to the
    source estimates under the declared weights.
@@ -45,6 +46,8 @@ Before generating the maintained curve, the implementation record must state:
 
 - which experimental curve is the source target;
 - the history period used to estimate it;
+- the K-policy used to produce it, and whether a constant-K sensitivity curve
+  is also retained;
 - whether east and west are fitted separately, strictly ordered, or first
   combined into rank pairs;
 - the exact support weight used by isotonic regression;
@@ -55,6 +58,14 @@ Before generating the maintained curve, the implementation record must state:
 
 These are implementation choices, not reasons to reopen the search for a
 perfect explanatory model of the M12 curve.
+
+The current source candidates were all estimated with divisional K: 10 for
+Yokozuna through Komusubi, 15 for Maegashira, 25 for Juryo, and 35 for
+Makushita and below. Those K discontinuities coincide with the two boundaries
+studied in the M12 investigation. The raw curves must therefore be described
+as findings for that chosen model, not as model-independent measurements of
+the banzuke. This qualification does not prevent their use as scale evidence
+for a regularised entrant prior.
 
 ## Existing implementation precedent
 
