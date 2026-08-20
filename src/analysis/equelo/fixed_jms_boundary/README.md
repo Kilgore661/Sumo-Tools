@@ -1,6 +1,6 @@
 # Fixed Juryo--Makushita Boundary Experiment
 
-This standalone post-1988 experiment tests whether the J13/J14/Ms1 prior
+This standalone 1989-onward experiment tests whether the J13/J14/Ms1 prior
 shape is caused by grouping historically variable Juryo banzuke by literal
 chii. It does not attempt to merge its priors with the Makuuchi--Juryo model.
 

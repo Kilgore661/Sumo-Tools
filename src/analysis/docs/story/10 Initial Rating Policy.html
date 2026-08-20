@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Initial Rating Policy</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: Georgia, "Times New Roman", serif;
+      line-height: 1.6;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 54rem;
+      padding: 2rem 1.25rem 4rem;
+    }
+    h1, h2, h3 {
+      font-family: system-ui, sans-serif;
+      line-height: 1.2;
+      margin-top: 1.75em;
+    }
+    h1 { margin-top: 0; }
+    li + li { margin-top: 0.35rem; }
+    mjx-container[display="true"] {
+      margin: 1.25rem 0 !important;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body><h1 id="initial-rating-policy">Initial Rating Policy</h1>
+<h2 id="status">Status</h2>
+<p>This document records the current project decision produced by the M12
+investigation. It governs initial ratings for simulations scoped to 1989
+onward. It does not define initial ratings for ranks represented only before
+1989.</p>
+<p>For the investigation, see the
+<a href="08%20M12%20Investigation%20-%20Status%20and%20Next%20Steps.html">consolidated research record</a>.
+For reproduction details, see the
+<a href="09%20M12%20Experiment%20Catalogue.html">experiment catalogue</a>.</p>
+<h2 id="purpose-of-initial-ratings">Purpose of initial ratings</h2>
+<p>Initial ratings are entrant priors. Their purpose is to shorten the adjustment
+gap before bout evidence accumulates. They are not claims that each chii has
+one timeless, precisely measurable intrinsic rating.</p>
+<p>This limited purpose changes the standard of success. The values need to be
+sensible and operationally useful; they need not be the unique or exact rating
+for each chii. Ratings after entry are free to disagree with chii.</p>
+<h2 id="scope-boundary">Scope boundary</h2>
+<p>The adopted construction uses only history from 1989 onward. It is therefore
+an initial-rating policy only for simulations over that scope. Every chii that
+occurs in the scoped experimental histories receives a value from the
+construction.</p>
+<p>Historical chii absent from the 1989-onward scope, including M19--M22 and
+J15--J24, are not missing values in this policy. They are outside its domain.
+Supplying values for them in a simulation beginning before 1989 would be a
+separate historical-completion policy requiring its own artifact, provenance
+and account. It must not be added to the 1989-onward producer implicitly.</p>
+<h2 id="construction">Construction</h2>
+<p>The values deliberately combine epistemic evidence with a small number of
+teleological choices made for useful entrant initialisation.</p>
+<h3 id="experimental-evidence">Experimental evidence</h3>
+<ol>
+<li>The 1989-onward M/J fixed-point experiment represents Makuuchi and Juryo by
+position relative to their contemporaneous boundary, with J1e at index 0.</li>
+<li>The 1989-onward continuous lower-banzuke experiment represents Juryo as
+negative positions above Ms1e and continues one contextual index through
+Ms, Sd, Jd and Jk.</li>
+<li>Both contextual maps are resolved back onto the literal chii that occurred
+in their scoped histories.</li>
+<li>The lower-banzuke result receives one appearance-weighted additive shift so
+that it aligns with the M/J result over their shared Juryo observations.</li>
+</ol>
+<h3 id="constructive-choices">Constructive choices</h3>
+<ol>
+<li>M/J supplies the Makuuchi values.</li>
+<li>Juryo is a linear blend: M/J weight falls from 1 at J1e to 0 at J14w, with
+the aligned lower-banzuke estimate receiving the complementary weight.</li>
+<li>The aligned lower-banzuke result supplies Ms and lower values through
+Jd100e.</li>
+<li>Values below Jd100e are held constant at the Jd100e value. This prevents the
+lower-index reversal and avoids claiming distinctions where the contextual
+index mixes materially different literal ranks.</li>
+<li>East and west estimates are combined by an unweighted mean. A singleton
+retains its sole value.</li>
+</ol>
+<p>The resulting paired curve is strictly decreasing over the represented
+Makuuchi ranks. Its small M/J reversal is retained rather than hidden: M17 is
+approximately 1953.25, M18 1951.48 and J1 1953.53. Below that boundary the
+curve is broadly decreasing through the useful lower-rank range despite local
+noise.</p>
+<p>These choices are partly teleological because broad agreement with chii order
+is desirable for presentation and entrant priors. They are not presented as
+discoveries that history uniquely determines a monotone chii-to-rating map.</p>
+<h2 id="why-no-further-smoothing-is-required">Why no further smoothing is required</h2>
+<p>Smoothing remains a reasonable policy. Support-weighted isotonic regression
+would reproducibly reduce local noise, enforce ordinal presentation and remove
+the small M/J reversal. It would be defensible if exact monotonicity were a
+requirement of the initial-rating product.</p>
+<p>Not smoothing is also reasonable. The paired contextual construction already
+supplies sensible 1989-onward entrant values, has a coherent broad shape and
+confines the remaining conspicuous reversal to a very small M/J difference
+that can be reported and discussed. Its purpose is only to shorten the
+initialisation gap, not to assert the uniquely correct value for every chii.</p>
+<p>The project therefore chooses not to smooth. This retains the experimental
+shape where it is already adequate and avoids imposing additional structure
+without an identified practical need.</p>
+<h2 id="decision-record-final-rating-normalisation">Decision record: final rating normalisation</h2>
+<p><strong>Decision (2026-08-20): retain the constructed 1989-onward priors without a
+final mean-normalisation step.</strong> This is a decision about the rating origin,
+not about the shape of the curve. It does not prevent a future consumer from
+applying a documented common shift when integration requires one.</p>
+<h3 id="what-is-and-is-not-normalised">What is and is not normalised</h3>
+<p>The source fixed-point maps were each normalised during estimation by one
+uniform additive shift. The lower map is then aligned to the M/J map by one
+further uniform shift. No final recentering is applied after merging or
+pairing.</p>
+<p>Consequently, the final 1989-onward priors are not normalised to have mean 1517.
+For the retained artifacts under
+<code>files/output/Equelo/boundary_reconciliation/2026-08-19_lower_banzuke_merge/</code>,
+the unweighted mean is approximately 1410.744 over the 965 literal east/west
+chii and 1411.087 over the 484 paired ranks. Forcing the paired mean to 1517
+would add approximately 105.913 points to every prior.</p>
+<p>These figures must not be confused with the mean of approximately 1537.936 in
+<code>files/output/Equelo/fixed_supported/master_chii_initial_rating_map.csv</code>.
+That older artifact is a separately completed 1,005-literal-chii map, includes
+historical ranks and is not the retained 1989-onward paired table.</p>
+<p>The new mean is much lower partly because the 1989-onward construction contains
+many lower-division ranks and assigns the flat Jd100e value to every remaining
+rank below its cutoff. Those numerous low-valued rows have substantial weight
+in an unweighted mean over chii or rank pairs. This is another reason not to
+treat the final mean as a property of the rating evidence: it depends on the
+chosen completion rule and how far down the banzuke the output domain extends.</p>
+<h3 id="why-expt2s-mean-does-not-transfer-automatically">Why expt2's mean does not transfer automatically</h3>
+<p>This difference from expt2 is expected. Expt2 normalises the unweighted mean
+of the keys in the map being solved. Resolving contextual keys onto literal
+chii, blending two maps, holding the lower tail constant, and pairing east and
+west all change which values are counted and with what multiplicity. The final
+mean therefore depends on the representation and enumerated domain; it is not
+an invariant property recovered from the bouts.</p>
+<p>This follows the existing completion precedent: the directly estimated map is
+anchored, but adding or duplicating operational chii does not trigger another
+mean-based shift. A final shift would make published levels depend on how many
+historical or unsupported slots happened to be enumerated.</p>
+<p>In particular, the two final means above differ merely because one counts 965
+side-specific chii and the other counts 484 rank pairs. Neither population is
+more naturally the expt2 solver's key population. Choosing one of them as the
+normalisation domain would therefore add a new convention after the
+experimental construction.</p>
+<h3 id="why-no-action-is-required-for-the-present-use">Why no action is required for the present use</h3>
+<p>For the present intended use, no final normalisation is required. A uniform
+shift has no effect on Elo probabilities when it is applied consistently to
+every entrant in a complete simulation: only rating differences matter. If a
+future consumer mixes these priors with already established ratings, an
+unshifted fallback rating, or a map with incomplete coverage, the relative
+origin can affect the initialisation gap. That consumer must then state and
+test an explicit anchoring policy at the integration boundary rather than
+silently renormalising this retained artifact.</p>
+<h3 id="when-future-us-must-reconsider-the-decision">When future us must reconsider the decision</h3>
+<p>Reconsider the rating origin before using these priors if any of the following
+is true:</p>
+<ul>
+<li>the simulation starts with some rikishi already carrying ratings that were
+not initialised from this same prior table;</li>
+<li>an entrant can fall back to a fixed rating such as 1517 because its chii is
+absent from the table;</li>
+<li>1989-onward priors are combined with a separately constructed pre-1989 table;</li>
+<li>published values must share an explicit numerical origin with Basic Elo or
+another Equelo series; or</li>
+<li>a prospective test shows sensitivity to a common shift because coverage or
+initialisation is not in fact uniform.</li>
+</ul>
+<p>In that situation, do not overwrite the retained artifact. Define the
+consumer's anchoring population, calculate one uniform shift, record it in the
+consumer's provenance, and test the shifted and unshifted alternatives. Do not
+rescale the curve or independently adjust divisions: those operations would
+change rating differences rather than merely choose an origin.</p>
+<h2 id="reproduction">Reproduction</h2>
+<p>The construction is implemented in <code>src.analysis.equelo.smoothing</code> as two
+data-producing steps. Chart modules only render persisted CSV outputs.</p>
+<pre><code class="language-powershell">python -m src.analysis.equelo.smoothing.boundary_merge `
+  --mj-csv files/output/Equelo/fixed_boundary/2026-08-17_14-49-30/all_chii_prior_comparison.csv `
+  --lower-csv files/output/Equelo/fixed_lower_banzuke/2026-08-19_18-52-25/lower_banzuke_chii_comparison.csv `
+  --cutoff-chii Jd100e `
+  --output-csv files/output/Equelo/boundary_reconciliation/2026-08-19_lower_banzuke_merge/literal_chii_merge_candidate.csv
+
+python -m src.analysis.equelo.smoothing.paired_merge `
+  files/output/Equelo/boundary_reconciliation/2026-08-19_lower_banzuke_merge/literal_chii_merge_candidate.csv `
+  --output-csv files/output/Equelo/boundary_reconciliation/2026-08-19_lower_banzuke_merge/paired_literal_chii_merge_candidate.csv
+</code></pre>
+<p>Each producer writes its data before invoking a separate chart renderer. The
+metadata files record input hashes, construction rules and output hashes.</p>
+<h2 id="public-description-boundary">Public-description boundary</h2>
+<p>Public material may present selected Makuuchi and lower-division landmarks
+rather than the complete table. It should say that the values are sensible
+entrant priors informed by contextual fixed-point experiments and chosen to
+shorten the initialisation gap.</p>
+<p>It may show and discuss the small M/J reversal. It must not imply that:</p>
+<ul>
+<li>the values are precise measurements of the ability associated with chii;</li>
+<li>convergence proves that the contextual categories are correct;</li>
+<li>1989-onward values automatically apply to earlier banzuke structures;</li>
+<li>the remaining local shape has been causally explained; or</li>
+<li>predictive validity follows merely from the construction.</li>
+</ul>
+<h2 id="work-not-included-in-this-decision">Work not included in this decision</h2>
+<ul>
+<li>inventing or estimating initial values for pre-1989-only chii;</li>
+<li>running a pre-1989 simulation with completed historical priors;</li>
+<li>replacing the current production initial-rating map;</li>
+<li>claiming a predictive advantage over Basic Elo; and</li>
+<li>writing the shorter public-facing explanation.</li>
+</ul>
+<p>Any historical extension must be a separate choice and must state explicitly
+which initial values it assigns to chii absent from the 1989-onward evidence.</p>
+</body>
+</html>

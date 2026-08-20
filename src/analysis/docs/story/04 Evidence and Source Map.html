@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Evidence and Source Map</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: Georgia, "Times New Roman", serif;
+      line-height: 1.6;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 54rem;
+      padding: 2rem 1.25rem 4rem;
+    }
+    h1, h2, h3 {
+      font-family: system-ui, sans-serif;
+      line-height: 1.2;
+      margin-top: 1.75em;
+    }
+    h1 { margin-top: 0; }
+    li + li { margin-top: 0.35rem; }
+    mjx-container[display="true"] {
+      margin: 1.25rem 0 !important;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body><h1 id="evidence-and-source-map">Evidence and Source Map</h1>
+<h2 id="detailed-inventory">Detailed inventory</h2>
+<p>The initial repository review is recorded in
+<a href="../2026%2008%2014%20Elo%20Documentation%20Rummage.md">Elo Documentation Rummage</a>.
+It identifies the Markdown and HTML material about Elo, Equelo and the related
+experiments.</p>
+<p>This note is the shorter map for constructing the eventual account.</p>
+<h2 id="current-public-facing-explanations">Current public-facing explanations</h2>
+<ul>
+<li><a href="../../../products/make_site2/prose/Elo%20Ratings.html">Elo Ratings</a> is the
+clearest existing introduction to ordinary Elo and its immediate historical
+sumo problems.</li>
+<li><a href="../../../products/make_site2/prose/Equelo%20Ratings.html">Equelo Ratings</a> is
+existing site prose and should be reviewed against the structure in this
+folder.</li>
+<li><a href="../../../products/make_site2/prose/Equelo%20Assumptions.html">Equelo Assumptions</a>
+records assumptions currently exposed to readers.</li>
+<li><a href="../../../../docs/What%20is%20an%20Equelo%20Rating.md">What Is an Equelo Rating?</a>
+is the project-level account of interpretation and limits.</li>
+</ul>
+<h2 id="basic-elo-predictive-evidence">Basic Elo predictive evidence</h2>
+<ul>
+<li><a href="../../prediction/README.md">Prediction README</a> maps the chronological Basic
+Elo experiments.</li>
+<li><a href="../../prediction/docs/experiments/Findings.md">Findings</a> consolidates the
+measured results, population differences and initialisation experiments.</li>
+<li><a href="../../prediction/docs/A%20Defence%20of%20Elo%20for%20Sumo%20%28Sketch%29.md">A Defence of Elo for Sumo (Sketch)</a>
+gives the narrowest reader-facing claim currently supported.</li>
+</ul>
+<p>These sources support a modest aggregate predictive claim. They do not
+establish true strength, universal parameter choices or predictive validity for
+Equelo.</p>
+<h2 id="probability-and-calibration">Probability and calibration</h2>
+<ul>
+<li><a href="../../probability/README.md">Probability README</a> maps the probability
+experiments.</li>
+<li><a href="../../probability/docs/5%20Results%20%26%20Findings.md">Results and Findings</a>
+records the current calibration results and their supported regions.</li>
+<li><a href="../../probability/docs/7%20Using%20Fixed%20Point%20Initialisation.md">Using Fixed Point Initialisation</a>
+is relevant to the predictive effect of Equelo-like entrant ratings.</li>
+</ul>
+<h2 id="elo-behaviour-and-incomplete-comparisons">Elo behaviour and incomplete comparisons</h2>
+<ul>
+<li><a href="../../toy_elo/README.md">Toy Elo README</a> maps the controlled comparison-graph
+experiments.</li>
+<li><a href="../../toy_elo/docs/What%20Ratings%20Might%20Say%20About%20Grand%20Sumo.md">What Ratings Might Say About Grand Sumo</a>
+supplies the most important interpretive guardrails.</li>
+<li><a href="../../toy_elo/boundary_monotonicity/README.md">Boundary Monotonicity</a> tests a
+scheduling explanation for the lower-Makuuchi anomaly.</li>
+<li><a href="../2026%2008%2010%20Elo%20Bottom%20Line%202.html">Elo Bottom Line 2</a> explains
+continuing fixed-<code>k</code> fluctuation and the limits of the available theoretical
+bound.</li>
+</ul>
+<h2 id="equelo-mechanics-and-unresolved-behaviour">Equelo mechanics and unresolved behaviour</h2>
+<ul>
+<li><a href="../../equelo/README.md">Equelo README</a> identifies the current production
+model and access contract.</li>
+<li><a href="../../equelo/docs/Fixed%20Supported%20Requirements.md">Fixed Supported Requirements</a>
+and <a href="../../equelo/docs/Fixed%20Supported%20Design.md">Fixed Supported Design</a>
+define the maintained construction.</li>
+<li><a href="../../equelo/docs/2026-06-27%20Initial%20Rating%20Audit.md">Initial Rating Audit</a>
+records support and completion concerns.</li>
+<li><a href="../../equelo/docs/equelo%20docs/lower_rank_problems.md">Lower-Rank Problems</a>
+gives the clearest account of churn, sparse support and pathological tail
+behaviour.</li>
+</ul>
+<p>These documents describe current production and the failure that motivated its
+support policy. They do not define the adopted next entrant-prior policy.</p>
+<h2 id="contextual-initial-rating-policy">Contextual initial-rating policy</h2>
+<ul>
+<li><a href="08%20M12%20Investigation%20-%20Status%20and%20Next%20Steps.html">The M12 Problem: Consolidated Research Record</a>
+records the chronology, evidence, interpretation and decision that closed the
+M12 issue as a documentation blocker.</li>
+<li><a href="09%20M12%20Experiment%20Catalogue.html">M12 Experiment Catalogue</a> records the
+commands, matched artifacts and headline results for the literal, boundary,
+dual-boundary and lower-banzuke experiments.</li>
+<li><a href="10%20Initial%20Rating%20Policy.html">Initial Rating Policy</a> is the normative
+decision for the adopted 1989-onward paired entrant priors.</li>
+<li><a href="../../equelo/fixed_boundary/README.md">Fixed-Boundary Equelo</a> defines the
+contextual Makuuchi--Juryo source experiment.</li>
+<li><a href="../../equelo/fixed_lower_banzuke/README.md">Continuous Lower-Banzuke Equelo</a>
+defines the second contextual source experiment.</li>
+<li><a href="../../equelo/smoothing/README.md">Initial-Rating Reconciliation</a> defines the
+persisted merge and pairing producers.</li>
+</ul>
+<p>The policy is adopted but not yet the map used by current production Equelo.
+Its source fixed points are experimental evidence; the final reconciliation is
+a declared construction rather than the direct fixed point of one simulation.</p>
+<h2 id="clean-elo-and-chii-disagreement">Clean Elo and chii disagreement</h2>
+<ul>
+<li><a href="../../clean_elo/README.md">Clean Elo README</a> records the negative result and
+the limits of interpretation.</li>
+<li><a href="../../clean_elo/docs/Rating%20Probe%20Findings.md">Rating Probe Findings</a>
+contains the detailed monotonicity and boundary-alignment findings.</li>
+</ul>
+<p>These sources are central to explaining why neither agreement nor disagreement
+between a rating system and chii should be treated as self-interpreting.</p>
+<h2 id="historical-material">Historical material</h2>
+<p>The older dated planning notes and archived site prose are useful for tracing
+the development of the ideas, but should not be used as authority where newer
+specifications or findings exist. The detailed rummage document identifies
+those files and their current evidential status.</p>
+</body>
+</html>

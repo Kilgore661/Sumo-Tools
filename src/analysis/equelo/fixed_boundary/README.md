@@ -12,7 +12,7 @@ with the matched run recorded in the
 
 ## Question
 
-The experiment asks whether the post-1988 M12 initial-rating problem is
+The experiment asks whether the 1989-onward M12 initial-rating problem is
 substantially a consequence of grouping ratings by timeless literal
 maegashira chii rather than by position relative to the contemporaneous
 Makuuchi--Juryo boundary.
@@ -70,7 +70,7 @@ The output includes:
 - experimental day-end ratings;
 - CSV comparisons against the like-for-like literal-chii control;
 - responsive CDN Plotly charts for the boundary-index curve, the same result
-  viewed by literal maegashira chii, the complete post-1988 chii sequence, and
+  viewed by literal maegashira chii, the complete 1989-onward chii sequence, and
   convergence for both models. The all-chii chart retains every east/west chii
   as an ordered categorical point; it is not binned or downsampled.
 

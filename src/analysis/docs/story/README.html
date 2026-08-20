@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Elo and Equelo Story Workspace</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: Georgia, "Times New Roman", serif;
+      line-height: 1.6;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 54rem;
+      padding: 2rem 1.25rem 4rem;
+    }
+    h1, h2, h3 {
+      font-family: system-ui, sans-serif;
+      line-height: 1.2;
+      margin-top: 1.75em;
+    }
+    h1 { margin-top: 0; }
+    li + li { margin-top: 0.35rem; }
+    mjx-container[display="true"] {
+      margin: 1.25rem 0 !important;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body><h1 id="elo-and-equelo-story-workspace">Elo and Equelo Story Workspace</h1>
+<h2 id="purpose">Purpose</h2>
+<p>This folder records how the project intends to explain Elo and Equelo to
+different readers. It is a working documentation plan, not yet the finished
+site prose and not a defence of conclusions that the experiments have not
+established.</p>
+<p>The immediate purpose is to keep four things separate:</p>
+<ol>
+<li>how Elo works;</li>
+<li>the problems Equelo was designed to address;</li>
+<li>how Equelo works;</li>
+<li>evidence about the utility and limitations of either system.</li>
+</ol>
+<p>This separation is important because a mechanical improvement, such as
+controlling rating-scale drift, does not by itself establish predictive
+validity. Equally, disagreement between Equelo and chii is not automatically
+either a defect or an insight.</p>
+<h2 id="documents">Documents</h2>
+<ol>
+<li><a href="01%20Reader%20Layers.html">Reader Layers</a> defines the casual, STEM,
+detailed-technical and expert/critical layers and the
+progressive-disclosure policy.</li>
+<li><a href="02%20Narrative%20and%20Validation%20Structure.html">Narrative and Validation Structure</a>
+records the agreed route from Elo to Equelo and keeps construction separate
+from validation.</li>
+<li><a href="03%20Elo%20Introduction%20for%20the%20Casual%20Reader.html">Elo Introduction for the Casual Reader</a>
+is the current first-layer draft.</li>
+<li><a href="06%20Draft%20Standard%20Elo%20Account%20for%20the%20STEM%20Reader.html">Draft: A Standard Account of Elo</a>
+is the current STEM-layer draft of the ordinary Elo mechanics and their
+historical-sumo complications. It is rendered to HTML by
+<code>render_stem_account.ps1</code>, along with every other Markdown document in this
+folder.</li>
+<li><a href="07%20Draft%20Equelo%20Account%20for%20the%20STEM%20Reader.html">Draft: How Equelo Changes Elo</a>
+is the current STEM-layer construction account. It explains divisional
+<code>k</code>, normalisation and chii-informed initialisation; exact implementation
+details belong in the planned detailed-technical account.</li>
+<li><a href="04%20Evidence%20and%20Source%20Map.html">Evidence and Source Map</a> points to the
+existing research record and identifies what each source contributes.</li>
+<li><a href="05%20Open%20Questions%20and%20Experiments.html">Open Questions and Experiments</a>
+distinguishes established findings, expectations and work still required.</li>
+<li><a href="08%20M12%20Investigation%20-%20Status%20and%20Next%20Steps.html">The M12 Problem: Consolidated Research Record</a>
+is the single entry point for the question, chronology, evidence and final
+position.</li>
+<li><a href="09%20M12%20Experiment%20Catalogue.html">M12 Experiment Catalogue</a> records the
+reproducible code paths, commands, matched artifacts and headline results.</li>
+<li><a href="10%20Initial%20Rating%20Policy.html">Initial Rating Policy</a> is the normative
+decision that the next integration and predictive-validation work must
+implement.</li>
+</ol>
+<p>The detailed initial inventory remains in
+<a href="../2026%2008%2014%20Elo%20Documentation%20Rummage.md">Elo Documentation Rummage</a>.</p>
+<h2 id="current-status">Current status</h2>
+<table>
+<thead>
+<tr>
+<th>Part</th>
+<th>Status</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Casual Elo introduction</td>
+<td>Draft written</td>
+<td>Suitable for further editorial review</td>
+</tr>
+<tr>
+<td>STEM Elo account</td>
+<td>Draft written</td>
+<td>Needs editorial and source review</td>
+</tr>
+<tr>
+<td>Motivation for Equelo</td>
+<td>Drafted</td>
+<td>Divisional <code>k</code>, normalisation and chii-informed initialisation lead into Equelo</td>
+</tr>
+<tr>
+<td>STEM Equelo account</td>
+<td>Draft updated</td>
+<td>Distinguishes current production from the adopted 1989-onward entrant priors</td>
+</tr>
+<tr>
+<td>Detailed technical account</td>
+<td>Not started</td>
+<td>Explain exact Elo mechanics first, then exact Equelo mechanics and prior provenance</td>
+</tr>
+<tr>
+<td>Expert/critical account</td>
+<td>Not started</td>
+<td>Evaluate foundations, sensitivity, convergence, uncertainty, support and predictive evidence</td>
+</tr>
+<tr>
+<td>Basic Elo predictive account</td>
+<td>Evidence exists</td>
+<td>Needs integration into the story</td>
+</tr>
+<tr>
+<td>Equelo predictive account</td>
+<td>Experiment required</td>
+<td>Must use a directly comparable protocol</td>
+</tr>
+<tr>
+<td>Low-support/non-monotonicity account</td>
+<td>Decision recorded</td>
+<td>Preserve experiments; smoothing is reasonable, but the retained policy is not smoothed</td>
+</tr>
+</tbody>
+</table>
+<h2 id="next-steps">Next steps</h2>
+<p>Work on the explanatory prose may resume. The M12 investigation established
+that changing banzuke structure materially affects empirical chii-to-rating
+maps, but did not identify one model that explains or removes every reversal.
+That is no longer treated as a documentation blocker.</p>
+<p>The project will retain the reproducible, east/west-paired 1989-onward
+contextual curve as its entrant-prior policy. Smoothing that curve would be a
+reasonable modelling choice, but not smoothing is also reasonable because the
+curve is already adequate for shortening the initialisation gap. The project
+therefore chose not to smooth. Public prose must distinguish these chosen
+priors from uniquely estimated chii values and from ratings subsequently
+learned from bout results.</p>
+<p>The immediate work is to implement the <a href="10%20Initial%20Rating%20Policy.html">Initial Rating Policy</a>,
+then conduct a prospective, like-for-like predictive comparison of Equelo with
+Basic Elo accompanied by sensitivity tests using reasonable alternative
+priors, which may include smoothed comparators. Start with the
+<a href="08%20M12%20Investigation%20-%20Status%20and%20Next%20Steps.html">consolidated M12 record</a>;
+<a href="05%20Open%20Questions%20and%20Experiments.html">Open Questions and Experiments</a>
+records the wider validation programme.</p>
+<h2 id="working-discipline">Working discipline</h2>
+<p>Claims in this folder and the eventual prose should be recognizable as one of:</p>
+<ul>
+<li><strong>Definition</strong>: what a calculation or term means;</li>
+<li><strong>Intended property</strong>: what a design choice is meant to achieve;</li>
+<li><strong>Established finding</strong>: what an experiment currently supports;</li>
+<li><strong>Expectation</strong>: what is provisionally anticipated;</li>
+<li><strong>Open question</strong>: what is not yet known;</li>
+<li><strong>Experiment required</strong>: what evidence is needed before making a claim.</li>
+</ul>
+<p>The final account may be readable as one continuous story, but the underlying
+research record should preserve these distinctions.</p>
+</body>
+</html>

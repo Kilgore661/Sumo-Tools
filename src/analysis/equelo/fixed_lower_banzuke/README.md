@@ -7,7 +7,7 @@ are not consumed by the public Equelo API or the site.
 
 ## Question
 
-Can the successful post-1988 Juryo--Makushita boundary representation be
+Can the successful 1989-onward Juryo--Makushita boundary representation be
 continued down the banzuke far enough to provide a broadly coherent curve
 through upper Jonidan?
 

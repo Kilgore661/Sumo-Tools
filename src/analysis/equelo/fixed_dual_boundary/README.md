@@ -1,10 +1,10 @@
 # Joint Dual-Boundary Equelo Experiment
 
-This post-1988 experiment combines the independently successful Makuuchi--
+This 1989-onward experiment combines the independently successful Makuuchi--
 Juryo and Juryo--Makushita representations without fitting a merge to the
 desired curve.
 
-The investigation is complete. The post-1988 result was encouraging, but the
+The investigation is complete. The 1989-onward result was encouraging, but the
 1958--2026 modern-then-combined run retained a material Juryo--Makushita
 reversal. This producer is therefore a preserved research artifact, not the
 production entrant-prior model. See the

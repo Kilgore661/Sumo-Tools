@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>M12 Experiment Catalogue</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: Georgia, "Times New Roman", serif;
+      line-height: 1.6;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 54rem;
+      padding: 2rem 1.25rem 4rem;
+    }
+    h1, h2, h3 {
+      font-family: system-ui, sans-serif;
+      line-height: 1.2;
+      margin-top: 1.75em;
+    }
+    h1 { margin-top: 0; }
+    li + li { margin-top: 0.35rem; }
+    mjx-container[display="true"] {
+      margin: 1.25rem 0 !important;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body><h1 id="m12-experiment-catalogue">M12 Experiment Catalogue</h1>
+<h2 id="purpose">Purpose</h2>
+<p>This is the reproducibility companion to the
+<a href="08%20M12%20Investigation%20-%20Status%20and%20Next%20Steps.html">consolidated M12 research record</a>.
+It records the principal experiments in the order in which they changed the
+project's understanding. It is not the public explanation of initial ratings.</p>
+<p>The current policy derived from this work is recorded separately in
+<a href="10%20Initial%20Rating%20Policy.html">Initial Rating Policy</a>.</p>
+<h2 id="common-equelo-settings">Common Equelo settings</h2>
+<p>Unless a row below says otherwise, the contextual fixed-point experiments used:</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Base rating</td>
+<td>1517</td>
+</tr>
+<tr>
+<td>Probability scale <code>q</code></td>
+<td>900</td>
+</tr>
+<tr>
+<td>Update policy</td>
+<td>Divisional <code>k</code></td>
+</tr>
+<tr>
+<td>Simulation</td>
+<td>Closed-population Equelo</td>
+</tr>
+<tr>
+<td>Support threshold</td>
+<td>60 key appearances</td>
+</tr>
+<tr>
+<td>Unsupported keys</td>
+<td>Nearest supported key of the same family</td>
+</tr>
+<tr>
+<td>Map normalisation</td>
+<td>One common additive shift to mean 1517</td>
+</tr>
+<tr>
+<td>Tight convergence condition</td>
+<td><code>delta &lt; 0.01</code></td>
+</tr>
+</tbody>
+</table>
+<p>Here <code>delta</code> is the largest absolute change in any normalised prior between two
+successive fixed-point iterations. It is a step-size condition, not a proven
+bound on distance from the limiting fixed point.</p>
+<p>The divisional policy means K=10 for Yokozuna through Komusubi, K=15 for
+Maegashira, K=25 for Juryo, and K=35 for Makushita and below. Each rikishi uses
+their own current-chii K in a bout. Thus the model changes K at both boundaries
+under investigation, and an M/J or J/Ms bout can use different K values for
+its two competitors. The experiments below compare prior representations
+while holding that policy fixed; they are not constant-K controls.</p>
+<h2 id="fixed-point-literal-chii-baseline">1. Fixed-point literal-chii baseline</h2>
+<h3 id="question">Question</h3>
+<p>Can a self-consistent chii-to-rating map supply less arbitrary entrant ratings?</p>
+<h3 id="method-and-result">Method and result</h3>
+<p>Expt2 repeatedly simulated Equelo, aggregated basho-start ratings by
+annotation-free literal chii, normalised the map, and used it for the next
+iteration. The process converged, but the resulting curve rose from about M12
+or M13 towards M17. Very rare chii could be dominated by their recycled prior;
+the historical extreme was a Jk73 rating around 3000.</p>
+<p>The maintained <code>fixed_supported</code> variant addressed the extreme tail by solving
+only keys with at least 60 appearances and completing unsupported keys from a
+nearby supported key. It removed the Jk73 blow-up but retained the supported
+M12--M17 rise.</p>
+<p>Sources:</p>
+<ul>
+<li><a href="../../equelo/expt2/docs/README.md"><code>expt2</code> methodology</a></li>
+<li><a href="../../equelo/docs/2026-06-27%20Initial%20Rating%20Audit.md">Initial Rating Audit</a></li>
+<li><a href="../../equelo/docs/Fixed%20Supported%20Design.md">Fixed Supported Design</a></li>
+<li><a href="../../equelo/docs/equelo%20docs/lower_rank_problems.md">Lower-Rank Problems</a></li>
+<li>production map:
+<code>files/output/Equelo/fixed_supported/master_chii_initial_rating_map.csv</code></li>
+</ul>
+<h3 id="what-it-established">What it established</h3>
+<ul>
+<li>Numerical convergence does not validate the categories being solved.</li>
+<li>Unsupported literal chii need an explicit support/completion policy.</li>
+<li>The M12 pattern is present among directly supported chii and is not removed
+by the Jk73 repair.</li>
+</ul>
+<h2 id="clean-elo-literal-rank-and-boundary-probes">2. Clean Elo literal-rank and boundary probes</h2>
+<h3 id="question-1">Question</h3>
+<p>Does the M12 rise require iterative chii priors, or can it appear in a simpler
+rating history?</p>
+<h3 id="method">Method</h3>
+<p>The Clean Elo run used a constant entrant rating, persistent ordinary Elo,
+divisional <code>k</code>, and end-of-basho mean restoration over the complete-results
+period beginning in 1989. It compared each rikishi's chii with the rating at
+the start of the same basho.</p>
+<p>The literal BP4 means rose from 1926.98 at M12 to 2031.73 at M17. The M1--M18
+weighted isotonic bootstrap rejected a monotone literal-rank curve under its
+naive sampling model (<code>p = 0.00009999</code>).</p>
+<p>The same ratings were then grouped by paired position above the actual lower
+edge of each contemporaneous Makuuchi banzuke. The group nearest Juryo was
+9.31 points below the group seven pairs above it, and the boundary-aligned
+curve did not reject monotonicity (<code>p = 0.551945</code>). Local reversals remained.</p>
+<p>Artifacts:</p>
+<pre><code class="language-text">files/output/analysis/clean_elo/rating_probe/2026-07-28_16-47-43
+files/output/analysis/clean_elo/monotonicity_probe/2026-07-29_12-34-12
+files/output/analysis/clean_elo/boundary_rating_probe/2026-07-29_14-27-29
+files/output/analysis/clean_elo/bp4_cutoff_probe/2026-07-30_19-15-08
+</code></pre>
+<p>Source: <a href="../../clean_elo/docs/Rating%20Probe%20Findings.md">Clean Elo Rating Probe Findings</a>.</p>
+<h3 id="what-it-established-1">What it established</h3>
+<ul>
+<li>Fixed-point map normalisation cannot be the sole cause of the M12 pattern.</li>
+<li>Literal M numbers are not stable structural positions when banzuke size
+varies.</li>
+<li>Boundary alignment explains much of the large endpoint reversal, but does
+not guarantee an exactly monotone curve.</li>
+</ul>
+<h2 id="onward-makuuchi-juryo-contextual-fixed-point">3. 1989-onward Makuuchi--Juryo contextual fixed point</h2>
+<h3 id="question-2">Question</h3>
+<p>Does Equelo itself lose the lower-maegashira reversal if priors use position
+relative to the contemporaneous M/J boundary?</p>
+<h3 id="representation">Representation</h3>
+<pre><code class="language-text">Makuuchi: negative position from the bottom; bottommost is -1
+Juryo:    position from the top minus one; J1e is 0
+Others:   annotation-free literal chii
+</code></pre>
+<p>Keys are assigned from the complete Oracle banzuke before support filtering.</p>
+<h3 id="reproduction">Reproduction</h3>
+<pre><code class="language-powershell">python -m src.analysis.equelo.fixed_boundary `
+  --history-zip &quot;files/output/Historys/1958_01 to 2026_11.zip&quot; `
+  --start-year 1989 `
+  --end-year 2026 `
+  --epsilon 0.01
+</code></pre>
+<p>Matched run:</p>
+<pre><code class="language-text">files/output/Equelo/fixed_boundary/2026-08-17_14-30-30
+</code></pre>
+<p>The solve took 55 primary iterations, with final delta
+<code>0.009871514468386522</code>. Resolved east-side priors fell from approximately 1979
+at M12e to 1951 at M18e, whereas the matched literal control retained the tail
+rise.</p>
+<p>Code: <a href="../../equelo/fixed_boundary/README.md"><code>fixed_boundary</code></a>.</p>
+<h3 id="what-it-established-2">What it established</h3>
+<ul>
+<li>Within the intended 1989-onward scope, contextual M/J position removes most of
+the large literal M12--M17 reversal without a monotonicity constraint.</li>
+<li>The initial accidental full-history version answered a different question;
+history scope must be applied before cleaning, assignment, support and solve.</li>
+</ul>
+<h2 id="onward-juryo-makushita-contextual-fixed-point">4. 1989-onward Juryo--Makushita contextual fixed point</h2>
+<h3 id="question-3">Question</h3>
+<p>Can the analogous lower boundary explain the J13/J14/Ms1 shape?</p>
+<h3 id="representation-1">Representation</h3>
+<pre><code class="language-text">Juryo:     negative position from the bottom; bottommost is -1
+Makushita: position from the top minus one; Ms1e is 0
+Others:    annotation-free literal chii
+</code></pre>
+<h3 id="reproduction-1">Reproduction</h3>
+<pre><code class="language-powershell">python -m src.analysis.equelo.fixed_jms_boundary `
+  --history-zip &quot;files/output/Historys/1958_01 to 2026_11.zip&quot; `
+  --epsilon 0.01
+</code></pre>
+<p>Matched run:</p>
+<pre><code class="language-text">files/output/Equelo/fixed_jms_boundary/2026-08-17_16-07-12
+</code></pre>
+<p>The contextual east-side values were approximately J13e 1869.91, J14e
+1861.72, Ms1e 1852.91 and Ms2e 1847.87. The literal control placed J14e above
+J13e.</p>
+<p>Code: <a href="../../equelo/fixed_jms_boundary/README.md"><code>fixed_jms_boundary</code></a>.</p>
+<h3 id="what-it-established-3">What it established</h3>
+<ul>
+<li>The J/Ms boundary coordinate also improved the 1989-onward local shape when
+solved independently.</li>
+<li>Independent success at two boundaries did not specify how one Juryo
+observation should contribute to both maps.</li>
+</ul>
+<h2 id="additive-reconciliation-of-the-independent-boundary-maps">5. Additive reconciliation of the independent boundary maps</h2>
+<h3 id="question-4">Question</h3>
+<p>Can the independently successful M/J and J/Ms maps be merged without changing
+their shapes, using only the arbitrary common origin of an Elo scale?</p>
+<h3 id="method-1">Method</h3>
+<p>The reconciliation projected both maps onto their shared 1989-onward Juryo
+observations. The J/Ms map was permitted one observation-weighted additive
+shift; no rank-specific correction was fitted.</p>
+<h3 id="reproduction-2">Reproduction</h3>
+<pre><code class="language-powershell">python -m src.analysis.equelo.boundary_reconciliation `
+  --history-zip &quot;files/output/Historys/1958_01 to 2026_11.zip&quot; `
+  --mj-map &quot;files/output/Equelo/fixed_boundary/2026-08-17_14-49-30/master_entrant_prior_map.csv&quot; `
+  --jms-map &quot;files/output/Equelo/fixed_jms_boundary/2026-08-17_16-07-12/master_entrant_prior_map.csv&quot;
+</code></pre>
+<p>Matched run:</p>
+<pre><code class="language-text">files/output/Equelo/boundary_reconciliation/2026-08-17_21-31-38
+</code></pre>
+<p>The best common shift was -7.89 points. After alignment, the mean absolute
+residual was 8.78, RMS residual 14.83 and maximum absolute residual 52.60. The
+residual changed systematically through Juryo: its top-to-bottom slope was
+26.02 points, with top- and bottom-half mean residuals of about -5.24 and
++5.23.</p>
+<p>Code: <a href="../../equelo/boundary_reconciliation.py"><code>boundary_reconciliation.py</code></a>.</p>
+<h3 id="what-it-established-4">What it established</h3>
+<ul>
+<li>One common shift cannot reconcile the two independently solved maps.</li>
+<li>A position-dependent fitted correction could make them agree, but would
+replace the desired epistemic merge with another curve-fitting choice.</li>
+<li>This negative result motivated a single joint fixed point in which Juryo
+contributions are defined before solving.</li>
+</ul>
+<h2 id="joint-1989-onward-dual-boundary-fixed-point">6. Joint 1989-onward dual-boundary fixed point</h2>
+<h3 id="question-5">Question</h3>
+<p>Can the M/J and J/Ms representations be joined using contemporaneous geometry
+rather than fitting a merge to the desired curve?</p>
+<p>Two rules were tried:</p>
+<ul>
+<li><code>nearest</code>: a Juryo observation contributes to the nearer boundary, splitting
+an exact midpoint equally;</li>
+<li><code>linear</code>: every Juryo observation interpolates between the two boundaries
+according to relative position.</li>
+</ul>
+<p>The linear rule is the final version of this experiment.</p>
+<h3 id="reproduction-3">Reproduction</h3>
+<pre><code class="language-powershell">python -m src.analysis.equelo.fixed_dual_boundary `
+  --history-zip &quot;files/output/Historys/1958_01 to 2026_11.zip&quot; `
+  --start-year 1989 `
+  --juryo-weighting linear `
+  --epsilon 0.01
+</code></pre>
+<p>Matched linear run:</p>
+<pre><code class="language-text">files/output/Equelo/fixed_dual_boundary/2026-08-18_00-08-21
+</code></pre>
+<p>The paired curve was close to monotone over the focus range. Selected values
+were M17 1948.13, M18 1946.23, J1 1947.37, J13 1856.25, J14 1849.29, Ms1
+1845.76 and Ms2 1835.95. A small paired M18--J1 rise remained, while the
+J14--Ms1 transition fell in the expected direction.</p>
+<p>Code: <a href="../../equelo/fixed_dual_boundary/README.md"><code>fixed_dual_boundary</code></a>.</p>
+<h3 id="what-it-established-5">What it established</h3>
+<ul>
+<li>The two boundary maps can be combined by a declared geometric rule.</li>
+<li>The 1989-onward result is encouraging but does not prove that the same mapping
+is stable across historical banzuke regimes.</li>
+</ul>
+<h2 id="full-history-modern-then-combined-dual-boundary-fixed-point">7. Full-history modern-then-combined dual-boundary fixed point</h2>
+<h3 id="question-6">Question</h3>
+<p>What happens when the 1989-onward map is used to initialise a refinement over all
+represented history beginning in 1958, as in Expt2?</p>
+<h3 id="reproduction-4">Reproduction</h3>
+<pre><code class="language-powershell">python -m src.analysis.equelo.fixed_dual_boundary `
+  --history-zip &quot;files/output/Historys/1958_01 to 2026_11.zip&quot; `
+  --start-year 1958 `
+  --modern-start-year 1989 `
+  --juryo-weighting linear `
+  --epsilon 0.01
+</code></pre>
+<p>Matched tight run:</p>
+<pre><code class="language-text">files/output/Equelo/fixed_dual_boundary/2026-08-18_11-37-18
+</code></pre>
+<p>The modern joint solve took 55 iterations and ended at delta
+<code>0.009876162818727607</code>. The full-history combined refinement took 18 iterations
+and ended at delta <code>0.009574122265</code>. The literal combined control took 21
+iterations and ended at delta <code>0.008702244042</code>.</p>
+<p>Selected paired joint values were:</p>
+<table>
+<thead>
+<tr>
+<th>Transition</th>
+<th style="text-align: right;">Change in rating</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>M15 to M16</td>
+<td style="text-align: right;">+0.40</td>
+</tr>
+<tr>
+<td>M16 to M17</td>
+<td style="text-align: right;">+1.25</td>
+</tr>
+<tr>
+<td>M18 to J1</td>
+<td style="text-align: right;">-3.42</td>
+</tr>
+<tr>
+<td>J10 to J13</td>
+<td style="text-align: right;">+5.68</td>
+</tr>
+<tr>
+<td>J14 to Ms1</td>
+<td style="text-align: right;">+8.15</td>
+</tr>
+<tr>
+<td>Historical J24 to Ms1</td>
+<td style="text-align: right;">+7.67</td>
+</tr>
+</tbody>
+</table>
+<p>An earlier run with epsilon 1 is under
+<code>files/output/Equelo/fixed_dual_boundary/2026-08-18_11-30-11</code>. Tightening the
+tolerance altered the paired curve's shape by no more than about 0.22 points
+after removing the common level change. The J/Ms reversal is therefore not an
+epsilon-1 stopping artefact.</p>
+<h3 id="what-it-established-6">What it established</h3>
+<ul>
+<li>The full-history M/J transition improves, but a material J/Ms reversal
+returns.</li>
+<li>Adding 1958--1988 is not merely adding more observations of one stable
+system. It adds different division sizes, boundary locations, promotion
+flows and bout networks.</li>
+<li>One timeless dual-boundary map does not explain or remove all observed
+non-monotonicity.</li>
+<li>This is a result for closed-population Equelo with divisional K. Because K
+changes at the J/Ms boundary, the experiment does not identify banzuke
+structure as the sole cause of the returned reversal.</li>
+</ul>
+<h2 id="historical-curated-monotone-landmark-curve">8. Historical curated monotone landmark curve</h2>
+<h3 id="purpose-1">Purpose</h3>
+<p>The project has already constructed a monotone curve for public rating
+landmarks. This work predates the present decision to retain unsmoothed
+operational entrant priors and must not be confused with the adopted entrant
+construction.</p>
+<p><code>InitialRatingCurve.v5()</code> was originally built over the fixed-v1 entrant map.
+The current <code>fixed_supported.landmarks</code> producer reuses the same
+<code>InitialRatingCurve.from_ordinal_ratings(...)</code> machinery with the maintained
+fixed-supported master map to generate “Typical Equelo Values”.</p>
+<h3 id="existing-policy">Existing policy</h3>
+<p>The v5-style construction:</p>
+<ul>
+<li>limits the domain to Jd100w;</li>
+<li>deletes historical J13--J24 and M18--M22 slots;</li>
+<li>masks selected rare sanyaku and lower-division support;</li>
+<li>masks the complete M12e--Ms2e bridge plus Ms3e;</li>
+<li>converts the remaining support values to a strictly decreasing sequence by
+making only the minimum required downward edits; and</li>
+<li>fills the masked positions with a monotonicity-preserving cubic interpolant
+over a dense chii index.</li>
+</ul>
+<p>Sources:</p>
+<ul>
+<li><a href="../../equelo/fixed_v1/initial_rating.py"><code>fixed_v1/initial_rating.py</code></a></li>
+<li><a href="../../equelo/fixed_v1/docs/V5%20Policy.md">V5 Policy</a></li>
+<li><a href="../../equelo/fixed_supported/landmarks.py"><code>fixed_supported/landmarks.py</code></a></li>
+<li><a href="../../equelo/docs/Equelo%20Version%20Naming.md">Equelo Version Naming</a></li>
+</ul>
+<h3 id="what-it-established-7">What it established</h3>
+<ul>
+<li>A deterministic, auditable monotone interpretation curve is already
+technically feasible.</li>
+<li>The existing curve is an interpretation/landmark layer, not the entrant
+initialiser used by the maintained Equelo process.</li>
+<li>Its manual deletion and masking policy, and its one-sided downward clamp, are
+materially different from support-weighted least-squares isotonic regression.</li>
+<li>No retained result establishes that using this v5-style curve for entrants
+improves or preserves prospective prediction.</li>
+</ul>
+<p>The existing v5-style curve remains a useful comparator and a source of
+reusable interpolation and lookup code. It must not be silently promoted to
+the operational entrant curve without provenance and predictive testing.</p>
+<h2 id="continuous-1989-onward-lower-banzuke-coordinate">9. Continuous 1989-onward lower-banzuke coordinate</h2>
+<h3 id="question-7">Question</h3>
+<p>Can the successful J/Ms representation continue through the lower divisions
+far enough to supply a coherent second view of Juryo and useful values below
+Makushita?</p>
+<h3 id="method-and-run">Method and run</h3>
+<p>The complete banzuke is assigned one contextual coordinate before support
+filtering. Juryo positions are negative, counted upward from its bottom;
+Ms1e is zero; and the sequence then continues without resetting through Ms,
+Sd, Jd and Jk. Literal-chii output values are the means of the contextual
+estimates observed for that chii.</p>
+<pre><code class="language-powershell">python -m src.analysis.equelo.fixed_lower_banzuke `
+  --history-zip &quot;files/output/Historys/1958_01 to 2026_11.zip&quot; `
+  --start-year 1989 `
+  --epsilon 0.01
+</code></pre>
+<p>Retained run:</p>
+<pre><code class="language-text">files/output/Equelo/fixed_lower_banzuke/2026-08-19_18-52-25
+</code></pre>
+<p>The solve converged after 15 iterations. The paired curve is broadly
+decreasing through upper Jonidan: Jd1 is about 1367.54, Jd75 1275.16 and Jd89
+1244.90. From about Jd90 the local shape ceases to be credible as a rank
+ordering, and below about Jd100 the contextual coordinate increasingly mixes
+different literal lower ranks.</p>
+<h3 id="what-it-established-8">What it established</h3>
+<ul>
+<li>One continuous coordinate can carry the successful J/Ms boundary shape far
+deeper than expected without resetting at later divisional boundaries.</li>
+<li>The output remains an estimate conditional on the 1989-onward banzuke
+structures and divisional K policy.</li>
+<li>The lower tail needs an explicit operational cutoff; continuing the fitted
+coordinate indefinitely would attach meaning to a visibly unstable region.</li>
+</ul>
+<h2 id="reproducible-literal-chii-merge-and-eastwest-pairing">10. Reproducible literal-chii merge and east/west pairing</h2>
+<h3 id="question-8">Question</h3>
+<p>Can the independently useful M/J and lower-banzuke results be combined into a
+single set of 1989-onward entrant priors without claiming that either coordinate
+is universally correct?</p>
+<h3 id="method-and-run-1">Method and run</h3>
+<p>The merge keeps the M/J estimates for Makuuchi, applies one
+appearance-weighted additive shift to align the lower-banzuke estimates over
+shared Juryo observations, and blends linearly across Juryo from the M/J view
+at J1e to the aligned lower view at J14w. The aligned lower view supplies the
+remaining ranks through Jd100e; values below that cutoff are held constant.
+East and west are then combined by an unweighted mean, with singletons
+retaining their sole value.</p>
+<pre><code class="language-powershell">python -m src.analysis.equelo.smoothing.boundary_merge `
+  --mj-csv files/output/Equelo/fixed_boundary/2026-08-17_14-49-30/all_chii_prior_comparison.csv `
+  --lower-csv files/output/Equelo/fixed_lower_banzuke/2026-08-19_18-52-25/lower_banzuke_chii_comparison.csv `
+  --cutoff-chii Jd100e `
+  --output-csv files/output/Equelo/boundary_reconciliation/2026-08-19_lower_banzuke_merge/literal_chii_merge_candidate.csv
+
+python -m src.analysis.equelo.smoothing.paired_merge `
+  files/output/Equelo/boundary_reconciliation/2026-08-19_lower_banzuke_merge/literal_chii_merge_candidate.csv `
+  --output-csv files/output/Equelo/boundary_reconciliation/2026-08-19_lower_banzuke_merge/paired_literal_chii_merge_candidate.csv
+</code></pre>
+<p>Both stages write analytical CSV and provenance metadata before a separate
+renderer reads the CSV to make the responsive Plotly chart.</p>
+<h3 id="what-it-established-9">What it established</h3>
+<ul>
+<li>Pairing east and west removes much incidental noise. The represented
+Makuuchi curve is strictly decreasing.</li>
+<li>The remaining M/J reversal is small and transparent: M17 is about 1953.25,
+M18 1951.48 and J1 1953.53.</li>
+<li>The curve is broadly decreasing well into Jonidan and is adequate as a set
+of sensible entrant values without further smoothing.</li>
+<li>No final mean normalisation is applied. The retained unweighted mean is
+about 1410.744 over 965 literal chii and 1411.087 over 484 paired ranks;
+expt2's mean-1517 convention applies to its own solved key domain, not to
+this post-processed domain. The many lower-division rows, including the
+ranks held at the flat Jd100e tail value, pull this unweighted mean well
+below the approximately 1537.936 mean of the separate 1,005-row
+fixed-supported master map.</li>
+<li>Smoothing would also be a reasonable policy, especially if exact
+monotonicity were required. The project chose not to smooth because the
+limited purpose is to shorten the initialisation gap, not to assert a unique
+value for every chii.</li>
+<li>The construction covers only chii represented in the 1989-onward experiments.
+Values for pre-1989-only ranks require a separate historical policy.</li>
+</ul>
+<h2 id="experiment-wide-conclusions">Experiment-wide conclusions</h2>
+<p>The combined record supports the following claims:</p>
+<ol>
+<li>The old Jk73 result was an underidentification/support failure and is now
+controlled by the supported-domain policy.</li>
+<li>The M12 rise is not caused solely by fixed-point map normalisation.</li>
+<li>Historically variable banzuke structure is a material omitted context in a
+literal-chii map.</li>
+<li>Boundary-relative representations improve important local shapes but do
+not produce a unique monotone full-history mapping.</li>
+<li>Convergence establishes self-consistency under the chosen representation;
+it does not establish that the representation is the right one.</li>
+<li>Divisional K is an unresolved boundary confounder: its discontinuities
+coincide with M/J and J/Ms, and no retained constant-K sensitivity run
+separates its effect from banzuke context.</li>
+<li>No further contextual model is currently justified by an independently
+demonstrated practical benefit.</li>
+</ol>
+<p>These conclusions motivate retaining the transparent, unsmoothed paired
+1989-onward entrant priors and making a prospective predictive comparison,
+rather than further attempts to explain or conceal every local reversal.
+Smoothing remains a reasonable alternative, but it is not the choice made for
+this policy. Any extension to pre-1989-only ranks is a separate decision.</p>
+</body>
+</html>

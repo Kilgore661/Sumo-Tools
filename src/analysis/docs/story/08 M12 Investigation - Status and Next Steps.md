@@ -15,7 +15,7 @@ documents for implementation work:
   code, commands, parameters, artifacts and headline results needed to reproduce
   the investigation.
 - [Initial Rating Policy](10%20Initial%20Rating%20Policy.md) is the concise
-  normative decision for the post-1988 paired initial ratings and their scope.
+  normative decision for the 1989-onward paired initial ratings and their scope.
 
 Earlier notes remain useful as sources, but they are not current decision
 documents. If an earlier note conflicts with this record or the policy, this
@@ -40,14 +40,14 @@ The adopted position is therefore:
 
 1. The experimental fixed-point curves are evidence about plausible scale and
    spacing, not definitive estimates of intrinsic ability at each chii.
-2. The post-1988 M/J and continuous lower-banzuke results are aligned, merged
+2. The 1989-onward M/J and continuous lower-banzuke results are aligned, merged
    over Juryo and combined into east/west rank pairs.
 3. The resulting paired curve is already sensible for shortening the entrant
    initialisation gap. Smoothing would be a reasonable way to require exact
    monotonicity, but exact monotonicity is not necessary for this purpose.
 4. The project therefore chooses not to smooth. The tiny M/J reversal is
    retained as a documented feature rather than concealed or fitted away.
-5. This decision applies only to chii represented in the post-1988 scope.
+5. This decision applies only to chii represented in the 1989-onward scope.
    Completing pre-1989-only ranks would be a separate policy and artifact.
 6. Once bouts are observed, ratings are intended to be driven by performance
    rather than by the entrant prior.
@@ -215,8 +215,9 @@ sensitivity run establishes how much.
 
 This qualification weakens a causal interpretation, not the practical
 decision. A constant-K sensitivity comparison would be epistemically useful,
-but a monotone entrant prior does not require proof that divisional K caused,
-or did not cause, the experimental reversals.
+but the adopted prior is already adequate for its limited initialisation
+purpose. That decision does not require proof that divisional K caused, or did
+not cause, the experimental reversals.
 
 ## Revised diagnosis: the missing banzuke context
 
@@ -282,7 +283,7 @@ divisions retain the fixed-supported literal-chii key. The experiment keeps
 the production `q`, divisional `k`, closed-population normalisation, map
 centring and support threshold.
 
-The relevant question concerns post-1988 Equelo. An initial implementation
+The relevant question concerns 1989-onward Equelo. An initial implementation
 mistakenly followed the production modern-then-full-history process, allowing
 pre-1989 banzuke to affect the fitted map and displaying historical ranks as
 low as M22. That run does not answer the intended monotonicity question.
@@ -309,7 +310,7 @@ rank present, M18e:
 
 This is evidence for the missing-context diagnosis, not a monotonicity
 constraint or a finished validation. No monotone fitting or post-hoc rank
-banding was applied. The result says that, for the intended post-1988 domain,
+banding was applied. The result says that, for the intended 1989-onward domain,
 the large lower-maegashira reversal is created by the literal-chii prior
 representation and disappears under the contemporaneous boundary coordinate.
 
@@ -317,7 +318,7 @@ The implementation and its contract are described in
 [`fixed_boundary/README.md`](../../equelo/fixed_boundary/README.md). The
 matched run is recorded under
 `files/output/Equelo/fixed_boundary/2026-08-17_14-30-30`; its responsive Plotly
-charts compare the two post-1988 curves directly.
+charts compare the two 1989-onward curves directly.
 
 ## Two different normalisations
 
@@ -398,7 +399,7 @@ support threshold no longer estimate themselves from recycled priors; they are
 completed from a nearby supported chii. The maintained public map must retain
 the provenance of these completed values.
 
-Second, the post-1988 Makuuchi--Juryo boundary coordinate removes most of the
+Second, the 1989-onward Makuuchi--Juryo boundary coordinate removes most of the
 large literal M12--M17 reversal without imposing monotonicity. This establishes
 that changing banzuke structure is material to the problem.
 
@@ -445,7 +446,7 @@ be tested rather than inherited without review.
 
 The v5-style curve remains a useful comparator and implementation precedent.
 It is not, however, necessary merely because smoothing is defensible. The
-paired contextual post-1988 curve is already sensible for shortening the
+paired contextual 1989-onward curve is already sensible for shortening the
 initialisation gap, and its very small M/J reversal can be exposed and
 discussed. The project therefore chose not to smooth the retained values. The
 [experiment catalogue](09%20M12%20Experiment%20Catalogue.md) records the
@@ -455,13 +456,13 @@ alternative curve's exact policy and sources.
 
 - Exact monotonicity is not a requirement of either entrant priors or learned
   Equelo ratings. Broad agreement with chii order remains desirable.
-- Retain the paired post-1988 contextual values without further smoothing.
+- Retain the paired 1989-onward contextual values without further smoothing.
   Preserve their source estimates, alignment, merge weights and pairing rule.
 - Do not claim that the adopted number for a chii is uniquely determined by
   history.
-- Do not silently extend the post-1988 construction to pre-1989-only chii.
+- Do not silently extend the 1989-onward construction to pre-1989-only chii.
   Historical completion is a separate policy, artifact and account.
-- Do not final-normalise the retained post-1988 artifact. Its mean depends on
+- Do not final-normalise the retained 1989-onward artifact. Its mean depends on
   whether literal sides or rank pairs form the averaging domain. A future
   consumer that mixes rating origins must define, record and test its own
   uniform anchoring shift without overwriting the retained priors.
@@ -484,7 +485,7 @@ The construction account may proceed once it accurately describes:
 1. initial ratings as useful entrant priors rather than unique empirical chii
    values;
 2. the method and provenance of the retained unsmoothed paired curve;
-3. its post-1988 scope and the separation of any historical completion policy;
+3. its 1989-onward scope and the separation of any historical completion policy;
 4. the distinction between convergence of the experimental fixed point and
    validation of the adopted priors; and
 5. the limitation created by historically variable banzuke structure.

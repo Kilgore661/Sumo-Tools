@@ -1,6 +1,6 @@
 # Equelo
 
-> **WARNING! The elo calcuation code ignores 5.6% of post-1988 bouts simply because there is no kimarite!**
+> **WARNING! The Elo calculation code ignores 5.6% of 1989-onward bouts simply because there is no kimarite!**
 
 `analysis/equelo` owns the Equelo rating model and the public API for reading
 Equelo ratings.
@@ -14,7 +14,7 @@ For the lower-maegashira initial-rating problem, start with the
 Its [experiment catalogue](../docs/story/09%20M12%20Experiment%20Catalogue.md)
 documents the contextual boundary producers in this package, while the
 [initial-rating policy](../docs/story/10%20Initial%20Rating%20Policy.md) governs
-the next smoothing and predictive-validation work.
+the next integration and predictive-validation work.
 
 ## Public API
 
@@ -45,6 +45,9 @@ loading and context construction.
 For first appearances, the API uses the fixed-supported chii initial rating for
 the annotation-free chii when one exists. If the chii is in the explicit
 no-rating domain, the rating is `None`.
+
+This is the current production contract. The adopted 1989-onward contextual
+entrant-prior policy has not yet replaced it.
 
 ## Current Scope
 

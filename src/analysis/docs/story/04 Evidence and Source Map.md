@@ -27,7 +27,7 @@ This note is the shorter map for constructing the eventual account.
 - [Prediction README](../../prediction/README.md) maps the chronological Basic
   Elo experiments.
 - [Findings](../../prediction/docs/experiments/Findings.md) consolidates the
-  measured results, population differences and initialization experiments.
+  measured results, population differences and initialisation experiments.
 - [A Defence of Elo for Sumo (Sketch)](../../prediction/docs/A%20Defence%20of%20Elo%20for%20Sumo%20%28Sketch%29.md)
   gives the narrowest reader-facing claim currently supported.
 
@@ -68,6 +68,30 @@ Equelo.
 - [Lower-Rank Problems](../../equelo/docs/equelo%20docs/lower_rank_problems.md)
   gives the clearest account of churn, sparse support and pathological tail
   behaviour.
+
+These documents describe current production and the failure that motivated its
+support policy. They do not define the adopted next entrant-prior policy.
+
+## Contextual initial-rating policy
+
+- [The M12 Problem: Consolidated Research Record](08%20M12%20Investigation%20-%20Status%20and%20Next%20Steps.md)
+  records the chronology, evidence, interpretation and decision that closed the
+  M12 issue as a documentation blocker.
+- [M12 Experiment Catalogue](09%20M12%20Experiment%20Catalogue.md) records the
+  commands, matched artifacts and headline results for the literal, boundary,
+  dual-boundary and lower-banzuke experiments.
+- [Initial Rating Policy](10%20Initial%20Rating%20Policy.md) is the normative
+  decision for the adopted 1989-onward paired entrant priors.
+- [Fixed-Boundary Equelo](../../equelo/fixed_boundary/README.md) defines the
+  contextual Makuuchi--Juryo source experiment.
+- [Continuous Lower-Banzuke Equelo](../../equelo/fixed_lower_banzuke/README.md)
+  defines the second contextual source experiment.
+- [Initial-Rating Reconciliation](../../equelo/smoothing/README.md) defines the
+  persisted merge and pairing producers.
+
+The policy is adopted but not yet the map used by current production Equelo.
+Its source fixed points are experimental evidence; the final reconciliation is
+a declared construction rather than the direct fixed point of one simulation.
 
 ## Clean Elo and chii disagreement
 

@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Open Questions and Experiments</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: Georgia, "Times New Roman", serif;
+      line-height: 1.6;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 54rem;
+      padding: 2rem 1.25rem 4rem;
+    }
+    h1, h2, h3 {
+      font-family: system-ui, sans-serif;
+      line-height: 1.2;
+      margin-top: 1.75em;
+    }
+    h1 { margin-top: 0; }
+    li + li { margin-top: 0.35rem; }
+    mjx-container[display="true"] {
+      margin: 1.25rem 0 !important;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body><h1 id="open-questions-and-experiments">Open Questions and Experiments</h1>
+<h2 id="purpose">Purpose</h2>
+<p>This note prevents expectations, established results and required experiments
+from being folded into one narrative prematurely.</p>
+<h2 id="established-findings">Established findings</h2>
+<h3 id="basic-elo">Basic Elo</h3>
+<ul>
+<li>One fixed Basic Elo procedure scored slightly better overall than a 50--50
+forecast on the represented 1989--2026 bouts.</li>
+<li>The aggregate improvement was modest.</li>
+<li>The sekitori and sub-sekitori evaluations behaved differently over time.</li>
+<li>The existing experiments do not identify the cause of that difference.</li>
+<li>Fixed nonzero-<code>k</code> Elo does not settle permanently even in an ideal stationary
+toy world; it continues to fluctuate.</li>
+</ul>
+<h3 id="comparison-structure">Comparison structure</h3>
+<ul>
+<li>Disconnected divisions cannot identify their relative rating offset from
+within-division results alone.</li>
+<li>Sparse bridge comparisons can identify a common scale in the tested toy
+models.</li>
+<li>The tested evidence-shaped Makuuchi--Juryo schedule compresses the lower
+Makuuchi gradient but does not reproduce the nearly flat historical curve.</li>
+</ul>
+<h3 id="equelo-and-chii">Equelo and chii</h3>
+<ul>
+<li>Visible non-monotonicity exists in the lower-maegashira rating surface.</li>
+<li>Very low-support chii can receive values substantially determined by
+normalisation and completion rather than direct result evidence.</li>
+<li>Boundary alignment explains an important part of the apparent literal-rank
+reversal, but does not produce a complete explanation of every disagreement.</li>
+<li>A tightly converged full-history dual-boundary experiment retains a material
+Juryo--Makushita reversal. There is no established timeless mapping that
+removes every reversal across historically different banzuke structures.</li>
+<li>The project will therefore use the declared, unsmoothed paired contextual
+curve as its adopted 1989-onward entrant-prior policy, while allowing ratings
+learned from results to be non-monotone with respect to chii.</li>
+</ul>
+<h2 id="expectations-requiring-care">Expectations requiring care</h2>
+<ul>
+<li>Equelo is intended to control open-population scale drift.</li>
+<li>Chii-informed initialisation is intended to reduce arbitrary initialisation
+and initialisation lag.</li>
+<li>These mechanical aims do not establish predictive validity.</li>
+<li>It is expected that Equelo's predictive performance may be modest because
+Basic Elo's observed advantage is itself modest, but this is not an
+experimental result.</li>
+<li>It is plausible that sparse support and population churn affect predictive
+performance, but the existing subgroup comparisons do not isolate those
+causes.</li>
+</ul>
+<h2 id="required-equelo-predictive-comparison">Required Equelo predictive comparison</h2>
+<p>The principal missing experiment is a directly comparable evaluation of Basic
+Elo and an Equelo implementation using the adopted entrant-prior policy. Until
+that policy replaces the fixed-supported production map, the tested
+implementation and its relationship to production must be named explicitly.</p>
+<p>It should, as far as possible, hold fixed:</p>
+<ul>
+<li>the source History and date range;</li>
+<li>result eligibility;</li>
+<li>forecast-before-update chronology;</li>
+<li>identity handling;</li>
+<li>evaluation populations;</li>
+<li>scoring rules;</li>
+<li>reporting horizons;</li>
+<li>uncertainty method.</li>
+</ul>
+<p>Because the adopted priors were constructed using history from 1989 onward,
+the comparison must use a prospective temporal design. It must not derive a
+prior from future bouts and then count forecasts of those same bouts as
+out-of-sample evidence. Reasonable alternative priors, including a constant
+prior, the current fixed-supported prior and a smoothed comparator, should be
+included as sensitivity checks.</p>
+<p>It should report at least:</p>
+<ul>
+<li>mean log loss;</li>
+<li>mean Brier loss;</li>
+<li>calibration by supported probability region;</li>
+<li>comparison with 50--50;</li>
+<li>Basic Elo versus Equelo differences;</li>
+<li>all-bout, sekitori and sub-sekitori results;</li>
+<li>performance through time rather than only one whole-epoch average.</li>
+</ul>
+<p>The experiment must distinguish predictions available prospectively at each
+bout from any Equelo construction that uses future results. A retrospectively
+solved rating surface cannot be presented as an out-of-sample forecasting
+system without an appropriate temporal design.</p>
+<h2 id="equelo-mechanical-investigations">Equelo mechanical investigations</h2>
+<p>The M12/boundary investigation is no longer a blocker to documentation. Its
+artifacts should be preserved, but further mechanical work is deferred unless
+predictive validation or sensitivity testing identifies a practical problem.
+The canonical record is <a href="08%20M12%20Investigation%20-%20Status%20and%20Next%20Steps.html">The M12 Problem: Consolidated Research Record</a>,
+with reproduction details in the
+<a href="09%20M12%20Experiment%20Catalogue.html">M12 Experiment Catalogue</a> and the adopted
+decision in <a href="10%20Initial%20Rating%20Policy.html">Initial Rating Policy</a>.
+Questions that may be revisited include:</p>
+<ol>
+<li>How much of each supported chii value comes from direct bout evidence,
+normalisation and completion?</li>
+<li>At what support level does normalisation dominate?</li>
+<li>How sensitive is the tail to support thresholds and completion rules?</li>
+<li>Does excluding or pooling weakly supported chii materially affect
+well-supported ratings?</li>
+<li>Is the visible non-monotonicity stable across time, policies and plausible
+perturbations?</li>
+<li>Would a proposed refinement correct an identified defect, or merely force
+the curve toward the expected chii order?</li>
+</ol>
+<h2 id="decision-rules">Decision rules</h2>
+<ul>
+<li>Non-monotonicity alone is not proof of an Equelo defect.</li>
+<li>&quot;Equelo is not chii&quot; does not make every disagreement trustworthy.</li>
+<li>A mechanical refinement requires an independently stated problem and a
+result that could count against adopting it.</li>
+<li>If Equelo predicts slightly worse than Basic Elo, the lost predictive value
+must be considered against an independently demonstrated representational
+benefit.</li>
+<li>If Equelo predicts substantially worse, that is a serious problem,
+particularly for any probability interpretation of rating differences.</li>
+<li>The adopted entrant-prior curve is not smoothed and retains a small disclosed
+Makuuchi--Juryo reversal. It must not be presented as monotone, as the direct
+output of one fixed-point experiment, or as uniquely determined by history.</li>
+</ul>
+<h2 id="documentation-work-still-required">Documentation work still required</h2>
+<p>The next documentation stage is a detailed-technical account, followed in due
+course by a separate expert/critical account. Both should preserve the
+Elo-then-Equelo order used by the existing STEM drafts.</p>
+<ul>
+<li><strong>Reconcile the illustrative Elo examples.</strong> The casual and STEM drafts
+currently obtain approximately 74% from different rating differences and
+different values of <code>q</code>. Decide whether the two layers should use one common
+illustrative implementation, or whether the STEM account should explicitly
+use the contrast to explain <code>q</code>. Update both drafts together after the
+definitive Basic Elo example has been selected.</li>
+<li>Review the draft STEM accounts of Elo and Equelo for prose, sources and
+consistency of terminology.</li>
+<li>Write the detailed Elo account: exact formulae, parameters, chronology,
+data eligibility and worked examples.</li>
+<li>Write the detailed Equelo account from the maintained specifications rather
+than historical variants: current production, divisional <code>k</code>, departure
+normalisation, source fixed points, contextual coordinates, reconciliation,
+pairing, anchoring, scope, and the separate pre-1989 completion problem.</li>
+<li>In the eventual expert/critical account, address theoretical assumptions,
+convergence and uniqueness, identifiability, sensitivity, uncertainty,
+calibration, discrimination and direct predictive comparison.</li>
+<li>Add the Basic Elo predictive findings at the appropriate validation layer.</li>
+<li>Design and run the comparable Equelo predictive experiment.</li>
+<li>Incorporate its result without retrospectively changing the stated purpose
+of the experiment.</li>
+<li>Explain that the adopted initial ratings are unsmoothed, historically
+informed contextual priors; distinguish them from current fixed-supported
+production and from potentially non-monotone ratings learned from results.</li>
+</ul>
+</body>
+</html>

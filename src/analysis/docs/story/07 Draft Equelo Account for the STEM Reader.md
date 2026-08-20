@@ -14,8 +14,10 @@ The intended construction has three headline changes:
 3. replace constant initialisation with a chii-informed prior.
 
 This draft covers the three headline changes at the conceptual construction
-level. A later detailed-technical account will specify the exact algorithms,
-support and completion policies, historical-data contract and worked examples.
+level. It distinguishes the fixed-supported map used by current production
+Equelo from the contextual entrant-prior policy adopted for the next
+implementation. A later detailed-technical account will specify the exact
+algorithms, historical-data contracts and worked examples.
 
 ## Divisional `k`
 
@@ -67,7 +69,7 @@ stability of the complete system therefore cannot be justified solely by the
 zero-sum property of ordinary equal-`k` Elo. The size and significance of this
 additional rating-mass flow belong in the evaluation account.
 
-## Chii-informed initialisation
+## Informed entrant initialisation
 
 When a historical Elo calculation begins, it seems bizarre to give a yokozuna
 and a jonokuchi rikishi the same initial rating. The banzuke already gives us
@@ -76,39 +78,78 @@ Starting them equally forces the rating system to spend part of the early
 history discovering something we already broadly know.
 
 The obvious question is therefore: what initial rating should be associated
-with a yokozuna, or with any other chii? But this creates an apparent
-circularity. We want to use typical ratings by chii to initialise the
-calculation, yet those ratings can be derived only by running the calculation
-that requires them as inputs.
+with a yokozuna, or with any other position on the banzuke? This creates an
+apparent circularity. We want to use typical ratings by banzuke position to
+initialise the calculation, yet those ratings can be derived only by running
+the calculation that requires them as inputs.
 
-Equelo addresses this iteratively:
+## Fixed-point experiments
 
-1. start with the same provisional initial rating for every chii;
-2. run the historical simulation;
-3. group the resulting basho-start ratings by chii and take their averages;
-4. normalise the resulting chii-rating map;
-5. use that map as the initial-rating map for the next simulation;
-6. repeat the process.
+Equelo's initial-rating experiments address this iteratively. They begin with
+provisional initial values, run the historical simulation, average the
+resulting basho-start ratings by the categories being studied, feed those
+averages back as the next initial values, and repeat.
 
 The natural question is whether this process converges. In the implementations
-tested so far, it does: successive initial-rating maps converge to a stable
-fixed point.
+tested so far, it does: successive maps converge to stable fixed points. This
+makes each experimental map self-consistent under its chosen history,
+parameters and representation. It does not prove that the representation is
+the right one or that the values are uniquely true.
 
-This produces a self-consistent association between chii and entrant rating.
-It does not claim to discover the uniquely true rating of a yokozuna or any
-other chii. It finds a map that, when used to initialise the historical
-simulation, approximately reproduces itself in the resulting basho-start
-ratings.
+Early experiments grouped observations by literal chii. They produced a
+broadly sensible curve, but also produced unsupported extreme values at rare
+low ranks and a rise through the lower maegashira ranks. Support filtering and
+completion control the extreme low-support failure in current production
+Equelo. Later work also showed that a literal chii such as M16 does not denote
+one stable position relative to the Makuuchi--Juryo boundary: the size and
+shape of the banzuke change over time.
 
-## Normalisation in the initial-rating construction
+The later experiments therefore used positions relative to contemporary
+division boundaries. These substantially improved important local shapes, but
+did not reveal one timeless representation that removed every reversal across
+modern and historical banzuke. The fixed-point results are consequently treated
+as evidence about plausible entrant values, not as a direct final answer.
 
-A second normalisation operation appears within this iterative construction.
-After candidate initial ratings have been derived, the same additive shift is
-applied to every candidate chii value so that their unweighted mean equals the
-chosen base. This fixes the origin of the initial-rating map without changing
-differences within that map at that iteration.
+## The adopted entrant-prior policy
 
-This operation is distinct from preserving the active rikishi mean when a
-rikishi leaves. Its interaction with weakly supported chii will be specified
-alongside the support and completion policies in the detailed-technical
-account, then assessed separately in evaluation.
+For simulations beginning in 1989 or later, the adopted next policy reconciles
+two contextual fixed-point results: one centred on the Makuuchi--Juryo boundary
+and one using a continuous coordinate from Juryo down the lower banzuke. The
+estimates are aligned and blended through Juryo, used only through the range in
+which their shape remains credible, and combined into east/west rank pairs.
+
+The resulting curve is already sensible for shortening the initialisation gap,
+so the project chooses not to smooth it further merely to enforce exact
+monotonicity. A small Makuuchi--Juryo reversal remains and is disclosed. Once
+bouts are observed, an individual rating is free to disagree with chii.
+
+These values are therefore *chosen, historically informed entrant priors*.
+They are not the direct output of one fixed-point solve, a timeless table of
+the ability belonging to each chii, or a claim that convergence discovers the
+truth. Ranks that occur only before 1989 lie outside this policy and require a
+separate historical-completion decision.
+
+Current production Equelo still uses the earlier fixed-supported literal-chii
+map. The contextual policy described here has been adopted for the next
+implementation but has not yet replaced that production map.
+
+## Normalisation and the origin of the priors
+
+A second normalisation operation appears inside each source fixed-point
+experiment. After candidate values have been derived, the same additive shift
+is applied to every category in that solve so that their unweighted mean equals
+the chosen base. This fixes the origin without changing differences within the
+map at that iteration. It is distinct from preserving the active rikishi mean
+when a rikishi leaves.
+
+The adopted priors combine two such source maps, including one common alignment
+shift, but are not centred again after contextual values are resolved onto
+literal ranks, blended, completed and paired. Their final unweighted mean
+depends on the enumerated domain and completion policy and is not treated as a
+property recovered from the bouts.
+
+This lack of final recentring is harmless when every entrant in a complete
+simulation uses the same table, because Elo expectations depend on rating
+differences. A future consumer that mixes these priors with previously
+established ratings, a fixed fallback value or a separate pre-1989 table must
+choose and test an explicit common anchoring shift.

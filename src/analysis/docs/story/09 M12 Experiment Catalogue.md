@@ -113,7 +113,7 @@ Source: [Clean Elo Rating Probe Findings](../../clean_elo/docs/Rating%20Probe%20
 - Boundary alignment explains much of the large endpoint reversal, but does
   not guarantee an exactly monotone curve.
 
-## 3. Post-1988 Makuuchi--Juryo contextual fixed point
+## 3. 1989-onward Makuuchi--Juryo contextual fixed point
 
 ### Question
 
@@ -155,12 +155,12 @@ Code: [`fixed_boundary`](../../equelo/fixed_boundary/README.md).
 
 ### What it established
 
-- Within the intended post-1988 scope, contextual M/J position removes most of
+- Within the intended 1989-onward scope, contextual M/J position removes most of
   the large literal M12--M17 reversal without a monotonicity constraint.
 - The initial accidental full-history version answered a different question;
   history scope must be applied before cleaning, assignment, support and solve.
 
-## 4. Post-1988 Juryo--Makushita contextual fixed point
+## 4. 1989-onward Juryo--Makushita contextual fixed point
 
 ### Question
 
@@ -196,7 +196,7 @@ Code: [`fixed_jms_boundary`](../../equelo/fixed_jms_boundary/README.md).
 
 ### What it established
 
-- The J/Ms boundary coordinate also improved the post-1988 local shape when
+- The J/Ms boundary coordinate also improved the 1989-onward local shape when
   solved independently.
 - Independent success at two boundaries did not specify how one Juryo
   observation should contribute to both maps.
@@ -210,7 +210,7 @@ their shapes, using only the arbitrary common origin of an Elo scale?
 
 ### Method
 
-The reconciliation projected both maps onto their shared post-1988 Juryo
+The reconciliation projected both maps onto their shared 1989-onward Juryo
 observations. The J/Ms map was permitted one observation-weighted additive
 shift; no rank-specific correction was fitted.
 
@@ -245,7 +245,7 @@ Code: [`boundary_reconciliation.py`](../../equelo/boundary_reconciliation.py).
 - This negative result motivated a single joint fixed point in which Juryo
   contributions are defined before solving.
 
-## 6. Joint post-1988 dual-boundary fixed point
+## 6. Joint 1989-onward dual-boundary fixed point
 
 ### Question
 
@@ -287,14 +287,14 @@ Code: [`fixed_dual_boundary`](../../equelo/fixed_dual_boundary/README.md).
 ### What it established
 
 - The two boundary maps can be combined by a declared geometric rule.
-- The post-1988 result is encouraging but does not prove that the same mapping
+- The 1989-onward result is encouraging but does not prove that the same mapping
   is stable across historical banzuke regimes.
 
 ## 7. Full-history modern-then-combined dual-boundary fixed point
 
 ### Question
 
-What happens when the post-1988 map is used to initialise a refinement over all
+What happens when the 1989-onward map is used to initialise a refinement over all
 represented history beginning in 1958, as in Expt2?
 
 ### Reproduction
@@ -354,8 +354,9 @@ epsilon-1 stopping artefact.
 ### Purpose
 
 The project has already constructed a monotone curve for public rating
-landmarks. This work predates the present decision to make the operational
-entrant priors monotone and must not be confused with an unimplemented idea.
+landmarks. This work predates the present decision to retain unsmoothed
+operational entrant priors and must not be confused with the adopted entrant
+construction.
 
 `InitialRatingCurve.v5()` was originally built over the fixed-v1 entrant map.
 The current `fixed_supported.landmarks` producer reuses the same
@@ -397,7 +398,7 @@ The existing v5-style curve remains a useful comparator and a source of
 reusable interpolation and lookup code. It must not be silently promoted to
 the operational entrant curve without provenance and predictive testing.
 
-## 9. Continuous post-1988 lower-banzuke coordinate
+## 9. Continuous 1989-onward lower-banzuke coordinate
 
 ### Question
 
@@ -436,7 +437,7 @@ different literal lower ranks.
 
 - One continuous coordinate can carry the successful J/Ms boundary shape far
   deeper than expected without resetting at later divisional boundaries.
-- The output remains an estimate conditional on the post-1988 banzuke
+- The output remains an estimate conditional on the 1989-onward banzuke
   structures and divisional K policy.
 - The lower tail needs an explicit operational cutoff; continuing the fitted
   coordinate indefinitely would attach meaning to a visibly unstable region.
@@ -446,7 +447,7 @@ different literal lower ranks.
 ### Question
 
 Can the independently useful M/J and lower-banzuke results be combined into a
-single set of post-1988 entrant priors without claiming that either coordinate
+single set of 1989-onward entrant priors without claiming that either coordinate
 is universally correct?
 
 ### Method and run
@@ -493,7 +494,7 @@ renderer reads the CSV to make the responsive Plotly chart.
   monotonicity were required. The project chose not to smooth because the
   limited purpose is to shorten the initialisation gap, not to assert a unique
   value for every chii.
-- The construction covers only chii represented in the post-1988 experiments.
+- The construction covers only chii represented in the 1989-onward experiments.
   Values for pre-1989-only ranks require a separate historical policy.
 
 ## Experiment-wide conclusions
@@ -516,7 +517,7 @@ The combined record supports the following claims:
    demonstrated practical benefit.
 
 These conclusions motivate retaining the transparent, unsmoothed paired
-post-1988 entrant priors and making a prospective predictive comparison,
+1989-onward entrant priors and making a prospective predictive comparison,
 rather than further attempts to explain or conceal every local reversal.
 Smoothing remains a reasonable alternative, but it is not the choice made for
 this policy. Any extension to pre-1989-only ranks is a separate decision.

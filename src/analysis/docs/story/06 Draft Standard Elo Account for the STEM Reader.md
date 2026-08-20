@@ -193,9 +193,9 @@ Although the common value of \(b\) is arbitrary, assigning the same initial
 rating to competitors who enter at very different levels is not harmless.
 Their early ratings must move away from that common value as results arrive.
 The period during which a rating remains materially affected by an
-uninformative starting value is called *initialization lag*.
+uninformative starting value is called *initialisation lag*.
 
-Equal initialization is a feature of this Basic Elo implementation, not a
+Equal initialisation is a feature of this Basic Elo implementation, not a
 requirement of every Elo-derived system. Different entrant ratings can be used
 if the model supplies a principled way to choose them.
 
@@ -241,7 +241,7 @@ The resulting ratings depend not only on \(b\), \(q\) and \(k\), but also on:
 - which historical bouts are available;
 - which outcomes are eligible for updating;
 - how rikishi identities are followed across names and careers;
-- how entrants are initialized;
+- how entrants are initialised;
 - whether ratings persist through absences;
 - the order in which records are processed.
 
@@ -263,7 +263,7 @@ model. Transparency of calculation should therefore not be confused with a
 complete explanation of performance.
 
 Nor does transparency remove judgement from the construction. The data,
-parameters, initialization policy and eligibility rules are all choices that
+parameters, initialisation policy and eligibility rules are all choices that
 must be stated and defended.
 
 ## Incomplete comparisons
@@ -295,7 +295,7 @@ rikishi appearing in the recorded sekitori results may already have accumulated
 substantial unobserved lower-division experience. Basic Elo cannot recover
 information from bouts that are not present in its input.
 
-These circumstances make initialization particularly important. They also
+These circumstances make initialisation particularly important. They also
 make it unsafe to describe a rating as though it were a settled measurement of
 a permanent underlying quantity.
 
@@ -310,7 +310,7 @@ can move over time.
 This movement may be called rating inflation when the scale rises and rating
 deflation when it falls. It need not mean that rikishi have collectively become
 stronger or weaker. It can be a consequence of the accounting produced by
-entry, retirement and initialization.
+entry, retirement and initialisation.
 
 Scale drift does not affect a bout prediction made from two contemporaneous
 ratings if their difference remains appropriate. It does undermine a simple
@@ -356,11 +356,11 @@ Basic Elo provides a transparent, opponent-sensitive and difference-based way
 to turn a sequence of results into running ratings. Its application to
 historical sumo nevertheless exposes two immediate construction problems:
 
-- an arbitrary common entrant rating can create initialization lag;
+- an arbitrary common entrant rating can create initialisation lag;
 - entry and retirement can allow the historical rating scale to drift.
 
 Equelo is based on Elo and is designed to address those problems through
-chii-informed initialization and normalization. That motivation does not imply
+chii-informed initialisation and normalisation. That motivation does not imply
 that Equelo solves every difficulty described above, nor does it establish
 Equelo's predictive validity. Its construction and its validation require
 their own accounts.

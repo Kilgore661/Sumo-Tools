@@ -30,21 +30,21 @@ from being folded into one narrative prematurely.
 
 - Visible non-monotonicity exists in the lower-maegashira rating surface.
 - Very low-support chii can receive values substantially determined by
-  normalization and completion rather than direct result evidence.
+  normalisation and completion rather than direct result evidence.
 - Boundary alignment explains an important part of the apparent literal-rank
   reversal, but does not produce a complete explanation of every disagreement.
 - A tightly converged full-history dual-boundary experiment retains a material
   Juryo--Makushita reversal. There is no established timeless mapping that
   removes every reversal across historically different banzuke structures.
-- The project will therefore use a declared monotone regularisation for entrant
-  priors while allowing ratings learned from results to be non-monotone with
-  respect to chii.
+- The project will therefore use the declared, unsmoothed paired contextual
+  curve as its adopted 1989-onward entrant-prior policy, while allowing ratings
+  learned from results to be non-monotone with respect to chii.
 
 ## Expectations requiring care
 
 - Equelo is intended to control open-population scale drift.
-- Chii-informed initialization is intended to reduce arbitrary initialization
-  and initialization lag.
+- Chii-informed initialisation is intended to reduce arbitrary initialisation
+  and initialisation lag.
 - These mechanical aims do not establish predictive validity.
 - It is expected that Equelo's predictive performance may be modest because
   Basic Elo's observed advantage is itself modest, but this is not an
@@ -56,7 +56,9 @@ from being folded into one narrative prematurely.
 ## Required Equelo predictive comparison
 
 The principal missing experiment is a directly comparable evaluation of Basic
-Elo and the maintained Equelo model.
+Elo and an Equelo implementation using the adopted entrant-prior policy. Until
+that policy replaces the fixed-supported production map, the tested
+implementation and its relationship to production must be named explicitly.
 
 It should, as far as possible, hold fixed:
 
@@ -68,6 +70,13 @@ It should, as far as possible, hold fixed:
 - scoring rules;
 - reporting horizons;
 - uncertainty method.
+
+Because the adopted priors were constructed using history from 1989 onward,
+the comparison must use a prospective temporal design. It must not derive a
+prior from future bouts and then count forecasts of those same bouts as
+out-of-sample evidence. Reasonable alternative priors, including a constant
+prior, the current fixed-supported prior and a smoothed comparator, should be
+included as sensitivity checks.
 
 It should report at least:
 
@@ -96,8 +105,8 @@ decision in [Initial Rating Policy](10%20Initial%20Rating%20Policy.md).
 Questions that may be revisited include:
 
 1. How much of each supported chii value comes from direct bout evidence,
-   normalization and completion?
-2. At what support level does normalization dominate?
+   normalisation and completion?
+2. At what support level does normalisation dominate?
 3. How sensitive is the tail to support thresholds and completion rules?
 4. Does excluding or pooling weakly supported chii materially affect
    well-supported ratings?
@@ -117,9 +126,9 @@ Questions that may be revisited include:
   benefit.
 - If Equelo predicts substantially worse, that is a serious problem,
   particularly for any probability interpretation of rating differences.
-- The public entrant-prior curve may be monotone by policy, but the smoothing
-  method and its status as regularisation must be explicit. It must not be
-  presented as the unmodified experimental fixed-point output.
+- The adopted entrant-prior curve is not smoothed and retains a small disclosed
+  Makuuchi--Juryo reversal. It must not be presented as monotone, as the direct
+  output of one fixed-point experiment, or as uniquely determined by history.
 
 ## Documentation work still required
 
@@ -138,9 +147,9 @@ Elo-then-Equelo order used by the existing STEM drafts.
 - Write the detailed Elo account: exact formulae, parameters, chronology,
   data eligibility and worked examples.
 - Write the detailed Equelo account from the maintained specifications rather
-  than historical variants: divisional `k`, departure normalisation,
-  fixed-point initialisation, map normalisation, convergence criterion,
-  support and completion.
+  than historical variants: current production, divisional `k`, departure
+  normalisation, source fixed points, contextual coordinates, reconciliation,
+  pairing, anchoring, scope, and the separate pre-1989 completion problem.
 - In the eventual expert/critical account, address theoretical assumptions,
   convergence and uniqueness, identifiability, sensitivity, uncertainty,
   calibration, discrimination and direct predictive comparison.
@@ -148,6 +157,6 @@ Elo-then-Equelo order used by the existing STEM drafts.
 - Design and run the comparable Equelo predictive experiment.
 - Incorporate its result without retrospectively changing the stated purpose
   of the experiment.
-- Explain that initial ratings are monotone regularised priors, disclose the
-  support/completion policy, and distinguish them from potentially
-  non-monotone ratings learned from results.
+- Explain that the adopted initial ratings are unsmoothed, historically
+  informed contextual priors; distinguish them from current fixed-supported
+  production and from potentially non-monotone ratings learned from results.

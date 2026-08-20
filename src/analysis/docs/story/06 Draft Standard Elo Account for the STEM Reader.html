@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Draft: A Standard Account of Elo</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: Georgia, "Times New Roman", serif;
+      line-height: 1.6;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 54rem;
+      padding: 2rem 1.25rem 4rem;
+    }
+    h1, h2, h3 {
+      font-family: system-ui, sans-serif;
+      line-height: 1.2;
+      margin-top: 1.75em;
+    }
+    h1 { margin-top: 0; }
+    li + li { margin-top: 0.35rem; }
+    mjx-container[display="true"] {
+      margin: 1.25rem 0 !important;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body><h1 id="draft-a-standard-account-of-elo">Draft: A Standard Account of Elo</h1>
+<h2 id="status-and-scope">Status and scope</h2>
+<p>This is a draft for the interested or STEM reader. It explains the mechanics
+of Elo and the principal difficulties involved in applying a Basic Elo model
+to historical sumo. It does not attempt to establish that Elo probabilities
+are well calibrated or that Elo ratings measure a competitor's true strength.
+Those are questions of validation and interpretation, to be considered
+separately.</p>
+<h2 id="why-use-an-opponent-sensitive-rating">Why use an opponent-sensitive rating?</h2>
+<p>In a complete and balanced competition, a table of wins and losses may provide
+a reasonable summary of performance. Grand Sumo is not such a competition.
+Rikishi do not all face the same opponents. Many pairs never meet, while other
+pairs meet repeatedly. A win over a strong opponent is therefore not the same
+kind of evidence as a win over a weak one.</p>
+<p>Elo addresses this problem by maintaining a running rating for each
+competitor. After every recorded result, it changes both ratings according to
+how expected or surprising the result was. Beating a much lower-rated opponent
+changes little; losing to that opponent changes much more.</p>
+<p>This is the central idea of Elo. The formulae below make the idea precise.</p>
+<p>The system is named after Árpád Élő, a Hungarian-American physicist and chess
+player who developed it for the United States Chess Federation. The USCF first
+implemented his system in 1960, and FIDE adopted it for international chess
+ratings in 1970.</p>
+<p>Adoption by FIDE establishes Elo's practical importance, but not that every
+interpretation of its ratings is sound. Simplified theoretical accounts of Elo
+often assume a fixed population of competitors with unchanging abilities.
+Neither assumption holds in historical chess or Grand Sumo: competitors enter
+and leave, while individuals improve, decline and experience interruptions.
+The calculation can still be used, but claims that its ratings converge to
+stable measures of underlying ability require much greater care.</p>
+<h2 id="a-basic-elo-model">A Basic Elo model</h2>
+<p>There is no single set of numbers called <em>the Elo model</em>. An implementation
+must specify its parameters, initial ratings, starting date, eligible results,
+identity rules and update order. The following is a common Basic Elo form.</p>
+<p>Let rikishi \(r\) and \(s\) have ratings \(E_r\) and \(E_s\) immediately before
+a bout. The model assigns \(r\) the expected score</p>
+<p>\[
+p_{r,s} = \frac{1}{1 + 10^{(E_s-E_r)/q}},
+\]</p>
+<p>where \(q>0\) controls the scale on which rating differences are interpreted.
+For a decisive win or loss, define</p>
+<p>\[
+w_r =
+\begin{cases}
+1 & \text{if } r \text{ wins},\\
+0 & \text{if } r \text{ loses}.
+\end{cases}
+\]</p>
+<p>The rating update is</p>
+<p>\[
+E'_r = E_r + k(w_r-p_{r,s}),
+\]</p>
+<p>where \(k>0\) controls the size of the response to a new result. In the
+ordinary equal-\(k\) model, the opponent is updated in the same way:</p>
+<p>\[
+E'_s = E_s + k(w_s-p_{s,r}).
+\]</p>
+<p>For a decisive bout, \(w_s=1-w_r\) and \(p_{s,r}=1-p_{r,s}\). It follows that</p>
+<p>\[
+E'_s-E_s = -(E'_r-E_r).
+\]</p>
+<p>The bout is therefore zero-sum: one rikishi gains exactly the number of rating
+points that the other loses. This property depends on using compatible
+expected scores and the same \(k\) for both competitors. It should not be
+assumed automatically for every Elo variant.</p>
+<p>A specified Basic Elo model may ignore an absence or another event in which no
+bout takes place. That is an eligibility rule: without an observed win or loss,
+the result-update formula has nothing to process. Other systems could add an
+explicit inactivity or injury policy, but that would be an additional model
+choice rather than part of the calculation above.</p>
+<h2 id="rating-differences-and-estimated-probabilities">Rating differences and estimated probabilities</h2>
+<p>Only the difference between the two ratings appears in the expected-score
+formula. If \(E_r=E_s\), then \(p_{r,s}=0.5\). If \(E_r>E_s\), the model favours
+\(r\); if \(E_r<E_s\), it favours \(s\). No finite rating difference produces
+an expected score of exactly zero or one.</p>
+<p>The two expected scores are complementary:</p>
+<p>\[
+p_{r,s}+p_{s,r}=1.
+\]</p>
+<p>This makes them coherent as the model's probabilities for the two possible
+winners. It does not establish that bouts assigned 70% are in fact won about
+70% of the time. Whether the estimates are useful or well calibrated is an
+empirical question.</p>
+<p>The parameter \(q\) is essential to interpreting a numerical difference. If
+\(r\) has a rating advantage \(D=E_r-E_s\), then</p>
+<p>\[
+p_{r,s} = \frac{1}{1+10^{-D/q}}.
+\]</p>
+<p>Thus the probability depends on the ratio \(D/q\), not on \(D\) alone. A
+400-point difference has no universal meaning across all Elo implementations.
+With \(q=900\), for example, it produces an expected score of about 0.74. With
+\(q=400\), an advantage of about 177 points produces approximately the same
+expected score.</p>
+<p>This explains the 400-point examples in the casual introduction: they are
+illustrations on a scale with \(q=900\). Another Elo implementation may use a
+different scale and assign different numerical gaps to the same estimated
+probabilities.</p>
+<h2 id="a-worked-example">A worked example</h2>
+<p>Suppose that, immediately before a bout, one Elo model assigns Abi a rating of
+2042 and Oho a rating of 1865. These values are illustrative; they are not
+being presented here as verified ratings from a specified historical run. Let
+the model use \(q=400\) and \(k=35\).</p>
+<p>Abi's rating advantage is 177 points, so his expected score is</p>
+<p>\[
+\begin{aligned}
+p_{\text{Abi},\text{Oho}}
+&= \frac{1}{1+10^{(1865-2042)/400}} \\
+&\approx 0.735.
+\end{aligned}
+\]</p>
+<p>The model therefore gives Oho the complementary expected score</p>
+<p>\[
+p_{\text{Oho},\text{Abi}} \approx 0.265.
+\]</p>
+<p>If Abi wins, his change is</p>
+<p>\[
+35(1-0.735) \approx 9.3,
+\]</p>
+<p>so his rating rises to about 2051.3 and Oho's falls to about 1855.7. The
+favourite has confirmed what the model already expected, so the adjustment is
+comparatively small.</p>
+<p>If Oho wins, Abi's change is</p>
+<p>\[
+35(0-0.735) \approx -25.7.
+\]</p>
+<p>Oho gains the same 25.7 points. The unexpected result produces the larger
+adjustment.</p>
+<p>Once a definitive Basic Elo implementation is used in the validation work,
+this example can be replaced with ratings taken immediately before a specified
+Abi--Oho bout. Any such values must still be described as ratings assigned by
+that model, not as model-independent properties of the two rikishi.</p>
+<h2 id="the-roles-of-the-parameters">The roles of the parameters</h2>
+<h3 id="the-initial-level-mathjaxplaceholder38x">The initial level \(b\)</h3>
+<p>A simple Basic Elo implementation may assign every competitor the same initial
+rating \(b\). The choice establishes the numerical origin of the scale, but it
+does not affect probabilities if every rating is shifted by the same amount.
+For any constant \(c\), replacing every \(E_r\) with \(E_r+c\) leaves every
+rating difference, expected score and subsequent update unchanged apart from
+the same common shift.</p>
+<p>This property is called <em>translation invariance</em>. It is why an isolated rating
+such as 2000 is not an amount of strength. Its meaning comes from its
+difference from other ratings produced on the same scale.</p>
+<p>Although the common value of \(b\) is arbitrary, assigning the same initial
+rating to competitors who enter at very different levels is not harmless.
+Their early ratings must move away from that common value as results arrive.
+The period during which a rating remains materially affected by an
+uninformative starting value is called <em>initialisation lag</em>.</p>
+<p>Equal initialisation is a feature of this Basic Elo implementation, not a
+requirement of every Elo-derived system. Different entrant ratings can be used
+if the model supplies a principled way to choose them.</p>
+<h3 id="the-update-rate-mathjaxplaceholder44x">The update rate \(k\)</h3>
+<p>The parameter \(k\) controls how strongly the newest result changes the
+ratings. For a finite rating difference, the magnitude of a decisive-bout
+update is less than \(k\), although it can approach \(k\) for an extremely
+surprising result.</p>
+<p>A small \(k\) makes ratings respond slowly. A large \(k\) makes them respond
+quickly but also makes them more volatile. Choosing \(k\) is therefore a choice
+about responsiveness, noise and the time scale over which past results retain
+influence. Elo variants may also use different or changing update rates.</p>
+<h3 id="the-probability-scale-mathjaxplaceholder51x">The probability scale \(q\)</h3>
+<p>The parameter \(q\) controls how strongly a given numerical rating difference
+changes the expected score. Increasing \(q\) makes the expected-score curve
+flatter when differences are measured in the same rating points; decreasing
+\(q\) makes it steeper.</p>
+<p>The value of \(q\) must therefore accompany any probability interpretation of
+a rating difference. It is not enough to say that one rikishi leads another by
+400 points.</p>
+<p>The parameters are also linked to the numerical units of the scale. If all
+ratings, \(b\), \(q\) and \(k\) are multiplied by the same positive constant,
+the expected probabilities and the underlying sequence of updates are the
+same, expressed in larger or smaller rating units.</p>
+<h2 id="a-chronological-calculation">A chronological calculation</h2>
+<p>An Elo history is normally calculated in chronological order. Immediately
+before each eligible bout, the current ratings produce an expected score. Only
+after that forecast has been recorded is the result used to update the
+ratings. This forecast-before-update order is essential if the probabilities
+are later evaluated as predictions.</p>
+<p>The resulting ratings depend not only on \(b\), \(q\) and \(k\), but also on:</p>
+<ul>
+<li>the date at which the calculation starts;</li>
+<li>which historical bouts are available;</li>
+<li>which outcomes are eligible for updating;</li>
+<li>how rikishi identities are followed across names and careers;</li>
+<li>how entrants are initialised;</li>
+<li>whether ratings persist through absences;</li>
+<li>the order in which records are processed.</li>
+</ul>
+<p>These choices belong to the definition of a particular implementation. The
+formula alone does not determine a unique historical rating series.</p>
+<h2 id="what-the-calculation-records">What the calculation records</h2>
+<p>Basic Elo is transparent in a limited but useful sense. Once the input history,
+identity rules, parameters and update rules have been fixed, a rating changes
+because of recorded results. A win is weighted by the model's prior estimate
+of the opponent, so Elo contains information that a simple win total omits
+when schedules differ.</p>
+<p>The calculation does not directly know why a result occurred. It does not know
+about injury, form, style match-ups, motivation, the importance of a bout or an
+administrative absence unless such information is explicitly added to the
+model. Transparency of calculation should therefore not be confused with a
+complete explanation of performance.</p>
+<p>Nor does transparency remove judgement from the construction. The data,
+parameters, initialisation policy and eligibility rules are all choices that
+must be stated and defended.</p>
+<h2 id="incomplete-comparisons">Incomplete comparisons</h2>
+<p>Elo learns relative ratings through the network of recorded bouts. If two
+groups of rikishi never compete across the boundary between them, results can
+identify differences within each group but cannot determine the rating offset
+between the groups. Adding a constant to every rating in one disconnected
+group would leave all of its internal expected scores unchanged.</p>
+<p>Sparse bouts between groups can connect their scales, but the result may depend
+heavily on a small amount of bridge evidence. This matters in sumo because
+bouts are predominantly local: rikishi usually face opponents near them in the
+banzuke, and cross-division comparisons are relatively rare.</p>
+<p>Unequal schedules are one reason to use an opponent-sensitive rating, but they
+also limit what the resulting rating system can identify.</p>
+<h2 id="changing-competitors-and-incomplete-history">Changing competitors and incomplete history</h2>
+<p>The cleanest mathematical picture imagines a fixed population whose underlying
+performance levels do not change. Historical sumo violates both assumptions.
+Rikishi improve, decline, become injured, return from absence and retire. New
+rikishi enter continually, often with very short lower-division careers.</p>
+<p>The historical record is also incomplete. Full lower-division bout results are
+available only for the later part of the history used by this project. A
+rikishi appearing in the recorded sekitori results may already have accumulated
+substantial unobserved lower-division experience. Basic Elo cannot recover
+information from bouts that are not present in its input.</p>
+<p>These circumstances make initialisation particularly important. They also
+make it unsafe to describe a rating as though it were a settled measurement of
+a permanent underlying quantity.</p>
+<h2 id="entry-retirement-and-scale-drift">Entry, retirement and scale drift</h2>
+<p>Each ordinary equal-\(k\) bout is zero-sum, but a historical rating population
+is open. An entrant brings an assigned initial rating into the active pool. A
+retiring rikishi removes his final rating from it. If the ratings entering and
+leaving the population do not balance, the location of the active rating scale
+can move over time.</p>
+<p>This movement may be called rating inflation when the scale rises and rating
+deflation when it falls. It need not mean that rikishi have collectively become
+stronger or weaker. It can be a consequence of the accounting produced by
+entry, retirement and initialisation.</p>
+<p>Scale drift does not affect a bout prediction made from two contemporaneous
+ratings if their difference remains appropriate. It does undermine a simple
+comparison of absolute ratings taken from widely separated eras.</p>
+<h2 id="fixed-mathjaxplaceholder63x-fluctuation-is-not-permanent-convergence">Fixed-\(k\) fluctuation is not permanent convergence</h2>
+<p>It is tempting to imagine that repeated results cause Elo ratings to settle
+permanently at their correct values. That is not the ordinary behaviour of a
+model with a fixed nonzero \(k\). Every new win or loss produces another
+nonzero update. Even in an ideal stationary world, ratings continue to
+fluctuate around the underlying structure rather than becoming fixed forever.</p>
+<p>This does not make the ratings useless. It means that a running fixed-\(k\)
+rating should be understood as a responsive estimate, not as a calculation
+that eventually completes. Claims about convergence must specify what kind of
+convergence is meant and under what assumptions it holds.</p>
+<p>In real sumo, where both the population and individual performance change,
+some responsiveness is necessary. The same responsiveness guarantees that
+individual ratings will continue to move.</p>
+<h2 id="construction-is-not-validation">Construction is not validation</h2>
+<p>The expected-score formula defines what a rating difference means inside the
+model. It makes Elo capable of producing forecasts, but it does not prove that
+those forecasts describe sumo accurately.</p>
+<p>Validation asks separate questions. Do higher probabilities discriminate
+between winners and losers? Do bouts assigned a given probability occur at the
+corresponding frequency? Does the model improve materially on a 50--50
+forecast? Does it behave differently among sekitori and sub-sekitori? How does
+it compare with an alternative model under the same chronological protocol?</p>
+<p>Those questions require historical experiments. As with the 74% estimates in
+the casual introduction and the worked example above, how well any particular
+Elo model predicts actual results is a separate matter, to which the account
+will return later.</p>
+<h2 id="why-this-leads-to-equelo">Why this leads to Equelo</h2>
+<p>Basic Elo provides a transparent, opponent-sensitive and difference-based way
+to turn a sequence of results into running ratings. Its application to
+historical sumo nevertheless exposes two immediate construction problems:</p>
+<ul>
+<li>an arbitrary common entrant rating can create initialisation lag;</li>
+<li>entry and retirement can allow the historical rating scale to drift.</li>
+</ul>
+<p>Equelo is based on Elo and is designed to address those problems through
+chii-informed initialisation and normalisation. That motivation does not imply
+that Equelo solves every difficulty described above, nor does it establish
+Equelo's predictive validity. Its construction and its validation require
+their own accounts.</p>
+</body>
+</html>

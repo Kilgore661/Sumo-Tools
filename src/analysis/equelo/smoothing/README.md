@@ -1,8 +1,8 @@
-# Equelo Initial-Rating Smoothing
+# Equelo Initial-Rating Reconciliation
 
 ## Status
 
-This package contains the retained post-1988 entrant-initial-rating
+This package contains the retained 1989-onward entrant-initial-rating
 construction described in
 [`Initial Rating Policy`](../../docs/story/10%20Initial%20Rating%20Policy.md).
 
@@ -23,11 +23,11 @@ applied.
 
 The earlier plan was to apply monotone smoothing and full-domain completion.
 Smoothing remains a reasonable alternative, but the project chose to retain
-the unsmoothed paired post-1988 result because it is already adequate for
+the unsmoothed paired 1989-onward result because it is already adequate for
 shortening the initialisation gap. Pre-1989 completion is outside this
 package's current policy.
 
-The exploratory boundary-merge chart projects the independently fitted M/J
+The retained boundary-merge producer projects the independently fitted M/J
 and continuous lower-banzuke results onto literal chii. It calculates one
 appearance-weighted additive alignment shift over Juryo, blends the estimates
 linearly from J1e to J14w, uses the lower estimate through Jd100e, and holds
@@ -45,10 +45,11 @@ The producer writes the analytical values to CSV first. The chart module reads
 that persisted CSV without calculating ratings and writes a same-named HTML
 file. A `.metadata.json` provenance record contains the input paths and
 SHA-256 hashes, calculated alignment shift, cutoff, flat-tail rule, output
-hashes and row count. This is a candidate construction for inspection, not an
-accepted smoothing or production policy.
+hashes and row count. This construction is accepted as the adopted
+1989-onward entrant-prior policy. It is not smoothing, and it has not yet
+replaced the fixed-supported map used by current production Equelo.
 
-To inspect the same persisted construction with east and west combined:
+The adopted policy combines east and west in the same persisted construction:
 
 ```powershell
 python -m src.analysis.equelo.smoothing.paired_merge `

@@ -29,11 +29,11 @@ an initial-rating policy only for simulations over that scope. Every chii that
 occurs in the scoped experimental histories receives a value from the
 construction.
 
-Historical chii absent from the post-1988 scope, including M19--M22 and
+Historical chii absent from the 1989-onward scope, including M19--M22 and
 J15--J24, are not missing values in this policy. They are outside its domain.
 Supplying values for them in a simulation beginning before 1989 would be a
 separate historical-completion policy requiring its own artifact, provenance
-and account. It must not be added to the post-1988 producer implicitly.
+and account. It must not be added to the 1989-onward producer implicitly.
 
 ## Construction
 
@@ -42,9 +42,9 @@ teleological choices made for useful entrant initialisation.
 
 ### Experimental evidence
 
-1. The post-1988 M/J fixed-point experiment represents Makuuchi and Juryo by
+1. The 1989-onward M/J fixed-point experiment represents Makuuchi and Juryo by
    position relative to their contemporaneous boundary, with J1e at index 0.
-2. The post-1988 continuous lower-banzuke experiment represents Juryo as
+2. The 1989-onward continuous lower-banzuke experiment represents Juryo as
    negative positions above Ms1e and continues one contextual index through
    Ms, Sd, Jd and Jk.
 3. Both contextual maps are resolved back onto the literal chii that occurred
@@ -83,7 +83,7 @@ the small M/J reversal. It would be defensible if exact monotonicity were a
 requirement of the initial-rating product.
 
 Not smoothing is also reasonable. The paired contextual construction already
-supplies sensible post-1988 entrant values, has a coherent broad shape and
+supplies sensible 1989-onward entrant values, has a coherent broad shape and
 confines the remaining conspicuous reversal to a very small M/J difference
 that can be reported and discussed. Its purpose is only to shorten the
 initialisation gap, not to assert the uniquely correct value for every chii.
@@ -94,7 +94,7 @@ without an identified practical need.
 
 ## Decision record: final rating normalisation
 
-**Decision (2026-08-20): retain the constructed post-1988 priors without a
+**Decision (2026-08-20): retain the constructed 1989-onward priors without a
 final mean-normalisation step.** This is a decision about the rating origin,
 not about the shape of the curve. It does not prevent a future consumer from
 applying a documented common shift when integration requires one.
@@ -106,7 +106,7 @@ uniform additive shift. The lower map is then aligned to the M/J map by one
 further uniform shift. No final recentering is applied after merging or
 pairing.
 
-Consequently, the final post-1988 priors are not normalised to have mean 1517.
+Consequently, the final 1989-onward priors are not normalised to have mean 1517.
 For the retained artifacts under
 `files/output/Equelo/boundary_reconciliation/2026-08-19_lower_banzuke_merge/`,
 the unweighted mean is approximately 1410.744 over the 965 literal east/west
@@ -116,9 +116,9 @@ would add approximately 105.913 points to every prior.
 These figures must not be confused with the mean of approximately 1537.936 in
 `files/output/Equelo/fixed_supported/master_chii_initial_rating_map.csv`.
 That older artifact is a separately completed 1,005-literal-chii map, includes
-historical ranks and is not the retained post-1988 paired table.
+historical ranks and is not the retained 1989-onward paired table.
 
-The new mean is much lower partly because the post-1988 construction contains
+The new mean is much lower partly because the 1989-onward construction contains
 many lower-division ranks and assigns the flat Jd100e value to every remaining
 rank below its cutoff. Those numerous low-valued rows have substantial weight
 in an unweighted mean over chii or rank pairs. This is another reason not to
@@ -165,7 +165,7 @@ is true:
   not initialised from this same prior table;
 - an entrant can fall back to a fixed rating such as 1517 because its chii is
   absent from the table;
-- post-1988 priors are combined with a separately constructed pre-1989 table;
+- 1989-onward priors are combined with a separately constructed pre-1989 table;
 - published values must share an explicit numerical origin with Basic Elo or
   another Equelo series; or
 - a prospective test shows sensitivity to a common shift because coverage or
@@ -208,7 +208,7 @@ It may show and discuss the small M/J reversal. It must not imply that:
 
 - the values are precise measurements of the ability associated with chii;
 - convergence proves that the contextual categories are correct;
-- post-1988 values automatically apply to earlier banzuke structures;
+- 1989-onward values automatically apply to earlier banzuke structures;
 - the remaining local shape has been causally explained; or
 - predictive validity follows merely from the construction.
 
@@ -221,4 +221,4 @@ It may show and discuss the small M/J reversal. It must not imply that:
 - writing the shorter public-facing explanation.
 
 Any historical extension must be a separate choice and must state explicitly
-which initial values it assigns to chii absent from the post-1988 evidence.
+which initial values it assigns to chii absent from the 1989-onward evidence.

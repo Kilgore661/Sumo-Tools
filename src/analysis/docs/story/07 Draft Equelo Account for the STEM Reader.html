@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Draft: How Equelo Changes Elo</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: Georgia, "Times New Roman", serif;
+      line-height: 1.6;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 54rem;
+      padding: 2rem 1.25rem 4rem;
+    }
+    h1, h2, h3 {
+      font-family: system-ui, sans-serif;
+      line-height: 1.2;
+      margin-top: 1.75em;
+    }
+    h1 { margin-top: 0; }
+    li + li { margin-top: 0.35rem; }
+    mjx-container[display="true"] {
+      margin: 1.25rem 0 !important;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body><h1 id="draft-how-equelo-changes-elo">Draft: How Equelo Changes Elo</h1>
+<h2 id="status-and-scope">Status and scope</h2>
+<p>This is a draft construction account for the interested or STEM reader. It
+starts from the standard account of Elo and records the principal changes made
+by Equelo. It does not attempt to justify those changes empirically or compare
+the resulting model with Basic Elo. Those are separate tasks for evaluation.</p>
+<p>The intended construction has three headline changes:</p>
+<ol>
+<li>replace constant <code>k</code> with divisional <code>k</code>;</li>
+<li>normalise the rating scale to control inflation and deflation;</li>
+<li>replace constant initialisation with a chii-informed prior.</li>
+</ol>
+<p>This draft covers the three headline changes at the conceptual construction
+level. It distinguishes the fixed-supported map used by current production
+Equelo from the contextual entrant-prior policy adopted for the next
+implementation. A later detailed-technical account will specify the exact
+algorithms, historical-data contracts and worked examples.</p>
+<h2 id="divisional-k">Divisional <code>k</code></h2>
+<p>In the Elo update formula, <code>k</code> controls how strongly a new result changes the
+rating. A larger <code>k</code> makes the rating respond more quickly, while a smaller <code>k</code>
+makes it more stable.</p>
+<p>The intended rationale for divisional <code>k</code> is that larger values in the lower
+divisions allow newcomers and rapidly developing rikishi to find their rating
+level quickly, while smaller values in the upper divisions prevent a brief
+winning or losing streak from moving an established rating too far. This uses
+division as a proxy for how established and stable the rating is.</p>
+<p>This idea is adapted from the varying development coefficients used in chess
+rating systems. Equelo does not independently estimate the uncertainty or
+stability of an individual rikishi's rating. Whether division is an adequate
+proxy, and whether divisional <code>k</code> improves the resulting ratings, are questions
+for evaluation.</p>
+<h2 id="normalisation-and-an-open-population">Normalisation and an open population</h2>
+<p>Even when individual Elo bouts are zero-sum, a historical rating population is
+not closed. New rikishi bring ratings into the system and retiring rikishi
+remove them. There is no reason for the rating mass brought in by entrants to
+equal the rating mass removed by departures. The mean and absolute location of
+the active rating scale can therefore drift over time.</p>
+<p>Such drift may be called inflation when the scale rises and deflation when it
+falls. It need not mean that rikishi have collectively become stronger or
+weaker. It can be produced by the accounting of entry, results and retirement.
+This makes simple comparisons of absolute ratings from different eras less
+secure.</p>
+<p>Equelo applies a uniform adjustment when a rikishi leaves, intended to preserve
+the mean of the active population across that departure. The difference
+between the departing rating and the existing active mean is distributed
+uniformly among the survivors. Because every survivor receives the same
+additive adjustment, their pairwise rating differences and model-implied bout
+probabilities are unchanged at that moment.</p>
+<p>This is intended to control inflation and deflation caused by population
+change. Whether the adjustment has important effects on later trajectories,
+and whether it is the best way to stabilise the scale, are questions for
+evaluation.</p>
+<p>Production Equelo also uses divisional <code>k</code>. When opponents have different
+values of <code>k</code>, a cross-division bout need not be exactly zero-sum. The scale
+stability of the complete system therefore cannot be justified solely by the
+zero-sum property of ordinary equal-<code>k</code> Elo. The size and significance of this
+additional rating-mass flow belong in the evaluation account.</p>
+<h2 id="informed-entrant-initialisation">Informed entrant initialisation</h2>
+<p>When a historical Elo calculation begins, it seems bizarre to give a yokozuna
+and a jonokuchi rikishi the same initial rating. The banzuke already gives us
+good reason to expect the yokozuna's eventual rating to be much higher.
+Starting them equally forces the rating system to spend part of the early
+history discovering something we already broadly know.</p>
+<p>The obvious question is therefore: what initial rating should be associated
+with a yokozuna, or with any other position on the banzuke? This creates an
+apparent circularity. We want to use typical ratings by banzuke position to
+initialise the calculation, yet those ratings can be derived only by running
+the calculation that requires them as inputs.</p>
+<h2 id="fixed-point-experiments">Fixed-point experiments</h2>
+<p>Equelo's initial-rating experiments address this iteratively. They begin with
+provisional initial values, run the historical simulation, average the
+resulting basho-start ratings by the categories being studied, feed those
+averages back as the next initial values, and repeat.</p>
+<p>The natural question is whether this process converges. In the implementations
+tested so far, it does: successive maps converge to stable fixed points. This
+makes each experimental map self-consistent under its chosen history,
+parameters and representation. It does not prove that the representation is
+the right one or that the values are uniquely true.</p>
+<p>Early experiments grouped observations by literal chii. They produced a
+broadly sensible curve, but also produced unsupported extreme values at rare
+low ranks and a rise through the lower maegashira ranks. Support filtering and
+completion control the extreme low-support failure in current production
+Equelo. Later work also showed that a literal chii such as M16 does not denote
+one stable position relative to the Makuuchi--Juryo boundary: the size and
+shape of the banzuke change over time.</p>
+<p>The later experiments therefore used positions relative to contemporary
+division boundaries. These substantially improved important local shapes, but
+did not reveal one timeless representation that removed every reversal across
+modern and historical banzuke. The fixed-point results are consequently treated
+as evidence about plausible entrant values, not as a direct final answer.</p>
+<h2 id="the-adopted-entrant-prior-policy">The adopted entrant-prior policy</h2>
+<p>For simulations beginning in 1989 or later, the adopted next policy reconciles
+two contextual fixed-point results: one centred on the Makuuchi--Juryo boundary
+and one using a continuous coordinate from Juryo down the lower banzuke. The
+estimates are aligned and blended through Juryo, used only through the range in
+which their shape remains credible, and combined into east/west rank pairs.</p>
+<p>The resulting curve is already sensible for shortening the initialisation gap,
+so the project chooses not to smooth it further merely to enforce exact
+monotonicity. A small Makuuchi--Juryo reversal remains and is disclosed. Once
+bouts are observed, an individual rating is free to disagree with chii.</p>
+<p>These values are therefore <em>chosen, historically informed entrant priors</em>.
+They are not the direct output of one fixed-point solve, a timeless table of
+the ability belonging to each chii, or a claim that convergence discovers the
+truth. Ranks that occur only before 1989 lie outside this policy and require a
+separate historical-completion decision.</p>
+<p>Current production Equelo still uses the earlier fixed-supported literal-chii
+map. The contextual policy described here has been adopted for the next
+implementation but has not yet replaced that production map.</p>
+<h2 id="normalisation-and-the-origin-of-the-priors">Normalisation and the origin of the priors</h2>
+<p>A second normalisation operation appears inside each source fixed-point
+experiment. After candidate values have been derived, the same additive shift
+is applied to every category in that solve so that their unweighted mean equals
+the chosen base. This fixes the origin without changing differences within the
+map at that iteration. It is distinct from preserving the active rikishi mean
+when a rikishi leaves.</p>
+<p>The adopted priors combine two such source maps, including one common alignment
+shift, but are not centred again after contextual values are resolved onto
+literal ranks, blended, completed and paired. Their final unweighted mean
+depends on the enumerated domain and completion policy and is not treated as a
+property recovered from the bouts.</p>
+<p>This lack of final recentring is harmless when every entrant in a complete
+simulation uses the same table, because Elo expectations depend on rating
+differences. A future consumer that mixes these priors with previously
+established ratings, a fixed fallback value or a separate pre-1989 table must
+choose and test an explicit common anchoring shift.</p>
+</body>
+</html>

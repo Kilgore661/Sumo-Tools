@@ -25,7 +25,7 @@ This layer should explain:
 - historical Basic Elo did slightly better overall than treating every bout as
   50--50, but the improvement was limited.
 
-This layer should avoid formulae, parameter discussions, normalization and
+This layer should avoid formulae, parameter discussions, normalisation and
 fixed-point terminology.
 
 Current draft:
@@ -47,9 +47,14 @@ This layer should explain:
 - zero-sum updates in ordinary equal-`k` Elo;
 - translation invariance;
 - fixed-`k` fluctuation rather than everyday permanent convergence;
-- entry, retirement, initialization lag and scale drift;
+- entry, retirement, initialisation lag and scale drift;
 - why those problems motivate Equelo;
-- Equelo's initialization, normalization, support and completion mechanics.
+- fixed-point maps as experimental evidence rather than uniquely true chii
+  values;
+- Equelo's informed entrant priors, their contextual and 1989-onward scope, and
+  the distinction between the adopted policy and current production;
+- Equelo's population normalisation and the separate centring of experimental
+  initial-rating maps.
 
 The prose must not assume that following the mechanics is the same as
 understanding or accepting the system's empirical validity.
@@ -72,8 +77,9 @@ It should follow the same order as the STEM account:
 1. define the precise Elo model, with formulae, parameter choices, chronology
    and worked examples;
 2. define the precise Equelo model, including divisional `k`, both forms of
-   normalisation, iterative initialisation, convergence criterion, support and
-   completion policies, and the historical-data contract.
+   normalisation, experimental fixed-point construction, contextual
+   coordinates, prior reconciliation, convergence criteria, support and
+   completion policies, anchoring, and the historical-data contract.
 
 This is the layer to which the STEM account can refer an interested reader for
 the full details. Its job is exact specification, not yet the strongest
@@ -89,11 +95,12 @@ interpretations attached to it.
 
 This layer must make it possible to investigate:
 
-- precisely what normalization does;
-- whether low-support chii values are dominated by normalization rather than
+- precisely what normalisation does;
+- whether low-support chii values are dominated by normalisation rather than
   bout evidence;
 - whether a fixed-point construction is unique, stable and meaningful;
-- sensitivity to initialization, support thresholds and completion rules;
+- sensitivity to initialisation, support thresholds and completion rules;
+- sensitivity to alternative reasonable entrant priors and anchoring rules;
 - the origin and interpretation of visible non-monotonicity;
 - calibration and discrimination of Elo probabilities;
 - calibration and discrimination of Equelo probabilities;

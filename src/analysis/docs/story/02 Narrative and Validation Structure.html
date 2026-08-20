@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Narrative and Validation Structure</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: Georgia, "Times New Roman", serif;
+      line-height: 1.6;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 54rem;
+      padding: 2rem 1.25rem 4rem;
+    }
+    h1, h2, h3 {
+      font-family: system-ui, sans-serif;
+      line-height: 1.2;
+      margin-top: 1.75em;
+    }
+    h1 { margin-top: 0; }
+    li + li { margin-top: 0.35rem; }
+    mjx-container[display="true"] {
+      margin: 1.25rem 0 !important;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body><h1 id="narrative-and-validation-structure">Narrative and Validation Structure</h1>
+<h2 id="decision">Decision</h2>
+<p>Prediction will be treated as a separate axis of evaluation rather than as
+either the definition of a rating system or a footnote at the end of the
+Elo-to-Equelo story.</p>
+<p>The account must answer two different questions:</p>
+<ol>
+<li><strong>Construction:</strong> How are the numbers produced, and what problems is Equelo
+designed to address?</li>
+<li><strong>Validation:</strong> What evidence is there that the numbers are useful?</li>
+</ol>
+<p>Initialisation, inflation and normalisation belong primarily to construction.
+Predictive performance belongs to validation. They interact, but one does not
+establish the other.</p>
+<h2 id="why-prediction-is-not-the-opening-definition">Why prediction is not the opening definition</h2>
+<p>A rating system may be intended to forecast contests, order competitors,
+summarize past performance, compare performances over time, provide a stable
+descriptive scale, or combine several of these purposes.</p>
+<p>Prediction is especially important for Elo because Elo explicitly converts
+rating differences into expected outcomes. It is nevertheless too restrictive
+to begin by declaring that a good rating system is necessarily a good
+predictive system. Doing so would decide in advance how every possible Equelo
+trade-off must be judged.</p>
+<p>A suitable opening position is:</p>
+<blockquote>
+<p>A rating system turns contest evidence into numbers that can be compared.
+Different rating systems may be judged by different properties. One
+particularly important test is whether their ratings help predict later
+results.</p>
+</blockquote>
+<h2 id="proposed-narrative-route">Proposed narrative route</h2>
+<p>The route below is also a progressive-disclosure sequence. Section 1 belongs
+to the casual narrative. Sections 2--6 provide the conceptual STEM narrative
+and the Elo-then-Equelo spine for the planned detailed-technical account.
+Sections 7--8 lead into the eventual expert/critical account, where
+construction is assessed rather than merely specified.</p>
+<h3 id="elo-for-the-casual-reader">1. Elo for the casual reader</h3>
+<p>Explain ratings, differences, favourites, estimated probabilities, surprising
+results and the limited historical improvement over 50--50.</p>
+<h3 id="for-the-interested-reader">2. For the Interested Reader</h3>
+<p>Introduce Equelo as the system used by the project. Explain that Equelo is based
+on Elo and was designed to address rating inflation and initialisation lag. Link
+to the <a href="06%20Draft%20Standard%20Elo%20Account%20for%20the%20STEM%20Reader.html">draft fuller standard account of Elo</a>.</p>
+<p>Provisional transition:</p>
+<blockquote>
+<p>In our work we use an alternative to Elo called <em>Equelo</em>. Equelo is based on
+Elo but is designed to address two important problems: <em>rating inflation</em>
+and <em>initialisation lag</em>. To understand Equelo, it is first necessary to
+understand Elo in more detail. If these ideas are unfamiliar, see our fuller
+account of Elo, which explains the standard calculation with worked examples.</p>
+</blockquote>
+<p>The fuller account referred to in that provisional transition now exists as a
+working draft. Final site prose should link to it only after editorial and
+source review and publication in an appropriate public form.</p>
+<p>The final wording should define initialisation lag and should say &quot;designed to
+address&quot; unless the relevant avoidance claim has been demonstrated.</p>
+<h3 id="how-elo-works">3. How Elo works</h3>
+<p>Cover:</p>
+<ul>
+<li>ratings and rating differences;</li>
+<li>the expected-score equation;</li>
+<li>the probability-scale parameter <code>q</code>;</li>
+<li>the result-update equation;</li>
+<li>the update-rate parameter <code>k</code>;</li>
+<li>worked examples;</li>
+<li>equal-<code>k</code> zero-sum transfers;</li>
+<li>translation invariance and the arbitrary absolute level.</li>
+</ul>
+<p>At this stage, the probability formula is a definition within the mechanics.
+Whether the probabilities describe actual sumo well remains unanswered.</p>
+<h3 id="difficulties-applying-elo-to-historical-sumo">4. Difficulties applying Elo to historical sumo</h3>
+<p>Separate the following problems:</p>
+<ul>
+<li>arbitrary common initialisation;</li>
+<li>initialisation lag;</li>
+<li>entry and retirement;</li>
+<li>inflation or deflation in an open population;</li>
+<li>incomplete historical results;</li>
+<li>a changing population;</li>
+<li>changing individual performance;</li>
+<li>selective and incomplete comparison graphs;</li>
+<li>continuing fixed-<code>k</code> fluctuation even in an ideal stationary world.</li>
+</ul>
+<p>This section motivates Equelo but must state which problems Equelo actually
+addresses. It must not imply that Equelo solves the entire list.</p>
+<h3 id="what-equelo-changes">5. What Equelo changes</h3>
+<p>Explain:</p>
+<ul>
+<li>historically informed entrant priors;</li>
+<li>iterative fixed-point experiments as evidence for plausible priors;</li>
+<li>why changing banzuke structure makes a timeless literal-chii map
+underidentified;</li>
+<li>the contextual, 1989-onward source experiments;</li>
+<li>reconciliation into paired entrant values without further monotone
+smoothing;</li>
+<li>the distinction between current fixed-supported production and the adopted
+next policy;</li>
+<li>normalisation;</li>
+<li>scale preservation;</li>
+<li>support and credible-domain limits;</li>
+<li>the separate historical-completion problem for pre-1989-only chii;</li>
+<li>the relationship between individual ratings and typical chii values.</li>
+</ul>
+<p>The STEM draft gives the conceptual account of the three headline changes:
+divisional <code>k</code>, normalisation and informed initialisation. The exact
+coordinates, alignment, blend, cutoff, pairing, support, convergence,
+anchoring and data-handling rules are deferred to the detailed-technical
+account.</p>
+<h3 id="what-equelo-is-intended-to-achieve">6. What Equelo is intended to achieve</h3>
+<p>State intended properties separately from empirical findings:</p>
+<ul>
+<li>less arbitrary entrant ratings;</li>
+<li>reduced initialisation lag;</li>
+<li>control of historical scale drift;</li>
+<li>reproducible entrant priors over a declared modern banzuke domain;</li>
+<li>continued use of an Elo-like result-update mechanism.</li>
+</ul>
+<h3 id="do-the-ratings-predict-results">7. Do the ratings predict results?</h3>
+<p>Use a common validation chapter with parallel treatments.</p>
+<p>For Basic Elo, give the precise tested model, its 50--50 comparator, the modest
+aggregate improvement, population differences and the limits of the claim.</p>
+<p>For Equelo, use the same forecast/evaluation protocol and report calibration,
+Brier loss, log loss, population splits and direct comparison with Basic Elo.
+This part remains incomplete until the appropriate experiment is run.</p>
+<h3 id="problems-and-open-questions">8. Problems and open questions</h3>
+<p>Split Equelo concerns into two groups.</p>
+<h4 id="mechanics">Mechanics</h4>
+<ul>
+<li>normalisation at low-support chii;</li>
+<li>values dominated by normalisation rather than results;</li>
+<li>the retained small Makuuchi--Juryo reversal;</li>
+<li>pre-1989 completion and integration anchoring;</li>
+<li>divisional <code>k</code> as a boundary confounder;</li>
+<li>sensitivity to model choices;</li>
+<li>the danger of refining the model merely to enforce an expected shape.</li>
+</ul>
+<h4 id="predictive-utility">Predictive utility</h4>
+<ul>
+<li>whether Equelo preserves Elo's limited predictive information;</li>
+<li>whether chii-based initialisation improves early forecasts;</li>
+<li>whether normalisation affects probabilities;</li>
+<li>whether Equelo is materially worse than Basic Elo;</li>
+<li>what independently useful property would justify a predictive loss.</li>
+</ul>
+<h2 id="comparison-framework">Comparison framework</h2>
+<table>
+<thead>
+<tr>
+<th>Question</th>
+<th>Basic Elo</th>
+<th>Equelo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>How are entrants initialised?</td>
+<td>Common arbitrary rating</td>
+<td>Historically informed contextual prior; current production still uses the older fixed-supported map</td>
+</tr>
+<tr>
+<td>What happens to the scale over time?</td>
+<td>Can drift in an open population</td>
+<td>Normalisation is intended to control drift</td>
+</tr>
+<tr>
+<td>Do ratings settle permanently?</td>
+<td>No, not with fixed nonzero <code>k</code></td>
+<td>Not established merely by the Equelo construction</td>
+</tr>
+<tr>
+<td>Does it reproduce chii order?</td>
+<td>Not necessarily</td>
+<td>Not required after entry; the adopted prior is broadly ordered but retains a disclosed local reversal</td>
+</tr>
+<tr>
+<td>Does it beat 50--50?</td>
+<td>Slightly in the tested historical aggregate</td>
+<td>Must be tested comparably</td>
+</tr>
+<tr>
+<td>Are probabilities well calibrated?</td>
+<td>Only limited evidence</td>
+<td>Must be tested</td>
+</tr>
+<tr>
+<td>What is its intended role?</td>
+<td>Running outcome-based rating and forecast</td>
+<td>Historically stabilised rating with informed entrant priors</td>
+</tr>
+<tr>
+<td>Main unresolved concern</td>
+<td>Limited predictive improvement and unstable individual ratings</td>
+<td>Policy integration, historical completion and comparative predictive performance</td>
+</tr>
+</tbody>
+</table>
+<h2 id="standard-for-any-defence-of-equelo">Standard for any defence of Equelo</h2>
+<p>The defence must not be:</p>
+<blockquote>
+<p>Equelo predicts poorly, but Elo predicts poorly too.</p>
+</blockquote>
+<p>The relevant question is:</p>
+<blockquote>
+<p>Basic Elo has a small demonstrated predictive advantage. Does Equelo
+preserve, improve or sacrifice that advantage? If it sacrifices some of it,
+what independently valuable property is obtained in exchange?</p>
+</blockquote>
+<p>A small predictive loss might be a defensible trade-off for a stable historical
+representation. A substantial loss would be a serious problem, particularly if
+Equelo ratings continue to be interpreted through Elo-derived probabilities.</p>
+<h2 id="documentation-levels-and-current-position">Documentation levels and current position</h2>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Purpose</th>
+<th>Current position</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Casual</td>
+<td>Explain how to interpret displayed ratings and differences</td>
+<td>Elo draft written</td>
+</tr>
+<tr>
+<td>STEM</td>
+<td>Give an accessible technical construction account</td>
+<td>Separate Elo and Equelo drafts written</td>
+</tr>
+<tr>
+<td>Detailed technical</td>
+<td>Specify the exact calculations and implementation choices</td>
+<td>Not started; write Elo first, then Equelo</td>
+</tr>
+<tr>
+<td>Expert/critical</td>
+<td>Test foundations, interpretations and empirical utility</td>
+<td>Not started as a unified account; source evidence and open investigations exist</td>
+</tr>
+</tbody>
+</table>
+<p>The next writing stage is the detailed-technical account. It should retain the
+same Elo-then-Equelo order as the STEM material so that readers can move between
+the two levels without encountering a different conceptual structure. The
+expert/critical account comes after that specification and should distinguish
+mathematical questions from empirical evaluation.</p>
+</body>
+</html>

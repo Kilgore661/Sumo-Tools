@@ -12,7 +12,7 @@ The account must answer two different questions:
    designed to address?
 2. **Validation:** What evidence is there that the numbers are useful?
 
-Initialization, inflation and normalization belong primarily to construction.
+Initialisation, inflation and normalisation belong primarily to construction.
 Predictive performance belongs to validation. They interact, but one does not
 establish the other.
 
@@ -51,7 +51,7 @@ results and the limited historical improvement over 50--50.
 ### 2. For the Interested Reader
 
 Introduce Equelo as the system used by the project. Explain that Equelo is based
-on Elo and was designed to address rating inflation and initialization lag. Link
+on Elo and was designed to address rating inflation and initialisation lag. Link
 to the [draft fuller standard account of Elo](06%20Draft%20Standard%20Elo%20Account%20for%20the%20STEM%20Reader.html).
 
 Provisional transition:
@@ -66,7 +66,7 @@ The fuller account referred to in that provisional transition now exists as a
 working draft. Final site prose should link to it only after editorial and
 source review and publication in an appropriate public form.
 
-The final wording should define initialization lag and should say "designed to
+The final wording should define initialisation lag and should say "designed to
 address" unless the relevant avoidance claim has been demonstrated.
 
 ### 3. How Elo works
@@ -89,8 +89,8 @@ Whether the probabilities describe actual sumo well remains unanswered.
 
 Separate the following problems:
 
-- arbitrary common initialization;
-- initialization lag;
+- arbitrary common initialisation;
+- initialisation lag;
 - entry and retirement;
 - inflation or deflation in an open population;
 - incomplete historical results;
@@ -106,27 +106,35 @@ addresses. It must not imply that Equelo solves the entire list.
 
 Explain:
 
-- chii-informed initialization;
-- the iterative or fixed-point construction;
-- normalization;
+- historically informed entrant priors;
+- iterative fixed-point experiments as evidence for plausible priors;
+- why changing banzuke structure makes a timeless literal-chii map
+  underidentified;
+- the contextual, 1989-onward source experiments;
+- reconciliation into paired entrant values without further monotone
+  smoothing;
+- the distinction between current fixed-supported production and the adopted
+  next policy;
+- normalisation;
 - scale preservation;
-- support filtering;
-- completion of unsupported chii;
+- support and credible-domain limits;
+- the separate historical-completion problem for pre-1989-only chii;
 - the relationship between individual ratings and typical chii values.
 
 The STEM draft gives the conceptual account of the three headline changes:
-divisional `k`, normalisation and chii-informed initialisation. The exact
-support, completion, convergence and data-handling rules are deferred to the
-detailed-technical account.
+divisional `k`, normalisation and informed initialisation. The exact
+coordinates, alignment, blend, cutoff, pairing, support, convergence,
+anchoring and data-handling rules are deferred to the detailed-technical
+account.
 
 ### 6. What Equelo is intended to achieve
 
 State intended properties separately from empirical findings:
 
 - less arbitrary entrant ratings;
-- reduced initialization lag;
+- reduced initialisation lag;
 - control of historical scale drift;
-- a reproducible rating surface across the banzuke;
+- reproducible entrant priors over a declared modern banzuke domain;
 - continued use of an Elo-like result-update mechanism.
 
 ### 7. Do the ratings predict results?
@@ -146,18 +154,19 @@ Split Equelo concerns into two groups.
 
 #### Mechanics
 
-- normalization at low-support chii;
-- values dominated by normalization rather than results;
-- non-monotonicity at the maegashira tail;
-- completion rules;
+- normalisation at low-support chii;
+- values dominated by normalisation rather than results;
+- the retained small Makuuchi--Juryo reversal;
+- pre-1989 completion and integration anchoring;
+- divisional `k` as a boundary confounder;
 - sensitivity to model choices;
 - the danger of refining the model merely to enforce an expected shape.
 
 #### Predictive utility
 
 - whether Equelo preserves Elo's limited predictive information;
-- whether chii-based initialization improves early forecasts;
-- whether normalization affects probabilities;
+- whether chii-based initialisation improves early forecasts;
+- whether normalisation affects probabilities;
 - whether Equelo is materially worse than Basic Elo;
 - what independently useful property would justify a predictive loss.
 
@@ -165,14 +174,14 @@ Split Equelo concerns into two groups.
 
 | Question | Basic Elo | Equelo |
 |---|---|---|
-| How are entrants initialized? | Common arbitrary rating | Chii-informed rating |
-| What happens to the scale over time? | Can drift in an open population | Normalization is intended to control drift |
+| How are entrants initialised? | Common arbitrary rating | Historically informed contextual prior; current production still uses the older fixed-supported map |
+| What happens to the scale over time? | Can drift in an open population | Normalisation is intended to control drift |
 | Do ratings settle permanently? | No, not with fixed nonzero `k` | Not established merely by the Equelo construction |
-| Does it reproduce chii order? | Not necessarily | Not necessarily; low-support behaviour is under investigation |
+| Does it reproduce chii order? | Not necessarily | Not required after entry; the adopted prior is broadly ordered but retains a disclosed local reversal |
 | Does it beat 50--50? | Slightly in the tested historical aggregate | Must be tested comparably |
 | Are probabilities well calibrated? | Only limited evidence | Must be tested |
-| What is its intended role? | Running outcome-based rating and forecast | Historically stabilized, chii-informed rating construction |
-| Main unresolved concern | Limited predictive improvement and unstable individual ratings | Normalization/support behaviour and comparative predictive performance |
+| What is its intended role? | Running outcome-based rating and forecast | Historically stabilised rating with informed entrant priors |
+| Main unresolved concern | Limited predictive improvement and unstable individual ratings | Policy integration, historical completion and comparative predictive performance |
 
 ## Standard for any defence of Equelo
 

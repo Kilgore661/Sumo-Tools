@@ -48,7 +48,8 @@ either a defect or an insight.
 9. [M12 Experiment Catalogue](09%20M12%20Experiment%20Catalogue.md) records the
    reproducible code paths, commands, matched artifacts and headline results.
 10. [Initial Rating Policy](10%20Initial%20Rating%20Policy.md) is the normative
-    decision that the smoothing and predictive-validation work must implement.
+    decision that the next integration and predictive-validation work must
+    implement.
 
 The detailed initial inventory remains in
 [Elo Documentation Rummage](../2026%2008%2014%20Elo%20Documentation%20Rummage.md).
@@ -60,7 +61,7 @@ The detailed initial inventory remains in
 | Casual Elo introduction | Draft written | Suitable for further editorial review |
 | STEM Elo account | Draft written | Needs editorial and source review |
 | Motivation for Equelo | Drafted | Divisional `k`, normalisation and chii-informed initialisation lead into Equelo |
-| STEM Equelo account | Draft written; ready to resume | Update initialisation to describe the retained post-1988 entrant priors |
+| STEM Equelo account | Draft updated | Distinguishes current production from the adopted 1989-onward entrant priors |
 | Detailed technical account | Not started | Explain exact Elo mechanics first, then exact Equelo mechanics and prior provenance |
 | Expert/critical account | Not started | Evaluate foundations, sensitivity, convergence, uncertainty, support and predictive evidence |
 | Basic Elo predictive account | Evidence exists | Needs integration into the story |
@@ -74,7 +75,7 @@ that changing banzuke structure materially affects empirical chii-to-rating
 maps, but did not identify one model that explains or removes every reversal.
 That is no longer treated as a documentation blocker.
 
-The project will retain the reproducible, east/west-paired post-1988
+The project will retain the reproducible, east/west-paired 1989-onward
 contextual curve as its entrant-prior policy. Smoothing that curve would be a
 reasonable modelling choice, but not smoothing is also reasonable because the
 curve is already adequate for shortening the initialisation gap. The project
