@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Production Equelo Definition: Remaining Decisions</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: Georgia, "Times New Roman", serif;
+      line-height: 1.6;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 54rem;
+      padding: 2rem 1.25rem 4rem;
+    }
+    h1, h2, h3 {
+      font-family: system-ui, sans-serif;
+      line-height: 1.2;
+      margin-top: 1.75em;
+    }
+    h1 { margin-top: 0; }
+    li + li { margin-top: 0.35rem; }
+    mjx-container[display="true"] {
+      margin: 1.25rem 0 !important;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body><h1 id="production-equelo-definition-remaining-decisions">Production Equelo Definition: Remaining Decisions</h1>
+<h2 id="status">Status</h2>
+<p>The casual and STEM accounts of Elo are not blocked. The conceptual STEM
+account of Equelo is also no longer blocked by the M12 problem: it can explain
+the three headline changes and distinguish current production from the adopted
+next entrant-prior policy.</p>
+<p>A finished detailed account of <em>production Equelo</em> is not yet possible,
+because the project has not selected and integrated one definitive production
+construction. A finished account of Equelo's usefulness also awaits
+prospective comparative validation.</p>
+<p>This document records those remaining boundaries. It distinguishes decisions
+needed to define the production model from questions that can be disclosed as
+limitations and evaluated later.</p>
+<p>The agreed model lineage and the distinction between selecting a post-1988
+Elo-like successor and constructing full-history Equelo are recorded in
+<a href="12%20Elo-family%20Model%20Lineage%20and%20Analysis%20Triage.html">Elo-family Model Lineage and Analysis Triage</a>.</p>
+<h2 id="principal-production-question">Principal production question</h2>
+<p>The central unresolved questions are now ordered:</p>
+<ol>
+<li>Which post-1988 Elo-like candidate should be selected as \(B'\)?</li>
+<li>How should that chosen model be extended to define the next full-history
+production Equelo?</li>
+</ol>
+<p>Current production uses the fixed-supported literal-chii initial-rating map.
+The adopted next policy uses reconciled, east/west-paired contextual priors
+constructed from 1989-onward experiments. Until the adopted policy is
+evaluated as part of a complete candidate model, integrated, rejected or
+superseded, there is no single exact answer covering both the maintained
+implementation and intended next model.</p>
+<p>The documentation can describe both accurately now. The detailed technical
+account must ultimately name one maintained production version and give its
+complete reproducible contract.</p>
+<h2 id="decisions-required-for-the-production-construction">Decisions required for the production construction</h2>
+<h3 id="historical-scope">1. Historical scope</h3>
+<p>The adopted contextual priors cover simulations beginning in 1989 or later.
+Current production ratings extend further back.</p>
+<p>The project must choose one of the following, or define another explicit
+policy:</p>
+<ul>
+<li>begin the next production Equelo series in 1989;</li>
+<li>retain the older fixed-supported initialisation for pre-1989 simulation;</li>
+<li>construct a separate pre-1989 completion policy and artifact.</li>
+</ul>
+<p>This is not merely missing prose. Different initial ratings can affect later
+process ratings, so the choice is part of the model.</p>
+<h4 id="parked-proposal-transfer-the-post-1988-priors-backwards">Parked proposal: transfer the post-1988 priors backwards</h4>
+<p>One proposed way to complete the earlier history is to assume that the JSA's
+assessment of rikishi ability has retained the same broad meaning since 1958.
+On that view, if a chii is an institutional judgement of relative ability and
+the JSA has consistently made that judgement competently, priors learned from
+1989-onward results may also be defensible as priors for earlier entrants.</p>
+<p>The useful version of this assumption is narrower than saying that every
+literal chii has always represented exactly the same numerical level of
+ability. Divisions, banzuke depth, schedules and the active population have
+changed. The M12 investigation is directly relevant: an M12 in a larger
+historical Makuuchi can occupy a different structural position, particularly
+distance from the Juryo boundary, from an M12 on a modern banzuke. JSA
+competence supports a claim of broadly persistent <em>ordinal</em> meaning, but does
+not by itself establish literal-rank numerical invariance across eras.</p>
+<p>A defensible modelling convention might therefore say:</p>
+<blockquote>
+<p>We assume that the banzuke has retained broadly stable ordinal meaning since
+1958: higher chii normally represent a stronger assessment of a rikishi than
+lower chii. We therefore use the 1989-onward evidence to construct
+historically transferable entrant priors. These priors are a modelling
+convention, not a claim that the expected ability associated with every
+literal chii has remained numerically unchanged.</p>
+</blockquote>
+<p>Even with that convention, ranks found only in the earlier record, including
+M19--M22 and J15--J24, still require values. Two plausible completion rules
+remain:</p>
+<ul>
+<li><strong>literal-rank extrapolation</strong>, extending the modern curve by chii; or</li>
+<li><strong>boundary-relative completion</strong>, relating historical tail ranks to
+comparable positions above the contemporary division boundary.</li>
+</ul>
+<p>The second is more consistent with the banzuke-depth evidence behind the M12
+investigation; the first is simpler and follows the stronger literal-chii
+assumption. The alternatives should be compared with each other and with the
+current fixed-supported historical priors, examining early sekitori ratings,
+cross-boundary careers, continuity around 1989, sensitivity of later ratings
+and predictive performance where the data permit it. Incomplete lower-division
+results before 1989 make this choice more consequential because an entrant's
+prior may persist longer before sufficient recorded bouts can revise it.</p>
+<p>This proposal and response are recorded for later consideration. No
+pre-1989 transfer or completion rule has yet been adopted, and the question is
+parked while work continues on the other production issues.</p>
+<h3 id="anchoring-and-fallback-behaviour">2. Anchoring and fallback behaviour</h3>
+<p>The adopted paired priors have an unweighted mean near 1411 and are
+deliberately not recentered. A common shift is immaterial when every entrant in
+a complete simulation is consistently initialised from the same table, because
+Elo expectations depend on rating differences.</p>
+<p>The origin can matter when:</p>
+<ul>
+<li>an entrant's chii is missing and a fixed fallback such as 1517 is used;</li>
+<li>the new priors are mixed with already established ratings;</li>
+<li>Mae-zumo or another unrepresented category requires a fallback;</li>
+<li>the modern priors are joined to a separately constructed pre-1989 table.</li>
+</ul>
+<p>Production therefore needs explicit rules for coverage, fallback and any
+common anchoring shift. If a consumer requires a shift, its anchoring
+population and provenance must be stated and tested rather than silently
+changing the retained source artifact.</p>
+<h3 id="bout-eligibility">3. Bout eligibility</h3>
+<p>The current Equelo package warns that its calculation ignores approximately
+5.6% of 1989-onward bouts simply because kimarite is missing. If the win/loss
+result is otherwise known, absence of kimarite is not an ordinary Elo reason
+to ignore the bout.</p>
+<p>Before the production calculation is treated as definitive, the project must
+either:</p>
+<ul>
+<li>rate those known results; or</li>
+<li>deliberately retain the exclusion and document it as part of the model's
+result-eligibility policy.</li>
+</ul>
+<p>Because this affects a material fraction of the represented bouts, it is a
+production-definition issue rather than a minor implementation detail.</p>
+<h3 id="artifact-and-api-transition">4. Artifact and API transition</h3>
+<p>The public API and site products currently consume fixed-supported artifacts.
+Adopting the contextual priors requires a defined transition covering:</p>
+<ul>
+<li>the canonical entrant-prior artifact;</li>
+<li>lookup from raw and annotated chii to paired prior values;</li>
+<li>unsupported, fallback and no-rating behaviour;</li>
+<li>input hashes, policy metadata and other provenance;</li>
+<li>regeneration of process and day-end ratings;</li>
+<li>the production API contract;</li>
+<li>the distinction between operational ratings and interpretive public
+landmarks;</li>
+<li>migration of Highest Equelo, Typical Equelo Values and other consumers.</li>
+</ul>
+<p>Until this transition occurs, documentation must call the contextual priors the
+<em>adopted next policy</em>, not the map used by current production Equelo.</p>
+<h2 id="required-usefulness-and-validation-work">Required usefulness and validation work</h2>
+<p>The first missing evidential result is a prospective, like-for-like comparison
+of candidate \(B'\) models with the definitive Basic Elo baseline \(B\).</p>
+<p>The adopted priors were constructed using history from 1989 onward through the
+current experimental endpoint. Applying those priors retrospectively to
+forecast bouts from the same history would use future information. Such a run
+could describe an in-sample construction but could not be presented as an
+out-of-sample predictive test.</p>
+<p>The validation therefore requires a temporal design, such as a training cutoff
+followed by prospective evaluation or a rolling reconstruction of the prior.
+It should compare at least:</p>
+<ul>
+<li>constant initialisation;</li>
+<li>current fixed-supported initialisation;</li>
+<li>the adopted contextual priors;</li>
+<li>a reasonable smoothed prior as a sensitivity comparator, if useful.</li>
+</ul>
+<p>The comparison should otherwise align history, result eligibility,
+forecast-before-update chronology, identity handling, populations, scoring
+rules, reporting periods and uncertainty treatment. It should report
+calibration, Brier loss, log loss and relevant population and time splits.</p>
+<p>This work does not block an account of the research route. It blocks selection
+of \(B'\), and therefore blocks a finished claim about whether its divisional
+<code>k</code> and/or informed priors improve later forecasts. Once the historical
+extension is defined, the resulting Equelo will require a second comparison
+with an appropriate ordinary-Elo model on the same declared problem.</p>
+<h2 id="important-questions-that-are-not-production-blockers">Important questions that are not production blockers</h2>
+<p>The following remain legitimate subjects for evaluation, but they need not be
+settled before a transparent chosen model is explained:</p>
+<ul>
+<li>whether division is the best proxy for rating confidence in the <code>k</code> policy;</li>
+<li>how much divisional <code>k</code> contributes to boundary irregularities;</li>
+<li>whether departure normalisation is the optimal scale-stability policy;</li>
+<li>a general proof of fixed-point convergence or uniqueness;</li>
+<li>residual non-monotonicity in experimental or learned ratings;</li>
+<li>exact causal decomposition of the former M12 problem;</li>
+<li>whether another reasonable entrant-prior curve performs better.</li>
+</ul>
+<p>These questions should be stated as assumptions, limitations, sensitivity
+questions or experiments required. A production account needs an exact and
+reproducible choice; it does not need proof that every choice is uniquely
+optimal.</p>
+<h2 id="minor-documentation-work">Minor documentation work</h2>
+<p>The casual and STEM Elo examples both produce an illustrative probability of
+approximately 74%, but currently use different rating differences and values
+of <code>q</code>. They should eventually be reconciled or the contrast should be used
+explicitly to explain the role of <code>q</code>.</p>
+<p>This is an editorial consistency issue, not a conceptual blocker.</p>
+<h2 id="documentation-consequences">Documentation consequences</h2>
+<p>The current position by layer is:</p>
+<table>
+<thead>
+<tr>
+<th>Account</th>
+<th>Position</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Casual Elo</td>
+<td>Unblocked; draft requires ordinary editorial review</td>
+</tr>
+<tr>
+<td>STEM Elo</td>
+<td>Unblocked; draft requires editorial and source review</td>
+</tr>
+<tr>
+<td>Conceptual STEM Equelo</td>
+<td>Unblocked; draft distinguishes production from adopted policy</td>
+</tr>
+<tr>
+<td>Detailed production Equelo</td>
+<td>Blocked by production version, historical scope, anchoring/fallback, eligibility and integration decisions</td>
+</tr>
+<tr>
+<td>Usefulness and defence</td>
+<td>Blocked by prospective comparative validation</td>
+</tr>
+<tr>
+<td>Expert/critical account</td>
+<td>Can be outlined, but remains incomplete until production and validation are settled</td>
+</tr>
+</tbody>
+</table>
+<p>The next implementation work should therefore define production Equelo before
+the detailed technical prose attempts to present one definitive calculation.
+The next evidential work should then validate that implementation
+prospectively.</p>
+</body>
+</html>

@@ -19,6 +19,18 @@ rank/chii-derived initialisation or representation. The newer toy work asks
 what happens if the object being estimated is not a rikishi at all, but an
 ordered label or station.
 
+## Active Elo model selection
+
+`src/analysis/elo_model_selection` owns the controlled comparison of the
+definitive post-1988 Basic Elo baseline with candidate divisional-`k` and
+informed-initialisation variants. Its purpose is to select the Elo-like model
+that will later be extended to the incomplete pre-1989 history; it does not
+itself define the next Equelo.
+
+The package README records the agreed model lineage and research questions.
+Its first proposal defines the planned two-by-two comparison, leakage boundary
+and provisional success criteria.
+
 ## Epistemic Guardrail
 
 The work in this folder should stay aware of the difference between:

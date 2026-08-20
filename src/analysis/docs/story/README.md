@@ -50,6 +50,19 @@ either a defect or an insight.
 10. [Initial Rating Policy](10%20Initial%20Rating%20Policy.md) is the normative
     decision that the next integration and predictive-validation work must
     implement.
+11. [Production Equelo Definition: Remaining Decisions](11%20Production%20Equelo%20Definition%20-%20Remaining%20Decisions.md)
+    distinguishes the decisions still needed to define one maintained
+    production model from later evaluation questions and minor editorial work.
+    It also records, without adopting, the proposal to treat the 1989-onward
+    priors as historically transferable under a stable-ordinal-meaning
+    assumption, together with the qualifications and completion choices that
+    this would require for pre-1989-only ranks.
+12. [Elo-family Model Lineage and Analysis Triage](12%20Elo-family%20Model%20Lineage%20and%20Analysis%20Triage.md)
+    records the agreed route from the definitive post-1988 Basic Elo baseline,
+    through selection of a successor \(B'\), to a new full-history Equelo. It
+    also defines the classification scheme for separating current model work,
+    production legacy, useful negative evidence and tangential explorations
+    across the analysis packages.
 
 The detailed initial inventory remains in
 [Elo Documentation Rummage](../2026%2008%2014%20Elo%20Documentation%20Rummage.md).
@@ -62,11 +75,12 @@ The detailed initial inventory remains in
 | STEM Elo account | Draft written | Needs editorial and source review |
 | Motivation for Equelo | Drafted | Divisional `k`, normalisation and chii-informed initialisation lead into Equelo |
 | STEM Equelo account | Draft updated | Distinguishes current production from the adopted 1989-onward entrant priors |
-| Detailed technical account | Not started | Explain exact Elo mechanics first, then exact Equelo mechanics and prior provenance |
+| Detailed technical account | Elo unblocked; production Equelo blocked | Production version, historical scope, anchoring/fallback, eligibility and integration remain unsettled |
 | Expert/critical account | Not started | Evaluate foundations, sensitivity, convergence, uncertainty, support and predictive evidence |
 | Basic Elo predictive account | Evidence exists | Needs integration into the story |
 | Equelo predictive account | Experiment required | Must use a directly comparable protocol |
 | Low-support/non-monotonicity account | Decision recorded | Preserve experiments; smoothing is reasonable, but the retained policy is not smoothed |
+| Model lineage and package triage | Framework recorded | \(B\) is fixed; \(B'\), the historical extension and the producer-level package audit remain to be completed |
 
 ## Next steps
 
@@ -90,6 +104,24 @@ priors, which may include smoothed comparators. Start with the
 [consolidated M12 record](08%20M12%20Investigation%20-%20Status%20and%20Next%20Steps.md);
 [Open Questions and Experiments](05%20Open%20Questions%20and%20Experiments.md)
 records the wider validation programme.
+
+Before the detailed technical account presents one definitive production
+calculation, the outstanding model and integration decisions in
+[Production Equelo Definition: Remaining Decisions](11%20Production%20Equelo%20Definition%20-%20Remaining%20Decisions.md)
+must be resolved. In particular, current production still uses the older
+fixed-supported priors, and the present calculation ignores a material number
+of bouts whose win/loss result is known but whose kimarite is missing.
+The possible backward transfer of the 1989-onward priors is recorded there as
+a parked proposal rather than a decision, so it need not interrupt work on the
+other production questions.
+
+The current route is set out in
+[Elo-family Model Lineage and Analysis Triage](12%20Elo-family%20Model%20Lineage%20and%20Analysis%20Triage.md):
+first compare the post-1988 candidate models with the definitive Basic Elo
+baseline and select \(B'\); then extend \(B'\) over the incomplete earlier
+record to construct the next full-history Equelo. A producer-by-producer audit
+will use the statuses defined there to distinguish germane code and evidence
+from production legacy, retained negative results and tangential exploration.
 
 ## Working discipline
 
