@@ -15,8 +15,7 @@ documents for implementation work:
   code, commands, parameters, artifacts and headline results needed to reproduce
   the investigation.
 - [Initial Rating Policy](10%20Initial%20Rating%20Policy.md) is the concise
-  normative decision that the smoothing and predictive-validation work must
-  implement.
+  normative decision for the post-1988 paired initial ratings and their scope.
 
 Earlier notes remain useful as sources, but they are not current decision
 documents. If an earlier note conflicts with this record or the policy, this
@@ -41,25 +40,22 @@ The adopted position is therefore:
 
 1. The experimental fixed-point curves are evidence about plausible scale and
    spacing, not definitive estimates of intrinsic ability at each chii.
-2. The maintained entrant priors will be monotone by declared modelling
-   policy. This expresses the weak ordinal information supplied by the
-   banzuke; it is not a claim that the experimental curve was monotone.
-3. A reproducible monotone regularisation, preferably support-weighted isotonic
-   regression, should be used to obtain the maintained curve from the
-   experimental estimates. Any manual adjustment must be explicit and
-   recorded rather than presented as an empirical result.
-4. The exact initial values need only be sensible and stable enough for their
-   purpose. Once bouts are observed, ratings are intended to be driven by
-   performance rather than by the entrant prior.
-5. The principal validation is practical and prospective: Equelo should track
-   subsequent performance, broadly track chii, and have predictive performance
-   at least comparable with Basic Elo under a like-for-like out-of-sample test.
+2. The post-1988 M/J and continuous lower-banzuke results are aligned, merged
+   over Juryo and combined into east/west rank pairs.
+3. The resulting paired curve is already sensible for shortening the entrant
+   initialisation gap. Smoothing would be a reasonable way to require exact
+   monotonicity, but exact monotonicity is not necessary for this purpose.
+4. The project therefore chooses not to smooth. The tiny M/J reversal is
+   retained as a documented feature rather than concealed or fitted away.
+5. This decision applies only to chii represented in the post-1988 scope.
+   Completing pre-1989-only ranks would be a separate policy and artifact.
+6. Once bouts are observed, ratings are intended to be driven by performance
+   rather than by the entrant prior.
 
-This is regularisation rather than concealment. Public documentation must say
-that the initial ratings are chosen monotone priors informed by historical
-experiments. It must not describe the chosen numbers as uniquely estimated
-truths. The experimental outputs should be retained, and may be documented in
-detail, to show why a definitive timeless chii-to-rating mapping was rejected.
+Public documentation must say that the initial ratings are sensible priors
+informed by historical experiments. It must not describe the chosen numbers
+as uniquely estimated truths. The retained experimental outputs show both the
+evidential basis and the constructive choices.
 
 The documentation work may now resume. Predictive validation remains required,
 but the existence of non-monotone experimental estimates is no longer a
@@ -433,10 +429,10 @@ complexity, and such complexity is not required to choose useful entrant
 priors. In particular, they do not identify the separate causal contributions
 of banzuke geometry, opponent selection, population handling and the K-policy.
 
-## Earlier monotone smoothing precedent
+## Smoothing alternative considered
 
-The decision to adopt monotone entrant priors does not begin from an empty
-repository. The fixed-v1 `v5` work already constructed a curated, strictly
+Smoothing remains a reasonable way to turn the experimental estimates into
+entrant priors. The fixed-v1 `v5` work already constructed a curated, strictly
 monotone curve for public rating landmarks, and the current fixed-supported
 landmark producer applies that machinery to the maintained master map.
 
@@ -444,21 +440,31 @@ That curve is not currently used to initialise entrants. It deletes selected
 historical ranks, masks the M12--Ms2 bridge and other chosen support, clamps the
 remaining values into a strictly decreasing sequence, and uses a monotone cubic
 to fill the gaps. It is therefore a valuable implementation precedent but not
-the support-weighted isotonic policy adopted here. Its curation choices also
-need to be tested rather than inherited without review.
+the unsmoothed paired policy adopted here. Its curation choices also need to
+be tested rather than inherited without review.
 
-The smoothing work should retain this v5-style curve as a comparator. The
-[experiment catalogue](09%20M12%20Experiment%20Catalogue.md) records its exact
-policy and sources.
+The v5-style curve remains a useful comparator and implementation precedent.
+It is not, however, necessary merely because smoothing is defensible. The
+paired contextual post-1988 curve is already sensible for shortening the
+initialisation gap, and its very small M/J reversal can be exposed and
+discussed. The project therefore chose not to smooth the retained values. The
+[experiment catalogue](09%20M12%20Experiment%20Catalogue.md) records the
+alternative curve's exact policy and sources.
 
 ## Decision rules
 
-- Monotonicity is an explicit property of the adopted entrant-prior policy,
-  not a required property of learned Equelo ratings.
-- The monotone curve must be generated reproducibly and retained with its
-  source estimates, weights, method and any manual adjustments.
+- Exact monotonicity is not a requirement of either entrant priors or learned
+  Equelo ratings. Broad agreement with chii order remains desirable.
+- Retain the paired post-1988 contextual values without further smoothing.
+  Preserve their source estimates, alignment, merge weights and pairing rule.
 - Do not claim that the adopted number for a chii is uniquely determined by
   history.
+- Do not silently extend the post-1988 construction to pre-1989-only chii.
+  Historical completion is a separate policy, artifact and account.
+- Do not final-normalise the retained post-1988 artifact. Its mean depends on
+  whether literal sides or rank pairs form the averaging domain. A future
+  consumer that mixes rating origins must define, record and test its own
+  uniform anchoring shift without overwriting the retained priors.
 - Do not add a more complicated banzuke-context model unless it improves an
   independently stated criterion such as prospective prediction, calibration,
   early-career behaviour or stability.
@@ -475,10 +481,10 @@ policy and sources.
 
 The construction account may proceed once it accurately describes:
 
-1. initial ratings as monotone, regularised entrant priors rather than unique
-   empirical chii values;
-2. the method and provenance of the maintained monotone curve;
-3. the support threshold and nearest-supported completion policy;
+1. initial ratings as useful entrant priors rather than unique empirical chii
+   values;
+2. the method and provenance of the retained unsmoothed paired curve;
+3. its post-1988 scope and the separation of any historical completion policy;
 4. the distinction between convergence of the experimental fixed point and
    validation of the adopted priors; and
 5. the limitation created by historically variable banzuke structure.

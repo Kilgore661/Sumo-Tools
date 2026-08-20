@@ -37,6 +37,7 @@ class RefreshOutputs:
     master_map_metadata_json: Path
     process_outputs: dict[str, Path]
     landmarks_csv: Path | None
+    supported_estimates_chart_html: Path | None
 
 
 def refresh_fixed_supported(
@@ -109,6 +110,7 @@ def refresh_fixed_supported(
         master_map_metadata_json=master_map_metadata_json,
         process_outputs=process_outputs,
         landmarks_csv=landmarks_csv,
+        supported_estimates_chart_html=solver_outputs.supported_estimates_chart_html,
     )
 
 
@@ -146,6 +148,8 @@ def main() -> None:
     print(f"Master map: {outputs.master_map_csv}")
     print(f"Master map metadata: {outputs.master_map_metadata_json}")
     print(f"Day-end ratings: {outputs.process_outputs['day_end_ratings']}")
+    if outputs.supported_estimates_chart_html is not None:
+        print(f"Supported estimates chart: {outputs.supported_estimates_chart_html}")
     if outputs.landmarks_csv is not None:
         print(f"Typical Equelo Values: {outputs.landmarks_csv}")
 

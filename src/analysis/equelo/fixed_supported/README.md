@@ -46,6 +46,27 @@ files/output/Equelo/fixed_supported/day_end_ratings.json
 files/output/Equelo/fixed_supported/landmarks/site/typical_equelo_values/typical_equelo_values.csv
 ```
 
+Each solver run also writes a responsive, page-width Plotly chart beside its
+combined statistics CSV:
+
+```text
+files/output/Equelo/fixed_supported/solver_runs/.../supported_fixed_point_estimates.html
+```
+
+This chart contains only the solver-native supported estimates. It does not
+contain nearest-supported master-map completion or presentation smoothing.
+Its x-axis retains every pre-filter collapsed chii, so unsupported chii appear
+as empty positions rather than invented rating points. Each run also persists
+that complete support domain as `all_chii_support.csv`.
+
+To chart an existing solver statistics CSV without rerunning the solver:
+
+```text
+python -m src.analysis.equelo.smoothing.chart `
+    path/to/combined_final_with_stats.csv `
+    --support-csv path/to/all_chii_support.csv
+```
+
 For runtime lookup, use `src.analysis.equelo.api`. For validation of chii that
 remain outside the rating domain, use:
 

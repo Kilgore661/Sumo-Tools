@@ -393,10 +393,108 @@ Sources:
 - No retained result establishes that using this v5-style curve for entrants
   improves or preserves prospective prediction.
 
-The existing v5-style curve should therefore be a Task C comparator and a
-source of reusable interpolation and lookup code. It must not be silently
-promoted to the operational entrant curve without provenance and predictive
-testing.
+The existing v5-style curve remains a useful comparator and a source of
+reusable interpolation and lookup code. It must not be silently promoted to
+the operational entrant curve without provenance and predictive testing.
+
+## 9. Continuous post-1988 lower-banzuke coordinate
+
+### Question
+
+Can the successful J/Ms representation continue through the lower divisions
+far enough to supply a coherent second view of Juryo and useful values below
+Makushita?
+
+### Method and run
+
+The complete banzuke is assigned one contextual coordinate before support
+filtering. Juryo positions are negative, counted upward from its bottom;
+Ms1e is zero; and the sequence then continues without resetting through Ms,
+Sd, Jd and Jk. Literal-chii output values are the means of the contextual
+estimates observed for that chii.
+
+```powershell
+python -m src.analysis.equelo.fixed_lower_banzuke `
+  --history-zip "files/output/Historys/1958_01 to 2026_11.zip" `
+  --start-year 1989 `
+  --epsilon 0.01
+```
+
+Retained run:
+
+```text
+files/output/Equelo/fixed_lower_banzuke/2026-08-19_18-52-25
+```
+
+The solve converged after 15 iterations. The paired curve is broadly
+decreasing through upper Jonidan: Jd1 is about 1367.54, Jd75 1275.16 and Jd89
+1244.90. From about Jd90 the local shape ceases to be credible as a rank
+ordering, and below about Jd100 the contextual coordinate increasingly mixes
+different literal lower ranks.
+
+### What it established
+
+- One continuous coordinate can carry the successful J/Ms boundary shape far
+  deeper than expected without resetting at later divisional boundaries.
+- The output remains an estimate conditional on the post-1988 banzuke
+  structures and divisional K policy.
+- The lower tail needs an explicit operational cutoff; continuing the fitted
+  coordinate indefinitely would attach meaning to a visibly unstable region.
+
+## 10. Reproducible literal-chii merge and east/west pairing
+
+### Question
+
+Can the independently useful M/J and lower-banzuke results be combined into a
+single set of post-1988 entrant priors without claiming that either coordinate
+is universally correct?
+
+### Method and run
+
+The merge keeps the M/J estimates for Makuuchi, applies one
+appearance-weighted additive shift to align the lower-banzuke estimates over
+shared Juryo observations, and blends linearly across Juryo from the M/J view
+at J1e to the aligned lower view at J14w. The aligned lower view supplies the
+remaining ranks through Jd100e; values below that cutoff are held constant.
+East and west are then combined by an unweighted mean, with singletons
+retaining their sole value.
+
+```powershell
+python -m src.analysis.equelo.smoothing.boundary_merge `
+  --mj-csv files/output/Equelo/fixed_boundary/2026-08-17_14-49-30/all_chii_prior_comparison.csv `
+  --lower-csv files/output/Equelo/fixed_lower_banzuke/2026-08-19_18-52-25/lower_banzuke_chii_comparison.csv `
+  --cutoff-chii Jd100e `
+  --output-csv files/output/Equelo/boundary_reconciliation/2026-08-19_lower_banzuke_merge/literal_chii_merge_candidate.csv
+
+python -m src.analysis.equelo.smoothing.paired_merge `
+  files/output/Equelo/boundary_reconciliation/2026-08-19_lower_banzuke_merge/literal_chii_merge_candidate.csv `
+  --output-csv files/output/Equelo/boundary_reconciliation/2026-08-19_lower_banzuke_merge/paired_literal_chii_merge_candidate.csv
+```
+
+Both stages write analytical CSV and provenance metadata before a separate
+renderer reads the CSV to make the responsive Plotly chart.
+
+### What it established
+
+- Pairing east and west removes much incidental noise. The represented
+  Makuuchi curve is strictly decreasing.
+- The remaining M/J reversal is small and transparent: M17 is about 1953.25,
+  M18 1951.48 and J1 1953.53.
+- The curve is broadly decreasing well into Jonidan and is adequate as a set
+  of sensible entrant values without further smoothing.
+- No final mean normalisation is applied. The retained unweighted mean is
+  about 1410.744 over 965 literal chii and 1411.087 over 484 paired ranks;
+  expt2's mean-1517 convention applies to its own solved key domain, not to
+  this post-processed domain. The many lower-division rows, including the
+  ranks held at the flat Jd100e tail value, pull this unweighted mean well
+  below the approximately 1537.936 mean of the separate 1,005-row
+  fixed-supported master map.
+- Smoothing would also be a reasonable policy, especially if exact
+  monotonicity were required. The project chose not to smooth because the
+  limited purpose is to shorten the initialisation gap, not to assert a unique
+  value for every chii.
+- The construction covers only chii represented in the post-1988 experiments.
+  Values for pre-1989-only ranks require a separate historical policy.
 
 ## Experiment-wide conclusions
 
@@ -417,6 +515,8 @@ The combined record supports the following claims:
 7. No further contextual model is currently justified by an independently
    demonstrated practical benefit.
 
-These conclusions motivate a transparent monotone entrant-prior policy and a
-prospective predictive comparison, rather than further attempts to explain
-every local reversal.
+These conclusions motivate retaining the transparent, unsmoothed paired
+post-1988 entrant priors and making a prospective predictive comparison,
+rather than further attempts to explain or conceal every local reversal.
+Smoothing remains a reasonable alternative, but it is not the choice made for
+this policy. Any extension to pre-1989-only ranks is a separate decision.

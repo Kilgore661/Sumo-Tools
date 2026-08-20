@@ -13,6 +13,7 @@ from src.sumo_core.History import Date, History
 
 MJ_BOUNDARY = "mj_boundary"
 JMS_BOUNDARY = "jms_boundary"
+LOWER_BANZUKE = "lower_banzuke"
 LITERAL_CHII = "literal_chii"
 
 
@@ -134,4 +135,5 @@ def build_jms_prior_world(history: History) -> PriorWorld:
 def key_sort_value(key: PriorKey) -> tuple[int, int]:
     """Return the stable public/report order for a prior key."""
 
-    return (0 if key.kind in {MJ_BOUNDARY, JMS_BOUNDARY} else 1, key.value)
+    boundary_kinds = {MJ_BOUNDARY, JMS_BOUNDARY, LOWER_BANZUKE}
+    return (0 if key.kind in boundary_kinds else 1, key.value)

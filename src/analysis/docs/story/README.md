@@ -60,12 +60,12 @@ The detailed initial inventory remains in
 | Casual Elo introduction | Draft written | Suitable for further editorial review |
 | STEM Elo account | Draft written | Needs editorial and source review |
 | Motivation for Equelo | Drafted | Divisional `k`, normalisation and chii-informed initialisation lead into Equelo |
-| STEM Equelo account | Draft written; ready to resume | Update initialisation to describe monotone regularised priors |
+| STEM Equelo account | Draft written; ready to resume | Update initialisation to describe the retained post-1988 entrant priors |
 | Detailed technical account | Not started | Explain exact Elo mechanics first, then exact Equelo mechanics and prior provenance |
 | Expert/critical account | Not started | Evaluate foundations, sensitivity, convergence, uncertainty, support and predictive evidence |
 | Basic Elo predictive account | Evidence exists | Needs integration into the story |
 | Equelo predictive account | Experiment required | Must use a directly comparable protocol |
-| Low-support/non-monotonicity account | Decision recorded | Preserve experiments; smoothing is an explicit entrant-prior policy, not an empirical claim |
+| Low-support/non-monotonicity account | Decision recorded | Preserve experiments; smoothing is reasonable, but the retained policy is not smoothed |
 
 ## Next steps
 
@@ -74,17 +74,18 @@ that changing banzuke structure materially affects empirical chii-to-rating
 maps, but did not identify one model that explains or removes every reversal.
 That is no longer treated as a documentation blocker.
 
-The project will adopt a monotone entrant-prior curve as an explicit modelling
-policy. The curve should be obtained reproducibly from the experimental values,
-preferably by support-weighted isotonic regression, and retained with full
-provenance. Public prose must distinguish these chosen monotone priors from the
-non-monotone experimental estimates and from ratings subsequently learned from
-bout results.
+The project will retain the reproducible, east/west-paired post-1988
+contextual curve as its entrant-prior policy. Smoothing that curve would be a
+reasonable modelling choice, but not smoothing is also reasonable because the
+curve is already adequate for shortening the initialisation gap. The project
+therefore chose not to smooth. Public prose must distinguish these chosen
+priors from uniquely estimated chii values and from ratings subsequently
+learned from bout results.
 
 The immediate work is to implement the [Initial Rating Policy](10%20Initial%20Rating%20Policy.md),
 then conduct a prospective, like-for-like predictive comparison of Equelo with
 Basic Elo accompanied by sensitivity tests using reasonable alternative
-monotone priors. Start with the
+priors, which may include smoothed comparators. Start with the
 [consolidated M12 record](08%20M12%20Investigation%20-%20Status%20and%20Next%20Steps.md);
 [Open Questions and Experiments](05%20Open%20Questions%20and%20Experiments.md)
 records the wider validation programme.

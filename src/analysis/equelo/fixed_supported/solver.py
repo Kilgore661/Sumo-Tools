@@ -16,6 +16,10 @@ from src.analysis.equelo.expt2.diagnostics import (
     default_probe_set,
 )
 from src.analysis.equelo.expt2.solve import solve_variant_combined
+from src.analysis.equelo.smoothing.chart import (
+    write_chii_support_csv,
+    write_supported_fixed_point_chart,
+)
 from src.sumo_core.Chii import Chii
 from src.sumo_core.History import History
 
@@ -31,6 +35,8 @@ class SupportedSolveOutputs:
     modern_final_csv: Path | None
     combined_final_csv: Path | None
     combined_stats_csv: Path | None
+    all_chii_support_csv: Path
+    supported_estimates_chart_html: Path | None
 
 
 def run_supported_solve(
@@ -91,6 +97,18 @@ def run_supported_solve(
         ),
         base=INITIAL_ELO,
     )
+    all_chii_support_csv = write_chii_support_csv(
+        run_dir / "all_chii_support.csv",
+        filtered.measurement.appearances,
+    )
+    supported_estimates_chart = (
+        None
+        if result.stats_csv_path is None
+        else write_supported_fixed_point_chart(
+            result.stats_csv_path,
+            support_csv=all_chii_support_csv,
+        )
+    )
     manifest_path = run_dir / "manifest.json"
     _write_manifest(
         manifest_path,
@@ -101,6 +119,8 @@ def run_supported_solve(
         modern_end_year=modern_end_year,
         filtered=filtered,
         result=result,
+        all_chii_support_csv=all_chii_support_csv,
+        supported_estimates_chart=supported_estimates_chart,
     )
     return SupportedSolveOutputs(
         run_dir=run_dir,
@@ -108,6 +128,8 @@ def run_supported_solve(
         modern_final_csv=result.modern_output_csv_path,
         combined_final_csv=result.output_csv_path,
         combined_stats_csv=result.stats_csv_path,
+        all_chii_support_csv=all_chii_support_csv,
+        supported_estimates_chart_html=supported_estimates_chart,
     )
 
 
@@ -164,6 +186,8 @@ def _write_manifest(
     modern_end_year: int,
     filtered: FilteredHistory,
     result,
+    all_chii_support_csv: Path,
+    supported_estimates_chart: Path | None,
 ) -> None:
     payload = {
         "policy": "RFSC",
@@ -184,6 +208,8 @@ def _write_manifest(
             "combined_final_csv": None if result.output_csv_path is None else str(result.output_csv_path),
             "combined_stats_csv": None if result.stats_csv_path is None else str(result.stats_csv_path),
             "modern_final_csv": None if result.modern_output_csv_path is None else str(result.modern_output_csv_path),
+            "all_chii_support_csv": str(all_chii_support_csv),
+            "supported_estimates_chart_html": None if supported_estimates_chart is None else str(supported_estimates_chart),
         },
     }
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
