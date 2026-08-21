@@ -63,6 +63,12 @@ either a defect or an insight.
     also defines the classification scheme for separating current model work,
     production legacy, useful negative evidence and tangential explorations
     across the analysis packages.
+13. [Proposal: The Consolidated Elo-like Ratings Story](13%20Proposal%20for%20the%20Consolidated%20Elo-like%20Ratings%20Story.md)
+    defines the proposed near-publishable web account from the casual
+    explanation through the selection of \(B'=B_{kP}\). It supplies a contents
+    structure, three reading routes, claim boundaries, acceptance criteria and
+    pointers to the supporting research and generated evidence. The proposal
+    deliberately stops where the next full-history Equelo construction begins.
 
 The detailed initial inventory remains in
 [Elo Documentation Rummage](../2026%2008%2014%20Elo%20Documentation%20Rummage.md).
@@ -75,16 +81,22 @@ The detailed initial inventory remains in
 | STEM Elo account | Draft written | Needs editorial and source review |
 | Motivation for Equelo | Drafted | Divisional `k`, normalisation and chii-informed initialisation lead into Equelo |
 | STEM Equelo account | Draft updated | Distinguishes current production from the adopted 1989-onward entrant priors |
-| Detailed technical account | Elo unblocked; production Equelo blocked | Production version, historical scope, anchoring/fallback, eligibility and integration remain unsettled |
-| Expert/critical account | Not started | Evaluate foundations, sensitivity, convergence, uncertainty, support and predictive evidence |
+| Consolidated Elo-like account | Proposal written | Three reading routes cover casual, STEM and technical/audit needs through \(B'=B_{kP}\) |
+| Detailed technical account | Elo-like portion unblocked; production Equelo blocked | Exact \(B'\) evidence exists; historical scope, anchoring/fallback, eligibility and integration remain unsettled for Equelo |
+| Expert/critical account | Audit route proposed | Reproducible model-selection and calibration artifacts provide the present critical record |
 | Basic Elo predictive account | Evidence exists | Needs integration into the story |
 | Equelo predictive account | Experiment required | Must use a directly comparable protocol |
 | Low-support/non-monotonicity account | Decision recorded | Preserve experiments; smoothing is reasonable, but the retained policy is not smoothed |
-| Model lineage and package triage | Framework recorded | \(B\) is fixed; \(B'\), the historical extension and the producer-level package audit remain to be completed |
+| Model lineage and package triage | \(B'\) selected provisionally | \(B'=B_{kP}\); the historical extension and producer-level Equelo audit remain to be completed |
 
 ## Next steps
 
-Work on the explanatory prose may resume. The M12 investigation established
+The proposed consolidation of the Elo-like account is now specified in
+[Proposal: The Consolidated Elo-like Ratings Story](13%20Proposal%20for%20the%20Consolidated%20Elo-like%20Ratings%20Story.md).
+The project is deliberately moving next to the definition of full-history
+Equelo rather than performing that editorial consolidation immediately.
+
+The M12 investigation established
 that changing banzuke structure materially affects empirical chii-to-rating
 maps, but did not identify one model that explains or removes every reversal.
 That is no longer treated as a documentation blocker.

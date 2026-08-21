@@ -2,8 +2,11 @@
 
 ## Status
 
-Proposed design for review. No comparison code has yet been implemented and no
-candidate model has been selected.
+The controlled retrospective comparison is implemented and the declared
+1989/01--2026/07 run has been made. Its findings and the subsequent
+model-selection discussion are recorded in
+[Results 1: Controlled Retrospective Comparison](Results%201.md).
+Prospective validation remains separate future work.
 
 ## Objective
 
@@ -92,37 +95,33 @@ construction documented by the story workspace. The experiment tests a prior
 
 Two matters must be resolved and recorded before the declared run:
 
-1. **Rating scale.** The adopted source maps were produced with `q=900`,
-   divisional `k` and closed-mode normalisation. This experiment fixes
-   `q=400`. The implementation must either rebuild the prior within the
-   declared model scale or apply a mathematically explicit transformation.
-   Raw reuse is not an unstated default.
-2. **Training boundary.** A prior used for held-out prediction must be
-   constructed without any result from the evaluation period. The final
-   through-2026 artifact may be used in a labelled retrospective diagnostic,
-   but not in the decisive validation.
+`P` is the exact adopted paired artifact. The implementation does not rescale,
+smooth or recenter it. The same values are used by `B_P` and `B_kP`, so prior
+choice is not confounded with `k` policy. The source path and hash are recorded.
 
-The same frozen prior must be used by `B_P` and `B_kP` within each
-validation fold. Otherwise prior choice would be confounded with `k` policy.
-Coverage, unsupported chii, Mae-zumo, missing chii and fallback behaviour must
-be identical and explicitly manifested.
+The one known unranked History case cannot be looked up by chii. It receives
+the weakest value in the adopted table and `k=35`; this fallback is explicit in
+the ledger, manifest and report.
+
+Because the artifact was constructed from the broad period being scored, its
+results are future-informed. This is an interpretation boundary, not something
+the implementation attempts to disguise by constructing a different `P`.
 
 ## Work products
 
-The code will produce:
+The first implementation produces:
 
-1. a canonical prepared-bout ledger shared by all models;
-2. one immutable pre-bout forecast ledger per model and validation fold;
+1. one canonical bout selection shared by all models;
+2. one combined immutable pre-bout forecast ledger containing all four models;
 3. a manifest containing source hashes, model parameters, prior provenance,
-   eligibility counts and software version;
-4. paired per-bout log-loss and Brier-loss differences;
-5. cumulative and rolling summaries by basho;
-6. paired uncertainty intervals using basho-level blocks;
-7. all-bout, sekitori, sub-sekitori and entrant-experience summaries;
-8. the factorial contrasts attributable to `k`, the prior and their
+   eligibility counts and artifact semantics;
+4. paired log-loss and Brier-loss comparisons;
+5. paired uncertainty intervals using basho-level blocks;
+6. all-bout, sekitori, sub-sekitori and entrant-experience summaries;
+7. the factorial contrasts attributable to `k`, the prior and their
    interaction;
-9. a machine-readable decision summary; and
-10. a reader-auditable Markdown report and charts.
+8. machine-readable CSV summaries; and
+9. a reader-auditable Markdown report.
 
 Every forecast ledger will include at least:
 
@@ -131,16 +130,14 @@ basho, day, bout identity
 rikishi identities and pre-bout chii/division
 ratings before the bout
 k values used
-initialisation source and prior-training cutoff
+initialisation source
 predicted probability
 observed result
 log loss and Brier loss
 ratings after the update
 ```
 
-## Two analysis stages
-
-### Stage 1: retrospective diagnostic
+## Retrospective diagnostic
 
 Run all four models across the complete 1989/01--2026/07 record, using the
 final adopted prior after its rating-scale treatment has been declared.
@@ -154,43 +151,16 @@ This stage will:
 - provide useful debugging evidence.
 
 Because the final prior uses information from the period being scored, this
-stage is in-sample. Its results must be labelled *retrospective diagnostic* and
+stage is in-sample. Its results are labelled *retrospective diagnostic* and
 must not select `B'` on their own.
 
-### Stage 2: temporal validation
-
-The decisive evaluation will use expanding historical training prefixes and
-later untouched evaluation blocks. For each fold:
-
-1. construct `P` using only results at or before the training cutoff;
-2. rerun each model through the training prefix to establish its state;
-3. freeze the trained prior for the following evaluation block;
-4. predict and update chronologically through that block; and
-5. discard and reconstruct state at the next fold so no later result reaches
-   an earlier forecast.
-
-The proposed folds are:
-
-| Training results through | Evaluation block |
-|---|---|
-| 2000/11 | 2001/01--2006/11 |
-| 2006/11 | 2007/01--2012/11 |
-| 2012/11 | 2013/01--2018/11 |
-| 2018/11 | 2019/01--2024/11 |
-| 2024/11 | 2025/01--2026/07 |
-
-These dates are part of the proposal, not yet an adopted design. Before code is
-run for a declared result, they should be checked against prior support,
-historical coverage and the desire not to choose cutoffs after seeing scores.
-Any revision must be documented before comparative output is inspected.
-
-If the adopted prior construction cannot produce a supported map from an early
-training prefix, that is a finding about the policy. The code must fail or use
-a predeclared fallback; it must not silently borrow later evidence.
+Prospective validation is a later proposal. Testing the exact adopted artifact
+requires genuinely later results. Rebuilding priors at historical cutoffs
+would instead test the construction policy, not this adopted artifact.
 
 ## Evaluation populations
 
-The primary population is every common eligible bout in the held-out blocks.
+The primary population is every common eligible bout in the declared period.
 
 Required secondary populations are:
 
@@ -221,7 +191,6 @@ confident errors.
 - calibration curves and calibration error in adequately supported regions;
 - favourite win rate;
 - the already defined hypothetical-evens directional statistic;
-- cumulative loss by time; and
 - rating and forecast coverage.
 
 Secondary metrics explain the result and detect trade-offs. They must not be
@@ -238,10 +207,9 @@ and the corresponding one-sided upper bound for superiority or
 non-inferiority decisions. The random seed, replicate count and interval method
 must be fixed in the manifest.
 
-If the independent fair-coin simulation is repeated for a modified model, the
-entire training and prediction procedure must be rebuilt within each simulated
-history. Reusing historical trained priors inside a fair-coin history would not
-represent the declared null.
+The independent fair-coin simulation is not part of this first implementation.
+Any later null experiment must state how the future-informed adopted artifact
+is represented and what hypothesis that simulation actually tests.
 
 ## Proposed success criteria
 
@@ -253,8 +221,9 @@ model.
 The tranche succeeds if:
 
 - all four models are exactly specified and reproducible;
-- the same eligible held-out bouts are compared;
-- no evaluation result influences a training prior or earlier forecast;
+- the same eligible retrospective bouts are compared;
+- every individual forecast precedes its bout update, while the adopted
+  artifact's whole-period provenance is disclosed;
 - `B`'s established qualitative advantage over 50--50 is reproduced;
 - paired effects and uncertainty are reported without suppressing adverse
   subgroups; and
@@ -272,12 +241,16 @@ For a model `C`, define
 D(C,50) = L(C) - L(50)
 ```
 
-where `L` is mean held-out log loss and `L(50) = log(2)`.
+where `L` is mean log loss over the common scored bouts and `L(50) = log(2)`.
 
-Model `C` contains predictive information under the primary rule when the
+Model `C` clears the numerical predictive-information criterion when the
 one-sided 95% upper confidence bound for `D(C,50)` is below zero. Brier loss
 against 0.25 supplies a required secondary check. Material disagreement
 between the two proper scores must be explained rather than averaged away.
+
+For `B` and `B_k`, this can support an ordinary historical predictive claim.
+For `B_P` and `B_kP`, it describes retrospective pre-bout scoring but is not
+leakage-free predictive evidence.
 
 ### Superiority to `B`
 
@@ -294,7 +267,7 @@ for `D(C,B)` is below zero.
 
 Statistical significance alone is not an adequate rule with a very large bout
 count. The proposal therefore defines a provisional practical margin as 5% of
-`B`'s held-out log-loss advantage over the neutral forecast:
+`B`'s log-loss advantage over the neutral forecast:
 
 ```text
 delta(log) = 0.05 * (L(50) - L(B))
@@ -302,7 +275,7 @@ delta(log) = 0.05 * (L(50) - L(B))
 
 A modified model is non-inferior when the one-sided 95% upper confidence bound
 for `D(C,B)` is below `delta(log)`. The same construction will be reported
-for Brier loss using 5% of `B`'s held-out Brier advantage over 0.25.
+for Brier loss using 5% of `B`'s Brier advantage over 0.25.
 
 The 5% fraction is a proposed modelling judgement, not a statistical constant.
 It must be accepted or replaced before comparative results are inspected. A
@@ -319,21 +292,22 @@ this proposal because it is substantive, not merely computational.
 
 ## Selecting `B'`
 
-A model is eligible for selection only if it passes the predictive-information
-criterion and is superior or non-inferior to `B` on the primary held-out
-comparison.
+A model is retrospectively eligible only if it passes the numerical
+predictive-information criterion and is superior or non-inferior to `B` on the
+primary comparison.
 
 Among eligible models, the proposed selection rule is:
 
-1. prefer the model with the lowest held-out mean log loss;
+1. prefer the model with the lowest mean log loss in the declared comparison;
 2. use Brier loss, calibration and subgroup results to identify meaningful
    trade-offs rather than silently override log loss;
 3. prefer the simpler model when predictive differences are practically
    negligible; and
 4. retain `B` if no modification clears the declared gate.
 
-Selection of `B'` must be recorded as a decision with the full report and
-manifest, not inferred later from whichever artifact entered production.
+The retrospective result alone does not select `B'`. Any eventual selection
+must state what further prospective evidence is required and be recorded with
+the full report and manifest.
 
 ## Factorial interpretation
 
@@ -363,19 +337,16 @@ Automated tests must cover:
 - exact reproduction of `B`'s forecast calculation;
 - common bout identity and ordering across models;
 - predict-before-update chronology;
-- future-result isolation;
+- future bout results cannot change earlier sequential forecasts once the
+  prior artifact is fixed;
 - constant-rating translation invariance;
-- prior training-cutoff enforcement;
+- exact adopted-prior lookup without transformation;
 - deterministic prior and fallback lookup;
 - correct per-rikishi divisional `k` selection;
 - cross-division update behaviour;
 - paired score arithmetic;
-- fold reconstruction and boundary dates;
 - deterministic uncertainty under a fixed seed; and
 - manifest hashes and parameter completeness.
-
-At least one deliberately leaky fixture must fail, demonstrating that the
-training boundary is enforced rather than merely documented.
 
 ## Deliverables
 
@@ -385,11 +356,9 @@ The first implementation tranche is complete when it provides:
 2. the four forecast producers or one parameterised producer proving the four
    contracts;
 3. retrospective diagnostic output;
-4. temporal-validation output;
-5. paired uncertainty and factorial comparisons;
-6. automated verification;
-7. a consolidated findings document; and
-8. a decision record selecting `B'` or retaining `B`.
+4. paired uncertainty and factorial comparisons;
+5. automated verification; and
+6. a consolidated findings document after the declared run.
 
 No Equelo or website artifact should be changed as part of this proposal.
 - reproduce `B`'s established scores;

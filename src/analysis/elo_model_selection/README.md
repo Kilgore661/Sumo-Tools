@@ -2,8 +2,27 @@
 
 ## Status
 
-New analysis package. The research position and first proposal are documented;
-the comparison code has not yet been implemented.
+Implemented retrospective comparison package. The declared 1989/01--2026/07
+run has been made and produces the four common forecast ledgers, paired
+evaluation, participant-level calibration, uncertainty, provenance and a
+qualified report. The results and their current interpretation are recorded in
+[Results 1: Controlled Retrospective Comparison](docs/Results%201.md).
+
+The comparison retains `B_kP` with `q=400` as provisional `B'`, because it
+wins under the predeclared primary log-loss criterion and under Brier loss.
+Calibration adds nuance rather than overturning that choice: `B_kP` is
+fractionally best in aggregate, while `B_k` is fractionally best when ECE is
+calculated separately within rating-maturity bands and then weighted by bout
+count. The two are the strongest candidates and there is not a great deal to
+choose between them. `B_k` is therefore recorded as the serious alternative.
+
+Calibration by paired prior rated-bout counts shows that the troubling
+aggregate overconfidence is concentrated primarily where a rating with fewer
+than 30 prior results faces a more established rating. Two immature ratings
+can be well calibrated against one another, while mature pairings are much
+more closely calibrated in general. Investigating `q` remains possible, but
+is no longer a prerequisite for proceeding to the full-history definition of
+Equelo.
 
 ## Purpose
 
@@ -47,8 +66,10 @@ post-1988 prediction problem fixed:
 | `B_kP` | divisional | informed prior `P` |
 
 These names describe experimental cells, not four promised production models.
-The model eventually selected from this work is denoted by `B'`. Until the
-comparison is complete, `B'` is an unfilled role rather than a definition.
+The comparison supports `B_kP` as the provisional post-1988 successor denoted
+by `B'`, with `B_k` retained as the close alternative. Further diagnostics
+refine the account of their strengths and weaknesses; they are not being
+treated as a prerequisite for naming the model.
 
 The order of the subscripts is not intended to say that applying a `k` policy
 and applying a prior are sequential operations. The table is a factorial
@@ -124,13 +145,22 @@ normalisation, eligibility or another Equelo-specific policy.
 ## Interpretation boundary
 
 The adopted final post-1988 prior artifact was learned from the same broad
-history on which a retrospective run would score it. Such a run can be a
-useful diagnostic, but it cannot establish prospective predictive power.
+history on which this retrospective run scores it. The historical comparison
+is therefore not out-of-sample validation.
 
-The decisive comparison must prevent results under evaluation from influencing
-the prior used to predict them. It must also settle how a prior derived on a
-`q=900` rating scale is represented in a model whose `q` is fixed at 400.
-Neither raw reuse nor a scale conversion may be left implicit.
+For this tranche, `P` means the exact adopted paired artifact, unchanged. It is
+used without rescaling, smoothing or recentering even though its source
+experiments used `q=900`. Its behaviour inside the `q=400` candidate models is
+part of what the comparison measures.
+
+This is a provenance boundary, not an objection to selecting or using the
+fitted model. Using all results through the latest basho to fit a model and
+then forecasting the next basho is an ordinary past-to-future application.
+The retrospective calculation supplies the intended sanity check that the
+adopted prior improves on constant initialisation. A later prospective
+experiment may add new evidence by scoring the fixed artifact on genuinely
+future results; that is distinct from reconstructing the prior at historical
+cut-offs.
 
 ## Research and model success
 
@@ -138,17 +168,34 @@ The research tranche succeeds if it provides a reproducible, leakage-aware and
 like-for-like answer, even if every proposed modification fails. A negative
 result is useful model-selection evidence.
 
-A modified model succeeds as a candidate only if it:
+A modified model can clear the retrospective candidate criterion only if it:
 
 1. contains predictive information beyond 50--50;
 2. is superior or non-inferior to `B` under the predeclared primary rule;
-3. does not obtain its result through future-data leakage; and
-4. has no important population-specific regression concealed by the aggregate
+3. has no important population-specific regression concealed by the aggregate
    result.
+
+For `B_P` and `B_kP`, clearing that criterion is retrospective model-selection
+evidence rather than a historical out-of-sample test. This distinction is
+recorded as provenance and is not treated as a reason to reject the adopted
+prior.
 
 The numerical decision rule, paired uncertainty procedure and subgroup
 guardrails are proposed in
 [Proposal 1: Controlled Post-1988 Elo Model Comparison](docs/Proposal%201.md).
+The completed run is summarised in
+[Results 1: Controlled Retrospective Comparison](docs/Results%201.md).
+
+## Run
+
+```powershell
+python -m src.analysis.elo_model_selection `
+  --history-zip "files/output/Historys/1989_01 to 2026_11.zip" `
+  --end 2026/07
+```
+
+Outputs are written beneath `files/output/analysis/elo_model_selection/`. The
+manifest hashes the History, adopted prior and divisional-`k` configuration.
 
 ## Boundaries
 
