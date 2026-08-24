@@ -235,6 +235,13 @@ Other mechanisms remain live, including schedule connectivity, fixed-point or
 normalisation feedback, changing ability, and the institutional composition of
 the deepest ranks. This experiment does not select among them.
 
+For the wider Elo/Equelo programme, this closes the present maturity excursion
+without explaining away the anomaly. The next investigation therefore returns
+to the earlier unresolved candidates, particularly fixed-point and
+normalisation behaviour, while preserving the other mechanisms above as live
+alternatives rather than treating that priority as a conclusion of this
+experiment.
+
 ## Uncertainty and limitations
 
 The primary results are descriptive counts, quantiles and coupled differences.
@@ -275,4 +282,3 @@ The declared run contains:
 The implementation is verified by the repository test suite, including an
 exact bout-by-bout comparison with `B_k` and `B_kP`. At completion, all 201
 tests passed.
-
