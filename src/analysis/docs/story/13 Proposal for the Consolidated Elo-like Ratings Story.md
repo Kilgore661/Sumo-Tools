@@ -150,7 +150,12 @@ solved:
   convergence.
 
 This section should distinguish mechanical problems, modelling assumptions
-and empirical questions.
+and empirical questions. It should also distinguish two ideas that are easily
+conflated: a fixed-\(k\) rating path need not settle permanently, while the
+effect of its initial rating can nevertheless become negligible. The
+fixed-skill `forgetting` experiment supports that conceptual distinction by
+comparing differently initialized processes on exactly the same subsequent
+evidence. It does not establish a forgetting time for historical sumo.
 
 #### 8. Divisional \(k\)
 
@@ -188,6 +193,18 @@ State only the demonstrated convergence claim: in the implementations tested,
 successive maps converge to stable fixed points. Then explain why the adopted
 prior is a declared reconciliation of contextual post-1988 experiments rather
 than a timeless, uniquely true or necessarily monotone chii-to-ability table.
+
+The fixed-skill toy investigation may be cited here only as limited supporting
+background. In its deliberately favourable world, an initialization at known
+latent skill reached meaningful truth-relative behaviour sooner than flat,
+inverted and random alternatives, while all tested initializations were
+eventually forgotten. This is consistent with the intuitive purpose of an
+informed prior: shortening the initial transient. It is not direct evidence
+for the adopted prior \(P\). The toy world has ten permanent rikishi, fixed
+abilities, complete round robins, no divisions and \(k=5\); historical sumo
+has a much larger open population, changing abilities, unequal schedules,
+divisions and a different update policy. Its numerical forgetting times should
+therefore not appear in the main narrative as though they transferred to sumo.
 
 The public account should say that the retained paired priors are unsmoothed
 because smoothing was not required for their purpose. The source simulations
@@ -314,8 +331,13 @@ curves.
 #### E. Interpretive limits
 
 Link the chii-disagreement and M12 records, fixed-\(k\) fluctuation work,
-cross-boundary result and the distinction between calibration,
-discrimination, retrospective fit and future forecasting.
+the fixed-skill forgetting study, the cross-boundary result and the distinction
+between calibration, discrimination, retrospective fit and future
+forecasting. Preserve the distinction between continuing stochastic
+fluctuation, truth-relative error and sensitivity to initialization. Record
+explicitly that the forgetting experiment clarifies these concepts but does
+not validate \(P\), divisional \(k\), or a forgetting claim for historical
+sumo.
 
 #### F. Reproduction
 
@@ -407,6 +429,19 @@ coarse `calibration_ece_by_support_pair_coarse.html`, the fine
   provide interpretive guardrails.
 - [Elo Bottom Line 2](../2026%2008%2010%20Elo%20Bottom%20Line%202.html) records
   continuing fixed-\(k\) fluctuation.
+- [Forgetting package README](../../forgetting/README.md) defines
+  initialization forgetting as a paired-counterfactual property and separates
+  it from convergence, truth-relative error and predictive usefulness.
+- [Completed Investigation: Forgetting in a Fixed-Skill Toy World](../../forgetting/docs/Completed%20Investigation%20-%20Forgetting%20in%20a%20Fixed-Skill%20Toy%20World.md)
+  supplies the completed experiment and its strict claim boundary. It supports
+  the limited proposition that initial conditions can be forgotten despite
+  continuing fixed-\(k\) fluctuation, and that better initialization can
+  shorten the transient in the declared toy world. Its ten-rikishi,
+  fixed-skill, divisionless round-robin results are not direct validation of
+  the adopted prior or transferable numerical evidence about historical sumo.
+- [Forgetting Technical Companion](../../forgetting/docs/Completed%20Investigation%20-%20Technical%20Companion.md)
+  records the exact model, pairing contract, artifacts and reconstruction
+  checks for readers auditing that limited result.
 - [Production Equelo Definition: Remaining Decisions](11%20Production%20Equelo%20Definition%20-%20Remaining%20Decisions.md)
   identifies the historical-scope, anchoring, eligibility and integration
   choices that belong to the next chapter.
