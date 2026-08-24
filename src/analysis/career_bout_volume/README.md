@@ -189,11 +189,30 @@ python -m src.analysis.career_bout_volume --history-zip path\to\History.zip
 
 Focused verification is in `tests/test_career_bout_volume.py`.
 
-## Proposed next investigation
+## Implemented rating-maturity investigation
 
 [Proposal 1: Rating Maturity, Initialisation Sensitivity and Banzuke
 Position](docs/Proposal%201%20-%20Rating%20Maturity%20by%20Banzuke%20Position.md)
-defines a post-1988 follow-up. It will measure prior rated-bout support at each
-current banzuke position, compare coupled `B_k` and `B_kP` processes, and test
-whether controlling for rating maturity helps explain the irregular
+defines the follow-up whose new declared replay begins at `1989/01`. The existing
+career-volume run covers `1958/01`--`2026/07` and motivates the question; it is
+not the complete-results-era test.
+
+The implemented `rating_maturity` subpackage measures prior rated-bout support
+at each current banzuke position, compares coupled `B_k` and `B_kP` processes,
+and tests whether controlling for rating maturity helps explain the irregular
 chii-rating relationship below approximately `Jd100`.
+
+Run the declared `1989/01`--`2026/07` investigation with:
+
+```powershell
+python -m src.analysis.career_bout_volume.rating_maturity
+```
+
+It writes a timestamped audit directory beneath:
+
+```text
+files/output/analysis/career_bout_volume/rating_maturity/
+```
+
+The output `findings.md` leads with answers to the three staged questions.
+Focused replay and reporting verification is in `tests/test_rating_maturity.py`.

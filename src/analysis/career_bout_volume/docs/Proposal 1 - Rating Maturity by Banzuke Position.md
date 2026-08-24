@@ -2,9 +2,13 @@
 
 ## Status
 
-Proposed investigation. This document defines the next experiment suggested by
-the completed career-bout-volume probe and the fixed-skill forgetting study. It
-has not yet been implemented.
+Implemented on 24 August 2026 in
+`src/analysis/career_bout_volume/rating_maturity/`. The declared
+`1989/01`--`2026/07` run is persisted beneath
+`files/output/analysis/career_bout_volume/rating_maturity/`; its `findings.md`
+records the staged answers. This document remains the experimental contract
+suggested by the completed career-bout-volume probe and the fixed-skill
+forgetting study.
 
 The date ranges must not be conflated:
 
