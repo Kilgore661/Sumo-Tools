@@ -186,6 +186,26 @@ guardrails are proposed in
 The completed run is summarised in
 [Results 1: Controlled Retrospective Comparison](docs/Results%201.md).
 
+## Cumulative dual-K mass diagnostic
+
+The follow-up experiment specified in
+[Proposal 2: Cumulative Dual-K Rating Mass](docs/Proposal%202%20-%20Cumulative%20Dual-K%20Rating%20Mass.md)
+measures rating mass created or destroyed when the two participants use
+different `k` values. It consumes the persisted model-selection forecast ledger
+so that it audits the exact `B_k` and `B_kP` runs already used in the controlled
+comparison.
+
+Run it with:
+
+```powershell
+python -m src.analysis.elo_model_selection.dual_k_mass `
+  --ledger "files/output/analysis/elo_model_selection/retrospective_1989_01_to_2026_07/forecast_ledger.csv"
+```
+
+The diagnostic reports model, K-pair and basho accounting. It does not measure
+entrant/retirement inflation, infer the endpoint active-population mean or
+select a normalisation policy.
+
 ## Run
 
 ```powershell

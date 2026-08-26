@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Equelo Restart: From B Prime to Full History</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: Georgia, "Times New Roman", serif;
+      line-height: 1.6;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 54rem;
+      padding: 2rem 1.25rem 4rem;
+    }
+    h1, h2, h3 {
+      font-family: system-ui, sans-serif;
+      line-height: 1.2;
+      margin-top: 1.75em;
+    }
+    h1 { margin-top: 0; }
+    li + li { margin-top: 0.35rem; }
+    mjx-container[display="true"] {
+      margin: 1.25rem 0 !important;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body><h1 id="equelo-restart-from-b-prime-to-full-history">Equelo Restart: From B Prime to Full History</h1>
+<h2 id="status">Status</h2>
+<p>Restart proposal retained for its recovered project history. Its immediate
+next-action plan has been superseded: Tranche 1 is complete in
+<a href="15%20Tranche%201%20-%20Population%20Normalisation%20Policy.html">Tranche 1: Population Normalisation Policy</a>,
+and the current restart point is recorded in
+<a href="16%20Handoff%20After%20Tranche%201.html">Handoff After Tranche 1</a>.</p>
+<p>This document recovers the shortest current route through the Elo and Equelo
+work. It does not define the next production Equelo, adopt a pre-1989
+completion policy or prescribe a normalisation rule. Its purpose is to identify
+the next bounded analytical work without reopening questions that have already
+been settled well enough to proceed.</p>
+<p>The current model authorities remain:</p>
+<ul>
+<li><a href="08%20M12%20Investigation%20-%20Status%20and%20Next%20Steps.html">The M12 Problem</a>;</li>
+<li><a href="10%20Initial%20Rating%20Policy.html">Initial Rating Policy</a>;</li>
+<li><a href="12%20Elo-family%20Model%20Lineage%20and%20Analysis%20Triage.html">Elo-family Model Lineage and Analysis Triage</a>; and</li>
+<li><a href="../../elo_model_selection/docs/Results%201.md">Results 1: Controlled Retrospective Comparison</a>.</li>
+</ul>
+<p>This restart note reconciles their chronology and proposes the next tranche.</p>
+<h2 id="the-recovered-project-story">1. The recovered project story</h2>
+<p>The project began with the represented sumo record, the <code>History</code>. The first
+question was deliberately broad: what useful and interesting facts could be
+derived from it? Analyses produced records, comparisons and exhibits, and a
+static website became the natural way to present selected findings.</p>
+<p>Elo introduced a different kind of question. Before choosing parameters, the
+project had to decide what population and evidence an Elo rating would describe.
+The represented bout record is sufficiently complete across the banzuke only
+from 1989 onward. From 1958 through 1988 it is sufficiently complete for
+sekitori, but not for the full lower-banzuke population. Ordinary all-banzuke
+Elo therefore has a natural post-1988 scope.</p>
+<p>Within that scope, two familiar problems became central:</p>
+<ol>
+<li>an open and changing population can move the active rating scale; and</li>
+<li>equal initial ratings give new or newly observed rikishi an artificial
+adjustment period.</li>
+</ol>
+<p>The first Equelo work addressed scale drift with a population-normalisation
+policy. The second used fixed-point iteration to seek self-consistent entrant
+initial ratings by chii. Expt2 established an empirically stable fixed point
+under its declared simulation, aggregation and anchoring rules.</p>
+<p>The larger conceptual leap was to combine the incomplete pre-1989 record with
+the complete post-1988 record. The January 1989 population is not a new
+population: most rikishi represented then were also present in November 1988.
+The original Equelo construction exploited that continuity. Although parts of
+the combination were ad hoc, the combined calculation also reached a stable
+fixed point and avoided the conspicuous scale drift that had motivated
+normalisation.</p>
+<p>The resulting ratings looked broadly plausible. Their typical chii curve was
+largely ordered, had a striking and satisfying rise at yokozuna, and was useful
+enough to place in the website as a way of exploring both the ratings and their
+possible audiences.</p>
+<p>The lower-maegashira reversal then became the M12 problem. The public-facing
+<code>Typical Equelo Ratings</code> presentation implicitly treated the curve as more
+authoritative and monotone than the evidence justified. Investigating that
+problem led back through ordinary Elo, entrant initialisation, support,
+normalisation, changing division depth, boundary-relative representations and
+loosely connected divisional populations.</p>
+<p>That investigation produced useful evidence, but it also obscured the main
+route. Much of the work concerned Elo-like model choices rather than the
+distinctive full-history Equelo problem.</p>
+<h2 id="what-has-now-been-settled-well-enough">2. What has now been settled well enough</h2>
+<h3 id="basic-elo-has-a-precise-project-definition">2.1 Basic Elo has a precise project definition</h3>
+<p>The definitive baseline \(B\) is no longer an informal reference to Elo in
+general. It is the declared post-1988 model with:</p>
+<pre><code class="language-text">history = represented results from 1989/01 onward
+q = 400
+k = constant 35
+initialisation = one common rating
+chronology = forecast before update
+identity = RikId
+rating persistence = permanent within the run
+eligible result = represented W/L, irrespective of kimarite
+</code></pre>
+<h3 id="the-m12-problem-is-closed-as-a-blocker">2.2 The M12 problem is closed as a blocker</h3>
+<p>Ratings are not chii. Exact literal-chii monotonicity is neither a necessary
+property of ratings learned from bouts nor a decisive validity test.</p>
+<p>Chii remains relevant evidence. It is an institutional ordering, can inform an
+entrant prior and may help where earlier bout evidence is absent. But an
+empirical or fixed-point chii curve is conditional on the represented history,
+banzuke structure and modelling policy. It is not a measurement of timeless
+ability attached to each literal rank.</p>
+<p>The project has therefore retained the small remaining reversal in the adopted
+post-1988 prior rather than fitting it away merely to obtain a perfectly smooth
+public curve.</p>
+<h3 id="the-informed-entrant-prior-has-a-defined-role">2.3 The informed entrant prior has a defined role</h3>
+<p>The adopted \(P\) is an entrant prior intended to shorten the initialisation
+gap. It is not a rating assigned permanently by chii and it is not a claim that
+the chosen values are uniquely true.</p>
+<p>Its current authority and domain are limited to the represented 1989-onward
+chii. Historical ranks absent from that scope, including M19--M22 and J15--J24,
+require a separate historical-completion decision.</p>
+<h3 id="a-post-1988-successor-has-been-selected-provisionally">2.4 A post-1988 successor has been selected provisionally</h3>
+<p>The controlled four-model comparison considered:</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th><code>k</code> policy</th>
+<th>Entrant initialisation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>\(B\)</td>
+<td>constant 35</td>
+<td>constant</td>
+</tr>
+<tr>
+<td>\(B_k\)</td>
+<td>divisional</td>
+<td>constant</td>
+</tr>
+<tr>
+<td>\(B_P\)</td>
+<td>constant 35</td>
+<td>informed prior \(P\)</td>
+</tr>
+<tr>
+<td>\(B_{kP}\)</td>
+<td>divisional</td>
+<td>informed prior \(P\)</td>
+</tr>
+</tbody>
+</table>
+<p>\(B_{kP}\) had the lowest declared aggregate log loss, and Brier loss gave the
+same ordering. Most of the improvement over \(B\) came from informed
+initialisation; divisional <code>k</code> supplied a smaller additional improvement.
+Calibration evidence leaves \(B_k\) as a serious alternative, and the adopted
+prior was derived from the broad history being scored, so the selection is
+properly described as provisional retrospective model-selection evidence.</p>
+<p>Nevertheless, changing the selection rule after seeing the results would be
+hard to defend. The current working successor is therefore:</p>
+<p>\[
+B' = B_{kP}.
+\]</p>
+<p>Some earlier story text predates this result and still describes selection of
+\(B'\) as outstanding. That is documentary chronology, not a current research
+blocker.</p>
+<h2 id="the-newly-clarified-equelo-boundary">3. The newly clarified Equelo boundary</h2>
+<p>Divisional <code>k</code> and informed initialisation are valid Elo-family choices. They
+do not by themselves define Equelo.</p>
+<p>The shortest current lineage is:</p>
+<p>\[
+B \longrightarrow B'=B_{kP} \longrightarrow
+\text{Equelo over the represented 1958--present history}.
+\]</p>
+<p>The remaining distinctive Equelo problem is therefore:</p>
+<blockquote>
+<p>What explicit, reproducible historical-extension policy applies \(B'\) to
+the incomplete 1958--1988 record and carries the resulting state across the
+January 1989 observability change?</p>
+</blockquote>
+<p>This does not require Equelo to contain a novel update equation. Its distinctive
+contribution may be the declared treatment of incomplete historical evidence,
+population continuity, historical-only ranks and rating-scale drift.</p>
+<h2 id="why-a-rating-mass-audit-comes-next">4. Why a rating-mass audit comes next</h2>
+<p>It is tempting to move immediately to alternative historical prior tables. That
+would leave the scale policy under-specified.</p>
+<p>The word <em>inflation</em> currently covers several different phenomena. An open,
+changing population does not guarantee monotonically rising ratings, but it can
+move the mean of the active pool. The direction and size depend on who enters,
+who leaves and their ratings. The selected divisional-<code>k</code> policy introduces a
+separate mechanism: when two participants use different <code>k</code> values, their
+updates are unequal and opposite only in sign, so a cross-division bout can
+create or destroy total rating mass.</p>
+<p>At least four contributions must therefore be distinguished:</p>
+<ol>
+<li><strong>entrant composition</strong>: ratings added when previously unrated rikishi enter
+the represented active population;</li>
+<li><strong>departure composition</strong>: ratings removed when rikishi leave that active
+population;</li>
+<li><strong>bout mass change</strong>: non-zero-sum updates caused by unequal participant
+<code>k</code> values; and</li>
+<li><strong>observability change</strong>: especially the large change in represented
+population at January 1989.</li>
+</ol>
+<p>The object being preserved must also be named. Plausible but different objects
+include:</p>
+<ul>
+<li>total rating mass among all rikishi ever encountered;</li>
+<li>total rating mass among the current banzuke population;</li>
+<li>the mean rating of the current banzuke population;</li>
+<li>a reference subgroup such as sekitori; and</li>
+<li>an externally anchored rating level.</li>
+</ul>
+<p>No normalisation rule should be adopted merely because it keeps one convenient
+number constant. The audit must first show what moves, why it moves and which
+movement is undesirable for the intended interpretation of Equelo.</p>
+<h2 id="rating-mass-audit-requirements">5. Rating-mass audit requirements</h2>
+<h3 id="purpose">5.1 Purpose</h3>
+<p>The audit must describe rating-scale movement in \(B\), \(B_k\), \(B_P\) and
+\(B_{kP}\) without correcting it. It is a diagnostic producer, not a new rating
+model.</p>
+<h3 id="fixed-model-contracts">5.2 Fixed model contracts</h3>
+<p>The audit must use the exact contracts and inputs of the completed controlled
+post-1988 comparison. It must not silently change <code>q</code>, <code>k</code>, \(P\), bout
+eligibility, chronology, identity or history bounds.</p>
+<p>This allows the two-by-two comparison to separate the relevant mechanisms:</p>
+<ul>
+<li>\(B\) versus \(B_P\) isolates entrant initialisation under zero-sum bouts;</li>
+<li>\(B\) versus \(B_k\) exposes divisional-<code>k</code> effects under constant
+initialisation; and</li>
+<li>\(B_P\) versus \(B_{kP}\) exposes divisional-<code>k</code> effects under \(P\).</li>
+</ul>
+<h3 id="basho-level-accounting">5.3 Basho-level accounting</h3>
+<p>For every model and represented basho, the audit should record at least:</p>
+<pre><code class="language-text">date
+active population before departures
+departing rikishi count
+departing rating mass and mean
+active population after departures
+entrant count
+entrant rating mass and mean
+active population after entry
+rating mass before bouts
+rating mass change from rated bouts
+rating mass after bouts
+active mean before and after each boundary
+cumulative entrant, departure and bout contributions
+</code></pre>
+<p>The accounting identities must reconcile exactly within floating-point
+tolerance. An unexplained residual is an implementation or model error, not a
+category called <code>other</code>.</p>
+<h3 id="required-views">5.4 Required views</h3>
+<p>The first output should be machine-readable basho-level data. A short findings
+report should then answer:</p>
+<ol>
+<li>Does the active rating mean drift materially in each model?</li>
+<li>Is the movement predominantly caused by entrants, departures or unequal-<code>k</code>
+bouts?</li>
+<li>Is the movement consistently upward, consistently downward or episodic?</li>
+<li>Are particular division boundaries responsible for most unequal-<code>k</code> mass
+change?</li>
+<li>Does informed initialisation reduce or increase population-composition
+effects?</li>
+<li>What, if anything, would a scale policy need to preserve?</li>
+</ol>
+<p>Charts are useful only after the accounting table and identities are settled.</p>
+<h3 id="explicit-exclusions">5.5 Explicit exclusions</h3>
+<p>The audit must not:</p>
+<ul>
+<li>apply normalisation;</li>
+<li>select a preferred scale correction;</li>
+<li>define pre-1989 priors;</li>
+<li>rerun the M12 search;</li>
+<li>judge a model by agreement with chii; or</li>
+<li>migrate production Equelo or website consumers.</li>
+</ul>
+<h2 id="the-historical-extension-tranche-behind-the-audit">6. The historical-extension tranche behind the audit</h2>
+<p>After the audit, hold \(B'\) fixed and compare a small number of full-history
+constructions. The comparison should include at least:</p>
+<ol>
+<li>\(B'\) beginning in 1989, as the no-historical-extension comparator;</li>
+<li>full-history \(B'\) with no rating-mass correction;</li>
+<li>full-history \(B'\) with the audit-supported correction, if the audit
+supports one; and</li>
+<li>the maintained fixed-supported Equelo as a production-legacy comparator
+where a like-for-like forecast ledger can be produced.</li>
+</ol>
+<p>The full-history candidates must otherwise share:</p>
+<pre><code class="language-text">q = 400
+k = the selected divisional policy
+entrant prior = P where P is defined
+chronology = forecast before update
+identity = RikId
+eligible result = represented W/L irrespective of kimarite
+</code></pre>
+<p>The historical policies that genuinely need comparison are:</p>
+<ul>
+<li>backward use of the post-1988 prior;</li>
+<li>literal-rank or boundary-relative completion for historical-only ranks;</li>
+<li>treatment of rikishi first observed as sekitori before 1989;</li>
+<li>treatment of the newly observable lower-banzuke population in January 1989;
+and</li>
+<li>the rating-mass policy identified by the audit.</li>
+</ul>
+<p>The M12 evidence makes boundary-relative completion the stronger conceptual
+candidate for historically deeper Makuuchi and Juryo tails. Literal completion
+is simpler and should remain a comparator rather than being rejected by
+intuition alone.</p>
+<h2 id="the-decisive-historical-question">7. The decisive historical question</h2>
+<p>The first evaluation should score identical post-1988 bouts. It should report
+the whole period, but pay particular attention to the years immediately after
+January 1989, when information carried from the earlier history can matter
+most.</p>
+<p>The primary question is:</p>
+<blockquote>
+<p>Does processing the represented 1958--1988 history improve forecasts after
+January 1989 compared with starting \(B'\) afresh in 1989?</p>
+</blockquote>
+<p>This is the empirical heart of the next Equelo claim. If the answer is no, the
+historical extension may still be interesting as a historical rating product,
+but it cannot be defended as improving the post-1988 model merely because its
+construction reaches a fixed point.</p>
+<p>The use of a prior derived from the broad post-1988 history remains a provenance
+qualification shared by the fitted candidates. A genuinely prospective test
+can score the fixed selected model on future basho. It need not be confused
+with the narrower comparison of whether carrying pre-1989 evidence into the
+same fitted model adds useful information.</p>
+<h2 id="decision-gates">8. Decision gates</h2>
+<p>The work should proceed through explicit gates:</p>
+<pre><code class="language-text">selected post-1988 B'
+  -&gt; rating-mass audit
+  -&gt; scale-policy decision, including a decision to do nothing
+  -&gt; historical prior/completion specification
+  -&gt; controlled full-history comparison
+  -&gt; selected Equelo construction
+  -&gt; production artifacts and API migration
+  -&gt; website migration
+</code></pre>
+<p>Failure at a gate is informative. In particular:</p>
+<ul>
+<li>the audit may show that no material scale correction is needed;</li>
+<li>the historical record may add no post-1988 predictive information;</li>
+<li>boundary-relative completion may be indistinguishable from the simpler
+literal rule; or</li>
+<li>the older fixed-supported construction may remain competitive.</li>
+</ul>
+<p>None of those outcomes would invalidate the useful work already completed.</p>
+<h2 id="work-not-to-reopen-now">9. Work not to reopen now</h2>
+<p>The next tranche should not wait for:</p>
+<ul>
+<li>an exactly monotone chii-to-rating curve;</li>
+<li>a causal explanation of every M12 reversal;</li>
+<li>proof of fixed-point existence or uniqueness in general;</li>
+<li>another general search over <code>q</code>;</li>
+<li>proof that divisional <code>k</code> is uniquely optimal;</li>
+<li>editorial consolidation of the public Elo story; or</li>
+<li>replacement of every older Equelo producer.</li>
+</ul>
+<p>Those questions can remain documented limitations, retained evidence or later
+work. They are no longer the route to the next Equelo.</p>
+<h2 id="next">10. Next</h2>
+<p>This proposed next step was carried out and then developed into the completed
+Tranche 1 investigation. Do not restart from this section. Continue from the
+<a href="16%20Handoff%20After%20Tranche%201.html">handoff</a>, which records the resulting
+candidate model, evidence, code paths and remaining full-history work.</p>
+</body>
+</html>

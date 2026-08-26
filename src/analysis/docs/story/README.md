@@ -69,6 +69,20 @@ either a defect or an insight.
     structure, three reading routes, claim boundaries, acceptance criteria and
     pointers to the supporting research and generated evidence. The proposal
     deliberately stops where the next full-history Equelo construction begins.
+14. [Equelo Restart: From B Prime to Full History](14%20Equelo%20Restart%20-%20From%20B%20Prime%20to%20Full%20History.md)
+    recovers the shortest current route from the selected post-1988 \(B'\) to a
+    new full-history Equelo. It proposes a rating-mass audit as the next bounded
+    tranche, followed by a controlled comparison of historical-extension
+    policies. It is a restart proposal, not a production-model decision.
+15. [Tranche 1: Population Normalisation Policy](15%20Tranche%201%20-%20Population%20Normalisation%20Policy.md)
+    records the completed investigation from the dual-`k` audit through
+    canonical q=400 prior production, fixed-point controls and the exact
+    population-policy predictive gate. It selects fixed \(P_1\) plus
+    whole-population mean preservation as the leading retrospective candidate.
+16. [Handoff After Tranche 1](16%20Handoff%20After%20Tranche%201.md) is the
+    current restart point. It consolidates vocabulary, model contract,
+    evidence, reproducible commands, code paths, qualifications and the bounded
+    decisions required before the full-history tranche.
 
 The detailed initial inventory remains in
 [Elo Documentation Rummage](../2026%2008%2014%20Elo%20Documentation%20Rummage.md).
@@ -85,55 +99,35 @@ The detailed initial inventory remains in
 | Detailed technical account | Elo-like portion unblocked; production Equelo blocked | Exact \(B'\) evidence exists; historical scope, anchoring/fallback, eligibility and integration remain unsettled for Equelo |
 | Expert/critical account | Audit route proposed | Reproducible model-selection and calibration artifacts provide the present critical record |
 | Basic Elo predictive account | Evidence exists | Needs integration into the story |
-| Equelo predictive account | Experiment required | Must use a directly comparable protocol |
+| Equelo predictive account | Retrospective post-1988 evidence complete | Whole-population BKP1 leads log and Brier; prospective and full-history validation remain |
 | Low-support/non-monotonicity account | Decision recorded | Preserve experiments; smoothing is reasonable, but the retained policy is not smoothed |
-| Model lineage and package triage | \(B'\) selected provisionally | \(B'=B_{kP}\); the historical extension and producer-level Equelo audit remain to be completed |
+| Model lineage and package triage | Post-1988 candidate selected | Fixed \(P_1\), q=400, divisional `k` and whole-population preservation; historical extension remains |
 
 ## Next steps
+
+Tranche 1 is complete. The current state and precise continuation are in
+[Handoff After Tranche 1](16%20Handoff%20After%20Tranche%201.md). The next
+research tranche is the controlled extension of the selected post-1988 model
+over the incomplete 1958--1988 history. It should begin with a bounded
+historical-completion and January-1989 observability specification, not with
+production or website migration.
 
 The proposed consolidation of the Elo-like account is now specified in
 [Proposal: The Consolidated Elo-like Ratings Story](13%20Proposal%20for%20the%20Consolidated%20Elo-like%20Ratings%20Story.md).
 The project is deliberately moving next to the definition of full-history
 Equelo rather than performing that editorial consolidation immediately.
 
-The M12 investigation established
-that changing banzuke structure materially affects empirical chii-to-rating
-maps, but did not identify one model that explains or removes every reversal.
-That is no longer treated as a documentation blocker.
+The M12 investigation established that changing banzuke structure materially
+affects empirical chii-to-rating maps. Exact monotonicity is no longer a model
+or documentation blocker. Canonical \(P_1\) retains the computed anomalies and
+must be described as an entrant-initialisation policy rather than a definitive
+mapping from rank to skill.
 
-The project will retain the reproducible, east/west-paired 1989-onward
-contextual curve as its entrant-prior policy. Smoothing that curve would be a
-reasonable modelling choice, but not smoothing is also reasonable because the
-curve is already adequate for shortening the initialisation gap. The project
-therefore chose not to smooth. Public prose must distinguish these chosen
-priors from uniquely estimated chii values and from ratings subsequently
-learned from bout results.
-
-The immediate work is to implement the [Initial Rating Policy](10%20Initial%20Rating%20Policy.md),
-then conduct a prospective, like-for-like predictive comparison of Equelo with
-Basic Elo accompanied by sensitivity tests using reasonable alternative
-priors, which may include smoothed comparators. Start with the
-[consolidated M12 record](08%20M12%20Investigation%20-%20Status%20and%20Next%20Steps.md);
-[Open Questions and Experiments](05%20Open%20Questions%20and%20Experiments.md)
-records the wider validation programme.
-
-Before the detailed technical account presents one definitive production
-calculation, the outstanding model and integration decisions in
-[Production Equelo Definition: Remaining Decisions](11%20Production%20Equelo%20Definition%20-%20Remaining%20Decisions.md)
-must be resolved. In particular, current production still uses the older
-fixed-supported priors, and the present calculation ignores a material number
-of bouts whose win/loss result is known but whose kimarite is missing.
-The possible backward transfer of the 1989-onward priors is recorded there as
-a parked proposal rather than a decision, so it need not interrupt work on the
-other production questions.
-
-The current route is set out in
-[Elo-family Model Lineage and Analysis Triage](12%20Elo-family%20Model%20Lineage%20and%20Analysis%20Triage.md):
-first compare the post-1988 candidate models with the definitive Basic Elo
-baseline and select \(B'\); then extend \(B'\) over the incomplete earlier
-record to construct the next full-history Equelo. A producer-by-producer audit
-will use the statuses defined there to distinguish germane code and evidence
-from production legacy, retained negative results and tangential exploration.
+Production still uses older Equelo artifacts. Migration remains deliberately
+deferred until the historical-extension gate has selected a full-history
+construction. Older documents retain their decisions and chronology, but the
+handoff, rather than their former “next step” sections, is authoritative for
+resuming the work.
 
 ## Working discipline
 

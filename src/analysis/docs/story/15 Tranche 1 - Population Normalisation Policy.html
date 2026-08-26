@@ -1,0 +1,900 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tranche 1: Normalisation Policy</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: Georgia, "Times New Roman", serif;
+      line-height: 1.6;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 54rem;
+      padding: 2rem 1.25rem 4rem;
+    }
+    h1, h2, h3 {
+      font-family: system-ui, sans-serif;
+      line-height: 1.2;
+      margin-top: 1.75em;
+    }
+    h1 { margin-top: 0; }
+    li + li { margin-top: 0.35rem; }
+    mjx-container[display="true"] {
+      margin: 1.25rem 0 !important;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body><h1 id="tranche-1-normalisation-policy">Tranche 1: Normalisation Policy</h1>
+<h2 id="corrected-order-of-work">Corrected order of work</h2>
+<p>The first Tranche 1 implementation compared the legacy departure adjustment
+with whole-population mean preservation. That was one step too far. Both
+fixed-point calculations retained the existing post-iteration chii-map
+normalisation even though earlier work already associated that operation with
+absurd ratings at very low-support chii.</p>
+<p>Those distorted priors are then used to initialise entrants. They can
+contaminate any comparison of population-normalisation policies. The corrected
+order is therefore:</p>
+<ol>
+<li>repair or delimit post-iteration chii-map recentering while keeping the old
+Elo replay fixed;</li>
+<li>obtain a credible post-1988 prior curve;</li>
+<li>only then compare departure redistribution with whole-population mean
+preservation.</li>
+</ol>
+<p>The reproducible package is
+<a href="../../equelo_population_policy/README.md"><code>src/analysis/equelo_population_policy</code></a>.</p>
+<h2 id="existing-recentering">Existing recentering</h2>
+<p>After a replay, Expt2 aggregates basho-start ratings by chii. If the raw map is
+<code>r(c)</code> over <code>C</code> chii and the chosen baseline is <code>B</code>, the existing rule adds the
+same amount to every chii:</p>
+<pre><code class="language-text">correction_mass = C * B - sum(r(c))
+adjustment(c)   = correction_mass / C
+</code></pre>
+<p>This restores the unweighted chii-map mean and preserves every rating
+difference. But a chii with one entrant-dominated observation receives the
+same repeated shift as a chii supported throughout the history. The resulting
+prior can therefore be mostly accumulated normalisation rather than bout
+evidence.</p>
+<h2 id="support-weighted-proposal">Support-weighted proposal</h2>
+<p>The isolated experiment replaces only the allocation rule:</p>
+<pre><code class="language-text">weight(c)     = support(c) ** alpha
+adjustment(c) = correction_mass * weight(c) / sum(weight)
+</code></pre>
+<p>The total correction is unchanged, so the unweighted map mean still equals
+<code>B</code>. At <code>alpha=0</code> this is exactly the old common shift. At <code>alpha=1</code>, correction
+is distributed directly in proportion to support. Intermediate exponents test
+whether the low-support ratchet can be reduced without materially changing
+rating differences.</p>
+<p>The experiment reports two direct measures of distortion:</p>
+<ul>
+<li>maximum change to any pairwise rating difference;</li>
+<li>RMS change over all distinct pairs.</li>
+</ul>
+<p>It also compares the final fixed-point maps with the uniform-shift baseline.</p>
+<h2 id="canonical-run">Canonical run</h2>
+<pre><code class="language-powershell">python -m src.analysis.equelo_population_policy.run_recentering `
+  --start 1989 --end 2026 --zip `
+  --epsilon 10 --max-iterations 200
+</code></pre>
+<p>Artifacts are under
+<code>files/output/analysis/equelo_population_policy/recentering/</code>.</p>
+<h2 id="results-how-much-do-differences-change">Results: how much do differences change?</h2>
+<table>
+<thead>
+<tr>
+<th>Allocation</th>
+<th style="text-align: right;">Final-step RMS change</th>
+<th style="text-align: right;">Final-step maximum change</th>
+<th style="text-align: right;">Final-map RMS change from uniform</th>
+<th style="text-align: right;">Final-map maximum change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Uniform</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+</tr>
+<tr>
+<td>Support^0.25</td>
+<td style="text-align: right;">6.363</td>
+<td style="text-align: right;">17.738</td>
+<td style="text-align: right;">65.742</td>
+<td style="text-align: right;">561.251</td>
+</tr>
+<tr>
+<td>Support^0.5</td>
+<td style="text-align: right;">20.656</td>
+<td style="text-align: right;">52.290</td>
+<td style="text-align: right;">128.509</td>
+<td style="text-align: right;">914.262</td>
+</tr>
+<tr>
+<td>Support^1</td>
+<td style="text-align: right;">103.350</td>
+<td style="text-align: right;">245.025</td>
+<td style="text-align: right;">348.080</td>
+<td style="text-align: right;">1507.271</td>
+</tr>
+</tbody>
+</table>
+<p>Raw support proportionality is therefore not a small relaxation of difference
+preservation. At the stopping iteration, that single recentering changes a
+typical pairwise difference by about 103 points RMS and some differences by
+245 points. Across the solved map, pairwise differences move by 348 points RMS
+relative to the uniform baseline.</p>
+<p>Restricting the final-map comparison to chii with at least 100 observations
+reduces but does not remove the distortion:</p>
+<table>
+<thead>
+<tr>
+<th>Allocation</th>
+<th style="text-align: right;">Supported-map RMS difference change</th>
+<th style="text-align: right;">Supported-map maximum change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Support^0.25</td>
+<td style="text-align: right;">4.78</td>
+<td style="text-align: right;">25.72</td>
+</tr>
+<tr>
+<td>Support^0.5</td>
+<td style="text-align: right;">16.04</td>
+<td style="text-align: right;">78.64</td>
+</tr>
+<tr>
+<td>Support^1</td>
+<td style="text-align: right;">84.06</td>
+<td style="text-align: right;">405.67</td>
+</tr>
+</tbody>
+</table>
+<p>The direct support rule does solve the headline singleton symptom:
+<code>Sd101e</code> falls from 2787.926 under the uniform rule to 1531.987. But it does so
+by moving well-supported ratings substantially: <code>Y1e</code>, <code>O1e</code>, <code>S1e</code>, <code>K1e</code>,
+<code>M1e</code> and <code>M12e</code> all move by roughly 199--205 points.</p>
+<p>Gentle weighting presents the opposite trade-off. <code>alpha=0.25</code> changes the
+well-supported curve only modestly, but the largest low-support prior remains
+2844.934. <code>alpha=0.5</code> lowers singleton <code>Sd101e</code> to 1927.049 but still leaves a
+nine-observation Jonokuchi chii at 2747.148.</p>
+<h2 id="recovered-earlier-evidence">Recovered earlier evidence</h2>
+<p>Commit <code>a250420</code> contains an abandoned <code>equelo2</code> experiment that changed the
+population mean-preservation operator rather than the chii-map recentering.
+Equal-share active-population correction drove one-observation <code>Sd101e</code> to
+roughly 65,000 even after solver-level recentering was removed. Support
+weighting controlled that singleton but warped the Juryo--Makushita boundary
+and lower Maegashira curve.</p>
+<p>This confirms that both normalisations can create fixed-point rank evidence.
+The isolated experiment above nevertheless shows why chii-map recentering must
+be repaired first: its current all-chii common shift already supplies unusable
+entrant priors.</p>
+<h2 id="initial-interpretation-after-the-distortion-audit">Initial interpretation after the distortion audit</h2>
+<p>The proposed raw support-proportional shift is too aggressive. It answers the
+question “how much do differences change?” with “materially.” A power-law
+compromise does not give a clean solution: small exponents preserve the
+supported curve but leave low-support extremes; larger exponents remove the
+extremes by reshaping the curve.</p>
+<p>The promising tailored rule is consequently more discrete:</p>
+<ul>
+<li>define the prior on the already-established supported chii domain;</li>
+<li>apply one common additive shift within that domain, preserving all
+differences between retained priors;</li>
+<li>do not allow unsupported chii to participate in or receive the repeated map
+correction;</li>
+<li>resolve unsupported entrants through the explicit fallback/completion policy
+rather than pretending their fixed-point estimates are evidence.</li>
+</ul>
+<p>That approach targets the known failure without unnecessarily changing
+differences among the ratings considered reliable. Once it produces a credible
+prior curve, the population-normalisation comparison can be rerun without the
+present confounder.</p>
+<p>The unequal-divisional-K issue remains minor: the earlier controlled replay
+found that removing its mass required an average correction of about 0.0385
+points per rikishi per basho, with a maximum around 0.170.</p>
+<h2 id="subsequent-decision-retain-the-alpha1-curve-as-a-candidate">Subsequent decision: retain the alpha=1 curve as a candidate</h2>
+<p>Visual inspection changed the modelling judgement without changing the
+distortion measurements above. Apart from the unsupported deep-Jonokuchi tail,
+the <code>alpha=1</code> curve has a coherent broad shape through substantially more of
+the lower banzuke than the old literal-chii fixed point. It removes the former
+M12--M18 rise but retains visible discontinuities at M/J and J/Ms, saw-toothed
+rare sanyaku positions, and support-related features such as the <code>Ms60e</code>
+spike.</p>
+<p>The project chose not to interpolate these features away. This repeats the
+earlier M12 decision in a stronger form:</p>
+<ul>
+<li>the map is an entrant-initialisation policy, not a timeless measurement of
+intrinsic ability belonging to each chii;</li>
+<li>exact monotonicity is not required, although broad agreement with chii order
+remains desirable;</li>
+<li>a surprising value is neither automatically a model defect nor a discovery
+about sumo; and</li>
+<li>computed anomalies should be disclosed rather than silently replaced by the
+curve expected in advance.</li>
+</ul>
+<p>The <code>alpha=1</code> result is therefore denoted candidate prior \(P_1\). With the
+selected divisional-<code>k</code> forecast model it gives candidate \(B_{kP_1}\), called
+<code>BKP1</code> informally. This is a candidate designation, not a claim that the
+distortion audit selected a predictively useful model.</p>
+<h2 id="retrospective-q400-predictive-gate">Retrospective q=400 predictive gate</h2>
+<p>The source fixed-point diagnostic used legacy Expt2's <code>q=900</code>. The predictive
+gate deliberately does not revive that value in the rating model. It inserts
+the resulting \(P_1\) into the exact <code>q=400</code> forecast/update contract of the
+established B-family comparison.</p>
+<p>For the consumer contract, the 975 side-specific <code>support_1</code> values are paired
+by an unweighted east/west mean. This produces 484 pairs, including three
+singletons. The unranked fallback is the minimum paired candidate value. The
+same 574,863 rated bouts, eligibility rules, chronology and divisional-<code>k</code>
+configuration are used for every model.</p>
+<p>Reproduce with:</p>
+<pre><code class="language-powershell">python -m src.analysis.equelo_population_policy.predict_candidate `
+  --history-zip &quot;files/output/Historys/1989_01 to 2026_11.zip&quot; `
+  --end 2026/07
+</code></pre>
+<p>Artifacts are under
+<code>files/output/analysis/equelo_population_policy/prediction_q400/</code>.</p>
+<h3 id="aggregate-result">Aggregate result</h3>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th style="text-align: right;">Mean log loss</th>
+<th style="text-align: right;">Mean Brier loss</th>
+<th style="text-align: right;">ECE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>\(B\)</td>
+<td style="text-align: right;">0.682753</td>
+<td style="text-align: right;">0.244687</td>
+<td style="text-align: right;">0.019192</td>
+</tr>
+<tr>
+<td>\(B_k\)</td>
+<td style="text-align: right;">0.682015</td>
+<td style="text-align: right;">0.244355</td>
+<td style="text-align: right;">0.013588</td>
+</tr>
+<tr>
+<td>\(B_P\)</td>
+<td style="text-align: right;">0.678055</td>
+<td style="text-align: right;">0.242439</td>
+<td style="text-align: right;">0.017030</td>
+</tr>
+<tr>
+<td>old \(B_{kP}\)</td>
+<td style="text-align: right;"><strong>0.676945</strong></td>
+<td style="text-align: right;"><strong>0.241968</strong></td>
+<td style="text-align: right;"><strong>0.013459</strong></td>
+</tr>
+<tr>
+<td>\(B_{kP_1}\)</td>
+<td style="text-align: right;">0.677700</td>
+<td style="text-align: right;">0.242241</td>
+<td style="text-align: right;">0.014855</td>
+</tr>
+</tbody>
+</table>
+<p><code>BKP1</code> is the second-best model by aggregate log and Brier loss. Its ECE is
+third-best, behind old \(B_{kP}\) and \(B_k\). It beats \(B\), \(B_k\), and
+\(B_P\) on aggregate log and Brier loss. Against \(B\), its paired mean
+log-loss difference is -0.005053 with a 95% interval of
+[-0.005847, -0.004309], and it passes the existing retrospective
+non-inferiority gate by a wide margin.</p>
+<p>The old \(B_{kP}\) remains better. <code>BKP1</code> minus old \(B_{kP}\) is +0.000754
+mean log loss with a 95% interval of [+0.000530, +0.000988]. Thus the old
+model's advantage is small in absolute terms but clear in this retrospective
+comparison.</p>
+<p>The maturity breakdown locates the difference where an informed prior should
+matter:</p>
+<table>
+<thead>
+<tr>
+<th>Population</th>
+<th style="text-align: right;">Bouts</th>
+<th style="text-align: right;"><code>BKP1</code> minus old \(B_{kP}\) log loss</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A new entrant participates</td>
+<td style="text-align: right;">2,498</td>
+<td style="text-align: right;">+0.006577</td>
+</tr>
+<tr>
+<td>Less-experienced rating has fewer than 30 bouts</td>
+<td style="text-align: right;">84,716</td>
+<td style="text-align: right;">+0.003756</td>
+</tr>
+<tr>
+<td>30--59 bouts</td>
+<td style="text-align: right;">72,282</td>
+<td style="text-align: right;">+0.000371</td>
+</tr>
+<tr>
+<td>60--119 bouts</td>
+<td style="text-align: right;">112,652</td>
+<td style="text-align: right;">+0.000097</td>
+</tr>
+<tr>
+<td>120 or more bouts</td>
+<td style="text-align: right;">305,213</td>
+<td style="text-align: right;">approximately +0.0002 to +0.0003</td>
+</tr>
+</tbody>
+</table>
+<h3 id="interpretation">Interpretation</h3>
+<p>This answers the immediate usefulness question positively. <code>BKP1</code> retains
+about 87% of the old \(B_{kP}\) aggregate log-loss improvement over Basic Elo
+and beats the other previously tested alternatives by aggregate log and Brier
+loss. It is therefore a credible model, not merely an attractive chii curve.</p>
+<p>It does not replace the old \(B_{kP}\) on predictive evidence: the old prior
+performs materially better during the initial rating-maturity range and remains
+the aggregate winner. Both prior artifacts use future information from the
+period being scored, so this is retrospective model-selection evidence rather
+than prospective validation.</p>
+<p>The next clean step is to construct \(P_1\) with a maintained <code>q=400</code>
+fixed-point producer, leaving original Expt2 and its artifacts reproducible.
+That new prior must be inspected and passed through the same predictive gate;
+the present result cannot be transferred to it automatically.</p>
+<h2 id="controlled-q400-fixed-point-rerun">Controlled q=400 fixed-point rerun</h2>
+<p>The same legacy-replay recentering sweep was rerun with only <code>q</code> changed from
+900 to the B-family value 400:</p>
+<pre><code class="language-powershell">python -m src.analysis.equelo_population_policy.run_recentering `
+  --start 1989 --end 2026 --zip --q 400 `
+  --epsilon 10 --max-iterations 200 `
+  --output files/output/analysis/equelo_population_policy/recentering_q400
+</code></pre>
+<p>The <code>alpha=1</code> solver converged in 18 iterations, compared with 20 at <code>q=900</code>.
+Changing <code>q</code> compressed the rating scale but did not materially alter the
+support-related shape:</p>
+<table>
+<thead>
+<tr>
+<th>Quantity</th>
+<th style="text-align: right;"><code>q=900</code></th>
+<th style="text-align: right;"><code>q=400</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Maximum prior</td>
+<td style="text-align: right;">2882.7</td>
+<td style="text-align: right;">2544.4</td>
+</tr>
+<tr>
+<td>Minimum prior</td>
+<td style="text-align: right;">817.3</td>
+<td style="text-align: right;">930.7</td>
+</tr>
+<tr>
+<td>Final-step RMS difference change</td>
+<td style="text-align: right;">103.35</td>
+<td style="text-align: right;">96.17</td>
+</tr>
+<tr>
+<td>Final-map RMS difference from uniform</td>
+<td style="text-align: right;">348.08</td>
+<td style="text-align: right;">329.72</td>
+</tr>
+<tr>
+<td>Maximum final-map difference change</td>
+<td style="text-align: right;">1507.27</td>
+<td style="text-align: right;">1461.01</td>
+</tr>
+</tbody>
+</table>
+<p>Selected <code>alpha=1</code> values show that the main discontinuities survive:</p>
+<table>
+<thead>
+<tr>
+<th>Chii</th>
+<th style="text-align: right;">Support</th>
+<th style="text-align: right;"><code>q=900</code></th>
+<th style="text-align: right;"><code>q=400</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>M12e</td>
+<td style="text-align: right;">222</td>
+<td style="text-align: right;">2191.5</td>
+<td style="text-align: right;">2137.3</td>
+</tr>
+<tr>
+<td>M15e</td>
+<td style="text-align: right;">202</td>
+<td style="text-align: right;">2141.9</td>
+<td style="text-align: right;">2089.3</td>
+</tr>
+<tr>
+<td>M18e</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">1948.9</td>
+<td style="text-align: right;">1896.3</td>
+</tr>
+<tr>
+<td>J1e</td>
+<td style="text-align: right;">222</td>
+<td style="text-align: right;">2160.9</td>
+<td style="text-align: right;">2105.5</td>
+</tr>
+<tr>
+<td>J14e</td>
+<td style="text-align: right;">131</td>
+<td style="text-align: right;">1921.5</td>
+<td style="text-align: right;">1886.7</td>
+</tr>
+<tr>
+<td>Ms1e</td>
+<td style="text-align: right;">222</td>
+<td style="text-align: right;">2012.5</td>
+<td style="text-align: right;">1978.0</td>
+</tr>
+<tr>
+<td>Ms59e</td>
+<td style="text-align: right;">222</td>
+<td style="text-align: right;">1697.3</td>
+<td style="text-align: right;">1686.8</td>
+</tr>
+<tr>
+<td>Ms60e</td>
+<td style="text-align: right;">280</td>
+<td style="text-align: right;">1795.4</td>
+<td style="text-align: right;">1782.0</td>
+</tr>
+<tr>
+<td>Sd1e</td>
+<td style="text-align: right;">222</td>
+<td style="text-align: right;">1697.9</td>
+<td style="text-align: right;">1687.0</td>
+</tr>
+<tr>
+<td>Sd101e</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1532.0</td>
+<td style="text-align: right;">1529.4</td>
+</tr>
+</tbody>
+</table>
+<p>In particular, the M18e--J1e increase is approximately 212 points at <code>q=900</code>
+and 209 points at <code>q=400</code>. The <code>Ms60e</code> spike is also nearly unchanged. These
+features are therefore consequences of the support-weighted construction and
+the historical support pattern, not consequences of retaining <code>q=900</code>.</p>
+<p>The broad visual judgement also survives: the former M12--M18 rise is absent,
+the curve remains coherent far into Jonidan, and the deep-Jonokuchi region
+remains the least credible. The corresponding responsive chart is
+<code>files/output/analysis/equelo_population_policy/recentering_q400/prior_comparison.html</code>.</p>
+<p>This produced the required <code>q=400</code> candidate prior map. The next two sections
+record its independent reproduction and predictive gate.</p>
+<h2 id="independent-bkp1-producer">Independent BKP1 producer</h2>
+<p>Original Expt2 and every legacy <code>q=900</code> producer remain untouched. A separate
+package, <code>src.analysis.equelo_bkp1</code>, reproduces only the candidate model with a
+fixed contract:</p>
+<ul>
+<li><code>q = 400</code>;</li>
+<li><code>alpha = 1</code> support-proportional post-iteration recentering;</li>
+<li>the declared divisional-<code>k</code> configuration;</li>
+<li>legacy departure redistribution for this controlled stage; and</li>
+<li>annotation-only chii collapse over the post-1988 record.</li>
+</ul>
+<p>The implementation does not import the legacy <code>INITIAL_Q</code> and exposes neither
+<code>--q</code> nor <code>--alpha</code>. Run it with:</p>
+<pre><code class="language-powershell">python -m src.analysis.equelo_bkp1 --start 1989 --end 2026 --zip
+</code></pre>
+<p>Its 975 canonical prior values match the explicit-<code>--q 400</code> experimental
+control exactly: the maximum absolute difference is zero and there are no
+non-zero row differences. The canonical artifacts are under
+<code>files/output/analysis/equelo_bkp1/</code>.</p>
+<h2 id="q400-derived-bkp1-predictive-result">q=400-derived BKP1 predictive result</h2>
+<p>The canonical <code>prior.csv</code> was paired by the same unweighted east/west rule and
+put directly through the <code>q=400</code> predictive gate. Aggregate results are:</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th style="text-align: right;">Mean log loss</th>
+<th style="text-align: right;">Mean Brier loss</th>
+<th style="text-align: right;">ECE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>\(B\)</td>
+<td style="text-align: right;">0.682753</td>
+<td style="text-align: right;">0.244687</td>
+<td style="text-align: right;">0.019192</td>
+</tr>
+<tr>
+<td>\(B_k\)</td>
+<td style="text-align: right;">0.682015</td>
+<td style="text-align: right;">0.244355</td>
+<td style="text-align: right;">0.013588</td>
+</tr>
+<tr>
+<td>\(B_P\)</td>
+<td style="text-align: right;">0.678055</td>
+<td style="text-align: right;">0.242439</td>
+<td style="text-align: right;">0.017030</td>
+</tr>
+<tr>
+<td>old \(B_{kP}\)</td>
+<td style="text-align: right;"><strong>0.676945</strong></td>
+<td style="text-align: right;"><strong>0.241968</strong></td>
+<td style="text-align: right;"><strong>0.013459</strong></td>
+</tr>
+<tr>
+<td>q=400-derived \(B_{kP_1}\)</td>
+<td style="text-align: right;">0.677319</td>
+<td style="text-align: right;">0.242086</td>
+<td style="text-align: right;">0.014453</td>
+</tr>
+</tbody>
+</table>
+<p>The q=400-derived candidate improves on the q=900-derived candidate, whose log
+loss was 0.677700. It reduces the gap from old \(B_{kP}\) from 0.000754 to
+0.000374. The paired 95% interval for the remaining difference is
+[+0.000165, +0.000583], so old \(B_{kP}\) remains the retrospective winner.</p>
+<p>In practical terms, however, the models have very similar aggregate log and
+Brier losses. The new candidate retains about 94% of old \(B_{kP}\)'s
+incremental log-loss improvement over Basic Elo. Its remaining disadvantage is
+concentrated at initialisation:</p>
+<table>
+<thead>
+<tr>
+<th>Population</th>
+<th style="text-align: right;">Bouts</th>
+<th style="text-align: right;">q=400 BKP1 minus old \(B_{kP}\) log loss</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A new entrant participates</td>
+<td style="text-align: right;">2,498</td>
+<td style="text-align: right;">+0.004770</td>
+</tr>
+<tr>
+<td>Less-experienced rating has fewer than 30 bouts</td>
+<td style="text-align: right;">84,716</td>
+<td style="text-align: right;">+0.002737</td>
+</tr>
+<tr>
+<td>30--59 bouts</td>
+<td style="text-align: right;">72,282</td>
+<td style="text-align: right;">-0.000148</td>
+</tr>
+<tr>
+<td>60--119 bouts</td>
+<td style="text-align: right;">112,652</td>
+<td style="text-align: right;">-0.000140</td>
+</tr>
+<tr>
+<td>120 or more bouts</td>
+<td style="text-align: right;">305,213</td>
+<td style="text-align: right;">approximately -0.000006 to +0.000083</td>
+</tr>
+</tbody>
+</table>
+<p>Thus the fully q=400 candidate is predictively useful and extremely close to
+the old selected model after 30 bouts. It does not improve initial placement as
+much as the old contextual prior. Both constructions remain future-informed,
+so the comparison is retrospective rather than prospective validation.</p>
+<h2 id="population-policy-revisited-with-the-canonical-prior">Population policy revisited with the canonical prior</h2>
+<p>The repaired, canonical q=400, alpha=1 prior makes it possible to return to the
+substantive Tranche 1 question without the old uniform-recentering confounder.
+The controlled experiment has two parts:</p>
+<ol>
+<li>replay the history under each population policy while holding the canonical
+BKP1 prior fixed; and</li>
+<li>solve a separate chii fixed point under each policy, allowing the policy to
+feed back into its own entrant prior.</li>
+</ol>
+<p>Two additional controls separate turnover from unequal divisional <code>k</code>:</p>
+<ul>
+<li><code>legacy_plus_dual_k</code> adds only an end-of-basho correction for bout mass to
+the legacy departure rule; and</li>
+<li><code>whole_population_start_only</code> preserves the whole-population mean after
+joiners and leavers, but makes no correction for bout mass after the bouts.</li>
+</ul>
+<p>Reproduce the comparison with:</p>
+<pre><code class="language-powershell">python -m src.analysis.equelo_population_policy.run_bkp1_population `
+  --start 1989 --end 2026 --zip
+</code></pre>
+<p>Artifacts are under
+<code>files/output/analysis/equelo_population_policy/bkp1_q400/</code>.</p>
+<h3 id="holding-the-prior-fixed">Holding the prior fixed</h3>
+<table>
+<thead>
+<tr>
+<th>Policy</th>
+<th style="text-align: right;">Log loss</th>
+<th style="text-align: right;">Brier loss</th>
+<th style="text-align: right;">Mean start correction</th>
+<th style="text-align: right;">Mean end correction</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Legacy departure</td>
+<td style="text-align: right;">0.684404</td>
+<td style="text-align: right;">0.245197</td>
+<td style="text-align: right;">2.523</td>
+<td style="text-align: right;">0.000</td>
+</tr>
+<tr>
+<td>Legacy plus dual-<code>k</code></td>
+<td style="text-align: right;">0.684425</td>
+<td style="text-align: right;">0.245206</td>
+<td style="text-align: right;">2.522</td>
+<td style="text-align: right;">0.036</td>
+</tr>
+<tr>
+<td>Whole population, start only</td>
+<td style="text-align: right;">0.675457</td>
+<td style="text-align: right;">0.241232</td>
+<td style="text-align: right;">3.976</td>
+<td style="text-align: right;">0.000</td>
+</tr>
+<tr>
+<td>Whole population, start and end</td>
+<td style="text-align: right;">0.675458</td>
+<td style="text-align: right;">0.241232</td>
+<td style="text-align: right;">3.975</td>
+<td style="text-align: right;">0.040</td>
+</tr>
+</tbody>
+</table>
+<p>Under the legacy rule the active mean is, on average, about 159 points from
+the initial target by both the start and end of a basho. Whole-population
+preservation keeps the start mean at the target to numerical precision. Its
+end-of-basho dual-<code>k</code> correction averages only 0.040 points per active rikishi,
+compared with a 3.975-point average turnover correction at the start.</p>
+<p>The whole-population replay differs materially from the legacy replay: across
+158,995 basho-start observations, the rating difference is 157.553 points MAE
+and 187.021 points RMS. Its much lower replay loss is interesting, but these
+values use the fixed-point replay's legacy bout eligibility and are not the
+separate B-family predictive gate. They should therefore be treated as a
+diagnostic, not as model-selection evidence.</p>
+<h3 id="letting-each-policy-determine-its-own-prior">Letting each policy determine its own prior</h3>
+<table>
+<thead>
+<tr>
+<th>Policy</th>
+<th style="text-align: right;">Iterations</th>
+<th style="text-align: right;">Log loss</th>
+<th style="text-align: right;">Minimum prior</th>
+<th style="text-align: right;">Maximum prior</th>
+<th style="text-align: right;">Prior-map MAE from legacy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Legacy departure</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">0.684404</td>
+<td style="text-align: right;">930.7</td>
+<td style="text-align: right;">2544.4</td>
+<td style="text-align: right;">0.000</td>
+</tr>
+<tr>
+<td>Legacy plus dual-<code>k</code></td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">0.684424</td>
+<td style="text-align: right;">930.5</td>
+<td style="text-align: right;">2543.8</td>
+<td style="text-align: right;">0.129</td>
+</tr>
+<tr>
+<td>Whole population, start only</td>
+<td style="text-align: right;">71</td>
+<td style="text-align: right;">0.689546</td>
+<td style="text-align: right;">1056.0</td>
+<td style="text-align: right;">3167.8</td>
+<td style="text-align: right;">110.269</td>
+</tr>
+<tr>
+<td>Whole population, start and end</td>
+<td style="text-align: right;">71</td>
+<td style="text-align: right;">0.689563</td>
+<td style="text-align: right;">1056.1</td>
+<td style="text-align: right;">3168.9</td>
+<td style="text-align: right;">110.266</td>
+</tr>
+</tbody>
+</table>
+<p>The controls identify the source of the failure. Correcting dual-<code>k</code> bout mass
+on its own changes the solved prior map by only 0.129 points MAE, with a maximum
+change of 0.810 points. Conversely, turnover mean-preservation without any
+dual-<code>k</code> correction is already almost identical to the full whole-population
+policy. Both whole-population fixed points take 71 iterations and give the
+two-observation <code>Jk73w</code> cell a rating of about 3168.</p>
+<p>Thus the renewed low-support pathology is not caused by divisional <code>k</code>, nor by
+the alpha=1 post-iteration recentering alone. It is caused by feedback between
+whole-population turnover correction and chii-based fixed-point estimation.
+The correction applied when entrants and leavers change the population becomes
+part of the basho-start chii averages; rare chii can repeatedly absorb that
+correction and return it as an extreme entrant prior on the next iteration.</p>
+<h3 id="tranche-1-conclusion">Tranche 1 conclusion</h3>
+<p>The experiment separates two propositions that had become entangled:</p>
+<ul>
+<li>whole-population mean preservation is a coherent and substantial rating
+operator when the entrant prior is held fixed; but</li>
+<li>requiring that same operator to generate its own literal-chii fixed-point
+prior is unstable in the low-support tail and produces an unacceptable map.</li>
+</ul>
+<p>The dual-<code>k</code> correction is quantitatively negligible and can be applied at the
+end of an iteration without practical consequence. The unresolved design
+choice is instead whether BKP1 should use the canonical prior as a fixed,
+externally estimated initialisation policy while applying whole-population
+mean preservation during the rating replay, or whether a different
+turnover-correction rule is needed that remains well behaved inside the
+fixed-point loop. The present evidence rules out the naive independently
+solved whole-population fixed point; it does not rule out whole-population mean
+preservation with a fixed prior.</p>
+<h2 id="exact-predictive-gate-for-the-fixed-prior-model">Exact predictive gate for the fixed-prior model</h2>
+<p>The final Tranche 1 gate holds canonical P1 fixed and uses the exact B-family
+domain of 574,863 W/L bouts. It exposed an important distinction that the
+earlier terminology had obscured: the established B-family forecaster performs
+no population-boundary adjustment. It is not an implementation of Expt2's
+departure redistribution. The predictive comparison therefore contains three
+BKP1 variants:</p>
+<ul>
+<li>no population adjustment, reproducing the already reported q=400 BKP1
+result exactly;</li>
+<li>actual Expt2 departure redistribution over the full banzuke population; and</li>
+<li>whole-population mean preservation over that same population.</li>
+</ul>
+<p>The old informed-prior <code>B_kP</code> is included as the retained benchmark. Reproduce
+with:</p>
+<pre><code class="language-powershell">python -m src.analysis.equelo_population_policy.predict_population_policy `
+  --history-zip &quot;files/output/Historys/1989_01 to 2026_11.zip&quot; `
+  --end 2026/07
+</code></pre>
+<h3 id="aggregate-result-1">Aggregate result</h3>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th style="text-align: right;">Log loss</th>
+<th style="text-align: right;">Brier loss</th>
+<th style="text-align: right;">ECE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BKP1, no population adjustment</td>
+<td style="text-align: right;">0.677319</td>
+<td style="text-align: right;">0.242086</td>
+<td style="text-align: right;">0.014453</td>
+</tr>
+<tr>
+<td>BKP1, Expt2 departure redistribution</td>
+<td style="text-align: right;">0.684196</td>
+<td style="text-align: right;">0.245148</td>
+<td style="text-align: right;">0.017651</td>
+</tr>
+<tr>
+<td>BKP1, whole-population preservation</td>
+<td style="text-align: right;"><strong>0.675629</strong></td>
+<td style="text-align: right;"><strong>0.241362</strong></td>
+<td style="text-align: right;">0.014537</td>
+</tr>
+<tr>
+<td>old <code>B_kP</code></td>
+<td style="text-align: right;">0.676945</td>
+<td style="text-align: right;">0.241968</td>
+<td style="text-align: right;"><strong>0.013459</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Whole-population BKP1 improves mean log loss by 0.001690 over no adjustment,
+with a basho-block-bootstrap 95% interval of [-0.002045, -0.001312]. It improves
+by 0.008568 over actual Expt2 departure redistribution, interval
+[-0.009186, -0.007916]. It also improves by 0.001316 over the previous
+retrospective winner, old <code>B_kP</code>, interval [-0.001755, -0.000894]. Brier loss
+agrees. ECE does not: old <code>B_kP</code> retains the lowest aggregate calibration error.</p>
+<p>The gain over no adjustment is concentrated in younger ratings:</p>
+<table>
+<thead>
+<tr>
+<th>Rating maturity</th>
+<th style="text-align: right;">Bouts</th>
+<th style="text-align: right;">Whole minus no-adjustment log loss</th>
+<th style="text-align: right;">Whole minus old <code>B_kP</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>New entrant participates</td>
+<td style="text-align: right;">2,498</td>
+<td style="text-align: right;">-0.005893</td>
+<td style="text-align: right;">-0.001124</td>
+</tr>
+<tr>
+<td>Fewer than 30 prior bouts</td>
+<td style="text-align: right;">84,716</td>
+<td style="text-align: right;">-0.009773</td>
+<td style="text-align: right;">-0.007036</td>
+</tr>
+<tr>
+<td>30--59</td>
+<td style="text-align: right;">72,282</td>
+<td style="text-align: right;">-0.001219</td>
+<td style="text-align: right;">-0.001367</td>
+</tr>
+<tr>
+<td>60--119</td>
+<td style="text-align: right;">112,652</td>
+<td style="text-align: right;">-0.000363</td>
+<td style="text-align: right;">-0.000503</td>
+</tr>
+<tr>
+<td>120--239</td>
+<td style="text-align: right;">148,563</td>
+<td style="text-align: right;">-0.000357</td>
+<td style="text-align: right;">-0.000362</td>
+</tr>
+<tr>
+<td>240--359</td>
+<td style="text-align: right;">77,499</td>
+<td style="text-align: right;">-0.000126</td>
+<td style="text-align: right;">-0.000055</td>
+</tr>
+<tr>
+<td>360--479</td>
+<td style="text-align: right;">39,338</td>
+<td style="text-align: right;">+0.000289</td>
+<td style="text-align: right;">+0.000372</td>
+</tr>
+<tr>
+<td>480 or more</td>
+<td style="text-align: right;">39,813</td>
+<td style="text-align: right;">+0.000922</td>
+<td style="text-align: right;">+0.000964</td>
+</tr>
+</tbody>
+</table>
+<p>This pattern is coherent with the role of the operator. A common shift cannot
+alter probabilities among the current active rikishi at the instant it is
+applied. It does, however, anchor the rating coordinate carried by survivors
+relative to the fixed absolute prior subsequently assigned to entrants. The
+benefit appearing chiefly in early-career bouts is therefore expected rather
+than an unexplained aggregate effect.</p>
+<h3 id="decision-supported-by-tranche-1">Decision supported by Tranche 1</h3>
+<p>The evidence now supports whole-population mean preservation with canonical P1
+held fixed as the leading candidate replay model. It has the best retrospective
+log and Brier loss of the tested models while avoiding the pathological prior
+map produced when the same operator is fed back through literal-chii
+fixed-point estimation.</p>
+<p>This does not rehabilitate Expt2 departure redistribution: on the exact
+predictive domain it is substantially worse than both no adjustment and
+whole-population preservation. Nor does it justify solving P1 again under the
+new operator. The clean separation is:</p>
+<ol>
+<li>P1 is the fixed, externally produced entrant-initialisation policy; and</li>
+<li>whole-population mean preservation is the rating replay's population
+operator.</li>
+</ol>
+<p>The result remains retrospective and P1 remains future-informed. A prospective
+or rolling-origin evaluation is a later validation question, not a remaining
+Tranche 1 definition question.</p>
+</body>
+</html>
