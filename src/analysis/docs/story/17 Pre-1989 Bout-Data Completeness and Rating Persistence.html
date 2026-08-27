@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pre-1989 Bout-Data Completeness and Rating Persistence</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: Georgia, "Times New Roman", serif;
+      line-height: 1.6;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 54rem;
+      padding: 2rem 1.25rem 4rem;
+    }
+    h1, h2, h3 {
+      font-family: system-ui, sans-serif;
+      line-height: 1.2;
+      margin-top: 1.75em;
+    }
+    h1 { margin-top: 0; }
+    li + li { margin-top: 0.35rem; }
+    mjx-container[display="true"] {
+      margin: 1.25rem 0 !important;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body><h1 id="pre-1989-bout-data-completeness-and-rating-persistence">Pre-1989 Bout-Data Completeness and Rating Persistence</h1>
+<h2 id="purpose-and-status">Purpose and status</h2>
+<p>This note records the result of the bout-data completeness investigation at the
+start of Equelo2 work. It supplies the evidential basis for retaining a
+rikishi's most recently informed rating across gaps in the represented result
+record.</p>
+<p>It is an <strong>established data finding plus a modelling rationale</strong>, not an
+experiment showing how missing data affect rating accuracy. The project has not
+measured, and does not currently plan to measure, rating variance or predictive
+degradation as a function of the amount or duration of missing historical data.</p>
+<p>The reproducible analysis package is:</p>
+<pre><code class="language-text">src/analysis/bout_data_completeness
+</code></pre>
+<p>Its generated outputs are written to:</p>
+<pre><code class="language-text">files/output/analysis/bout_data_completeness
+</code></pre>
+<h2 id="the-question-that-led-to-the-audit">The question that led to the audit</h2>
+<p>Equelo2 is intended to run over the represented history from 1958 rather than
+starting afresh in January 1989. Elo-89 supplies an initial rating by literal
+chii. If a lower-division rikishi appears in an eligible recorded bout, the
+full-history model can update that rating. The question is what to do when the
+same rikishi then has no represented results for one or more basho.</p>
+<p>The adopted direction is to preserve the most recently informed rating while
+the rikishi remains on the banzuke. Reinitialising from chii after every result
+gap would discard evidence already obtained. Under a persistent-rating model,
+any eligible result contributes information: even one represented result in a
+long interval is more information than none. This is a rationale for retaining
+state, not a claim that one old result is highly informative or that skill does
+not change over time.</p>
+<p>Before relying on that argument, the project needed to know whether historical
+lower-division results were occasional isolated observations in an otherwise
+empty archive, or part of a substantial but incomplete record.</p>
+<h2 id="sources-and-definitions">Sources and definitions</h2>
+<p>The audit combines three existing project sources:</p>
+<ul>
+<li>the <code>History</code> banzuke, normally read from the live store, supplies every
+actual literal chii and rikishi identity in each selected basho;</li>
+<li>cached SumoDB <code>Rikishi.aspx</code> career rows supply the daily <code>hoshi</code> symbols; and</li>
+<li>the parsed BioStore supplies <code>Intai</code>, the retirement basho.</li>
+</ul>
+<p>The audited interval contains 408 represented basho from 1958/01 through
+2026/03. Chii annotations are preserved literally. A chii absent from a
+banzuke contributes no observation.</p>
+<p>For this 1958-forward scope, an individual rikishi-basho record is:</p>
+<ul>
+<li><strong>complete</strong> when it contains exactly 15 daily <code>hoshi</code> symbols and none is
+<code>hoshi_empty</code>;</li>
+<li><strong>partial</strong> when it contains some known daily symbols but is not complete;</li>
+<li><strong>absent</strong> when it contains no daily symbols; and</li>
+<li><strong>retirement-exempt</strong> when BioStore <code>Intai</code> equals the basho.</li>
+</ul>
+<p>A division-basho is complete only when every non-retirement-exempt chii in that
+division has a complete individual record. It is partial when some but not all
+of those records are complete, and has no records when none contains known
+daily information.</p>
+<p>This is intentionally a strict definition. One incomplete rikishi makes the
+division-basho incomplete.</p>
+<h2 id="headline-results">Headline results</h2>
+<h3 id="complete-basho-across-the-full-interval">Complete basho across the full interval</h3>
+<table>
+<thead>
+<tr>
+<th>Division</th>
+<th style="text-align: right;">No records</th>
+<th style="text-align: right;">Partial</th>
+<th style="text-align: right;">Complete</th>
+<th style="text-align: right;">Complete out of 408</th>
+<th style="text-align: right;">Continuous complete from</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Makuuchi</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">408</td>
+<td style="text-align: right;">100.0%</td>
+<td style="text-align: right;">1958/01</td>
+</tr>
+<tr>
+<td>Juryo</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">408</td>
+<td style="text-align: right;">100.0%</td>
+<td style="text-align: right;">1958/01</td>
+</tr>
+<tr>
+<td>Makushita</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">53</td>
+<td style="text-align: right;">355</td>
+<td style="text-align: right;">87.0%</td>
+<td style="text-align: right;">1966/11</td>
+</tr>
+<tr>
+<td>Sandanme</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">41</td>
+<td style="text-align: right;">350</td>
+<td style="text-align: right;">85.8%</td>
+<td style="text-align: right;">1973/03</td>
+</tr>
+<tr>
+<td>Jonidan</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">37</td>
+<td style="text-align: right;">339</td>
+<td style="text-align: right;">83.1%</td>
+<td style="text-align: right;">1986/09</td>
+</tr>
+<tr>
+<td>Jonokuchi</td>
+<td style="text-align: right;">44</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">346</td>
+<td style="text-align: right;">84.8%</td>
+<td style="text-align: right;">1992/07</td>
+</tr>
+</tbody>
+</table>
+<p>Every division therefore has at least 339 completely represented basho out of
+408. The result record is incomplete in historically important places, but it
+is not well described as generally sparse.</p>
+<h3 id="the-pre-1989-interval-itself">The pre-1989 interval itself</h3>
+<p>There are 186 represented basho from 1958/01 through 1988/11.</p>
+<table>
+<thead>
+<tr>
+<th>Division</th>
+<th style="text-align: right;">No records</th>
+<th style="text-align: right;">Partial</th>
+<th style="text-align: right;">Complete</th>
+<th style="text-align: right;">Complete out of 186</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Makuuchi</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">186</td>
+<td style="text-align: right;">100.0%</td>
+</tr>
+<tr>
+<td>Juryo</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">186</td>
+<td style="text-align: right;">100.0%</td>
+</tr>
+<tr>
+<td>Makushita</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">53</td>
+<td style="text-align: right;">133</td>
+<td style="text-align: right;">71.5%</td>
+</tr>
+<tr>
+<td>Sandanme</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">41</td>
+<td style="text-align: right;">128</td>
+<td style="text-align: right;">68.8%</td>
+</tr>
+<tr>
+<td>Jonidan</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">37</td>
+<td style="text-align: right;">117</td>
+<td style="text-align: right;">62.9%</td>
+</tr>
+<tr>
+<td>Jonokuchi</td>
+<td style="text-align: right;">44</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">125</td>
+<td style="text-align: right;">67.2%</td>
+</tr>
+</tbody>
+</table>
+<p>Even the least complete lower division, Jonidan, has complete records for 117
+of the 186 pre-1989 basho. Partial records add further evidence beyond those
+complete basho.</p>
+<h3 id="how-sparse-are-the-partial-basho">How sparse are the partial basho?</h3>
+<p>The label <em>partial</em> covers both a nearly complete division with one exception
+and a division with very little represented information. To expose that
+difference, the audit counts 15 expected daily records for each non-retired
+rikishi in partial basho. Retirement-basho rikishi are excluded from both the
+numerator and denominator.</p>
+<table>
+<thead>
+<tr>
+<th>Division</th>
+<th style="text-align: right;">Pre-1989 missing / expected daily records</th>
+<th style="text-align: right;">Known</th>
+<th style="text-align: right;">Missing</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Makushita</td>
+<td style="text-align: right;">115,110 / 141,120</td>
+<td style="text-align: right;">18.431%</td>
+<td style="text-align: right;">81.569%</td>
+</tr>
+<tr>
+<td>Sandanme</td>
+<td style="text-align: right;">106,111 / 118,920</td>
+<td style="text-align: right;">10.771%</td>
+<td style="text-align: right;">89.229%</td>
+</tr>
+<tr>
+<td>Jonidan</td>
+<td style="text-align: right;">79,345 / 126,930</td>
+<td style="text-align: right;">37.489%</td>
+<td style="text-align: right;">62.511%</td>
+</tr>
+<tr>
+<td>Jonokuchi</td>
+<td style="text-align: right;">8,214 / 11,070</td>
+<td style="text-align: right;">25.799%</td>
+<td style="text-align: right;">74.201%</td>
+</tr>
+</tbody>
+</table>
+<p>Thus the early partial basho are often genuinely sparse. This does not negate
+the larger result: each lower division also has between 117 and 133 completely
+represented pre-1989 basho, and its partial basho contain additional usable
+observations.</p>
+<h2 id="what-the-audit-does-and-does-not-measure">What the audit does and does not measure</h2>
+<p>The density figures concern <strong>daily source records</strong>, not missing bout outcomes.
+For sekitori, fifteen nominal bout days make the relationship comparatively
+direct. For lower-division rikishi, a dash or <code>hoshi_yasumi</code> can mean either a
+scheduled non-bout day or kyujo. The source does not always distinguish those
+cases. Consequently, the exact number of missing lower-division bout outcomes
+cannot be recovered from these career-row symbols alone.</p>
+<p>The audit therefore establishes:</p>
+<ul>
+<li>when complete and partial daily records exist;</li>
+<li>how completeness changes by division and date;</li>
+<li>the density of known daily information within partial basho; and</li>
+<li>that substantial lower-division evidence exists before 1989.</li>
+</ul>
+<p>It does <strong>not</strong> establish:</p>
+<ul>
+<li>the exact number of missing lower-division bout outcomes;</li>
+<li>how missingness changes the variance, bias or calibration of ratings;</li>
+<li>how quickly an old rating becomes stale as skill changes;</li>
+<li>that persistence is superior under every possible forgetting or
+reinitialisation policy; or</li>
+<li>predictive validation of the eventual Equelo2 construction.</li>
+</ul>
+<p>Retirement is another deliberate boundary. When BioStore <code>Intai</code> equals the
+basho, an incomplete record is exempted because the rikishi need not have
+completed the nominal schedule. The audit does not try to reconstruct the day
+of retirement or decide how many pre-retirement bouts ought to have occurred.</p>
+<h2 id="why-the-findings-support-rating-persistence">Why the findings support rating persistence</h2>
+<p>The evidence supports a restrained argument:</p>
+<ol>
+<li>Pre-1989 lower-division observations are not merely isolated bridge bouts.
+Complete division-wide records occur in most pre-1989 basho, and partial
+basho add further observations.</li>
+<li>Coverage improves at different times for different divisions rather than
+changing everywhere at one January 1989 boundary.</li>
+<li>A rikishi can therefore accumulate genuine rating information, pass through
+a gap in represented results, and later contribute or receive more rating
+information.</li>
+<li>Reinitialising after each gap would erase that accumulated evidence.
+Preserving the latest rating retains it. Even a very occasional eligible
+result is evidence that an unconditional reinitialisation would discard.</li>
+<li>As lower-division coverage becomes more complete, persisted ratings receive
+progressively more direct support without requiring a discontinuous model
+restart.</li>
+</ol>
+<p>This justifies persistence as the working Equelo2 policy. It does not quantify
+the policy's predictive benefit. That distinction should remain explicit in
+technical and public accounts.</p>
+<h2 id="reproduction">Reproduction</h2>
+<p>Run:</p>
+<pre><code class="language-powershell">python -m src.analysis.bout_data_completeness
+</code></pre>
+<p>The entry point prefers the live History store, uses the parsed BioStore for
+<code>Intai</code>, reads cached Rikishi pages for daily symbols, records source identities
+in <code>manifest.json</code>, and writes:</p>
+<ul>
+<li><code>basho_chii_record_availability.csv</code>;</li>
+<li><code>basho_division_record_availability.csv</code>;</li>
+<li><code>division_record_availability_summary.csv</code>; and</li>
+<li><code>findings.md</code>.</li>
+</ul>
+<p>The generated files are the numerical authority. This tracked note records the
+interpretation and claim boundary needed by the Equelo2 story.</p>
+</body>
+</html>

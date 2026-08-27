@@ -78,11 +78,26 @@ either a defect or an insight.
     records the completed investigation from the dual-`k` audit through
     canonical q=400 prior production, fixed-point controls and the exact
     population-policy predictive gate. It selects fixed \(P_1\) plus
-    whole-population mean preservation as the leading retrospective candidate.
+    whole-population mean preservation as Elo-89.
 16. [Handoff After Tranche 1](16%20Handoff%20After%20Tranche%201.md) is the
     current restart point. It consolidates vocabulary, model contract,
     evidence, reproducible commands, code paths, qualifications and the bounded
     decisions required before the full-history tranche.
+17. [Pre-1989 Bout-Data Completeness and Rating Persistence](17%20Pre-1989%20Bout-Data%20Completeness%20and%20Rating%20Persistence.md)
+    records the strict literal-chii completeness audit, its quantitative
+    findings and its limitations. It supplies the evidence-based rationale for
+    persisting informed ratings across historical result gaps without claiming
+    that the effect of missing data on rating quality has been experimentally
+    measured.
+
+The post-1988 model selected in Tranche 1 is named **Elo-89**, with technical
+notation \(E_{89}\). It consists of canonical \(P_1\), `q=400`, divisional `k`
+and whole-population mean preservation. `BKP1` remains an experimental-family
+label and is not, by itself, a synonym for Elo-89.
+
+The intended full-history model at the end of Tranche 2 is named **Equelo2**.
+Equelo2 is an objective and model role, not yet a completed contract: Tranche 2
+must determine how the differently incomplete pre-1989 evidence joins Elo-89.
 
 The detailed initial inventory remains in
 [Elo Documentation Rummage](../2026%2008%2014%20Elo%20Documentation%20Rummage.md).
@@ -95,22 +110,24 @@ The detailed initial inventory remains in
 | STEM Elo account | Draft written | Needs editorial and source review |
 | Motivation for Equelo | Drafted | Divisional `k`, normalisation and chii-informed initialisation lead into Equelo |
 | STEM Equelo account | Draft updated | Distinguishes current production from the adopted 1989-onward entrant priors |
-| Consolidated Elo-like account | Proposal written | Three reading routes cover casual, STEM and technical/audit needs through \(B'=B_{kP}\) |
-| Detailed technical account | Elo-like portion unblocked; production Equelo blocked | Exact \(B'\) evidence exists; historical scope, anchoring/fallback, eligibility and integration remain unsettled for Equelo |
+| Consolidated Elo-like account | Proposal requires revision | Its three reading routes remain useful, but its old \(B'=B_{kP}\) endpoint must be replaced by Elo-89 |
+| Detailed technical account | Elo-89 portion unblocked; production Equelo blocked | Exact Elo-89 evidence exists; historical scope, anchoring/fallback, eligibility and integration remain unsettled for Equelo |
 | Expert/critical account | Audit route proposed | Reproducible model-selection and calibration artifacts provide the present critical record |
 | Basic Elo predictive account | Evidence exists | Needs integration into the story |
-| Equelo predictive account | Retrospective post-1988 evidence complete | Whole-population BKP1 leads log and Brier; prospective and full-history validation remain |
+| Elo-89 predictive account | Retrospective evidence complete | Elo-89 leads log and Brier; prospective and full-history validation remain |
 | Low-support/non-monotonicity account | Decision recorded | Preserve experiments; smoothing is reasonable, but the retained policy is not smoothed |
-| Model lineage and package triage | Post-1988 candidate selected | Fixed \(P_1\), q=400, divisional `k` and whole-population preservation; historical extension remains |
+| Model lineage and package triage | Elo-89 selected | Fixed \(P_1\), q=400, divisional `k` and whole-population preservation; historical extension remains |
 
 ## Next steps
 
 Tranche 1 is complete. The current state and precise continuation are in
 [Handoff After Tranche 1](16%20Handoff%20After%20Tranche%201.md). The next
-research tranche is the controlled extension of the selected post-1988 model
-over the incomplete 1958--1988 history. It should begin with a bounded
-historical-completion and January-1989 observability specification, not with
-production or website migration.
+research tranche is the construction of Equelo2 by extending or joining
+Elo-89 with the incomplete 1958--1988 history. The initial completeness
+measurement is now recorded in
+[Pre-1989 Bout-Data Completeness and Rating Persistence](17%20Pre-1989%20Bout-Data%20Completeness%20and%20Rating%20Persistence.md).
+The next step is a bounded historical-completion and January-1989 observability
+specification, not production or website migration.
 
 The proposed consolidation of the Elo-like account is now specified in
 [Proposal: The Consolidated Elo-like Ratings Story](13%20Proposal%20for%20the%20Consolidated%20Elo-like%20Ratings%20Story.md).

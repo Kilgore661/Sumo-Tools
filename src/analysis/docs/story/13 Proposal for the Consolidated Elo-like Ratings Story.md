@@ -7,6 +7,12 @@ ordinary Elo through the selection of the post-1988 Elo-like model
 \(B'=B_{kP}\). It does not attempt to write that account now, and it does not
 define the next full-history Equelo.
 
+This proposal predates Tranche 1's final population-policy comparison. The
+selected post-1988 model is now **Elo-89** (\(E_{89}\)): canonical \(P_1\),
+`q=400`, divisional `k` and whole-population mean preservation. The proposal's
+structure and reading routes remain useful, but its endpoint at the older
+\(B'=B_{kP}\) must be revised to Elo-89 before consolidation.
+
 The proposed account should consolidate material that is currently spread
 across the casual draft, the STEM drafts, the initial-rating research and the
 model-selection package. Its endpoint is a defensible answer to:

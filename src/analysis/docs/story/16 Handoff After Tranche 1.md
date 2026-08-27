@@ -6,11 +6,11 @@ This is the restart document for the Elo/Equelo work after completion of
 Tranche 1. It is intended to let another person resume without reconstructing
 the conversation or following every experimental branch.
 
-Tranche 1 is complete analytically. It selected a leading post-1988 replay
-model and established the boundary between entrant-prior estimation and
-population normalisation. No production or website consumer has yet been
-migrated to that model, and the distinctive pre-1989 Equelo extension remains
-to be designed and tested.
+Tranche 1 is complete analytically. It selected the post-1988 replay model
+named **Elo-89**, with technical notation \(E_{89}\), and established the
+boundary between entrant-prior estimation and population normalisation. No
+production or website consumer has yet been migrated to that model, and the
+distinctive pre-1989 Equelo extension remains to be designed and tested.
 
 The detailed evidential account is
 [Tranche 1: Population Normalisation Policy](15%20Tranche%201%20-%20Population%20Normalisation%20Policy.md).
@@ -44,18 +44,27 @@ The following names must be kept distinct:
 - `BKP1, Expt2 departure redistribution`: the same bout model and prior, but
   with the actual old Expt2 rule that redistributes a departing rikishi's
   deviation from the active mean over survivors.
-- `BKP1, whole-population preservation`: the leading Tranche 1 candidate. It
+- `BKP1, whole-population preservation`: the experimental description of the
+  model selected at the end of Tranche 1. It
   holds \(P_1\) fixed and uses common additive shifts to preserve the initial
   active-population mean after population formation and after the basho's
   bouts.
 
-A compact final name for the leading candidate has not been chosen. Do not use
-plain `BKP1` where the population policy is material until that naming decision
-has been made.
+The selected model is named **Elo-89**, written \(E_{89}\) in technical
+notation. The name identifies its role as the project's Elo account of the
+sufficiently complete 1989-onward record. It does not encode every model
+component. `BKP1` remains useful when discussing the experimental family, but
+plain `BKP1` must not be used as a synonym for Elo-89 because it does not name
+the population policy.
 
-## Selected candidate contract
+The intended full-history result of Tranche 2 is named **Equelo2**. That name
+currently denotes the target role—one account of the represented 1958-present
+history—not a construction whose historical evidence and transition policies
+have already been settled.
 
-The leading post-1988 candidate currently means:
+## Elo-89 contract
+
+Elo-89 means:
 
 ```text
 history                 represented W/L results from 1989/01 onward
@@ -156,17 +165,18 @@ banzuke population where applicable and exactly the same 574,863 W/L forecasts:
 |---|---:|---:|---:|
 | BKP1, no population adjustment | 0.677319 | 0.242086 | 0.014453 |
 | BKP1, Expt2 departure redistribution | 0.684196 | 0.245148 | 0.017651 |
-| BKP1, whole-population preservation | **0.675629** | **0.241362** | 0.014537 |
+| Elo-89 (`BKP1, whole-population preservation`) | **0.675629** | **0.241362** | 0.014537 |
 | old \(B_{kP}\) | 0.676945 | 0.241968 | **0.013459** |
 
-Whole-population BKP1 improved log loss over no adjustment by 0.001690,
+Elo-89 improved log loss over no adjustment by 0.001690,
 95% interval [-0.002045, -0.001312], and over old \(B_{kP}\) by 0.001316,
 interval [-0.001755, -0.000894]. Brier loss agreed. Old \(B_{kP}\) retained the
 best ECE. The gain was concentrated in ratings with fewer than 30 prior bouts;
-whole-population BKP1 became slightly worse in the longest career bands.
+Elo-89 became slightly worse in the longest career bands.
 
-Conclusion: whole-population BKP1 is the leading retrospective candidate, and
-Expt2 departure redistribution is substantially worse than either alternative.
+Conclusion: Elo-89 is the selected post-1988 model on the present retrospective
+evidence, and Expt2 departure redistribution is substantially worse than either
+alternative.
 
 ## Reproducible code and commands
 
@@ -278,15 +288,24 @@ model-selection artifacts.
   not make a low-support prior trustworthy.
 - Deep Jonokuchi and rare sanyaku literal-chii cells remain low-support and
   should not be presented as definitive measurements of skill.
-- Whole-population BKP1 has the best aggregate log and Brier loss tested, but
+- Elo-89 has the best aggregate log and Brier loss tested, but
   old \(B_{kP}\) has slightly better ECE and the longest-career bands slightly
   favour the alternatives.
 
 ## Recommended continuation
 
-The next research tranche is the distinctive Equelo question: extend the
-selected post-1988 model over the incomplete 1958--1988 record and test whether
+The next research tranche is the distinctive Equelo2 question: extend or join
+Elo-89 with the incomplete 1958--1988 record and test whether
 carrying that information across January 1989 improves subsequent forecasts.
+
+The first bounded investigation in that tranche is now complete. The strict
+literal-chii audit in
+[Pre-1989 Bout-Data Completeness and Rating Persistence](17%20Pre-1989%20Bout-Data%20Completeness%20and%20Rating%20Persistence.md)
+shows that pre-1989 lower-division coverage is incomplete but substantial. It
+also records the adopted rationale for preserving informed ratings across
+result gaps and the limits of that claim. In particular, no experiment has
+measured rating variability or predictive degradation as a function of missing
+data.
 
 Before coding that extension, write one bounded specification that fixes:
 
@@ -295,9 +314,7 @@ Before coding that extension, write one bounded specification that fixes:
 2. initial treatment of rikishi first observed as sekitori before 1989;
 3. treatment of the newly observable lower-banzuke population in January 1989;
 4. how the whole-population anchor behaves across that observability break;
-5. the post-1988 forecast windows and comparators; and
-6. whether the leading candidate receives a concise final name before the
-   experiment.
+5. the post-1988 forecast windows and comparators.
 
 At minimum, compare a fresh 1989 start with a full-history construction while
 holding `q`, divisional `k`, \(P_1\), post-1988 bout eligibility and population

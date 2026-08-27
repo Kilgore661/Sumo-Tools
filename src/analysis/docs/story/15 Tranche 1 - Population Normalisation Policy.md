@@ -481,10 +481,10 @@ python -m src.analysis.equelo_population_policy.predict_population_policy `
 |---|---:|---:|---:|
 | BKP1, no population adjustment | 0.677319 | 0.242086 | 0.014453 |
 | BKP1, Expt2 departure redistribution | 0.684196 | 0.245148 | 0.017651 |
-| BKP1, whole-population preservation | **0.675629** | **0.241362** | 0.014537 |
+| Elo-89 (`BKP1, whole-population preservation`) | **0.675629** | **0.241362** | 0.014537 |
 | old `B_kP` | 0.676945 | 0.241968 | **0.013459** |
 
-Whole-population BKP1 improves mean log loss by 0.001690 over no adjustment,
+Elo-89 improves mean log loss by 0.001690 over no adjustment,
 with a basho-block-bootstrap 95% interval of [-0.002045, -0.001312]. It improves
 by 0.008568 over actual Expt2 departure redistribution, interval
 [-0.009186, -0.007916]. It also improves by 0.001316 over the previous
@@ -514,7 +514,11 @@ than an unexplained aggregate effect.
 ### Decision supported by Tranche 1
 
 The evidence now supports whole-population mean preservation with canonical P1
-held fixed as the leading candidate replay model. It has the best retrospective
+held fixed as the selected post-1988 replay model. It is named **Elo-89**, with
+technical notation \(E_{89}\), because it is the project's Elo account of the
+sufficiently complete 1989-onward record. The name denotes the complete model
+contract; `BKP1` alone continues to denote an experimental family in which the
+population policy may differ. Elo-89 has the best retrospective
 log and Brier loss of the tested models while avoiding the pathological prior
 map produced when the same operator is fed back through literal-chii
 fixed-point estimation.

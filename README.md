@@ -141,6 +141,7 @@ Current high-level status:
 | Document                                 | Use                                                                |
 | ---------------------------------------- | ------------------------------------------------------------------ |
 | `docs/LLM Guide.md`                      | Collaboration rules, environment notes and project style for LLMs. |
+| `docs/Open Issues.md`                    | After-the-fact bucket for significant unrecorded project-wide TBDs. |
 | `docs/Project Map.md`                    | Public-site product map and candidate pages.                       |
 | `docs/What is an Equelo Rating.md`       | Foundational explanation, assumptions and validation of Equelo.    |
 | `docs/House Style.md`                    | Writing and documentation conventions.                             |
