@@ -157,6 +157,149 @@ basho, an incomplete record is exempted because the rikishi need not have
 completed the nominal schedule. The audit does not try to reconstruct the day
 of retirement or decide how many pre-retirement bouts ought to have occurred.
 
+## Ranked-banzuke gaps are not necessarily permanent departures
+
+It is possible for a rikishi to appear on two banzuke at a ranked, or "pro",
+chii (`Jk` or above) while having no ranked chii on one or more intervening
+banzuke. Absence from one banzuke therefore does not by itself establish
+retirement or permanent departure.
+
+An audit of the January 1958 through July 2026 History found 679 such gap events
+among 590 rikishi. The History contains 9,071 distinct rikishi with at least one
+ranked-banzuke appearance, so the affected population is 6.504% of all observed
+ranked rikishi. Of the 679 episodes, 666 (98.085%) are specifically
+`Jk -> unranked -> Jk`; excluding Sokokurai gives 666 of 678 (98.230%). The
+ranked History deliberately excludes the administrative
+categories needed to explain them, so the audit compared each gap with the
+downloaded SumoDB rikishi career table. Across the intervening basho, those
+tables contain:
+
+The latest observed returns are on the July 2026 banzuke: Kyokuhayate returns
+at `Jk17w` after last appearing at `Jk16e` in November 2025 and spending three
+basho at `Bg`; Dewanowaka returns at `Jk19w` after `Jk16w` in March 2026 and
+`Bg` in May 2026.
+
+Excluding Sokokurai, the last ranked chii before the 678 gaps are distributed
+as follows:
+
+| Last ranked division | Gap events | Percentage |
+|---|---:|---:|
+| `Jk` | 668 | 98.525% |
+| `Jd` | 9 | 1.327% |
+| `Sd` | 1 | 0.147% |
+
+Thus the practical edge case is overwhelmingly a Jonokuchi phenomenon, but not
+exclusively so. The 668 pre-gap Jonokuchi chii range from `Jk1` to `Jk70`; their
+median rank number is 18 and the most frequent is `Jk14` (31 events). Because
+the size of Jonokuchi changes substantially over the historical interval, those
+raw numbers do not measure a stable percentile or prove that every rikishi had
+reached the numerical bottom of the division before disappearing.
+
+The ten non-Jonokuchi departures, excluding Sokokurai, are:
+
+| Rikishi at departure | Last ranked appearance | Ranked return |
+|---|---:|---:|
+| Matsuokayama | 1966/09 `Sd51w` | 1967/09 `Jk16w` |
+| Beppu | 1964/05 `Jd87e` | 1966/07 `Jk22w` |
+| Nishimura | 1965/03 `Jd131e` | 1965/09 `Jk25w` |
+| Akao | 1965/09 `Jd125e` | 1966/01 `Jk20e` |
+| Fukuazuma | 1967/01 `Jd80w` | 1968/01 `Jk8e` |
+| Fukusoyama | 1967/01 `Jd70w` | 1967/07 `Jk16w` |
+| Suonada | 1968/05 `Jd49e` | 1969/09 `Jk2w` |
+| Akinoyama | 1970/07 `Jd54e` | 1973/03 `Jk12e` |
+| Kitanomine | 1976/07 `Jd102e` | 1977/01 `Jk16w` |
+| Yado | 1978/09 `Jd62w` | 1979/01 `Jk16e` |
+
+`Mz`, `Bg` and `Kg` are not ranks or chii. They are unranked source statuses;
+none belongs to the professional banzuke domain `Jk` and above. `Sj` is likewise
+treated here as an unranked historical entry status, not as a chii.
+
+| SumoDB status | Intervening basho |
+|---|---:|
+| `Bg` (Banzuke-gai) | 739 |
+| `Mz` (Mae-zumo) | 663 |
+| `Kg` (Out of Kyokai) | 67 |
+| `Sj` (Shinjo) | 6 |
+| `??` (SumoDB's unresolved value) | 2 |
+
+In 678 of the 679 events, every intervening basho has an explicit `Bg`, `Mz`,
+`Kg` or `Sj` status. The sole source-level ambiguity is Muraishi:
+
+```text
+1970/03 Mz -> 1970/05 Jk8e -> 1970/07 ?? -> 1970/09 ??
+-> 1970/11 Mz -> 1971/01 Jk4w
+```
+
+The two `??` values belong to SumoDB, not to the parser. Because the same career
+row explicitly records `Mz` immediately before Muraishi's return, he is included
+among the observed gap-and-return cases rather than treated as evidence of a
+ranked banzuke omission.
+
+Most returns have an intervening `Mz` status and reappear at `Jk`. Return above `Jk` is
+nevertheless possible. Tamabungo and Tochinoya each have an intervening `Sj`
+status in January 1959 and return at `Jd` in March 1959. The notable modern case
+is Sokokurai:
+
+```text
+2011/01 M16e -> 12 basho Kg -> 2013/05 Bg -> 2013/07 M15w
+```
+
+SumoDB uses `Bg` for someone outside the ranked banzuke but still within the
+Kyokai's entry or return machinery, and `Kg` for "Out of Kyokai". Nine other
+post-1958 careers contain `Kg` gaps, all between 1966 and 1977; unlike
+Sokokurai, each goes through `Mz` and returns at `Jk`:
+
+| Rikishi | Last ranked appearance | Administrative gap | Ranked return |
+|---|---:|---|---:|
+| Matsuoka | 1966/09 `Sd51w` | 4 `Kg`, then `Mz` | 1967/09 `Jk16w` |
+| Fukusoyama | 1967/01 `Jd70w` | 1 `Kg`, then `Mz` | 1967/07 `Jk16w` |
+| Fukuazuma | 1967/01 `Jd80w` | 4 `Kg`, then `Mz` | 1968/01 `Jk8e` |
+| Fukushima | 1967/09 `Jk5w` | 9 `Kg`, then `Mz` | 1969/07 `Jk9e` |
+| Tamanofuji | 1968/01 `Jk16e` | 2 `Bg`, 13 `Kg`, then `Mz` | 1970/11 `Jk1e` |
+| Wakayutaka | 1968/05 `Jd49e` | 6 `Kg`, then `Mz` | 1969/09 `Jk2w` |
+| Chiyominato | 1970/07 `Jd54e` | 14 `Kg`, then `Mz` | 1973/03 `Jk12e` |
+| Fukunobori | 1974/11 `Jk9w` | 3 `Kg`, then `Mz` | 1975/09 `Jk17e` |
+| Kitanomine | 1976/07 `Jd102e` | 1 `Kg`, then `Mz` | 1977/01 `Jk16w` |
+
+These are lifecycle facts, not yet a final model decision. They establish the
+edge case that a rating system must address: a missing ranked-banzuke appearance
+cannot safely be equated with permanent departure. The current Equelo2 baseline
+archives the rating during the gap, but this finding alone does not decide
+whether the definitive model should persist, reset or otherwise adjust it. The
+small affected fraction and overwhelming concentration in `Jk -> Jk` episodes
+make a small aggregate effect plausible, especially because an archived rating
+is inert during the absence. They do not establish that the effect on every
+returnee, on other ratings, or on predictions is insignificant; that would
+require a persistence-versus-reset comparison.
+
+Nor does a return at `Jk` establish that the rikishi now has ordinary
+Jonokuchi ability. In these careers `Jk` is commonly the procedural destination
+after an unranked status and `Mz`, rather than a competitive assessment derived
+from the rikishi's immediately preceding bouts. A former Sandanme rikishi might
+therefore return with a persisted rating well above the entrant prior associated
+with his new `Jk` chii without the persisted value necessarily being "too high".
+The old rating is evidence about ability before the absence; the return chii is
+evidence about the administrative route back. Neither tells us quantitatively
+how injury, inactivity, age or other circumstances changed ability during the
+gap.
+
+The model's Jonokuchi chii-to-rating relationship fails an important
+face-validity test: across the deep-Jonokuchi region, fitted ratings increase as
+the formal chii gets lower. In that strong and directly relevant sense, the
+model does not work in `Jk`; its exact-`Jk` values cannot be interpreted as a
+credible ordered ability scale. This does not show that Elo updates on
+Jonokuchi bout results contain no information--sub-sekitori Elo has predictive
+signal in aggregate--but it does mean that resetting a returnee to an exact
+`Jk` prior is not an evidence-based correction for rating staleness. Tranche 1
+also found that broad division membership supplied more useful initialisation
+information than exact lower-division chii.
+
+Persistence is consequently a carry-forward convention under ignorance, not a
+claim that ability remains constant while absent. If the carried rating is too
+high or too low, later observed results allow Elo to correct it and transfer the
+corresponding points. The numerical size and duration of that local disturbance,
+and any propagation to other rikishi, remain unmeasured.
+
 ## Why the findings support rating persistence
 
 The evidence supports a restrained argument:

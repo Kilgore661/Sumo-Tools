@@ -7,6 +7,13 @@ story. It runs one chronological rating world from January 1958 using the
 frozen Elo-89 entrant prior, then runs a separate Elo-89 reference world from
 January 1989 over the same later bouts.
 
+The purpose of the historical extension is to put pre-1989 and modern rikishi
+on one continuous rating scale, permitting comparisons such as Taiho with
+Hakuho. It is not intended to improve post-1988 ratings or forecasts. The
+post-1988 reference comparison checks that incorporating the incomplete earlier
+record does not materially damage Elo-89; a favourable difference is incidental
+and is not the intended benefit of the extension.
+
 This is an experiment, not yet the selected Equelo2 model.
 It is a retrospective diagnostic: the adopted Elo-89 prior was estimated using
 post-1988 information and is therefore future-informed when applied in 1958.
@@ -36,11 +43,27 @@ The package reads `History` directly. It deliberately does not reuse the
 legacy pre-1989 oracle, which retains only bouts involving a sekitori, or the
 legacy replay rule that treats a blank kimarite as an unrated result.
 
+Absence from a represented banzuke is not necessarily permanent departure.
+The source contains hundreds of ranked gap-and-return careers, normally through
+`Bg` and `Mz`, nine historical `Kg`/`Mz` returns, the ambiguous Muraishi sequence
+`Jk8e, ??, ??, Mz, Jk4w`, and Sokokurai's exceptional direct restoration from
+`M16e` to `M15w`. The lifecycle audit and terminology are recorded in story
+document 17. The baseline's archive-and-restore behavior is a candidate policy,
+not an inference that the administrative categories are equivalent.
+
 The Elo-89 artifact is not modified. Historical completion is written to the
 experiment output as a separate derived map.
 
 The default source artifact is
 `files/output/analysis/equelo_bkp1/prior.csv`.
+
+## Rating observation convention
+
+Published Equelo2 ratings and career records use the processed `end` phase:
+after all eligible bouts in the basho and the end-of-basho population
+normalisation. Start-state data needed internally for replay and forecast
+reproduction is not a rating observation and must not be used for published
+ratings or records.
 
 ## Full run
 

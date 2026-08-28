@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Preliminary Production Sanity Checks and Fan Challenges</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: Georgia, "Times New Roman", serif;
+      line-height: 1.6;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 54rem;
+      padding: 2rem 1.25rem 4rem;
+    }
+    h1, h2, h3 {
+      font-family: system-ui, sans-serif;
+      line-height: 1.2;
+      margin-top: 1.75em;
+    }
+    h1 { margin-top: 0; }
+    li + li { margin-top: 0.35rem; }
+    mjx-container[display="true"] {
+      margin: 1.25rem 0 !important;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body><h1 id="preliminary-production-sanity-checks-and-fan-challenges">Preliminary Production Sanity Checks and Fan Challenges</h1>
+<h2 id="status-and-purpose">Status and purpose</h2>
+<p>This is a developing production-readiness record for Equelo2. It approaches
+the model from the perspective of people who may encounter the eventual web
+site: casual sumo fans, statistically literate readers and people with deep
+knowledge of sumo history.</p>
+<p>This exercise is deliberately different from model selection. A change in the
+second decimal place of a log-loss value may be statistically or technically
+important, but it will not answer a reader who asks why the ratings look
+credible, why Hakuho ranks above Taiho, or why Kakuryu appears unusually high.
+The purpose here is to anticipate those reactions, state the strongest honest
+response and identify cases where the response exposes a model weakness rather
+than resolving the challenge.</p>
+<p>These checks complement quantitative evaluation; they do not replace it. A
+historically plausible table can still be predictively useless, and a useful
+predictor can still encode assumptions which make a particular historical
+comparison difficult to defend.</p>
+<h2 id="observation-convention">Observation convention</h2>
+<p>A published Equelo2 rating is observed after the named basho's eligible bouts
+and all post-basho processing. Career peaks and records use only this processed
+basho-end value. Internal start-state values are not rating observations.</p>
+<h2 id="challenge-where-did-the-initial-ratings-come-from">Challenge: “Where did the initial ratings come from?”</h2>
+<p>The entrant priors are constructed from the historical relationship between
+banzuke position and the ratings produced by the accepted Elo/Equelo dynamics.
+The fixed-point process deliberately uses later historical results to obtain
+useful initial values. It is not claimed to create an out-of-sample forecast of
+the same construction history.</p>
+<p>The first practical test is whether the complete system containing those
+priors extracts useful information at all. Proto-Equelo2 beats the neutral
+50--50 predictor over the complete represented history:</p>
+<table>
+<thead>
+<tr>
+<th>Measure</th>
+<th style="text-align: right;">Proto-Equelo2</th>
+<th style="text-align: right;">Neutral 50--50</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mean log loss</td>
+<td style="text-align: right;">0.679354</td>
+<td style="text-align: right;">0.693147</td>
+</tr>
+<tr>
+<td>Mean Brier loss</td>
+<td style="text-align: right;">0.243025</td>
+<td style="text-align: right;">0.250000</td>
+</tr>
+</tbody>
+</table>
+<p>This is a retrospective sanity check, not a prospective claim. If the system
+performed poorly even under this deliberately favourable test, the prior
+construction would have failed a basic usefulness requirement. Passing the
+test shows that the chosen priors participate in a coherent and useful rating
+system; it does not show that they are uniquely optimal.</p>
+<p>Once a named Equelo2 version and its prior map are frozen, genuinely later
+results can be used for prospective evaluation without changing that version.</p>
+<h2 id="challenge-were-the-pre-1989-results-added-to-improve-later-predictions">Challenge: “Were the pre-1989 results added to improve later predictions?”</h2>
+<p>No. The purpose of extending Elo-89 backwards is to create one continuous
+rating account in which historical rikishi such as Taiho can be compared with
+modern rikishi such as Hakuho. Elo-89 supplies the priors, scale and update
+machinery needed to incorporate the incomplete earlier evidence.</p>
+<p>The common post-1988 forecast comparison is a compatibility check. It asks
+whether carrying the historical state across January 1989 materially damages
+the established later account. Proto-Equelo2's post-1988 log loss is 0.675281,
+compared with 0.675498 for a fresh Elo-89 start, so no such damage is observed.
+The small favourable difference is incidental. It is not the benefit the
+historical extension was designed to obtain, and no claim that pre-1989
+evidence improves modern ratings is required.</p>
+<h2 id="challenge-does-the-pre-1989-replay-itself-beat-50-50">Challenge: “Does the pre-1989 replay itself beat 50--50?”</h2>
+<p>The two proper scores give mixed answers over the 165,780 rated pre-1989 bouts:</p>
+<table>
+<thead>
+<tr>
+<th>Measure</th>
+<th style="text-align: right;">Proto-Equelo2</th>
+<th style="text-align: right;">Neutral 50--50</th>
+<th style="text-align: right;">Difference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mean log loss</td>
+<td style="text-align: right;">0.693589</td>
+<td style="text-align: right;">0.693147</td>
+<td style="text-align: right;">+0.000442</td>
+</tr>
+<tr>
+<td>Mean Brier loss</td>
+<td style="text-align: right;">0.249519</td>
+<td style="text-align: right;">0.250000</td>
+<td style="text-align: right;">-0.000481</td>
+</tr>
+</tbody>
+</table>
+<p>The log score is minutely worse than neutral and the Brier score minutely
+better. Both differences are at roughly the fourth decimal place and point in
+opposite directions. They must be disclosed, but they are not treated as a
+substantive concern or concealed behind the stronger all-history result. The
+pre-1989 extension was not introduced to establish forecasting power on that
+incomplete interval; its purpose is historical inclusion and comparison.</p>
+<h2 id="challenge-hakuho-only-leads-because-taihos-rating-had-not-stabilised">Challenge: “Hakuho only leads because Taiho's rating had not stabilised”</h2>
+<p>The processed Equelo2 peak comparison is:</p>
+<table>
+<thead>
+<tr>
+<th>Rikishi</th>
+<th style="text-align: right;">Peak rating</th>
+<th style="text-align: right;">Basho</th>
+<th style="text-align: right;">Rated bouts accumulated</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hakuho</td>
+<td style="text-align: right;">3031.291</td>
+<td style="text-align: right;">2010/09</td>
+<td style="text-align: right;">701</td>
+</tr>
+<tr>
+<td>Taiho</td>
+<td style="text-align: right;">2891.554</td>
+<td style="text-align: right;">1969/01</td>
+<td style="text-align: right;">783</td>
+</tr>
+</tbody>
+</table>
+<p>Taiho had accumulated more rated bouts than Hakuho at their respective peaks.
+The 139.737-point difference therefore cannot reasonably be dismissed as
+Taiho merely lacking time to move away from his initial rating.</p>
+<h2 id="challenge-hakuho-competed-later-when-there-were-more-rating-points-to-win">Challenge: “Hakuho competed later, when there were more rating points to win”</h2>
+<p>Equelo2 restores the active population to a fixed mean after every basho.
+Consequently, the rating origin cannot simply drift upward across the decades
+as an unnormalised Elo implementation can. Hakuho's higher peak is not the
+known mechanical artefact in which later competitors inherit an inflated
+rating pool.</p>
+<p>This does not prove that every population effect has disappeared. The model
+still assumes that its active-population anchor is comparable across eras, and
+population composition, schedule structure and entrant policy can affect the
+rating distribution around that anchor.</p>
+<h2 id="conditional-conclusion-hakuho-and-taiho">Conditional conclusion: Hakuho and Taiho</h2>
+<p>Under <code>q=400</code>, Hakuho's 139.737-point peak advantage corresponds to an
+approximately 69% expected score in a hypothetical peak-versus-peak matchup.
+The appropriate claim is therefore conditional but substantive:</p>
+<blockquote>
+<p>If the reader accepts the Equelo2 model contract and accepts peak rating as
+the meaning of “better”, Equelo2 says that Hakuho was better than Taiho.</p>
+</blockquote>
+<p>A Taiho supporter may still dispute the model's cross-era assumptions, the
+historical invariance of chii meaning, the active-population anchor, or the use
+of peak performance as the definition of greatness. Those are genuine
+substantive objections. Uncorrected rating inflation and insufficient time for
+Taiho's rating to stabilise are not.</p>
+<p>The result is not offered as proof of the GOAT. It is evidence that Equelo2 can
+give a clear answer to one familiar historical question while making the
+assumptions behind that answer visible.</p>
+<p>No further Hakuho--Taiho robustness sweep is required for the Equelo2 candidate.
+Such a sweep could expand indefinitely across choices about era strength,
+population composition, anchoring and the definition of greatness. The project
+records the conditional model result and its assumptions rather than making
+that fractal exercise a production gate. This is also proportionate to the
+ordinary public prior that Hakuho is the leading post-1958 GOAT candidate.</p>
+<h2 id="comparative-observation-kakuryu">Comparative observation: Kakuryu</h2>
+<p>Using processed basho-end peaks, proto-Equelo2 ranks Kakuryu eleventh and he
+does not appear in its top ten. The older fixed-supported production Equelo
+ranks him fifth, at 2677.432 after 2016/11. His top-ten position is therefore a
+legacy-Equelo observation, not an Equelo2 candidate problem, and it is not
+caused by selecting an intrabasho maximum.</p>
+<p>The contrast is still worth preserving: it shows that materially different
+Equelo constructions can produce different elite rankings. It may motivate an
+investigation of legacy Equelo, but Kakuryu's absence from Equelo2's top ten is
+not something the Equelo2 candidate must defend or repair.</p>
+<h2 id="scope-limit-pre-1958-candidates">Scope limit: pre-1958 candidates</h2>
+<p>The represented History begins in January 1958. Equelo2 therefore cannot
+adjudicate claims for Futabayama, Raiden or other earlier candidates. A public
+“greatest ever” description must either state that scope or use language such
+as “highest in the represented 1958-onward history.”</p>
+<h2 id="current-production-readiness-questions">Current production-readiness questions</h2>
+<p>Before treating the candidate as ready for public historical claims:</p>
+<ol>
+<li>examine the November 1988 endpoint, the January 1989 handover and the
+historical chii-to-rating maps;</li>
+<li>complete the fixed-pool realised-outcome comparison with 50--50 recorded in
+the story index;</li>
+<li>decide which claims describe peak performance, career achievement,
+dominance over contemporaries or another meaning of “greatness”;</li>
+<li>express the statistical evidence in language that answers the reader's
+actual challenge rather than substituting a small score difference for an
+explanation.</li>
+</ol>
+<p>This document should grow by adding concrete challenges, the best available
+response, the evidence supporting it and any unresolved model vulnerability.</p>
+</body>
+</html>

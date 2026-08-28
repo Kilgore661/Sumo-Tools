@@ -89,6 +89,18 @@ either a defect or an insight.
     persisting informed ratings across historical result gaps without claiming
     that the effect of missing data on rating quality has been experimentally
     measured.
+18. [Preliminary Production Sanity Checks and Fan Challenges](18%20Preliminary%20Production%20Sanity%20Checks%20and%20Fan%20Challenges.md)
+    records audience-facing challenges to Equelo2, including the origin and
+    use of future-informed priors, the Hakuho--Taiho comparison, inflation and
+    stabilisation objections, the contrasting legacy-Equelo result for Kakuryu
+    and the 1958 scope boundary. It complements formal predictive evidence with
+    historically intelligible production-readiness checks.
+19. [Equelo2 Candidate Experiments Handoff](19%20Equelo2%20Candidate%20Experiments%20Handoff.md)
+    is the current restart point for the two remaining candidate-gate
+    experiments: an audit of the November-1988/January-1989 join and historical
+    chii/rating maps, followed by a fixed-pool realised-outcome comparison with
+    50--50. It explains the evidential gap each experiment closes and keeps
+    already settled questions outside their scope.
 
 The post-1988 model selected in Tranche 1 is named **Elo-89**, with technical
 notation \(E_{89}\). It consists of canonical \(P_1\), `q=400`, divisional `k`
@@ -98,6 +110,13 @@ label and is not, by itself, a synonym for Elo-89.
 The intended full-history model at the end of Tranche 2 is named **Equelo2**.
 Equelo2 is an objective and model role, not yet a completed contract: Tranche 2
 must determine how the differently incomplete pre-1989 evidence joins Elo-89.
+The purpose of that extension is to place historical rikishi such as Taiho and
+modern rikishi such as Hakuho in one continuous rating account. It is not an
+attempt to use pre-1989 results to improve ratings or forecasts after 1988.
+Post-1988 scoring of a full-history candidate is principally a compatibility
+check: incorporating the earlier record must not materially damage the
+established Elo-89 account. Any small improvement is incidental rather than
+the benefit Tranche 2 set out to obtain.
 
 ## Interpretive rule: future-informed priors and predictive sanity checks
 
@@ -131,6 +150,15 @@ are misrepresented as prospective evidence. A frozen prior map may later be
 tested prospectively; changing it should create a newly identified model
 version rather than silently revising Equelo2.
 
+## Reporting convention: when a rating is observed
+
+The canonical published Equelo2 rating for a rikishi in a basho is the
+**processed end-of-basho rating**: the value after all eligible bouts and the
+post-basho population-normalisation step. Career peaks, records, comparisons
+and website displays must use this `end` value. Start-state values required by
+the replay implementation are internal process data, not rating observations;
+they must not be used for published ratings or records.
+
 The detailed initial inventory remains in
 [Elo Documentation Rummage](../2026%2008%2014%20Elo%20Documentation%20Rummage.md).
 
@@ -152,14 +180,14 @@ The detailed initial inventory remains in
 
 ## Next steps
 
-Tranche 1 is complete. The current state and precise continuation are in
-[Handoff After Tranche 1](16%20Handoff%20After%20Tranche%201.md). The next
-research tranche is the construction of Equelo2 by extending or joining
-Elo-89 with the incomplete 1958--1988 history. The initial completeness
-measurement is now recorded in
+Tranche 1 is complete, and a proto-Equelo2 full-history baseline now exists.
+The current continuation is specified in
+[Equelo2 Candidate Experiments Handoff](19%20Equelo2%20Candidate%20Experiments%20Handoff.md).
+The initial completeness measurement is recorded in
 [Pre-1989 Bout-Data Completeness and Rating Persistence](17%20Pre-1989%20Bout-Data%20Completeness%20and%20Rating%20Persistence.md).
-The next step is a bounded historical-completion and January-1989 observability
-specification, not production or website migration.
+The next work is the bounded 1988/89 boundary and historical-map audit, then
+the fixed-pool realised-outcome control. It is not production or website
+migration.
 
 The proposed consolidation of the Elo-like account is now specified in
 [Proposal: The Consolidated Elo-like Ratings Story](13%20Proposal%20for%20the%20Consolidated%20Elo-like%20Ratings%20Story.md).
@@ -196,6 +224,20 @@ This control is intended to demonstrate the predictive content of the Elo
 update dynamics in the simplest closed setting. It is not intended to select
 the best historical Equelo2 variant or to replace the historical evidence that
 Equelo2 as a complete system beats the neutral predictor.
+
+### Comparative observation: Kakuryu in legacy Equelo
+
+All-time peak tables are a subjective diagnostic, not a proof of greatness.
+They are nevertheless useful for finding results which knowledgeable readers
+would regard as difficult to defend. Using processed basho-end observations,
+proto-Equelo2 ranks Kakuryu eleventh, outside its top ten. The older
+fixed-supported production Equelo ranks him fifth, with a peak of 2677.432
+after 2016/11. The unexpectedly high top-ten position is therefore an
+observation about legacy Equelo, not an Equelo2 candidate failure, and it is
+not caused by the old site's use of an intrabasho peak. Preserve the contrast
+as evidence that the two constructions can produce materially different elite
+rankings; do not present Kakuryu's absence from Equelo2's top ten as a problem
+which Equelo2 must solve.
 
 Production still uses older Equelo artifacts. Migration remains deliberately
 deferred until the historical-extension gate has selected a full-history
