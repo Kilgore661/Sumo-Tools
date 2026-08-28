@@ -9,6 +9,7 @@ from typing import Dict, List
 from .parser2_margin import get_margin_data
 from .parser2_body import parse_and_validate_body
 from .parser2_IntDate import IntDate as Date
+from ..history_artifacts import POST_1988_START_YEAR, history_from_year
 from ..persistence.new_sumo_serialiser import save_history_with_annotations
 
 from .FSM import FinalBanzukeEntry
@@ -211,6 +212,15 @@ def parse_and_save_history(start_year, end_year):
     # Step 4: Call the new serialiser to save the data.
     print(f"\nSaving history to {full_path}.zip...")
     save_history_with_annotations(history, full_path)
+
+    if start_year < POST_1988_START_YEAR <= end_year:
+        post_1988_filename = f"{POST_1988_START_YEAR}_01 to {end_year}_11"
+        post_1988_path = os.path.join(output_dir, post_1988_filename)
+        print(f"Saving synchronized post-1988 history to {post_1988_path}.zip...")
+        save_history_with_annotations(
+            history_from_year(history, POST_1988_START_YEAR),
+            post_1988_path,
+        )
     print(f"Save complete in {time()-t1:0.3f} sec.")
 
 

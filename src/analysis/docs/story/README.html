@@ -133,6 +133,34 @@ label and is not, by itself, a synonym for Elo-89.</p>
 <p>The intended full-history model at the end of Tranche 2 is named <strong>Equelo2</strong>.
 Equelo2 is an objective and model role, not yet a completed contract: Tranche 2
 must determine how the differently incomplete pre-1989 evidence joins Elo-89.</p>
+<h2 id="interpretive-rule-future-informed-priors-and-predictive-sanity-checks">Interpretive rule: future-informed priors and predictive sanity checks</h2>
+<p>The use of later historical results to construct the entrant priors is
+deliberate. The fixed-point process is intended to produce useful initial
+values: values which, under the accepted Elo/Equelo update dynamics, lead to a
+credible rating history. It is not presented as a way to make out-of-sample
+claims about bouts already contained in the construction history.</p>
+<p>Scoring the resulting historical replay against a 50--50 predictor is therefore
+first a <strong>retrospective sanity check on the constructed system</strong>, including its
+initial ratings. It asks whether the completed system extracts useful
+predictive information at all. It is not a cheat used to manufacture a claim
+of prospective predictive power. Failure even on this deliberately favourable
+test would be evidence that the construction had gone seriously wrong; success
+shows basic usefulness and coherence, but does not by itself constitute an
+out-of-sample validation of the priors.</p>
+<p>These three questions must remain separate:</p>
+<ol>
+<li><strong>Construction:</strong> do the available historical results yield initial ratings
+which lead to a credible and useful rating history?</li>
+<li><strong>Retrospective sanity check:</strong> does that completed historical system beat
+the neutral 50--50 predictor?</li>
+<li><strong>Prospective validation:</strong> after a named Equelo2 version, including its
+prior map, is frozen, how well does it predict genuinely later results?</li>
+</ol>
+<p>Under this interpretation, future-informed priors are not a defect in the
+construction exercise. They become a limitation only if retrospective scores
+are misrepresented as prospective evidence. A frozen prior map may later be
+tested prospectively; changing it should create a newly identified model
+version rather than silently revising Equelo2.</p>
 <p>The detailed initial inventory remains in
 <a href="../2026%2008%2014%20Elo%20Documentation%20Rummage.md">Elo Documentation Rummage</a>.</p>
 <h2 id="current-status">Current status</h2>
@@ -220,6 +248,28 @@ affects empirical chii-to-rating maps. Exact monotonicity is no longer a model
 or documentation blocker. Canonical \(P_1\) retains the computed anomalies and
 must be described as an entrant-initialisation policy rather than a definitive
 mapping from rank to skill.</p>
+<h3 id="equelo2-candidate-gate-fixed-pool-predictive-control">Equelo2 candidate gate: fixed-pool predictive control</h3>
+<p>When asking <strong>“Have we got a candidate for Equelo2 nailed down?”</strong>, include the
+following outstanding experiment in the readiness check:</p>
+<ul>
+<li>simulate a fixed pool of rikishi with fixed, unequal latent abilities and no
+entry or departure;</li>
+<li>generate realised bouts chronologically and have Elo forecast each bout
+before applying its update;</li>
+<li>score those forecasts by log loss and Brier loss against the same realised
+outcomes;</li>
+<li>compare them directly with a 50--50 predictor, over multiple reproducible
+runs, and report the size and variability of the advantage.</li>
+</ul>
+<p><strong>Status: experiment required.</strong> Existing fixed-pool toy studies test recovery
+of latent gaps, convergence, forecast error relative to latent probabilities
+and forgetting of initial conditions. They do not score realised forecasts
+against 50--50. Existing historical fair-coin and predictive tests do make
+that comparison, but use a changing rikishi population.</p>
+<p>This control is intended to demonstrate the predictive content of the Elo
+update dynamics in the simplest closed setting. It is not intended to select
+the best historical Equelo2 variant or to replace the historical evidence that
+Equelo2 as a complete system beats the neutral predictor.</p>
 <p>Production still uses older Equelo artifacts. Migration remains deliberately
 deferred until the historical-extension gate has selected a full-history
 construction. Older documents retain their decisions and chronology, but the

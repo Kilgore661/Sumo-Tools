@@ -5,6 +5,7 @@ from ...sumo_core.History import History
 from ..parser.parser2 import parse_history, logger, OUTPUT_DIR
 from ..persistence.new_sumo_serialiser import save_history_with_annotations
 from ..config import EPOCH
+from ..history_artifacts import POST_1988_START_YEAR, history_from_year
 from ..live_store.LiveStore import LiveStore
 
 
@@ -31,10 +32,24 @@ def _publish_canonical_history(
     start_year: int,
     end_year: int,
 ) -> bool:
+    """Publish the full History and its synchronized post-1988 derivative."""
+
     try:
         full_path = _canonical_history_path(start_year, end_year)
         save_history_with_annotations(history, full_path)
-        return os.path.exists(full_path + ".zip")
+        expected_paths = [full_path + ".zip"]
+
+        if start_year < POST_1988_START_YEAR <= end_year:
+            post_1988_path = _canonical_history_path(
+                POST_1988_START_YEAR, end_year
+            )
+            save_history_with_annotations(
+                history_from_year(history, POST_1988_START_YEAR),
+                post_1988_path,
+            )
+            expected_paths.append(post_1988_path + ".zip")
+
+        return all(os.path.exists(path) for path in expected_paths)
     except Exception as exc:
         print(f"[update_cycle] publish failed: {exc}")
         return False
