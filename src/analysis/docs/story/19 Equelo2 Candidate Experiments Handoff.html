@@ -156,6 +156,156 @@ discontinuity is a defect to resolve, not a modelling result.</p>
 <p>The experiment should not silently replace \(P_1\). If the historical maps
 suggest that a pre-1989 fixed-point prior might be useful, that becomes a
 separate, explicit proposal evaluated against the unchanged baseline.</p>
+<h3 id="interim-result-january-start-state-and-tenure-cohorts">Interim result: January start state and tenure cohorts</h3>
+<p>The first boundary analyses are implemented in
+<code>src/analysis/equelo2_boundary_audit</code>. They compare two ratings for the same
+event, immediately before any bout in January 1989:</p>
+<ul>
+<li>the full-history rating carried through November 1988 and the January
+population-normalisation step;</li>
+<li>the fresh Elo-89 rating assigned from the January chii.</li>
+</ul>
+<p>Joiners and leavers are excluded, leaving 741 matched incumbents. The overall
+comparison is:</p>
+<table>
+<thead>
+<tr>
+<th>Measure</th>
+<th style="text-align: right;">Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mean historical minus Elo-89</td>
+<td style="text-align: right;">+0.031 points</td>
+</tr>
+<tr>
+<td>Median difference</td>
+<td style="text-align: right;">+1.766 points</td>
+</tr>
+<tr>
+<td>Population SD of differences</td>
+<td style="text-align: right;">89.631 points</td>
+</tr>
+<tr>
+<td>Mean absolute difference</td>
+<td style="text-align: right;">68.401 points</td>
+</tr>
+<tr>
+<td>RMS difference</td>
+<td style="text-align: right;">89.631 points</td>
+</tr>
+<tr>
+<td>Pearson correlation</td>
+<td style="text-align: right;">0.9340</td>
+</tr>
+<tr>
+<td>Spearman correlation</td>
+<td style="text-align: right;">0.8817</td>
+</tr>
+</tbody>
+</table>
+<p>The common scale and broad ordering survive the join. The near-zero mean is
+not, however, evidence of close individual agreement: both systems are
+normalised to the same scale, and the mean conceals systematic division-level
+offsets. Historical ratings average 101.703 points above the fresh priors in
+Makuuchi and 68.434 points below them in Makushita. Jonokuchi has essentially
+no within-division association: Pearson <code>0.0311</code>, Spearman <code>-0.0224</code>.</p>
+<p>A complementary directional sanity check asks whether agreement improves when
+the comparison is restricted to rikishi with longer represented careers.
+Tenure begins at the first represented proper chii, Jk or above. Nested 0, 1,
+2, 3, 5 and 10-year cohorts are retained; five years against the complete
+cohort is the declared primary comparison. Both mean absolute and RMS
+difference were required to fall.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Minimum tenure</th>
+<th style="text-align: right;">N</th>
+<th style="text-align: right;">Median rated bouts</th>
+<th style="text-align: right;">MAE</th>
+<th style="text-align: right;">RMS</th>
+<th style="text-align: right;">Pearson</th>
+<th style="text-align: right;">Spearman</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">0 years</td>
+<td style="text-align: right;">741</td>
+<td style="text-align: right;">42.0</td>
+<td style="text-align: right;">68.401</td>
+<td style="text-align: right;">89.631</td>
+<td style="text-align: right;">0.9340</td>
+<td style="text-align: right;">0.8817</td>
+</tr>
+<tr>
+<td style="text-align: right;">1 year</td>
+<td style="text-align: right;">629</td>
+<td style="text-align: right;">49.0</td>
+<td style="text-align: right;">69.743</td>
+<td style="text-align: right;">91.434</td>
+<td style="text-align: right;">0.9336</td>
+<td style="text-align: right;">0.8905</td>
+</tr>
+<tr>
+<td style="text-align: right;">2 years</td>
+<td style="text-align: right;">518</td>
+<td style="text-align: right;">56.0</td>
+<td style="text-align: right;">72.246</td>
+<td style="text-align: right;">94.244</td>
+<td style="text-align: right;">0.9313</td>
+<td style="text-align: right;">0.8838</td>
+</tr>
+<tr>
+<td style="text-align: right;">3 years</td>
+<td style="text-align: right;">428</td>
+<td style="text-align: right;">77.0</td>
+<td style="text-align: right;">75.414</td>
+<td style="text-align: right;">98.000</td>
+<td style="text-align: right;">0.9275</td>
+<td style="text-align: right;">0.8833</td>
+</tr>
+<tr>
+<td style="text-align: right;">5 years</td>
+<td style="text-align: right;">300</td>
+<td style="text-align: right;">90.5</td>
+<td style="text-align: right;">75.505</td>
+<td style="text-align: right;">99.332</td>
+<td style="text-align: right;">0.9310</td>
+<td style="text-align: right;">0.9048</td>
+</tr>
+<tr>
+<td style="text-align: right;">10 years</td>
+<td style="text-align: right;">79</td>
+<td style="text-align: right;">319.0</td>
+<td style="text-align: right;">68.567</td>
+<td style="text-align: right;">98.145</td>
+<td style="text-align: right;">0.9533</td>
+<td style="text-align: right;">0.9632</td>
+</tr>
+</tbody>
+</table>
+<p>The five-year cohort therefore <strong>does not pass the declared absolute-difference
+check</strong>. Its ordering agrees better by Spearman correlation, but its ratings
+are farther from the chii priors by both MAE and RMS difference.</p>
+<p>This aggregate result is partly compositional but cannot be dismissed wholly
+as an aggregation artefact. Division-controlled five-year comparisons improve
+by both MAE and RMS in Makuuchi, Juryo and Makushita. Sandanme is roughly flat
+to worse, while Jonidan deteriorates materially. Longer tenure selects more
+represented bouts, but also selects survivors and particular career
+trajectories, including long-tenured rikishi at low current chii. It is not a
+pure proxy for rating reliability.</p>
+<p>The retained conclusion is deliberately mixed. The boundary comparison passes
+as a basic wiring and scale sanity check and supports continuing the
+investigation. The tenure result does not support the simple claim that
+restricting the sample to longer-observed rikishi necessarily makes historical
+ratings numerically closer to the fresh chii priors. Propagation must therefore
+be examined without treating that claim as established.</p>
+<p>Generated evidence is under
+<code>files/output/analysis/equelo2_boundary_audit/1989_01/</code>, principally
+<code>findings.md</code>, <code>matched_rikishi.csv</code>, <code>tenure_threshold_summary.csv</code> and
+<code>tenure_division_summary.csv</code>.</p>
 <h2 id="experiment-2-fixed-pool-realised-outcome-control">Experiment 2: fixed-pool realised-outcome control</h2>
 <h3 id="question-1">Question</h3>
 <p>In a constant pool of rikishi with fixed, unequal latent abilities, do Elo's

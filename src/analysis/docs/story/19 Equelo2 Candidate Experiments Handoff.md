@@ -137,6 +137,76 @@ The experiment should not silently replace \(P_1\). If the historical maps
 suggest that a pre-1989 fixed-point prior might be useful, that becomes a
 separate, explicit proposal evaluated against the unchanged baseline.
 
+### Interim result: January start state and tenure cohorts
+
+The first boundary analyses are implemented in
+`src/analysis/equelo2_boundary_audit`. They compare two ratings for the same
+event, immediately before any bout in January 1989:
+
+- the full-history rating carried through November 1988 and the January
+  population-normalisation step;
+- the fresh Elo-89 rating assigned from the January chii.
+
+Joiners and leavers are excluded, leaving 741 matched incumbents. The overall
+comparison is:
+
+| Measure | Result |
+|---|---:|
+| Mean historical minus Elo-89 | +0.031 points |
+| Median difference | +1.766 points |
+| Population SD of differences | 89.631 points |
+| Mean absolute difference | 68.401 points |
+| RMS difference | 89.631 points |
+| Pearson correlation | 0.9340 |
+| Spearman correlation | 0.8817 |
+
+The common scale and broad ordering survive the join. The near-zero mean is
+not, however, evidence of close individual agreement: both systems are
+normalised to the same scale, and the mean conceals systematic division-level
+offsets. Historical ratings average 101.703 points above the fresh priors in
+Makuuchi and 68.434 points below them in Makushita. Jonokuchi has essentially
+no within-division association: Pearson `0.0311`, Spearman `-0.0224`.
+
+A complementary directional sanity check asks whether agreement improves when
+the comparison is restricted to rikishi with longer represented careers.
+Tenure begins at the first represented proper chii, Jk or above. Nested 0, 1,
+2, 3, 5 and 10-year cohorts are retained; five years against the complete
+cohort is the declared primary comparison. Both mean absolute and RMS
+difference were required to fall.
+
+| Minimum tenure | N | Median rated bouts | MAE | RMS | Pearson | Spearman |
+|---:|---:|---:|---:|---:|---:|---:|
+| 0 years | 741 | 42.0 | 68.401 | 89.631 | 0.9340 | 0.8817 |
+| 1 year | 629 | 49.0 | 69.743 | 91.434 | 0.9336 | 0.8905 |
+| 2 years | 518 | 56.0 | 72.246 | 94.244 | 0.9313 | 0.8838 |
+| 3 years | 428 | 77.0 | 75.414 | 98.000 | 0.9275 | 0.8833 |
+| 5 years | 300 | 90.5 | 75.505 | 99.332 | 0.9310 | 0.9048 |
+| 10 years | 79 | 319.0 | 68.567 | 98.145 | 0.9533 | 0.9632 |
+
+The five-year cohort therefore **does not pass the declared absolute-difference
+check**. Its ordering agrees better by Spearman correlation, but its ratings
+are farther from the chii priors by both MAE and RMS difference.
+
+This aggregate result is partly compositional but cannot be dismissed wholly
+as an aggregation artefact. Division-controlled five-year comparisons improve
+by both MAE and RMS in Makuuchi, Juryo and Makushita. Sandanme is roughly flat
+to worse, while Jonidan deteriorates materially. Longer tenure selects more
+represented bouts, but also selects survivors and particular career
+trajectories, including long-tenured rikishi at low current chii. It is not a
+pure proxy for rating reliability.
+
+The retained conclusion is deliberately mixed. The boundary comparison passes
+as a basic wiring and scale sanity check and supports continuing the
+investigation. The tenure result does not support the simple claim that
+restricting the sample to longer-observed rikishi necessarily makes historical
+ratings numerically closer to the fresh chii priors. Propagation must therefore
+be examined without treating that claim as established.
+
+Generated evidence is under
+`files/output/analysis/equelo2_boundary_audit/1989_01/`, principally
+`findings.md`, `matched_rikishi.csv`, `tenure_threshold_summary.csv` and
+`tenure_division_summary.csv`.
+
 ## Experiment 2: fixed-pool realised-outcome control
 
 ### Question
