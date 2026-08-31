@@ -429,7 +429,7 @@ class _CsvOutputs:
             ),
             "rating_ledger.csv": (
                 "run", "basho", "phase", "rikishi_id", "shikona", "chii",
-                "rating", "rated_bouts", "initialisation_source",
+                "chii_ordinal", "rating", "rated_bouts", "initialisation_source",
             ),
             "basho_adjustments.csv": (
                 "run", "date", "active_count", "new_rikishi_count",
@@ -532,13 +532,15 @@ class _CsvOutputs:
             ("end", replay.end_ratings, replay.rated_bouts_after),
         ):
             for rikishi in sorted(ratings):
+                chii = basho.banzuke.rikchii[rikishi]
                 rating_writer.writerow({
                     "run": replay.adjustment.run,
                     "basho": str(replay.adjustment.date),
                     "phase": phase,
                     "rikishi_id": int(rikishi),
                     "shikona": str(basho.banzuke.rikshik[rikishi]),
-                    "chii": str(basho.banzuke.rikchii[rikishi]),
+                    "chii": str(chii),
+                    "chii_ordinal": chii.ordinal(),
                     "rating": ratings[rikishi],
                     "rated_bouts": counts[rikishi],
                     "initialisation_source": replay.initialisation_sources[rikishi],
@@ -687,7 +689,10 @@ def _output_descriptions() -> dict[str, str]:
     return {
         "completed_prior.csv": "Frozen Elo-89 pairs plus historical nearest-higher completions.",
         "forecast_ledger.csv": "Every rated forecast for the candidate and post-1988 reference.",
-        "rating_ledger.csv": "Basho-start and post-normalisation basho-end process ratings.",
+        "rating_ledger.csv": (
+            "Basho-start and post-normalisation basho-end process ratings, with "
+            "both display chii and authoritative chii ordinal."
+        ),
         "basho_adjustments.csv": "Whole-population mean shifts for each rating world.",
         "excluded_bouts.csv": "Every represented result excluded from rating and its reason.",
         "1988_11_ratings.csv": "Candidate ratings at the last pre-Elo-89 basho.",

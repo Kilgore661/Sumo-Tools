@@ -108,9 +108,21 @@ def test_tenure_cohorts_use_first_candidate_start_date(tmp_path) -> None:
         "equelo2_full_history,1988/11,start,2,Novice,M2w,1490,7,prior\n",
         encoding="utf-8",
     )
+    prior = tmp_path / "prior.csv"
+    prior.write_text(
+        "chii,ordinal,observations,rating\n"
+        "Jk1e,900100,10,1400\n"
+        "Jk1w,900101,10,1400\n"
+        "M2e,400200,10,1600\n"
+        "M2w,400201,10,1500\n",
+        encoding="utf-8",
+    )
 
     outputs = run_audit(
-        handover, tmp_path / "output", rating_ledger_path=ledger
+        handover,
+        tmp_path / "output",
+        rating_ledger_path=ledger,
+        prior_path=prior,
     )
 
     summaries = list(
@@ -132,3 +144,16 @@ def test_tenure_cohorts_use_first_candidate_start_date(tmp_path) -> None:
     assert novice["first_proper_chii_basho"] == "1988/01"
     assert novice["qualifies_1_years"] == "True"
     assert novice["qualifies_2_years"] == "False"
+    map_summary = next(
+        csv.DictReader(
+            (outputs.output_root / "full_history_map_summary.csv").open()
+        )
+    )
+    assert map_summary["common_pair_count"] == "2"
+    assert float(map_summary["recentered_literal_map_unweighted_mean"]) == pytest.approx(
+        1517.0
+    )
+    pair_map = list(
+        csv.DictReader((outputs.output_root / "full_history_pair_map.csv").open())
+    )
+    assert {row["rank_pair"] for row in pair_map} == {"M2", "Jk1"}

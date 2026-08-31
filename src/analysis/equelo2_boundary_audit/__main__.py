@@ -14,6 +14,7 @@ DEFAULT_INPUT = Path(
     "full_history_1958_01_to_2026_07/1989_01_handover.csv"
 )
 DEFAULT_RATING_LEDGER = DEFAULT_INPUT.parent / "rating_ledger.csv"
+DEFAULT_PRIOR = Path("files/output/analysis/equelo_bkp1/prior.csv")
 DEFAULT_OUTPUT = Path("files/output/analysis/equelo2_boundary_audit/1989_01")
 
 
@@ -28,6 +29,7 @@ def main() -> None:
     parser.add_argument(
         "--rating-ledger", type=Path, default=DEFAULT_RATING_LEDGER
     )
+    parser.add_argument("--prior", type=Path, default=DEFAULT_PRIOR)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     args = parser.parse_args()
 
@@ -36,6 +38,7 @@ def main() -> None:
         args.handover,
         args.output,
         rating_ledger_path=args.rating_ledger,
+        prior_path=args.prior,
     )
     elapsed = perf_counter() - started
     print(f"Matched rikishi: {outputs.matched_count:,}")

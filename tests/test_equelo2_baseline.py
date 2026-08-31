@@ -292,12 +292,20 @@ def test_small_experiment_writes_boundary_and_completion_artifacts(tmp_path) -> 
     completed = list(csv.DictReader((outputs.output_root / "completed_prior.csv").open()))
     handover = list(csv.DictReader((outputs.output_root / "1989_01_handover.csv").open()))
     forecasts = list(csv.DictReader((outputs.output_root / "forecast_ledger.csv").open()))
+    rating_rows = list(csv.DictReader((outputs.output_root / "rating_ledger.csv").open()))
     assert next(row for row in completed if row["rank_pair"] == "M20")["source_rank_pair"] == "M18"
     assert len(handover) == 2
     assert {row["run"] for row in forecasts} == {
         "equelo2_full_history",
         "elo89_reference",
     }
+    assert rating_rows
+    assert all(row["chii_ordinal"] for row in rating_rows)
+    assert {
+        int(row["chii_ordinal"])
+        for row in rating_rows
+        if row["chii"] == "M18e"
+    } == {Chii.from_str("M18e").ordinal()}
     assert outputs.findings.is_file()
 
 

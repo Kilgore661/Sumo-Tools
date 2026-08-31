@@ -207,6 +207,162 @@ Generated evidence is under
 `findings.md`, `matched_rikishi.csv`, `tenure_threshold_summary.csv` and
 `tenure_division_summary.csv`.
 
+### Interpretation: agreement, priors and propagation
+
+The hypothesis that the two January 1989 rating sets are numerically the same
+is rejected. Even in Makuuchi, where agreement is strongest, the conclusion is
+only one of broad ordinal agreement. Pearson correlation is `0.8815` and
+Spearman correlation `0.8276`, while the historical ratings average `101.703`
+points above the fresh priors and their mean absolute difference is `106.363`
+points. In the five-year Makuuchi cohort the correlations improve to `0.9165`
+and `0.8800`, but mean absolute difference remains `100.245` points and the
+mean historical-minus-prior difference remains `95.326` points.
+
+This distinction matters because numerical equality was never a requirement
+of the historical extension. A chii prior deliberately discards individual
+history. A rating informed by a rikishi's bouts may be more useful precisely
+because it moves away from the generic value for his present chii. The tenure
+result therefore also rejects the simple argument that more evidence must make
+an individual rating numerically closer to its chii prior. It may instead make
+the disagreement better informed.
+
+The same point limits what should be expected at the other end of a propagated
+run. Canonical \(P_1\) is an **entrant-initialisation policy**, not a target to
+which mature ratings or a cross-sectional end-of-basho chii/rating map should
+return. Mature ratings incorporate individual results; the active population
+is selected by promotion, demotion, longevity and retirement; and the amount
+of represented evidence differs across careers and divisions. There is no
+sound requirement that ratings at the last represented basho reproduce the
+priors used to initialise entrants.
+
+That does not make propagation uninformative. It separates two different
+questions:
+
+1. **Prior consistency:** do mature individual ratings, or a map formed from
+   them at the last basho, reproduce \(P_1\)? They are not expected to do so.
+2. **Replay convergence:** does the world which inherits the pre-1989 state
+   become more similar to the world freshly initialised in January 1989 when
+   both process the same later bouts and use the same priors for later
+   entrants? It is reasonable to expect increasing agreement because later
+   evidence is shared and the January 1989 population is gradually replaced,
+   but the speed and completeness of that convergence remain empirical
+   questions.
+
+The propagation experiment should therefore measure how much of the initial
+historical difference survives, where it survives and for how long. It must
+not be framed as a test of whether final ratings become equal to the entrant
+prior map.
+
+### Interim result: one-pass map implied by the complete history
+
+The retained full-history ledger also permits the map-construction operation
+used inside the P1 solver to be applied once, without another replay. This is
+not a full-history fixed-point calculation. The operation is:
+
+1. take every full-history basho-start rating observation at each
+   annotation-free literal chii;
+2. average all observations at that chii over the complete replay;
+3. apply one canonical support-proportional recentering to make the unweighted
+   literal-map mean `1517`;
+4. apply the same unweighted east/west pairing used when canonical P1 is
+   consumed;
+5. compare the resulting map with P1 over their common domain, then stop.
+
+The full-history map contains 1,125 literal chii and 558 canonical pairs. All
+484 P1 pairs are present; the additional 74 pairs are historical-only and are
+reported separately rather than included in common-domain comparison metrics.
+
+| Measure over 484 common pairs | Result |
+|---|---:|
+| Mean full-history minus P1 | -16.359 points |
+| Median full-history minus P1 | -34.239 points |
+| Population SD of differences | 55.319 points |
+| Mean absolute difference | 47.291 points |
+| RMS difference | 57.687 points |
+| 5th--95th percentile | -77.237 to +78.079 points |
+| Minimum--maximum | -117.696 to +289.316 points |
+| Pearson correlation | 0.979457 |
+| Spearman correlation | 0.955111 |
+
+The maps therefore have strongly similar overall shape but are not numerically
+the same. As in the January boundary comparison, the overall result conceals
+systematic division-level shifts:
+
+| Division | Common pairs | Mean delta | MAE | Pearson | Spearman |
+|---|---:|---:|---:|---:|---:|
+| Makuuchi | 22 | +149.273 | 149.273 | 0.8670 | 0.9548 |
+| Juryo | 14 | +39.552 | 40.915 | 0.7876 | 0.9736 |
+| Makushita | 60 | -35.350 | 35.350 | 0.9964 | 0.9951 |
+| Sandanme | 101 | -35.783 | 35.783 | 0.9939 | 0.9936 |
+| Jonidan | 210 | -12.624 | 44.222 | 0.9113 | 0.9100 |
+| Jonokuchi | 77 | -43.761 | 52.081 | 0.8332 | 0.5288 |
+
+Makushita and Sandanme are particularly notable: their full-history maps are
+about 35 points below P1 almost uniformly, while their within-division shape is
+nearly unchanged. Makuuchi preserves its ordering strongly by Spearman
+correlation but moves upward substantially in rating level. Jonokuchi again
+has the weakest ordinal agreement.
+
+The largest common-pair increases are `M17` at `+289.316`, `O1` at `+267.366`
+and `Y1` at `+242.443`; the largest decreases are concentrated around
+`Jk13`--`Jk22`, reaching `-117.696` at `Jk19`. These tails must be read with
+their support counts: lower-end Makuuchi ranks have relatively few full-history
+observations because division sizes changed, whereas the Jonokuchi differences
+have hundreds.
+
+The result supports further investigation because the post-1988 P1 structure
+survives a full-history pass recognisably well. It does not support treating P1
+and the implied full-history map as interchangeable, and it does not by itself
+justify iterating the full-history map to a new fixed point.
+
+### Provisional verdict: what is and is not broadly consistent
+
+"Broadly consistent" is an umbrella conclusion drawn from several different
+checks, not the result of a single statistic. It means that the provisional
+Equelo2 has passed enough structural, predictive and historical-plausibility
+checks to justify continuing. It does not mean that its ratings are numerically
+interchangeable with Elo-89 or P1.
+
+The reasonably clear cases are:
+
+| Check | Evidence | Provisional conclusion |
+|---|---|---|
+| Overall predictive usefulness | Over the complete history, proto-Equelo2 has mean log loss `0.679354` against `0.693147` for 50--50, and mean Brier loss `0.243025` against `0.250000`. | The complete system extracts information; the priors and updates are not producing arbitrary ratings. |
+| Compatibility after 1988 | Post-1988 log loss is `0.675281`, against `0.675498` for a fresh Elo-89 start. | Carrying the pre-1989 state across January 1989 does not materially damage the established later account. The minute favourable difference is incidental. |
+| January 1989 overall ordering | Across 741 common rikishi, Pearson correlation is `0.9340`, Spearman correlation `0.8817`, and the mean historical-minus-fresh difference is `+0.031`. | The historical replay and fresh P1 initialisation occupy broadly the same scale and agree strongly in overall ordering. |
+| Complete-history chii-map shape | Across 484 common rank pairs, Pearson correlation is `0.979457` and Spearman correlation `0.955111`. | The broad P1 chii/rating structure survives the complete-history replay very clearly. |
+| Makushita and Sandanme ordering | Both divisions have Pearson and Spearman correlations of about `0.995` between their complete-history and P1 maps. | Their internal rank order is almost unchanged even though their absolute levels move downward. |
+| Elite historical face validity | The processed peak table contains the familiar post-1958 GOAT candidates, places Hakuho first and Taiho among the leaders, and places Kakuryu eleventh rather than in the top ten. | The result is recognisable to an informed sumo reader. Kakuryu's surprising fifth place belongs to legacy Equelo, not proto-Equelo2. |
+| Hakuho against Taiho | Hakuho peaks at `3031.291`; Taiho at `2891.554`. Taiho had accumulated more rated bouts at his peak, and the active-population mean was restored throughout. | The model's Hakuho result cannot reasonably be dismissed as Taiho lacking time to stabilise or as simple uncorrected inflation. |
+
+The qualifications and less convincing cases are equally important:
+
+| Check | Less reassuring result | Retained interpretation |
+|---|---|---|
+| Numerical agreement at the boundary | Overall MAE is `68.401` points and RMS difference `89.631`; Makuuchi historical ratings average `101.703` points above fresh P1 ratings. | Strong correlation is not numerical equality. |
+| Division-level boundary agreement | Agreement weakens down the banzuke. In Jonokuchi, Pearson correlation is `0.0311` and Spearman correlation `-0.0224`. | The overall correlation is partly supported by between-division differences; individual agreement at the bottom is absent. |
+| Longer-career hypothesis | Requiring five years' tenure raises MAE from `68.401` to `75.505` and RMS difference from `89.631` to `99.332`. | The predeclared distance check fails. More evidence need not move an individual rating closer to the generic prior for his current chii. |
+| Tenure within divisions | The five-year comparison improves in Makuuchi, Juryo and Makushita, is roughly flat to worse in Sandanme, and deteriorates materially in Jonidan. | The tenure result is mixed; it also selects survivors and particular career trajectories. |
+| Pre-1989 prediction alone | Mean log loss is `0.000442` worse than 50--50, while mean Brier loss is `0.000481` better. | The fourth-decimal differences are contradictory and not treated as substantive, but both must be disclosed. |
+| Absolute complete-history map levels | Relative to P1, Makuuchi averages `+149.273` and Juryo `+39.552`, while all four sub-sekitori divisions move downward. | This systematic sekitori--sub-sekitori displacement is the most important unresolved result. It may contain historical signal, a normalisation artefact caused by incomplete early evidence, or both. |
+| Extreme pair differences | `M17` is about `+289`, `O1` `+267` and `Y1` `+242`; lower Jonokuchi reaches about `-118`. | High overall map correlation does not make the two maps numerically interchangeable. |
+| Jonokuchi behaviour | Jonokuchi has weak within-division rank correlation, and even P1 assigns it a higher unweighted divisional mean than Jonidan. | Elo is already known not to behave sensibly at the bottom of the banzuke. This remains an explicit model weakness. |
+
+The compact provisional judgement is therefore:
+
+> The provisional Equelo2 passes the broad structural, predictive and
+> historical-plausibility sanity checks needed to justify continuing.
+> Agreement is strongest in overall ordering, within most divisions and in
+> the elite historical results. It is much less convincing at the level of
+> absolute ratings, lower-division individual ratings and especially the
+> relative rating levels of sekitori and sub-sekitori.
+
+The phrase "inflated sekitori ratings and deflated sub-sekitori ratings" is a
+useful working hypothesis, not yet an established diagnosis. The defensible
+observation is upward and downward **displacement relative to P1**. Establishing
+whether the displacement is artificial requires a separate normalisation
+experiment; the baseline described here must remain unchanged as its control.
+
 ## Experiment 2: fixed-pool realised-outcome control
 
 ### Question

@@ -99,3 +99,9 @@ The principal files are:
 - `score_summary.csv` and `post_1988_score_difference.csv`;
 - bout-level forecast and rating-comparison ledgers;
 - the population-adjustment and exclusion ledgers.
+
+`rating_ledger.csv` records both the display-form `chii` and its authoritative
+integer `chii_ordinal` on every start and end row. Filtering the candidate run
+to the last basho and `phase=end` gives the active population's latest
+processed ratings; selecting each rikishi's final end row gives last recorded
+career ratings.

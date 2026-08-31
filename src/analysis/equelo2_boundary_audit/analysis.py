@@ -12,6 +12,9 @@ from pathlib import Path
 from statistics import fmean, median, pstdev
 
 from src.analysis.boundary_positions import competitive_division
+from src.analysis.equelo.api import annotation_free_chii
+from src.analysis.equelo_bkp1.params import MODEL_BASE
+from src.analysis.equelo_bkp1.recenter import recenter
 from src.analysis.elo_model_selection.model import rank_pair
 from src.sumo_core.Chii import Chii
 
@@ -68,11 +71,31 @@ class AuditOutputs:
     matched_count: int
 
 
+@dataclass(slots=True)
+class _ChiiAggregate:
+    observations: int = 0
+    total: float = 0.0
+    first_basho: str = ""
+    last_basho: str = ""
+
+    def add(self, basho: str, rating: float) -> None:
+        self.observations += 1
+        self.total += rating
+        if not self.first_basho:
+            self.first_basho = basho
+        self.last_basho = basho
+
+    @property
+    def mean(self) -> float:
+        return self.total / self.observations
+
+
 def run_audit(
     handover_path: Path,
     output_root: Path,
     *,
     rating_ledger_path: Path | None = None,
+    prior_path: Path | None = None,
 ) -> AuditOutputs:
     """Write the matched-rikishi and chii views of one handover artifact."""
 
@@ -104,6 +127,9 @@ def run_audit(
 
     tenure_summaries: list[dict[str, object]] = []
     tenure_divisions: list[dict[str, object]] = []
+    map_summary: dict[str, object] | None = None
+    map_divisions: list[dict[str, object]] = []
+    map_largest: list[dict[str, object]] = []
     if rating_ledger_path is not None:
         rating_ledger_path = rating_ledger_path.resolve()
         first_dates = _load_first_ranked_dates(
@@ -116,6 +142,26 @@ def run_audit(
         _write_csv(output_root / "tenure_cohort_membership.csv", tenure_rows)
         _write_csv(output_root / "tenure_threshold_summary.csv", tenure_summaries)
         _write_csv(output_root / "tenure_division_summary.csv", tenure_divisions)
+        if prior_path is not None:
+            prior_path = prior_path.resolve()
+            (
+                literal_map,
+                pair_map,
+                map_summary,
+                map_divisions,
+                map_largest,
+            ) = _full_history_map_analysis(rating_ledger_path, prior_path)
+            _write_csv(output_root / "full_history_literal_map.csv", literal_map)
+            _write_csv(output_root / "full_history_pair_map.csv", pair_map)
+            _write_csv(output_root / "full_history_map_summary.csv", [map_summary])
+            _write_csv(
+                output_root / "full_history_map_division_summary.csv",
+                map_divisions,
+            )
+            _write_csv(
+                output_root / "full_history_map_largest_differences.csv",
+                map_largest,
+            )
 
     manifest_path = output_root / "manifest.json"
     manifest_path.write_text(
@@ -127,6 +173,7 @@ def run_audit(
                 "source_rating_ledger": (
                     str(rating_ledger_path) if rating_ledger_path is not None else None
                 ),
+                "source_p1": str(prior_path) if prior_path is not None else None,
                 "population": (
                     "intersection of rikishi represented in 1988/11 and 1989/01; "
                     "joiners and leavers excluded"
@@ -137,6 +184,18 @@ def run_audit(
                 ),
                 "difference": "historical 1989/01 start minus fresh Elo-89 start",
                 "standard_deviation": "population standard deviation",
+                "one_pass_full_history_map": {
+                    "fixed_point_iterations": 0,
+                    "observation": (
+                        "arithmetic mean of full-history basho-start ratings at each "
+                        "annotation-free literal chii"
+                    ),
+                    "recentering": (
+                        "one canonical support-proportional recentering to the "
+                        f"unweighted literal-map mean {MODEL_BASE}"
+                    ),
+                    "pairing": "unweighted east/west mean, matching adopted P1",
+                },
                 "matched_rikishi": len(matches),
                 "outputs": {
                     "matched_rikishi.csv": "One matched record per incumbent.",
@@ -158,6 +217,21 @@ def run_audit(
                     "tenure_division_summary.csv": (
                         "Metrics by threshold and division where at least 10 rikishi remain."
                     ),
+                    "full_history_literal_map.csv": (
+                        "One-pass raw and recentered map at annotation-free literal chii."
+                    ),
+                    "full_history_pair_map.csv": (
+                        "The one-pass map paired by the adopted Elo-89 conversion."
+                    ),
+                    "full_history_map_summary.csv": (
+                        "Paired-map comparison with canonical P1 over their common domain."
+                    ),
+                    "full_history_map_division_summary.csv": (
+                        "The common paired-map comparison by division."
+                    ),
+                    "full_history_map_largest_differences.csv": (
+                        "Largest paired-map differences from P1 in each direction."
+                    ),
                     "findings.md": "Human-readable result summary.",
                 },
             },
@@ -175,6 +249,9 @@ def run_audit(
             tails,
             tenure_summaries=tenure_summaries,
             tenure_divisions=tenure_divisions,
+            map_summary=map_summary,
+            map_divisions=map_divisions,
+            map_largest=map_largest,
         ),
         encoding="utf-8",
     )
@@ -368,6 +445,248 @@ def _tenure_summaries(
     return summaries, divisions
 
 
+def _full_history_map_analysis(
+    rating_ledger_path: Path,
+    prior_path: Path,
+) -> tuple[
+    list[dict[str, object]],
+    list[dict[str, object]],
+    dict[str, object],
+    list[dict[str, object]],
+    list[dict[str, object]],
+]:
+    aggregates = _load_full_history_chii_aggregates(rating_ledger_path)
+    raw = {chii: aggregate.mean for chii, aggregate in aggregates.items()}
+    support = {
+        chii: aggregate.observations for chii, aggregate in aggregates.items()
+    }
+    centred = recenter(raw, base=MODEL_BASE, support=support)
+    p1_literal = _load_p1_literal(prior_path)
+
+    literal_rows = []
+    for chii in sorted(set(raw) | set(p1_literal), key=lambda value: value.ordinal()):
+        aggregate = aggregates.get(chii)
+        implied = centred.ratings.get(chii)
+        p1 = p1_literal.get(chii)
+        if implied is not None and p1 is not None:
+            status = "common"
+        elif implied is not None:
+            status = "full_history_only"
+        else:
+            status = "p1_only"
+        literal_rows.append(
+            {
+                "chii": str(chii),
+                "chii_ordinal": chii.ordinal(),
+                "division": competitive_division(chii),
+                "status": status,
+                "observations": aggregate.observations if aggregate else 0,
+                "first_basho": aggregate.first_basho if aggregate else "",
+                "last_basho": aggregate.last_basho if aggregate else "",
+                "raw_mean_basho_start_rating": aggregate.mean if aggregate else "",
+                "recentering_adjustment": (
+                    implied - aggregate.mean
+                    if implied is not None and aggregate is not None
+                    else ""
+                ),
+                "full_history_implied_rating": implied if implied is not None else "",
+                "p1_rating": p1 if p1 is not None else "",
+                "full_history_minus_p1": (
+                    implied - p1 if implied is not None and p1 is not None else ""
+                ),
+            }
+        )
+
+    full_pairs = _pair_map(centred.ratings, support=support, raw=raw)
+    p1_pairs = _pair_map(p1_literal)
+    pair_rows = []
+    for pair in sorted(
+        set(full_pairs) | set(p1_pairs),
+        key=lambda value: Chii.from_str(f"{value}e").ordinal(),
+    ):
+        full = full_pairs.get(pair)
+        p1 = p1_pairs.get(pair)
+        if full is not None and p1 is not None:
+            status = "common"
+        elif full is not None:
+            status = "full_history_only"
+        else:
+            status = "p1_only"
+        representative = Chii.from_str(f"{pair}e")
+        pair_rows.append(
+            {
+                "rank_pair": pair,
+                "chii_ordinal": representative.ordinal(),
+                "division": competitive_division(representative),
+                "status": status,
+                "full_history_literal_members": (
+                    full["member_count"] if full is not None else 0
+                ),
+                "full_history_observations": (
+                    full["observations"] if full is not None else 0
+                ),
+                "raw_mean_basho_start_rating": (
+                    full["raw_rating"] if full is not None else ""
+                ),
+                "full_history_implied_rating": (
+                    full["rating"] if full is not None else ""
+                ),
+                "p1_literal_members": p1["member_count"] if p1 is not None else 0,
+                "p1_rating": p1["rating"] if p1 is not None else "",
+                "full_history_minus_p1": (
+                    full["rating"] - p1["rating"]
+                    if full is not None and p1 is not None
+                    else ""
+                ),
+            }
+        )
+
+    common = [row for row in pair_rows if row["status"] == "common"]
+    summary = _map_summary_row("All common rank pairs", common)
+    summary.update(
+        {
+            "model_base": MODEL_BASE,
+            "full_history_literal_chii_count": len(raw),
+            "p1_literal_chii_count": len(p1_literal),
+            "full_history_pair_count": len(full_pairs),
+            "p1_pair_count": len(p1_pairs),
+            "common_pair_count": len(common),
+            "full_history_only_pair_count": sum(
+                row["status"] == "full_history_only" for row in pair_rows
+            ),
+            "p1_only_pair_count": sum(
+                row["status"] == "p1_only" for row in pair_rows
+            ),
+            "raw_literal_map_unweighted_mean": fmean(raw.values()),
+            "recentered_literal_map_unweighted_mean": fmean(
+                centred.ratings.values()
+            ),
+            "recentering_mean_adjustment": centred.mean_adjustment,
+            "recentering_minimum_adjustment": centred.minimum_adjustment,
+            "recentering_maximum_adjustment": centred.maximum_adjustment,
+        }
+    )
+    divisions = [
+        {
+            "division": DIVISION_LABEL[division],
+            **_map_summary_row(
+                DIVISION_LABEL[division],
+                [row for row in common if row["division"] == division],
+            ),
+        }
+        for division in DIVISION_ORDER
+        if any(row["division"] == division for row in common)
+    ]
+    low = sorted(common, key=lambda row: row["full_history_minus_p1"])[:15]
+    high = sorted(
+        common,
+        key=lambda row: row["full_history_minus_p1"],
+        reverse=True,
+    )[:15]
+    largest = []
+    for direction, selected in (
+        ("full_history_lower", low),
+        ("full_history_higher", high),
+    ):
+        for position, row in enumerate(selected, start=1):
+            largest.append({"direction": direction, "position": position, **row})
+    return literal_rows, pair_rows, summary, divisions, largest
+
+
+def _load_full_history_chii_aggregates(
+    path: Path,
+) -> dict[Chii, _ChiiAggregate]:
+    required = {"run", "basho", "phase", "chii", "rating"}
+    aggregates: dict[Chii, _ChiiAggregate] = defaultdict(_ChiiAggregate)
+    with path.open(newline="", encoding="utf-8") as stream:
+        reader = csv.DictReader(stream)
+        missing = required - set(reader.fieldnames or ())
+        if missing:
+            raise ValueError(f"Rating ledger is missing fields: {sorted(missing)}")
+        for row in reader:
+            if row["run"] != "equelo2_full_history" or row["phase"] != "start":
+                continue
+            chii = annotation_free_chii(Chii.from_str(row["chii"]))
+            aggregates[chii].add(row["basho"], float(row["rating"]))
+    if not aggregates:
+        raise ValueError(f"No full-history start ratings in {path}")
+    return dict(aggregates)
+
+
+def _load_p1_literal(path: Path) -> dict[Chii, float]:
+    result: dict[Chii, float] = {}
+    with path.open(newline="", encoding="utf-8") as stream:
+        reader = csv.DictReader(stream)
+        required = {"chii", "rating"}
+        missing = required - set(reader.fieldnames or ())
+        if missing:
+            raise ValueError(f"P1 artifact is missing fields: {sorted(missing)}")
+        for row in reader:
+            chii = annotation_free_chii(Chii.from_str(row["chii"]))
+            if chii in result:
+                raise ValueError(f"P1 contains duplicate literal chii after collapse: {chii}")
+            result[chii] = float(row["rating"])
+    if not result:
+        raise ValueError(f"P1 artifact contains no ratings: {path}")
+    return result
+
+
+def _pair_map(
+    ratings: dict[Chii, float],
+    *,
+    support: dict[Chii, int] | None = None,
+    raw: dict[Chii, float] | None = None,
+) -> dict[str, dict[str, float | int]]:
+    grouped_ratings: dict[str, list[float]] = defaultdict(list)
+    grouped_raw: dict[str, list[float]] = defaultdict(list)
+    grouped_support: dict[str, int] = defaultdict(int)
+    for chii, rating in ratings.items():
+        pair = rank_pair(chii)
+        grouped_ratings[pair].append(rating)
+        if raw is not None:
+            grouped_raw[pair].append(raw[chii])
+        if support is not None:
+            grouped_support[pair] += support[chii]
+    return {
+        pair: {
+            "rating": fmean(values),
+            "raw_rating": fmean(grouped_raw[pair]) if raw is not None else fmean(values),
+            "member_count": len(values),
+            "observations": grouped_support[pair] if support is not None else 0,
+        }
+        for pair, values in grouped_ratings.items()
+    }
+
+
+def _map_summary_row(
+    label: str, rows: list[dict[str, object]]
+) -> dict[str, object]:
+    full = [float(row["full_history_implied_rating"]) for row in rows]
+    p1 = [float(row["p1_rating"]) for row in rows]
+    differences = [left - right for left, right in zip(full, p1, strict=True)]
+    return {
+        "group": label,
+        "rank_pair_count": len(rows),
+        "full_history_mean": fmean(full),
+        "p1_mean": fmean(p1),
+        "difference_mean": fmean(differences),
+        "difference_median": median(differences),
+        "difference_population_stdev": pstdev(differences),
+        "mean_absolute_difference": fmean(abs(value) for value in differences),
+        "root_mean_square_difference": math.sqrt(
+            fmean(value * value for value in differences)
+        ),
+        "difference_q05": _quantile(differences, 0.05),
+        "difference_q95": _quantile(differences, 0.95),
+        "difference_min": min(differences),
+        "difference_max": max(differences),
+        "pearson_correlation": _correlation(full, p1),
+        "spearman_correlation": _correlation(
+            _average_ranks(full), _average_ranks(p1)
+        ),
+    }
+
+
 def _grouped_chii_rows(
     matches: list[Match], *, paired: bool
 ) -> list[dict[str, object]]:
@@ -470,6 +789,9 @@ def _findings(
     *,
     tenure_summaries: list[dict[str, object]],
     tenure_divisions: list[dict[str, object]],
+    map_summary: dict[str, object] | None,
+    map_divisions: list[dict[str, object]],
+    map_largest: list[dict[str, object]],
 ) -> str:
     adjustments = [row.january_population_adjustment for row in matches]
     adjustment = fmean(adjustments)
@@ -559,6 +881,10 @@ def _findings(
     ])
     if tenure_summaries:
         _append_tenure_findings(lines, tenure_summaries, tenure_divisions)
+    if map_summary is not None:
+        _append_full_history_map_findings(
+            lines, map_summary, map_divisions, map_largest
+        )
     return "\n".join(lines)
 
 
@@ -638,6 +964,85 @@ def _append_tenure_findings(
             f"{row['spearman_rating_correlation']:.4f} |"
         )
     lines.append("")
+
+
+def _append_full_history_map_findings(
+    lines: list[str],
+    summary: dict[str, object],
+    divisions: list[dict[str, object]],
+    largest: list[dict[str, object]],
+) -> None:
+    lines.extend(
+        [
+            "## One-pass full-history implied chii map",
+            "",
+            "This is not another fixed-point calculation. The 1958-onward replay is ",
+            "initialised with canonical P1 once. For every annotation-free literal chii, ",
+            "all full-history basho-start rating observations are averaged, the resulting ",
+            f"map is recentered once to the canonical unweighted mean `{MODEL_BASE:.0f}`, ",
+            "and east/west values are paired by the adopted P1 conversion.",
+            "",
+            "| Measure | Result |",
+            "|---|---:|",
+            f"| Full-history literal chii | {summary['full_history_literal_chii_count']:,} |",
+            f"| P1 literal chii | {summary['p1_literal_chii_count']:,} |",
+            f"| Common canonical pairs | {summary['common_pair_count']:,} |",
+            f"| Historical-only canonical pairs | {summary['full_history_only_pair_count']:,} |",
+            f"| P1-only canonical pairs | {summary['p1_only_pair_count']:,} |",
+            f"| Raw literal-map mean | {summary['raw_literal_map_unweighted_mean']:.3f} |",
+            f"| Recentered literal-map mean | {summary['recentered_literal_map_unweighted_mean']:.3f} |",
+            f"| Mean full-history minus P1 | {summary['difference_mean']:.3f} points |",
+            f"| Median full-history minus P1 | {summary['difference_median']:.3f} points |",
+            f"| Population SD of differences | {summary['difference_population_stdev']:.3f} points |",
+            f"| Mean absolute difference | {summary['mean_absolute_difference']:.3f} points |",
+            f"| RMS difference | {summary['root_mean_square_difference']:.3f} points |",
+            f"| 5th--95th percentile | {summary['difference_q05']:.3f} to {summary['difference_q95']:.3f} points |",
+            f"| Minimum--maximum | {summary['difference_min']:.3f} to {summary['difference_max']:.3f} points |",
+            f"| Pearson correlation | {summary['pearson_correlation']:.6f} |",
+            f"| Spearman correlation | {summary['spearman_correlation']:.6f} |",
+            "",
+            "### Common map by division",
+            "",
+            "| Division | Pairs | Mean delta | MAE | RMS | Pearson | Spearman |",
+            "|---|---:|---:|---:|---:|---:|---:|",
+        ]
+    )
+    for row in divisions:
+        lines.append(
+            f"| {row['division']} | {row['rank_pair_count']:,} | "
+            f"{row['difference_mean']:.3f} | {row['mean_absolute_difference']:.3f} | "
+            f"{row['root_mean_square_difference']:.3f} | "
+            f"{row['pearson_correlation']:.4f} | {row['spearman_correlation']:.4f} |"
+        )
+
+    lines.extend(
+        [
+            "",
+            "### Largest common-pair differences",
+            "",
+            "| Direction | Chii pair | Full history | P1 | Difference | Observations |",
+            "|---|---:|---:|---:|---:|---:|",
+        ]
+    )
+    for row in largest:
+        if row["position"] > 10:
+            continue
+        lines.append(
+            f"| {row['direction'].replace('_', ' ')} | {row['rank_pair']} | "
+            f"{row['full_history_implied_rating']:.3f} | {row['p1_rating']:.3f} | "
+            f"{row['full_history_minus_p1']:.3f} | "
+            f"{row['full_history_observations']:,} |"
+        )
+    lines.extend(
+        [
+            "",
+            "`full_history_literal_map.csv` retains the raw means, support-proportional ",
+            "recentring adjustments and literal comparison. `full_history_pair_map.csv` ",
+            "is the adopted paired comparison. Historical-only ranks are reported but do ",
+            "not contribute to the common-domain metrics.",
+            "",
+        ]
+    )
 
 
 def _markdown_table(rows: list[tuple[str, str]]) -> str:
