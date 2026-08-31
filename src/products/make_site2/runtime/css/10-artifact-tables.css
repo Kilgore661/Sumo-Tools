@@ -100,8 +100,8 @@
   overflow: auto;
 }
 
-.artifact-table-header table,
-.artifact-table-body table {
+.artifact-table-header-region > table,
+.artifact-table-body-region > table {
   margin-inline: auto;
   min-width: max-content;
 }
