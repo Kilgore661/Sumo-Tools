@@ -100,8 +100,8 @@
   overflow: auto;
 }
 
-.artifact-table-header-region > table,
-.artifact-table-body-region > table {
+.artifact-table-header table,
+.artifact-table-body table {
   margin-inline: auto;
   min-width: max-content;
 }
@@ -109,6 +109,10 @@
 .artifact-table th,
 .artifact-table td {
   padding: 0.2rem 0.4rem;
+}
+
+.banzuke-changes-table [data-column-id="result"] {
+  white-space: nowrap;
 }
 
 .artifact-table td[data-align="right"] {
