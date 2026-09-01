@@ -31,6 +31,8 @@ test("scan view derives a Previous Basho group from the visible leaf columns", (
     );
   }
   assert.match(head, /data-column-path="previous_basho.old_chii"[^>]*>.*Chii/);
+  assert.match(head, /data-column-path="previous_basho.delta"[^>]*>.*Change/);
+  assert.doesNotMatch(head, /ΔBz/);
   assert.doesNotMatch(head, /Previous Chii/);
   assert.equal((head.match(/<tr>/g) || []).length, 2);
 });
@@ -62,4 +64,6 @@ test("paired banzuke presentation keeps its East Rank West structure", () => {
   assert.match(head, />East<\/th>/);
   assert.match(head, />Rank<\/th>/);
   assert.match(head, />West<\/th>/);
+  assert.match(head, />Change/);
+  assert.doesNotMatch(head, /ΔBz/);
 });

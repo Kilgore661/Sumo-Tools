@@ -30,7 +30,7 @@ const BANZUKE_SCAN_TABLE_SPEC = [
     children: [
       { key: "old_chii", id: "old_chii", label: "Chii", heading: "Chii", sort_kind: "chii_ordinal" },
       { key: "result", id: "result", label: "Result", heading: "Result", help: "Result movement means rank-group movement. See Notes.", note_id: "note_result", sort_kind: "record" },
-      { key: "delta", id: "delta", label: "ΔBz", heading: "ΔBz", help: "Size of movement. See Notes.", note_id: "note_delta", sort_kind: "numeric", align: "right" },
+      { key: "delta", id: "delta", label: "Change", heading: "Change", help: "Size of movement. See Notes.", note_id: "note_delta", sort_kind: "numeric", align: "right" },
     ],
   },
 ];
@@ -173,7 +173,7 @@ function banzukeSideColumns(side, state) {
     columns.push({ id: "result", heading: "Result", help: "Result movement means rank-group movement. See Notes.", note_id: "note_result", side });
   }
   columns.push(direction);
-  if (state.delta) columns.push({ id: "delta", heading: "ΔBz", help: "Size of movement. See Notes.", note_id: "note_delta", side, align: "right" });
+  if (state.delta) columns.push({ id: "delta", heading: "Change", help: "Size of movement. See Notes.", note_id: "note_delta", side, align: "right" });
 
   if (side === "east") return [...columns, identity];
   return [identity, ...columns.reverse()];

@@ -288,10 +288,11 @@ def test_runtime_manifest_declares_banzuke_changes_ui_and_artifact_semantics() -
     assert [item["id"] for item in filters] == [
         "division",
         "context",
-        "banzuke_style",
         "delta",
         "equelo",
+        "banzuke_style",
     ]
+    assert next(item for item in filters if item["id"] == "delta")["label"] == "Change"
     assert artifact["kind"] == "banzuke_changes"
     assert artifact["renderer"] == "banzuke_changes_table"
     assert artifact["config_source"]["path"] == (

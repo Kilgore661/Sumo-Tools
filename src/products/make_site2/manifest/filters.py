@@ -135,8 +135,7 @@ BANZUKE_CHANGES_FILTERS = (
         values=DIVISION_FILTER_VALUES,
     ),
     Filter(id="context", label="Previous Basho", control="checkbox", default=False, url_key="context"),
-    Filter(id="banzuke_style", label="Banzuke Style", control="checkbox", default=True, url_key="banzuke_style"),
-    Filter(id="delta", label="ΔBz", control="checkbox", default=False, url_key="delta", help="Size of movement. See Notes."),
+    Filter(id="delta", label="Change", control="checkbox", default=False, url_key="delta", help="Size of movement. See Notes."),
     Filter(
         id="equelo",
         label="Equelo Ratings",
@@ -145,6 +144,7 @@ BANZUKE_CHANGES_FILTERS = (
         url_key="equelo",
         help="Model ratings. See Ratings & Models.",
     ),
+    Filter(id="banzuke_style", label="Banzuke Style", control="checkbox", default=True, url_key="banzuke_style"),
 )
 
 BRB_FILTERS = (
