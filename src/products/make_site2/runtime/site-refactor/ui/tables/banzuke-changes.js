@@ -23,14 +23,14 @@ const BANZUKE_SCAN_TABLE_SPEC = [
   { key: "chii", id: "chii", label: "Chii", heading: "Chii", sort_kind: "chii_ordinal" },
   { key: "shikona", id: "shikona", label: "Shikona", heading: "Shikona", help: "Rikishi fighting name.", sort_kind: "text" },
   { key: "direction", id: "direction", label: "⇅", heading: "⇅", help: "Banzuke movement.", sort_kind: "text" },
+  { key: "equelo", id: "equelo", label: "Equelo", heading: "Equelo", help: "Model rating at the start of this basho. See Ratings & Models.", sort_kind: "numeric", align: "right" },
   {
     key: "previous_basho",
     label: "Previous Basho",
     children: [
-      { key: "delta", id: "delta", label: "ΔBz", heading: "ΔBz", help: "Size of movement. See Notes.", note_id: "note_delta", sort_kind: "numeric", align: "right" },
+      { key: "old_chii", id: "old_chii", label: "Chii", heading: "Chii", sort_kind: "chii_ordinal" },
       { key: "result", id: "result", label: "Result", heading: "Result", help: "Result movement means rank-group movement. See Notes.", note_id: "note_result", sort_kind: "record" },
-      { key: "old_chii", id: "old_chii", label: "Previous Chii", heading: "Previous Chii", sort_kind: "chii_ordinal" },
-      { key: "equelo", id: "equelo", label: "Equelo", heading: "Equelo", help: "Model rating. See Ratings & Models.", sort_kind: "numeric", align: "right" },
+      { key: "delta", id: "delta", label: "ΔBz", heading: "ΔBz", help: "Size of movement. See Notes.", note_id: "note_delta", sort_kind: "numeric", align: "right" },
     ],
   },
 ];
@@ -185,12 +185,12 @@ function banzukeScanColumns(state) {
 
 function banzukeScanVisiblePaths(state) {
   const paths = new Set(["row_number", "chii", "shikona", "direction"]);
+  if (state.equelo) paths.add("equelo");
   if (state.delta) paths.add("previous_basho.delta");
   if (state.context) {
     paths.add("previous_basho.result");
     paths.add("previous_basho.old_chii");
   }
-  if (state.equelo) paths.add("previous_basho.equelo");
   return paths;
 }
 

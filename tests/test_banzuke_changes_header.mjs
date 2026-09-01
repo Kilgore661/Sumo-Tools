@@ -20,16 +20,18 @@ test("scan view derives a Previous Basho group from the visible leaf columns", (
 
   assert.deepEqual(
     banzukeScanColumns(state).map(column => column.id),
-    ["row_number", "chii", "shikona", "direction", "delta", "result", "old_chii", "equelo"],
+    ["row_number", "chii", "shikona", "direction", "equelo", "old_chii", "result", "delta"],
   );
-  assert.match(head, /data-column-path="previous_basho"[^>]*colspan="4"|colspan="4"[^>]*data-column-path="previous_basho"/);
+  assert.match(head, /data-column-path="previous_basho"[^>]*colspan="3"|colspan="3"[^>]*data-column-path="previous_basho"/);
   assert.match(head, />Previous Basho<\/th>/);
-  for (const columnId of ["row_number", "chii", "shikona", "direction"]) {
+  for (const columnId of ["row_number", "chii", "shikona", "direction", "equelo"]) {
     assert.match(
       head,
       new RegExp(`data-column-id="${columnId}"[^>]*rowspan="2"`),
     );
   }
+  assert.match(head, /data-column-path="previous_basho.old_chii"[^>]*>.*Chii/);
+  assert.doesNotMatch(head, /Previous Chii/);
   assert.equal((head.match(/<tr>/g) || []).length, 2);
 });
 
