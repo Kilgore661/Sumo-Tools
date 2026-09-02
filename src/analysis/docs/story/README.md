@@ -106,6 +106,11 @@ either a defect or an insight.
     reconstruction Elo-58, reserves Equelo2 for a possible future successor,
     records the divisional-average result and separates the operational and
     historical-comparison roles.
+21. [Elo-89 Website Production Handoff](21%20Elo-89%20Website%20Production%20Handoff.md)
+    records the decision to proceed with a new post-1988 `make_site89` using
+    Elo-89 while Elo-58 research is on hold. It identifies the seven
+    rating-dependent publication tools and points to the product's detailed
+    implementation plan.
 
 The post-1988 model selected in Tranche 1 is named **Elo-89**, with technical
 notation \(E_{89}\). It consists of canonical \(P_1\), `q=400`, divisional `k`
@@ -188,22 +193,27 @@ The detailed initial inventory remains in
 | Elo-89 predictive account | Retrospective evidence complete | Elo-89 leads log and Brier; prospective and full-history validation remain |
 | Low-support/non-monotonicity account | Decision recorded | Preserve experiments; smoothing is reasonable, but the retained policy is not smoothed |
 | Model lineage and package triage | Elo-89 selected | Fixed \(P_1\), q=400, divisional `k` and whole-population preservation; historical extension remains |
+| Elo-89 website production | Planned | Build the separate post-1988 `make_site89`; preserve `make_site2` until the replacement passes automated and human review |
 
 ## Next steps
 
 Tranche 1 is complete, and the Elo-58 full-history reconstruction now exists.
-The current continuation is specified in
-[Equelo2 Candidate Experiments Handoff](19%20Equelo2%20Candidate%20Experiments%20Handoff.md).
-The initial completeness measurement is recorded in
+The current production continuation is specified in
+[Elo-89 Website Production Handoff](21%20Elo-89%20Website%20Production%20Handoff.md).
+It proceeds with a separate post-1988 Elo-89 website while Elo-58 research is
+on hold. The detailed work is maintained in the
+[make_site89 Implementation Plan](../../../products/make_site89/docs/Implementation%20Plan.md).
+
+If Elo-58 research resumes, its experiment handoff remains
+[Equelo2 Candidate Experiments Handoff](19%20Equelo2%20Candidate%20Experiments%20Handoff.md),
+supported by the completeness measurement in
 [Pre-1989 Bout-Data Completeness and Rating Persistence](17%20Pre-1989%20Bout-Data%20Completeness%20and%20Rating%20Persistence.md).
-The next work is the bounded 1988/89 boundary and historical-map audit, then
-the fixed-pool realised-outcome control. It is not production or website
-migration.
 
 The proposed consolidation of the Elo-like account is now specified in
 [Proposal: The Consolidated Elo-like Ratings Story](13%20Proposal%20for%20the%20Consolidated%20Elo-like%20Ratings%20Story.md).
-The project is deliberately moving next to the definition of full-history
-Equelo rather than performing that editorial consolidation immediately.
+The project is now moving next to production of the post-1988 Elo-89 website.
+The full-history model investigation and editorial consolidation remain useful
+future work but do not gate that migration.
 
 The M12 investigation established that changing banzuke structure materially
 affects empirical chii-to-rating maps. Exact monotonicity is no longer a model
@@ -250,11 +260,11 @@ as evidence that the two constructions can produce materially different elite
 rankings; do not present Kakuryu's absence from Equelo2's top ten as a problem
 which Equelo2 must solve.
 
-Production still uses older Equelo artifacts. Migration remains deliberately
-deferred until the historical-extension gate has selected a full-history
-construction. Older documents retain their decisions and chronology, but the
-handoff, rather than their former “next step” sections, is authoritative for
-resuming the work.
+Production still uses older Equelo artifacts. The new `make_site89` tranche
+will replace that rating path for the post-1988 site without requiring a
+full-history construction. Older documents retain their decisions and
+chronology, but the Elo-89 website handoff, rather than their former “next
+step” sections, is authoritative for current production work.
 
 ## Working discipline
 

@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Elo-89 Website Production Handoff</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: Georgia, "Times New Roman", serif;
+      line-height: 1.6;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 54rem;
+      padding: 2rem 1.25rem 4rem;
+    }
+    h1, h2, h3 {
+      font-family: system-ui, sans-serif;
+      line-height: 1.2;
+      margin-top: 1.75em;
+    }
+    h1 { margin-top: 0; }
+    li + li { margin-top: 0.35rem; }
+    mjx-container[display="true"] {
+      margin: 1.25rem 0 !important;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body><h1 id="elo-89-website-production-handoff">Elo-89 Website Production Handoff</h1>
+<h2 id="status">Status</h2>
+<p>This document records the transition from model investigation to production
+website work. Earlier story documents remain the evidential and chronological
+record. The detailed implementation plan is maintained with the new product in
+<a href="../../../products/make_site89/docs/Implementation%20Plan.md">make_site89 Implementation Plan</a>.</p>
+<h2 id="decision">Decision</h2>
+<p>Elo-89 is the selected operational rating model for the sufficiently complete
+record from January 1989 onward. The next tranche is to publish that model in a
+new post-1988 website built by <code>make_site89</code>.</p>
+<p>Elo-58 remains a viable and informative historical reconstruction. Its research
+is on hold while Elo-89 is taken through production. The project is not waiting
+for Elo-58, or for a future model worthy of the reserved Equelo2 name, before
+replacing legacy production Equelo on the post-1988 site.</p>
+<h2 id="why-a-new-site-package">Why a new site package</h2>
+<p>The existing <code>make_site2</code> both assembles a static site and invokes some of the
+analyses which produce its data. It also contains Equelo-specific assumptions
+in its data access and presentation. Altering it in place would remove the
+working production reference before its replacement had been seen and
+accepted.</p>
+<p><code>make_site2</code> will therefore remain unchanged. <code>make_site89</code> will be built as a
+separate package with separate output. It will consume produced files rather
+than run analyses, and it will describe the ratings it publishes as Elo-89.</p>
+<h2 id="production-surface">Production surface</h2>
+<p>Seven publication-data tools carry the rating model into the current website:</p>
+<ol>
+<li>Basho Results;</li>
+<li>Career Comparisons;</li>
+<li>Rating Changes;</li>
+<li>Highest Rating;</li>
+<li>Banzuke Changes;</li>
+<li>Typical Rating Values; and</li>
+<li>Win Probability by Standing.</li>
+</ol>
+<p>The first four are currently invoked during <code>make_site2</code>; the final three are
+produced separately and copied. Career Comparisons production is currently
+located inside the site package and will move under <code>src/analysis</code>. The
+model-independent Longest Careers derivation will also move out of the site
+builder so that the new boundary has no exception.</p>
+<p>The seven rating-dependent tools will consume one production Elo-89 run. Their
+outputs, together with the existing model-independent outputs, will be gathered
+into a coherent site-data bundle. <code>make_site89</code> will validate, copy and present
+that bundle.</p>
+<h2 id="relationship-to-the-research-story">Relationship to the research story</h2>
+<p>Documents 14 through 20 record the attempt to extend the selected post-1988
+model into a full-history construction, culminating in the distinction between
+Elo-89, Elo-58 and the reserved Equelo2 name. That distinction makes the
+present production step possible: operational adoption of Elo-89 no longer
+depends on adoption of a full-history successor.</p>
+<p>This handoff does not reopen the Elo-89 model definition and does not attempt a
+general multi-model website. Once <code>make_site89</code> has been produced and accepted,
+the project may separately ask how difficult it would be to substitute Elo-58
+data. Good production boundaries should make that later question easier, but
+it is not a requirement of the current work.</p>
+<h2 id="acceptance-boundary">Acceptance boundary</h2>
+<p><code>make_site89</code> remains a candidate until its production chain has been tested
+and the generated website has passed human visual inspection. Only then will
+the project decide whether it replaces <code>make_site2</code> and whether the accepted
+production subset should be extracted into a clean package or repository.</p>
+</body>
+</html>

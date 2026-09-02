@@ -142,6 +142,11 @@ is the authoritative current position. It names the existing historical
 reconstruction Elo-58, reserves Equelo2 for a possible future successor,
 records the divisional-average result and separates the operational and
 historical-comparison roles.</li>
+<li><a href="21%20Elo-89%20Website%20Production%20Handoff.html">Elo-89 Website Production Handoff</a>
+records the decision to proceed with a new post-1988 <code>make_site89</code> using
+Elo-89 while Elo-58 research is on hold. It identifies the seven
+rating-dependent publication tools and points to the product's detailed
+implementation plan.</li>
 </ol>
 <p>The post-1988 model selected in Tranche 1 is named <strong>Elo-89</strong>, with technical
 notation \(E_{89}\). It consists of canonical \(P_1\), <code>q=400</code>, divisional <code>k</code>
@@ -264,21 +269,29 @@ they must not be used for published ratings or records.</p>
 <td>Elo-89 selected</td>
 <td>Fixed \(P_1\), q=400, divisional <code>k</code> and whole-population preservation; historical extension remains</td>
 </tr>
+<tr>
+<td>Elo-89 website production</td>
+<td>Planned</td>
+<td>Build the separate post-1988 <code>make_site89</code>; preserve <code>make_site2</code> until the replacement passes automated and human review</td>
+</tr>
 </tbody>
 </table>
 <h2 id="next-steps">Next steps</h2>
 <p>Tranche 1 is complete, and the Elo-58 full-history reconstruction now exists.
-The current continuation is specified in
-<a href="19%20Equelo2%20Candidate%20Experiments%20Handoff.html">Equelo2 Candidate Experiments Handoff</a>.
-The initial completeness measurement is recorded in
-<a href="17%20Pre-1989%20Bout-Data%20Completeness%20and%20Rating%20Persistence.html">Pre-1989 Bout-Data Completeness and Rating Persistence</a>.
-The next work is the bounded 1988/89 boundary and historical-map audit, then
-the fixed-pool realised-outcome control. It is not production or website
-migration.</p>
+The current production continuation is specified in
+<a href="21%20Elo-89%20Website%20Production%20Handoff.html">Elo-89 Website Production Handoff</a>.
+It proceeds with a separate post-1988 Elo-89 website while Elo-58 research is
+on hold. The detailed work is maintained in the
+<a href="../../../products/make_site89/docs/Implementation%20Plan.md">make_site89 Implementation Plan</a>.</p>
+<p>If Elo-58 research resumes, its experiment handoff remains
+<a href="19%20Equelo2%20Candidate%20Experiments%20Handoff.html">Equelo2 Candidate Experiments Handoff</a>,
+supported by the completeness measurement in
+<a href="17%20Pre-1989%20Bout-Data%20Completeness%20and%20Rating%20Persistence.html">Pre-1989 Bout-Data Completeness and Rating Persistence</a>.</p>
 <p>The proposed consolidation of the Elo-like account is now specified in
 <a href="13%20Proposal%20for%20the%20Consolidated%20Elo-like%20Ratings%20Story.html">Proposal: The Consolidated Elo-like Ratings Story</a>.
-The project is deliberately moving next to the definition of full-history
-Equelo rather than performing that editorial consolidation immediately.</p>
+The project is now moving next to production of the post-1988 Elo-89 website.
+The full-history model investigation and editorial consolidation remain useful
+future work but do not gate that migration.</p>
 <p>The M12 investigation established that changing banzuke structure materially
 affects empirical chii-to-rating maps. Exact monotonicity is no longer a model
 or documentation blocker. Canonical \(P_1\) retains the computed anomalies and
@@ -318,11 +331,11 @@ not caused by the old site's use of an intrabasho peak. Preserve the contrast
 as evidence that the two constructions can produce materially different elite
 rankings; do not present Kakuryu's absence from Equelo2's top ten as a problem
 which Equelo2 must solve.</p>
-<p>Production still uses older Equelo artifacts. Migration remains deliberately
-deferred until the historical-extension gate has selected a full-history
-construction. Older documents retain their decisions and chronology, but the
-handoff, rather than their former “next step” sections, is authoritative for
-resuming the work.</p>
+<p>Production still uses older Equelo artifacts. The new <code>make_site89</code> tranche
+will replace that rating path for the post-1988 site without requiring a
+full-history construction. Older documents retain their decisions and
+chronology, but the Elo-89 website handoff, rather than their former “next
+step” sections, is authoritative for current production work.</p>
 <h2 id="working-discipline">Working discipline</h2>
 <p>Claims in this folder and the eventual prose should be recognizable as one of:</p>
 <ul>
