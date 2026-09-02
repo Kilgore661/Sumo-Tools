@@ -1,0 +1,180 @@
+// Basho Results recursive table rendering.
+
+import { escapeHtml } from "../../utils/html.js";
+import { renderLabelWithHelp } from "../help.js";
+import { renderRikishiLink as renderSharedRikishiLink } from "../tables/shared.js";
+import {
+  appendHeaderCells,
+  collectGroupBoundaries,
+  groupBoundaryAttributes,
+  groupBoundaryMap,
+  headerRows,
+  isVisiblePath,
+  maxDepth,
+  resolveLeafSortPath,
+  terminalNodes,
+} from "../tables/header-tree.js";
+import { PRESENTATION } from "./table-spec.js";
+import {
+  currentBashoResultsSortState,
+  isSortableLeaf,
+  sortBashoResultsRows,
+  sortDefaultDirection,
+  toggledSortDirection,
+} from "./sorting.js";
+
+// Render the full Basho Results presentation model as a recursive table.
+function renderBashoResultsPresentationTable(model) {
+  const visiblePaths = new Set(model.projection?.visible_paths || []);
+  const leaves = terminalNodes(model.table_spec || [], [], visiblePaths);
+  const boundaries = groupBoundaryMap(model.table_spec || [], visiblePaths, leaves);
+  const sortState = currentBashoResultsSortState(model, leaves);
+  const sortedValues = sortBashoResultsRows(model.values || [], leaves, sortState);
+  return [
+    renderBashoResultsHeader(model.header),
+    '<table class="artifact-table brb-table brb-redesign-table">',
+    renderNestedHead(model.table_spec || [], visiblePaths, leaves, sortState, boundaries),
+    '<tbody>',
+    ...sortedValues.map((row, index) => [
+      '<tr>',
+      ...leaves.map(leaf => `<td ${leafCellAttributes(leaf, boundaries.position(leaf.path))}>${renderBashoResultsCell(row, leaf.path, index)}</td>`),
+      '</tr>',
+    ].join("")),
+    '</tbody>',
+    '</table>',
+  ].join("");
+}
+
+function renderBashoResultsHeader(header) {
+  if (!header) return "";
+  return [
+    '<div class="artifact-title-block">',
+    `<h4>${escapeHtml(header.heading || "")}</h4>`,
+    header.subheading ? `<h5>${escapeHtml(header.subheading)}</h5>` : "",
+    '</div>',
+  ].join("");
+}
+
+// Render multi-row table headings from the recursive table specification.
+function renderNestedHead(nodes, visiblePaths, leaves = null, sortState = null, boundaries = null) {
+  const rows = headerRows(nodes, visiblePaths);
+  const visibleLeaves = leaves || terminalNodes(nodes, [], visiblePaths);
+  const leafByPath = new Map(visibleLeaves.map(leaf => [leaf.path, leaf]));
+  const boundaryMap = boundaries || groupBoundaryMap(nodes, visiblePaths, visibleLeaves);
+  return [
+    '<thead>',
+    ...rows.map(row => [
+      '<tr>',
+      ...row.map(cell => renderNestedHeaderCell(cell, leafByPath.get(cell.path), sortState, boundaryMap)),
+      '</tr>',
+    ].join("")),
+    '</thead>',
+  ].join("");
+}
+
+function renderNestedHeaderCell(cell, leaf, sortState, boundaries = null) {
+  const presentation = leaf?.presentation || PRESENTATION.DEFAULT;
+  const alignment = cell.is_group ? "center" : headingAlignment(presentation);
+  const groupPosition = cell.is_group ? "only" : boundaries?.position(cell.path);
+  const attributes = [
+    `colspan="${cell.colspan}"`,
+    `rowspan="${cell.rowspan}"`,
+    `data-column-path="${escapeHtml(cell.path)}"`,
+    `style="text-align: ${alignment};"`,
+    ...groupBoundaryAttributes(groupPosition),
+  ];
+  if (cell.is_group) attributes.push('data-heading-group="true"');
+  if (leaf?.role === "row_number") attributes.push('data-column-id="row_number"');
+  if (!isSortableLeaf(leaf)) {
+    return `<th ${attributes.join(" ")}>${renderLabelWithHelp(cell.label, cell.help, { noteId: cell.note_id })}</th>`;
+  }
+  const active = sortState?.path === leaf.path;
+  const direction = active ? sortState.direction : "none";
+  const indicator = active ? (sortState.direction === "ascending" ? " ▲" : " ▼") : "";
+  const escapedLabel = escapeHtml(cell.label);
+  const reservedSortText = `${escapedLabel} ▼`;
+  const visibleSortText = `${renderLabelWithHelp(cell.label, cell.help, { noteId: cell.note_id })}${indicator}`;
+  return [
+    `<th ${attributes.join(" ")} aria-sort="${direction}">`,
+    `<button type="button" class="table-sort-button" data-basho-results-sort-path="${escapeHtml(leaf.path)}" style="display: inline-grid; place-items: center; ${buttonMarginStyle(alignment)} text-align: ${alignment};">`,
+    `<span class="table-sort-width-reserver" aria-hidden="true" style="grid-area: 1 / 1; visibility: hidden; white-space: nowrap;">${reservedSortText}</span>`,
+    `<span class="table-sort-visible-content" style="grid-area: 1 / 1; white-space: nowrap;">${visibleSortText}</span>`,
+    '</button>',
+    '</th>',
+  ].join("");
+}
+
+function leafCellAttributes(leaf, groupPosition = "") {
+  const attributes = [
+    `data-column-path="${escapeHtml(leaf.path)}"`,
+    `style="text-align: ${valueAlignment(leaf.presentation)};"`,
+    ...groupBoundaryAttributes(groupPosition),
+  ];
+  if (leaf.role === "row_number") attributes.push('data-column-id="row_number"');
+  return attributes.join(" ");
+}
+
+// Render a terminal-path value, including the special rikishi link cell.
+function renderBashoResultsCell(row, path, index) {
+  if (path === "reference.row_number") return escapeHtml(String(index + 1));
+  if (path === "reference.shikona") {
+    return renderRikishiLink(row["reference.shikona"], row["reference.rikishi_id"]);
+  }
+  return escapeHtml(valueAtPath(row, path));
+}
+
+function renderRikishiLink(shikona, rikishiId) {
+  if (!rikishiId) return escapeHtml(shikona || "");
+  return renderSharedRikishiLink(shikona || "", rikishiId);
+}
+
+function valueAtPath(row, path) {
+  const value = row?.[path];
+  if (value === null || value === undefined) return "";
+  return String(value);
+}
+
+function headingAlignment(_presentation) {
+  return "center";
+}
+
+function valueAlignment(presentation) {
+  if (
+    presentation === PRESENTATION.RATING ||
+    presentation === PRESENTATION.NUMERIC_MAGNITUDE ||
+    presentation === PRESENTATION.COMPACT_COUNT
+  ) return "right";
+  if (
+    presentation === PRESENTATION.SPECIAL_NON_NUMERIC
+  ) return "center";
+  return "left";
+}
+
+function buttonMarginStyle(alignment) {
+  if (alignment === "left") return "margin-right: auto;";
+  if (alignment === "right") return "margin-left: auto;";
+  return "margin: 0 auto;";
+}
+
+export {
+  renderBashoResultsPresentationTable,
+  renderBashoResultsHeader,
+  renderNestedHead,
+  renderNestedHeaderCell,
+  headerRows,
+  appendHeaderCells,
+  maxDepth,
+  terminalNodes,
+  groupBoundaryMap,
+  collectGroupBoundaries,
+  groupBoundaryAttributes,
+  resolveLeafSortPath,
+  isVisiblePath,
+  renderBashoResultsCell,
+  renderRikishiLink,
+  valueAtPath,
+  leafCellAttributes,
+  headingAlignment,
+  valueAlignment,
+  buttonMarginStyle,
+};

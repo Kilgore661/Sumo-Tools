@@ -1,0 +1,27 @@
+<h3>What is Elo-89?</h3>
+
+<p>Elo-89 is the site's rating model for the sufficiently complete sumo record
+from January 1989 onward. It applies ordinary Elo-style updates to represented
+binary win/loss results: beating a more highly rated opponent is worth more,
+and losing to a lower-rated opponent costs more.</p>
+
+<p>The model uses a fixed chii-based entrant-rating table called P1, a rating
+scale parameter of 400, and a divisional K schedule. P1 supplies a plausible
+starting rating for a rikishi entering the represented population at a given
+banzuke rank.</p>
+
+<p>Sumo's population changes continually. Elo-89 therefore restores the active
+population to one fixed mean after the population has been formed for a basho
+and again after the basho's results have been processed. Each restoration is a
+common additive shift, so it preserves the rating differences—and therefore
+the forecast probabilities—among the active rikishi at that instant.</p>
+
+<p>When a rikishi leaves the represented population, his rating is discarded.
+If he later returns, he receives the P1 entrant rating associated with his
+current chii. Ratings shown by this site are outputs of this particular model,
+not direct measurements of an unobservable true ability.</p>
+
+<p>Elo-89 was selected by retrospective comparison with the other tested
+post-1988 Elo-family models. Its P1 values were constructed using the same
+historical period, so those comparisons describe retrospective performance;
+they are not claims of prospective validation.</p>

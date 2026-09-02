@@ -1,0 +1,13 @@
+{
+  "default_targets": [
+    "local_apache"
+  ],
+  "targets": {
+    "local_apache": {
+      "method": "win_copy",
+      "host": "192.168.0.6",
+      "location": "A:/local/html/sumo-tools89",
+      "url": "http://192.168.0.6/sumo-tools89/"
+    }
+  }
+}

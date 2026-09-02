@@ -1,0 +1,110 @@
+.filter-section {
+  border-right: 1px solid rgba(255, 255, 255, 0.5);
+  padding: 0.5rem 1rem 0;
+}
+
+.filter-section h4 {
+  margin-block-end: 1rem;
+}
+
+.filter-section ul {
+  list-style: none;
+}
+
+.filter-section select {
+  box-sizing: border-box;
+  height: 1.25em;
+  line-height: 1;
+  padding-block: 0;
+  padding-inline: 0.2em;
+}
+
+.filter-list {
+  line-height: 1.5;
+  margin: 0;
+  padding-left: 0;
+}
+
+.filter-section .choice-list {
+  padding-left: 1em;
+}
+
+.filter-list-item-dependent {
+  margin-left: calc(2em + 4px);
+}
+
+.filter-control,
+.checkbox-control {
+  align-items: baseline;
+  column-gap: 0.25em;
+  display: inline-flex;
+  white-space: nowrap;
+}
+
+.basho-calendar-control {
+  display: grid;
+  row-gap: 0.2rem;
+}
+
+.basho-calendar-control > .choice-label {
+  display: block;
+}
+
+.basho-calendar-control > .filter-control,
+.basho-navigation-buttons {
+  margin-left: 1em;
+}
+
+.basho-calendar-control > .filter-control {
+  display: grid;
+  grid-template-columns: 3.5em max-content;
+}
+
+.basho-navigation-buttons {
+  align-items: center;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  justify-items: center;
+  width: calc(3.5em + 7.5em);
+}
+
+.basho-navigation-buttons button {
+  align-items: center;
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  height: 24px;
+  justify-content: center;
+  line-height: 1;
+  margin: 0;
+  padding: 0;
+  width: 24px;
+}
+
+.basho-navigation-buttons button[data-basho-nav="first"],
+.basho-navigation-buttons button[data-basho-nav="last"] {
+  width: 28px;
+}
+
+.basho-navigation-buttons button:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: 2px;
+}
+
+.basho-navigation-icon {
+  display: block;
+  filter: brightness(0) invert(1);
+  height: 20px;
+  max-height: none;
+  max-width: none;
+  pointer-events: none;
+  width: auto;
+}
+
+.basho-navigation-buttons button[data-basho-nav="first"] .basho-navigation-icon,
+.basho-navigation-buttons button[data-basho-nav="last"] .basho-navigation-icon {
+  height: 22px;
+}

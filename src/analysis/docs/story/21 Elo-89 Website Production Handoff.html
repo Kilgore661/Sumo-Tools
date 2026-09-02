@@ -41,8 +41,10 @@
 <body><h1 id="elo-89-website-production-handoff">Elo-89 Website Production Handoff</h1>
 <h2 id="status">Status</h2>
 <p>This document records the transition from model investigation to production
-website work. Earlier story documents remain the evidential and chronological
-record. The detailed implementation plan is maintained with the new product in
+website work. The first <code>make_site89</code> implementation and data-production chain
+now exist, have been deployed locally, and have passed a broad human sanity
+check. Earlier story documents remain the evidential and chronological record.
+The implementation record is maintained in
 <a href="../../../products/make_site89/docs/Implementation%20Plan.md">make_site89 Implementation Plan</a>.</p>
 <h2 id="decision">Decision</h2>
 <p>Elo-89 is the selected operational rating model for the sufficiently complete
@@ -58,9 +60,9 @@ analyses which produce its data. It also contains Equelo-specific assumptions
 in its data access and presentation. Altering it in place would remove the
 working production reference before its replacement had been seen and
 accepted.</p>
-<p><code>make_site2</code> will therefore remain unchanged. <code>make_site89</code> will be built as a
-separate package with separate output. It will consume produced files rather
-than run analyses, and it will describe the ratings it publishes as Elo-89.</p>
+<p><code>make_site2</code> therefore remains unchanged. <code>make_site89</code> is a separate package
+with separate output. It consumes produced files rather than running analyses,
+and it describes the ratings it publishes as Elo-89.</p>
 <h2 id="production-surface">Production surface</h2>
 <p>Seven publication-data tools carry the rating model into the current website:</p>
 <ol>
@@ -72,15 +74,20 @@ than run analyses, and it will describe the ratings it publishes as Elo-89.</p>
 <li>Typical Rating Values; and</li>
 <li>Win Probability by Standing.</li>
 </ol>
-<p>The first four are currently invoked during <code>make_site2</code>; the final three are
-produced separately and copied. Career Comparisons production is currently
-located inside the site package and will move under <code>src/analysis</code>. The
-model-independent Longest Careers derivation will also move out of the site
-builder so that the new boundary has no exception.</p>
-<p>The seven rating-dependent tools will consume one production Elo-89 run. Their
-outputs, together with the existing model-independent outputs, will be gathered
-into a coherent site-data bundle. <code>make_site89</code> will validate, copy and present
-that bundle.</p>
+<p>The first four are invoked during <code>make_site2</code>; the final three are produced
+separately and copied. The <code>make_site89</code> Career Comparisons producer now lives
+under <code>src/analysis</code>, as does the model-independent Longest Careers derivation,
+so the new builder boundary has no exception.</p>
+<p>The seven rating-dependent tools consume one production Elo-89 run. Their
+outputs, together with newly produced post-1988 model-independent outputs, are
+gathered by <code>src.analysis.site89</code> into a coherent site-data bundle.
+<code>make_site89</code> validates, copies and presents that bundle without loading a
+History or invoking an analysis.</p>
+<p>The generated tree is kept at <code>files/output/make_site89</code>. Its local-server
+deployment target mirrors <code>make_site2</code> but remains separate at
+<code>A:/local/html/sumo-tools89</code>, served as
+<code>http://192.168.0.6/sumo-tools89/</code>. The local deployment completed successfully
+and most site links were checked for plausible-looking output.</p>
 <h2 id="relationship-to-the-research-story">Relationship to the research story</h2>
 <p>Documents 14 through 20 record the attempt to extend the selected post-1988
 model into a full-history construction, culminating in the distinction between
@@ -93,9 +100,9 @@ the project may separately ask how difficult it would be to substitute Elo-58
 data. Good production boundaries should make that later question easier, but
 it is not a requirement of the current work.</p>
 <h2 id="acceptance-boundary">Acceptance boundary</h2>
-<p><code>make_site89</code> remains a candidate until its production chain has been tested
-and the generated website has passed human visual inspection. Only then will
-the project decide whether it replaces <code>make_site2</code> and whether the accepted
-production subset should be extracted into a clean package or repository.</p>
+<p>The production chain has been tested and the generated website has passed its
+initial human sanity check. <code>make_site89</code> remains separate from <code>make_site2</code>;
+whether it replaces that site, and whether its production subset should be
+extracted into a clean package or repository, remain later decisions.</p>
 </body>
 </html>

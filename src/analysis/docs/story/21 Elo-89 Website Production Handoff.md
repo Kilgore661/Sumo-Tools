@@ -3,8 +3,10 @@
 ## Status
 
 This document records the transition from model investigation to production
-website work. Earlier story documents remain the evidential and chronological
-record. The detailed implementation plan is maintained with the new product in
+website work. The first `make_site89` implementation and data-production chain
+now exist, have been deployed locally, and have passed a broad human sanity
+check. Earlier story documents remain the evidential and chronological record.
+The implementation record is maintained in
 [make_site89 Implementation Plan](../../../products/make_site89/docs/Implementation%20Plan.md).
 
 ## Decision
@@ -26,9 +28,9 @@ in its data access and presentation. Altering it in place would remove the
 working production reference before its replacement had been seen and
 accepted.
 
-`make_site2` will therefore remain unchanged. `make_site89` will be built as a
-separate package with separate output. It will consume produced files rather
-than run analyses, and it will describe the ratings it publishes as Elo-89.
+`make_site2` therefore remains unchanged. `make_site89` is a separate package
+with separate output. It consumes produced files rather than running analyses,
+and it describes the ratings it publishes as Elo-89.
 
 ## Production surface
 
@@ -42,16 +44,22 @@ Seven publication-data tools carry the rating model into the current website:
 6. Typical Rating Values; and
 7. Win Probability by Standing.
 
-The first four are currently invoked during `make_site2`; the final three are
-produced separately and copied. Career Comparisons production is currently
-located inside the site package and will move under `src/analysis`. The
-model-independent Longest Careers derivation will also move out of the site
-builder so that the new boundary has no exception.
+The first four are invoked during `make_site2`; the final three are produced
+separately and copied. The `make_site89` Career Comparisons producer now lives
+under `src/analysis`, as does the model-independent Longest Careers derivation,
+so the new builder boundary has no exception.
 
-The seven rating-dependent tools will consume one production Elo-89 run. Their
-outputs, together with the existing model-independent outputs, will be gathered
-into a coherent site-data bundle. `make_site89` will validate, copy and present
-that bundle.
+The seven rating-dependent tools consume one production Elo-89 run. Their
+outputs, together with newly produced post-1988 model-independent outputs, are
+gathered by `src.analysis.site89` into a coherent site-data bundle.
+`make_site89` validates, copies and presents that bundle without loading a
+History or invoking an analysis.
+
+The generated tree is kept at `files/output/make_site89`. Its local-server
+deployment target mirrors `make_site2` but remains separate at
+`A:/local/html/sumo-tools89`, served as
+`http://192.168.0.6/sumo-tools89/`. The local deployment completed successfully
+and most site links were checked for plausible-looking output.
 
 ## Relationship to the research story
 
@@ -69,7 +77,7 @@ it is not a requirement of the current work.
 
 ## Acceptance boundary
 
-`make_site89` remains a candidate until its production chain has been tested
-and the generated website has passed human visual inspection. Only then will
-the project decide whether it replaces `make_site2` and whether the accepted
-production subset should be extracted into a clean package or repository.
+The production chain has been tested and the generated website has passed its
+initial human sanity check. `make_site89` remains separate from `make_site2`;
+whether it replaces that site, and whether its production subset should be
+extracted into a clean package or repository, remain later decisions.
