@@ -20,6 +20,8 @@ from .solve import solve
 
 
 DEFAULT_OUTPUT = Path("files/output/analysis/equelo_population_policy/recentering")
+# Variable alpha is retained only to reproduce this legacy comparison. The
+# selected P1 rule is fixed; a later code cleanup should remove alpha entirely.
 ALPHAS = (0.0, 0.25, 0.5, 1.0)
 
 

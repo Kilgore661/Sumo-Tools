@@ -20,6 +20,8 @@ from .solve import solve
 
 
 DEFAULT_OUTPUT = Path("files/output/analysis/equelo_population_policy")
+# Variable alpha is retained only to reproduce this legacy comparison. The
+# selected P1 rule is fixed; a later code cleanup should remove alpha entirely.
 VARIANTS: tuple[tuple[str, PopulationPolicy, float | None], ...] = (
     ("legacy_departure", PopulationPolicy.LEGACY_DEPARTURE, None),
     ("equal_share", PopulationPolicy.POST_BASHO_MEAN, 0.0),

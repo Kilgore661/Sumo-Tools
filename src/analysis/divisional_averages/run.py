@@ -256,6 +256,8 @@ def _write_outputs(args, result, p1, comparison) -> None:
         "start": args.start,
         "end": args.end,
         "q": MODEL_Q,
+        # Configurable alpha is a legacy experimental idea. P1 has one fixed
+        # recentering rule; a later code cleanup should remove alpha entirely.
         "map_recentering_alpha": 1.0,
         "support_threshold": result.support_threshold,
         "supported_chii": len(result.supported_chii),

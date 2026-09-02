@@ -52,6 +52,8 @@ def main(argv: list[str] | None = None) -> int:
         "end": args.end,
         "q": MODEL_Q,
         "base": MODEL_BASE,
+        # Configurable alpha is a legacy experimental idea. P1 has one fixed
+        # recentering rule; a later code cleanup should remove alpha entirely.
         "recentering_alpha": 1.0,
         "population_policy": "legacy_departure",
         "k_config": str(k_config),

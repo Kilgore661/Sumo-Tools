@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Elo-family Named Model Table</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+      --page: #f5f2eb;
+      --panel: #fffdf8;
+      --ink: #20201e;
+      --muted: #625f58;
+      --line: #b8b1a3;
+      --strong-line: #716a5e;
+      --header: #ded8ca;
+      --group: #eee8dc;
+      --selected: #e4f0e2;
+      --production: #e5edf7;
+      --historical: #f4ead5;
+      --reserved: #ece9f2;
+      --link: #174f87;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --page: #171716;
+        --panel: #222220;
+        --ink: #eeeae2;
+        --muted: #bbb5aa;
+        --line: #56524b;
+        --strong-line: #918a7d;
+        --header: #38352f;
+        --group: #2f2c27;
+        --selected: #243928;
+        --production: #243343;
+        --historical: #3b3223;
+        --reserved: #322e3c;
+        --link: #8fc6ff;
+      }
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--page);
+      color: var(--ink);
+    }
+
+    body {
+      width: 100%;
+      max-width: none;
+      padding: 1.25rem clamp(0.75rem, 1.5vw, 2rem) 3rem;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 1rem 2rem;
+      align-items: end;
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.8rem, 3vw, 3rem);
+      line-height: 1.1;
+    }
+
+    .status {
+      margin: 0;
+      color: var(--muted);
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .orientation {
+      max-width: 100rem;
+      margin: 0 0 1rem;
+      color: var(--muted);
+    }
+
+    .table-frame {
+      width: 100%;
+      max-width: none;
+      overflow: auto;
+      border: 1px solid var(--strong-line);
+      border-radius: 0.35rem;
+      background: var(--panel);
+      box-shadow: 0 0.2rem 0.8rem rgb(0 0 0 / 0.08);
+    }
+
+    table {
+      width: max-content;
+      min-width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 0.9rem;
+    }
+
+    caption {
+      padding: 0.7rem 0.9rem;
+      border-bottom: 1px solid var(--strong-line);
+      background: var(--group);
+      font-weight: 650;
+      text-align: left;
+    }
+
+    th, td {
+      min-width: 8rem;
+      max-width: 24rem;
+      padding: 0.65rem 0.75rem;
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th:last-child, td:last-child { border-right: 0; }
+    tbody tr:last-child td, tbody tr:last-child th { border-bottom: 0; }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      min-width: 10rem;
+      max-width: 20rem;
+      background: var(--header);
+      border-bottom: 2px solid var(--strong-line);
+      font-size: 0.82rem;
+      line-height: 1.25;
+      vertical-align: bottom;
+    }
+
+    thead th:first-child,
+    tbody th[scope="row"] {
+      position: sticky;
+      left: 0;
+    }
+
+    thead th:first-child { z-index: 4; }
+
+    tbody th[scope="row"] {
+      z-index: 2;
+      min-width: 10rem;
+      max-width: 14rem;
+      background: var(--group);
+      border-right: 2px solid var(--strong-line);
+      font-size: 0.95rem;
+    }
+
+    tbody tr.selected td { background: var(--selected); }
+    tbody tr.production td { background: var(--production); }
+    tbody tr.historical td { background: var(--historical); }
+    tbody tr.reserved td { background: var(--reserved); }
+
+    p { margin-top: 0; }
+    p:last-child { margin-bottom: 0; }
+    ul { margin: 0; padding-left: 1.2rem; }
+    li + li { margin-top: 0.25rem; }
+    code { font-size: 0.92em; }
+    a { color: var(--link); }
+    .nowrap { white-space: nowrap; }
+
+    .notes {
+      max-width: 100rem;
+      margin-top: 1.4rem;
+    }
+
+    .notes h2 {
+      margin: 0 0 0.55rem;
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    .notes li + li { margin-top: 0.45rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Elo-family named models</h1>
+    <p class="status">Working reference · 2 September 2026</p>
+  </header>
+
+  <p class="orientation">
+    This table keeps model names, historical epochs, entrant-prior construction,
+    chii-map recentering and rikishi-population normalisation in one place.
+    Experimental names describe evidence-producing comparisons; they do not all
+    denote maintained production models.
+  </p>
+
+  <div class="table-frame" role="region" aria-label="Wide Elo-family model comparison" tabindex="0">
+    <table>
+      <caption>Canonical models and the comparison models needed to understand their lineage</caption>
+      <thead>
+        <tr>
+          <th scope="col">Canonical name</th>
+          <th scope="col">Aliases and implementation lineage</th>
+          <th scope="col">Period and purpose</th>
+          <th scope="col"><i>q</i></th>
+          <th scope="col"><i>k</i> policy</th>
+          <th scope="col">Rated-result domain and preparation</th>
+          <th scope="col">Entrant initialisation</th>
+          <th scope="col">Chii-map fixed point and post-iteration recentering</th>
+          <th scope="col">Per-basho rikishi-population normalisation</th>
+          <th scope="col">Off-banzuke rating persistence</th>
+          <th scope="col">Evidence and epistemic status</th>
+          <th scope="col">Website relationship</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">Basic Elo</th>
+          <td><code>B</code>; definitive B-family baseline</td>
+          <td>1989 onward. Establish whether a deliberately simple Elo model contains predictive information.</td>
+          <td class="nowrap">400</td>
+          <td>Constant <code>35</code>.</td>
+          <td>Represented binary W/L results; forecasts precede updates; missing kimarite does not exclude a known W/L result.</td>
+          <td>One common rating for every newly encountered rikishi.</td>
+          <td>None. There is no chii-indexed prior map.</td>
+          <td>None. The comparison forecaster does not apply a population-boundary correction.</td>
+          <td>Permanent within the run.</td>
+          <td>Canonical baseline. Beats the independent 50–50 comparator but is not the selected operational successor.</td>
+          <td>Comparator only; not the intended public rating source.</td>
+        </tr>
+
+        <tr>
+          <th scope="row">Divisional-<i>k</i> Basic Elo</th>
+          <td><code>B_k</code>; factorial comparison cell</td>
+          <td>1989 onward. Isolates the effect of divisional <i>k</i>.</td>
+          <td class="nowrap">400</td>
+          <td>Selected divisional schedule, using each participant's own pre-bout chii.</td>
+          <td>Same declared post-1988 W/L domain as <code>B</code>.</td>
+          <td>One common entrant rating.</td>
+          <td>None.</td>
+          <td>None in the B-family comparison. Unequal <i>k</i> can therefore create or destroy a small amount of rating mass.</td>
+          <td>Permanent within the run.</td>
+          <td>Serious comparison model and close alternative during selection; not the final selected contract.</td>
+          <td>Not a production website source.</td>
+        </tr>
+
+        <tr>
+          <th scope="row">Prior-initialised Basic Elo</th>
+          <td><code>B_P</code>; factorial comparison cell</td>
+          <td>1989 onward. Isolates the effect of informed entrant initialisation.</td>
+          <td class="nowrap">400</td>
+          <td>Constant <code>35</code>.</td>
+          <td>Same declared post-1988 W/L domain as <code>B</code>.</td>
+          <td>The retained contextual informed prior <code>P</code>.</td>
+          <td>The comparison imports <code>P</code> exactly as persisted; it does not rescale, smooth or recenter it during the run.</td>
+          <td>None in the B-family comparison.</td>
+          <td>Permanent within the run.</td>
+          <td>Experimental comparison cell. Shows that informed initialisation supplies most of the improvement over <code>B</code>.</td>
+          <td>Not a production website source.</td>
+        </tr>
+
+        <tr>
+          <th scope="row">Old informed divisional-<i>k</i> model</th>
+          <td>Old <code>B_kP</code>; earlier provisional <code>B'</code></td>
+          <td>1989 onward. Original combined entrant-prior and divisional-<i>k</i> comparison winner.</td>
+          <td class="nowrap">400</td>
+          <td>Selected divisional schedule.</td>
+          <td>Same declared post-1988 W/L domain as <code>B</code>.</td>
+          <td>The retained contextual informed prior <code>P</code>.</td>
+          <td>The run imports the adopted map unchanged. Its upstream construction is separate from the replay.</td>
+          <td>None in the established B-family forecaster. It must not be described as using Expt2 departure redistribution.</td>
+          <td>Permanent within the run.</td>
+          <td>Best model in the original four-cell comparison, but subsequently superseded by Elo-89 after P1 and population-policy work.</td>
+          <td>Not migrated into the website.</td>
+        </tr>
+
+        <tr class="selected">
+          <th scope="row">Elo-89</th>
+          <td><code>E_89</code>; experimentally “BKP1, whole-population preservation”</td>
+          <td>1989 onward. Selected operational account of the sufficiently complete modern record.</td>
+          <td class="nowrap">400</td>
+          <td>Selected divisional schedule.</td>
+          <td>Every represented binary W/L result, irrespective of whether kimarite is recorded; fusen, non-binary and off-banzuke results are excluded and reported.</td>
+          <td>Frozen canonical P1 chii prior.</td>
+          <td>
+            P1 is produced externally by a <code>q=400</code> fixed-point solve. After each iteration, the map is recentered to its chosen mean. Elo-89 holds the resulting P1 fixed: there is no feedback from its population operator into a new fixed point.
+          </td>
+          <td>
+            After the current active population is formed, one common shift restores the initial active-population target mean. After the basho's bouts, another common shift restores it again and absorbs dual-<i>k</i> mass drift. These shifts preserve differences among the active rikishi at the instant they are applied.
+          </td>
+          <td>A departure discards the rating; a later return receives the applicable P1 entrant rating.</td>
+          <td>Selected after the exact population-policy gate. Best tested retrospective log and Brier loss; P1 is future-informed within the retrospective evidence and remains eligible for prospective validation.</td>
+          <td>Preferred candidate for modern public ratings, but no website consumer has yet been migrated.</td>
+        </tr>
+
+        <tr class="production">
+          <th scope="row">Production Equelo</th>
+          <td><code>fixed_supported</code>; established Equelo production artifact family; older “Mark 3” lineage</td>
+          <td>1958 onward. Existing full-history rating system and public data product.</td>
+          <td class="nowrap">900</td>
+          <td>Divisional schedule.</td>
+          <td>Legacy Oracle-prepared History. Its replay excludes <code>fusen</code> and legacy <code>blank</code>-decision records; the latter can include known W/L results with missing kimarite and is a known semantic difference from Elo-89.</td>
+          <td>Completed fixed-supported <code>chii → rating</code> master map.</td>
+          <td>
+            Expt2 machinery first solves the supported modern domain and then refines it over the full represented History. Each iteration adds one common shift so the mean of the solved chii values equals the chosen base. Unsupported chii are subsequently completed from the nearest supported chii.
+          </td>
+          <td>
+            Legacy <code>CLOSED</code> mode: when a rikishi departs, the departing rating's deviation from the preceding active mean is distributed uniformly among survivors. It preserves the mean through departure, not a fixed whole-population mean after entrant formation and bouts.
+          </td>
+          <td>Departures are removed from the process simulation; a later return is initialised again from the chii map.</td>
+          <td>Current production legacy, reproducible and operational. Its supported-domain repair removed extreme underidentified low-chii artifacts from the preceding <code>fixed_v2</code> path.</td>
+          <td>Current source for rating-bearing website artifacts and APIs, including day-end ratings and public landmarks.</td>
+        </tr>
+
+        <tr class="historical">
+          <th scope="row">Elo-58</th>
+          <td><code>E_58</code>; package <code>equelo2_baseline</code>; formerly <code>proto-Equelo2</code> or “Equelo2 full-history baseline”</td>
+          <td>1958 onward. Historical reconstruction intended to permit qualified cross-era comparisons.</td>
+          <td class="nowrap">400</td>
+          <td>Selected Elo-89 divisional schedule.</td>
+          <td>Every represented binary W/L result irrespective of kimarite; fusen, non-binary and off-banzuke results are excluded and reported. No missing result is inferred, and the legacy pre-1989 Oracle is not reused.</td>
+          <td>Frozen P1, paired east/west; historical-only chii inherit the nearest represented chii above within the same division.</td>
+          <td>No new full-history fixed point. Elo-58 consumes frozen P1 and writes a separate historical-domain completion without modifying the Elo-89 artifact.</td>
+          <td>
+            <strong>Baseline:</strong> one common whole-population shift before and after each basho restores the fixed target mean implied by applying Elo-89 priors to the January 1989 banzuke.<br><br>
+            <strong>Subordinate investigation:</strong> separate persistent divisional target means, paired with a P2 prior, were tested only as an attempted Elo-58 improvement. They produced a broadly plausible chii-rating map but retained materially less predictive information, so this alternative was not adopted.
+          </td>
+          <td>The most recently informed rating persists through missing results and is archived while the rikishi is absent; it is restored on return.</td>
+          <td>Viable, informative research model and historical lens. It performs better than neutral prediction and carries useful state into 1989, but incomplete early evidence and unresolved historical interpretation prevent it from having Elo-89's operational authority.</td>
+          <td>Not the principal current-rating candidate. It remains suitable for explicitly qualified historical or cross-era research exhibits.</td>
+        </tr>
+
+        <tr class="reserved">
+          <th scope="row">Equelo2</th>
+          <td>Reserved public name only</td>
+          <td>No period or purpose is yet defined.</td>
+          <td>—</td>
+          <td>—</td>
+          <td>—</td>
+          <td>—</td>
+          <td>—</td>
+          <td>—</td>
+          <td>—</td>
+          <td>No current model. The name is reserved for a possible future adopted full-history construction with a complete contract and new validation.</td>
+          <td>Nothing should currently be published as Equelo2.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <section class="notes">
+    <h2>Interpretation rules</h2>
+    <ul>
+      <li><strong>Chii-map ratings are entrant priors.</strong> They are not the current process ratings of whichever rikishi happen to occupy those chii.</li>
+      <li><strong>Map recentering and population normalisation are different transformations.</strong> The former acts between fixed-point iterations on chii-indexed values; the latter acts during chronological replay on rikishi-indexed values.</li>
+      <li><strong>A common additive shift is probability-neutral within the shifted population.</strong> It matters longitudinally because survivors retain that coordinate while future entrants arrive from an externally anchored prior.</li>
+      <li><strong>Support-proportional recentering is not a neutral common shift.</strong> It deliberately changes differences among chii priors.</li>
+      <li><strong>The divisional-average experiment belongs under Elo-58.</strong> It is not a fourth peer beside Production Equelo, Elo-89 and Elo-58.</li>
+    </ul>
+  </section>
+</body>
+</html>

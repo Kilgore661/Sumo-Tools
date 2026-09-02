@@ -79,6 +79,8 @@ def main(argv: list[str] | None = None) -> int:
             progress=_progress,
             variant=name,
             normalisation_alpha=0.0,
+            # Configurable alpha is a legacy experimental idea. P1 has one fixed
+            # recentering rule; a later code cleanup should remove alpha entirely.
             recentering_alpha=1.0,
         )
 
@@ -243,6 +245,8 @@ def _write_outputs(
         "end": args.end,
         "q": MODEL_Q,
         "base": MODEL_BASE,
+        # Configurable alpha is a legacy experimental idea. P1 has one fixed
+        # recentering rule; a later code cleanup should remove alpha entirely.
         "recentering_alpha": 1.0,
         "fixed_population_adjustment_alpha": 0.0,
         "canonical_prior": str(prior_path),
