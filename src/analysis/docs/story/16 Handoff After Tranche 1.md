@@ -57,10 +57,11 @@ component. `BKP1` remains useful when discussing the experimental family, but
 plain `BKP1` must not be used as a synonym for Elo-89 because it does not name
 the population policy.
 
-The intended full-history result of Tranche 2 is named **Equelo2**. That name
-currently denotes the target role—one account of the represented 1958-present
-history—not a construction whose historical evidence and transition policies
-have already been settled.
+The provisional 1958-present reconstruction is now named **Elo-58**, written
+\(E_{58}\). It is an experimental historical-comparison model, not the
+selected operational model. **Equelo2** is reserved for a possible future
+full-history successor that resolves enough of Elo-58's known problems to be
+adopted; it does not name the present baseline.
 
 ## Elo-89 contract
 

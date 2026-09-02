@@ -1,4 +1,4 @@
-"""Run and persist the first Equelo2 full-history baseline experiment."""
+"""Run and persist the Elo-58 full-history reconstruction."""
 
 from __future__ import annotations
 
@@ -150,7 +150,7 @@ def run_experiment(
         date for date in history if definition.start_date <= date <= definition.end_date
     )
     if not dates:
-        raise ValueError("The requested Equelo2 baseline interval contains no basho")
+        raise ValueError("The requested Elo-58 interval contains no basho")
     if definition.reference_start_date not in history:
         raise ValueError(
             f"Reference start basho is absent: {definition.reference_start_date}"
@@ -287,7 +287,8 @@ def run_experiment(
         outputs.write_chii_summary(aggregates)
 
     manifest = {
-        "experiment": "Equelo2 full-history baseline on frozen Elo-89 priors",
+        "experiment": "Elo-58 full-history reconstruction on frozen Elo-89 priors",
+        "legacy_run_identifier": CANDIDATE,
         "status": "retrospective diagnostic; the adopted Elo-89 prior is future-informed",
         "definition": {
             "start_date": str(definition.start_date),
@@ -717,7 +718,7 @@ def _findings(
         entry for entry in prior.entries.values() if entry.provenance != "elo89"
     ]
     lines = [
-        "# Equelo2 full-history baseline",
+        "# Elo-58 full-history reconstruction",
         "",
         f"The candidate replay covers {definition.start_date} to {definition.end_date}.",
         f"Its fixed Elo-89 population-mean anchor is {target_mean:.6f}.",

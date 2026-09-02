@@ -1,4 +1,4 @@
-"""Value objects for the first Equelo2 full-history baseline."""
+"""Value objects for the Elo-58 full-history reconstruction."""
 
 from __future__ import annotations
 

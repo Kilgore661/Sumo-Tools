@@ -2,7 +2,8 @@
 
 ## Status and purpose
 
-This is a developing production-readiness record for Equelo2. It approaches
+This is a developing production-readiness record for Elo-58 and for any future
+Equelo2. It approaches
 the model from the perspective of people who may encounter the eventual web
 site: casual sumo fans, statistically literate readers and people with deep
 knowledge of sumo history.
@@ -22,7 +23,7 @@ comparison difficult to defend.
 
 ## Observation convention
 
-A published Equelo2 rating is observed after the named basho's eligible bouts
+A reported Elo-58 rating is observed after the named basho's eligible bouts
 and all post-basho processing. Career peaks and records use only this processed
 basho-end value. Internal start-state values are not rating observations.
 
@@ -35,10 +36,10 @@ useful initial values. It is not claimed to create an out-of-sample forecast of
 the same construction history.
 
 The first practical test is whether the complete system containing those
-priors extracts useful information at all. Proto-Equelo2 beats the neutral
+priors extracts useful information at all. Elo-58 beats the neutral
 50--50 predictor over the complete represented history:
 
-| Measure | Proto-Equelo2 | Neutral 50--50 |
+| Measure | Elo-58 | Neutral 50--50 |
 |---|---:|---:|
 | Mean log loss | 0.679354 | 0.693147 |
 | Mean Brier loss | 0.243025 | 0.250000 |
@@ -49,7 +50,7 @@ construction would have failed a basic usefulness requirement. Passing the
 test shows that the chosen priors participate in a coherent and useful rating
 system; it does not show that they are uniquely optimal.
 
-Once a named Equelo2 version and its prior map are frozen, genuinely later
+Once any future Equelo2 version and its prior map are frozen, genuinely later
 results can be used for prospective evaluation without changing that version.
 
 ## Challenge: “Were the pre-1989 results added to improve later predictions?”
@@ -61,7 +62,7 @@ machinery needed to incorporate the incomplete earlier evidence.
 
 The common post-1988 forecast comparison is a compatibility check. It asks
 whether carrying the historical state across January 1989 materially damages
-the established later account. Proto-Equelo2's post-1988 log loss is 0.675281,
+the established later account. Elo-58's post-1988 log loss is 0.675281,
 compared with 0.675498 for a fresh Elo-89 start, so no such damage is observed.
 The small favourable difference is incidental. It is not the benefit the
 historical extension was designed to obtain, and no claim that pre-1989
@@ -71,7 +72,7 @@ evidence improves modern ratings is required.
 
 The two proper scores give mixed answers over the 165,780 rated pre-1989 bouts:
 
-| Measure | Proto-Equelo2 | Neutral 50--50 | Difference |
+| Measure | Elo-58 | Neutral 50--50 | Difference |
 |---|---:|---:|---:|
 | Mean log loss | 0.693589 | 0.693147 | +0.000442 |
 | Mean Brier loss | 0.249519 | 0.250000 | -0.000481 |
@@ -85,7 +86,7 @@ incomplete interval; its purpose is historical inclusion and comparison.
 
 ## Challenge: “Hakuho only leads because Taiho's rating had not stabilised”
 
-The processed Equelo2 peak comparison is:
+The processed Elo-58 peak comparison is:
 
 | Rikishi | Peak rating | Basho | Rated bouts accumulated |
 |---|---:|---:|---:|
@@ -98,7 +99,7 @@ Taiho merely lacking time to move away from his initial rating.
 
 ## Challenge: “Hakuho competed later, when there were more rating points to win”
 
-Equelo2 restores the active population to a fixed mean after every basho.
+Elo-58 restores the active population to a fixed mean after every basho.
 Consequently, the rating origin cannot simply drift upward across the decades
 as an unnormalised Elo implementation can. Hakuho's higher peak is not the
 known mechanical artefact in which later competitors inherit an inflated
@@ -115,8 +116,8 @@ Under `q=400`, Hakuho's 139.737-point peak advantage corresponds to an
 approximately 69% expected score in a hypothetical peak-versus-peak matchup.
 The appropriate claim is therefore conditional but substantive:
 
-> If the reader accepts the Equelo2 model contract and accepts peak rating as
-> the meaning of “better”, Equelo2 says that Hakuho was better than Taiho.
+> If the reader accepts the Elo-58 model contract and accepts peak rating as
+> the meaning of “better”, Elo-58 says that Hakuho was better than Taiho.
 
 A Taiho supporter may still dispute the model's cross-era assumptions, the
 historical invariance of chii meaning, the active-population anchor, or the use
@@ -124,11 +125,11 @@ of peak performance as the definition of greatness. Those are genuine
 substantive objections. Uncorrected rating inflation and insufficient time for
 Taiho's rating to stabilise are not.
 
-The result is not offered as proof of the GOAT. It is evidence that Equelo2 can
+The result is not offered as proof of the GOAT. It is evidence that Elo-58 can
 give a clear answer to one familiar historical question while making the
 assumptions behind that answer visible.
 
-No further Hakuho--Taiho robustness sweep is required for the Equelo2 candidate.
+No further Hakuho--Taiho robustness sweep is required to document Elo-58.
 Such a sweep could expand indefinitely across choices about era strength,
 population composition, anchoring and the definition of greatness. The project
 records the conditional model result and its assumptions rather than making
@@ -137,20 +138,20 @@ ordinary public prior that Hakuho is the leading post-1958 GOAT candidate.
 
 ## Comparative observation: Kakuryu
 
-Using processed basho-end peaks, proto-Equelo2 ranks Kakuryu eleventh and he
+Using processed basho-end peaks, Elo-58 ranks Kakuryu eleventh and he
 does not appear in its top ten. The older fixed-supported production Equelo
 ranks him fifth, at 2677.432 after 2016/11. His top-ten position is therefore a
-legacy-Equelo observation, not an Equelo2 candidate problem, and it is not
+legacy-Equelo observation, not an Elo-58 problem, and it is not
 caused by selecting an intrabasho maximum.
 
 The contrast is still worth preserving: it shows that materially different
 Equelo constructions can produce different elite rankings. It may motivate an
-investigation of legacy Equelo, but Kakuryu's absence from Equelo2's top ten is
-not something the Equelo2 candidate must defend or repair.
+investigation of legacy Equelo, but Kakuryu's absence from Elo-58's top ten is
+not something Elo-58 must defend or repair.
 
 ## Scope limit: pre-1958 candidates
 
-The represented History begins in January 1958. Equelo2 therefore cannot
+The represented History begins in January 1958. Elo-58 therefore cannot
 adjudicate claims for Futabayama, Raiden or other earlier candidates. A public
 “greatest ever” description must either state that scope or use language such
 as “highest in the represented 1958-onward history.”

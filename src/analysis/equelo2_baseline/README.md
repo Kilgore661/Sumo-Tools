@@ -1,4 +1,4 @@
-# Equelo2 Full-History Baseline
+# Elo-58 Full-History Reconstruction
 
 ## Purpose
 
@@ -14,7 +14,10 @@ post-1988 reference comparison checks that incorporating the incomplete earlier
 record does not materially damage Elo-89; a favourable difference is incidental
 and is not the intended benefit of the extension.
 
-This is an experiment, not yet the selected Equelo2 model.
+This experiment is named **Elo-58**. It is a historical reconstruction, not
+the selected operational model. The package path predates that naming decision
+and is retained so existing commands and artifacts remain reproducible.
+**Equelo2** is reserved for a possible future full-history successor.
 It is a retrospective diagnostic: the adopted Elo-89 prior was estimated using
 post-1988 information and is therefore future-informed when applied in 1958.
 
@@ -59,7 +62,7 @@ The default source artifact is
 
 ## Rating observation convention
 
-Published Equelo2 ratings and career records use the processed `end` phase:
+Reported Elo-58 ratings and career records use the processed `end` phase:
 after all eligible bouts in the basho and the end-of-basho population
 normalisation. Start-state data needed internally for replay and forecast
 reproduction is not a rating observation and must not be used for published

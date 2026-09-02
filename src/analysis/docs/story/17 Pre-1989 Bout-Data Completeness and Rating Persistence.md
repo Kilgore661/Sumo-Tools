@@ -263,7 +263,7 @@ Sokokurai, each goes through `Mz` and returns at `Jk`:
 
 These are lifecycle facts, not yet a final model decision. They establish the
 edge case that a rating system must address: a missing ranked-banzuke appearance
-cannot safely be equated with permanent departure. The current Equelo2 baseline
+cannot safely be equated with permanent departure. The current Elo-58 baseline
 archives the rating during the gap, but this finding alone does not decide
 whether the definitive model should persist, reset or otherwise adjust it. The
 small affected fraction and overwhelming concentration in `Jk -> Jk` episodes

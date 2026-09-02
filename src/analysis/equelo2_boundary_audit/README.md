@@ -1,4 +1,4 @@
-# Equelo2 January-1989 Boundary Audit
+# Elo-58 January-1989 Boundary Audit
 
 This package compares two rating states for the same event: the start of the
 January 1989 basho, before any January bouts. It uses only rikishi represented

@@ -101,15 +101,26 @@ either a defect or an insight.
     chii/rating maps, followed by a fixed-pool realised-outcome comparison with
     50--50. It explains the evidential gap each experiment closes and keeps
     already settled questions outside their scope.
+20. [Elo-58 and the Reserved Equelo2 Name](20%20Elo-58%20and%20the%20Reserved%20Equelo2%20Name.md)
+    is the authoritative current position. It names the existing historical
+    reconstruction Elo-58, reserves Equelo2 for a possible future successor,
+    records the divisional-average result and separates the operational and
+    historical-comparison roles.
 
 The post-1988 model selected in Tranche 1 is named **Elo-89**, with technical
 notation \(E_{89}\). It consists of canonical \(P_1\), `q=400`, divisional `k`
 and whole-population mean preservation. `BKP1` remains an experimental-family
 label and is not, by itself, a synonym for Elo-89.
 
-The intended full-history model at the end of Tranche 2 is named **Equelo2**.
-Equelo2 is an objective and model role, not yet a completed contract: Tranche 2
-must determine how the differently incomplete pre-1989 evidence joins Elo-89.
+The provisional full-history reconstruction already produced from January
+1958 is named **Elo-58**, with technical notation \(E_{58}\). It applies the
+Elo-89 framework and P1-derived initialisation to the represented 1958-present
+history. Elo-58 is an experimental aid to historical comparison, not the
+selected operational rating model.
+
+The name **Equelo2** is reserved for a possible future full-history model that
+resolves enough of Elo-58's known shortcomings to justify adoption. It is an
+objective and model role, not a completed contract.
 The purpose of that extension is to place historical rikishi such as Taiho and
 modern rikishi such as Hakuho in one continuous rating account. It is not an
 attempt to use pre-1989 results to improve ratings or forecasts after 1988.
@@ -152,7 +163,7 @@ version rather than silently revising Equelo2.
 
 ## Reporting convention: when a rating is observed
 
-The canonical published Equelo2 rating for a rikishi in a basho is the
+The canonical reported Elo-58 rating for a rikishi in a basho is the
 **processed end-of-basho rating**: the value after all eligible bouts and the
 post-basho population-normalisation step. Career peaks, records, comparisons
 and website displays must use this `end` value. Start-state values required by
@@ -180,7 +191,7 @@ The detailed initial inventory remains in
 
 ## Next steps
 
-Tranche 1 is complete, and a proto-Equelo2 full-history baseline now exists.
+Tranche 1 is complete, and the Elo-58 full-history reconstruction now exists.
 The current continuation is specified in
 [Equelo2 Candidate Experiments Handoff](19%20Equelo2%20Candidate%20Experiments%20Handoff.md).
 The initial completeness measurement is recorded in
@@ -200,7 +211,7 @@ or documentation blocker. Canonical \(P_1\) retains the computed anomalies and
 must be described as an entrant-initialisation policy rather than a definitive
 mapping from rank to skill.
 
-### Equelo2 candidate gate: fixed-pool predictive control
+### Remaining explanatory control: fixed-pool prediction
 
 When asking **“Have we got a candidate for Equelo2 nailed down?”**, include the
 following outstanding experiment in the readiness check:
@@ -230,7 +241,7 @@ Equelo2 as a complete system beats the neutral predictor.
 All-time peak tables are a subjective diagnostic, not a proof of greatness.
 They are nevertheless useful for finding results which knowledgeable readers
 would regard as difficult to defend. Using processed basho-end observations,
-proto-Equelo2 ranks Kakuryu eleventh, outside its top ten. The older
+Elo-58 ranks Kakuryu eleventh, outside its top ten. The older
 fixed-supported production Equelo ranks him fifth, with a peak of 2677.432
 after 2016/11. The unexpectedly high top-ten position is therefore an
 observation about legacy Equelo, not an Equelo2 candidate failure, and it is

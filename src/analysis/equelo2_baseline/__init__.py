@@ -1,4 +1,4 @@
-"""First full-history Equelo2 baseline experiment."""
+"""Elo-58 full-history reconstruction (legacy package path)."""
 
 from .prior import CompletedPrior, PriorEntry, complete_historical_prior
 

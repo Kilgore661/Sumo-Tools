@@ -1,9 +1,14 @@
-# Equelo2 Candidate Experiments Handoff
+# Elo-58 Assessment and Future Equelo2 Handoff
+
+> **Superseded as the current restart point.** The experiments and evidence
+> remain part of the record, but the present model names and conclusion are in
+> [Elo-58 and the Reserved Equelo2 Name](20%20Elo-58%20and%20the%20Reserved%20Equelo2%20Name.md).
 
 ## Purpose and status
 
 This is the restart point for the two experiments still required before asking
-whether the present proto-Equelo2 has become a defensible Equelo2 candidate.
+what the present Elo-58 reconstruction establishes and whether a future
+Equelo2 candidate is warranted.
 They are:
 
 1. audit the November 1988 endpoint, the January 1989 handover and the
@@ -13,11 +18,11 @@ They are:
 The experiments address different questions. The first tests the actual join
 between the historical extension and Elo-89. The second tests the predictive
 content of ordinary Elo updates in the simplest closed setting. Neither is a
-request to tune proto-Equelo2 until it produces a preferred result.
+request to tune Elo-58 until it produces a preferred result.
 
 ## Position inherited by this handoff
 
-The present baseline applies Elo-89's canonical \(P_1\) priors, `q=400`,
+The present Elo-58 baseline applies Elo-89's canonical \(P_1\) priors, `q=400`,
 divisional `k` and whole-population mean preservation to the represented
 history from January 1958. Chii outside the Elo-89 prior map inherit the rating
 of the nearest supported chii above them. A rikishi's most recently informed
@@ -42,7 +47,7 @@ present purpose:
   model's conclusion is conditional on its stated cross-era assumptions and
   on peak rating being the chosen meaning of “better”.
 
-The current full-history baseline contains 745,206 rated bouts. Its mean log
+The Elo-58 baseline contains 745,206 rated bouts. Its mean log
 loss is 0.679354 and its mean Brier loss is 0.243025. Over the post-1988 domain
 its log loss is 0.675281, compared with 0.675498 for Elo-89 started afresh.
 That small favourable difference is incidental: the important observation is
@@ -69,7 +74,7 @@ The audit should answer at least these questions:
 
 1. Which January 1989 rikishi receive a persisted rating, and which receive an
    entrant prior?
-2. For the incumbents, how different is the persisted proto-Equelo2 rating
+2. For the incumbents, how different is the persisted Elo-58 rating
    from the rating with which a fresh Elo-89 run would start them?
 3. Are any differences caused by identity, eligibility, population or
    handover errors rather than by genuine historical state?
@@ -327,12 +332,12 @@ The reasonably clear cases are:
 
 | Check | Evidence | Provisional conclusion |
 |---|---|---|
-| Overall predictive usefulness | Over the complete history, proto-Equelo2 has mean log loss `0.679354` against `0.693147` for 50--50, and mean Brier loss `0.243025` against `0.250000`. | The complete system extracts information; the priors and updates are not producing arbitrary ratings. |
+| Overall predictive usefulness | Over the complete history, Elo-58 has mean log loss `0.679354` against `0.693147` for 50--50, and mean Brier loss `0.243025` against `0.250000`. | The complete system extracts information; the priors and updates are not producing arbitrary ratings. |
 | Compatibility after 1988 | Post-1988 log loss is `0.675281`, against `0.675498` for a fresh Elo-89 start. | Carrying the pre-1989 state across January 1989 does not materially damage the established later account. The minute favourable difference is incidental. |
 | January 1989 overall ordering | Across 741 common rikishi, Pearson correlation is `0.9340`, Spearman correlation `0.8817`, and the mean historical-minus-fresh difference is `+0.031`. | The historical replay and fresh P1 initialisation occupy broadly the same scale and agree strongly in overall ordering. |
 | Complete-history chii-map shape | Across 484 common rank pairs, Pearson correlation is `0.979457` and Spearman correlation `0.955111`. | The broad P1 chii/rating structure survives the complete-history replay very clearly. |
 | Makushita and Sandanme ordering | Both divisions have Pearson and Spearman correlations of about `0.995` between their complete-history and P1 maps. | Their internal rank order is almost unchanged even though their absolute levels move downward. |
-| Elite historical face validity | The processed peak table contains the familiar post-1958 GOAT candidates, places Hakuho first and Taiho among the leaders, and places Kakuryu eleventh rather than in the top ten. | The result is recognisable to an informed sumo reader. Kakuryu's surprising fifth place belongs to legacy Equelo, not proto-Equelo2. |
+| Elite historical face validity | The processed peak table contains the familiar post-1958 GOAT candidates, places Hakuho first and Taiho among the leaders, and places Kakuryu eleventh rather than in the top ten. | The result is recognisable to an informed sumo reader. Kakuryu's surprising fifth place belongs to legacy Equelo, not Elo-58. |
 | Hakuho against Taiho | Hakuho peaks at `3031.291`; Taiho at `2891.554`. Taiho had accumulated more rated bouts at his peak, and the active-population mean was restored throughout. | The model's Hakuho result cannot reasonably be dismissed as Taiho lacking time to stabilise or as simple uncorrected inflation. |
 
 The qualifications and less convincing cases are equally important:
@@ -350,7 +355,7 @@ The qualifications and less convincing cases are equally important:
 
 The compact provisional judgement is therefore:
 
-> The provisional Equelo2 passes the broad structural, predictive and
+> Elo-58 passes the broad structural, predictive and
 > historical-plausibility sanity checks needed to justify continuing.
 > Agreement is strongest in overall ordering, within most divisions and in
 > the elite historical results. It is much less convincing at the level of
@@ -429,7 +434,7 @@ control is included. The conclusion must state the size and variability of
 any advantage, not merely whether the average has the desired sign.
 
 Success would establish the intended narrow proposition in a clean setting.
-It would not prove that proto-Equelo2 is the best historical model, validate
+It would not prove that Elo-58 is the best historical model, validate
 future-informed priors prospectively, or resolve the weakness of its
 Jonokuchi chii/rating relationship.
 

@@ -1,4 +1,4 @@
-"""Chronological whole-population replay for the Equelo2 baseline."""
+"""Chronological whole-population replay for Elo-58."""
 
 from __future__ import annotations
 

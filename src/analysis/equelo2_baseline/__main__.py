@@ -1,4 +1,4 @@
-"""Run the first full-history Equelo2 baseline on frozen Elo-89 priors."""
+"""Run Elo-58 on frozen Elo-89 priors (legacy package path)."""
 
 from __future__ import annotations
 

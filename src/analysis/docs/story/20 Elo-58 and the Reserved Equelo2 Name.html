@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Elo-58 and the Reserved Equelo2 Name</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: Georgia, "Times New Roman", serif;
+      line-height: 1.6;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 54rem;
+      padding: 2rem 1.25rem 4rem;
+    }
+    h1, h2, h3 {
+      font-family: system-ui, sans-serif;
+      line-height: 1.2;
+      margin-top: 1.75em;
+    }
+    h1 { margin-top: 0; }
+    li + li { margin-top: 0.35rem; }
+    mjx-container[display="true"] {
+      margin: 1.25rem 0 !important;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body><h1 id="elo-58-and-the-reserved-equelo2-name">Elo-58 and the Reserved Equelo2 Name</h1>
+<h2 id="status">Status</h2>
+<p>This is the current restart point for the Elo/Equelo story. It incorporates the
+complete-history baseline, the January-1989 and implied-map audits, and the
+subsequent divisional-average investigation. Earlier documents remain the
+chronological evidential record, but their use of <code>proto-Equelo2</code> for the
+existing historical reconstruction is superseded by the terminology here.</p>
+<h2 id="the-two-models-now-in-view">The two models now in view</h2>
+<h3 id="elo-89">Elo-89</h3>
+<p><strong>Elo-89</strong>, written \(E_{89}\), is the selected operational model for the
+sufficiently complete record from January 1989 onward. Its contract comprises:</p>
+<ul>
+<li>canonical P1 chii-based entrant initialisation;</li>
+<li><code>q = 400</code>;</li>
+<li>the selected divisional-<code>k</code> schedule;</li>
+<li>all represented binary W/L results, irrespective of whether a kimarite is
+recorded; and</li>
+<li>common whole-population shifts which preserve the initial active mean at
+basho boundaries.</li>
+</ul>
+<p>Elo-89 is the candidate to continue forward as new results arrive. Its P1 map
+is future-informed relative to part of its construction history, so its
+existing predictive scores are retrospective evidence rather than a claim of
+prospective validation. Nevertheless, its choices are explicit, empirically
+compared and sufficiently defensible for an operational rating model.</p>
+<h3 id="elo-58">Elo-58</h3>
+<p><strong>Elo-58</strong>, written \(E_{58}\), is the provisional historical reconstruction
+previously called <code>proto-Equelo2</code> or the <code>Equelo2 full-history baseline</code>. It
+applies the Elo-89 framework from January 1958, completes historical-only chii
+from the nearest available chii above, and persists an individual's most
+recent rating through missing results and banzuke absence.</p>
+<p>Elo-58 exists to permit comparisons between historical and modern rikishi,
+such as Taiho and Hakuho. It is not intended to improve post-1988 ratings or
+forecasts, and it is not the selected operational model.</p>
+<p>The package and artifact paths under <code>equelo2_baseline</code> retain their old names
+for reproducibility. The internal CSV run key <code>equelo2_full_history</code> is also a
+legacy identifier; neither changes the model's public name.</p>
+<h2 id="what-elo-58-establishes">What Elo-58 establishes</h2>
+<p>The global-average Elo-58 baseline processes 745,206 represented binary bouts.
+Its complete-history mean log loss is <code>0.679354</code>, against <code>0.693147</code> for the
+neutral 50--50 predictor, and its Brier loss is <code>0.243025</code>, against <code>0.250000</code>.
+Its post-1988 log loss is <code>0.675281</code>, compared with <code>0.675498</code> when Elo-89 is
+started afresh. Thus the historical reconstruction contains useful rating
+information and carrying its state into 1989 does not materially damage the
+later account.</p>
+<p>Its structural and audience-facing checks are also recognisable rather than
+arbitrary. The January-1989 historical and fresh-start ratings have strong
+overall rank agreement; the complete-history and P1 chii maps have strong
+overall correlation; and the processed peak table contains the familiar
+post-1958 candidates for greatest rikishi, headed by Hakuho with Taiho among
+the leaders.</p>
+<p>These findings make Elo-58 useful as an experiment and historical lens. They
+do not give it the same authority as Elo-89.</p>
+<h2 id="the-unresolved-elo-58-problem">The unresolved Elo-58 problem</h2>
+<p>The global-average replay's implied chii map is displaced relative to P1:</p>
+<table>
+<thead>
+<tr>
+<th>Division</th>
+<th style="text-align: right;">Elo-58 implied map minus P1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Makuuchi</td>
+<td style="text-align: right;">+149.273</td>
+</tr>
+<tr>
+<td>Juryo</td>
+<td style="text-align: right;">+39.552</td>
+</tr>
+<tr>
+<td>Makushita</td>
+<td style="text-align: right;">-35.350</td>
+</tr>
+<tr>
+<td>Sandanme</td>
+<td style="text-align: right;">-35.783</td>
+</tr>
+<tr>
+<td>Jonidan</td>
+<td style="text-align: right;">-12.624</td>
+</tr>
+<tr>
+<td>Jonokuchi</td>
+<td style="text-align: right;">-43.761</td>
+</tr>
+</tbody>
+</table>
+<p>This is evidence of disagreement, not proof that Elo-58 is wrong or that P1 is
+ground truth. The displacement may combine historical information, incomplete
+early lower-division evidence and the consequences of preserving only one
+global mean. Jonokuchi also remains substantively problematic: its inferred
+rating/rank relationship is weak and P1 itself places its unweighted mean
+above Jonidan's.</p>
+<p>The incompleteness audit supports persisting ratings when evidence is
+intermittent, but it cannot remove the ambiguity between unscheduled and kyujo
+symbols for sub-sekitori. Nor has the project experimentally quantified rating
+uncertainty as a function of missing results.</p>
+<h2 id="divisional-average-investigation">Divisional-average investigation</h2>
+<p>Separate persistent divisional means were investigated as a possible response
+to the sekitori/sub-sekitori displacement. A post-1988 prior called P2 was
+constructed by fixed-point iteration under that population policy.</p>
+<p>Unrestricted literal-chii iteration did not converge usefully. The instability
+was concentrated in underidentified deep-Jonokuchi chii whose basho-start
+observations mostly or wholly recycled the prior being solved. Reusing the
+predeclared Tranche 1 support threshold of 60, and completing unsupported chii
+from the nearest supported chii, produced genuine tight convergence. This was
+a useful diagnosis, not an a priori requirement for a historical model and not
+evidence that the resulting lower-rank curve was correct.</p>
+<p>During that work, the new P2 replay was found to exclude binary W/L bouts whose
+kimarite field was blank. The defect affected 33,522 post-1988 bouts, almost
+all below Juryo. It was corrected so that the P2 and full-history experiments
+use the exact 579,426-bout post-1988 binary domain. Corrected threshold-60 P2
+converged in 18 iterations at epsilon <code>0.001</code>.</p>
+<p>The corrected complete-history divisional experiment suppressed the mean-map
+displacement, but that result was substantially imposed by separate
+divisional recentering. More importantly, it performed materially worse than
+the global-average Elo-58 baseline on the same 745,206 bouts:</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th style="text-align: right;">Mean log loss</th>
+<th style="text-align: right;">Mean Brier loss</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Elo-58, global-average persistence</td>
+<td style="text-align: right;">0.679354</td>
+<td style="text-align: right;">0.243025</td>
+</tr>
+<tr>
+<td>Divisional-average experiment</td>
+<td style="text-align: right;">0.686808</td>
+<td style="text-align: right;">0.246723</td>
+</tr>
+</tbody>
+</table>
+<p>Measured relative to neutral prediction, the divisional experiment loses
+roughly half of Elo-58's demonstrated improvement. It also applies very large
+start-of-basho corrections: examples exceed 100 points per active rikishi in
+Sandanme and Jonokuchi. Division-boundary discontinuities remain and in some
+cases worsen.</p>
+<p>Divisional-average persistence is therefore not selected. It showed that the
+original displacement can be suppressed and clarified a low-support
+fixed-point pathology, but it does not provide a satisfactory replacement for
+Elo-58's global population policy. Raising support thresholds or adding
+further special cases merely to obtain an expected curve would cross the
+teleological boundary the investigation was intended to expose.</p>
+<h2 id="reserved-meaning-of-equelo2">Reserved meaning of Equelo2</h2>
+<p><strong>Equelo2 does not name a current model.</strong> The name is reserved in case a
+future full-history construction resolves enough of Elo-58's problems to
+justify treatment as an adopted model rather than an experimental historical
+comparison.</p>
+<p>There is no obligation to produce such a model. The final public account may
+legitimately present two different objects:</p>
+<ol>
+<li>Elo-89 as the operational rating system for 1989 onward and the candidate
+for processing future results; and</li>
+<li>Elo-58 as an explicitly qualified experiment for cross-era comparison.</li>
+</ol>
+<p>If a future Equelo2 is proposed, it must receive a complete model contract and
+new validation. It must not acquire authority merely by inheriting the name or
+by being tuned until selected historical rankings look attractive.</p>
+<h2 id="current-conclusion">Current conclusion</h2>
+<p>The project should stop treating successful extension to 1958 as a prerequisite
+for adopting Elo-89. Elo-89 and Elo-58 answer different questions and may have
+different epistemic status. Elo-58's limitations must be disclosed wherever
+its historical comparisons are presented; they need not be disguised as
+minor unfinished details of an otherwise selected Equelo2.</p>
+<p>The fixed-pool realised-outcome control remains a useful explanatory experiment
+about ordinary Elo learning, but it is not a gate that can convert Elo-58 into
+Equelo2. Prospective evaluation of frozen Elo-89 is a separate future
+validation exercise.</p>
+</body>
+</html>
