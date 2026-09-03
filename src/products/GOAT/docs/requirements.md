@@ -4,6 +4,8 @@
 
 The primary experience lets users define what greatness means to them and generate a personal ranking of eligible rikishi.
 
+After the user chooses the determining factors, the result must be an ordered ranking of rikishi rather than a standalone declaration such as "Your GOAT is ...". The leading rikishi will be apparent from the ranking, while the complete result lets the user see how every other eligible rikishi compares.
+
 Users must be able to:
 
 - choose any supported statistics as ranking criteria;
@@ -12,7 +14,8 @@ Users must be able to:
 - decide whether longevity, availability, peak performance and strength of opposition matter;
 - filter the eligible rikishi and historical period;
 - include or exclude active and partial careers;
-- see every rikishi's raw values, any normalization, and each criterion's contribution to the result; and
+- see every rikishi's raw values, any normalization, and each criterion's contribution to the result;
+- see the overall score or ordering, the gaps to the leader and adjacent rikishi, and each rikishi's position in the complete ranking; and
 - save or share their criteria.
 
 The interface should warn when closely related statistics may be counted more than once. For example, total wins, Makuuchi wins and Makuuchi longevity all give substantial weight to career length.
