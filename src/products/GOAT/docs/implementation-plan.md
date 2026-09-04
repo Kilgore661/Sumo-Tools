@@ -1,5 +1,10 @@
 # GOAT-o-Matic implementation plan
 
+The project follows the iterative approach described in
+`prototype-strategy.md`. In particular, the first useful prototype is a set of
+spreadsheet-ready factual and descriptive CSVs. A website follows after those
+CSVs have been used to explore and refine possible GOAT criteria.
+
 ## 1. Purpose and architectural boundary
 
 The implementation has two deliberately separate parts:
@@ -62,7 +67,7 @@ but the intended responsibilities are:
 src/goat/
     model.py          internal fact and result value objects
     extract.py        History -> normalized GOAT facts
-    eligibility.py    cohort, dates, active/partial-career rules
+    eligibility.py    cohort, active and partial-career rules
     bouts.py          scheduled/contested/fusen classification
     playoffs.py       optional playoff-detail adapter and availability
     banzuke_level.py  Y/O/S/K/Mn level mapping
@@ -74,7 +79,6 @@ src/goat/
         longevity.py
         peak.py
         opposition.py
-        availability.py
     catalogue.py      public definitions and relationships between metrics
     validate.py       invariants and reconciliation reports
     output.py         deterministic public artifacts
@@ -98,11 +102,11 @@ One row per Makuuchi-banzuke rikishi per non-cancelled basho, including:
 - basho and rikishi ID;
 - published chii and GOAT banzuke level;
 - rank group flags (yokozuna, ozeki, san'yaku, Makuuchi);
-- official wins and losses;
-- contested wins and losses;
+- wins and losses (`W` and `L`);
+- fusen wins and losses (`FS` and `FP`);
 - fusensho and fusenpai;
 - yusho, doten-yusho and jun-yusho markers;
-- zensho, kachi-koshi, make-koshi, zen-kyu and partial-withdrawal flags; and
+- zensho, kachi-koshi and make-koshi flags; and
 - tournament-status and data-completeness fields.
 
 Presence on the Makuuchi banzuke—not participation in a bout—is the appearance
@@ -133,9 +137,9 @@ availability has been verified.
 Career-boundary facts must support:
 
 - first and last Makuuchi-banzuke basho;
-- whether the career is in progress at the end of the selected history;
-- whether the Makuuchi career is left-truncated by 1958 or a user-selected
-  start date; and
+- whether the career is in progress at the end of the supplied History;
+- whether the professional career is left-truncated by the beginning of the
+  supplied History; and
 - explicit inclusion/exclusion of partial careers.
 
 ## 5. Metric engine
@@ -159,11 +163,10 @@ Implementation order:
 1. banzuke-basho counts and official/contested bout totals;
 2. achievement and championship counts/rates;
 3. winning rates and basho-result distributions;
-4. availability;
-5. banzuke-level opposition measures;
-6. longevity measures;
-7. fixed-window and streak measures; and
-8. playoff bout records when detailed data is available.
+4. banzuke-level opposition measures;
+5. longevity measures;
+6. fixed-window and streak measures; and
+7. playoff bout records when detailed data is available.
 
 Rate values should be emitted numerically with their raw numerator and
 denominator. Formatting as a percentage belongs to the product.
@@ -212,26 +215,27 @@ Production output should be deterministic and written beneath:
 files/output/goat/
 ```
 
-An initial public set is likely to contain:
+The spreadsheet-first prototype contains only CSV:
 
 ```text
-manifest.json
-metric_catalogue.json
+manifest.csv
 rikishi.csv
-career_metrics.csv
-basho_metrics.csv
-peak_metrics.csv
-opposition_metrics.csv
-validation.json
+basho.csv
+banzuke.csv
+bouts.csv
+markers.csv
+playoffs.csv
+rikishi_summary.csv
+summary_definitions.csv
+coverage.csv
+validation.csv
 ```
 
-The exact partition should be chosen after measuring file sizes. The logical
-contract matters more than whether related tables are combined physically.
-
-`manifest.json` should include schema version, build time, represented basho
-range, source-history identity, supplementary-source identities, row counts and
-per-capability completeness. The website must reject an unsupported schema
-version rather than guess.
+`manifest.csv` includes the schema version, represented basho range, row counts
+and file digests. `coverage.csv` records capability completeness by fact type.
+The future website must reject an unsupported schema version rather than guess.
+Metric-producer artifacts can be added later without changing the factual
+tables.
 
 Evidence views need not publish every raw source field in the first iteration,
 but every displayed value must be traceable to included basho and bouts. Large
@@ -259,7 +263,7 @@ having to settle normalization.
 
 The ranking builder should:
 
-1. select the eligible cohort and time range;
+1. select the eligible cohort;
 2. select metrics and career/fixed-window variants;
 3. choose weights or priority ordering;
 4. show raw values and any normalization;
@@ -304,7 +308,7 @@ bouts or banzuke data.
 ### Phase D: statistical explorer
 
 - Build the standalone product shell.
-- Add cohort/date filters, selectable columns and multi-key sorting.
+- Add cohort filters, selectable columns and multi-key sorting.
 - Add definitions, completeness indicators, evidence drill-down and export.
 
 ### Phase E: GOAT ranking
@@ -344,17 +348,18 @@ These need not block the first production work:
 
 ## 11. First executable milestone
 
-The first end-to-end milestone should deliberately exclude combined scoring:
+The first end-to-end milestone should deliberately exclude combined scoring
+and does not require a website:
 
 1. load the same selected `History` from either the live store or a supplied
    canonical zip;
-2. produce Makuuchi appearance, scheduled-bout and banzuke-level facts;
-3. calculate a small vertical slice: Makuuchi-banzuke basho, yusho, official
-   win rate, contested win rate, availability and average opponent banzuke
-   level;
-4. emit versioned public artifacts plus validation results; and
-5. display them in a sortable/filterable standalone statistical explorer.
+2. produce auditable banzuke, bout, marker and optional playoff facts;
+3. calculate a small set of precisely named descriptive aggregates in a
+   one-row-per-rikishi summary CSV;
+4. emit versioned public artifacts plus coverage and validation results; and
+5. explore possible criteria, priority ordering and tie-breakers in a
+   spreadsheet.
 
-That milestone proves the data and publishing architecture while leaving the
-ranking formula and unavailable playoff detail open.
-
+That milestone proves the data-production contract while leaving the ranking
+formula and unavailable playoff detail open. A minimal website prototype is
+the following landmark, informed by what the spreadsheet experiments reveal.

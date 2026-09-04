@@ -11,8 +11,8 @@ Users must be able to:
 - choose any supported statistics as ranking criteria;
 - assign weights or a priority order to those criteria;
 - choose career-wide or fixed-window measures;
-- decide whether longevity, availability, peak performance and strength of opposition matter;
-- filter the eligible rikishi and historical period;
+- decide whether longevity, peak performance and strength of opposition matter;
+- filter the eligible rikishi;
 - include or exclude active and partial careers;
 - see every rikishi's raw values, any normalization, and each criterion's contribution to the result;
 - see the overall score or ordering, the gaps to the leader and adjacent rikishi, and each rikishi's position in the complete ranking; and
@@ -28,7 +28,7 @@ The supporting statistical explorer lets users examine the evidence before decid
 
 Users must be able to:
 
-- select eligible rikishi and dates;
+- select eligible rikishi;
 - require a minimum number of Makuuchi-banzuke basho;
 - include or exclude active and partial careers;
 - add or remove columns;
@@ -37,23 +37,41 @@ Users must be able to:
 - inspect the basho and bouts underlying every statistic; and
 - export the displayed table.
 
-Useful starting views may include career achievement, peak dominance, championship efficiency, longevity, availability, strongest opposition and performance against san'yaku.
+Useful starting views may include career achievement, peak dominance,
+championship efficiency, longevity, strongest opposition and performance
+against san'yaku.
 
 ## 3. Historical scope and eligibility
 
-The source period begins with Hatsu 1958.
+The data epoch begins with Hatsu 1958. There is no single analytical start date
+for every metric.
 
-The default complete-career cohort consists of rikishi whose first Makuuchi-banzuke appearance was in January 1958 or later. This avoids comparing complete careers with careers truncated at the beginning of the dataset.
+Each future metric must declare the facts on which it depends and the earliest
+date from which those facts are complete. For example:
 
+- a Makuuchi yusho count may use the complete Makuuchi record from 1958; and
+- a measure requiring sub-sekitori bouts may use only January 1989 onwards,
+  because earlier lower-division bout records are incomplete.
+
+Career completeness is therefore metric-dependent. A rikishi may have a
+complete represented Makuuchi-yusho career while having a partial represented
+all-division win career.
+
+- A rikishi is active for a banzuke if and only if he appears anywhere on that
+  banzuke. For the full-history output, the current active cohort is therefore
+  defined by the latest supplied banzuke, regardless of division.
 - Active rikishi may be included but must be marked **career in progress**.
-- Users may change the starting date.
-- A rikishi whose Makuuchi career began before the selected date must be excluded by default or marked **partial career**.
+- A rikishi must be marked partial for a metric if the relevant part of his
+  career begins before that metric's complete-data boundary.
+- Users do not select a historical period. Initial statistics use the complete
+  supplied History.
 - Canceled tournaments do not count as banzuke basho or championship opportunities.
 - Exceptional events, including the May 2011 technical examination tournament, require an explicit tournament-status field rather than an implicit assumption.
 
 ## 4. Source data and provenance
 
 The principal source is the available SumoDB dataset from 1958 onwards.
+Coverage boundaries differ by fact type and must be published explicitly.
 
 The data model must cover:
 
@@ -72,7 +90,9 @@ Imported SumoDB data must remain distinguishable from manually supplemented data
 
 The product must not describe a denominator as "tournaments entered." Entry is not a voluntary choice in this context.
 
-The standard denominator is the number of non-canceled basho for which the rikishi appeared on the Makuuchi banzuke. It includes completed basho, partial kyujo, zen-kyu and retirement during a basho.
+The standard denominator is the number of non-canceled basho for which the
+rikishi appeared on the Makuuchi banzuke, regardless of how many bouts he
+subsequently fought or whether he retired during the basho.
 
 Equivalent rank-specific denominators must be available for:
 
@@ -91,27 +111,31 @@ Every bout record must be classified as one of:
 
 ### 6.1 Fusen treatment
 
-Fusen results remain part of official tournament records, but are excluded from evidence about wrestling performance. A fusen result says nothing about the absent rikishi's strength on that day, and the recipient did not defeat the scheduled opponent on the dohyo.
+Fusen results remain part of the recorded basho score, but are excluded from
+evidence about wrestling performance. A fusen result says nothing about the
+absent rikishi's strength on that day, and the recipient did not defeat the
+scheduled opponent on the dohyo.
 
 Fusensho and fusenpai are excluded from:
 
-- contested win rate;
+- win rate;
 - contested head-to-head records;
 - strength-of-opposition calculations;
 - records by opponent rank; and
 - the average banzuke level of defeated opponents or opponents responsible for losses.
 
-They remain included where required by the official record, including:
+They remain included where required by the recorded basho score, including:
 
-- official win and loss totals;
-- official basho scores;
+- basho-score totals (`W + FS` and `L + FP`);
 - kachi-koshi and make-koshi;
-- yusho and jun-yusho determination; and
-- scheduled-bout win rate.
+- yusho and doten-yusho determination; and
+- scheduled-opportunity success rate.
 
 ### 6.2 Playoff treatment
 
-Every contested playoff bout is included in contested head-to-head records, contested win rate, playoff records and strength-of-opposition calculations.
+Every contested playoff bout is included in head-to-head records, playoff
+records and strength-of-opposition calculations. Playoff bouts are outside the
+15-or-7 scheduled-opportunity denominator and therefore do not enter win rate.
 
 Two-person playoffs may be reconstructed from the tied scores and recorded champion. Multi-rikishi playoffs require a supplementary, sourced table containing at least:
 
@@ -163,12 +187,20 @@ The site must call this measure **banzuke level**, not true or absolute ability.
 ### 8.1 Achievement
 
 - Makuuchi yusho
-- Zensho-yusho
-- Jun-yusho
-- Playoff appearances
-- Playoff wins and losses
+- Doten-yusho
 - Yusho at yokozuna
-- Yusho at ozeki or below
+
+Zensho-yusho count is retained as descriptive data and may be displayed in the
+statistical explorer, but it is not an initial GOAT ranking factor.
+
+Yusho at yokozuna is an initial GOAT ranking factor. Yusho at ozeki or below is
+retained as descriptive data but is not an initial ranking factor.
+
+Jun-yusho (`J`) and the Kanto-sho, Gino-sho and Shukun-sho (`K`, `G`, `S`) are
+retained as descriptive data but are not initial GOAT ranking factors.
+
+Playoff appearances, playoff wins and playoff losses are retained as
+descriptive data but are not initial GOAT ranking factors.
 
 ### 8.2 Championship rates
 
@@ -186,40 +218,62 @@ The site must call this measure **banzuke level**, not true or absolute ability.
 {\text{yokozuna-banzuke basho}}
 \]
 
-Equivalent rates may be provided for zensho-yusho and jun-yusho.
+An equivalent rate may be provided for doten-yusho. Zensho-yusho rate, if
+shown, is descriptive rather than an initial GOAT ranking factor.
 
 ### 8.3 Winning performance
 
-Official win rate:
+Basho-record rate:
 
 \[
-\frac{\text{official wins}}
-{\text{official wins}+\text{official losses}}
+\frac{\text{wins}+\text{fusen wins}}
+{\text{wins}+\text{losses}+\text{fusen wins}+\text{fusen losses}}
 \]
 
-Contested win rate:
+This reproduces the win proportion in the recorded basho scores, where a fusen
+win contributes to the score without being treated as a win.
+
+Contested-bout win rate:
 
 \[
-\frac{\text{contested wins}}
-{\text{contested wins}+\text{contested losses}}
+\frac{\text{wins}}
+{\text{wins}+\text{losses}}
 \]
 
-Scheduled-bout win rate:
+A win is a contested `W` and a loss is a contested `L`. Fusen results are not
+wins or losses for this measure. Wins and losses cover all represented
+divisions. A winning streak may cross a divisional boundary.
+
+Winning streaks follow the contender's wins and availability. A win (`W`)
+extends the streak and a loss (`L`) ends it. A fusen win (`FS`) neither extends
+nor breaks the streak because the contender was available but the opponent did
+not appear. A fusen loss (`FP`), kyujo or other genuine absence by the
+contender breaks the streak. A normal day on which the rikishi was not
+scheduled, including days between lower-division bouts, does not break it.
+
+Win rate:
 
 \[
-\frac{\text{official wins}}
-{15\times\text{Makuuchi-banzuke basho}}
+\frac{\text{wins}}
+{\text{scheduled bout opportunities}}
 \]
+
+Scheduled bout opportunities are determined by the rikishi's banzuke division
+for each basho: normally 15 for sekitori and 7 below Juryo. A banzuke-gai
+period supplies no scheduled opportunity. Absence, fusen loss and fusen win do
+not add to the numerator but consume the relevant scheduled opportunity.
 
 The interface must always identify the definition being displayed.
 
 ### 8.4 Basho-result distribution
 
-- Mean and median official wins per Makuuchi-banzuke basho
+- Mean and median basho-score wins (`W + FS`) per Makuuchi-banzuke basho
 - Percentage of basho with 8+, 10+, 12+, 13+, 14+ and 15 wins
 - Make-koshi rate
-- Zen-kyu rate
-- Partial-withdrawal rate
+
+A Makuuchi-banzuke basho is make-koshi when the rikishi has fewer than eight
+basho-score wins (`W + FS`). Absences occupy the remaining positions in the
+15-day result, so a 7-0-8 record is make-koshi.
 
 ### 8.5 Longevity
 
@@ -241,7 +295,17 @@ The interface must always identify the definition being displayed.
 - Most consecutive yusho
 - Most consecutive kachi-koshi
 
-For every fixed window, the selected measure must be explicit: wins, win rate, yusho or another supported statistic.
+The initial fixed-window measure is the number of wins (`W`) in the window.
+Fusen wins (`FS`) do not increase it. Other fixed-window measures may be added
+later but are not part of the initial GOAT ranking.
+
+If several windows of the same length share the maximum win count, every
+co-best window is retained. No earliest/latest tie-break is applied.
+
+Fixed windows follow consecutive non-canceled banzuke in the supplied History.
+A banzuke-gai period occupies a position in the window even though it supplies
+no bouts or scheduled opportunities. Windows do not close up around such a
+gap.
 
 ## 9. Strength of opposition
 
@@ -281,23 +345,7 @@ A negative value indicates opponents formally above the rikishi; a positive valu
 
 No compensation is applied to a win or loss because of opponent level.
 
-## 10. Availability
-
-Availability distinguishes an absent rikishi from the recipient of a fusensho:
-
-\[
-\text{Availability rate}
-=
-\frac{\text{contested bouts}+\text{fusensho received}}
-{15\times\text{banzuke basho}}
-\]
-
-- A contested bout demonstrates availability.
-- Receiving a fusensho demonstrates readiness to compete.
-- A fusenpai demonstrates non-availability.
-- The scheduled opponent's absence must not penalize the available rikishi.
-
-## 11. Transparency and auditability
+## 10. Transparency and auditability
 
 Every displayed statistic must expose:
 
@@ -308,7 +356,7 @@ Every displayed statistic must expose:
 - its treatment of absences, fusen and playoffs; and
 - the source and provenance of supplementary data.
 
-## 12. Initial non-requirements
+## 11. Initial non-requirements
 
 The initial GOAT-o-Matic does not include:
 

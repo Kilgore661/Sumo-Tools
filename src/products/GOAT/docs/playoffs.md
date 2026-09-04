@@ -83,7 +83,7 @@ unlabelled partial total.
 The same completeness rule applies to metrics that require contested playoff
 bouts:
 
-- contested win rate;
+- win rate;
 - contested head-to-head;
 - strength of opposition;
 - record by opponent banzuke level; and
@@ -120,4 +120,3 @@ hard invariants until the `d=16` representation has been checked.
 
 The earlier investigative detail and list of multiway basho remain in
 `src/analysis/goat/docs/playoff-data.md`.
-
