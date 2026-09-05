@@ -65,6 +65,12 @@ class BoutFact:
     rikishi2_outcome: str
     decision: str
     symbol: str
+    rikishi1_trailing_3_basho_W: int | str
+    rikishi1_trailing_3_basho_opportunities: int | str
+    rikishi1_trailing_3_basho_W_rate: float | str
+    rikishi2_trailing_3_basho_W: int | str
+    rikishi2_trailing_3_basho_opportunities: int | str
+    rikishi2_trailing_3_basho_W_rate: float | str
 
 
 @dataclass(frozen=True)
@@ -108,6 +114,12 @@ class RikishiSummary:
     makuuchi_mean_defeated_opponent_level_1958_onwards: float | str
     makuuchi_mean_lost_to_opponent_level_1958_onwards: float | str
     makuuchi_contested_bouts_without_opponent_level_1958_onwards: int
+    makuuchi_opponent_trailing_3_basho_W_rate_bouts: int
+    makuuchi_opponent_trailing_3_basho_W_rate_mean: float | str
+    makuuchi_opponent_trailing_3_basho_W_rate_unavailable_bouts: int
+    makuuchi_yokozuna_or_ozeki_opponent_trailing_3_basho_W_rate_bouts: int
+    makuuchi_yokozuna_or_ozeki_opponent_trailing_3_basho_W_rate_mean: float | str
+    makuuchi_yokozuna_or_ozeki_opponent_trailing_3_basho_W_rate_unavailable_bouts: int
 
 
 @dataclass(frozen=True)
@@ -196,6 +208,7 @@ def extract_goat_facts(
     appearances: dict[RikId, list[tuple[Date, bool]]] = defaultdict(list)
     latest_shikona: dict[RikId, str] = {}
     all_ids: set[RikId] = set()
+    trailing_forms = _trailing_forms(history, dates)
 
     for sequence, date in enumerate(dates, start=1):
         state = history(date)
@@ -249,6 +262,8 @@ def extract_goat_facts(
                     BoutFact(
                         str(date), int(day), int(bout.rikishi1), bout.outcome1.name,
                         int(bout.rikishi2), bout.outcome2.name, str(decision), bout.symbol.name,
+                        *_form_fields(trailing_forms.get((str(date), int(bout.rikishi1)))),
+                        *_form_fields(trailing_forms.get((str(date), int(bout.rikishi2)))),
                     )
                 )
 
@@ -309,6 +324,10 @@ def _summaries(rikishi, banzuke, bouts, markers) -> tuple[RikishiSummary, ...]:
     defeated_levels: dict[int, list[int]] = defaultdict(list)
     lost_to_levels: dict[int, list[int]] = defaultdict(list)
     unsupported_opposition = Counter()
+    opponent_form_rates: dict[int, list[float]] = defaultdict(list)
+    unavailable_opponent_form = Counter()
+    yokozuna_or_ozeki_opponent_form_rates: dict[int, list[float]] = defaultdict(list)
+    unavailable_yokozuna_or_ozeki_opponent_form = Counter()
     for row in bouts:
         for rikishi_id, outcome in ((row.rikishi1_id, row.rikishi1_outcome), (row.rikishi2_id, row.rikishi2_outcome)):
             if (row.basho, rikishi_id) in makuuchi_keys:
@@ -317,9 +336,9 @@ def _summaries(rikishi, banzuke, bouts, markers) -> tuple[RikishiSummary, ...]:
                 modern_outcomes[(rikishi_id, outcome)] += 1
         if {row.rikishi1_outcome, row.rikishi2_outcome} != {"W", "L"}:
             continue
-        for rikishi_id, outcome, opponent_id in (
-            (row.rikishi1_id, row.rikishi1_outcome, row.rikishi2_id),
-            (row.rikishi2_id, row.rikishi2_outcome, row.rikishi1_id),
+        for rikishi_id, outcome, opponent_id, opponent_form_rate in (
+            (row.rikishi1_id, row.rikishi1_outcome, row.rikishi2_id, row.rikishi2_trailing_3_basho_W_rate),
+            (row.rikishi2_id, row.rikishi2_outcome, row.rikishi1_id, row.rikishi1_trailing_3_basho_W_rate),
         ):
             if (row.basho, rikishi_id) not in makuuchi_keys:
                 continue
@@ -330,6 +349,15 @@ def _summaries(rikishi, banzuke, bouts, markers) -> tuple[RikishiSummary, ...]:
             level = int(opponent.opposition_level_index)
             opposition_levels[rikishi_id].append(level)
             (defeated_levels if outcome == "W" else lost_to_levels)[rikishi_id].append(level)
+            is_yokozuna_or_ozeki = opponent.makuuchi_level in {"Y", "O"}
+            if opponent_form_rate == "":
+                unavailable_opponent_form[rikishi_id] += 1
+                if is_yokozuna_or_ozeki:
+                    unavailable_yokozuna_or_ozeki_opponent_form[rikishi_id] += 1
+            else:
+                opponent_form_rates[rikishi_id].append(float(opponent_form_rate))
+                if is_yokozuna_or_ozeki:
+                    yokozuna_or_ozeki_opponent_form_rates[rikishi_id].append(float(opponent_form_rate))
 
     rows = []
     for rikishi_id in candidates:
@@ -346,6 +374,9 @@ def _summaries(rikishi, banzuke, bouts, markers) -> tuple[RikishiSummary, ...]:
             len(opposition_levels[rikishi_id]), sum(opposition_levels[rikishi_id]),
             _mean(opposition_levels[rikishi_id]), _mean(defeated_levels[rikishi_id]),
             _mean(lost_to_levels[rikishi_id]), unsupported_opposition[rikishi_id],
+            len(opponent_form_rates[rikishi_id]), _mean(opponent_form_rates[rikishi_id]),
+            unavailable_opponent_form[rikishi_id], len(yokozuna_or_ozeki_opponent_form_rates[rikishi_id]),
+            _mean(yokozuna_or_ozeki_opponent_form_rates[rikishi_id]), unavailable_yokozuna_or_ozeki_opponent_form[rikishi_id],
         ))
     return tuple(rows)
 
@@ -370,6 +401,12 @@ def _summary_definitions() -> tuple[SummaryDefinition, ...]:
         SummaryDefinition("makuuchi_mean_defeated_opponent_level_1958_onwards", "Mean level index of opponents defeated by W in Makuuchi", "1958/01", "descriptive; lower means stronger opponents defeated"),
         SummaryDefinition("makuuchi_mean_lost_to_opponent_level_1958_onwards", "Mean level index of opponents in Makuuchi L outcomes", "1958/01", "descriptive; lower means stronger opponents"),
         SummaryDefinition("makuuchi_contested_bouts_without_opponent_level_1958_onwards", "Makuuchi W/L bouts whose opponent lacks a Makuuchi-or-Juryo banzuke level", "1958/01", "descriptive completeness count"),
+        SummaryDefinition("makuuchi_opponent_trailing_3_basho_W_rate_bouts", "Makuuchi W/L bouts with an available opponent trailing three-basho W rate", "after three preceding banzuke", "descriptive denominator for mean recent opposition form"),
+        SummaryDefinition("makuuchi_opponent_trailing_3_basho_W_rate_mean", "Mean of opponents' pre-basho W/scheduled-opportunity rates over the preceding three banzuke", "after three preceding banzuke", "descriptive; FS is not a W and absences remain opportunities"),
+        SummaryDefinition("makuuchi_opponent_trailing_3_basho_W_rate_unavailable_bouts", "Makuuchi W/L bouts without a complete opponent trailing three-basho W rate", "1958/01", "descriptive completeness count"),
+        SummaryDefinition("makuuchi_yokozuna_or_ozeki_opponent_trailing_3_basho_W_rate_bouts", "Makuuchi W/L bouts against Yokozuna or Ozeki with an available trailing three-basho W rate", "after three preceding banzuke", "descriptive denominator for Yokozuna-or-Ozeki opponent mean"),
+        SummaryDefinition("makuuchi_yokozuna_or_ozeki_opponent_trailing_3_basho_W_rate_mean", "Mean pre-basho trailing three-basho W rate of Yokozuna or Ozeki opponents", "after three preceding banzuke", "descriptive; no rank-expectation adjustment"),
+        SummaryDefinition("makuuchi_yokozuna_or_ozeki_opponent_trailing_3_basho_W_rate_unavailable_bouts", "Makuuchi W/L bouts against Yokozuna or Ozeki without a complete trailing rate", "1958/01", "descriptive completeness count"),
     )
 
 
@@ -380,6 +417,7 @@ def _coverage() -> tuple[CoverageRow, ...]:
         CoverageRow("bouts", "Juryo", "1958/01", "outside data epoch", "Recorded scheduled bouts"),
         CoverageRow("bouts", "sub-sekitori", "1989/01", "incomplete", "Earlier records must not be treated as zero"),
         CoverageRow("performance markers", "Y,D,J,K,G,S", "1958/01", "outside data epoch", "Raw administrative markers"),
+        CoverageRow("trailing three-basho W rate", "Makuuchi and Juryo histories", "after three preceding banzuke", "unavailable", "W divided by scheduled opportunities; no expectation adjustment"),
         CoverageRow("playoff bouts", "all divisions", "", "per-basho availability", "See basho.csv playoff_status"),
     )
 
@@ -465,6 +503,56 @@ def _marker(prize: Prize) -> str:
     return {Prize.YUSHO: "Y", Prize.DOTEN_YUSHO: "D", Prize.JUN_YUSHO: "J", Prize.KANTO: "K", Prize.GINO: "G", Prize.SHUKUN: "S"}[prize]
 
 
+def _trailing_forms(
+    history: History,
+    dates: tuple[Date, ...],
+) -> dict[tuple[str, int], tuple[int, int, float]]:
+    wins: dict[Date, Counter] = {}
+    for date in dates:
+        counts = Counter()
+        state = history(date)
+        for day in state.summary:
+            for bout in state.summary(day).results_lookup.values():
+                if bout.outcome1.name == "W":
+                    counts[int(bout.rikishi1)] += 1
+                if bout.outcome2.name == "W":
+                    counts[int(bout.rikishi2)] += 1
+        wins[date] = counts
+
+    result: dict[tuple[str, int], tuple[int, int, float]] = {}
+    for index, date in enumerate(dates):
+        if index < 3:
+            continue
+        previous = dates[index - 3:index]
+        for rikishi_id in history(date).banzuke.riks:
+            total_wins = 0
+            opportunities = 0
+            complete = True
+            for previous_date in previous:
+                banzuke = history(previous_date).banzuke
+                if rikishi_id not in banzuke:
+                    complete = False
+                    break
+                chii = banzuke.get_chii(rikishi_id)
+                is_sekitori = isinstance(chii.level, MSD) or chii.level == Division.JURYO
+                if not is_sekitori and previous_date < LOWER_DIVISION_BOUTS_COMPLETE_FROM:
+                    complete = False
+                    break
+                total_wins += wins[previous_date][int(rikishi_id)]
+                opportunities += 15 if is_sekitori else 7
+            if complete and opportunities:
+                result[(str(date), int(rikishi_id))] = (
+                    total_wins,
+                    opportunities,
+                    total_wins / opportunities,
+                )
+    return result
+
+
+def _form_fields(form: tuple[int, int, float] | None) -> tuple[int | str, int | str, float | str]:
+    return form if form is not None else ("", "", "")
+
+
 def _opposition_level(level, number: int, last_maegashira: int) -> int | str:
     if level == MSD.YOKOZUNA:
         return 0
@@ -481,7 +569,7 @@ def _opposition_level(level, number: int, last_maegashira: int) -> int | str:
     return ""
 
 
-def _mean(values: list[int]) -> float | str:
+def _mean(values: list[int] | list[float]) -> float | str:
     return sum(values) / len(values) if values else ""
 
 

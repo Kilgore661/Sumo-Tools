@@ -123,3 +123,6 @@ The documentation should distinguish:
 The requirements are therefore a living record of the prototype's discoveries.
 They become tighter through inspection and use rather than being declared
 complete before the first useful artifact exists.
+
+The current neutral-factor and pairwise-candidate approach is recorded in
+`comparison-framework.md`.

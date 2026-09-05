@@ -345,6 +345,24 @@ A negative value indicates opponents formally above the rikishi; a positive valu
 
 No compensation is applied to a win or loss because of opponent level.
 
+Recent opponent form is retained as a separate descriptive measure rather
+than combined with banzuke level:
+
+\[
+\text{Trailing three-basho W rate}
+=
+\frac{\text{W outcomes in the preceding three banzuke}}
+{\text{scheduled opportunities in those banzuke}}
+\]
+
+The current basho is never included. Absences consume opportunities, `FS` does
+not enter the numerator, and cancelled basho occupy no position. A complete
+three-basho history is required; otherwise the value is unavailable. No
+Yokozuna/Ozeki expectation or other rank adjustment is subtracted from the
+rate. The rate may be summarized for all opponents and separately for
+Yokozuna-or-Ozeki opponents when investigating the quality of a rikishi's
+schedule.
+
 ## 10. Transparency and auditability
 
 Every displayed statistic must expose:

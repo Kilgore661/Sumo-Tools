@@ -84,6 +84,11 @@ One row per recorded scheduled bout, not one row per rikishi perspective. It
 contains the basho, day, both rikishi IDs, both `W`/`L`/`FS`/`FP`/`DRAW`
 outcomes, decision and source symbol.
 
+Each side also carries the components of that rikishi's pre-basho trailing
+three-basho form: `W`, scheduled opportunities and their rate. Blank fields
+mean that three complete preceding banzuke were not available; they do not
+mean zero form.
+
 ### `markers.csv`
 
 One row per recorded `Y`, `D`, `J`, `K`, `G` or `S` marker. Markers remain raw
@@ -114,6 +119,11 @@ It also supplies Makuuchi strength-of-opposition descriptions from 1958:
 - mean level defeated;
 - mean level lost to; and
 - contested bouts without a supported opponent level.
+
+The summary also publishes the mean opponent trailing three-basho `W` rate,
+its supported and unavailable bout counts, and the same three fields restricted
+to Yokozuna-or-Ozeki opponents. This is recent form only: it is not adjusted
+by a rank-specific expectation.
 
 Only `W` and `L` bouts contribute. `FS` and `FP` do not. Lower opposition
 indices mean stronger schedules or opponents.

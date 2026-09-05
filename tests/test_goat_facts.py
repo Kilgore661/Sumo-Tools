@@ -40,6 +40,30 @@ def test_juryo_level_follows_the_last_maegashira_rank() -> None:
     assert levels[("1989/01", "J1e")] == 5
 
 
+def test_opponent_form_uses_only_the_three_preceding_basho() -> None:
+    ranks = {1: "M1e", 2: "O1e"}
+    history = History(
+        {
+            Date(Year(1958), Month(1)): _state(ranks, _bout(2, 1), {}),
+            Date(Year(1958), Month(3)): _state(ranks, _bout(2, 1), {}),
+            Date(Year(1958), Month(5)): _state(ranks, _bout(2, 1), {}),
+            Date(Year(1958), Month(7)): _state(ranks, _bout(1, 2), {}),
+        }
+    )
+
+    facts = extract_goat_facts(history)
+    current = next(row for row in facts.bouts if row.basho == "1958/07")
+    summaries = {row.rikishi_id: row for row in facts.rikishi_summary}
+
+    assert current.rikishi2_trailing_3_basho_W == 3
+    assert current.rikishi2_trailing_3_basho_opportunities == 45
+    assert current.rikishi2_trailing_3_basho_W_rate == 3 / 45
+    assert summaries[1].makuuchi_opponent_trailing_3_basho_W_rate_bouts == 1
+    assert summaries[1].makuuchi_opponent_trailing_3_basho_W_rate_unavailable_bouts == 3
+    assert summaries[1].makuuchi_opponent_trailing_3_basho_W_rate_mean == 3 / 45
+    assert summaries[1].makuuchi_yokozuna_or_ozeki_opponent_trailing_3_basho_W_rate_mean == 3 / 45
+
+
 def test_producer_writes_csv_only_with_definitions_and_empty_playoff_header(tmp_path) -> None:
     outputs = build_goat_facts(_history(), tmp_path)
 
