@@ -21,6 +21,11 @@ ordered label or station.
 
 ## Active Elo model selection
 
+`src/analysis/chii_prediction` provides the standalone chii-order baseline:
+counts and percentages of bouts won by the stronger chii, overall and by
+division, with cross-division bouts reported separately. Run it with
+`python -m src.analysis.chii_prediction`; the default range starts in 1989.
+
 `src/analysis/elo_model_selection` owns the controlled comparison of the
 definitive post-1988 Basic Elo baseline with candidate divisional-`k` and
 informed-initialisation variants. Its purpose is to select the Elo-like model

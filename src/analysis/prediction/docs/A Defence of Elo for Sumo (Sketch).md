@@ -23,6 +23,16 @@ depends on such choices as the epoch, initial ratings, q, k and the population
 of bouts being evaluated. We have investigated some of those choices but not
 the space of possible Elo-family models.
 
+The choice of comparator also matters. Following the existing chii ordering
+is an obvious intermediate baseline to consider between random choice and
+Elo-like systems. A separate [descriptive probe](../../chii_prediction/docs/Findings.md)
+found that the stronger-chii rikishi won 52.637% of eligible bouts over
+1989/01–2026/07. It supplies useful context for this argument: demonstrating
+information beyond 50–50 does not alone show that Elo picks more winners than
+chii. A matched comparison of those winner-selection rules was not undertaken
+in that probe. The conceptual progression should not be presented as a
+demonstrated three-way ranking.
+
 ## Layer 1: the result in ordinary language
 
 Open as directly as possible:

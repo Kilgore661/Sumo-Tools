@@ -55,6 +55,14 @@ divisional `k`, informed entrant priors, or their combination improve upon
 
 ## Models under consideration
 
+For context on the choice of baseline, the separate
+[Wins follow chii](../chii_prediction/docs/Findings.md) probe found that selecting
+the stronger banzuke position picked 52.637% of winners over 1989/01–2026/07.
+This is a useful simple baseline alongside 50–50. It was not a cell in the
+controlled comparison below: it measures winner-selection accuracy, uses a
+different source snapshot, and does not establish a matched chii-versus-Elo
+ranking. See the linked findings for the results and agreed limits of the probe.
+
 The tranche will compare a two-by-two family while holding `q=400` and the
 post-1988 prediction problem fixed:
 

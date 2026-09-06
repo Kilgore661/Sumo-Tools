@@ -48,6 +48,19 @@ balanced set of contests. The observed concentration of final records around
 evidence in these experiments and does not by itself establish a torikumi
 mechanism.
 
+### An additional baseline: following chii
+
+A later, separate [chii-order probe](../../../chii_prediction/docs/Findings.md)
+fills an obvious gap in the choice of baselines: select the rikishi with the
+stronger banzuke position. It selected the winner in 52.637% of 579,412 eligible
+bouts over 1989/01–2026/07, with division results reported in the linked account.
+This is a descriptive win frequency, 2.637 percentage points above random
+choice. Beating 50–50 does not by itself establish an advantage over following
+chii. The probe did not compare chii and Elo favourites on a matched bout set;
+nor does the poor Brier score of literal 0/1 chii probabilities establish that
+chii selects fewer winners. The linked findings record the probability-score
+distinction and the decision to stop at this limited baseline check.
+
 ## Finding 1: Basic Elo is modestly predictive overall
 
 Across every eligible bout, equal-initialization Basic Elo has:

@@ -12,7 +12,7 @@ chii or select a preferred Elo variant.
 
 ## Research documents
 
-- [`docs/A Defence of Elo for Sumo.md`](docs/A%20Defence%20of%20Elo%20for%20Sumo.md)
+- [A Defence of Elo for Sumo (Sketch)](docs/A%20Defence%20of%20Elo%20for%20Sumo%20%28Sketch%29.md)
   is the working structure for the eventual reader-facing argument.
 - [`docs/experiments/Aims.md`](docs/experiments/Aims.md) records the wider
   research programme.
@@ -44,6 +44,17 @@ chii or select a preferred Elo variant.
 
 Proposal 1 remains the baseline when later experiments are added. Follow-on
 ideas do not retrospectively alter its definition.
+
+## Chii-order baseline
+
+Following the existing banzuke order is another obvious predictor. The separate
+[Wins follow chii](../chii_prediction/docs/Findings.md) probe counts how often
+the stronger-chii rikishi wins, overall and by division. Over 1989/01–2026/07
+it selected 52.637% of winners, 2.637 percentage points above random choice.
+This supplies context for the progression from 50–50 to chii to Elo-like
+systems. It does not establish their ordering on matched winner-selection
+accuracy; the findings explain the distinction from probability scores and
+the limits of the comparison.
 
 ## Proposal 1 definition
 
