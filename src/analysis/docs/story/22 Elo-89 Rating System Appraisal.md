@@ -202,3 +202,45 @@ or prevent publishing its results with their intended interpretation.
 - [Site model explanation](../../../products/make_site89/prose/Elo-89%20Ratings.html).
 - [Site assumptions](../../../products/make_site89/prose/Elo-89%20Assumptions.html).
 - [Site account of rating and chii](../../../products/make_site89/prose/Elo-89%20vs%20Chii.html).
+
+## Coda: response to an outside AI appraisal
+
+An outside AI appraisal supplied by the author endorsed Elo-89 as a useful,
+well-founded system worth retaining. It praised opponent-aware updates,
+rank-based initialisation, divisional update rates, retrospective evidence and
+candid documentation. It also suggested qualifications concerning normalisation,
+returning wrestlers, predictive validation, historical comparisons and the
+visibility of individual rating evidence.
+
+I broadly agree with that assessment. It supports the same overall conclusion
+we reached: Elo-89 is useful, defensible and worth retaining. Three passages
+need refinement to preserve distinctions established in this investigation.
+
+**Normalisation.** Describing it as a small influence rather than a substantial
+obstacle to interpreting rating changes slightly blurs our distinction. The
+recent ±1% result concerns the contribution relative to the ending rating,
+not relative to the rating change. An acceptable contribution to the rating
+can still appreciably affect a particular reported change. Our conclusion was
+acceptance with disclosure. The detailed reasoning remains in the separate
+[Normalisation Investigation](../../elo89_normalisation/docs/Normalisation%20Investigation.md).
+
+**Returning wrestlers.** Treating resets as an outstanding weakness repeats a
+concern we resolved. Missing bouts while remaining on the banzuke does not
+trigger a reset. Reinitialisation applies after leaving the represented
+population and returning. The author regards that policy as appropriate for
+the exceptional cases involved. Clarifying it is useful; presenting it as an
+unresolved deficiency is unnecessary.
+
+**Historical comparisons.** Caution is reasonable, but the reason should be
+the assumptions needed to interpret a common rating anchor across eras. The
+recent normalisation result neither establishes nor refutes those assumptions.
+We also examined normalisation across the full represented history, not only
+recent years.
+
+I agree with the predictive-evidence qualification: prospective evaluation
+would extend the evidence. It should remain an opportunity to strengthen
+validation, rather than an implied condition for accepting the system.
+
+Showing how much individual evidence supports a rating is a plausible
+enhancement, but it was not established as a requirement by our investigation.
+I would describe it as optional rather than the necessary next step.
