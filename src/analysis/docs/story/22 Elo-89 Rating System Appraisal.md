@@ -244,3 +244,119 @@ validation, rather than an implied condition for accepting the system.
 Showing how much individual evidence supports a rating is a plausible
 enhancement, but it was not established as a requirement by our investigation.
 I would describe it as optional rather than the necessary next step.
+
+## Further evaluation: uncertainty and comparison with FIDE
+
+This evaluation was added on 9 September 2026 in response to two questions:
+how well Elo-89 handles the vagueness of a messy human system, and how it
+compares with FIDE's Elo-like chess ratings. The intended criterion is to be
+as epistemological as possible, keeping teleological input to a well-reasoned
+minimum. This is an interpretive assessment, not a new validation run.
+
+My judgement is that Elo-89 handles the messiness of sumo well for a compact,
+evidence-based account of performance. Its treatment of uncertainty is sensible
+but incomplete. Compared with FIDE, it is more consistently directed towards
+understanding performance, although that does not establish greater predictive
+accuracy.
+
+### Handling a messy human system
+
+Here, "epistemological" means estimating what the evidence supports, and
+"teleological" means shaping the calculation to produce some desired sporting
+or institutional outcome. On that distinction, Elo-89 does well.
+
+Several choices show appropriate restraint:
+
+- Results supply evidence without becoming verdicts. An upset changes the
+  estimates; it does not establish that the winner is now the stronger
+  wrestler. Probabilistic predictions accommodate inconsistency.
+- Chii supplies informed starting evidence. This uses existing knowledge when
+  bout evidence is scarce, while allowing subsequent results to move the
+  rating. It does not continually force ratings back into agreement with
+  official rank.
+- Inactivity does not attract an invented penalty. Retaining a rating while
+  a wrestler remains represented avoids assigning a numerical decline merely
+  because a plausible story suggests one.
+- The model is tested against outcomes. The reported log-loss improvement
+  over Basic Elo, 0.675629 versus 0.682753, is modest but relevant evidence
+  that the additional machinery earns its place. This remains retrospective
+  evidence, as explained above.
+
+Using institutional rank as evidence is not inherently teleological. The
+distinction is between "rank contains information about likely performance"
+and "the ratings ought to reproduce rank". Elo-89 largely observes that
+distinction.
+
+Its limitations become clearer if we separate three kinds of messiness.
+
+**Unpredictable outcomes** are handled explicitly through probabilities.
+However, unexplained variation includes both chance and omitted influences:
+injury, form, styles and circumstances. The model does not distinguish these.
+
+**Uncertainty about the estimate** is handled only indirectly. Two wrestlers
+can have the same rating despite very different amounts or recency of
+supporting evidence. The production model maintains point estimates, rather
+than individual uncertainty distributions. A 60% forecast does not tell us
+how securely that 60% has been estimated.
+
+This matters particularly for inactivity: holding the estimate steady need
+not mean holding confidence steady. The existing policy is defensible without
+treating an inactive wrestler's rating as an equally well-supported estimate
+of present condition.
+
+**Vagueness about what "strength" means** is handled through an operational
+definition. Elo-89 provides a particular account of competitive performance.
+It cannot settle every reasonable meaning of ability, dominance or greatness.
+A precise peak-rating table answers a precise question; it does not eliminate
+the ambiguity of "greatest".
+
+The fixed population mean is its most consequential interpretive convention.
+Uniform shifts preserve current rating differences, but the anchor also
+affects relationships with future entrants and the interpretation of
+comparisons across eras. This is a justified modelling choice, not something
+bout results uniquely establish.
+
+I would therefore describe Elo-89 as disciplined simplification with candid
+assumptions. Its precision is computational; the knowledge expressed remains
+conditional. Making individual evidential support more visible could
+strengthen that communication, but this review does not establish it as a
+prerequisite for accepting the system.
+
+### Comparison with FIDE
+
+Both systems compress changing human performance into a single rating and
+update it from results relative to expectations. Neither basic approach fully
+represents uncertainty about each estimate, contextual effects or the
+ambiguity of cross-era strength.
+
+The clearest difference is their purpose. Elo-89 can concentrate on an
+explanatory account alongside the banzuke. FIDE must also administer a
+consequential competitive system. Its published justifications explicitly
+combine accuracy with fairness and institutional concerns.
+
+For example, FIDE's October 2025 amendment removed the 400-point
+rating-difference cap for players rated 2650 and above while retaining it
+below that threshold. FIDE justified the change through accuracy, fairness
+and competitive integrity. That introduces an institutional boundary into
+the update rule that Elo-89's continuous probability formula does not have.
+See [FIDE's amendment announcement](https://www.fide.com/fide-council-approves-targeted-amendment-to-rating-regulation/).
+
+It would nevertheless be unfair to classify every FIDE intervention as
+teleological distortion. Its 2024 reform responded to evidence of rating
+deflation and included changes to initial ratings and the rating floor.
+An intervention intended to correct a demonstrated measurement problem can
+be epistemically justified. See [FIDE's explanation of the 2024 reform](https://www.fide.com/new-fide-rating-and-title-regulations-come-into-effect/).
+
+| Criterion | Assessment |
+|---|---|
+| Keeping institutional goals out of the estimate | Elo-89 has the clearer separation. |
+| Accommodating variable results | Both have the fundamental strength of probabilistic Elo modelling. |
+| Expressing uncertainty about individual ratings | Neither basic approach provides a complete account. |
+| Making assumptions explicit | Elo-89's appraisal is particularly strong. |
+| Demonstrated predictive superiority | Not established by the available comparison; its tests concern other sumo models, not FIDE on comparable evidence. |
+
+For the stated aim, I prefer Elo-89's design philosophy. Its strongest
+epistemic virtue is that it makes a useful, testable claim of limited scope
+and explains the conventions supporting it. FIDE faces additional
+institutional demands; those demands can justify its choices without making
+them the best choices for this website.
