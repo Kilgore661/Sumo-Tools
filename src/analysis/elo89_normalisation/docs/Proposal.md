@@ -66,7 +66,20 @@ are not evidence about particular wrestlers.
 
 ## Inputs and command contract
 
-Proposed invocation after implementation:
+Implementation follows the repository input convention: History is read from
+the live store by default; `--history-zip` explicitly selects an annotated ZIP.
+The saved Elo-89 run is still a separate required input, with the standard
+site-bundle location as its default. Live History validates that run and supplies
+metadata; it does not trigger a production replay. Output defaults to
+`files/output/analysis/elo89_normalisation`.
+
+Default invocation:
+
+```powershell
+python -m src.analysis.elo89_normalisation
+```
+
+Explicit ZIP invocation:
 
 ```powershell
 python -m src.analysis.elo89_normalisation `
