@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>2. Why Ratings When We Already Have Chii?</title>
+  <style>
+    :root { color-scheme: light dark; font-family: Georgia, "Times New Roman", serif; line-height: 1.65; }
+    body { max-width: 56rem; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+    h1,h2,h3,nav { font-family: system-ui, sans-serif; line-height: 1.25; }
+    h1 { margin-top: 1rem; } h2,h3 { margin-top: 2rem; }
+    nav { font-size: .9rem; margin-bottom: 2rem; }
+    a { color: light-dark(#175a91,#8fc9ff); text-underline-offset: .15em; }
+    p,li { overflow-wrap: break-word; } li + li { margin-top: .4rem; }
+    table { border-collapse: collapse; display: block; overflow-x: auto; margin: 1.5rem 0; font-size: .95rem; }
+    th,td { border-bottom: 1px solid #8887; padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th { font-family: system-ui, sans-serif; }
+    pre { overflow-x: auto; padding: 1rem; background: #8881; }
+    code { font-size: .9em; } blockquote { border-left: 3px solid #8887; margin-left: 0; padding-left: 1.2rem; }
+    mjx-container[display="true"] { overflow-x: auto; overflow-y: hidden; padding: .2rem 0; }
+    @media print { body { max-width: none; padding: 0; } nav { display: none; } }
+  </style>
+  <script>
+    window.MathJax = { tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] } };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<nav aria-label="Account navigation"><a href="Elo89%20Account%20-%20Contents.html">Elo89 account — contents</a></nav>
+<main>
+<h1 id="2-why-ratings-when-we-already-have-chii">2. Why Ratings When We Already Have Chii?</h1>
+<h2 id="2-1-what-chii-tell-us">2.1 What chii tell us</h2>
+<p>A chii such as M3w is a rikishi’s official place on the banzuke. Results are central to that position, but the institution making the decisions has wider responsibilities. The JSA describes its mission as preserving and developing sumo’s traditions and order, and promoting sumo culture. That provides the setting in which official rank should be understood. <a href="https://www.sumo.or.jp/IrohaKyokai/organization/">JSA mission</a></p>
+<p>These considerations become particularly explicit at the highest rank. The JSA’s account of yokozuna promotion names outstanding <em>hinkaku</em>—dignity or character—alongside outstanding competitive ability. Such a criterion requires judgement: a win–loss record alone cannot determine whether it has been met. <a href="https://www.sumo.or.jp/Entertainment/quiz/1081">JSA explanation of yokozuna promotion</a></p>
+<p>There is therefore a subjective element to official ranking: informed judgement about how sumo’s standards apply to a particular wrestler and his circumstances. Here, “subjective” means that the decision requires interpretation, not that it is arbitrary.</p>
+<p>Elo89 has a narrower purpose. It supplies a numerical account of competitive performance under explicit assumptions. Those assumptions embody choices, but once they and the inputs are fixed, the calculation requires no further judgement about an individual wrestler. This makes ratings a useful complementary tool alongside chii.</p>
+<p>Although chii and ratings are not interchangeable, the following reference values give a rough guide to Elo89’s numerical scale. They associate a rating with the highest chii in each of the six divisions.</p>
+<table>
+<thead>
+<tr>
+<th>Division</th>
+<th>Top chii</th>
+<th align="right">Elo89 reference rating</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Makuuchi</td>
+<td>Y1e</td>
+<td align="right">2,428</td>
+</tr>
+<tr>
+<td>Juryo</td>
+<td>J1e</td>
+<td align="right">2,101</td>
+</tr>
+<tr>
+<td>Makushita</td>
+<td>Ms1e</td>
+<td align="right">1,979</td>
+</tr>
+<tr>
+<td>Sandanme</td>
+<td>Sd1e</td>
+<td align="right">1,688</td>
+</tr>
+<tr>
+<td>Jonidan</td>
+<td>Jd1e</td>
+<td align="right">1,480</td>
+</tr>
+<tr>
+<td>Jonokuchi</td>
+<td>Jk1e</td>
+<td align="right">1,326</td>
+</tr>
+</tbody></table>
+<p>These are reference points, rounded to whole numbers, rather than ratings that every wrestler at those chii will have. Where the numbers come from, and how individual ratings develop, will be explained as this account proceeds.</p>
+<h2 id="2-2-what-results-tell-us">2.2 What results tell us</h2>
+<p>Results are the starting evidence: who faced whom, and who won. A win–loss record summarises those outcomes, but leaves out the opposition.</p>
+<p>That omission matters. A 10–5 record contains more wins than an 8–7, but it does not automatically provide evidence of stronger performance. The wrestler with eight wins may have faced substantially more demanding opponents. Before deciding what the records tell us about the two rikishi, we need to consider whom they fought.</p>
+<p>The same applies across several basho. Twenty-nine wins is more than twenty-four, but the totals alone do not establish which wrestler performed better against the opposition he faced. Nor does a fall in a wrestler’s win total necessarily indicate decline: he may have moved up and encountered stronger opponents.</p>
+<p>Choosing the period introduces another consideration. Sumo has individual basho champions, but no season-ending championship that supplies a natural endpoint for an overall assessment. We can examine the last six or twelve basho, for example, but the window is our choice. Different windows answer different questions about recent and sustained performance.</p>
+<p>To go beyond counting wins, we therefore need a way to account for the opposition and to carry evidence forward through time. Elo89 provides one such tool.</p>
+<h2 id="2-3-what-ratings-add">2.3 What ratings add</h2>
+<p>Elo89 uses each opponent’s rating to put a result in context. A win against a highly rated opponent provides different evidence from a win against someone rated much lower. The calculation applies the same principle throughout the population, updating both wrestlers’ ratings after each eligible bout.</p>
+<p>This may seem circular: we assess a wrestler using his opponents’ ratings, which themselves depend on their opponents’ ratings. But those relationships are precisely what the system records. Each wrestler’s results connect him to others, whose results connect them to still others. The ratings develop together as bouts supply new evidence.</p>
+<p>That also explains why an interest in makuuchi leads us into the lower divisions. A wrestler arriving in makuuchi brings a competitive history with him. His rating already reflects his results against earlier opponents; promotion does not start his rating afresh. (The divisions are also connected directly by bouts: lower-ranked maegashira occasionally face higher-ranked juryo.)</p>
+<p>Ratings also carry evidence forward through time. Elo89 does not reset at the start of a calendar year or discard a result when it falls outside a six-basho window. Earlier results have helped shape the current ratings, and new results modify them. How quickly the calculation responds is a modelling choice that we will examine later.</p>
+<p>We can therefore compare two current ratings without first choosing a period over which to count wins. We can also follow how those ratings change through a career. This does not remove the choices involved in assessing performance: it makes them explicit in the rating system.</p>
+<p>The resulting number is a running assessment, informed by the opposition and the sequence of results. Whether that assessment is useful is a further question—one that requires evidence as well as an explanation of the calculation.</p>
+<h2 id="2-4-using-ratings-and-chii-together">2.4 Using ratings and chii together</h2>
+<p>Putting ratings alongside chii gives us two views of the same rikishi. His chii tells us his official standing; his rating gives us Elo89’s assessment of his competitive performance. The interest lies in how those views relate.</p>
+<p>Suppose a newly promoted makuuchi wrestler has a rating comparable to those of established wrestlers in the division. His promotion changes his official standing, while his rating suggests that his earlier results already provide evidence that he can compete at that level. We can then follow what happens as he faces his new opponents.</p>
+<p>Or suppose two wrestlers occupy neighbouring places on the banzuke but have substantially different ratings. Their official positions are close, yet Elo89 would clearly favour one over the other. Looking at their recent opponents, results and longer histories may help us understand why.</p>
+<p>Neither comparison requires us to decide that the banzuke or the rating must be wrong. They summarise different things, on different terms. A discrepancy may reflect the timing of rank changes, the histories of the wrestlers, or limitations in how either chii or ratings represent competitive performance—or both. The two numbers alone do not identify the explanation.</p>
+<p>Used together, chii and ratings give us a richer starting point for examining a career or a matchup. Chii supplies the official context; Elo89 supplies an explicit numerical comparison that we can inspect, follow through time and test against subsequent results.</p>
+<p>A precise comparison does not necessarily settle a broader question. “Who was the greatest?” might mean the highest peak, the longest period of dominance, or sustained success against strong opposition. Ratings can contribute to each investigation, but choosing what we mean by greatness comes first.</p>
+<p>This is the purpose of Elo89 as a tool: to make comparisons explicit and questions more precise. The rest of this account explains how the tool is constructed and what grounds we have for trusting its answers.</p>
+</main>
+</body>
+</html>

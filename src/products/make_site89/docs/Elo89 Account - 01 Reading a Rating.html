@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>1. Reading a Rating</title>
+  <style>
+    :root { color-scheme: light dark; font-family: Georgia, "Times New Roman", serif; line-height: 1.65; }
+    body { max-width: 56rem; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+    h1,h2,h3,nav { font-family: system-ui, sans-serif; line-height: 1.25; }
+    h1 { margin-top: 1rem; } h2,h3 { margin-top: 2rem; }
+    nav { font-size: .9rem; margin-bottom: 2rem; }
+    a { color: light-dark(#175a91,#8fc9ff); text-underline-offset: .15em; }
+    p,li { overflow-wrap: break-word; } li + li { margin-top: .4rem; }
+    table { border-collapse: collapse; display: block; overflow-x: auto; margin: 1.5rem 0; font-size: .95rem; }
+    th,td { border-bottom: 1px solid #8887; padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th { font-family: system-ui, sans-serif; }
+    pre { overflow-x: auto; padding: 1rem; background: #8881; }
+    code { font-size: .9em; } blockquote { border-left: 3px solid #8887; margin-left: 0; padding-left: 1.2rem; }
+    mjx-container[display="true"] { overflow-x: auto; overflow-y: hidden; padding: .2rem 0; }
+    @media print { body { max-width: none; padding: 0; } nav { display: none; } }
+  </style>
+  <script>
+    window.MathJax = { tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] } };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<nav aria-label="Account navigation"><a href="Elo89%20Account%20-%20Contents.html">Elo89 account — contents</a></nav>
+<main>
+<h1 id="1-reading-a-rating">1. Reading a Rating</h1>
+<p>Elo89 gives each rikishi a number: his rating. The simplest way to read it is that <strong>higher means better</strong>. More precisely, if two rikishi were to meet, Elo89 would favour the one with the higher rating.</p>
+<p>How strongly it favours him depends on the gap between their ratings. A small gap means the model regards them as closely matched. A large gap means it expects the higher-rated rikishi to win more often.</p>
+<p>Suppose two rikishi have ratings of 2300 and 2100. On Elo89’s scale, that 200-point difference gives the higher-rated wrestler an estimated winning chance of about 76%. He is a clear favourite, but his opponent still has roughly a one-in-four chance. An upset would not, by itself, show that the ratings were wrong.</p>
+<p>The numbers 2300 and 2100 have no special meaning individually. Ratings of 1800 and 1600 give exactly the same estimated chance, because the difference is again 200 points. A rating is not an amount of strength, and a wrestler rated 2400 is not twice as strong as one rated 1200.</p>
+<h2 id="where-the-numbers-come-from">Where the numbers come from</h2>
+<p>Elo89 starts each rikishi with a rating informed by his banzuke rank, then updates it using his recorded bout results. It takes account of whom he faced as well as whether he won.</p>
+<p>An expected win produces a small increase. Beating someone much more highly rated produces a larger increase. A loss works in the opposite direction: losing to the favourite costs less than losing to someone the model expected you to beat.</p>
+<p>For example, suppose our two rikishi rated 2300 and 2100 are both maegashira. Elo89 favours the higher-rated wrestler, giving him about a 76% chance of winning.</p>
+<ul>
+<li>If the favourite wins, he gains about <strong>3.6 points</strong>, reaching 2303.6. His opponent loses the same amount, falling to 2096.4.</li>
+<li>If the underdog wins, he gains about <strong>11.4 points</strong>, reaching 2111.4. The favourite falls to 2288.6.</li>
+</ul>
+<p>The unexpected result produces the larger adjustment. But even after the upset, the original favourite remains higher rated: one bout adds evidence; it does not erase everything that came before.</p>
+<p>This gives us a running account of performance rather than a count of wins. Two rikishi with identical win–loss records can have different ratings because they faced different opponents and arrived with different histories.</p>
+<p>Elo89 also makes common adjustments to the rating population between tournaments. Consequently, a change between two published ratings is not necessarily all earned or lost through bouts. We will explain those adjustments later.</p>
+<h2 id="what-a-rating-can-tell-you">What a rating can tell you</h2>
+<p>A rating is a tool for comparison. It gives you a way to ask how the evidence of previous results places one rikishi relative to another.</p>
+<p>It does not tell you why a wrestler won, whether he is carrying an injury, or how he will perform tomorrow. A small rating advantage should not be mistaken for a decisive difference, and even a substantial favourite can lose.</p>
+<p>Nor is a rating an official position. Sumo already has those in the banzuke. Elo89 offers a complementary way to examine performance—and understanding why that is useful is our next question.</p>
+<p>Elo89’s calculation is <strong>deterministic</strong>: given the same starting ratings, model settings and sequence of results, it produces exactly the same ratings. The choices involved in designing the system are fixed in advance; applying it requires no further judgement about an individual rikishi.</p>
+<p>That does not make its forecasts certain, or its assumptions beyond question. It means that we can trace how its numbers arise. This gives us a useful contrast with chii, where judgement remains part of deciding each new banzuke.</p>
+</main>
+</body>
+</html>

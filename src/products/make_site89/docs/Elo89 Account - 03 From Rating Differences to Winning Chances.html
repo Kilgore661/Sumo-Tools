@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>3. From Rating Differences to Winning Chances</title>
+  <style>
+    :root { color-scheme: light dark; font-family: Georgia, "Times New Roman", serif; line-height: 1.65; }
+    body { max-width: 56rem; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+    h1,h2,h3,nav { font-family: system-ui, sans-serif; line-height: 1.25; }
+    h1 { margin-top: 1rem; } h2,h3 { margin-top: 2rem; }
+    nav { font-size: .9rem; margin-bottom: 2rem; }
+    a { color: light-dark(#175a91,#8fc9ff); text-underline-offset: .15em; }
+    p,li { overflow-wrap: break-word; } li + li { margin-top: .4rem; }
+    table { border-collapse: collapse; display: block; overflow-x: auto; margin: 1.5rem 0; font-size: .95rem; }
+    th,td { border-bottom: 1px solid #8887; padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th { font-family: system-ui, sans-serif; }
+    pre { overflow-x: auto; padding: 1rem; background: #8881; }
+    code { font-size: .9em; } blockquote { border-left: 3px solid #8887; margin-left: 0; padding-left: 1.2rem; }
+    mjx-container[display="true"] { overflow-x: auto; overflow-y: hidden; padding: .2rem 0; }
+    @media print { body { max-width: none; padding: 0; } nav { display: none; } }
+  </style>
+  <script>
+    window.MathJax = { tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] } };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<nav aria-label="Account navigation"><a href="Elo89%20Account%20-%20Contents.html">Elo89 account — contents</a></nav>
+<main>
+<h1 id="3-from-rating-differences-to-winning-chances">3. From Rating Differences to Winning Chances</h1>
+<p>We have already used rating differences to describe two wrestlers as closely matched, or one as a clear favourite. Now we can make that relationship precise.</p>
+<p>For the moment, suppose we have two ratings. We will come to how they are calculated later. The question here is: <strong>given those ratings, what chance does Elo89 assign to each wrestler winning?</strong></p>
+<h2 id="from-a-gap-to-a-probability">From a gap to a probability</h2>
+<p>Call our two rikishi A and B, with ratings \(R_A\) and \(R_B\). Let their rating difference be</p>
+<p>\[
+d = R_A - R_B.
+\]</p>
+<p>A positive \(d\) means A is higher rated; a negative \(d\) means B is higher rated. Elo89 assigns A the following probability of winning:</p>
+<p>\[
+p = \frac{1}{1 + 10^{-d/400}}.
+\]</p>
+<p>Here, \(p\) is a number between zero and one. Multiplying it by 100 expresses the probability as a percentage.</p>
+<p>The formula may look unfamiliar, but its behaviour follows the idea we have already described:</p>
+<table>
+<thead>
+<tr>
+<th align="right">A’s rating advantage</th>
+<th align="right">A’s estimated winning chance</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="right">−400</td>
+<td align="right">9.1%</td>
+</tr>
+<tr>
+<td align="right">−200</td>
+<td align="right">24.0%</td>
+</tr>
+<tr>
+<td align="right">−100</td>
+<td align="right">36.0%</td>
+</tr>
+<tr>
+<td align="right">0</td>
+<td align="right">50.0%</td>
+</tr>
+<tr>
+<td align="right">+100</td>
+<td align="right">64.0%</td>
+</tr>
+<tr>
+<td align="right">+200</td>
+<td align="right">76.0%</td>
+</tr>
+<tr>
+<td align="right">+400</td>
+<td align="right">90.9%</td>
+</tr>
+</tbody></table>
+<p>If the ratings are equal, \(d=0\). Since \(10^0=1\), the formula gives</p>
+<p>\[
+p = \frac{1}{1+1} = \frac12.
+\]</p>
+<p>Neither wrestler is favoured.</p>
+<p>For our earlier example, A has a rating of 2300 and B has 2100. Their difference is 200, so</p>
+<p>\[
+p = \frac{1}{1+10^{-200/400}}
+  = \frac{1}{1+10^{-0.5}}
+  \approx 0.760.
+\]</p>
+<p>That is where the estimated 76% winning chance came from.</p>
+<h2 id="the-shape-of-the-curve">The shape of the curve</h2>
+<p>Plotting \(p\) against \(d\) produces an S-shaped curve, called a <em>logistic curve</em>. It passes through 50% when the rating difference is zero and rises smoothly as A’s advantage increases.</p>
+<p>The curve is steepest around an even match. As the advantage becomes large, further rating points produce progressively smaller increases in probability. An extra 100 points takes an evenly matched wrestler from 50% to about 64%; it takes a wrestler already 400 points ahead from about 91% to about 95%.</p>
+<p>This makes sense for a probability: it cannot keep increasing by fourteen percentage points for every additional 100 rating points. It must remain below 100%.</p>
+<p>For any finite rating difference, the formula gives both wrestlers some chance of winning. It can make one an overwhelming favourite, but never a certain winner. Swapping the wrestlers reverses the probabilities: a 76% chance for A means a 24% chance for B.</p>
+<h2 id="why-400">Why 400?</h2>
+<p>The number 400 sets the scale on which rating differences translate into probabilities. One way to understand it is to rearrange the formula:</p>
+<p>\[
+\frac{p}{1-p} = 10^{d/400}.
+\]</p>
+<p>The expression on the left is the odds in favour of A winning. A 400-point advantage therefore means odds of ten to one, which corresponds to a probability of \(10/11\), or about 90.9%.</p>
+<p>More generally, each additional 400 points multiplies those odds by ten.</p>
+<p>The choice of 400 is part of Elo89’s definition. It is not a discovered constant of sumo. If we used a different scale parameter, the same numerical gap would imply a different probability. Rating differences and the parameter must therefore be understood together.</p>
+<p>By contrast, adding the same amount to both ratings changes nothing. Ratings of 2300 and 2100 give the same probability as 1800 and 1600 because their difference is unchanged.</p>
+<h2 id="a-model-probability">A model probability</h2>
+<p>The formula tells us precisely what Elo89 means by a particular rating difference. It does not establish that the resulting probability is accurate.</p>
+<p>When Elo89 assigns a 76% chance, it expresses the model’s expectation. To assess that expectation, we can examine many bouts given probabilities near 76% and ask how often the favoured wrestler actually won. Agreement would support that aspect of the model; systematic disagreement would give us something to investigate.</p>
+<p>Nor does 76% tell us how certain we should be about the estimate itself. It is the assigned chance of winning, not a statement that the calculation has captured everything relevant to the bout.</p>
+<p>We now have a way to turn two ratings into an expectation. The next step is to see how the actual result changes those ratings.</p>
+</main>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Elo89 account: writing requirements</title>
+  <style>
+    :root { color-scheme: light dark; font-family: Georgia, "Times New Roman", serif; line-height: 1.65; }
+    body { max-width: 56rem; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+    h1,h2,h3,nav { font-family: system-ui, sans-serif; line-height: 1.25; }
+    h1 { margin-top: 1rem; } h2,h3 { margin-top: 2rem; }
+    nav { font-size: .9rem; margin-bottom: 2rem; }
+    a { color: light-dark(#175a91,#8fc9ff); text-underline-offset: .15em; }
+    p,li { overflow-wrap: break-word; } li + li { margin-top: .4rem; }
+    table { border-collapse: collapse; display: block; overflow-x: auto; margin: 1.5rem 0; font-size: .95rem; }
+    th,td { border-bottom: 1px solid #8887; padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th { font-family: system-ui, sans-serif; }
+    pre { overflow-x: auto; padding: 1rem; background: #8881; }
+    code { font-size: .9em; } blockquote { border-left: 3px solid #8887; margin-left: 0; padding-left: 1.2rem; }
+    mjx-container[display="true"] { overflow-x: auto; overflow-y: hidden; padding: .2rem 0; }
+    @media print { body { max-width: none; padding: 0; } nav { display: none; } }
+  </style>
+  <script>
+    window.MathJax = { tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] } };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<nav aria-label="Account navigation"><a href="Elo89%20Account%20-%20Contents.html">Elo89 account — contents</a></nav>
+<main>
+<h1 id="elo89-account-writing-requirements">Elo89 account: writing requirements</h1>
+<p>Agreed scope following discussion on 11 September 2026. These requirements supersede the broader writing proposal in <a href="Production%20Documentation%20Strategy.md">Production Documentation Strategy</a>. That document remains useful as a repository review and source map.</p>
+<p><strong>Deliverable and scope</strong></p>
+<p>Write the account of Elo89: what ratings are and are not, what this particular rating system is for, how it works, what evidence supports its use, and what assumptions and open questions remain.</p>
+<p>This is not an account of the whole Sumo Tools website. A separate website overview will describe the site and reference this account. Website tools may provide examples where they help explain Elo89; a catalogue of those tools, site navigation design and local interface documentation are outside this task.</p>
+<p>Elo89 is the website&#39;s primary deliverable. Other useful, less consequential tools do not involve ratings. Do not describe all site outputs as applications of Elo89.</p>
+<p><strong>Purpose and framing</strong></p>
+<p><strong>Document format:</strong> Maintain files whose names start with “Elo89 Account” as HTML, using CDN MathJax to render mathematical formulae. This applies retrospectively to existing files as well as to new sections. HTML is their maintained source; do not keep parallel Markdown versions. Other documents, including the implementation plan and production documentation strategy, remain Markdown.</p>
+<p>Present Elo89 as a tool for examining competitive performance. Explain why such a tool is useful when sumo already has chii and win–loss records.</p>
+<p>Ratings are intended to complement chii, not replace it or constitute a corrected banzuke. The earlier description of ratings as a complementary lens remains useful; “tool” is the preferred practical framing. Explain what readers can do with it and why agreement or disagreement with chii can be informative.</p>
+<p><strong>Readers and progression</strong></p>
+<p>Write one coherent account that progresses from simple interpretation through A-level mathematics to advanced definitions, evidence, philosophical interpretation and open research questions.</p>
+<p>Readers are self-selecting. Do not construct three separate accounts or impose labelled beginner, fan and expert reading routes. Descriptive section headings should let readers judge whether the material is relevant to them. A heading such as “A Worked Example” will attract some readers and tell others they can skip it. “More Advanced Definitions” was an illustration of this principle, not a required heading.</p>
+<p>Supply enough local context and cross-references to support skipping sections and entering midway, while preserving a continuous argument for readers who follow it in order. The organization should arise from the subject, rather than from audience categories or elaborate expanding menus.</p>
+<p><strong>Depth and accuracy</strong></p>
+<p>Begin with an accessible interpretation of “higher means better”: a higher rating means the model favours that rikishi against a lower-rated opponent. Develop the significance of rating differences, estimated winning chances, and the distinction between a rating and official standing or underlying ability.</p>
+<p>Pedagogical simplification is appropriate. Prefer omission of detail to statements that must later be withdrawn. In particular, distinguish a bout update from a reported change over time, which can also include population adjustments and reinitialisation.</p>
+<p>The mathematical account should explain the probability curve, worked updates, K policy, entrant ratings and mean preservation. The deeper account should specify Elo89 precisely, distinguish construction from validation, and address the limits of interpretation and unresolved research questions. Readers need not learn the chronology of earlier models before understanding the selected one.</p>
+<p><strong>Evidence and voice</strong></p>
+<p>Draw on earlier drafts and investigations as experience and evidence. The task is not to correct those documents or retell every stage of development.</p>
+<p>Distinguish model definitions, mathematical consequences, empirical findings, choices judged acceptable, and questions not yet answered. Preserve the scope and provenance of numerical claims. Do not present retrospective comparisons as prospective validation, or assumptions about historical comparability as independently measured facts.</p>
+<p>Explain accepted choices confidently and proportionately. Do not reopen settled model decisions merely to make the account appear critical, and do not make new research a prerequisite for describing what is already known.</p>
+<p><strong>Contents status</strong></p>
+<p>The document-level heading structure is maintained in <a href="Elo89%20Account%20-%20Contents.html">Elo89 Account - Contents</a>, with hierarchically indented headings and links to saved drafts and their current subsections. Update this contents page as sections are added, renamed or reorganised. The twelve-section structure remains provisional beyond the drafted material. It runs from reading a rating and its relationship to chii through mechanics, population and time to evidence, meaning and open questions. Exact headings, boundaries and ordering remain writing decisions, not agreed requirements.</p>
+<p><strong>Completion criterion</strong></p>
+<p>The account should let a reader stop after learning how to interpret the numbers, continue to understand the calculation, or proceed far enough to examine its foundations and challenge its claims. Each depth must remain consistent with the others. The website overview should be able to reference this account as the explanation of Elo89 without requiring it to explain the rest of the website.</p>
+</main>
+</body>
+</html>
