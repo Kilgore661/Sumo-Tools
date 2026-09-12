@@ -5,16 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>2. Why Ratings When We Already Have Chii?</title>
   <style>
-    :root { color-scheme: light dark; font-family: Georgia, "Times New Roman", serif; line-height: 1.65; }
+    :root { color-scheme: light dark; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.65; }
     body { max-width: 56rem; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
     h1,h2,h3,nav { font-family: system-ui, sans-serif; line-height: 1.25; }
     h1 { margin-top: 1rem; } h2,h3 { margin-top: 2rem; }
     nav { font-size: .9rem; margin-bottom: 2rem; }
     a { color: light-dark(#175a91,#8fc9ff); text-underline-offset: .15em; }
     p,li { overflow-wrap: break-word; } li + li { margin-top: .4rem; }
-    table { border-collapse: collapse; display: block; overflow-x: auto; margin: 1.5rem 0; font-size: .95rem; }
-    th,td { border-bottom: 1px solid #8887; padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    .table-scroll { overflow-x: auto; margin: 1.5rem 0; }
+    table { border-collapse: collapse; margin: 0 auto; font-size: .95rem; }
+    th,td { border: none; padding: .55rem .8rem; text-align: left; vertical-align: top; }
     th { font-family: system-ui, sans-serif; }
+    th[align="right"], td[align="right"] { text-align: right; font-variant-numeric: tabular-nums; }
     pre { overflow-x: auto; padding: 1rem; background: #8881; }
     code { font-size: .9em; } blockquote { border-left: 3px solid #8887; margin-left: 0; padding-left: 1.2rem; }
     mjx-container[display="true"] { overflow-x: auto; overflow-y: hidden; padding: .2rem 0; }
@@ -35,7 +37,7 @@
 <p>There is therefore a subjective element to official ranking: informed judgement about how sumo’s standards apply to a particular wrestler and his circumstances. Here, “subjective” means that the decision requires interpretation, not that it is arbitrary.</p>
 <p>Elo89 has a narrower purpose. It supplies a numerical account of competitive performance under explicit assumptions. Those assumptions embody choices, but once they and the inputs are fixed, the calculation requires no further judgement about an individual wrestler. This makes ratings a useful complementary tool alongside chii.</p>
 <p>Although chii and ratings are not interchangeable, the following reference values give a rough guide to Elo89’s numerical scale. They associate a rating with the highest chii in each of the six divisions.</p>
-<table>
+<div class="table-scroll"><table>
 <thead>
 <tr>
 <th>Division</th>
@@ -73,7 +75,7 @@
 <td>Jk1e</td>
 <td align="right">1,326</td>
 </tr>
-</tbody></table>
+</tbody></table></div>
 <p>These are reference points, rounded to whole numbers, rather than ratings that every wrestler at those chii will have. Where the numbers come from, and how individual ratings develop, will be explained as this account proceeds.</p>
 <h2 id="2-2-what-results-tell-us">2.2 What results tell us</h2>
 <p>Results are the starting evidence: who faced whom, and who won. A win–loss record summarises those outcomes, but leaves out the opposition.</p>

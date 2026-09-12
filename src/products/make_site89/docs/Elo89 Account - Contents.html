@@ -5,16 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Understanding Elo89</title>
   <style>
-    :root { color-scheme: light dark; font-family: Georgia, "Times New Roman", serif; line-height: 1.65; }
+    :root { color-scheme: light dark; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.65; }
     body { max-width: 56rem; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
     h1,h2,h3,nav { font-family: system-ui, sans-serif; line-height: 1.25; }
     h1 { margin-top: 1rem; } h2,h3 { margin-top: 2rem; }
     nav { font-size: .9rem; margin-bottom: 2rem; }
     a { color: light-dark(#175a91,#8fc9ff); text-underline-offset: .15em; }
     p,li { overflow-wrap: break-word; } li + li { margin-top: .4rem; }
-    table { border-collapse: collapse; display: block; overflow-x: auto; margin: 1.5rem 0; font-size: .95rem; }
-    th,td { border-bottom: 1px solid #8887; padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    .table-scroll { overflow-x: auto; margin: 1.5rem 0; }
+    table { border-collapse: collapse; margin: 0 auto; font-size: .95rem; }
+    th,td { border: none; padding: .55rem .8rem; text-align: left; vertical-align: top; }
     th { font-family: system-ui, sans-serif; }
+    th[align="right"], td[align="right"] { text-align: right; font-variant-numeric: tabular-nums; }
     pre { overflow-x: auto; padding: 1rem; background: #8881; }
     code { font-size: .9em; } blockquote { border-left: 3px solid #8887; margin-left: 0; padding-left: 1.2rem; }
     mjx-container[display="true"] { overflow-x: auto; overflow-y: hidden; padding: .2rem 0; }
@@ -30,7 +32,7 @@
 <nav aria-label="Account navigation"><a href="Elo89%20Account%20-%20Contents.html">Elo89 account — contents</a></nav>
 <main>
 <h1>Understanding Elo89</h1>
-<p>Working contents. Sections 1–3 link to saved drafts, with their subsection headings indented below. Sections 4–12 are provisional and have not yet been drafted. Update this outline as the account develops.</p>
+<p><strong>Documentation postponed, 12 September 2026:</strong> run and review the <a href="../../../analysis/elo89_normalisation/docs/Proposal%20-%20Per-Chii%20Rating%20Drift.md">proposed per-chii drift study</a> before resuming this account. Sections 1–4 link to saved drafts. Section 7 is a provisional draft; sections 5, 6 and 8–11 have not yet been drafted. The standalone connected-divisions topic is withdrawn. Resolve the normalisation headings and numbering after the study, then revisit section 7. See the <a href="Documentation%20Handoff.md">documentation hand-off</a> for the current position.</p>
 <ol class="contents">
 <li><a href="Elo89%20Account%20-%2001%20Reading%20a%20Rating.html">Reading a Rating</a>
 <ul>
@@ -48,14 +50,27 @@
 <ul>
 <li><a href="Elo89%20Account%20-%2003%20From%20Rating%20Differences%20to%20Winning%20Chances.html#from-a-gap-to-a-probability">From a gap to a probability</a></li>
 <li><a href="Elo89%20Account%20-%2003%20From%20Rating%20Differences%20to%20Winning%20Chances.html#the-shape-of-the-curve">The shape of the curve</a></li>
-<li><a href="Elo89%20Account%20-%2003%20From%20Rating%20Differences%20to%20Winning%20Chances.html#why-400">Why 400?</a></li>
+<li><a href="Elo89%20Account%20-%2003%20From%20Rating%20Differences%20to%20Winning%20Chances.html#why-q-400">Why q=400?</a></li>
 <li><a href="Elo89%20Account%20-%2003%20From%20Rating%20Differences%20to%20Winning%20Chances.html#a-model-probability">A model probability</a></li>
 </ul></li>
-<li>Learning from Results: A Worked Example</li>
-<li>How Quickly Should Ratings Change?</li>
-<li>Where Do Initial Ratings Come From?</li>
-<li>One Rating System for All Divisions</li>
-<li>Keeping a Common Scale as Rikishi Come and Go</li>
+<li><a href="Elo89%20Account%20-%2004%20Learning%20from%20Results%20-%20The%20Update%20Rule.html">Learning from Results: The Update Rule</a>
+<ul>
+<li><a href="Elo89%20Account%20-%2004%20Learning%20from%20Results%20-%20The%20Update%20Rule.html#the-update-formula">The update formula</a></li>
+<li><a href="Elo89%20Account%20-%2004%20Learning%20from%20Results%20-%20The%20Update%20Rule.html#if-the-favourite-wins">If the favourite wins</a></li>
+<li><a href="Elo89%20Account%20-%2004%20Learning%20from%20Results%20-%20The%20Update%20Rule.html#if-the-underdog-wins">If the underdog wins</a></li>
+<li><a href="Elo89%20Account%20-%2004%20Learning%20from%20Results%20-%20The%20Update%20Rule.html#what-happens-to-the-next-expectation">What happens to the next expectation?</a></li>
+<li><a href="Elo89%20Account%20-%2004%20Learning%20from%20Results%20-%20The%20Update%20Rule.html#why-k-15">Why k=15?</a></li>
+</ul></li>
+<li>Normalisation — heading and scope pending the drift study</li>
+<li>Normalisation, continued — section boundary and numbering provisional</li>
+<li><a href="Elo89%20Account%20-%2007%20Where%20Do%20Initial%20Ratings%20Come%20From.html">Where Do Initial Ratings Come From?</a> — draft
+<ul>
+<li><a href="Elo89%20Account%20-%2007%20Where%20Do%20Initial%20Ratings%20Come%20From.html#a-starting-point">A starting point</a></li>
+<li><a href="Elo89%20Account%20-%2007%20Where%20Do%20Initial%20Ratings%20Come%20From.html#learning-a-map-from-the-history">Learning a map from the history</a></li>
+<li><a href="Elo89%20Account%20-%2007%20Where%20Do%20Initial%20Ratings%20Come%20From.html#what-converged-means-here">What “converged” means here</a></li>
+<li><a href="Elo89%20Account%20-%2007%20Where%20Do%20Initial%20Ratings%20Come%20From.html#the-resulting-values">The resulting values</a></li>
+<li><a href="Elo89%20Account%20-%2007%20Where%20Do%20Initial%20Ratings%20Come%20From.html#working-sources">Working sources</a></li>
+</ul></li>
 <li>Comparing Rikishi Across Time</li>
 <li>What the Evidence Says About Elo89</li>
 <li>What Does a Rating Measure?</li>
@@ -65,6 +80,7 @@
 <hr>
 <p>Supporting documents:</p>
 <ul>
+<li><a href="Documentation%20Handoff.md">Documentation hand-off and next steps</a></li>
 <li><a href="Elo89%20Account%20Requirements.html">Account requirements</a></li>
 <li><a href="Elo89%20Account%20-%20Matters%20Arising.html">Matters arising</a></li>
 <li><a href="Production%20Documentation%20Strategy.md">Earlier strategy and repository source map</a></li>

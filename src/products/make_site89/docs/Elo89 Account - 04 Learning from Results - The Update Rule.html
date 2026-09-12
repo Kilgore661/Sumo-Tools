@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>4. Learning from Results: The Update Rule</title>
+  <style>
+    :root { color-scheme: light dark; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.65; }
+    body { max-width: 56rem; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+    h1,h2,h3,nav { font-family: system-ui, sans-serif; line-height: 1.25; }
+    h1 { margin-top: 1rem; } h2,h3 { margin-top: 2rem; }
+    nav { font-size: .9rem; margin-bottom: 2rem; }
+    a { color: light-dark(#175a91,#8fc9ff); text-underline-offset: .15em; }
+    p,li { overflow-wrap: break-word; } li + li { margin-top: .4rem; }
+    .table-scroll { overflow-x: auto; margin: 1.5rem 0; }
+    table { border-collapse: collapse; margin: 0 auto; font-size: .95rem; }
+    th,td { border: none; padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th[align="right"], td[align="right"] { text-align: right; font-variant-numeric: tabular-nums; }
+    mjx-container[display="true"] { overflow-x: auto; overflow-y: hidden; padding: .2rem 0; }
+    @media print { body { max-width: none; padding: 0; } nav { display: none; } }
+  </style>
+  <script>
+    window.MathJax = { tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] } };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<nav aria-label="Account navigation"><a href="Elo89%20Account%20-%20Contents.html">Elo89 account — contents</a></nav>
+<main>
+<h1 id="4-learning-from-results-the-update-rule">4. Learning from Results: The Update Rule</h1>
+<p>Before a bout, Elo89 uses the two ratings to assign a probability to each wrestler winning. After the bout, it compares that expectation with the result and adjusts the ratings.</p>
+<p>The principle is simple: a result that exceeds the model’s expectation raises the rating; a result that falls short lowers it. The size of the adjustment depends on how far the result differs from the expectation.</p>
+
+<h2 id="the-update-formula">The update formula</h2>
+<p>Let \(p\) be a wrestler’s estimated probability of winning, calculated before the bout. Represent his actual result by \(s\):</p>
+<p>\[
+s = \begin{cases}1 &amp; \text{for a win},\\0 &amp; \text{for a loss}.\end{cases}
+\]</p>
+<p>With this scoring, his expected score is also \(p\): a win contributes \(1\times p\) and a loss contributes \(0\times(1-p)\). His rating change is</p>
+<p>\[\Delta R = k(s-p),\]</p>
+<p>and his new rating is</p>
+<p>\[R_{\text{new}} = R_{\text{old}} + \Delta R.\]</p>
+<p>The quantity \(s-p\) is the actual score minus the expected score. The parameter \(k\) controls how strongly that difference changes the rating.</p>
+<p>For a win, \(s-p=1-p\), which is positive. For a loss, \(s-p=-p\), which is negative. Thus the bout update always raises the winner’s rating and lowers the loser’s.</p>
+
+<h2 id="if-the-favourite-wins">If the favourite wins</h2>
+<p>Return to our illustrative pair of maegashira, A and B, rated 2300 and 2100. Elo89 gives A a winning probability of approximately \(0.760\), leaving B approximately \(0.240\).</p>
+<p>Elo89 uses \(k=15\) for maegashira. If A wins, his adjustment is</p>
+<p>\[\Delta R_A = 15(1-0.760) \approx +3.6.\]</p>
+<p>B loses, so his adjustment is</p>
+<p>\[\Delta R_B = 15(0-0.240) \approx -3.6.\]</p>
+<p>Their new ratings are approximately 2303.6 and 2096.4. The result agrees with the model’s preference, and the gap widens modestly.</p>
+
+<h2 id="if-the-underdog-wins">If the underdog wins</h2>
+<p>Suppose instead that B wins. A’s adjustment becomes</p>
+<p>\[\Delta R_A = 15(0-0.760) \approx -11.4,\]</p>
+<p>while B’s is</p>
+<p>\[\Delta R_B = 15(1-0.240) \approx +11.4.\]</p>
+<p>A falls to approximately 2288.6 and B rises to 2111.4. The gap narrows from 200 points to about 177.</p>
+<p>B receives a larger increase for the upset than A would have received for the expected win. But B does not immediately become the higher-rated wrestler. The result changes the assessment without replacing the accumulated history with the verdict of one bout.</p>
+<p>In both versions of this example, the winner gains exactly what the loser loses because both wrestlers have the same k. The common population adjustments discussed earlier are separate from these bout updates: here we have calculated the contribution of one result.</p>
+
+<h2 id="what-happens-to-the-next-expectation">What happens to the next expectation?</h2>
+<p>The changed ratings alter the model’s expectations for subsequent bouts.</p>
+<p>If A had won, the new gap of about 207 points would give him approximately a 77% chance in another meeting with B. If B had won, the reduced gap of about 177 points would still give A approximately a 73% chance.</p>
+<p>These calculations assume that neither rating changes again before the hypothetical rematch. In practice, intervening bouts against other opponents would supply further evidence.</p>
+<p>The sequence is therefore:</p>
+<ol>
+  <li>Calculate the expectation from the ratings before the bout.</li>
+  <li>Observe the result.</li>
+  <li>Update both ratings.</li>
+  <li>Use the revised ratings for subsequent expectations.</li>
+</ol>
+<p>The result being assessed does not enter its own pre-bout expectation.</p>
+
+<h2 id="why-k-15">Why k=15?</h2>
+<p>We used \(k=15\) because our example involved two maegashira. Elo89 does not use that value for everyone. Its chosen schedule is:</p>
+<div class="table-scroll"><table>
+<thead><tr><th scope="col">Rank group</th><th scope="col" align="right">k</th></tr></thead>
+<tbody>
+<tr><td>Yokozuna, ozeki, sekiwake and komusubi</td><td align="right">10</td></tr>
+<tr><td>Maegashira</td><td align="right">15</td></tr>
+<tr><td>Juryo</td><td align="right">25</td></tr>
+<tr><td>Makushita, sandanme, jonidan and jonokuchi</td><td align="right">35</td></tr>
+</tbody>
+</table></div>
+<p>Like \(q=400\), these values are part of the model’s definition. The update formula tells us what happens once k is chosen; it does not choose k for us.</p>
+<p>For a given expectation and result, a larger k produces a larger adjustment. This follows directly from the formula: doubling k doubles the change. Both gains and losses become larger.</p>
+<p>The rationale for varying k is to balance responsiveness against stability. Smaller values near the top are intended to make ratings less sensitive to short sequences of results. Larger values lower down allow a strong newcomer’s rating to rise rapidly when his results exceed the model’s expectations. This explains the purpose of the policy; it does not establish that the chosen schedule tracks every wrestler’s development optimally.</p>
+<p>Why these particular numbers? They were pragmatic choices, rather than values derived from a theory or found through an exhaustive search. Subsequent <a href="../../../analysis/elo_model_selection/docs/Results%201.md">historical comparisons</a> provide evidence in favour of this schedule over the constant-k alternative tested, but do not establish that 10, 15, 25 and 35 are uniquely correct or the best possible choices. We will examine that evidence later, along with the deeper questions of rating fluctuation and convergence.</p>
+<p>(When opponents have different k values, the winner’s gain and loser’s loss need not be equal. This is an accepted consequence of the chosen update rule. It affected about 3.5% of bouts in the <a href="../../../../files/output/analysis/elo_model_selection/retrospective_1989_01_to_2026_07/dual_k_mass/report.md">historical comparison</a>; we will explain how Elo89 handles its population-level effects later.)</p>
+<p>We now know how Elo89 turns existing ratings and a new result into updated ratings. To complete the calculation, we must also explain the normalisation procedures and where the initial ratings come from. We turn next to normalisation.</p>
+</main>
+</body>
+</html>

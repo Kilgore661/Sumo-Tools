@@ -5,16 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>1. Reading a Rating</title>
   <style>
-    :root { color-scheme: light dark; font-family: Georgia, "Times New Roman", serif; line-height: 1.65; }
+    :root { color-scheme: light dark; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.65; }
     body { max-width: 56rem; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
     h1,h2,h3,nav { font-family: system-ui, sans-serif; line-height: 1.25; }
     h1 { margin-top: 1rem; } h2,h3 { margin-top: 2rem; }
     nav { font-size: .9rem; margin-bottom: 2rem; }
     a { color: light-dark(#175a91,#8fc9ff); text-underline-offset: .15em; }
     p,li { overflow-wrap: break-word; } li + li { margin-top: .4rem; }
-    table { border-collapse: collapse; display: block; overflow-x: auto; margin: 1.5rem 0; font-size: .95rem; }
-    th,td { border-bottom: 1px solid #8887; padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    .table-scroll { overflow-x: auto; margin: 1.5rem 0; }
+    table { border-collapse: collapse; margin: 0 auto; font-size: .95rem; }
+    th,td { border: none; padding: .55rem .8rem; text-align: left; vertical-align: top; }
     th { font-family: system-ui, sans-serif; }
+    th[align="right"], td[align="right"] { text-align: right; font-variant-numeric: tabular-nums; }
     pre { overflow-x: auto; padding: 1rem; background: #8881; }
     code { font-size: .9em; } blockquote { border-left: 3px solid #8887; margin-left: 0; padding-left: 1.2rem; }
     mjx-container[display="true"] { overflow-x: auto; overflow-y: hidden; padding: .2rem 0; }
@@ -29,6 +31,8 @@
 <nav aria-label="Account navigation"><a href="Elo89%20Account%20-%20Contents.html">Elo89 account — contents</a></nav>
 <main>
 <h1 id="1-reading-a-rating">1. Reading a Rating</h1>
+<p>Elo89 builds on the rating system developed by Professor <a href="https://chess.hu/a-magyar-sakkozas-rovid-tortenete/">Árpád Élő</a>, a Hungarian-born physicist and chess player. His work arose from a request by the United States Chess Federation (USCF) to review and improve its rating system. In the preface to <a href="https://gwern.net/doc/statistics/order/comparison/1978-elo-theratingofchessplayerspastandpresent.pdf#page=15"><cite>The Rating of Chessplayers, Past and Present</cite></a>, he describes the committee appointed for that purpose in 1959, which he chaired.</p>
+<p>The USCF adopted his system in 1960. The International Chess Federation (FIDE) adopted it in 1970 and published its first rating list in 1971. His system has remained the basis of FIDE ratings ever since, although its detailed implementation has evolved. <a href="https://www.fide.com/anniversary-of-arpad-elo-rating-system-that-changed-chess-world/">FIDE’s account of his contribution</a> traces that continuing influence. Elo89 adapts the underlying idea to sumo; this account explains how.</p>
 <p>Elo89 gives each rikishi a number: his rating. The simplest way to read it is that <strong>higher means better</strong>. More precisely, if two rikishi were to meet, Elo89 would favour the one with the higher rating.</p>
 <p>How strongly it favours him depends on the gap between their ratings. A small gap means the model regards them as closely matched. A large gap means it expects the higher-rated rikishi to win more often.</p>
 <p>Suppose two rikishi have ratings of 2300 and 2100. On Elo89’s scale, that 200-point difference gives the higher-rated wrestler an estimated winning chance of about 76%. He is a clear favourite, but his opponent still has roughly a one-in-four chance. An upset would not, by itself, show that the ratings were wrong.</p>

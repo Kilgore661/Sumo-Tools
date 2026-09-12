@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Draft — 7. Where Do Initial Ratings Come From?</title>
+  <style>
+    :root { color-scheme: light dark; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.65; }
+    body { max-width: 56rem; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+    h1,h2,h3,nav { font-family: system-ui, sans-serif; line-height: 1.25; }
+    h1 { margin-top: 1rem; } h2,h3 { margin-top: 2rem; }
+    nav { font-size: .9rem; margin-bottom: 2rem; }
+    a { color: light-dark(#175a91,#8fc9ff); text-underline-offset: .15em; }
+    p,li { overflow-wrap: break-word; } li + li { margin-top: .4rem; }
+    .table-scroll { overflow-x: auto; margin: 1.5rem 0; }
+    table { border-collapse: collapse; margin: 0 auto; font-size: .95rem; }
+    th,td { border: none; padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th[align="right"], td[align="right"] { text-align: right; font-variant-numeric: tabular-nums; }
+    mjx-container[display="true"] { overflow-x: auto; overflow-y: hidden; padding: .2rem 0; }
+    @media print { body { max-width: none; padding: 0; } nav { display: none; } }
+  </style>
+  <script>
+    window.MathJax = { tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] } };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<nav aria-label="Account navigation"><a href="Elo89%20Account%20-%20Contents.html">Elo89 account — contents</a></nav>
+<main>
+<h1>7. Where Do Initial Ratings Come From?</h1>
+<p><strong>Draft — work postponed, 12 September 2026.</strong> This preserves the opening and construction discussion reached so far. Run and review the proposed per-chii drift study before continuing the account. The preceding explanation of normalisation may require revisions here; its headings and numbering remain provisional. The construction account below is not a complete specification. See the <a href="Documentation%20Handoff.md">documentation hand-off</a> for the next steps.</p>
+
+<h2 id="a-starting-point">A starting point</h2>
+<p>Calculating ratings is an iterative process: each update begins with the ratings produced by the previous calculation. But the process needs a starting point. Elo89 begins with the January 1989 basho, assigning a rating to each rikishi before processing its results. Where do those ratings come from? In Elo89, they are what we call <strong>informed priors</strong>.</p>
+<p>Before explaining how we obtain them, consider a simpler possibility: give everyone the same starting rating and let the results establish the differences.</p>
+<p>The update rule gives this idea some appeal. Competitors who repeatedly perform better than their ratings suggest gain points; those who perform worse lose points. As results accumulate, the influence of the starting ratings can diminish.</p>
+<p>However, giving everyone the same starting rating would give a yokozuna and the lowest-ranked jonokuchi equal ratings. Under the probability formula, that means treating a hypothetical bout between them as an even contest. We already have good reason to expect otherwise.</p>
+<p>Subsequent results can establish differences, but doing so takes bouts—and the ratings published during that process matter too. Even if the starting ratings eventually cease to matter, that does not make them a satisfactory account of the early basho. Informed priors aim to reduce this initial delay by using information already available about the competitors.</p>
+<p>In January 1989, the rikishi occupy different chii, following careers that began before our chosen starting date. Elo89 uses that information to assign starting ratings. This gives the calculation a more plausible beginning, although it does not guarantee that the particular numbers are accurate. The next question is how we obtain those numbers.</p>
+
+<h2 id="learning-a-map-from-the-history">Learning a map from the history</h2>
+<p>The construction begins with a constant map: every chii receives the value 1517. It then repeatedly processes the historical record, using the map from one pass to initialise ratings in the next.</p>
+<ol>
+  <li>Replay the historical basho, using the current chii-to-rating map whenever a rating must be initialised.</li>
+  <li>For each chii, average the ratings of its occupants at the start of each basho across the replay. This uses the whole replay, rather than a snapshot of its final basho.</li>
+  <li>Apply the prescribed adjustment to the mean of the resulting map.</li>
+  <li>Use that revised map for another complete replay, and compare it with the next map produced.</li>
+</ol>
+<p>Each pass produces a revised estimate. Calling every revision an improvement would go further than the procedure establishes: the immediate aim is consistency between the map supplied to the calculation and the map obtained from it.</p>
+<p><strong>Draft dependency on section 6:</strong> the retained construction redistributes ratings on departure during each replay and recentres the chii map between passes, allocating that adjustment in proportion to how often each chii appears. These operations are part of the construction. They differ from the common shifts used to preserve the active population mean in the subsequent Elo89 calculation, which holds the prior table fixed. The account must explain their roles before presenting this as a complete algorithm.</p>
+
+<h2 id="what-converged-means-here">What “converged” means here</h2>
+<p>The recorded calculation stopped after 18 passes. At that point, the largest change to any chii’s value between consecutive passes was approximately 9.57 points, below the chosen ten-point tolerance.</p>
+<p>This is a concrete, limited sense of convergence: the calculation met its stopping criterion. It does not prove that indefinitely repeating the process reaches an exact limit, that the limit is unique, or that the chosen tolerance places the current map close to it.</p>
+<p>Repeatedly replaying the history produces a chii-to-rating map that changes little under another application of the same procedure. We use this approximately self-consistent map as our informed priors. Its construction makes it informed by results; its convergence alone does not make it correct.</p>
+<p>The stability described here concerns changes between successive passes. Stability across historical periods, alternative datasets or different modelling choices is a separate question.</p>
+
+<h2 id="the-resulting-values">The resulting values</h2>
+<p>The constructed values are grouped and averaged for the prior table consumed by Elo89. Selected values from the saved production table are:</p>
+<div class="table-scroll"><table>
+<thead><tr><th scope="col">Chii</th><th scope="col" align="right">Initial rating, rounded</th></tr></thead>
+<tbody>
+<tr><td>Yokozuna</td><td align="right">2428</td></tr>
+<tr><td>Ozeki</td><td align="right">2301</td></tr>
+<tr><td>Sekiwake</td><td align="right">2253</td></tr>
+<tr><td>Komusubi</td><td align="right">2213</td></tr>
+<tr><td>M1</td><td align="right">2258</td></tr>
+<tr><td>J1</td><td align="right">2101</td></tr>
+</tbody>
+</table></div>
+<p>Broad plausibility does not imply that every value follows chii order: M1 exceeds sekiwake and komusubi in this table. Nor does a plausible appearance establish the accuracy of the particular numbers.</p>
+<p>There is quantitative evidence beyond appearance. A recorded retrospective comparison found that the informed-prior candidate improved forecast scores over the corresponding model with constant initialisation. Since the priors were constructed using the history being evaluated, this is retrospective support, rather than an independent test on unseen results. The evidence will be examined later in the account.</p>
+<p>The numerical findings are reproducible. Judging them sufficient for the intended use involves judgement. We should keep those two statements distinct.</p>
+
+<h2 id="working-sources">Working sources</h2>
+<p>These links support the draft and its later completion.</p>
+<ul>
+<li><a href="../../../analysis/equelo_bkp1/solve.py">Construction: replay, aggregation and stopping rule</a>; <a href="../../../analysis/equelo_bkp1/recenter.py">support-proportional recentering</a>; <a href="../../../analysis/equelo_bkp1/simulate.py">replay and departure handling</a>.</li>
+<li><a href="../../../../files/output/analysis/equelo_bkp1/manifest.json">Recorded run</a> and <a href="../../../../files/output/analysis/equelo_bkp1/iterations.csv">iteration record</a>.</li>
+<li><a href="../../../../files/output/analysis/site89_bundle/sources/elo89/prior.csv">Saved production prior table</a>.</li>
+<li><a href="../../../analysis/docs/story/15%20Tranche%201%20-%20Population%20Normalisation%20Policy.md">Construction choices, retrospective comparisons and the distinction between prior production and the final population policy</a>.</li>
+</ul>
+</main>
+</body>
+</html>

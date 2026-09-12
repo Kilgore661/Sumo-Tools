@@ -45,6 +45,16 @@ If none is available, the report records that this comparison was not performed.
 
 ## Supplementary analyses
 
+**Proposed, not yet implemented:** [Per-chii rating drift after mean
+preservation](docs/Proposal%20-%20Per-Chii%20Rating%20Drift.md) asks whether
+ratings at particular banzuke positions trend over historical time despite
+the fixed population mean. It uses saved post-normalisation ratings and is
+distinct from the contribution accounting below.
+
+The Elo89 account's drafting is postponed until this study and its verification
+checks have been run and the findings reviewed. See the
+[documentation hand-off](../../products/make_site89/docs/Documentation%20Handoff.md).
+
 For the subsequent assessment allowing signed cancellation, read
 [Signed Findings](docs/Signed%20Findings.md). Reproduce its supplementary tables
 from the existing diagnostic outputs with:
