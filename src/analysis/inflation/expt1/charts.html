@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Experiment 1 · Rating turnover</title>
+<style>body{font:16px system-ui;margin:30px auto;max-width:1250px;padding:0 22px;color:#202e40;background:#fafbfd}h1{margin-bottom:8px}p{max-width:1000px;line-height:1.5}.controls{display:flex;gap:20px;flex-wrap:wrap;padding:16px;background:#eaf0f6;position:sticky;top:0;z-index:2}select{padding:6px}section{background:white;margin:22px 0;padding:15px;border:1px solid #d8e1eb}.plot{height:390px}#count{height:240px}.error{color:#a12424}</style>
+<h1>Experiment 1: unnormalised rating turnover</h1>
+<p>Fixed P1 · divisional K · no mean restoration · ratings preserved across gaps.
+The mean covers the represented population, not a fixed rank. Turnover or a rising mean alone does not establish inflation at upper chii.</p>
+<div class="controls"><label>From <select id="from"></select></label><label>Through <select id="to"></select></label>
+<label><input id="cumulative" type="checkbox"> Cumulative flows within selected range</label>
+<label><input id="endmean" type="checkbox"> Show basho-end mean</label>
+<label><input id="cohort" type="checkbox" checked> Include January 1989 cohort in donor balance</label></div>
+<p id="status" role="status"></p>
+<section><h2>Points entering and leaving</h2><p>Removed points are drawn below zero. First-basho allocations establish initial stock and are excluded from all flow charts. Returns restore their saved rating; they are not new allocations.</p><div class="plot" id="flow"></div></section>
+<section><h2>Population mean</h2><p>Pre-basho means follow membership changes and precede bouts. No smoothing or burn-in is applied.</p><div class="plot" id="mean"></div><div id="count"></div></section>
+<section><h2>Final-departure donor balance</h2><p>Entry allocation minus departure rating: positive for donors, negative for those leaving above entry. Temporary gaps are excluded. Final departure is inferred within the selected replay history; it is not verified retirement. The initial cohort has observation-start allocations, not known career-entry ratings.</p><div class="plot" id="donor"></div></section>
+<section><h2>Temporary gaps and bout mass</h2><p>Gap inflows and outflows affect represented membership but do not allocate new points. Bout mass is the sum of actual participant updates and reconciles the effect of unequal K.</p><div class="plot" id="other"></div></section>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js" onerror="document.getElementById('status').textContent='Plotly could not load. Internet access to cdn.plot.ly is required; CSV data remains available.'"></script>
+<script>
+const data=/*DATA*/null;
+const el=id=>document.getElementById(id);
+for(const id of ['from','to']) for(const r of data) el(id).add(new Option(r.date,r.date));
+el('to').value=data.at(-1).date;
+function draw(){
+ if(!window.Plotly)return;
+ if(el('from').value>el('to').value){el('status').textContent='Choose a start date no later than the end date.';return;}
+ const rows=data.filter(r=>r.date>=el('from').value&&r.date<=el('to').value),flow=rows.filter(r=>!r.initial_stock),cum=el('cumulative').checked;
+ const x=rs=>rs.map(r=>r.date.replace('/','-')+'-01');
+ const values=(rs,fn,acc=false)=>{let s=0;return rs.map(r=>{let v=fn(r);return acc?(s+=v):v})};
+ const trace=(rs,name,fn,color,acc=false)=>({x:x(rs),y:values(rs,fn,acc),name,type:'scatter',mode:'lines',line:{color},customdata:rs.map(r=>[r.previous_date,r.count,r.joins,r.departures,r.first_appearances,r.returns]),hovertemplate:'%{x|%Y/%m}: %{y:,.2f}<br>Previous: %{customdata[0]}<br>Count: %{customdata[1]} · joins: %{customdata[2]} · departures: %{customdata[3]}<br>First appearances: %{customdata[4]} · returns: %{customdata[5]}<extra>%{fullData.name}</extra>'});
+ function plot(id,traces,y){Plotly.react(id,traces,{margin:{t:20,r:25,b:65,l:85},yaxis:{title:y,zeroline:true},xaxis:{type:'date'},legend:{orientation:'h',y:-.2},hovermode:'x unified',paper_bgcolor:'white'},{responsive:true,displaylogo:false});}
+ const suffix=cum?'Cumulative points (selected range)':'Rating points';
+ plot('flow',[trace(flow,'Added',r=>r.points_added,'#16806a',cum),trace(flow,'Removed (negative)',r=>-r.points_removed,'#b44646',cum),trace(flow,'Net flow',r=>r.transition_delta,'#234e99',cum)],suffix);
+ const means=[trace(rows,'Pre-basho',r=>r.start_mean,'#234e99')];
+ if(el('endmean').checked)means.push(trace(rows,'Basho end',r=>r.end_mean,'#be7522'));
+ for(const t of means){t.customdata=rows.map(r=>[r.count,r.mass_start,r.mass_end,r.membership_mean_change,r.bout_mean_change]);t.hovertemplate='%{x|%Y/%m}: %{y:,.2f}<br>Count: %{customdata[0]}<br>Start mass: %{customdata[1]:,.2f} · end mass: %{customdata[2]:,.2f}<br>Membership mean change: %{customdata[3]:,.2f}<br>Bout mean change: %{customdata[4]:,.2f}<extra>%{fullData.name}</extra>';}
+ plot('mean',means,'Mean rating');
+ plot('count',[trace(rows,'Represented count',r=>r.count,'#546780'),trace(rows,'Banzuke count',r=>r.banzuke_count,'#16806a')],'Rikishi');
+ const d=r=>r[el('cohort').checked?'donor_points':'donor_points_new_cohort'];
+ const a=r=>r[el('cohort').checked?'above_entry_removed':'above_entry_removed_new_cohort'];
+ plot('donor',[trace(flow,'Donor deficits',d,'#16806a',cum),trace(flow,'Above-entry departures (negative)',r=>-a(r),'#b44646',cum),trace(flow,'Net departing donation',r=>d(r)-a(r),'#234e99',cum)],suffix);
+ plot('other',[trace(flow,'Gap returns',r=>r.gap_points_in,'#16806a',cum),trace(flow,'Gap outflows (negative)',r=>-r.gap_points_out,'#b44646',cum),trace(rows,'Bout mass',r=>r.bout_mass,'#8753a2',cum)],suffix);
+ el('status').textContent=`${rows.length} basho shown; ${flow.length} transitions. Full replay: ${data[0].date}–${data.at(-1).date}. Filters do not change replay or departure classification. ${data.filter(r=>r.non_banzuke_count).length} basho include non-banzuke bout participants. Missing calendar intervals are not interpolated.`;
+}
+for(const id of ['from','to','cumulative','endmean','cohort'])el(id).addEventListener('change',draw);
+draw();
+</script></html>

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Individual rating provenance</title>
+<style>
+body{font:16px system-ui,sans-serif;background:#f3f5f7;color:#182a38;margin:0}main{max-width:1180px;margin:auto;padding:28px}
+h1{margin-bottom:8px}p{max-width:950px;line-height:1.5}.card{background:white;border:1px solid #d9e1e7;border-radius:10px;padding:20px;margin:18px 0}
+.controls{display:flex;gap:16px;flex-wrap:wrap}label{display:flex;flex-direction:column;gap:6px;font-size:14px}select,input{font:inherit;padding:8px;max-width:100%}
+.stats{display:flex;gap:24px;flex-wrap:wrap}.stats strong{display:block;font-size:24px}.muted{color:#506678;font-size:14px}.scroll{overflow:auto}table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:14px}th,td{padding:9px;text-align:right;border-bottom:1px solid #e2e8ed}th:first-child,td:first-child{text-align:left}#chart{min-height:390px}#error{color:#a12626}
+</style></head><body><main>
+<h1>Where are the rating points?</h1>
+<p>Current holdings by original rikishi, with the reverse holdings shown separately. Points move proportionally through each opponent. This is a provenance account, not a simulation of what would have happened without a wrestler.</p>
+<p id="policy" class="muted"></p>
+<div class="card controls">
+<label>Subject<select id="subject"></select></label>
+<label>Group origins by<select id="group"><option value="individual">Individual rikishi</option><option value="status">Departure / donor status</option><option value="entry_group">Rank group at entry</option><option value="last_group">Rank group last observed at this endpoint</option></select></label>
+<label>Origin status<select id="status"><option value="all">All</option><option>active</option><option>temporary gap</option><option>departed donor</option><option>departed non-donor</option></select></label>
+<label>Metric<select id="metric"><option value="held">Origin points held by subject</option><option value="counterpart">Subject-origin points held by others</option><option value="removed">Subject-origin points removed on departure</option><option value="net">Net provenance balance (excludes self)</option></select></label>
+<label>Find origin<input id="search" type="search" placeholder="Name or rikid"></label>
+<label>Show largest<select id="top"><option>20</option><option>50</option><option>100</option><option value="0">All</option></select></label>
+</div>
+<div class="card"><h2 id="heading"></h2><div class="stats" id="stats"></div><p id="notes" class="muted"></p></div>
+<div class="card"><p id="error"></p><div id="chart"></div><p class="muted">Remaining origins are summed as “Other”; no components are discarded. Percentages use the full subject rating, even when filtered. A net balance is not a percentage of net rating change.</p></div>
+<div class="card scroll"><table><thead><tr><th>Origin / group</th><th>Origins</th><th>Held</th><th>% of rating</th><th>Reverse held</th><th>Removed</th><th>Net (excl. self)</th></tr></thead><tbody id="rows"></tbody></table></div>
+<p class="muted" id="source"></p>
+</main>
+<script>const DATA=/*DATA*/null;</script>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js" onerror="document.getElementById('error').textContent='Plotly CDN unavailable. The tables and filters still work.'"></script>
+<script>
+const el=id=>document.getElementById(id), fmt=x=>Number(x).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+el('policy').textContent=DATA.source.model==='elo89-provenance-persistent-gaps' ? 'Ratings and provenance are preserved unchanged during gaps, including Sokokurai’s. All eligible bouts are included; returning wrestlers receive no new P1 allocation.' : 'Historical first-stint variant: appearances after gaps were excluded.'+(DATA.source.eligible_bouts?` ${DATA.source.excluded_return_bouts.toLocaleString()} eligible bouts excluded.`:'');
+for(const [i,p] of DATA.profiles.entries()){const o=document.createElement('option');o.value=i;o.textContent=`${p.name} (${p.rikid}) · ${p.date} ${p.endpoint}`;el('subject').append(o)}
+function summarize(rows,key){const groups=new Map();for(const r of rows){const label=key==='individual'?`${r.name} (${r.rikid})${r.self_origin?' · self':''}`:r[key];if(!groups.has(label))groups.set(label,{label,count:0,held:0,share:0,counterpart:0,removed:0,net:0});const g=groups.get(label);g.count++;for(const k of ['held','share','counterpart','removed','net'])g[k]+=r[k]}return [...groups.values()]}
+function render(){const p=DATA.profiles[Number(el('subject').value)],metric=el('metric').value,search=el('search').value.toLowerCase();
+el('heading').textContent=`${p.name} · ${p.chii} · ${p.date} ${p.endpoint}`;
+el('notes').textContent=p.notes;
+const selected=p.rows.filter(r=>(el('status').value==='all'||r.status===el('status').value)&&(!search||`${r.name} ${r.rikid}`.toLowerCase().includes(search)));
+const donors=p.rows.filter(r=>r.status==='departed donor'&&!r.self_origin);
+el('stats').replaceChildren();for(const [label,value] of [['Rating',p.rating],['Own-origin held',p.rows.filter(r=>r.self_origin).reduce((s,r)=>s+r.held,0)],['Departed donor-origin held',donors.reduce((s,r)=>s+r.held,0)],['Subject-origin removed by donors',donors.reduce((s,r)=>s+r.removed,0)]]){const d=document.createElement('div'),s=document.createElement('strong');s.textContent=fmt(value);d.append(s,document.createTextNode(label));el('stats').append(d)}
+let rows=summarize(selected,el('group').value).sort((a,b)=>Math.abs(b[metric])-Math.abs(a[metric]));const top=Number(el('top').value);if(top&&rows.length>top){const tail=rows.slice(top),other={label:'Other',count:0,held:0,share:0,counterpart:0,removed:0,net:0};for(const r of tail)for(const k of ['count','held','share','counterpart','removed','net'])other[k]+=r[k];rows=rows.slice(0,top).concat(other)}
+el('rows').replaceChildren();for(const r of rows){const tr=document.createElement('tr');for(const value of [r.label,r.count,fmt(r.held),fmt(r.share),fmt(r.counterpart),fmt(r.removed),fmt(r.net)]){const td=document.createElement('td');td.textContent=value;tr.append(td)}el('rows').append(tr)}
+if(window.Plotly){el('chart').style.height=`${Math.max(390,rows.length*25+110)}px`;Plotly.react('chart',[{type:'bar',orientation:'h',y:rows.map(r=>r.label),x:rows.map(r=>r[metric]),marker:{color:rows.map(r=>r[metric]<0?'#b34941':'#267b83')},hovertemplate:'%{y}<br>%{x:.2f} points<extra></extra>'}],{title:el('metric').selectedOptions[0].text,margin:{l:210,r:20,t:55,b:50},yaxis:{autorange:'reversed',automargin:true},xaxis:{title:'Rating points'},paper_bgcolor:'white',plot_bgcolor:'white'},{responsive:true,displaylogo:false})}
+el('source').textContent=`Run: ${DATA.source.model} · ${DATA.source.start}–${DATA.source.end}. Snapshot values retain full precision; display rounded to two decimal places.`;
+}
+for(const id of ['subject','group','status','metric','top'])el(id).addEventListener('change',render);el('search').addEventListener('input',render);render();
+</script></body></html>
