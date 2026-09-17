@@ -1,12 +1,18 @@
 # Proposal: per-chii rating drift after mean preservation
 
 Date: 12 September 2026.
-Status: proposed; no analysis has been run under this proposal.
+Status: implemented and run on 12 September 2026. See
+[Per-Chii Drift Findings](Per-Chii%20Drift%20Findings.md) for findings and
+verification. The following records the agreed specification.
 
 ## Question and purpose
 
 After Elo89's pre- and post-basho normalisation, do the ratings of the
 occupants of a particular chii tend to rise or fall over historical time?
+
+We want to know whether, for example, the rating typically associated with M1
+has remained broadly similar since 1989, or has shifted substantially, even
+though the overall mean is held constant.
 
 The active population mean is fixed by construction. That does not fix the
 mean at each chii, the spread of ratings, or the gaps between groups of chii.
@@ -51,8 +57,8 @@ Reuse the bout ledger if needed for the existing validation.
 Record source paths and hashes, actual dates, grouping rules and all analysis
 settings in an output manifest. Keep output in a new subdirectory,
 `files/output/analysis/elo89_normalisation/chii_drift`, so the completed
-contribution study's outputs remain intact. A future command may be
-`python -m src.analysis.elo89_normalisation.chii_drift`; it does not yet exist.
+contribution study's outputs remain intact. The command is
+`python -m src.analysis.elo89_normalisation.chii_drift`; this command is now implemented.
 
 ## Observations and chii definitions
 

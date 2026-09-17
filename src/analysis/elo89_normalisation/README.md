@@ -45,14 +45,27 @@ If none is available, the report records that this comparison was not performed.
 
 ## Supplementary analyses
 
-**Proposed, not yet implemented:** [Per-chii rating drift after mean
-preservation](docs/Proposal%20-%20Per-Chii%20Rating%20Drift.md) asks whether
-ratings at particular banzuke positions trend over historical time despite
-the fixed population mean. It uses saved post-normalisation ratings and is
-distinct from the contribution accounting below.
+**Implemented and run:** [Per-chii rating drift after mean
+preservation](docs/Proposal%20-%20Per-Chii%20Rating%20Drift.md) examines ratings
+at particular banzuke positions over historical time despite the fixed
+population mean. Read [Per-Chii Drift Findings](docs/Per-Chii%20Drift%20Findings.md)
+for the findings and verification record. It uses both saved normalised
+endpoints and is distinct from the contribution accounting below.
 
-The Elo89 account's drafting is postponed until this study and its verification
-checks have been run and the findings reviewed. See the
+```powershell
+python -m src.analysis.elo89_normalisation.chii_drift
+```
+
+The command follows the same live-store default and accepts `--history-zip`,
+`--elo-root` and `--output-root`. Its separate default output directory is
+`files/output/analysis/elo89_normalisation/chii_drift`. Open `report.md` and
+`charts.html`; retain `chart_data` beside the HTML for offline use. The tables
+include literal chii, numbered east/west groups, title summaries, both endpoints,
+support counts, period contrasts and historical sensitivities. The saved prior
+is validated and hashed but not plotted because its grouping can differ.
+
+The study and verification checks have completed; the Elo89 account's drafting
+remains postponed pending the author's review of the findings. See the
 [documentation hand-off](../../products/make_site89/docs/Documentation%20Handoff.md).
 
 For the subsequent assessment allowing signed cancellation, read
@@ -91,6 +104,7 @@ The report includes signed minima/maxima and exact counts within and outside
 
 ```powershell
 python -m unittest discover -s tests -p test_elo89_normalisation.py -v
+python -m unittest discover -s tests -p test_elo89_chii_drift.py -v
 ```
 
 Read [the implementation proposal](docs/Proposal.md) for the questions, input

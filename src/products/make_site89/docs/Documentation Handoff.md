@@ -1,10 +1,11 @@
 # Elo89 documentation hand-off
 
-Updated 12 September 2026. **Documentation work is postponed until the proposed
-per-chii drift study has been run and its findings reviewed.** The next step is
-the [analysis proposal](../../../analysis/elo89_normalisation/docs/Proposal%20-%20Per-Chii%20Rating%20Drift.md),
-not further drafting. The study has not yet been implemented or run. This
-pause does not imply a decision to change the model.
+Updated 12 September 2026. **The per-chii drift study has been implemented,
+run and verified; documentation work remains postponed pending the author's
+review of its findings.** Read
+[Per-Chii Drift Findings](../../../analysis/elo89_normalisation/docs/Per-Chii%20Drift%20Findings.md)
+alongside the [analysis specification](../../../analysis/elo89_normalisation/docs/Proposal%20-%20Per-Chii%20Rating%20Drift.md).
+This pause does not imply a decision to change the model.
 
 ## Where we are
 
@@ -23,8 +24,8 @@ it is not a completed specification. Sections 5, 6 and 8–11 are not drafted.
 
 ## Next work
 
-1. Implement and run the proposed per-chii drift study, including its
-   verification checks, then review the findings and their limits.
+1. Review the completed per-chii drift findings and their limits. The
+   implementation, production run and verification checks are complete.
 2. Resume the normalisation account using that evidence. The proposed
    standalone section on connected divisions has been dropped: treating the
    banzuke as one population needs no separate argument here. Organise the
@@ -40,11 +41,11 @@ would leave a dependency unexplained. Do not proceed directly with section 7
 as though the preceding normalisation material had already settled its
 presentation. Section 7 retains its current number while the outline is paused.
 
-The specific unresolved empirical question is whether ratings at individual
+The empirical question examined is whether ratings at individual
 chii trend through historical time after population mean preservation. The
 completed contribution study and prior-iteration convergence do not answer
 that question. A preserved global mean establishes no drift in that mean;
-it does not establish stable ratings at each chii. The new study should
+it does not establish stable ratings at each chii. The completed findings should
 inform the wording without being presented as a causal test of normalisation.
 
 ## Decisions to preserve
