@@ -61,7 +61,7 @@ PAGES = PageRegistry(
         ),
         "banzuke_changes": PageDefinition(
             id="banzuke_changes",
-            title="Most Recent Banzuke",
+            title="The Banzuke",
             summary="",
             status=PageStatus.PROMOTED,
             artifact=artifact(

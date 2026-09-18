@@ -9,9 +9,12 @@ This document is now a contents page. The open-issues content has been split int
 1. [10.1 Selected History Coherence Audit](10.1%20Selected%20History%20Coherence%20Audit.md) - supporting audit already present before this split.
 2. [10.2 Open Issues - Baseline and Completed Corrections](10.2%20Open%20Issues%20-%20Baseline%20and%20Completed%20Corrections.md)
 3. [10.3 Open Issues - Publication Coherence](10.3%20Open%20Issues%20-%20Publication%20Coherence.md)
-4. [10.4 Open Issues - Defects and Deferred Matters](10.4%20Open%20Issues%20-%20Defects%20and%20Deferred%20Matters.md)
-5. [10.5 Open Issues - Priority View and Summary](10.5%20Open%20Issues%20-%20Priority%20View%20and%20Summary.md)
+4. [10.4(1) Open Issues - Defects and Deferred Matters](10.4%281%29%20Open%20Issues%20-%20Defects%20and%20Deferred%20Matters.md)
+5. [10.4(2) Open Issues - Defects and Deferred Matters](10.4%282%29%20Open%20Issues%20-%20Defects%20and%20Deferred%20Matters.md)
+6. [10.5 Open Issues - Priority View and Summary](10.5%20Open%20Issues%20-%20Priority%20View%20and%20Summary.md)
 
 ## Reading Notes
 
-Read `10.3` first when working on the active P0. Read `10.4` for the remaining defects and deferred modelling questions, then `10.5` for priority ordering.
+Read `10.3` first when working on the active P0. Read `10.4(1)` and
+`10.4(2)` for the remaining defects and deferred modelling questions, then
+`10.5` for priority ordering.

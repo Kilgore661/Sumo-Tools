@@ -51,16 +51,16 @@ PUBLIC_NAVIGATION = NavigationTree(
                         "notes-and-caveats",
                     ),
                     nav(
+                        "quick_banzuke_changes",
+                        "The Banzuke",
+                        "banzuke-changes",
+                        page_id="banzuke_changes",
+                    ),
+                    nav(
                         "quick_basho_results_browser",
                         "Basho Results",
                         "basho-results",
                         page_id="basho_results_browser",
-                    ),
-                    nav(
-                        "quick_banzuke_changes",
-                        "Most Recent Banzuke",
-                        "banzuke-changes",
-                        page_id="banzuke_changes",
                     ),
                     nav(
                         "career_comparisons",
