@@ -1,1 +1,1 @@
-"""Reserved for the yokozuna promotion investigation."""
+"""Retrospective classification experiments for yokozuna promotion."""

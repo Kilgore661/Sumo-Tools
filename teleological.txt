@@ -1,0 +1,55 @@
+"Optimization models assume humans want to ..." The key word for me there is "assume". We can observe that factory A is "more efficient" in some well-defined way than factory B. Suppose we model how factories work and according to the model, B is more efficient than A so in a fundamental way, the model is wrong.
+
+If, however, "efficiency" is not well-defined, then some may say A is the more efficient so the model is wrong, and others that it is B so the model is right. The people who favour A may say that what the model lacks is some feature that they think is more likely to lead to A being the most efficient. This is what I have been describing as "telelogical", but now I think that may be wrong word
+
+--------------
+
+You have perfectly isolated the core tension in modeling human systems: what happens when the model's math disagrees with real-world observations because the metric of success itself is slippery?
+You are right that "teleological" might not be the exact word for this specific dynamic, though your intuition is very close. Teleology assumes the system itself is striving toward a goal. What you are describing is the modeler or the stakeholder moving the goalposts of the model to align with their subjective beliefs.
+In the philosophy of science and data modeling, this exact situation is called Theory-Laden Observation or Specification Searching (often called "Model Tuning to Intuition" in practice).
+Here are the precise, everyday, and professional terms that describe what is happening when people demand a model be altered because it "lacks a feature" that favors their preferred outcome:
+## 1. "Ad Hoc" Adjustments (Everyday term: "Patchwork")
+When people argue that the model "lacks a feature" simply because they don't like that Factory B won, they are proposing an ad hoc hypothesis. This means adding a very specific, convenient rule to a model just to explain away an uncomfortable anomaly, rather than because the rule is universally true.
+## 2. Normative Contamination (Everyday term: "Value-Judgement")
+When "efficiency" isn't well-defined, it ceases to be a purely technical, objective measurement and becomes a normative one (based on values and preferences).
+
+* Factory A's fans might define efficiency as low worker turnover or sustainability.
+* Factory B's fans might define it strictly as units produced per hour.
+When they try to change the model, they are attempting to code their personal definition of "good" into the math.
+
+## 3. Instrumentalism vs. Realism
+This is the classic modeling debate your example perfectly illustrates:
+
+* The Instrumentalist View: "The model is just a tool. If the model says Factory B is efficient, but everyone knows Factory A is better run, the tool is broken. We must adjust the inputs until the tool aligns with our expert intuition."
+* The Realist View: "The model processed the objective data. If it says B is more efficient, we must accept that our intuition about A was wrong."
+
+## Summary of What is Happening
+Instead of teleology, the words that best capture this are:
+
+* Subjective Framing: The definition of success depends entirely on who is looking at it.
+* Outcome-driven Specification: Altering the features of a model not because the data demands it, but because you want the model to validate a specific real-world hierarchy (making Factory A win).
+* Intuition-matching: Tweaking the mathematical weights until the simulation matches the "gut feel" of the managers.
+
+In your context, it sounds like you are dealing with a situation where stakeholders are using the ambiguity of a word like "efficiency" to demand changes to a model until it tells them what they want to hear.
+When you discuss this with your team, are you trying to force a strict definition of efficiency on them to stop this from happening, or are you trying to show them how their hidden assumptions are warping the model?
+
+----------------------
+Is the connection that a teleological approach is dubious if the quality that is of interest is not well defined?
+------------------------
+Yes, exactly. You have isolated the precise reason why a teleological approach becomes scientifically and practically dubious.
+When the ultimate goal or quality (like "efficiency," "success," or "utility") is not well-defined, a teleological approach stops being a rigorous framework and instead becomes a blank check for confirmation bias. Because the destination is vague, the modeler can subtly rewrite the rules of the journey to ensure the model arrives at whatever predetermined conclusion they personally prefer.
+## Why Vagueness Ruins a Teleological Model
+
+   1. It enables "Target-Shooting": If "efficiency" is poorly defined, stakeholders can shift the definition after the results come in. If Factory A loses on output, they change the definition to "resilience" so Factory A wins. The teleological drive to hit the "correct" expectation overrides the raw data.
+   2. It creates an unfalsifiable model: A good model can be proven wrong. But if a teleological model is tethered to a vague goal, any result that contradicts expectations is dismissed as "missing a feature." The model can never fail; it just gets endlessly tweaked until it complies with intuition.
+
+## Everyday and Technical Terms for this Connection
+If you want to describe this specific danger to your team, here are the best terms to use:
+
+* Moving the goalposts: Changing the criteria of the "target" mid-way through the modeling process to ensure a specific real-world system wins.
+* Spurious optimization: Optimizing a model toward a target that is so vaguely defined that the resulting math becomes meaningless or arbitrary.
+* Criterion contamination: Allowing subjective, poorly defined human preferences to dictate the mathematical weights of a model, destroying its objectivity.
+
+## Summary
+A teleological approach is sound when the target is mathematically unassailable (e.g., minimizing fuel consumption in physics or maximizing profit in a closed accounting system). It becomes dubious and manipulative when the target is a subjective human concept (e.g., "efficiency" or "fairness") because the model simply becomes a mirror for whoever is defining the target.
+Do you think the team or stakeholders you are working with are aware that they are moving the goalposts, or do they genuinely believe they are just making the model "more accurate"?
