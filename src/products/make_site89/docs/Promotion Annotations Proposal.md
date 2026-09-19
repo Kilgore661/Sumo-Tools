@@ -2,20 +2,28 @@
 
 ## Status
 
-Proposal arising from the September 2026 product discussion about The Banzuke
-and Basho Results. No implementation has yet been approved or completed.
+Earlier product proposal arising from the September 2026 discussion about The
+Banzuke and Basho Results. No promotion-annotation implementation has been
+approved or completed. The annotation proposal is now **deferred** pending the
+[Promotion Prospects Statistical Analysis Proposal](../../../analysis/promotion/docs/Promotion%20Prospects%20Statistical%20Analysis%20Proposal.md).
 
-This proposal treats the following conventional promotion guidelines as the
-rules to present on the public site:
+The rules and UI below are preserved as the initial hypothesis to be evaluated,
+not as an operative implementation specification. A later product decision may
+retain, revise or reject them independently for Yokozuna and Ozeki promotion.
+
+The initial proposal treated the following conventional promotion guidelines
+as rules to present on the public site:
 
 - promotion to yokozuna requires two consecutive Makuuchi yusho while ranked
   ozeki; and
 - promotion to ozeki requires at least 33 wins over three consecutive held
   basho, with the rikishi ranked sekiwake or komusubi in all three.
 
-The repository also contains retrospective promotion-classification research.
-That research documents historical exceptions and alternative classifiers, but
-it must not silently change the simple public rules adopted for this feature.
+The repository also contains retrospective promotion-classification research
+which documents historical exceptions, sparse categories and alternative
+classifiers. The new statistical proposal makes review of that evidence a
+prerequisite to choosing whether the public site should present a rule,
+historical digest, qualified annotation, separate analysis page or nothing.
 
 ## Product context
 

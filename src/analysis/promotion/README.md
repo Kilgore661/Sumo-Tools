@@ -2,6 +2,14 @@
 
 Exploratory analysis of promotion decisions using the Sumo-Tools History.
 
+The [promotion prospects statistical analysis proposal](docs/Promotion%20Prospects%20Statistical%20Analysis%20Proposal.md)
+defines the next phase: descriptive support and uncertainty, score and rank
+breakdowns, chronological validation, temporal stability, and the evidence
+required before any public promotion annotation or probability is considered.
+Its implementation lives in the
+[promotion prospects package](prospects/README.md); the Ozeki pipeline is
+implemented there and the Yokozuna folder is currently reserved.
+
 - [Ozeki](ozeki/README.md): promotion audits and retrospective evaluation of
   rule-based binary classifiers.
 - [Yokozuna](yokozuna/README.md): consecutive-yusho benchmarks, exhaustive
