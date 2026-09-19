@@ -235,6 +235,21 @@ For Ozeki, produce:
 The small Yokozuna sample may support only descriptive tables. Do not force a
 predictive model merely to complete this phase.
 
+#### Deferred multiple-cutoff probe
+
+As a later exploratory Ozeki probe, vary a declared cutoff such as `2016/09`
+and compare A33 before and after it. A broader version could use multiple
+cutoffs to partition the history into non-overlapping periods, reporting each
+period's TP, FP, FN, precision, recall, F1 and named exceptions. This may reveal
+periods in which the traditional rule was unusually permissive, strict or
+exception-prone.
+
+This probe is noted but not implemented. Cutoffs selected because they produce
+interesting scores must remain exploratory and must not be described as
+institutional eras. Substantive era boundaries still require independent
+historical justification. Cumulative prefix/suffix samples also overlap, so
+their apparent agreement is not independent replication.
+
 ### Phase 4: interpretation
 
 Write a reader-facing account which separates:

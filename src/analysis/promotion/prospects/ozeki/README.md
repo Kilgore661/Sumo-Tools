@@ -4,6 +4,11 @@ This pipeline implements the Ozeki portion of the
 [promotion-prospects proposal](../../docs/Promotion%20Prospects%20Statistical%20Analysis%20Proposal.md).
 It produces research artifacts, not public-site data.
 
+The finalized publication copy explaining the chosen indicator, its evidence,
+exceptions and limitations is [Ozeki runs and Ozeki32](docs/Ozeki32.md). It
+uses **Ozeki32** as the public name; internal classifier labels remain confined
+to the analysis implementation and artifacts.
+
 From the repository root:
 
 ```powershell
@@ -42,4 +47,3 @@ The run writes:
 The fixed periods are diagnostics, not claims about institutional eras. The
 forward validation selects a rule only on the earlier period and evaluates the
 frozen selection on the later period.
-
