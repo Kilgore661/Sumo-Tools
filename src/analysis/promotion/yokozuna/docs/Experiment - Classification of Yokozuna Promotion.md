@@ -274,6 +274,60 @@ that historical outcomes do not consistently satisfy several conditions that
 modern observers might assume were indispensable. Stronger claims require
 contemporary historical sources.
 
+## Modern current-banzuke rule
+
+The unrestricted pair and triple optimizations answer a broad retrospective
+question. The intended publication feature is narrower: identify useful
+promotion prospects on the current banzuke without claiming that one rule
+describes every historical era.
+
+For that purpose, the selected modern rule is **YokYDJ**:
+
+> Across two consecutive basho at Ozeki, one result must be a yusho and the
+> other must be a yusho, doten-yusho or jun-yusho.
+
+It therefore selects the pair cells `YY`, `YD`, `YJ`, `DY` and `JY`. `YY` is
+the consecutive-yusho case; the other four cells are the experiment's explicit
+interpretation of "equivalent" results. The rule is evaluated from the start
+of Kakuryu's January 2014 evidence window, corresponding to promotion
+decisions from the May 2014 banzuke onward.
+
+The resolved qualifying cases through the September 2026 banzuke are:
+
+| Promotion banzuke | Rikishi | Pair | Outcome |
+|---|---|---:|---|
+| May 2014 | Kakuryu | `DY` | Promoted |
+| March 2017 | Kisenosato | `JY` | Promoted |
+| January 2021 | Takakeisho | `JY` | Not promoted |
+| September 2021 | Terunofuji | `YJ` | Promoted |
+| March 2023 | Takakeisho | `DY` | Not promoted |
+| March 2025 | Hoshoryu | `JY` | Promoted |
+| July 2025 | Onosato | `YY` | Promoted |
+
+Across the 183 resolved modern opportunities, YokYDJ has:
+
+| Classifier | TP | FP | FN | Precision | Recall | F1 |
+|---|---:|---:|---:|---:|---:|---:|
+| `YY` | 1 | 0 | 4 | 100.00% | 20.00% | 33.33% |
+| YokYDJ | 5 | 2 | 0 | 71.43% | 100.00% | **83.33%** |
+
+There is no observed `YD` opportunity in the selected period. Its inclusion is
+a declared structural choice: YokYDJ includes the doten-yusho counterpart to
+the observed `YJ` case. It neither helps nor harms the reported modern score.
+
+The result is a good in-sample description of a very small recent population,
+not a probability forecast. There are only five promotions and seven
+qualifying sequences, and Takakeisho supplies both non-promotion cases. A
+small number of future decisions can change the score substantially.
+
+January 2014 is a transparent product boundary rather than an optimized change
+point. Kakuryu was the first non-`YY` promotion after eight consecutive `YY`
+promotions from Asahifuji in 1990 through Harumafuji in 2012. The experiment
+does not establish that an official policy changed on that date.
+
+The public-facing account is maintained in
+[Yokozuna prospects and YokYDJ](../../prospects/yokozuna/docs/YokYDJ.md).
+
 ## In-sample fit and held-out performance
 
 Every maximum reported here is selected and scored on the same history. The

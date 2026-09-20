@@ -1,10 +1,14 @@
 # Ozeki runs and Ozeki32
 
-Promotion to Ozeki is decided by the Japan Sumo Association. There is no
-numerical formula which guarantees promotion, but rikishi are traditionally
-expected to demonstrate sustained success over three consecutive basho.
+Promotion to Ozeki is decided by the Japan Sumo Association. At the time of
+writing (2026), there does not seem to be a published JSA rule under which a
+numerical result automatically guarantees promotion. The JSA
+[publicly describes 33 wins at sanyaku as a benchmark
+(*meyasu*)](https://www.sumo.or.jp/Entertainment/quiz/236), and rikishi are
+traditionally expected to demonstrate sustained success over three consecutive
+basho.
 
-The traditional rule is:
+For this analysis, the traditional benchmark is:
 
 > At least 33 wins over three consecutive basho, with all three basho at
 > komusubi or sekiwake.
@@ -45,19 +49,19 @@ That gives Ozeki32:
 - 72% recall; and
 - an F1 score of **78%**.
 
-The traditional rule produced:
+The traditional benchmark produced:
 
 - 42 correctly identified promotions;
 - 4 qualifying runs without promotion; and
 - 29 promotions which it did not identify.
 
-That gives the traditional rule:
+That gives the traditional benchmark:
 
 - 91% precision;
 - 59% recall; and
 - an F1 score of **72%**.
 
-The traditional rule is more conservative: when it identifies a qualifying
+The traditional benchmark is more conservative: when it identifies a qualifying
 run, promotion is somewhat more likely. Ozeki32 identifies nine additional
 promotions at the cost of five additional non-promotion cases. Its much better
 coverage produces the higher overall F1 score.
@@ -133,10 +137,10 @@ fewer than 32 wins at komusubi or sekiwake.
 This suggests that Ozeki32 fits post-1985 promotion practice substantially
 better than the earlier history.
 
-### The traditional rule over time
+### The traditional benchmark over time
 
 September 2018 is the beginning of Takakeisho's 33-win run—the most recent run
-satisfying the traditional rule without immediate promotion.
+satisfying the traditional benchmark without immediate promotion.
 
 | Period | Promotions | Precision | Recall | F1 |
 |---|---:|---:|---:|---:|
@@ -144,7 +148,7 @@ satisfying the traditional rule without immediate promotion.
 | September 2018 onward | 11 | 88% | 64% | **74%** |
 | Complete history | 71 | 91% | 59% | **72%** |
 
-The traditional rule is remarkably stable around its chosen cutoff. Its
+The traditional benchmark is remarkably stable around its chosen cutoff. Its
 principal weakness in both periods is recall: it misses a substantial
 proportion of actual promotions.
 
@@ -161,7 +165,7 @@ compared directly:
 | Rule | Correct promotions | Non-promotions identified | Promotions missed | Precision | Recall | F1 |
 |---|---:|---:|---:|---:|---:|---:|
 | Ozeki32 | 51 | 9 | 20 | 85% | 72% | **78%** |
-| Traditional rule | 42 | 4 | 29 | 91% | 59% | **72%** |
+| Traditional benchmark | 42 | 4 | 29 | 91% | 59% | **72%** |
 
 Ozeki32 sacrifices some precision but identifies substantially more actual
 promotions, giving it the higher F1 score. This does not prove that the JSA
@@ -198,7 +202,7 @@ changes in promotion practice—please tell us what you found.
 
 All figures use three-basho windows beginning in January 1958 or later, with
 promotion outcomes observed from the July 1958 banzuke. The same population is
-used for Ozeki32, the traditional rule, the historical partitions and every
+used for Ozeki32, the traditional benchmark, the historical partitions and every
 named exception above.
 
 The analysis contains 71 ordinary qualification promotions. A promotion means

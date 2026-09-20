@@ -7,8 +7,8 @@ defines the next phase: descriptive support and uncertainty, score and rank
 breakdowns, chronological validation, temporal stability, and the evidence
 required before any public promotion annotation or probability is considered.
 Its implementation lives in the
-[promotion prospects package](prospects/README.md); the Ozeki pipeline is
-implemented there and the Yokozuna folder is currently reserved.
+[promotion prospects package](prospects/README.md); the Ozeki pipeline and the
+selected Yokozuna publication account are recorded there.
 
 - [Ozeki](ozeki/README.md): promotion audits and retrospective evaluation of
   rule-based binary classifiers.
@@ -32,3 +32,9 @@ championship-result representation. The maximum pair F1 is 66.67% on 31
 promotions. Adding a third-basho context raises the maximum in-sample F1 from
 65.62% to 77.42% on the common 30-promotion sample, with substantial sparsity
 and overfitting caveats.
+
+The public-facing [YokYDJ account](prospects/yokozuna/docs/YokYDJ.md) narrows
+the product question to current-banzuke prospects. For promotion decisions
+from May 2014 through September 2026, `YY, YD, YJ, DY, JY` gives 5 true
+positives, 2 false positives and no false negatives, for an F1 score of 83.33%.
+The short period and small number of decisions are explicit limitations.

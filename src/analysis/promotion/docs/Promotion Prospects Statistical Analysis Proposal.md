@@ -11,8 +11,10 @@ as a candidate output below.
 Implementation status: the Ozeki pipeline is implemented under
 [`src.analysis.promotion.prospects.ozeki`](../prospects/ozeki/README.md) and is
 ready for a full operator-run analysis. Only synthetic smoke data has been run
-during implementation. The Yokozuna analysis remains unimplemented in its
-reserved sibling folder.
+during implementation. The selected Yokozuna publication account is now
+recorded in the [Yokozuna prospects folder](../prospects/yokozuna/README.md),
+using the existing exploratory pair and triple analysis. A Yokozuna prospects
+data-production pipeline remains unimplemented.
 
 The earlier
 [Promotion Annotations Proposal](../../../products/make_site89/docs/Promotion%20Annotations%20Proposal.md)

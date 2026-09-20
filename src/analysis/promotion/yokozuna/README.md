@@ -6,6 +6,10 @@ for the observation contract, boundary evidence, methods, results, case
 interpretation and limitations. The experiment begins with consecutive yusho,
 expands to all ordered `Y/D/J/N` pairs, and then adds a third-basho context.
 
+The selected modern, current-banzuke interpretation and its public-facing
+account are recorded as
+[Yokozuna prospects and YokYDJ](../prospects/yokozuna/docs/YokYDJ.md).
+
 The current experiment classifies every two-basho ozeki window by its ordered
 pair of Makuuchi championship markers. `Y` is yusho, `D` is doten-yusho, `J`
 is jun-yusho and `N` means none of those markers.
@@ -48,6 +52,12 @@ On the full 31-promotion pair sample, two partitions tie at F1 66.67%:
 three-basho context, the best pair F1 is 65.62% and the best triple F1 is
 77.42%. These are maximum retrospective fits on the data used to select them,
 not estimates of future performance.
+
+For promotion decisions from May 2014 through September 2026, the selected
+modern YokYDJ set `YY, YD, YJ, DY, JY` has 5 true positives, 2 false positives
+and no false negatives: precision 71.43%, recall 100% and F1 83.33%. This short
+modern-period result, not the unrestricted full-history optimum, supports the
+selected current-banzuke indicator.
 
 ## Verification
 
