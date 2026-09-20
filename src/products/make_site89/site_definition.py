@@ -24,6 +24,20 @@ PAGES = PageRegistry(
             status=PageStatus.PROMOTED,
             artifact=artifact("what_this_site_is", "prose"),
         ),
+        "promotion_yokozuna": PageDefinition(
+            id="promotion_yokozuna",
+            title="Yokozuna promotion",
+            summary="",
+            status=PageStatus.PROMOTED,
+            artifact=artifact("promotion_yokozuna", "prose"),
+        ),
+        "promotion_ozeki": PageDefinition(
+            id="promotion_ozeki",
+            title="Ozeki promotion",
+            summary="",
+            status=PageStatus.PROMOTED,
+            artifact=artifact("promotion_ozeki", "prose"),
+        ),
         "why_ratings": PageDefinition(
             id="why_ratings",
             title="Why ratings?",

@@ -52,3 +52,19 @@ ELO89_VS_CHII_ARTIFACT = ProseArtifact(
     renderer="prose",
     path="prose/Elo-89 vs Chii.html",
 )
+
+PROMOTION_YOKOZUNA_ARTIFACT = ProseArtifact(
+    id="promotion_yokozuna",
+    heading="Yokozuna promotion",
+    kind="prose",
+    renderer="prose",
+    path="prose/YokYDJ.html",
+)
+
+PROMOTION_OZEKI_ARTIFACT = ProseArtifact(
+    id="promotion_ozeki",
+    heading="Ozeki promotion",
+    kind="prose",
+    renderer="prose",
+    path="prose/Ozeki32.html",
+)

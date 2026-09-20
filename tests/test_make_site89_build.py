@@ -67,6 +67,8 @@ def test_build_uses_only_produced_bundle(tmp_path: Path) -> None:
     assert (output.root / "runtime" / "site-manifest.json").is_file()
     assert (output.root / "runtime" / "site-data-bundle.json").is_file()
     assert (output.root / "sumo-history" / "basho-results" / "data" / "basho_results_index.json").is_file()
+    assert (output.root / "prose" / "YokYDJ.html").is_file()
+    assert (output.root / "prose" / "Ozeki32.html").is_file()
 
 
 def test_package_does_not_import_analysis_history_or_make_site2() -> None:

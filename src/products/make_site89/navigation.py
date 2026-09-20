@@ -189,6 +189,23 @@ RESEARCH_NAVIGATION = NavigationTree(
                     ),
                 ),
         nav(
+                    "promotion",
+                    "Promotion",
+                    "promotion",
+                    nav(
+                        "promotion_yokozuna",
+                        "Yokozuna",
+                        "yokozuna",
+                        page_id="promotion_yokozuna",
+                    ),
+                    nav(
+                        "promotion_ozeki",
+                        "Ozeki",
+                        "ozeki",
+                        page_id="promotion_ozeki",
+                    ),
+                ),
+        nav(
                     "rikishi",
                     "Rikishi",
                     "rikishi",

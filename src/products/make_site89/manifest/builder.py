@@ -56,6 +56,14 @@ PANEL_DECLARATIONS: dict[str, PanelDeclaration] = {
         filters=(),
         artifact=a.WHAT_THIS_SITE_IS_ARTIFACT,
     ),
+    "promotion_yokozuna": PanelDeclaration(
+        filters=(),
+        artifact=a.PROMOTION_YOKOZUNA_ARTIFACT,
+    ),
+    "promotion_ozeki": PanelDeclaration(
+        filters=(),
+        artifact=a.PROMOTION_OZEKI_ARTIFACT,
+    ),
     "why_ratings": PanelDeclaration(
         filters=(),
         artifact=a.WHY_RATINGS_ARTIFACT,
