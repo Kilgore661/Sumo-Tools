@@ -235,10 +235,14 @@ The artifact Notes must communicate:
    boundary data, excludes rikishi already present there, and admits first
    appearances from `1989/03`. This is a temporary `make_site89` production
    constraint, not a ratings requirement.
-4. **Top-division groups.** `M` means Maegashira only. `KS` is the first
+4. **Available starting divisions.** Starting choices are derived from first
+   banzuke appearances after the supporting boundary. No eligible rikishi
+   first appeared in Jd, so Jd is not offered as a starting division; it
+   remains available as a destination for Jk starters.
+5. **Top-division groups.** `M` means Maegashira only. `KS` is the first
    appearance at either Komusubi or Sekiwake. Exact chii and annotations remain
    visible in the table.
-5. **Equal elapsed times.** Equal elapsed values receive consecutive positions
+6. **Equal elapsed times.** Equal elapsed values receive consecutive positions
    using the producer's deterministic secondary ordering; positions are not
    shared.
 

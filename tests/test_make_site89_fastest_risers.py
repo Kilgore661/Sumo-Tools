@@ -67,6 +67,11 @@ def test_fastest_risers_manifest_declares_specialised_table() -> None:
         "hide_retired",
     ]
     assert panel.heading.title == "Fastest and Slowest Risers"
+    notes = {note.id: note.text for note in FASTEST_RISERS_ARTIFACT.notes}
+    assert "No eligible rikishi first appeared in Jonidan" in notes[
+        "fastest_start_choices"
+    ]
+    assert "destination for Jonokuchi starters" in notes["fastest_start_choices"]
 
 
 def test_fastest_risers_model_applies_range_before_active_filter() -> None:
