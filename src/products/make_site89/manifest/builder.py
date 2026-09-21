@@ -148,6 +148,10 @@ PANEL_DECLARATIONS: dict[str, PanelDeclaration] = {
         filters=f.LONGEST_CAREERS_FILTERS,
         artifact=a.LONGEST_CAREERS_ARTIFACT,
     ),
+    "fastest_risers": PanelDeclaration(
+        filters=f.FASTEST_RISERS_FILTERS,
+        artifact=a.FASTEST_RISERS_ARTIFACT,
+    ),
     "career_comparisons": PanelDeclaration(
         filters=f.CAREER_COMPARISONS_FILTERS,
         artifact=a.CAREER_COMPARISONS_ARTIFACT,

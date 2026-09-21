@@ -264,6 +264,20 @@ PAGES = PageRegistry(
                 producer="sumo_history.career_lifecycle.career_length",
             ),
         ),
+        "fastest_risers": PageDefinition(
+            id="fastest_risers",
+            title="Fastest and Slowest Risers",
+            summary=(
+                "Rikishi ranked by the number of basho taken to progress "
+                "between selected rank groups."
+            ),
+            status=PageStatus.PROMOTED,
+            artifact=artifact(
+                "fastest_risers",
+                "table",
+                producer="fastest.milestone_matrix",
+            ),
+        ),
         "typical_rating_values": PageDefinition(
             id="typical_rating_values",
             title="Typical Elo-89 Ratings",

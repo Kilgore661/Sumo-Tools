@@ -12,7 +12,7 @@ from typing import Mapping, TextIO
 from src.infra.get_bios.FullShikonaStore import FullShikonaStore
 from src.infra.get_bios.api import BioStore, load_bio_store
 from src.sumo_core.BasicEnums import Division, MSD
-from src.sumo_core.BasicPrimitives import RikId, Riks
+from src.sumo_core.BasicPrimitives import Month, RikId, Riks, Year
 from src.sumo_core.Banzuke import Banzuke, RikChii, RikShikona
 from src.sumo_core.BashoState import BashoState
 from src.sumo_core.Chii import Chii
@@ -24,6 +24,7 @@ MATRIX_FILE_NAME = "first_rank_group_appearances.csv"
 MISSING_BIOS_FILE_NAME = "missing_bios.csv"
 RANKINGS_FILE_NAME = "rankings.json"
 DEFAULT_OUTPUT_ROOT = Path("files/output/analysis/fastest/milestone_matrix")
+DEFAULT_EPOCH = Date(Year(1989), Month(1))
 
 
 @dataclass(frozen=True)
@@ -89,15 +90,16 @@ def matrix_fieldnames() -> list[str]:
 def produce_milestone_matrix(
     history: History,
     *,
+    epoch: Date,
     output_root: Path = DEFAULT_OUTPUT_ROOT,
     bios: BioStore | None = None,
     shikona_store: FullShikonaStore | None = None,
     warning_stream: TextIO | None = None,
 ) -> MatrixOutputs:
     """Write the milestone matrix and the runtime-discovered missing-bio audit."""
-    _validate_history(history)
+    selected_history = _history_from_epoch(history, epoch)
     resolved_bios = bios if bios is not None else load_bio_store()
-    first_observations = _first_observations(history)
+    first_observations = _first_observations(selected_history)
     missing_rik_ids = frozenset(first_observations) - frozenset(resolved_bios.bios)
     missing_bios = tuple(
         MissingBio(
@@ -108,7 +110,7 @@ def produce_milestone_matrix(
         for rik_id in sorted(missing_rik_ids, key=int)
     )
 
-    eligible_history = _without_rikishi(history, missing_rik_ids)
+    eligible_history = _without_rikishi(selected_history, missing_rik_ids)
     names = (
         shikona_store
         if shikona_store is not None
@@ -119,7 +121,7 @@ def produce_milestone_matrix(
     rankings = _build_rankings(
         milestones,
         names,
-        history=history,
+        history=selected_history,
     )
 
     output_root.mkdir(parents=True, exist_ok=True)
@@ -159,15 +161,25 @@ def produce_milestone_matrix(
     )
 
 
-def _validate_history(history: History) -> None:
+def _history_from_epoch(history: History, epoch: Date) -> History:
     if not history:
         raise ValueError("History is empty")
-    first_date = min(history)
-    if str(first_date) != "1958/01":
+    dates = sorted(history)
+    epoch_index = next(
+        (
+            index
+            for index, date in enumerate(dates)
+            if int(date.year) == int(epoch.year)
+            and int(date.month) == int(epoch.month)
+        ),
+        None,
+    )
+    if epoch_index is None:
         raise ValueError(
-            "Fastest/slowest milestone production requires full History "
-            f"beginning at 1958/01; received {first_date}"
+            "Fastest/slowest milestone production requires the epoch to be a "
+            f"represented banzuke; received {epoch}"
         )
+    return History({date: history[date] for date in dates[epoch_index:]})
 
 
 def _first_observations(
@@ -297,6 +309,8 @@ def _build_rankings(
     history: History,
 ) -> dict[str, object]:
     group_position = {group: index for index, group in enumerate(GROUPS)}
+    latest_date = max(history)
+    active_rikishi = frozenset(history[latest_date].banzuke.riks)
     cohorts: dict[str, list[tuple[RikId, str, Milestone]]] = {
         group: [] for group in GROUPS
     }
@@ -324,6 +338,7 @@ def _build_rankings(
                     {
                         "rik_id": int(rik_id),
                         "shikona": names.full_shikona(rik_id),
+                        "active": rik_id in active_rikishi,
                         "elapsed_basho": finish.basho_ordinal
                         - start.basho_ordinal,
                         "start_chii": str(start.chii),
@@ -374,7 +389,7 @@ def _build_rankings(
             }
     dates = sorted(history)
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "history": {
             "start": str(dates[0]),
             "end": str(dates[-1]),

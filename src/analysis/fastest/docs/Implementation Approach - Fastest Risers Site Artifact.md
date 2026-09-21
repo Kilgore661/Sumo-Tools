@@ -2,10 +2,10 @@
 
 ## Status
 
-This document records the intended implementation approach for adding the
-Fastest Risers artifact to `make_site89`. It is a design decision, not an
-implementation. The producer contract and visible UI requirements are recorded
-separately in this package.
+Implemented and verified on 21 September 2026. This document records the
+design decision used to add the Fastest Risers artifact to `make_site89`; the
+producer contract and visible UI requirements are recorded separately in this
+package.
 
 The first website version is a proof of concept using the `1989/01` supporting
 boundary and admitting starter cohorts from `1989/03`. The implementation must
@@ -285,3 +285,58 @@ that is demonstrably shared.
 
 Until then, Fastest Risers remains a standard table page structurally and a
 purpose-built interactive page behaviourally.
+
+## Implementation record
+
+The delivered implementation follows the approach above without introducing a
+new top-level artifact kind or changing the shared control-cardinality rule.
+It adds:
+
+- `fastest_risers` to the site definition and Records navigation immediately
+  after Longest careers;
+- a declared table artifact and five URL-backed filter values;
+- a purpose-built presentation model, Options renderer, and grouped table
+  renderer under `runtime/site-refactor/ui/fastest-risers`;
+- a narrow content-panel dispatch branch for
+  `renderer="fastest_risers_table"`;
+- the producer output and artifact declaration to the site89 bundle contract;
+  and
+- focused producer, bundle, build, presentation-model, and table-renderer
+  tests.
+
+The implementation was exercised against the real `1989/01` to `2026/09`
+History. The final regenerated data contained 4,558 eligible rikishi and 19
+routes. The default `Jk` to `M` view contained 3,704 starters, of whom 184
+reached Maegashira. Jokoryu, Takerufuji, and Aonishiki occupied the first three
+positions, each with an elapsed value of eight basho.
+
+Browser checks covered the default view, a slowest `Ms` to `M` view with the
+retired-rikishi filter, and the zero-achiever `Sd` to `Y` route. They confirmed
+dependent destination choices, range-before-filter behaviour, preservation of
+historical positions, dynamic cohort text, grouped columns, and the explicit
+empty state.
+
+The focused implementation suite passed 29 tests. The repository-wide suite
+passed 367 tests and retained one unrelated pre-existing `make_site2`
+canonical-URL ordering failure. JavaScript syntax checks and the complete
+site89 bundle validation and static-site build also passed.
+
+## Operational discovery during verification
+
+The first complete site89 production attempt failed before reaching Fastest
+Risers because `rikishi_bios.json` did not contain seven rikishi introduced by
+the latest represented banzuke. The existing bio downloader fetched RikIds
+13006, 13008, 13009, 13012, 13013, 13014, and 13015. The existing full parser
+then rebuilt all 9,078 cached pages, after which the complete site89 bundle and
+website built successfully.
+
+This was an operational prerequisite failure, not a Fastest Risers calculation
+failure. The producer's own missing-bio audit behaved as designed during the
+earlier partial run. The episode nevertheless demonstrates the deferred
+site89 bootstrap problem recorded in the temporary architecture note: the
+deliverable has no single entry point which brings History, bios, analytical
+outputs, bundle assembly, and site construction into a coherent state.
+
+The current implementation does not repair that wider pipeline. The immediate
+site was produced by explicitly refreshing bios before running
+`src.analysis.site89` and `src.products.make_site89`.

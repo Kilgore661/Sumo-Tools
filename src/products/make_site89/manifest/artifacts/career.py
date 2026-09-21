@@ -78,6 +78,36 @@ LONGEST_CAREERS_ARTIFACT = TableArtifact(
     ),
 )
 
+FASTEST_RISERS_ARTIFACT = TableArtifact(
+    id="fastest_risers",
+    heading="Fastest Risers",
+    kind="table",
+    renderer="fastest_risers_table",
+    rows_source=DataSource(
+        id="rankings",
+        label="Fastest and slowest progression rankings",
+        path="sumo-history/records/fastest-risers/data/rankings.json",
+        media_type="application/json",
+    ),
+    columns=(
+        TableColumn(id="position", heading="#", source_field="position", sort_kind="numeric", sort_default_direction="ascending", align="right"),
+        TableColumn(id="shikona", heading="Shikona", source_field="shikona", sort_kind="text", align="left"),
+        TableColumn(id="start_chii", heading="Chii", source_field="start_chii", sort_key="start_chii_ordinal", sort_kind="chii_ordinal", align="left"),
+        TableColumn(id="start_date", heading="Basho", source_field="start_date", sort_kind="text", align="left"),
+        TableColumn(id="finish_chii", heading="Chii", source_field="finish_chii", sort_key="finish_chii_ordinal", sort_kind="chii_ordinal", align="left"),
+        TableColumn(id="finish_date", heading="Basho", source_field="finish_date", sort_kind="text", align="left"),
+        TableColumn(id="elapsed_basho", heading="Elapsed Basho", source_field="elapsed_basho", sort_kind="numeric", align="right", note_id="fastest_elapsed"),
+    ),
+    default_sort_column="position",
+    notes=(
+        Note(id="fastest_elapsed", applies_to=("all",), text="Elapsed Basho is the difference between the represented banzuke ordinals of the first destination appearance and the starting appearance. The starting basho is not counted; the immediately following represented banzuke is one basho later."),
+        Note(id="fastest_cohort", applies_to=("all",), text="A rikishi's starting cohort is the rank group of his first appearance after the supporting boundary. Exact starting rank is retained but does not create a separate cohort."),
+        Note(id="fastest_scope", applies_to=("all",), text="This proof of concept uses 1989/01 as supporting boundary data, excludes rikishi already present there, and admits first appearances from 1989/03. This is a temporary make_site89 production constraint, not a ratings requirement."),
+        Note(id="fastest_groups", applies_to=("all",), text="M means Maegashira only. KS is the first appearance at either Komusubi or Sekiwake. Exact chii and annotations remain visible in the table."),
+        Note(id="fastest_ties", applies_to=("all",), text="Equal elapsed values receive consecutive positions using the producer's deterministic secondary ordering; positions are not shared."),
+    ),
+)
+
 MOST_CONSECUTIVE_BOUTS_ARTIFACT = TableArtifact(
     id="most_consecutive_bouts", heading="Most Consecutive Bouts", kind="table", renderer="generic_table",
     rows_source=DataSource(id="longest_streak_candidates", label="Longest streak candidates", path="sumo-history/records/most-consecutive-bouts/data/longest_streak_candidates.csv", media_type="text/csv"),

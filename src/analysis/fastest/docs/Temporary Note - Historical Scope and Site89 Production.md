@@ -91,3 +91,53 @@ The `fastest` package will:
 The analytically preferable `1958/01` epoch remains supported as a CLI choice,
 but is deferred for website publication. A later production-architecture repair
 can select it without changing the progression calculation or UI contract.
+
+## Additional bootstrap issue confirmed during implementation
+
+The Fastest Risers site build exposed a second consequence of the same
+experimental production arrangement. The selected History contained seven
+new rikishi whose raw and parsed biographies had not yet been refreshed.
+`FullShikonaStore.from_sources()` therefore stopped an existing model-independent
+producer with `KeyError: 13006` before the complete site89 bundle could be
+created.
+
+The repository already has both stages needed to repair the prerequisite:
+
+```text
+src.infra.get_bios
+    -> missing raw Rikishi.aspx pages
+
+src.infra.get_bios.parser
+    -> files/output/infra/get_bios/rikishi_bios.json
+```
+
+Running those stages brought the bio store into closure with History and the
+complete site89 bundle then built successfully. This confirms that the problem
+is not a missing analytical producer. It is the absence of a product-level
+site89 bootstrap which orders and validates all required producers.
+
+`make_site2` acquired such an entry point in repository-root `_boot.ps1` when
+it was treated as the distributable product. `make_site89` began as an
+experiment, so `src.analysis.site89` was allowed to assume that established
+inputs such as History and parsed bios had already been refreshed by hand.
+Now that `make_site89` is the deliverable, it needs its own equivalent outer
+orchestration while preserving the existing boundary that the
+`src.products.make_site89` package itself is only an assembler.
+
+The intended eventual layering is therefore:
+
+```text
+site89 bootstrap
+    -> obtain or select coherent source data
+    -> build the required History branches
+    -> refresh and validate bio coverage
+    -> run site89 analytical producers
+    -> create and validate the site-data bundle
+    -> invoke the make_site89 assembler
+    -> optionally deploy
+```
+
+Cached/offline development and explicit refresh modes are an operational
+requirement of that future bootstrap. The Fastest Risers implementation does
+not attempt this repair; the bio stages were run manually to verify and build
+the artifact.

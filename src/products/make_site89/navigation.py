@@ -103,6 +103,12 @@ PUBLIC_NAVIGATION = NavigationTree(
                         "longest-careers",
                         page_id="longest_careers",
                     ),
+                    nav(
+                        "fastest_risers",
+                        "Fastest risers",
+                        "fastest-risers",
+                        page_id="fastest_risers",
+                    ),
                 ),
         nav(
                     "miscellaneous_stats",

@@ -7,9 +7,10 @@ from pathlib import Path
 
 from src.infra.live_store.api import get_history
 from src.infra.persistence.annotated_serialiser import load_history_with_annotations
-from src.sumo_core.History import History
+from src.sumo_core.BasicPrimitives import Month, Year
+from src.sumo_core.History import Date, History
 
-from .milestone_matrix import DEFAULT_OUTPUT_ROOT, produce_milestone_matrix
+from .milestone_matrix import DEFAULT_EPOCH, DEFAULT_OUTPUT_ROOT, produce_milestone_matrix
 
 
 DEFAULT_HISTORY_DIRECTORY = Path("files/output/Historys")
@@ -25,12 +26,28 @@ def build_parser() -> argparse.ArgumentParser:
         help="Use an explicit full annotated History zip instead of the live store.",
     )
     parser.add_argument(
+        "--epoch",
+        type=parse_date,
+        default=DEFAULT_EPOCH,
+        help=f"Supporting boundary banzuke in YYYY/MM format. Default: {DEFAULT_EPOCH}.",
+    )
+    parser.add_argument(
         "--output-root",
         type=Path,
         default=DEFAULT_OUTPUT_ROOT,
         help=f"Output directory. Default: {DEFAULT_OUTPUT_ROOT}.",
     )
     return parser
+
+
+def parse_date(value: str) -> Date:
+    try:
+        year_text, month_text = value.split("/")
+        return Date(Year(int(year_text)), Month(int(month_text)))
+    except Exception as exc:
+        raise argparse.ArgumentTypeError(
+            f"Invalid date {value!r}; expected YYYY/MM"
+        ) from exc
 
 
 def load_history(path: Path | None) -> tuple[History, str]:
@@ -58,9 +75,14 @@ def _load_zip(path: Path) -> History:
 def main() -> None:
     args = build_parser().parse_args()
     history, source = load_history(args.history_zip)
-    outputs = produce_milestone_matrix(history, output_root=args.output_root)
+    outputs = produce_milestone_matrix(
+        history,
+        epoch=args.epoch,
+        output_root=args.output_root,
+    )
     print(f"History source: {source}")
-    print(f"History range: {min(history)} to {max(history)}")
+    print(f"Source History range: {min(history)} to {max(history)}")
+    print(f"Analysis range: {args.epoch} to {max(history)}")
     print(f"Matrix rows: {outputs.row_count:,}")
     print(f"Missing bios excluded: {outputs.missing_bio_count:,}")
     print(f"Matrix CSV: {outputs.matrix_csv}")

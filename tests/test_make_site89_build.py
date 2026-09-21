@@ -32,6 +32,14 @@ def write_bundle(root: Path) -> Path:
                 content = json.dumps({"entries": [{"payload_path": "data/1989-03 1-change.csv"}]})
             elif relative.endswith("standings-by-wins/data/site_config.json"):
                 content = json.dumps({"anchor_token": "1989_01", "supported_num_basho": list(STANDINGS_WINDOWS)})
+            elif relative.endswith("fastest-risers/data/rankings.json"):
+                content = json.dumps(
+                    {
+                        "schema_version": 2,
+                        "history": {"start": "1989/01", "end": "2026/07"},
+                        "routes": {"Jk:M": {}},
+                    }
+                )
             else:
                 content = "{}" if relative.endswith(".json") else "fixture\n"
             path.write_text(content, encoding="utf-8")

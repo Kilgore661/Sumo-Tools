@@ -275,6 +275,80 @@ LONGEST_CAREERS_FILTERS = (
     ),
 )
 
+FASTEST_RISERS_FILTERS = (
+    Filter(
+        id="start",
+        label="Starting Division",
+        control="select",
+        default="Jk",
+        url_key="start",
+        values=tuple(
+            FilterValue(value=value, label=label)
+            for value, label in (
+                ("Jk", "Jonokuchi"),
+                ("Jd", "Jonidan"),
+                ("Sd", "Sandanme"),
+                ("Ms", "Makushita"),
+            )
+        ),
+    ),
+    Filter(
+        id="finish",
+        label="Division of Interest",
+        control="select",
+        default="M",
+        url_key="finish",
+        values=tuple(
+            FilterValue(value=value, label=label)
+            for value, label in (
+                ("Jd", "Jonidan"),
+                ("Sd", "Sandanme"),
+                ("Ms", "Makushita"),
+                ("J", "Juryo"),
+                ("M", "Maegashira"),
+                ("KS", "Komusubi/Sekiwake"),
+                ("O", "Ozeki"),
+                ("Y", "Yokozuna"),
+            )
+        ),
+    ),
+    Filter(
+        id="direction",
+        label="Direction",
+        control="select",
+        default="fastest",
+        url_key="direction",
+        values=(
+            FilterValue(value="fastest", label="Fastest"),
+            FilterValue(value="slowest", label="Slowest"),
+        ),
+    ),
+    Filter(
+        id="ranking_range",
+        label="Ranking Range",
+        control="select",
+        default="10",
+        url_key="range",
+        values=(
+            FilterValue(value="10", label="Top 10"),
+            FilterValue(value="20", label="Top 20"),
+            FilterValue(value="50", label="Top 50"),
+            FilterValue(value="all", label="All"),
+        ),
+    ),
+    Filter(
+        id="hide_retired",
+        label="Hide retired rikishi",
+        control="checkbox",
+        default=False,
+        url_key="hide_retired",
+        help=(
+            "Filters the selected ranking range. Positions are not "
+            "recalculated and the table is not refilled."
+        ),
+    ),
+)
+
 MOST_CONSECUTIVE_BOUTS_FILTERS = (
     Filter(
         id="clean_only",

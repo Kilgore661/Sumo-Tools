@@ -9,6 +9,9 @@ import { buildBashoResultsPresentationModel, renderBashoResultsPresentationTable
 import { buildRatingChangesPresentationModel, renderRatingChangesPresentationTable, selectedRatingChangesEntry, wireRatingChangesPresentationSorting } from "../ui/rating-changes-table.js";
 import { filterValueLabel, monthLabel, renderFilterSection, resolveBanzukeChangesDivision, resolveBashoCalendarState, resolveFilterState, resolveSelectedDataValue, resolveSelectedDivision, resolveSelectedFilterValueFromSource, resolveStandingsDivision, resolveStandingsWindow, selectedIndexEntry, selectedStandingsSource, wireFilterSection } from "../ui/filters.js";
 import { hideHelpPopover } from "../ui/help.js";
+import { renderFastestRisersControls } from "../ui/fastest-risers/controls.js";
+import { buildFastestRisersPresentationModel } from "../ui/fastest-risers/model.js";
+import { renderFastestRisersTable } from "../ui/fastest-risers/render.js";
 import { wirePAPanelLayout } from "../ui/layout.js";
 import { renderNotes, wireNotesPanel } from "../ui/notes.js";
 import { banzukeScanColumns, renderBanzukeChangesTable, renderGenericTable, renderIndexedTable, renderSectionedTable, renderStandingsTable, standingsRowsForState, wireTableSorting } from "../ui/tables.js";
@@ -30,6 +33,10 @@ async function renderContentPanel(panel, overrideState = null) {
     return;
   }
   if (artifact.kind === "table") {
+    if (artifact.renderer === "fastest_risers_table") {
+      await renderFastestRisersContentPanel(panel, artifact, overrideState);
+      return;
+    }
     await renderGenericTableContentPanel(panel, artifact, overrideState);
     return;
   }
@@ -243,6 +250,34 @@ async function renderGenericTableContentPanel(panel, artifact, overrideState = n
     '</section>',
     '</div>',
     '</section>'
+  ].join("");
+  wireFilterSection(panel, state, renderContentPanel);
+  wireTableSorting(panel, artifact, renderContentPanel);
+  wireNotesPanel();
+  wirePAPanelLayout();
+}
+async function renderFastestRisersContentPanel(panel, artifact, overrideState = null) {
+  const filters = panel.contents.filter_section.filters;
+  const requestedState = overrideState || resolveFilterState(filters, readFilterUrlState(filters));
+  const data = await fetchJson(artifact.rows_source.path);
+  const model = buildFastestRisersPresentationModel(data, requestedState);
+  const state = model.state;
+  writePanelUrl(panel.page_id, filters, state, { replace: true });
+
+  contentPanel.innerHTML = [
+    '<section class="content-panel">',
+    `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
+    renderContentSummary(panel.heading.summary),
+    '<div class="content-body">',
+    renderFastestRisersControls(model),
+    '<section class="pa-panel">',
+    '<div class="pa-slot">',
+    renderFastestRisersTable(artifact, model),
+    '</div>',
+    renderNotes(artifact, state),
+    '</section>',
+    '</div>',
+    '</section>',
   ].join("");
   wireFilterSection(panel, state, renderContentPanel);
   wireTableSorting(panel, artifact, renderContentPanel);
@@ -585,4 +620,4 @@ function bashoResultsTitle(state, entry, filters) {
   return `${division} Results for ${label}`;
 }
 
-export { renderContentPanel, renderIndexedTableContentPanel, renderBanzukeChangesContentPanel, renderSectionedTableContentPanel, renderGenericTableContentPanel, renderProseContentPanel, renderStandingsContentPanel, renderChartContentPanel, renderStandingWinProbabilityContentPanel, renderCareerLengthContentPanel, renderCareerComparisonsContentPanel, renderFinishByChiiContentPanel, renderStackedBarChartContentPanel, renderGroupedLineChartContentPanel, renderOrderedBarChartContentPanel, renderCategoryBarChartContentPanel, fetchArtifactCsvSet, renderArtifactTitleBlock, artifactTitle, bashoResultsTitle, renderNoBashoContentPanel, artifactForPAPanel };
+export { renderContentPanel, renderIndexedTableContentPanel, renderBanzukeChangesContentPanel, renderSectionedTableContentPanel, renderGenericTableContentPanel, renderFastestRisersContentPanel, renderProseContentPanel, renderStandingsContentPanel, renderChartContentPanel, renderStandingWinProbabilityContentPanel, renderCareerLengthContentPanel, renderCareerComparisonsContentPanel, renderFinishByChiiContentPanel, renderStackedBarChartContentPanel, renderGroupedLineChartContentPanel, renderOrderedBarChartContentPanel, renderCategoryBarChartContentPanel, fetchArtifactCsvSet, renderArtifactTitleBlock, artifactTitle, bashoResultsTitle, renderNoBashoContentPanel, artifactForPAPanel };

@@ -24,6 +24,7 @@ REQUIRED_ARTIFACT_IDS = frozenset(
         "division_stability",
         "finish_by_chii",
         "first_chii_appearance",
+        "fastest_risers",
         "highest_rating",
         "longest_careers",
         "makuuchi_rank_by_era",
@@ -47,6 +48,7 @@ REQUIRED_FILES = {
     "division_stability": ("banzuke-rank/division-stability/data/persistence.csv",),
     "finish_by_chii": tuple(f"performance/finish-by-chii/data/{name}_thresholds.csv" for name in ("top", "bottom")),
     "first_chii_appearance": ("banzuke-rank/rank-history/first-chii-appearance/data/appearances.csv",),
+    "fastest_risers": ("sumo-history/records/fastest-risers/data/rankings.json",),
     "highest_rating": ("sumo-history/records/highest-rating/data/highest_rating.csv",),
     "longest_careers": ("sumo-history/records/longest-careers/data/longest.csv",),
     "makuuchi_rank_by_era": ("banzuke-rank/banzuke-structure-over-time/makuuchi-rank-by-era/data/ranks.csv",),
@@ -156,6 +158,7 @@ def load_site_data_bundle(root: Path) -> SiteDataBundle:
     _validate_index_payloads(site_root, by_id["basho_results_browser"], "sumo-history/basho-results/data/basho_results_index.json")
     _validate_index_payloads(site_root, by_id["rating_changes"], "current-sumo/rating-changes/data/rating_changes_index.json")
     _validate_standings(site_root, by_id["standings_by_wins"])
+    _validate_fastest_risers(site_root)
 
     undeclared = sorted(
         PurePosixPath(path.relative_to(site_root).as_posix())
@@ -265,3 +268,16 @@ def _validate_standings(site_root: Path, artifact: BundleArtifact) -> None:
             expected = base / f"{stem}{suffix}"
             if expected not in declared:
                 raise ValueError(f"Standings config references undeclared file {expected}")
+
+
+def _validate_fastest_risers(site_root: Path) -> None:
+    path = site_root / "sumo-history/records/fastest-risers/data/rankings.json"
+    data = json.loads(path.read_text(encoding="utf-8"))
+    if data.get("schema_version") != 2:
+        raise ValueError("Fastest Risers rankings must use schema version 2")
+    history = data.get("history")
+    if not isinstance(history, dict) or history.get("start") != "1989/01":
+        raise ValueError("Fastest Risers rankings must begin at 1989/01")
+    routes = data.get("routes")
+    if not isinstance(routes, dict) or not routes:
+        raise ValueError("Fastest Risers rankings must contain routes")

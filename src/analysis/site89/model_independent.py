@@ -6,6 +6,7 @@ import shutil
 from pathlib import Path
 from collections import defaultdict
 
+from src.analysis.fastest.milestone_matrix import produce_milestone_matrix
 from src.analysis.persistence.division_persistence import compute_division_persistence
 from src.analysis.persistence.reports import write_persistence_csv
 from src.analysis.sumo_history.career_lifecycle.career_length import build_career_length_outputs
@@ -65,6 +66,17 @@ def produce_model_independent(
         produce_longest_careers(
             career_rikishi_csv=career.rikishi_csv,
             output_root=site_root / "sumo-history/records/longest-careers/data",
+        ),
+    )
+    fastest = produce_milestone_matrix(
+        history,
+        epoch=min(history),
+        output_root=work_root / "fastest-risers",
+    )
+    result["fastest_risers"] = (
+        _copy(
+            fastest.rankings_json,
+            site_root / "sumo-history/records/fastest-risers/data/rankings.json",
         ),
     )
 
