@@ -32,28 +32,34 @@ passage between any two divisions during a career.
 
 ## Historical scope
 
-Use the complete available annotated banzuke History.
+The command line declares an epoch and selects the annotated banzuke History
+from that represented banzuke onward. The epoch banzuke is a left boundary:
+rikishi already present on it may have begun their careers earlier. It is used
+to identify and exclude those boundary incumbents.
 
-The History begins at `1958/01`, but that banzuke is a left boundary: rikishi
-already present on it may have begun their careers earlier. It is used only to
-identify and exclude those boundary incumbents. The first eligible career
-starts are therefore on the `1958/03` banzuke.
+For the `make_site89` proof of concept, the CLI default is `1989/01`. The first
+eligible career starts are therefore on the `1989/03` banzuke.
 
 The declared analytical range is:
 
 ```text
-eligible career starts: 1958/03 through the latest represented banzuke
-supporting boundary:    1958/01
+eligible career starts: 1989/03 through the latest represented banzuke
+supporting boundary:    1989/01 (CLI default epoch)
 ```
 
-This analysis has no rating dependency and no `1989/01` restriction. It must
-not accept a post-1988 History as though it were a complete career-start
-source.
+The analysis itself has no rating dependency. A natural finished historical
+artifact would use the banzuke epoch `1958/01`, admitting starters from
+`1958/03`. The proof of concept deliberately accepts the narrower `1989/01`
+scope so that it can join the current consistently post-1988 `make_site89`
+artifact set without first redesigning site production. This is a temporary
+publication constraint, not an analytical claim about promotion history.
 
 The core analysis should accept a `History` object. The command-line wrapper
-should use the live store when available and an explicitly supplied annotated
-History zip otherwise, following the established analysis-package pattern.
-The producer manifest must record the actual source and represented range.
+should expose `--epoch`, defaulting to `1989/01`, and use the live store when
+available or an explicitly supplied annotated History zip otherwise, following
+the established analysis-package pattern. The requested epoch must exist in
+the source History. The producer manifest must record the actual source,
+epoch, and selected range.
 
 The producer also depends on parsed rikishi bio data and the established
 `FullShikonaStore` label policy. A rikishi represented in History but missing
@@ -92,8 +98,8 @@ membership. They must remain present in the retained full chii.
 ## Level-zero milestone matrix
 
 The first and lowest-level output is one wide CSV row for every rikishi in the
-represented History for whom bio data is available, including `1958/01`
-boundary incumbents. Its columns are:
+selected History for whom bio data is available, including epoch-boundary
+incumbents. Its columns are:
 
 ```text
 shikona
@@ -122,17 +128,18 @@ must sort on the adjacent ordinal column.
 `KS_chii` retains the actual first Komusubi or Sekiwake rank. All annotations
 remain in the chii string. Dates use `YYYY/MM`.
 
-`basho_ordinal` is the calculation key. The supporting `1958/01` banzuke is
-ordinal 1 and every next represented banzuke is `n + 1`, irrespective of
-calendar gaps caused by a cancelled tournament. Elapsed basho is therefore the
-difference between finishing and starting basho ordinals.
+`basho_ordinal` is the calculation key. The selected epoch banzuke is ordinal
+1 and every next represented banzuke is `n + 1`, irrespective of calendar gaps
+caused by a cancelled tournament. Elapsed basho is therefore the difference
+between finishing and starting basho ordinals.
 
 `rik_id` is the identity key. `shikona` is the catalogue-wide public label from
 `FullShikonaStore`, not an identity substitute.
 
 Keeping all represented rikishi makes this matrix a direct audit of History.
 The derived cohort analysis excludes any row whose earliest milestone is dated
-`1958/01`. Eligible career starts therefore begin at `1958/03`.
+at the epoch. With the default epoch, eligible career starts therefore begin at
+`1989/03`.
 
 The columns are in rank order, not necessarily career chronology. For example,
 a Makushita starter who is later demoted to Sandanme will have an `Ms_date`
@@ -180,8 +187,8 @@ the missing publication label.
 For each stable `RikId`:
 
 1. Find the earliest represented banzuke containing that rikishi.
-2. If it is `1958/01`, classify the rikishi as a boundary incumbent and exclude
-   him from every starter cohort.
+2. If it is the declared epoch, classify the rikishi as a boundary incumbent
+   and exclude him from every starter cohort.
 3. Otherwise, classify the first chii into exactly one starting group.
 4. Retain the exact starting basho, chii, and shikona.
 5. For every higher group, find the first subsequent banzuke appearance in
@@ -292,6 +299,7 @@ Each achieved start/finish route should expose a flat audit record containing:
 ```text
 rikishi_id
 shikona
+active
 fastest_position
 slowest_position
 elapsed_basho
@@ -306,6 +314,12 @@ finish_basho_ordinal
 ```
 
 The enclosing route supplies `start_group` and `finish_group`.
+
+`active` is true exactly when the rikishi is present on the latest represented
+banzuke. It is publication metadata, so it belongs in `rankings.json` rather
+than changing the locked-down thirty-eight-column milestone matrix. It permits
+a consumer to hide retired rikishi from an already selected historical ranking
+range without constructing or renumbering an active-only ranking.
 
 Define deterministic fastest ordering as:
 
@@ -378,8 +392,9 @@ The package must have no dependency on `make_site89` or a browser runtime.
 
 Unit tests should use small synthetic Histories covering:
 
-1. `1958/01` boundary incumbents being excluded;
-2. `1958/03` being the first eligible starting banzuke;
+1. epoch-boundary incumbents being excluded;
+2. the first represented post-epoch banzuke being the first eligible starting
+   banzuke;
 3. correct classification of every rank group;
 4. annotations not changing group membership;
 5. a consecutive-banzuke promotion producing `elapsed_basho = 1`;
@@ -394,16 +409,15 @@ Unit tests should use small synthetic Histories covering:
 14. `missing_bios.csv` placing `chii_ordinal` immediately after `chii`; and
 15. reconciliation of career, route, summary, exclusion, and manifest totals.
 
-A full-history audit should independently reproduce the starting-division
-counts established during the exploratory analysis and manually inspect the
-small Jd-, Sd-, and Ms-starting cohorts.
+A selected-history audit should independently reproduce the starting-division
+counts and manually inspect the small Jd-, Sd-, and Ms-starting cohorts.
 
 ## Acceptance criteria
 
 The producer is complete when:
 
-- it requires the supporting `1958/01` boundary and admits starters from
-  `1958/03` onward;
+- it requires the declared epoch to be represented, defaults that boundary to
+  `1989/01`, and admits starters from the next represented banzuke onward;
 - every eligible rikishi belongs to exactly one starting cohort;
 - no boundary incumbent enters a cohort or route;
 - every represented rikishi missing bio data is excluded, warned about once,
@@ -412,7 +426,10 @@ The producer is complete when:
 - every achieved route has reproducible chii, dates, and elapsed basho;
 - cohort and route summaries reconcile with the career records;
 - complete fastest and slowest positions are deterministic and untruncated;
-- all output is derived from the complete available banzuke History; and
+- every ranking record states whether the rikishi appears on the latest
+  represented banzuke;
+- all output is derived from the epoch-selected suffix of available banzuke
+  History; and
 - the outputs make no assumption about a future UI or site assembler.
 
 ## Deferred analysis

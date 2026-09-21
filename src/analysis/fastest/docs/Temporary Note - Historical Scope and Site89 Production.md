@@ -73,21 +73,21 @@ The bundle ultimately needs to preserve producer- or artifact-specific source
 provenance instead of presenting one global History range as applicable to
 every artifact.
 
-## Temporary decision for `fastest`
+## Deferred architectural decision for `fastest`
 
-Do not solve the site-production architecture as part of the progression data
-producer.
+Do not solve the site-production architecture as part of the progression
+artifact. For the first `make_site89` version, prefer consistency with its
+current post-1988 artifact set over complete historical scope.
 
 The `fastest` package will:
 
-- use complete banzuke History;
-- use `1958/01` only to exclude left-boundary incumbents;
-- admit career starts from `1958/03` onward;
+- expose an explicit command-line epoch, defaulting to `1989/01`;
+- use that epoch banzuke only to exclude left-boundary incumbents;
+- admit career starts from `1989/03` onward under the default;
 - produce self-contained, inspectable analytical outputs; and
 - remain independent of `src.analysis.site89` and
   `src.products.make_site89`.
 
-After the producer contract is settled, a separate artifact-design document
-will determine the required publication payload. The broader production issue
-can then be repaired before the artifact is integrated into `make_site89`.
-
+The analytically preferable `1958/01` epoch remains supported as a CLI choice,
+but is deferred for website publication. A later production-architecture repair
+can select it without changing the progression calculation or UI contract.
