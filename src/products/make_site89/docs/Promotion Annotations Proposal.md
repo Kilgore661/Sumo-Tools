@@ -2,10 +2,19 @@
 
 ## Status
 
-Earlier product proposal arising from the September 2026 discussion about The
-Banzuke and Basho Results. No promotion-annotation implementation has been
-approved or completed. The annotation proposal is now **deferred** pending the
-[Promotion Prospects Statistical Analysis Proposal](../../../analysis/promotion/docs/Promotion%20Prospects%20Statistical%20Analysis%20Proposal.md).
+Historical product proposal arising from the September 2026 discussion about
+The Banzuke and Basho Results. It is retained because it records important
+product context and rejected alternatives, but it is no longer the operative
+implementation specification.
+
+The authoritative requirements are now in
+[Promotion Annotations - Final Proposal](Promotion%20Annotations%20-%20Final%20Proposal.md).
+Before changing or extending them, read
+[Promotion Annotations - Here Be Dragons](Promotion%20Annotations%20-%20Here%20Be%20Dragons.md),
+which preserves the analytical and domain reasons not to turn the annotations
+into probabilities or attempt an in-progress Yokozuna feasibility calculation.
+
+No promotion-annotation implementation has yet been completed.
 
 The rules and UI below are preserved as the initial hypothesis to be evaluated,
 not as an operative implementation specification. A later product decision may

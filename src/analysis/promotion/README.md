@@ -38,3 +38,9 @@ the product question to current-banzuke prospects. For promotion decisions
 from May 2014 through September 2026, `YY, YD, YJ, DY, JY` gives 5 true
 positives, 2 false positives and no false negatives, for an F1 score of 83.33%.
 The short period and small number of decisions are explicit limitations.
+
+The resulting product contract is recorded in
+`src/products/make_site89/docs/Promotion Annotations - Final Proposal.md`.
+Its `Here Be Dragons` companion preserves why the site does not publish
+per-rikishi probabilities or attempt to decide whether a YokYDJ result remains
+possible before the complete torikumi and final results are known.

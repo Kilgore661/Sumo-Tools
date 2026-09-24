@@ -9,6 +9,7 @@ import {
 } from "./header-tree.js";
 import {
   compareNullableSortValues,
+  annotatedShikona,
   firstSortableColumn,
   isSortableColumn,
   recordWins,
@@ -320,9 +321,16 @@ function movementDirection(value) {
 function banzukeSideValue(row, side, columnId) {
   if (columnId === "chii") return escapeHtml(row[`${side}_chii`]);
   if (columnId === "shikona") {
-    return renderRikishiLink(
+    return annotatedShikona(
       row[`${side}_shikona`],
       row[`${side}_rikishi_id`],
+      {
+        highestChii: row[`${side}_highest_chii`],
+        promotionKind: row[`${side}_promotion_kind`],
+        promotionStatus: row[`${side}_promotion_status`],
+        promotionRequired: row[`${side}_promotion_required`],
+        promotionPreviousResult: row[`${side}_promotion_previous_result`],
+      },
     );
   }
   if (columnId === "result") {

@@ -16,6 +16,7 @@ BANZUKE_CHANGES_ARTIFACT = BanzukeChangesArtifact(
     config_source=DataSource(id="site_config", label="Site Config", path="current-sumo/banzuke-changes/site_config.json", media_type="application/json"),
     rows_source=DataSource(id="banzuke_change_report", label="Banzuke Change Report", path="current-sumo/banzuke-changes/data/banzuke_change_report.csv", media_type="text/csv"),
     notes=(
+        Note(id="note_annotations", applies_to=("all",), text="An asterisk means the rikishi is at a new career-high chii for the first time on this banzuke. Parenthesised numbers mark the site-defined Ozeki32 wins target at the start of the basho; an exclamation mark identifies a site-defined YokYDJ prospect. These are indicators, not official JSA promotion rules or guarantees. See Promotion > Ozeki and Promotion > Yokozuna."),
         Note(id="note_result", applies_to=("context",), text="In Result, arrows show movement between rank groups such as Maegashira, Komusubi, Sekiwake, Ozeki, Yokozuna or the lower divisions. This differs from the movement column, which shows movement up or down in banzuke slot order."),
         Note(id="note_delta", applies_to=("delta",), text="ΔBz measures how many east/west banzuke slots a rikishi moved. A full numbered rank change, such as M2e to M3e, counts as two slots."),
         Note(id="note_banzuke_style_sorting", applies_to=("banzuke_style",), text="Sorting is not available in banzuke-style view because the layout preserves the East/West banzuke structure. Disable banzuke-style view to sort."),

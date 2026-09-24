@@ -76,6 +76,7 @@ def produce_site89_bundle(
         ),
     )
     artifacts["banzuke_changes"] = produce_banzuke_changes(
+        history=history,
         structural_source_root=banzuke_source_root,
         ratings=ratings,
         output_root=site_root / "current-sumo/banzuke-changes",

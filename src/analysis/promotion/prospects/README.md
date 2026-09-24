@@ -13,3 +13,8 @@ The work is separated by promotion type:
 Nothing in this package implements public-site annotations. Its outputs are
 research artifacts intended to inform a later, separately approved product
 decision.
+
+That product decision is now recorded in
+`src/products/make_site89/docs/Promotion Annotations - Final Proposal.md`.
+The companion `Promotion Annotations - Here Be Dragons.md` preserves the
+statistical and domain limits which the implementation must not erase.

@@ -8,6 +8,9 @@ const tableSortStates = new Map();
 const SHIKONA_LINK_HELP = "Click for SumoDB; Alt-click for chart.";
 const BASHO_DATE_LINK_HELP = "Click for SumoDB; Alt-click for this site.";
 const RATING_LINK_HELP = "Click for ratings chart.";
+const HIGHEST_CHII = "*";
+const POSS_YOK = "!";
+const PROMOTION_ACHIEVED = "✓";
 
 function decimal(value, places) {
   return Number(value).toFixed(places);
@@ -156,6 +159,46 @@ function renderRikishiLink(shikona, rikishiId) {
   ].join("");
 }
 
+// Render canonical identity followed by independent current-page annotations.
+function annotatedShikona(shikona, rikishiId, annotations = {}) {
+  const renderedShikona = rikishiId
+    ? renderRikishiLink(shikona, rikishiId)
+    : escapeHtml(shikona || "");
+  const highest = truthyCsvValue(annotations.highestChii)
+    ? `<span class="shikona-annotation highest-chii" aria-label="At this career-high rank for the first time" title="At this career-high rank for the first time">${HIGHEST_CHII}</span>`
+    : "";
+  const promotion = renderPromotionAnnotation(annotations);
+  const renderedAnnotations = [highest, promotion].filter(Boolean).join(" ");
+  if (!renderedAnnotations) return renderedShikona;
+  return `${renderedShikona} <span class="shikona-annotations">(${renderedAnnotations})</span>`;
+}
+
+function renderPromotionAnnotation(annotations) {
+  const kind = String(annotations.promotionKind || "");
+  const status = String(annotations.promotionStatus || "");
+  if (!kind || status === "impossible") return "";
+  if (status === "achieved") {
+    return `<span class="shikona-annotation promotion-achieved" aria-label="Site-defined promotion result condition achieved" title="Site-defined promotion result condition achieved">${PROMOTION_ACHIEVED}</span>`;
+  }
+  if (kind === "ozeki32") {
+    const required = Number(annotations.promotionRequired);
+    if (!Number.isInteger(required)) return "";
+    const help = `Ozeki32 prospect: ${required} win${required === 1 ? "" : "s"} required`;
+    return `<span class="shikona-annotation promotion-ozeki32" aria-label="${escapeHtml(help)}" title="${escapeHtml(help)}">${required}</span>`;
+  }
+  if (kind === "yokydj") {
+    const previous = String(annotations.promotionPreviousResult || "");
+    const requirement = previous === "Y" ? "a Y, D or J result" : "a yusho";
+    const help = `Yokozuna prospect: previous result ${previous}; ${requirement} required`;
+    return `<span class="shikona-annotation promotion-yokydj" aria-label="${escapeHtml(help)}" title="${escapeHtml(help)}">${POSS_YOK}</span>`;
+  }
+  return "";
+}
+
+function truthyCsvValue(value) {
+  return value === true || String(value).toLowerCase() === "true" || String(value) === "1";
+}
+
 function careerComparisonHref(rikishiId) {
   return careerComparisonChartHref(rikishiId, {
     skill: "chii",
@@ -243,6 +286,9 @@ export {
   toggledSortDirection,
   tableCellAttributes,
   renderRikishiLink,
+  annotatedShikona,
+  renderPromotionAnnotation,
+  truthyCsvValue,
   renderBashoDateLink,
   renderRatingChartLink,
   careerComparisonHref,

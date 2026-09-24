@@ -2,14 +2,19 @@
 
 ## Status
 
-This document records the current design position for later work. It is a
-hand-off, not an implementation and not a revision of the existing Ozeki32
-policy document.
+Historical hand-off retained to show how the current-banzuke-only idea
+developed. It is not an implementation and not a revision of the existing
+Ozeki32 policy document.
 
-No producer, site manifest, runtime, prose artifact, test or existing proposal
-is changed by this note. Some existing documents still describe the earlier
-two-page and historical-annotation requirements; those should be reconciled
-only when implementation is explicitly authorised.
+The later, authoritative product contract is
+`src/products/make_site89/docs/Promotion Annotations - Final Proposal.md`.
+That proposal retains the fixed Ozeki32 annotation on The Banzuke and adds a
+countdown on current Basho Results only. Its companion `Here Be Dragons`
+document records why no probability or in-progress Yokozuna feasibility
+calculation is added.
+
+No producer, site manifest, runtime, prose artifact or test was changed by this
+historical note.
 
 ## Revised purpose
 

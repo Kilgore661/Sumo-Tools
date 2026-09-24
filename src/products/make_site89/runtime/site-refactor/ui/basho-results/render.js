@@ -2,7 +2,10 @@
 
 import { escapeHtml } from "../../utils/html.js";
 import { renderLabelWithHelp } from "../help.js";
-import { renderRikishiLink as renderSharedRikishiLink } from "../tables/shared.js";
+import {
+  annotatedShikona,
+  renderRikishiLink as renderSharedRikishiLink,
+} from "../tables/shared.js";
 import {
   appendHeaderCells,
   collectGroupBoundaries,
@@ -118,7 +121,17 @@ function leafCellAttributes(leaf, groupPosition = "") {
 function renderBashoResultsCell(row, path, index) {
   if (path === "reference.row_number") return escapeHtml(String(index + 1));
   if (path === "reference.shikona") {
-    return renderRikishiLink(row["reference.shikona"], row["reference.rikishi_id"]);
+    return annotatedShikona(
+      row["reference.shikona"],
+      row["reference.rikishi_id"],
+      {
+        highestChii: row["reference.highest_chii"],
+        promotionKind: row["reference.promotion_kind"],
+        promotionStatus: row["reference.promotion_status"],
+        promotionRequired: row["reference.promotion_required"],
+        promotionPreviousResult: row["reference.promotion_previous_result"],
+      },
+    );
   }
   return escapeHtml(valueAtPath(row, path));
 }

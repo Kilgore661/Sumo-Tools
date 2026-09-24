@@ -28,6 +28,7 @@ from src.infra.get_bios.FullShikonaStore import FullShikonaStore
 from src.sumo_core.History import History
 
 from .common import delta_text, rating_text, write_csv, write_json
+from .shikona_annotations import current_basho_annotations
 
 
 FIELDS = (
@@ -36,6 +37,8 @@ FIELDS = (
     "previous_delta_direction", "previous_delta", "previous_result",
     "previous_rank_level_movement", "previous_chii", "previous_chii_ordinal",
     "previous_rating", "rating", "rating_delta", "nu_chii", "nu_chii_ordinal",
+    "highest_chii", "promotion_kind", "promotion_status", "promotion_required",
+    "promotion_previous_result",
 )
 
 
@@ -80,6 +83,7 @@ def _rows(history, date, ratings, names):
     previous = None if previous_date is None else history(previous_date)
     following = None if next_date is None else history(next_date)
     deltas = {} if previous is None else calculate_local_deltas(previous.banzuke, current.banzuke)
+    annotations = current_basho_annotations(history, date)
     rows = []
     for rid in sorted(current.banzuke.riks, key=lambda value: current.banzuke.get_chii(value)):
         chii = current.banzuke.get_chii(rid)
@@ -89,8 +93,7 @@ def _rows(history, date, ratings, names):
         end = ratings.end_rating(date, rid)
         movement = deltas.get(rid)
         shikona = names.full_shikona(rid)
-        rows.append(
-            {
+        row = {
                 "basho": str(date),
                 "division_id": DIVISION_IDS[division_for_chii(chii)],
                 "division_label": DIVISION_LABELS[division_for_chii(chii)],
@@ -112,5 +115,15 @@ def _rows(history, date, ratings, names):
                 "nu_chii": "-" if new_chii is None else str(new_chii),
                 "nu_chii_ordinal": "-" if new_chii is None else new_chii.ordinal(),
             }
+        annotation = annotations.get(rid)
+        row.update(
+            annotation.csv_fields() if annotation is not None else {
+                "highest_chii": "false",
+                "promotion_kind": "",
+                "promotion_status": "",
+                "promotion_required": "",
+                "promotion_previous_result": "",
+            }
         )
+        rows.append(row)
     return rows

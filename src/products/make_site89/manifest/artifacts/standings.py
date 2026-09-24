@@ -75,6 +75,7 @@ BASHO_RESULTS_ARTIFACT = IndexedTableArtifact(
     ),
     default_sort_column="chii",
     notes=(
+        Note(id="note_annotations", applies_to=("all",), text="On the current basho only, an asterisk means the rikishi is at a new career-high chii for the first time on this banzuke. A parenthesised number is the remaining site-defined Ozeki32 wins target; an exclamation mark identifies an unresolved site-defined YokYDJ prospect; a tick means the relevant results condition was achieved. These are indicators, not official JSA promotion rules or guarantees. See Promotion > Ozeki and Promotion > Yokozuna."),
         Note(id="note_result", applies_to=("all",), text="Result shows the number of wins, losses, absences and prizes."),
         Note(id="note_movement", applies_to=("changes_context",), text="Movement notes placeholder. Replace with meaningful movement documentation."),
         Note(id="note_chii_movement", applies_to=("changes_context",), text="Chii movement notes placeholder. Replace with meaningful chii movement documentation."),
