@@ -208,6 +208,24 @@ BRB_FILTERS = (
     ),
 )
 
+TORIKUMI_FILTERS = (
+    Filter(
+        id="torikumi_day",
+        label="Day",
+        control="select",
+        default="latest",
+        url_key="day",
+    ),
+    Filter(
+        id="division",
+        label="Division",
+        control="select",
+        default="makuuchi",
+        url_key="division",
+        values=DIVISION_FILTER_VALUES,
+    ),
+)
+
 FINISH_BY_CHII_FILTERS = (
     Filter(
         id="division",

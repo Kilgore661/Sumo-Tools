@@ -84,6 +84,17 @@ PAGES = PageRegistry(
                 producer="banzuke_compare",
             ),
         ),
+        "torikumi": PageDefinition(
+            id="torikumi",
+            title="Torikumi for Future Days",
+            summary="Upcoming bouts annotated with Elo89 ratings and win forecasts.",
+            status=PageStatus.PROMOTED,
+            artifact=artifact(
+                "torikumi",
+                "indexed_table",
+                producer="site89.torikumi",
+            ),
+        ),
         "standings_by_wins": PageDefinition(
             id="standings_by_wins",
             title="Rolling Wins-Based Ranking",

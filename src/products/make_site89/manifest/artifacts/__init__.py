@@ -29,6 +29,7 @@ from .ratings import (
 )
 
 from .rating_changes import RATING_CHANGES_ARTIFACT
+from .torikumi import TORIKUMI_ARTIFACT
 from .prose import (
     ELO_EXPLANATION_ARTIFACT,
     ELO89_ASSUMPTIONS_ARTIFACT,

@@ -284,6 +284,7 @@ function renderFilter(filter, state, index, rowsBySource = {}) {
   return renderDropdownChoice(filter, values, selected);
 }
 function filterValues(filter, state, index, rowsBySource) {
+  if (filter.id === "torikumi_day" && index) return torikumiDayValues(index);
   if (filter.id === "basho_date" && index) return bashoSelectorValues(index);
   if (filter.id === "basho_year" && index) return supportedBashoYears(index);
   if (filter.id === "basho_month" && index) return SUMO_MONTHS;
@@ -291,6 +292,13 @@ function filterValues(filter, state, index, rowsBySource) {
   return filter.values || [];
 }
 function selectedFilterValue(filter, state, index) {
+  if (filter.id === "torikumi_day" && index) {
+    const values = torikumiDayValues(index).filter(value => !value.disabled);
+    const selected = String(state[filter.id] || "");
+    return values.some(value => value.value === selected)
+      ? selected
+      : String(index.default_day || values[0]?.value || "");
+  }
   if (filter.id === "basho_date" && index) {
     return selectedIndexEntry(index, state[filter.id]).basho;
   }
@@ -304,7 +312,7 @@ function renderRadioChoice(filter, values, selected) {
     ...values.map(value => [
       '<li>',
       '<label class="radio-control">',
-      `<input type="radio" name="${escapeHtml(filter.id)}" value="${escapeHtml(value.value)}"${value.value === selected ? " checked" : ""}>`,
+      `<input type="radio" name="${escapeHtml(filter.id)}" value="${escapeHtml(value.value)}"${value.value === selected ? " checked" : ""}${value.disabled ? " disabled" : ""}>`,
       `<span>${renderLabelWithHelp(value.label, value.help, `${filter.label} ${value.label}`)}</span>`,
       '</label>',
       '</li>',
@@ -313,6 +321,13 @@ function renderRadioChoice(filter, values, selected) {
     '</div>'
   ].join("");
 }
+function torikumiDayValues(index) {
+  return (index.entries || []).map(entry => ({
+    value: String(entry.day),
+    label: entry.label || `Day ${entry.day}`,
+    disabled: entry.disabled === true || !entry.payload_path,
+  }));
+}
 function renderDropdownChoice(filter, values, selected) {
   return [
     '<label class="filter-control">',
@@ -320,7 +335,8 @@ function renderDropdownChoice(filter, values, selected) {
     `<select name="${escapeHtml(filter.id)}">`,
     ...values.map(value => {
       const selectedAttr = value.value === selected ? " selected" : "";
-      return `<option value="${escapeHtml(value.value)}"${selectedAttr}>${escapeHtml(value.label)}</option>`;
+      const disabledAttr = value.disabled ? " disabled" : "";
+      return `<option value="${escapeHtml(value.value)}"${selectedAttr}${disabledAttr}>${escapeHtml(value.label)}</option>`;
     }),
     '</select>',
     '</label>'
@@ -365,4 +381,4 @@ function divisionId(value) {
   return String(value || "").toLowerCase().replace(/\s+/g, "_");
 }
 
-export { filterValueLabel, resolveFilterState, coerceFilterValue, resolveSelectedDivision, resolveBanzukeChangesDivision, resolveStandingsWindow, resolveStandingsDivision, selectedStandingsSource, wireFilterSection, selectedIndexEntry, latestIndexEntry, bashoSelectorValues, resolveBashoCalendarState, monthLabel, renderFilterSection, renderFilter, filterValues, selectedFilterValue, renderRadioChoice, renderDropdownChoice, dataSelectorValues, resolveSelectedFilterValueFromSource, resolveSelectedDataValue, normalizedSourceValue, divisionId };
+export { filterValueLabel, resolveFilterState, coerceFilterValue, resolveSelectedDivision, resolveBanzukeChangesDivision, resolveStandingsWindow, resolveStandingsDivision, selectedStandingsSource, wireFilterSection, selectedIndexEntry, latestIndexEntry, bashoSelectorValues, resolveBashoCalendarState, monthLabel, renderFilterSection, renderFilter, filterValues, selectedFilterValue, renderRadioChoice, renderDropdownChoice, dataSelectorValues, resolveSelectedFilterValueFromSource, resolveSelectedDataValue, normalizedSourceValue, divisionId, torikumiDayValues };

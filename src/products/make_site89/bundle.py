@@ -34,6 +34,7 @@ REQUIRED_ARTIFACT_IDS = frozenset(
         "rank_at_retirement",
         "rating_changes",
         "standings_by_wins",
+        "torikumi",
         "typical_rating_values",
         "win_probability_by_standing",
     }
@@ -58,6 +59,7 @@ REQUIRED_FILES = {
     "rank_at_retirement": ("sumo-history/career-lifecycle/rank-at-retirement/data/distribution.csv",),
     "rating_changes": ("current-sumo/rating-changes/data/rating_changes_index.json",),
     "standings_by_wins": ("current-sumo/standings-by-wins/data/site_config.json",),
+    "torikumi": ("current-sumo/torikumi/data/torikumi_index.json",),
     "typical_rating_values": ("ratings-models/rating-and-rank/typical-rating-values/data/typical_rating_values.csv",),
     "win_probability_by_standing": tuple(f"ratings-models/observed-vs-modelled/win-probability-by-standing/data/{name}_trace_points.csv" for name in ("observed", "rating")),
 }
@@ -157,6 +159,13 @@ def load_site_data_bundle(root: Path) -> SiteDataBundle:
     by_id = {artifact.id: artifact for artifact in artifacts}
     _validate_index_payloads(site_root, by_id["basho_results_browser"], "sumo-history/basho-results/data/basho_results_index.json")
     _validate_index_payloads(site_root, by_id["rating_changes"], "current-sumo/rating-changes/data/rating_changes_index.json")
+    _validate_index_payloads(
+        site_root,
+        by_id["torikumi"],
+        "current-sumo/torikumi/data/torikumi_index.json",
+        allow_empty=True,
+        allow_disabled_without_payload=True,
+    )
     _validate_standings(site_root, by_id["standings_by_wins"])
     _validate_fastest_risers(site_root)
 
@@ -229,15 +238,27 @@ def _required_string(source: dict, key: str) -> str:
 
 
 def _validate_index_payloads(
-    site_root: Path, artifact: BundleArtifact, index_path: str
+    site_root: Path,
+    artifact: BundleArtifact,
+    index_path: str,
+    *,
+    allow_empty: bool = False,
+    allow_disabled_without_payload: bool = False,
 ) -> None:
     index = json.loads((site_root / index_path).read_text(encoding="utf-8"))
     entries = index.get("entries")
-    if not isinstance(entries, list) or not entries:
+    if not isinstance(entries, list) or (not entries and not allow_empty):
         raise ValueError(f"Indexed artifact {artifact.id!r} has no entries")
     base = PurePosixPath(index_path).parent
     declared = set(artifact.files)
     for entry in entries:
+        if (
+            allow_disabled_without_payload
+            and isinstance(entry, dict)
+            and entry.get("disabled") is True
+            and not entry.get("payload_path")
+        ):
+            continue
         payload = entry.get("payload_path") if isinstance(entry, dict) else None
         if not isinstance(payload, str) or not payload:
             raise ValueError(f"Indexed artifact {artifact.id!r} has an invalid payload path")

@@ -14,6 +14,7 @@ import { buildFastestRisersPresentationModel } from "../ui/fastest-risers/model.
 import { renderFastestRisersTable } from "../ui/fastest-risers/render.js";
 import { wirePAPanelLayout } from "../ui/layout.js";
 import { renderNotes, wireNotesPanel } from "../ui/notes.js";
+import { renderTorikumiTable, selectedTorikumiEntry } from "../ui/torikumi.js";
 import { banzukeScanColumns, renderBanzukeChangesTable, renderGenericTable, renderIndexedTable, renderSectionedTable, renderStandingsTable, standingsRowsForState, wireTableSorting } from "../ui/tables.js";
 import { escapeHtml } from "../utils/html.js";
 
@@ -24,6 +25,10 @@ async function renderContentPanel(panel, overrideState = null) {
   const declaredArtifact = getRuntimeManifest().artifacts[artifactId];
   if (!declaredArtifact) throw new Error(`Unknown artifact: ${artifactId}`);
   const artifact = artifactForPAPanel(panel, declaredArtifact);
+  if (artifact.id === "torikumi") {
+    await renderTorikumiContentPanel(panel, artifact, overrideState);
+    return;
+  }
   if (artifact.kind === "indexed_table") {
     await renderIndexedTableContentPanel(panel, artifact, overrideState);
     return;
@@ -57,6 +62,55 @@ async function renderContentPanel(panel, overrideState = null) {
     return;
   }
   throw new Error(`Unsupported artifact kind: ${artifact.kind}`);
+}
+
+// Render future-day selection and the fixed East / West table.
+async function renderTorikumiContentPanel(panel, artifact, overrideState = null) {
+  const filters = panel.contents.filter_section.filters;
+  const state = overrideState || resolveFilterState(filters, readFilterUrlState(filters));
+  const index = await fetchJson(artifact.indexed_source.index_path);
+  const selectedEntry = selectedTorikumiEntry(index, state.torikumi_day);
+  if (!selectedEntry) {
+    contentPanel.innerHTML = [
+      '<section class="content-panel">',
+      `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
+      renderContentSummary(panel.heading.summary),
+      '<div class="content-body"><section class="pa-panel"><div class="pa-slot">',
+      '<p>No torikumi</p>',
+      '</div></section></div>',
+      '</section>',
+    ].join("");
+    return;
+  }
+  const dataRoot = artifact.indexed_source.index_path.replace(/[^/]+$/, "");
+  const payloadPath = selectedEntry[artifact.indexed_source.payload_path_field];
+  const rows = await fetchCsv(`${dataRoot}${payloadPath.replace(/^data\//, "")}`);
+  const divisionIds = (index.divisions || []).map(division => division.id);
+  const requestedDivision = state.division || index.default_division;
+  const selectedDivision = divisionIds.includes(requestedDivision)
+    ? requestedDivision
+    : (divisionIds[0] || "makuuchi");
+  state.torikumi_day = String(selectedEntry.day);
+  state.division = selectedDivision;
+  writePanelUrl(panel.page_id, filters, state, { replace: true });
+  const divisionRows = rows.filter(row => row.division_id === selectedDivision);
+  const ratingsCutoff = selectedEntry.ratings_cutoff || index.ratings_cutoff;
+  const ratingsNote = ratingsCutoff
+    ? `Forecasts use Elo89 ratings at ${escapeHtml(ratingsCutoff)}.`
+    : "Elo89 rating cutoff is unavailable.";
+  contentPanel.innerHTML = [
+    '<section class="content-panel">',
+    `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
+    renderContentSummary(panel.heading.summary),
+    '<div class="content-body">',
+    renderFilterSection(panel.contents.filter_section, state, index),
+    '<section class="pa-panel"><div class="pa-slot">',
+    `<div class="artifact-title-block"><h4>${escapeHtml(index.basho)}, ${escapeHtml(selectedEntry.label)}</h4>`,
+    `<p>${ratingsNote}</p></div>`,
+    renderTorikumiTable(divisionRows),
+    '</div></section></div></section>',
+  ].join("");
+  wireFilterSection(panel, state, renderContentPanel, index);
 }
 // Restrict artifact notes to the note ids owned by the current PAPanel.
 function artifactForPAPanel(panel, artifact) {
@@ -620,4 +674,4 @@ function bashoResultsTitle(state, entry, filters) {
   return `${division} Results for ${label}`;
 }
 
-export { renderContentPanel, renderIndexedTableContentPanel, renderBanzukeChangesContentPanel, renderSectionedTableContentPanel, renderGenericTableContentPanel, renderFastestRisersContentPanel, renderProseContentPanel, renderStandingsContentPanel, renderChartContentPanel, renderStandingWinProbabilityContentPanel, renderCareerLengthContentPanel, renderCareerComparisonsContentPanel, renderFinishByChiiContentPanel, renderStackedBarChartContentPanel, renderGroupedLineChartContentPanel, renderOrderedBarChartContentPanel, renderCategoryBarChartContentPanel, fetchArtifactCsvSet, renderArtifactTitleBlock, artifactTitle, bashoResultsTitle, renderNoBashoContentPanel, artifactForPAPanel };
+export { renderContentPanel, renderTorikumiContentPanel, renderIndexedTableContentPanel, renderBanzukeChangesContentPanel, renderSectionedTableContentPanel, renderGenericTableContentPanel, renderFastestRisersContentPanel, renderProseContentPanel, renderStandingsContentPanel, renderChartContentPanel, renderStandingWinProbabilityContentPanel, renderCareerLengthContentPanel, renderCareerComparisonsContentPanel, renderFinishByChiiContentPanel, renderStackedBarChartContentPanel, renderGroupedLineChartContentPanel, renderOrderedBarChartContentPanel, renderCategoryBarChartContentPanel, fetchArtifactCsvSet, renderArtifactTitleBlock, artifactTitle, bashoResultsTitle, renderNoBashoContentPanel, artifactForPAPanel };

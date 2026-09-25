@@ -63,6 +63,12 @@ PUBLIC_NAVIGATION = NavigationTree(
                         page_id="basho_results_browser",
                     ),
                     nav(
+                        "quick_torikumi",
+                        "Torikumi",
+                        "torikumi",
+                        page_id="torikumi",
+                    ),
+                    nav(
                         "career_comparisons",
                         "Rikishi history",
                         "career-comparisons",

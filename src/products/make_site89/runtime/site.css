@@ -10,3 +10,20 @@
 @import url("./css/10-artifact-tables.css");
 @import url("./css/12-prose.css");
 @import url("./css/11-debug.css");
+.torikumi-table th,
+.torikumi-table td {
+  white-space: nowrap;
+}
+
+.torikumi-table .numeric {
+  text-align: right;
+}
+
+.torikumi-table .probability-east {
+  padding-right: 0.35rem;
+}
+
+.torikumi-table .probability-west {
+  padding-left: 0.35rem;
+  text-align: left;
+}

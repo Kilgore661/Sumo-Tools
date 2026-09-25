@@ -30,6 +30,8 @@ def write_bundle(root: Path) -> Path:
                 content = json.dumps({"entries": [{"payload_path": "data/by-basho/1989-01.csv"}]})
             elif relative.endswith("rating_changes_index.json"):
                 content = json.dumps({"entries": [{"payload_path": "data/1989-03 1-change.csv"}]})
+            elif relative.endswith("torikumi_index.json"):
+                content = json.dumps({"entries": []})
             elif relative.endswith("standings-by-wins/data/site_config.json"):
                 content = json.dumps({"anchor_token": "1989_01", "supported_num_basho": list(STANDINGS_WINDOWS)})
             elif relative.endswith("fastest-risers/data/rankings.json"):

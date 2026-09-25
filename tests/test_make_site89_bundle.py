@@ -33,6 +33,8 @@ def write_bundle(root: Path, *, model_id: str = "elo-89") -> Path:
                 content = json.dumps({"entries": [{"payload_path": "data/by-basho/1989-01.csv"}]})
             elif relative_text.endswith("rating_changes_index.json"):
                 content = json.dumps({"entries": [{"payload_path": "data/1989-03 1-change.csv"}]})
+            elif relative_text.endswith("torikumi_index.json"):
+                content = json.dumps({"entries": []})
             elif relative_text.endswith("standings-by-wins/data/site_config.json"):
                 content = json.dumps({"anchor_token": "1989_01", "supported_num_basho": list(STANDINGS_WINDOWS)})
             elif relative_text.endswith("fastest-risers/data/rankings.json"):
@@ -73,6 +75,36 @@ def test_loads_complete_elo89_bundle(tmp_path: Path) -> None:
     assert bundle.history_start == "1989/01"
     assert bundle.history_end == "2026/07"
     assert {artifact.id for artifact in bundle.artifacts} == REQUIRED_ARTIFACT_IDS
+
+
+def test_torikumi_index_allows_disabled_days_without_payloads(tmp_path: Path) -> None:
+    root = write_bundle(tmp_path)
+    index_path = root / "site/current-sumo/torikumi/data/torikumi_index.json"
+    index_path.write_text(
+        json.dumps(
+            {
+                "entries": [
+                    {"day": str(day), "label": f"Day {day}", "disabled": True}
+                    for day in range(1, 16)
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    load_site_data_bundle(root)
+
+
+def test_torikumi_index_rejects_enabled_day_without_payload(tmp_path: Path) -> None:
+    root = write_bundle(tmp_path)
+    index_path = root / "site/current-sumo/torikumi/data/torikumi_index.json"
+    index_path.write_text(
+        json.dumps({"entries": [{"day": "1", "disabled": False}]}),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="invalid payload path"):
+        load_site_data_bundle(root)
 
 
 def test_rejects_non_elo89_bundle(tmp_path: Path) -> None:

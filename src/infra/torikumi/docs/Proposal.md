@@ -2,42 +2,58 @@
 
 ## Status
 
-This document records the agreed work-in-progress design. It creates no
-production behaviour by itself. Names, particularly the public name
-`Torikumi`, remain provisional until the first artifact can be inspected.
+This document records the implemented work-in-progress design. The public
+name `Torikumi` remains provisional while the artifact is evaluated.
 
 ## Motivation
 
-The initial public artifact presents upcoming bouts together with Elo-89
+The public artifact presents published bouts together with Elo-89
 ratings and the modelled probability that each rikishi will win. Its purpose
-is to help a reader understand the upcoming torikumi, not to evaluate whether
-the model's forecasts were correct.
+is to help a reader understand action they have not yet watched, not to
+evaluate whether the model's forecasts were correct. A reader may be behind
+the live results, so the artifact retains every torikumi published for the
+represented basho even when its results are already present in `History`.
 
-The first version is deliberately prospective. Applying the same annotations
-retrospectively may later prove useful, but that question should be considered
-only after the upcoming-bout artifact has been produced and assessed.
+The artifact remains prospective in intent: no result or winner information
+is published. Retaining earlier days is a viewing-lag feature, not model
+backtesting.
 
 ## Public artifact
 
 The working public menu and artifact name is **Torikumi**.
 
-The page will show the available upcoming bouts by basho day. If more than one
-future day is available, the reader can select the day in the Options panel.
-The earliest available day is selected by default. A day must be offered
-because it exists in the produced data, not because the browser or site
-builder infers that it ought to be available from the wall clock.
+The page shows every acquired torikumi for the represented basho. The Options
+panel always declares Days 1 through 15. Published days are enabled,
+unpublished days are disabled, and the latest available day is selected by
+default. Fifteen declared values deliberately make the shared UI manager use
+a dropdown throughout the basho rather than changing from radio buttons to a
+dropdown part-way through. A day is enabled because it exists in the produced
+data, not because the browser or site builder infers availability from the
+wall clock.
 
-The initial table is conceptually:
+The Options panel also provides division radio buttons from **Makuuchi**
+through **Jonokuchi**, with Makuuchi selected by default. A bout involving
+rikishi from adjacent banzuke divisions belongs to the higher division, which
+matches the section in which a visitor's bout is conventionally presented and
+avoids displaying the same bout twice.
 
-| East | | Forecast | | | West |
+The **Torikumi** navigation link is always enabled. When the produced artifact
+contains no published days, the page remains reachable and its content
+panel displays **No torikumi**. Data availability is a page-content state, not
+a navigation state.
+
+The table is conceptually:
+
+| East | | | West | | |
 |---|---:|---:|---:|---:|---|
-| Shikona | Elo89 | East wins | West wins | Elo89 | Shikona |
+| Shikona | Elo89 | P(win) | P(win) | Elo89 | Shikona |
 | Fred | 1540 | 25% | 75% | 1731 | Bill |
 
-The `Forecast` heading spans two probability columns. Ratings and
-probabilities are essential properties of this artifact rather than optional
-overlays. The two probabilities must be complementary and must be calculated
-from the displayed pre-bout ratings by the selected Elo-89 model.
+`East` and `West` each span their three associated columns. Ratings and
+probabilities are essential properties rather than optional overlays. The two
+probabilities must be complementary and calculated from the displayed
+pre-bout ratings by Elo-89. A normal Shikona click opens the rikishi's SumoDB
+page; Alt-click opens their Elo89 career history, matching The Banzuke.
 
 The first version will not display:
 
@@ -55,10 +71,10 @@ The production system operates on supplied data, not on an inference about
 the real-world date. `Current`, `completed`, and `future` are relative to the
 production snapshot.
 
-For example, if the newest represented basho has results only through Day 12
-and contains a published Day 13 torikumi, Day 13 is the next available future
-day even if that snapshot is stale. The page should disclose its represented
-cutoff, but staleness must not make the build nondeterministic.
+For example, if the newest represented basho has results through Day 12 and
+contains a published Day 13 torikumi, Days 1 through 13 are available even if
+that snapshot is stale. The page discloses the rating cutoff used for the
+selected day, but staleness must not make the build nondeterministic.
 
 The site builder must not decide:
 
@@ -95,7 +111,6 @@ A possible initial layout is:
 
 ```text
 files/output/torikumi/
-    manifest.json
     future.json
     raw/
         2026 09/
@@ -104,16 +119,16 @@ files/output/torikumi/
 ```
 
 The exact filenames and schema are implementation decisions, but raw
-advance-torikumi snapshots must not be written into the existing
+torikumi snapshots must not be written into the existing
 `files/output/HTML results` cache.
 
 ## Infrastructure boundary
 
 The new package is `src.infra.torikumi`. It owns:
 
-1. identifying plausible future-day source URLs from a supplied production
+1. identifying the bounded day source URLs from a supplied production
    snapshot;
-2. downloading advance `Results.aspx` pages into its separate raw cache;
+2. downloading `Results.aspx` pages into its separate raw cache;
 3. positively recognizing a usable torikumi;
 4. extracting ordered and oriented scheduled bouts;
 5. constructing a coherent `Future` object; and
@@ -133,8 +148,10 @@ has been exercised during real basho.
 
 ## Future domain object
 
-`History` represents completed bout evidence. `Future` represents published
-scheduled bouts whose outcomes are not part of the production snapshot.
+`History` represents completed bout evidence. The provisionally named
+`Future` represents published schedules independently of their results. It
+may therefore include days at or before `completed_through`; result data is
+diagnostic input and is never a site-facing annotation.
 
 A provisional logical shape is:
 
@@ -144,6 +161,8 @@ class FutureBout:
     order: int
     east: RikId
     west: RikId
+    east_shikona: str | None
+    west_shikona: str | None
 
 
 @dataclass(frozen=True)
@@ -166,11 +185,11 @@ important initial properties are:
 
 - bout order is preserved;
 - East/West orientation is preserved;
+- source shikona are retained for new `Mz` rikishi not yet known elsewhere;
 - outcomes are not required or represented as forecast annotations;
 - availability is represented by membership rather than inferred from time;
-- zero, one, or several future days can be represented; and
-- every represented day is later than the completed-results cutoff of the
-  supplied snapshot.
+- zero through fifteen published days can be represented; and
+- completed and result-free schedules have the same site-facing semantics.
 
 Ratings do not belong to `Future`. It is a model-independent representation
 of published scheduled bouts.
@@ -187,10 +206,8 @@ will parse a downloaded `Results.aspx` document sufficiently to establish:
 - East/West orientation; and
 - source bout order.
 
-It may inspect result columns for diagnostics. If a candidate advance page
-contains results, it should report that fact clearly. The exact acceptance
-policy can be refined from real fixtures without affecting the existing
-History pipeline.
+It counts result columns for diagnostics, but continues to extract the whole
+schedule. Result values are not copied into the site-facing CSVs.
 
 Some HTML interpretation will initially duplicate the results parser. This is
 intentional isolation. Shared low-level parsing should be extracted only if
@@ -199,18 +216,18 @@ fixtures and tests later demonstrate a genuinely stable common boundary.
 ## Retrieval policy
 
 Completed-results retrieval is a historical full-prefix, gap-filling process.
-Advance-torikumi retrieval is different: it is time-sensitive and cannot be
-assumed to be retrospectively recoverable from an evolving source URL.
+Torikumi retrieval is different: future pages are time-sensitive and cannot
+be assumed to be retrospectively recoverable from an evolving source URL.
 
-For the first implementation, the Future updater may use the supplied
-History's latest represented basho and completed day to probe a small bounded
-set of later days. Any candidate day must also be bounded by Day 15. A page is
-retained only when the new parser positively recognizes a usable torikumi.
+The updater uses the supplied History's latest represented basho and probes
+all Days 1 through 15. A page is retained only when the new parser positively
+recognizes a usable torikumi. Probing the full bounded range retains schedules
+for viewers who have not yet watched days whose results are already known.
 
-The implementation must not hard-code an assumption that two advance days are
-available on a particular basho day. It should publish whichever future days
-were actually acquired and validated. Publication schedules can be tested and
-documented empirically without becoming browser logic.
+The implementation does not hard-code how many advance days are available on
+a particular basho day. It publishes whichever days were actually acquired
+and validated. Publication schedules can be tested and documented empirically
+without becoming browser logic.
 
 ## Site-facing producer
 
@@ -221,16 +238,36 @@ producer under `src.analysis.site89` will consume:
 Future + existing Elo89Artifacts -> Annotated Torikumi site data
 ```
 
-For each scheduled bout it will:
+For each scheduled bout it:
 
-1. obtain the applicable pre-bout Elo-89 rating for both rikishi;
+1. obtains the latest available same-basho Elo-89 rating strictly before that
+   bout's day, using basho-start ratings for Day 1;
 2. calculate complementary win probabilities;
 3. require ratings rather than treating them as an optional display mode; and
-4. emit the site-facing rows and day-selection metadata.
+4. emit the site-facing rows, day-selection metadata, and the rating snapshot
+   cutoff actually used.
 
-The policy for genuinely unavailable ratings must be decided from real data.
-The producer must not silently present an unannotated bout as though the
-artifact were complete.
+An `Mz` rikishi is absent from the banzuke and is not assigned an Elo89 rating.
+Their Elo89 is displayed as `-`, and both probabilities for that bout are
+displayed as `-`. The source shikona is used when the canonical name store does
+not yet know the entrant. An `Mz` bout is classified with its ranked opponent;
+an `Mz`-only bout appears under Jonokuchi, the lowest supported presentation
+group. Missing ratings for banzuke-listed rikishi remain a hard producer error
+rather than being disguised as expected `Mz` absence.
+
+For the initial prospective artifact, producing Torikumi data does not trigger
+an Elo-89 replay or rebuild the other site89 producer outputs. The producer
+loads the existing `Elo89Artifacts`. For each day it uses the latest available
+day-end snapshot from an earlier day, otherwise the basho-start snapshot. It
+reports the per-day cutoff rather than implying that the ratings are fresher
+than they are.
+
+This deliberately permits a Future snapshot to be newer than the available
+within-basho ratings while the artifact is being evaluated. It is sufficient
+to produce and inspect a working example so long as the Elo-89 artifacts
+contain the represented basho and ratings for every scheduled rikishi. A
+future production-orchestration design may enforce synchronized refreshes,
+but that is outside this prospective implementation.
 
 ## Site integration
 
@@ -240,15 +277,17 @@ Elo-89 run and will not calculate probabilities.
 Once the produced artifact exists, site integration will add:
 
 - the provisional **Torikumi** menu entry;
-- conditional availability driven by produced artifact metadata;
-- a page for the available future days;
-- radio controls when day selection is meaningful;
-- the grouped Forecast table heading; and
+- a permanently enabled link to the Torikumi page;
+- a **No torikumi** panel state when the artifact contains no available days;
+- a page for every published day in the represented basho;
+- a stable Days 1-to-15 dropdown with unpublished days disabled;
+- grouped three-column East and West table headings;
+- standard clickable Shikona links with Alt-click career navigation; and
 - the required table renderer and tests.
 
-The menu must not be enabled merely because the wall clock appears to be
-inside a basho. It is enabled when the production bundle contains a usable
-Annotated Torikumi artifact.
+The menu does not use the wall clock or produced-data availability to decide
+whether it is enabled. The artifact data alone determines whether the page
+shows available days or the empty state.
 
 ## Broader production context
 
@@ -266,45 +305,81 @@ production-context object is outside this proposal.
 
 ## Initial verification
 
-The first implementation should be supported by fixtures and tests covering:
+The implementation is supported by fixtures and tests covering:
 
 - a valid torikumi-only page;
 - preservation of bout order and East/West orientation;
 - malformed or empty pages;
 - a candidate page that unexpectedly contains results;
-- zero, one, and two available future days;
+- completed and result-free torikumi pages;
+- all fifteen selector entries and disabled unpublished days;
 - Day 15 bounds;
 - deterministic Future serialization;
 - rating and probability calculation for every published bout;
+- day-relative rating cutoffs;
+- `Mz` shikona and unknown-rating presentation;
 - complementary displayed probabilities; and
 - absence of changes to the existing results, History, and live-store path.
 
-## Addendum: decision not to patch the existing results parser
+## Addendum: decision not to patch the existing scraper or results parser
 
-During design, we considered adapting the existing daily-results parser to
-collect the scheduled bouts it already encounters while parsing a
-`Results.aspx` page. When the page contained no results, or contained missing
-results, it could have handed the collected torikumi to a `Future` accumulator
-before returning `None` to its existing caller. This would have reused the
-current row-parsing code efficiently and, if carefully implemented, need not
-have changed the `History` returned by `parser2`.
+During design, we considered adapting both parts of the existing results path.
+The existing scraper could have been extended to request advance
+`Results.aspx` pages, while the daily-results parser could have collected the
+scheduled bouts it already encounters. When the page contained no results, or
+contained missing results, the parser could have handed the collected
+torikumi to a `Future` accumulator before returning `None` to its existing
+caller. This would have reused the current downloading and row-parsing code
+efficiently and, if carefully implemented, need not have changed the
+`History` returned by `parser2`.
 
 We decided not to take that route for the first implementation. The existing
-results parser and History-production chain are mature, important production
-code. Adding a second output and a new side effect would increase their
-responsibilities and create a risk of unintended consequences in order to
-support an artifact whose usefulness and final form are still prospective.
+results scraper, results cache, parser, and History-production chain are
+mature, important production code. Advance pages also have different
+acquisition requirements: they use a separate cache, may need repeated
+refreshes, treat an unpublished page as normal absence, and validate the
+presence of a torikumi rather than completed results. Extending the existing
+path with those responsibilities, a second parser output, and a new side
+effect would create a risk of unintended consequences in order to support an
+artifact whose usefulness and final form are still prospective.
 
-The independent torikumi parser therefore accepts the cost of reimplementing
-some HTML interpretation. At this stage, isolation and a small failure radius
-are more valuable than eliminating that duplication. A failure in the new
-path should at worst prevent production of `Future` or Annotated Torikumi; it
-must not affect completed results, canonical History publication, the live
-store, or existing producers.
+The independent torikumi scraper and parser therefore accept the cost of
+reimplementing some HTTP acquisition and HTML interpretation. At this stage,
+isolation and a small failure radius are more valuable than eliminating that
+duplication. A failure in the new path should at worst prevent production of
+`Future` or Annotated Torikumi; it must not affect completed results, the
+existing raw-results cache, canonical History publication, the live store, or
+existing producers.
 
-This is not a decision that the two parsers must remain separate forever.
-After the new artifact has been exercised against real pages and protected by
-representative fixtures and tests, stable shared parsing operations may be
-extracted if doing so clearly reduces duplication without weakening the
-existing production boundary.
+This is not a decision that the two acquisition and parsing paths must remain
+separate forever. After the new artifact has been exercised against real
+pages and protected by representative fixtures and tests, stable shared HTTP
+or parsing operations may be extracted if doing so clearly reduces
+duplication without weakening the existing production boundary.
+
+## WIP production commands
+
+The WIP artifact can be refreshed without rebuilding Elo89. First
+download every published torikumi for the latest History basho:
+
+```text
+python -m src.infra.torikumi --history-zip "files/output/Historys/1989_01 to 2026_11.zip"
+```
+
+Then annotate that `Future` using the ratings already present in the site-data
+bundle:
+
+```text
+python -m src.analysis.site89.torikumi_cli --history-zip "files/output/Historys/1989_01 to 2026_11.zip"
+```
+
+Finally build the site locally without deploying to the configured server:
+
+```text
+py -m src.products.make_site89 --build-only
+```
+
+A complete site-data rebuild also consumes
+`files/output/torikumi/future.json` when that file exists, but the WIP commands
+above are the shorter path for exercising Torikumi without recomputing Elo89.
 

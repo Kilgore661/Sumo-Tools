@@ -88,6 +88,10 @@ PANEL_DECLARATIONS: dict[str, PanelDeclaration] = {
         filters=f.BANZUKE_CHANGES_FILTERS,
         artifact=a.BANZUKE_CHANGES_ARTIFACT,
     ),
+    "torikumi": PanelDeclaration(
+        filters=f.TORIKUMI_FILTERS,
+        artifact=a.TORIKUMI_ARTIFACT,
+    ),
     "standings_by_wins": PanelDeclaration(
         filters=f.STANDINGS_FILTERS,
         artifact=a.STANDINGS_BY_WINS_ARTIFACT,

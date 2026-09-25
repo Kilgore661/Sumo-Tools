@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import json
 import shutil
+from datetime import datetime, timezone
 from pathlib import Path
 
 from src.analysis.elo89 import Elo89Artifacts, produce_elo89
+from src.infra.torikumi import Future
 from src.sumo_core.History import History
 
 from .banzuke_changes import produce_banzuke_changes
@@ -17,6 +19,7 @@ from .model_independent import produce_model_independent
 from .rating_changes import produce_rating_changes
 from .standings import produce_standings
 from .typical_rating_values import produce_typical_rating_values
+from .torikumi import produce_torikumi
 from .win_probability import produce_win_probability_by_standing
 
 
@@ -30,6 +33,7 @@ def produce_site89_bundle(
     output_root: Path = DEFAULT_OUTPUT_ROOT,
     history_source: str = "provided History",
     banzuke_source_root: Path = DEFAULT_BANZUKE_SOURCE,
+    future: Future | None = None,
 ) -> Path:
     dates = sorted(history)
     if not dates or str(dates[0]) != "1989/01":
@@ -47,10 +51,29 @@ def produce_site89_bundle(
         history_source=history_source,
     )
     ratings = Elo89Artifacts.load(elo_root)
-    artifacts = produce_model_independent(
-        history=history,
-        work_root=work_root / "model-independent",
-        site_root=site_root,
+    current_date = dates[-1]
+    current_cutoff = history[current_date].summary.last_defined()
+    if future is None:
+        future = Future(
+            date=current_date,
+            completed_through=current_cutoff,
+            days=(),
+            generated_at=datetime.now(timezone.utc),
+        )
+    artifacts = {
+        "torikumi": produce_torikumi(
+            history=history,
+            future=future,
+            ratings=ratings,
+            output_root=site_root / "current-sumo/torikumi/data",
+        )
+    }
+    artifacts.update(
+        produce_model_independent(
+            history=history,
+            work_root=work_root / "model-independent",
+            site_root=site_root,
+        )
     )
 
     artifacts["basho_results_browser"] = produce_basho_results(
@@ -104,7 +127,7 @@ def produce_site89_bundle(
         "fastest_risers",
         "makuuchi_rank_by_era", "most_career_losses", "most_career_wins",
         "most_consecutive_bouts", "rank_at_retirement", "rating_changes",
-        "standings_by_wins", "typical_rating_values", "win_probability_by_standing",
+        "standings_by_wins", "torikumi", "typical_rating_values", "win_probability_by_standing",
     }
     if set(artifacts) != expected:
         raise AssertionError(f"Incomplete site89 artifact set: {sorted(set(artifacts) ^ expected)}")
@@ -119,6 +142,7 @@ def produce_site89_bundle(
             "fastest_risers": "src.analysis.fastest.milestone_matrix",
             "rating_changes": "src.analysis.site89.rating_changes",
             "standings_by_wins": "src.analysis.site89.standings",
+            "torikumi": "src.analysis.site89.torikumi",
             "typical_rating_values": "src.analysis.site89.typical_rating_values",
             "win_probability_by_standing": "src.analysis.site89.win_probability",
         }
