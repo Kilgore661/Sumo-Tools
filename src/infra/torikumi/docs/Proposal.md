@@ -46,7 +46,7 @@ The table is conceptually:
 
 | East | | | West | | |
 |---|---:|---:|---:|---:|---|
-| Shikona | Elo89 | P(win) | P(win) | Elo89 | Shikona |
+| Shikona | Elo89 | P(win), spanning both probability columns | | Elo89 | Shikona |
 | Fred | 1540 | 25% | 75% | 1731 | Bill |
 
 `East` and `West` each span their three associated columns. Ratings and

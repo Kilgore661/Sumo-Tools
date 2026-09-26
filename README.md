@@ -47,6 +47,12 @@ but Codex normally cannot access mapped network drives.
 Most build paths use a `History` object. There are two common ways to provide
 one:
 
+> **Important data-model caveat:** the parsed banzuke intentionally excludes
+> mae-zumo (`Mz`), although `Mz` rikishi and bouts can still appear in source
+> pages. Consequently, absence from the parsed banzuke does not always mean
+> absence from basho activity. See
+> [`docs/Mae-zumo (Mz) Data Semantics and Audit.md`](docs/Mae-zumo%20(Mz)%20Data%20Semantics%20and%20Audit.md).
+
 1. Use the live store:
    
    ```powershell
@@ -142,6 +148,7 @@ Current high-level status:
 | ---------------------------------------- | ------------------------------------------------------------------ |
 | `docs/LLM Guide.md`                      | Collaboration rules, environment notes and project style for LLMs. |
 | `docs/Open Issues.md`                    | After-the-fact bucket for significant unrecorded project-wide TBDs. |
+| `docs/Mae-zumo (Mz) Data Semantics and Audit.md` | Warning and required audit for `Mz`, banzuke membership and result coverage. |
 | `docs/Project Map.md`                    | Public-site product map and candidate pages.                       |
 | `docs/What is an Equelo Rating.md`       | Foundational explanation, assumptions and validation of Equelo.    |
 | `docs/House Style.md`                    | Writing and documentation conventions.                             |

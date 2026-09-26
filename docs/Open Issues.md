@@ -37,6 +37,18 @@ document should link to it rather than create a competing specification.
 
 ## Unordered captured items
 
+### Mae-zumo presence, banzuke membership and result coverage
+
+The parser intentionally excludes `Mz` because mae-zumo is not a formal
+banzuke rank. Source banzuke and results pages may nevertheless contain `Mz`
+entries and bouts, so absence from the project's parsed banzuke is not
+equivalent to absence from basho activity. This ambiguity may affect parsing,
+population inference, ratings, completeness checks and public products.
+
+The history of the decision, interim terminology and required source-to-
+product audit are recorded in
+[`Mae-zumo (Mz) Data Semantics and Audit.md`](Mae-zumo%20(Mz)%20Data%20Semantics%20and%20Audit.md).
+
 ### Historical sub-sekitori bout-count invariant
 
 The project contains several assumptions that rikishi below Juryo have a

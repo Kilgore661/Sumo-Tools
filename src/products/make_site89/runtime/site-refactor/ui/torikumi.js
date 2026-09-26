@@ -22,7 +22,7 @@ function renderTorikumiTable(rows) {
     '<table class="artifact-table torikumi-table">',
     '<thead>',
     '<tr><th colspan="3">East</th><th colspan="3">West</th></tr>',
-    '<tr><th>Shikona</th><th>Elo89</th><th>P(win)</th><th>P(win)</th><th>Elo89</th><th>Shikona</th></tr>',
+    '<tr><th>Shikona</th><th>Elo89</th><th colspan="2">P(win)</th><th>Elo89</th><th>Shikona</th></tr>',
     '</thead>',
     '<tbody>',
     ...rows.map(row => [

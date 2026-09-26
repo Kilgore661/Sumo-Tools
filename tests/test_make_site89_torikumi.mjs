@@ -58,6 +58,7 @@ const table = renderTorikumiTable([{
   west_id: "2",
 }]);
 assert.match(table, /<th colspan="3">East<\/th><th colspan="3">West<\/th>/);
+assert.match(table, /<th colspan="2">P\(win\)<\/th>/);
 assert.doesNotMatch(table, /Forecast/);
 assert.match(table, /Fred/);
 assert.match(table, /25%/);
