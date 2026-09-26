@@ -161,6 +161,10 @@ PANEL_DECLARATIONS: dict[str, PanelDeclaration] = {
         artifact=a.CAREER_COMPARISONS_ARTIFACT,
         public_url_keys=("rikishi",),
     ),
+    "rikishi_bio_data": PanelDeclaration(
+        filters=f.RIKISHI_BIO_FILTERS,
+        artifact=a.RIKISHI_BIO_DATA_ARTIFACT,
+    ),
     "typical_rating_values": PanelDeclaration(
         filters=(),
         artifact=a.TYPICAL_RATING_VALUES_ARTIFACT,

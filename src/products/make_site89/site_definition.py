@@ -176,6 +176,17 @@ PAGES = PageRegistry(
                 producer="make_site89.perf_chart",
             ),
         ),
+        "rikishi_bio_data": PageDefinition(
+            id="rikishi_bio_data",
+            title="Rikishi bio data",
+            summary="Age and latest available body measurements for rikishi on the latest banzuke.",
+            status=PageStatus.PROMOTED,
+            artifact=artifact(
+                "rikishi_bio_data",
+                "table",
+                producer="site89.rikishi_bio_data",
+            ),
+        ),
         "win_probability_by_standing": PageDefinition(
             id="win_probability_by_standing",
             title="Win Probability by Ranks",

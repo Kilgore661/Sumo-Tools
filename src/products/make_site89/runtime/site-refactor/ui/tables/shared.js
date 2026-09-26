@@ -77,6 +77,7 @@ function sortValue(column, row) {
   const value = row[source];
   if (column.sort_kind === "record") return recordWins(value);
   if (column.sort_kind === "numeric" || column.sort_kind === "chii_ordinal") {
+    if (value === "" || value === null || value === undefined) return null;
     const number = Number(value);
     return Number.isNaN(number) ? null : number;
   }

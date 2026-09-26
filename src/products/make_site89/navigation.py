@@ -75,6 +75,12 @@ PUBLIC_NAVIGATION = NavigationTree(
                         page_id="career_comparisons",
                     ),
                     nav(
+                        "rikishi_bio_data",
+                        "Rikishi bio data",
+                        "rikishi-bio-data",
+                        page_id="rikishi_bio_data",
+                    ),
+                    nav(
                         "quick_goats",
                         "GOATs",
                         "goats",

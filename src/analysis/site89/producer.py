@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from src.analysis.elo89 import Elo89Artifacts, produce_elo89
+from src.infra.get_bios.api import load_bio_store
 from src.infra.torikumi import Future
 from src.sumo_core.History import History
 
@@ -17,6 +18,7 @@ from .career_comparisons import produce_career_comparisons
 from .highest_rating import produce_highest_rating
 from .model_independent import produce_model_independent
 from .rating_changes import produce_rating_changes
+from .rikishi_bio_data import produce_rikishi_bio_data
 from .standings import produce_standings
 from .typical_rating_values import produce_typical_rating_values
 from .torikumi import produce_torikumi
@@ -119,6 +121,13 @@ def produce_site89_bundle(
         history=history,
         output_root=site_root / "current-sumo/standings-by-wins/data",
     )
+    artifacts["rikishi_bio_data"] = (
+        produce_rikishi_bio_data(
+            history=history,
+            bios=load_bio_store(),
+            output_root=site_root / "rikishi/bio-data/data",
+        ),
+    )
 
     expected = {
         "banzuke_changes", "banzuke_division_by_era", "basho_results_browser",
@@ -127,7 +136,7 @@ def produce_site89_bundle(
         "fastest_risers",
         "makuuchi_rank_by_era", "most_career_losses", "most_career_wins",
         "most_consecutive_bouts", "rank_at_retirement", "rating_changes",
-        "standings_by_wins", "torikumi", "typical_rating_values", "win_probability_by_standing",
+        "rikishi_bio_data", "standings_by_wins", "torikumi", "typical_rating_values", "win_probability_by_standing",
     }
     if set(artifacts) != expected:
         raise AssertionError(f"Incomplete site89 artifact set: {sorted(set(artifacts) ^ expected)}")
@@ -141,6 +150,7 @@ def produce_site89_bundle(
             "longest_careers": "src.analysis.site89.longest_careers",
             "fastest_risers": "src.analysis.fastest.milestone_matrix",
             "rating_changes": "src.analysis.site89.rating_changes",
+            "rikishi_bio_data": "src.analysis.site89.rikishi_bio_data",
             "standings_by_wins": "src.analysis.site89.standings",
             "torikumi": "src.analysis.site89.torikumi",
             "typical_rating_values": "src.analysis.site89.typical_rating_values",

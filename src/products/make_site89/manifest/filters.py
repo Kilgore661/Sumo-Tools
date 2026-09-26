@@ -40,6 +40,11 @@ RATING_CHANGES_DIVISION_FILTER_VALUES = (
     FilterValue(value="all", label="All"),
 )
 
+RIKISHI_BIO_DIVISION_FILTER_VALUES = (
+    *DIVISION_FILTER_VALUES,
+    FilterValue(value="all", label="All"),
+)
+
 WIN_PROBABILITY_BY_STANDING_DIVISION_FILTER_VALUES = (
     FilterValue(value="All", label="All"),
     FilterValue(value="Makuuchi", label="Makuuchi"),
@@ -223,6 +228,17 @@ TORIKUMI_FILTERS = (
         default="makuuchi",
         url_key="division",
         values=DIVISION_FILTER_VALUES,
+    ),
+)
+
+RIKISHI_BIO_FILTERS = (
+    Filter(
+        id="division",
+        label="Division",
+        control="select",
+        default="makuuchi",
+        url_key="division",
+        values=RIKISHI_BIO_DIVISION_FILTER_VALUES,
     ),
 )
 

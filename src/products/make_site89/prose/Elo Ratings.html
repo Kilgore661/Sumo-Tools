@@ -4,7 +4,7 @@
 
   <p>Grand Sumo is a natural place to consider such a system. Rikishi do not all face the same opponents, and a simple count of wins does not tell the whole story. A win over a yokozuna is not the same kind of evidence as a win over a struggling maegashira. A rating system should take account of the strength of the opponent.</p>
 
-  <p>The central idea of Elo is that ratings change in proportion to expectations. If a highly rated rikishi beats a much lower-rated opponent, the result is unsurprising and the rating change should be small. If the lower-rated rikishi wins, the result is more informative and the rating change should be larger. Elo is not merely a way of counting wins; it is a way of weighting results by how surprising they were.</p>
+  <p>The central idea of Elo is that ratings change in proportion to expectations. If a higher-rated rikishi beats a much lower-rated opponent, the result is unsurprising and the rating change should be small. If the lower-rated rikishi wins, the result is more informative and the rating change should be larger. Elo is not merely a way of counting wins; it is a way of weighting results by how surprising they were.</p>
 
   <p>Suppose rikishi $r$ has rating $E_r$, and rikishi $s$ has rating $E_s$. The first important point is that the absolute values of $E_r$ and $E_s$ are not meaningful on their own. An Elo rating is not like a height, a weight, or a number of wins. A rating of 1800 does not mean anything in isolation.</p>
 
@@ -40,7 +40,7 @@
 
   <p>So each bout is zero-sum. One rikishi gains exactly the points that the other rikishi loses.</p>
 
-  <p>For example, suppose A has rating 2042 and B has rating 1865, with $q=400$ and $k=35$. Abi's estimated probability of beating Oho is</p>
+  <p>For example, suppose A has rating 2042 and B has rating 1865, with $q=400$ and $k=35$. A's estimated probability of beating B is</p>
 
   $$
   p_{\text{A},\text{B}}
@@ -49,13 +49,13 @@
   \approx 0.735.
   $$
 
-  <p>If A wins, his gain is</p>
+  <p>If A wins, his gain (and B's loss) is</p>
 
   $$
   35(1 - 0.735) \approx 9.3.
   $$
 
-  <p>If A loses, his change is</p>
+  <p>If A loses, his rating change (and B's opposite change) is</p>
 
   $$
   35(0 - 0.735) \approx -25.7.
@@ -79,7 +79,7 @@
 
   <p>The second problem is missing history. A rikishi who appears in the sekitori results did not come from nowhere. He reached juryo by fighting in the lower divisions. If those lower-division bout records are missing, ordinary Elo has no way to use that history directly. This is a serious issue for historical sumo, because complete lower-division results are only available from 1989, whereas sekitori results and banzuke records go back much further.</p>
 
-  <p>The third problem is population change. Individual bouts are zero-sum, but the active population is not fixed. New rikishi enter and old rikishi retire. If new rikishi are assigned rating points when they enter, and retired rikishi remove some other number of points when they leave, the total number of rating points in the active system can drift. This matters because a drift in the rating scale makes comparisons across time less reliable.</p>
+  <p>The third problem is population change. Individual bouts are zero-sum, but the active population is not fixed. New rikishi enter and existing rikishi retire. If new rikishi are assigned rating points when they enter, and retired rikishi remove some other number of points when they leave, the total number of rating points in the active system can drift. This matters because a drift in the rating scale makes comparisons across time less reliable.</p>
 
   <p>Finally, Elo ratings describe results; they do not explain them. They do not know whether a rikishi was injured, whether he had a favourable style match-up, whether the bout was unusually important, or whether he was returning from absence. Those things may matter, but they are not directly part of the calculation.</p>
 
@@ -99,11 +99,11 @@ for chess players.
 but has been used as the primary
 way of ranking players by USCF since 1960 and by <a href="https://www.fide.com/">FIDE</a> since 1970.
 <p>
-I have not been able to find Élő's orginal work, but I understood he makes the claim or suggestion that provided:
+I have not been able to find Élő's orginal work, but I understand he makes the claim or suggestion that provided:
 <ul>
     <li>the pool of competitors remains constant and</li>
     <li>the skill of the competitors remains constant,</li>
 </ul>
 then the ratings will converge to a measure of competitor's skill. Neither of these is true in chess or sumo, but the system was deemed to work well enough to be adopted.
 
-The purpose of this note is, for completeness, to observe that I understand that this idea has been formally stated and proved by <a href="https://arxiv.org/abs/2410.09180">Cortez and Tossounian</a>.
+The purpose of this note is, for completeness, to observe that I understand that this idea has been formally stated and proved in <a href="https://arxiv.org/abs/2410.09180">Cortez and Tossounian[2024]</a>.
