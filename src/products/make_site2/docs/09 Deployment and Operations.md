@@ -246,7 +246,7 @@ successor public root fragment:
   sumo-tools2
 
 local/LAN served URL:
-  http://192.168.0.6/sumo-tools2/
+  http://192.168.0.146/sumo-tools2/
 
 known local/LAN target form from the development machine:
   A:\local\html\sumo-tools2

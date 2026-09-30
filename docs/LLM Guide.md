@@ -207,7 +207,7 @@ The user's normal development environment may also provide a LAN-served preview
 URL after `make_site2 --local-only`, for example:
 
 ```text
-http://192.168.0.6/sumo-tools2/
+http://192.168.0.146/sumo-tools2/
 ```
 
 When the user has already produced such a URL, treat it as a valid shared
@@ -249,7 +249,7 @@ node --check ".\src\products\make_site2\runtime\site-refactor\ui\charts.js"
 
 Use project-local Playwright for browser smoke checks against the shared preview.
 This applies to either `localhost:8766` or a user-supplied LAN preview URL such
-as `http://192.168.0.6/sumo-tools2/`.
+as `http://192.168.0.146/sumo-tools2/`.
 For example:
 
 ```powershell

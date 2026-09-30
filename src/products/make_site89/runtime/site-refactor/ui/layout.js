@@ -88,7 +88,8 @@ function syncTableShellColumns(shell) {
       0,
       ...bodyRows.map(row => row.children[index]?.getBoundingClientRect().width || 0),
     );
-    return Math.ceil(Math.max(headerWidth, bodyWidth, 24));
+    const minimumWidth = minimumSyncedColumnWidth(headerCells[index]);
+    return Math.ceil(Math.max(headerWidth, bodyWidth, minimumWidth));
   });
   applyColumnWidths(headerTable, bodyTable, widths);
   // Collapsed cell borders can make the rendered table wider than its assigned
@@ -100,6 +101,12 @@ function syncTableShellColumns(shell) {
   ));
   const scrollbarGutter = Math.max(0, bodyRegion.offsetWidth - bodyRegion.clientWidth);
   frame.style.width = `${renderedTableWidth + scrollbarGutter}px`;
+}
+
+function minimumSyncedColumnWidth(headerCell) {
+  const role = headerCell?.dataset?.columnRole || "";
+  if (role === "record-count" || role === "record-separator") return 1;
+  return 24;
 }
 
 function clearColumnWidths(...tables) {
@@ -147,4 +154,8 @@ function tableHeaderLeafCells(table) {
   return grid[grid.length - 1] || [];
 }
 
-export { wirePAPanelLayout, updateStickyArtifactHeaders };
+export {
+  wirePAPanelLayout,
+  updateStickyArtifactHeaders,
+  minimumSyncedColumnWidth,
+};

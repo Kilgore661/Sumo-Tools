@@ -17,6 +17,15 @@ direct helper from this directory.
 - `render.js`: header, cell and recursive table rendering.
 - `sorting.js`: sort state, sort value derivation and click wiring.
 
+## Result Layout
+
+Wins, losses and absences remain separate sortable columns with centred
+headings and values. Narrow, non-sortable separator columns render the record
+as `W - L - A`; the second separator is blank when the absence count is blank
+or zero. Result-count and separator columns opt out of the shared 24-pixel
+minimum column width and have no horizontal cell or sort-button padding or
+margin, so the record remains compact at wide viewport sizes.
+
 ## Refactor Rule
 
 This directory is a behaviour-preserving split of the former monolithic

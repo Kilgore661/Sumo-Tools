@@ -6,9 +6,9 @@
   "targets": {
     "local_apache": {
       "method": "win_copy",
-      "host": "192.168.0.6",
+      "host": "192.168.0.146",
       "location": "A:/local/html/sumo-tools2",
-      "url": "http://192.168.0.6/sumo-tools2/"
+      "url": "http://192.168.0.146/sumo-tools2/"
     },
     "remote_661": {
       "method": "sftp",

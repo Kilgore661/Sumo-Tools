@@ -48,7 +48,9 @@ function bashoResultsVisiblePaths(state) {
     "reference.shikona",
     "selected.context.skill.bp",
     "selected.result.wins",
+    "selected.result.wins_losses_separator",
     "selected.result.losses",
+    "selected.result.losses_absences_separator",
     "selected.result.absences",
     "selected.result.prizes",
   ];
@@ -62,7 +64,9 @@ function bashoResultsVisiblePaths(state) {
     visible.push(
       "before.context.skill.bp",
       "before.result.wins",
+      "before.result.wins_losses_separator",
       "before.result.losses",
+      "before.result.losses_absences_separator",
       "before.result.absences",
       "before.result.prizes",
     );

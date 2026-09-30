@@ -88,6 +88,12 @@ function renderNestedHeaderCell(cell, leaf, sortState, boundaries = null) {
   ];
   if (cell.is_group) attributes.push('data-heading-group="true"');
   if (leaf?.role === "row_number") attributes.push('data-column-id="row_number"');
+  if (leaf?.presentation === PRESENTATION.RECORD_SEPARATOR) {
+    attributes.push('data-column-role="record-separator"');
+  }
+  if (leaf?.presentation === PRESENTATION.COMPACT_COUNT) {
+    attributes.push('data-column-role="record-count"');
+  }
   if (!isSortableLeaf(leaf)) {
     return `<th ${attributes.join(" ")}>${renderLabelWithHelp(cell.label, cell.help, { noteId: cell.note_id })}</th>`;
   }
@@ -95,11 +101,13 @@ function renderNestedHeaderCell(cell, leaf, sortState, boundaries = null) {
   const direction = active ? sortState.direction : "none";
   const indicator = active ? (sortState.direction === "ascending" ? " ▲" : " ▼") : "";
   const escapedLabel = escapeHtml(cell.label);
-  const reservedSortText = `${escapedLabel} ▼`;
+  const reservedSortText = presentation === PRESENTATION.COMPACT_COUNT
+    ? escapedLabel
+    : `${escapedLabel} ▼`;
   const visibleSortText = `${renderLabelWithHelp(cell.label, cell.help, { noteId: cell.note_id })}${indicator}`;
   return [
     `<th ${attributes.join(" ")} aria-sort="${direction}">`,
-    `<button type="button" class="table-sort-button" data-basho-results-sort-path="${escapeHtml(leaf.path)}" style="display: inline-grid; place-items: center; ${buttonMarginStyle(alignment)} text-align: ${alignment};">`,
+    `<button type="button" class="table-sort-button" data-basho-results-sort-path="${escapeHtml(leaf.path)}" style="display: inline-grid; place-items: center; ${buttonMarginStyle(alignment, presentation)} text-align: ${alignment};">`,
     `<span class="table-sort-width-reserver" aria-hidden="true" style="grid-area: 1 / 1; visibility: hidden; white-space: nowrap;">${reservedSortText}</span>`,
     `<span class="table-sort-visible-content" style="grid-area: 1 / 1; white-space: nowrap;">${visibleSortText}</span>`,
     '</button>',
@@ -114,6 +122,12 @@ function leafCellAttributes(leaf, groupPosition = "") {
     ...groupBoundaryAttributes(groupPosition),
   ];
   if (leaf.role === "row_number") attributes.push('data-column-id="row_number"');
+  if (leaf.presentation === PRESENTATION.RECORD_SEPARATOR) {
+    attributes.push('data-column-role="record-separator"');
+  }
+  if (leaf.presentation === PRESENTATION.COMPACT_COUNT) {
+    attributes.push('data-column-role="record-count"');
+  }
   return attributes.join(" ");
 }
 
@@ -154,16 +168,18 @@ function headingAlignment(_presentation) {
 function valueAlignment(presentation) {
   if (
     presentation === PRESENTATION.RATING ||
-    presentation === PRESENTATION.NUMERIC_MAGNITUDE ||
-    presentation === PRESENTATION.COMPACT_COUNT
+    presentation === PRESENTATION.NUMERIC_MAGNITUDE
   ) return "right";
   if (
-    presentation === PRESENTATION.SPECIAL_NON_NUMERIC
+    presentation === PRESENTATION.SPECIAL_NON_NUMERIC ||
+    presentation === PRESENTATION.COMPACT_COUNT ||
+    presentation === PRESENTATION.RECORD_SEPARATOR
   ) return "center";
   return "left";
 }
 
-function buttonMarginStyle(alignment) {
+function buttonMarginStyle(alignment, presentation = PRESENTATION.DEFAULT) {
+  if (presentation === PRESENTATION.COMPACT_COUNT) return "margin: 0;";
   if (alignment === "left") return "margin-right: auto;";
   if (alignment === "right") return "margin-left: auto;";
   return "margin: 0 auto;";

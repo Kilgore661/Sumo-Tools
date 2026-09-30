@@ -111,6 +111,24 @@
   padding: 0.2rem 0.4rem;
 }
 
+.brb-redesign-table [data-column-role="record-separator"],
+.brb-redesign-table [data-column-role="record-count"] {
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 0;
+  padding-right: 0;
+  white-space: nowrap;
+  width: 1px;
+}
+
+.brb-redesign-table [data-column-role="record-count"] .table-sort-button,
+.brb-redesign-table [data-column-role="record-count"] .table-sort-button > span {
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
 .banzuke-changes-table [data-column-id="result"] {
   white-space: nowrap;
 }

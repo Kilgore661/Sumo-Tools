@@ -6,6 +6,7 @@ const PRESENTATION = {
   RANK: "rank",
   RATING: "rating",
   COMPACT_COUNT: "compact_count",
+  RECORD_SEPARATOR: "record_separator",
   SPECIAL_NON_NUMERIC: "special_non_numeric",
   NUMERIC_MAGNITUDE: "numeric_magnitude",
   COMPACT_TEXT: "compact_text",
@@ -81,7 +82,9 @@ function recordSpec() {
     ]),
     group("result", "Result", [
       column("wins", "W", { sort_kind: "numeric", presentation: PRESENTATION.COMPACT_COUNT }),
+      column("wins_losses_separator", "", { sort_kind: "none", presentation: PRESENTATION.RECORD_SEPARATOR }),
       column("losses", "L", { sort_kind: "numeric", presentation: PRESENTATION.COMPACT_COUNT }),
+      column("losses_absences_separator", "", { sort_kind: "none", presentation: PRESENTATION.RECORD_SEPARATOR }),
       column("absences", "A", { sort_kind: "numeric", presentation: PRESENTATION.COMPACT_COUNT }),
       column("prizes", "📦", {
         sort_kind: "prize_set",

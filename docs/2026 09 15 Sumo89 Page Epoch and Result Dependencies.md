@@ -5,13 +5,13 @@
 Audit date: 15 September 2026.
 
 This analysis inventories the distinct `page=` destinations exposed by the live
-[Sumo '89 Lab](http://192.168.0.6/sumo-tools89/index.html), and traces their data
+[Sumo '89 Lab](http://192.168.0.146/sumo-tools89/index.html), and traces their data
 dependencies through the checked-in producers. It concerns data coverage and
 calculation semantics, not a visual or interaction test of every page.
 
-The live navigation and [runtime manifest](http://192.168.0.6/sumo-tools89/runtime/site-manifest.json)
+The live navigation and [runtime manifest](http://192.168.0.146/sumo-tools89/runtime/site-manifest.json)
 exposed **23 distinct page values**. The
-[published bundle manifest](http://192.168.0.6/sumo-tools89/runtime/site-data-bundle.json)
+[published bundle manifest](http://192.168.0.146/sumo-tools89/runtime/site-data-bundle.json)
 identified the source as `files\output\Historys\1989_01 to 2026_11.zip`, but its
 actual represented coverage was **1989/01 through 2026/07**. Archive filenames
 must not be used as evidence of the represented endpoint.
@@ -41,23 +41,23 @@ but it is not the current `make_site89` production contract.
 
 | `page=` link | Needs pre-1989 bout results for historical extension? | Reason |
 |---|---|---|
-| [banzuke_division_by_era](http://192.168.0.6/sumo-tools89/index.html?page=banzuke_division_by_era) | **No** | Counts banzuke entries by division and era. |
-| [makuuchi_rank_by_era](http://192.168.0.6/sumo-tools89/index.html?page=makuuchi_rank_by_era) | **No** | Counts banzuke appearances at each Makuuchi rank. |
-| [division_stability](http://192.168.0.6/sumo-tools89/index.html?page=division_stability) | **No** | Tracks division membership across banzukes. |
-| [career_length](http://192.168.0.6/sumo-tools89/index.html?page=career_length) | **No** | Elapsed time between first and last observed banzuke appearances. |
-| [longest_careers](http://192.168.0.6/sumo-tools89/index.html?page=longest_careers) | **No** | Ranks the banzuke-derived career lengths. |
-| [rank_at_retirement](http://192.168.0.6/sumo-tools89/index.html?page=rank_at_retirement) | **No** | Uses final observed banzuke rank; excludes those present at the latest basho. |
-| [first_chii_appearance](http://192.168.0.6/sumo-tools89/index.html?page=first_chii_appearance) | **Yes, as implemented** | Finds the first recorded bout involving each chii. A banzuke-first-appearance version would not need results. |
-| [most_career_wins](http://192.168.0.6/sumo-tools89/index.html?page=most_career_wins) | **Yes** | Counts recorded wins. Missing earlier results understate career totals. |
-| [most_consecutive_bouts](http://192.168.0.6/sumo-tools89/index.html?page=most_consecutive_bouts) | **Yes** | Needs daily appearance evidence to establish and count streaks. |
-| [finish_by_chii](http://192.168.0.6/sumo-tools89/index.html?page=finish_by_chii) | **Yes** | Ranks finishes by recorded wins, then aggregates by chii. Missing results affect rankings and probabilities. |
-| [win_probability_by_standing](http://192.168.0.6/sumo-tools89/index.html?page=win_probability_by_standing) | **Yes for historical observations** | Empirical probabilities count bout outcomes between ranks. The comparison curve uses Elo89's rank priors. |
-| [standings_by_wins](http://192.168.0.6/sumo-tools89/index.html?page=standings_by_wins) | **Only for earlier windows** | Requires results within the selected window. Currently published recent windows need no pre-1989 results. |
-| [basho_results_browser](http://192.168.0.6/sumo-tools89/index.html?page=basho_results_browser) | **Mixed** | Historical scores need results; ranks and rank changes need only banzukes. Elo89 ratings would remain unavailable before 1989. |
-| [career_comparisons](http://192.168.0.6/sumo-tools89/index.html?page=career_comparisons) | **Mixed** | The chii trajectory can extend to 1958 using banzukes. The rating trajectory remains 1989 onwards under Elo89. |
-| [banzuke_changes](http://192.168.0.6/sumo-tools89/index.html?page=banzuke_changes) | **No for this current view** | Shows the latest banzuke. Rank movements use banzukes; result context and optional ratings use recent/post-1988 evidence. |
-| [highest_rating](http://192.168.0.6/sumo-tools89/index.html?page=highest_rating) | **Outside Elo89's scope** | Uses maximum Elo89 ratings. Extending ratings before 1989 would require a historical rating model and earlier result evidence. |
-| [rating_changes](http://192.168.0.6/sumo-tools89/index.html?page=rating_changes) | **No for current Elo89 windows** | Compares recent Elo89 ratings. Earlier rating windows would require an extended model. |
+| [banzuke_division_by_era](http://192.168.0.146/sumo-tools89/index.html?page=banzuke_division_by_era) | **No** | Counts banzuke entries by division and era. |
+| [makuuchi_rank_by_era](http://192.168.0.146/sumo-tools89/index.html?page=makuuchi_rank_by_era) | **No** | Counts banzuke appearances at each Makuuchi rank. |
+| [division_stability](http://192.168.0.146/sumo-tools89/index.html?page=division_stability) | **No** | Tracks division membership across banzukes. |
+| [career_length](http://192.168.0.146/sumo-tools89/index.html?page=career_length) | **No** | Elapsed time between first and last observed banzuke appearances. |
+| [longest_careers](http://192.168.0.146/sumo-tools89/index.html?page=longest_careers) | **No** | Ranks the banzuke-derived career lengths. |
+| [rank_at_retirement](http://192.168.0.146/sumo-tools89/index.html?page=rank_at_retirement) | **No** | Uses final observed banzuke rank; excludes those present at the latest basho. |
+| [first_chii_appearance](http://192.168.0.146/sumo-tools89/index.html?page=first_chii_appearance) | **Yes, as implemented** | Finds the first recorded bout involving each chii. A banzuke-first-appearance version would not need results. |
+| [most_career_wins](http://192.168.0.146/sumo-tools89/index.html?page=most_career_wins) | **Yes** | Counts recorded wins. Missing earlier results understate career totals. |
+| [most_consecutive_bouts](http://192.168.0.146/sumo-tools89/index.html?page=most_consecutive_bouts) | **Yes** | Needs daily appearance evidence to establish and count streaks. |
+| [finish_by_chii](http://192.168.0.146/sumo-tools89/index.html?page=finish_by_chii) | **Yes** | Ranks finishes by recorded wins, then aggregates by chii. Missing results affect rankings and probabilities. |
+| [win_probability_by_standing](http://192.168.0.146/sumo-tools89/index.html?page=win_probability_by_standing) | **Yes for historical observations** | Empirical probabilities count bout outcomes between ranks. The comparison curve uses Elo89's rank priors. |
+| [standings_by_wins](http://192.168.0.146/sumo-tools89/index.html?page=standings_by_wins) | **Only for earlier windows** | Requires results within the selected window. Currently published recent windows need no pre-1989 results. |
+| [basho_results_browser](http://192.168.0.146/sumo-tools89/index.html?page=basho_results_browser) | **Mixed** | Historical scores need results; ranks and rank changes need only banzukes. Elo89 ratings would remain unavailable before 1989. |
+| [career_comparisons](http://192.168.0.146/sumo-tools89/index.html?page=career_comparisons) | **Mixed** | The chii trajectory can extend to 1958 using banzukes. The rating trajectory remains 1989 onwards under Elo89. |
+| [banzuke_changes](http://192.168.0.146/sumo-tools89/index.html?page=banzuke_changes) | **No for this current view** | Shows the latest banzuke. Rank movements use banzukes; result context and optional ratings use recent/post-1988 evidence. |
+| [highest_rating](http://192.168.0.146/sumo-tools89/index.html?page=highest_rating) | **Outside Elo89's scope** | Uses maximum Elo89 ratings. Extending ratings before 1989 would require a historical rating model and earlier result evidence. |
+| [rating_changes](http://192.168.0.146/sumo-tools89/index.html?page=rating_changes) | **No for current Elo89 windows** | Compares recent Elo89 ratings. Earlier rating windows would require an extended model. |
 
 ## Explanatory pages
 
@@ -65,12 +65,12 @@ These are static prose, rather than views calculated from historical bout record
 
 | `page=` link | Pre-1989 bout-result dependency |
 |---|---|
-| [what_this_site_is](http://192.168.0.6/sumo-tools89/index.html?page=what_this_site_is) | **Not applicable** — site introduction |
-| [why_ratings](http://192.168.0.6/sumo-tools89/index.html?page=why_ratings) | **Not applicable** — motivation |
-| [elo_explanation](http://192.168.0.6/sumo-tools89/index.html?page=elo_explanation) | **Not applicable** — Elo explanation |
-| [elo89_explanation](http://192.168.0.6/sumo-tools89/index.html?page=elo89_explanation) | **Not applicable** — Elo89 explanation |
-| [elo89_assumptions](http://192.168.0.6/sumo-tools89/index.html?page=elo89_assumptions) | **Not applicable** — modelling assumptions |
-| [elo89_vs_chii](http://192.168.0.6/sumo-tools89/index.html?page=elo89_vs_chii) | **Not applicable** — explanatory comparison |
+| [what_this_site_is](http://192.168.0.146/sumo-tools89/index.html?page=what_this_site_is) | **Not applicable** — site introduction |
+| [why_ratings](http://192.168.0.146/sumo-tools89/index.html?page=why_ratings) | **Not applicable** — motivation |
+| [elo_explanation](http://192.168.0.146/sumo-tools89/index.html?page=elo_explanation) | **Not applicable** — Elo explanation |
+| [elo89_explanation](http://192.168.0.146/sumo-tools89/index.html?page=elo89_explanation) | **Not applicable** — Elo89 explanation |
+| [elo89_assumptions](http://192.168.0.146/sumo-tools89/index.html?page=elo89_assumptions) | **Not applicable** — modelling assumptions |
+| [elo89_vs_chii](http://192.168.0.146/sumo-tools89/index.html?page=elo89_vs_chii) | **Not applicable** — explanatory comparison |
 
 Two additional definitions exist in source but were absent from the live page
 manifest: `most_career_losses` (result-dependent, like wins) and
@@ -91,7 +91,7 @@ each participant's chii from the banzuke. Its meaning is therefore:
 
 It does not compute the first occurrence of a chii on a banzuke.
 
-The live [appearances CSV](http://192.168.0.6/sumo-tools89/banzuke-rank/rank-history/first-chii-appearance/data/appearances.csv)
+The live [appearances CSV](http://192.168.0.146/sumo-tools89/banzuke-rank/rank-history/first-chii-appearance/data/appearances.csv)
 gave Y1e and Y1w first appearances as January 1989. The chart encodes dates as
 months since January 1958, so these dates have value 372. **The 1958 encoding
 origin is not evidence of 1958 data coverage.**

@@ -62,7 +62,7 @@ def test_repository_target_is_separate_from_make_site2() -> None:
 
     target = plan.targets["local_apache"]
     assert target.location == "A:/local/html/sumo-tools89"
-    assert target.url == "http://192.168.0.6/sumo-tools89/"
+    assert target.url == "http://192.168.0.146/sumo-tools89/"
 
 
 def test_cli_accepts_make_site2_style_local_only_mode() -> None:
