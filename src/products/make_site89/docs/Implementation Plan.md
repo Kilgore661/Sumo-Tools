@@ -145,25 +145,27 @@ The normal live-store-first entry point is:
 .\_boot89.ps1
 ```
 
-It refreshes the structural Banzuke Changes input, produces the coherent
-site-data bundle from the live History selected from `1989/01`, assembles the
-site, and deploys it to the configured local target. It forwards the existing
-`make_site89` flags unchanged; `--build-only` supports restricted test
-environments and `--no-build` deploys the existing generated tree without
-rerunning production.
+It refreshes the Torikumi snapshot and structural Banzuke Changes input,
+produces the coherent site-data bundle from the live History selected from
+`1989/01`, assembles the site, and deploys it to the configured local target.
+It forwards the existing `make_site89` flags unchanged; `--build-only`
+supports restricted test environments and `--no-build` deploys the existing
+generated tree without refreshing inputs or rerunning production.
 
-1. `src.analysis.site89` loads the post-1988 History and runs
+1. `src.infra.torikumi` reads the live History and refreshes the persisted
+   current-basho Torikumi snapshot.
+2. `src.analysis.site89` loads the post-1988 History and runs
    `src.analysis.elo89` once.
-2. The seven rating-dependent producers consume that run explicitly.
-3. The post-1988 model-independent producers, including Longest Careers, run
+3. The seven rating-dependent producers consume that run explicitly.
+4. The post-1988 model-independent producers, including Longest Careers, run
    upstream of the site builder.
-4. The orchestrator writes and validates the coherent bundle at
+5. The orchestrator writes and validates the coherent bundle at
    `files/output/analysis/site89_bundle`.
-5. `src.products.make_site89` validates and copies the bundle, then adds only
+6. `src.products.make_site89` validates and copies the bundle, then adds only
    its presentation shell, runtime and prose.
-6. The generated HTTP-served static tree is written to
+7. The generated HTTP-served static tree is written to
    `files/output/make_site89`.
-7. Unless `--build-only` is supplied, that tree is copied to the configured
+8. Unless `--build-only` is supplied, that tree is copied to the configured
    local Apache directory `A:/local/html/sumo-tools89`. `--local-only` has the
    same target-selection meaning as in `make_site2`; `--no-build` deploys an
    existing generated tree. The target is configured in

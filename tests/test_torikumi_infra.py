@@ -1,5 +1,6 @@
-from datetime import datetime, timezone
 import csv
+from datetime import datetime, timezone
+import importlib
 import json
 from pathlib import Path
 from types import MappingProxyType
@@ -17,6 +18,9 @@ from src.infra.torikumi.scraper import refresh_future
 from src.sumo_core.BasicPrimitives import Day, Month, RikId, Year
 from src.sumo_core.Chii import Chii
 from src.sumo_core.History import Date
+
+
+torikumi_cli = importlib.import_module("src.infra.torikumi.__main__")
 
 
 NOW = datetime(2026, 9, 25, 9, 30, tzinfo=timezone.utc)
@@ -72,6 +76,62 @@ def test_future_json_round_trip(tmp_path: Path) -> None:
     )
 
     assert load_future(save_future(future, tmp_path / "future.json")) == future
+
+
+def test_torikumi_command_uses_live_store_by_default(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    history = object()
+    captured = {}
+    monkeypatch.setattr(torikumi_cli, "get_history", lambda: history)
+    monkeypatch.setattr(
+        torikumi_cli,
+        "refresh_future",
+        lambda value, **kwargs: (
+            captured.update(history=value, **kwargs)
+            or SimpleNamespace(days=())
+        ),
+    )
+
+    assert torikumi_cli.main(["--output-root", str(tmp_path)]) == 0
+    assert captured == {"history": history, "output_root": tmp_path}
+
+
+def test_torikumi_command_accepts_explicit_history_zip(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    history = object()
+    captured = {}
+    history_zip = tmp_path / "history.zip"
+    monkeypatch.setattr(
+        torikumi_cli,
+        "get_history",
+        lambda: (_ for _ in ()).throw(AssertionError("live store was accessed")),
+    )
+    monkeypatch.setattr(
+        torikumi_cli,
+        "load_history_with_annotations",
+        lambda path: captured.update(path=path) or history,
+    )
+    monkeypatch.setattr(
+        torikumi_cli,
+        "refresh_future",
+        lambda value, **kwargs: (
+            captured.update(history=value, **kwargs)
+            or SimpleNamespace(days=())
+        ),
+    )
+
+    assert torikumi_cli.main(
+        ["--history-zip", str(history_zip), "--output-root", str(tmp_path)]
+    ) == 0
+    assert captured == {
+        "path": str(history_zip.with_suffix("")),
+        "history": history,
+        "output_root": tmp_path,
+    }
 
 
 def test_scraper_probes_every_day_and_keeps_completed_pairings(tmp_path: Path) -> None:

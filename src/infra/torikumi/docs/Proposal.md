@@ -357,10 +357,18 @@ pages and protected by representative fixtures and tests, stable shared HTTP
 or parsing operations may be extracted if doing so clearly reduces
 duplication without weakening the existing production boundary.
 
-## WIP production commands
+## Production commands
 
-The WIP artifact can be refreshed without rebuilding Elo89. First
-download every published torikumi for the latest History basho:
+The artifact can be refreshed without rebuilding Elo89. By default the
+command reads the published live store and downloads every available
+torikumi for its latest basho:
+
+```text
+python -m src.infra.torikumi
+```
+
+For an intentionally offline or reproducible run, `--history-zip` overrides
+the live-store default:
 
 ```text
 python -m src.infra.torikumi --history-zip "files/output/Historys/1989_01 to 2026_11.zip"
@@ -380,6 +388,9 @@ py -m src.products.make_site89 --build-only
 ```
 
 A complete site-data rebuild also consumes
-`files/output/torikumi/future.json` when that file exists, but the WIP commands
-above are the shorter path for exercising Torikumi without recomputing Elo89.
+`files/output/torikumi/future.json` when that file exists. `_boot89.ps1`
+refreshes that snapshot from the live store before a normal build; `--no-build`
+continues to deploy the existing generated tree without refreshing inputs.
+The commands above remain the shorter path for exercising Torikumi without
+recomputing Elo89.
 
