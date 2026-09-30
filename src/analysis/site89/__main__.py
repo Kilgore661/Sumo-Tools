@@ -5,6 +5,8 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+from src.infra.history_artifacts import POST_1988_START_YEAR, history_from_year
+from src.infra.live_store.api import get_history
 from src.infra.persistence.annotated_serialiser import load_history_with_annotations
 from src.infra.torikumi import load_future
 from src.infra.torikumi.persistence import DEFAULT_FUTURE_PATH
@@ -14,7 +16,11 @@ from .producer import DEFAULT_BANZUKE_SOURCE, DEFAULT_OUTPUT_ROOT, produce_site8
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Produce the complete Elo-89 site-data bundle.")
-    parser.add_argument("--history-zip", type=Path, required=True)
+    parser.add_argument(
+        "--history-zip",
+        type=Path,
+        help="Explicit History snapshot; omit to use the live store.",
+    )
     parser.add_argument("--output-root", type=Path, default=DEFAULT_OUTPUT_ROOT)
     parser.add_argument("--banzuke-source-root", type=Path, default=DEFAULT_BANZUKE_SOURCE)
     parser.add_argument(
@@ -24,12 +30,24 @@ def main(argv: list[str] | None = None) -> int:
         help="Future snapshot; if absent, publish an empty Torikumi artifact.",
     )
     args = parser.parse_args(argv)
-    zipless = args.history_zip.with_suffix("") if args.history_zip.suffix == ".zip" else args.history_zip
-    history = load_history_with_annotations(str(zipless))
+    if args.history_zip is None:
+        history = history_from_year(get_history(), POST_1988_START_YEAR)
+        history_source = "live store (selected from 1989/01)"
+    else:
+        zipless = (
+            args.history_zip.with_suffix("")
+            if args.history_zip.suffix == ".zip"
+            else args.history_zip
+        )
+        history = history_from_year(
+            load_history_with_annotations(str(zipless)),
+            POST_1988_START_YEAR,
+        )
+        history_source = str(args.history_zip)
     root = produce_site89_bundle(
         history=history,
         output_root=args.output_root,
-        history_source=str(args.history_zip),
+        history_source=history_source,
         banzuke_source_root=args.banzuke_source_root,
         future=load_future(args.future) if args.future.is_file() else None,
     )

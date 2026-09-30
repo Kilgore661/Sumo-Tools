@@ -14,6 +14,7 @@ from src.infra.torikumi.model import Future, FutureBout, FutureDay
 from src.infra.torikumi.parser import parse_torikumi_page
 from src.infra.torikumi.persistence import load_future, save_future
 from src.infra.torikumi.scraper import refresh_future
+from src.infra.parser.parser2_IntDate import IntDate
 from src.sumo_core.BasicPrimitives import Day, Month, RikId, Year
 from src.sumo_core.Chii import Chii
 from src.sumo_core.History import Date
@@ -193,6 +194,38 @@ def test_empty_future_produces_no_torikumi_index(tmp_path: Path) -> None:
     assert len(index["entries"]) == 15
     assert all(entry["disabled"] for entry in index["entries"])
     assert index["default_day"] is None
+
+
+def test_annotation_accepts_live_store_int_date_key(tmp_path: Path) -> None:
+    ratings = Elo89Artifacts(
+        root=tmp_path,
+        manifest={"q": 400.0},
+        prior={},
+        basho_start_ratings={str(DATE): {}},
+        day_end_ratings={},
+        basho_end_ratings={},
+        bout_ledger=(),
+    )
+    future = Future(
+        date=DATE,
+        completed_through=Day(15),
+        generated_at=NOW,
+        days=(),
+    )
+
+    paths = produce_torikumi(
+        history={
+            IntDate(2026, 9): SimpleNamespace(
+                banzuke=SimpleNamespace(rikchii={})
+            )
+        },
+        future=future,
+        ratings=ratings,
+        output_root=tmp_path,
+        names=FullShikonaStore(MappingProxyType({})),
+    )
+
+    assert paths[0].is_file()
 
 
 def test_annotation_marks_mz_rating_and_probabilities_as_unknown(tmp_path: Path) -> None:

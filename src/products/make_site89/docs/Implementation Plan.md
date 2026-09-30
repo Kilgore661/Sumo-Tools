@@ -139,6 +139,19 @@ Elo-89.
 
 ## Implemented production sequence
 
+The normal live-store-first entry point is:
+
+```powershell
+.\_boot89.ps1
+```
+
+It refreshes the structural Banzuke Changes input, produces the coherent
+site-data bundle from the live History selected from `1989/01`, assembles the
+site, and deploys it to the configured local target. It forwards the existing
+`make_site89` flags unchanged; `--build-only` supports restricted test
+environments and `--no-build` deploys the existing generated tree without
+rerunning production.
+
 1. `src.analysis.site89` loads the post-1988 History and runs
    `src.analysis.elo89` once.
 2. The seven rating-dependent producers consume that run explicitly.

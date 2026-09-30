@@ -67,13 +67,17 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main() -> None:
-    started = time()
-    args = build_parser().parse_args()
+def reject_conflicting_modes(args: argparse.Namespace) -> None:
     if args.build_only and args.no_build:
         raise SystemExit("--build-only and --no-build cannot be used together")
     if args.no_build and args.prod:
         raise SystemExit("--prod does not apply with --no-build")
+
+
+def main(argv: list[str] | None = None) -> None:
+    started = time()
+    args = build_parser().parse_args(argv)
+    reject_conflicting_modes(args)
     if args.no_build:
         output = build_output_from_existing(args.output)
         print(f"Using existing build: {output.root}")

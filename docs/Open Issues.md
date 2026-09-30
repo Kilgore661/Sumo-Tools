@@ -37,6 +37,40 @@ document should link to it rather than create a competing specification.
 
 ## Unordered captured items
 
+### `Date` and `IntDate` are not interoperable History keys
+
+The canonical live-store History is still populated by the parser with
+`src.infra.parser.parser2_IntDate.IntDate` keys, while newer infrastructure,
+including the future-Torikumi snapshot, constructs
+`src.sumo_core.History.Date` values. `IntDate` subclasses `Date`, and both
+values have the same `YYYY/MM` string form and hash for the same basho, but the
+dataclass-generated equality on `Date` requires the same concrete class.
+Consequently, a `Date(2026/09)` lookup does not find an existing
+`IntDate(2026/09)` History entry.
+
+This was exposed by the live-store-first Sumo '89 build: both the live History
+and saved future snapshot represented `2026/09`, but direct dictionary
+membership incorrectly reported that the basho was absent. The immediate
+site89 compatibility repair resolves the actual History key by its canonical
+string value, matching the existing Banzuke Changes approach.
+
+The project-wide repair remains TBD. It should decide whether to:
+
+- complete the parser migration from `IntDate` to `Date`;
+- define deliberately interoperable equality and hashing for the date types;
+- normalise History keys at a shared publication boundary; or
+- provide one canonical History date-lookup operation and remove direct
+  cross-boundary dictionary lookups.
+
+Do not change core equality or silently rewrite persisted History keys as a
+local site-builder fix. Such a change can affect tracker publication, History
+ZIP compatibility, dictionary membership, ordering and other consumers. The
+older parser migration records in
+[`2026 03 24 FSM Next Steps.md`](2026%2003%2024%20FSM%20Next%20Steps.md) and
+`src/infra/parser/FSM/docs/2026 03 24 Migration Issues.md` already identify the
+unfinished `IntDate` replacement; this item records the demonstrated
+cross-component failure mode and the required semantic decision.
+
 ### Mae-zumo presence, banzuke membership and result coverage
 
 The parser intentionally excludes `Mz` because mae-zumo is not a formal
