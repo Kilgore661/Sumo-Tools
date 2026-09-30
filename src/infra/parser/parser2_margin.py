@@ -6,7 +6,7 @@ from typing import List, Tuple, Dict
 
 # --- Core Model Dependencies ---
 # These would be imported from their proper locations in the project.
-from .parser2_IntDate import IntDate as Date
+from ...sumo_core.History import Date
 from ...sumo_core.BasicPrimitives import RikId
 from ...sumo_core.BasicEnums import Symbol
 from ...sumo_core.Chii import Chii

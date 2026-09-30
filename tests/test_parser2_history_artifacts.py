@@ -38,5 +38,22 @@ def test_direct_full_history_parse_writes_full_and_post_1988_artifacts(
     assert set(saved[1][0]) == {first}
 
 
+def test_parser_discovers_only_canonical_dates(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    (tmp_path / "2026 07").mkdir()
+    (tmp_path / "2026 09").mkdir()
+    (tmp_path / "not a basho").mkdir()
+    monkeypatch.setattr(parser2, "RESULTS_DIR", str(tmp_path))
+
+    dates = parser2._find_available_directories()
+
+    assert [str(date) for date in dates] == ["2026/07", "2026/09"]
+    assert all(type(date) is Date for date in dates)
+    assert all(type(date.year) is Year for date in dates)
+    assert all(type(date.month) is Month for date in dates)
+
+
 def _date(year: int, month: int) -> Date:
     return Date(Year(year), Month(month))

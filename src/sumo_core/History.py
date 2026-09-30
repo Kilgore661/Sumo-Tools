@@ -18,6 +18,11 @@ class Date:
     year: Year
     month: Month
 
+    @classmethod
+    def from_ints(cls, year: int, month: int) -> "Date":
+        """Construct a canonical Date from validated integer components."""
+        return cls(Year(year), Month(month))
+
     def __str__(self) -> str:
         return f"{self.year}/{self.month:02d}"
 

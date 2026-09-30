@@ -5,7 +5,7 @@ from .FSM_base_fsm import BaseFSM
 from .FSM_data_classes import *
 from .FSM_exceptions import *
 from ....sumo_core.Chii import Chii
-from ..parser2_IntDate import IntDate as Date
+from ....sumo_core.History import Date
 
 class GruntFSM(BaseFSM):
     def __init__(self, *args, **kwargs):
@@ -60,7 +60,7 @@ class GruntFSM(BaseFSM):
 
     def _action_process_annotation_row(self, token: AR_Token):
         # --- START SPECIAL CASE KLUDGE for 1978/03 Tsukedashi Anomaly ---
-        if self.date == Date(1978, 3) and token.annotation == "TD":
+        if self.date == Date.from_ints(1978, 3) and token.annotation == "TD":
             # This anomaly affects two specific rikishi on consecutive rows.
             # We handle them here and exit before the FSM's flawed logic runs.
             rikishi_data = token.banzuke_row.east

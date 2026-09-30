@@ -2,7 +2,7 @@
 
 from .FSM_sanyaku_base_fsm import SanyakuBaseFSM # <-- Inherit from the new base
 from .FSM_data_classes import Token, AR_Token
-from ..parser2_IntDate import IntDate as Date
+from ....sumo_core.History import Date
 
 class OSK_FSM(SanyakuBaseFSM): # <-- Renamed class
     """FSM for parsing non-Yokozuna Sanyaku ranks (O, S, K)."""

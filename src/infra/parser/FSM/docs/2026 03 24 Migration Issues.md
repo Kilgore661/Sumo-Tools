@@ -266,7 +266,7 @@ Here’s a checklist version.
 
 * [ ] Replace `NewAnn` imports with `Annotation`
 
-* [ ] Replace `IntDate` with `Date` or keep `IntDate` consistently
+* [x] Replace `IntDate` with canonical `Date`
 
 * [ ] Replace all type hints:
   

@@ -39,6 +39,7 @@ def test_canonical_publish_also_refreshes_post_1988_zip(
     ]
     assert set(saved[0][0]) == {before, first, latest}
     assert set(saved[1][0]) == {first, latest}
+    assert all(type(date) is Date for value, _ in saved for date in value)
 
 
 def test_publish_does_not_duplicate_post_1988_artifact_before_1989(

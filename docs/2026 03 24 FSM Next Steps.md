@@ -170,16 +170,13 @@ This matters for:
 - debugging and error messages
 - any string-based recovery or comparison logic
 
-### 8. Replace `IntDate` consistently
+### 8. Replace `IntDate` consistently — completed
 
-`IntDate` is trivial and appears to be only a convenience wrapper around `Date`.
+`IntDate` was a convenience wrapper around `Date`. It has been removed; the
+parser and FSM now use canonical `Date` values and `Date.from_ints` at integer
+input boundaries.
 
-Decide one consistent approach for FSM:
-
-- import and use `Date` directly, or
-- keep a tiny compatibility wrapper temporarily
-
-Either is fine, but it should be consistent.
+The FSM imports and uses `Date` directly.
 
 ### 9. Check date-based hacks or historical special cases
 
@@ -234,7 +231,7 @@ The easy part is the model substitution:
 
 - `NewFoo` -> `Chii`
 - `NewAnn` -> `Annotation`
-- `IntDate` -> `Date`
+- `IntDate` -> `Date` (completed)
 
 The hard part is preserving the technical recovery logic that depends on exact rank behavior.
 

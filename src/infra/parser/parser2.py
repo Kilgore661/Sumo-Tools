@@ -8,7 +8,6 @@ from typing import Dict, List
 
 from .parser2_margin import get_margin_data
 from .parser2_body import parse_and_validate_body
-from .parser2_IntDate import IntDate as Date
 from ..history_artifacts import POST_1988_START_YEAR, history_from_year
 from ..persistence.new_sumo_serialiser import save_history_with_annotations
 
@@ -17,7 +16,7 @@ from .FSM import FinalBanzukeEntry
 from ...sumo_core.Banzuke import Banzuke, RikShikona, Riks, RikChii
 from ...sumo_core.Summary import Summary
 from ...sumo_core.BasicPrimitives import RikId, Day
-from ...sumo_core.History import History
+from ...sumo_core.History import Date, History
 from ...sumo_core.BashoState import BashoState
 from ...sumo_core.Chii import Chii
 from .parser_daily import _parse_daily_results
@@ -152,17 +151,18 @@ def _find_available_directories():
         return []
     for dir_name in os.listdir(RESULTS_DIR):
         match = dir_pattern.fullmatch(dir_name)
-        if match: dirs.append( Date(int(match.group(1)), int(match.group(2))) )
+        if match:
+            dirs.append(Date.from_ints(int(match.group(1)), int(match.group(2))))
     dirs.sort()
     return dirs
 
-NO_BASHO = { Date(2011,3), Date(2020,5) }
+NO_BASHO = {Date.from_ints(2011, 3), Date.from_ints(2020, 5)}
 ### MODIFIED ### - Updated the return type hint and object instantiation.
 def parse_range(start_year, end_year=None, start_month=1, end_month=11) -> History:
     """Parses all basho data between specified date ranges."""
     if end_year is None: end_year = start_year
-    start_date = Date(start_year, start_month)
-    end_date = Date(end_year, end_month)
+    start_date = Date.from_ints(start_year, start_month)
+    end_date = Date.from_ints(end_year, end_month)
     
     available_basho = _find_available_directories()
     basho_to_process = [d for d in available_basho if start_date <= d <= end_date]

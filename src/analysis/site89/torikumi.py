@@ -50,18 +50,14 @@ def produce_torikumi(
     """Write an index and one annotated CSV for each published torikumi day."""
 
     date_key = str(future.date)
-    history_date = next(
-        (candidate for candidate in history if str(candidate) == date_key),
-        None,
-    )
-    if history_date is None:
+    if future.date not in history:
         raise ValueError(f"Future basho {date_key} is not present in History")
     q = float(ratings.manifest.get("q", 0))
     if not isfinite(q) or q <= 0:
         raise ValueError(f"Elo-89 manifest contains an invalid q: {q!r}")
 
     names = names if names is not None else FullShikonaStore.from_sources(history)
-    banzuke = history[history_date].banzuke
+    banzuke = history[future.date].banzuke
     paths: list[Path] = []
     entries = []
     for future_day in future.days:

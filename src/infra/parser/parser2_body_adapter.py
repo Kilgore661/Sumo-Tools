@@ -9,7 +9,7 @@ from .FSM import BanzukeRow, RikishiData
 # The core data types
 from ...sumo_core.BasicPrimitives import RikId
 from ...sumo_core.Banzuke import Shikona
-from .parser2_IntDate import IntDate as Date
+from ...sumo_core.History import Date
 
 def _create_rikishi_data(rikishi_dict: Optional[Dict]) -> Optional[RikishiData]:
     """

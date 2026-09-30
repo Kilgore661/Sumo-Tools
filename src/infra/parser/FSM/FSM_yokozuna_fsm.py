@@ -2,7 +2,7 @@
 
 from .FSM_sanyaku_base_fsm import SanyakuBaseFSM # <-- Inherit from the new base
 from .FSM_data_classes import Token, AR_Token
-from ..parser2_IntDate import IntDate as Date
+from ....sumo_core.History import Date
 
 class YokozunaFSM(SanyakuBaseFSM): # <-- Class name was already good
     """FSM for parsing the unique Yokozuna rank."""

@@ -34,7 +34,6 @@ from src.sumo_core.Chii import Chii
 from src.sumo_core.History import Date, History
 from src.sumo_core.Kimarite import Kimarite
 from src.sumo_core.Summary import BoutResult, DailyResults, ResultLookup, Summary
-from src.infra.parser.parser2_IntDate import IntDate
 
 
 def test_p1_targets_are_unweighted_literal_chii_means_by_division() -> None:
@@ -256,9 +255,9 @@ def test_declared_year_slice_removes_wider_live_store_history() -> None:
     assert [str(date) for date in sorted(selected)] == ["1989/01", "2026/07"]
 
 
-def test_full_history_date_slice_accepts_live_store_int_dates() -> None:
+def test_full_history_date_slice_accepts_canonical_dates() -> None:
     history = History()
-    history[IntDate(1958, 1)] = _basho({1: "M1e"}, [])
+    history[_date(1958, 1)] = _basho({1: "M1e"}, [])
 
     selected = _date_slice(history, _date(1958, 1), _date(1958, 1))
 

@@ -12,7 +12,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from src.infra.parser.parser2_IntDate import IntDate
+from src.sumo_core.History import Date
 
 from .classes import (
     PublicationRequest,
@@ -57,9 +57,9 @@ def _build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def _parse_date(date_text: str) -> IntDate:
+def _parse_date(date_text: str) -> Date:
     year_text, month_text = date_text.split("/", 1)
-    return IntDate(int(year_text), int(month_text))
+    return Date.from_ints(int(year_text), int(month_text))
 
 
 def build_publication_request(args: argparse.Namespace) -> PublicationRequest:

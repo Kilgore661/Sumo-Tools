@@ -11,7 +11,7 @@ from .FSM import (
     GruntFSM, OSK_FSM, YokozunaFSM, FinalBanzukeEntry
 )
 
-from .parser2_IntDate import IntDate as Date
+from ...sumo_core.History import Date
 from ...sumo_core.BasicPrimitives import RikId
 from ...sumo_core.Chii import Chii
 from ...sumo_core.BasicEnums import Division, MSD, Outcome
