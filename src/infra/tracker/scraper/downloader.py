@@ -22,7 +22,7 @@ from pathlib import Path
 import os
 import stat
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime
 from time import time, sleep
 from urllib.error import URLError, HTTPError
 from urllib.request import Request, urlopen
@@ -71,6 +71,8 @@ def download(retrieval_plan: RetrievalPlan) -> RetrievalResult:
         return RetrievalResult.SUCCESS_UNCHANGED
 
     changed = False
+    reused_banzuke_dates: set[BashoDate] = set()
+    completed_banzuke_dates: list[BashoDate] = []
 
     for basho_date in requested_dates:
         if _is_no_data_basho(basho_date):
@@ -81,6 +83,8 @@ def download(retrieval_plan: RetrievalPlan) -> RetrievalResult:
             return RetrievalResult.FAILURE
         if result:
             changed = True
+        else:
+            reused_banzuke_dates.add(basho_date)
 
     t0 = time()
 
@@ -98,6 +102,30 @@ def download(retrieval_plan: RetrievalPlan) -> RetrievalResult:
             sleep( 0.5 )
             changed = True
 
+            # SumoDB publishes final scores and prizes on the banzuke page,
+            # rather than on the Day 15 results page.  We assume that the
+            # banzuke page has been updated by the time Day 15 results become
+            # available.  This cannot be verified against a live publication
+            # cycle until the November 2026 basho.
+            if int(ref.day) == 15:
+                basho_date = BashoDate(int(ref.date.year), int(ref.date.month))
+                if (
+                    basho_date in reused_banzuke_dates
+                    and basho_date not in completed_banzuke_dates
+                ):
+                    completed_banzuke_dates.append(basho_date)
+
+    for basho_date in completed_banzuke_dates:
+        print(
+            "[downloader] Day 15 downloaded; refreshing current standings for "
+            f"{basho_date.year}/{basho_date.month:02d}"
+        )
+        result = _ensure_current_standings(basho_date, force=True)
+        if result is None:
+            return RetrievalResult.FAILURE
+        if result:
+            changed = True
+
     print( f'{len(requested_list)} BashoDateRefs checked in {time()-t0:.3f} sec.' )
     if changed:
         return RetrievalResult.SUCCESS_CHANGED
@@ -108,7 +136,11 @@ def _to_basho_date(date) -> BashoDate:
     return BashoDate(int(date.year), int(date.month))
 
 
-def _ensure_current_standings(date: BashoDate) -> bool | None:
+def _ensure_current_standings(
+    date: BashoDate,
+    *,
+    force: bool = False,
+) -> bool | None:
     """
     Return:
     - True  if a file was fetched and written
@@ -117,7 +149,7 @@ def _ensure_current_standings(date: BashoDate) -> bool | None:
     """
     path = _current_standings_path(date)
 
-    if path.exists() and not _should_refresh_current_standings(path, date):
+    if path.exists() and not force:
         if _looks_like_current_standings(path.read_text(encoding="utf-8", errors="replace")):
             return False
         print(f"[downloader] existing current standings is unusable; re-fetching {path}")
@@ -208,17 +240,17 @@ def _fetch_text(url: str) -> str | None:
         return None
 
 
-def _write_text(path: Path, text: str, read_only: bool = True) -> bool:
+def _write_text(path: Path, text: str) -> bool:
     try:
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(text, encoding="utf-8")
 
-        if read_only:
-            os.chmod(path, stat.S_IREAD)
-        else:
+        # Read-only was a legacy safeguard for manually managed downloads.
+        # Clear it before replacing an old cache entry and leave new downloads
+        # writable: tracker-managed files must be refreshable by the tracker.
+        if path.exists():
             os.chmod(path, stat.S_IWRITE | stat.S_IREAD)
-
-        print(f"[downloader] wrote {path} (read_only={read_only})")
+        path.write_text(text, encoding="utf-8")
+        print(f"[downloader] wrote {path}")
         return True
 
     except OSError as exc:
@@ -232,31 +264,6 @@ def _looks_like_daily_results(text: str) -> bool:
 
 def _looks_like_current_standings(text: str) -> bool:
     return "<h1" in text.lower()
-
-
-def _should_refresh_current_standings(path: Path, date: BashoDate) -> bool:
-    """
-    Preserve the useful legacy behaviour:
-    if a standings file predates basho completion and the basho has since
-    completed, refresh it so the stored artifact reflects the completed state.
-    """
-    basho_end = _basho_end_datetime(date.year, date.month)
-    file_mtime = datetime.fromtimestamp(path.stat().st_mtime)
-    now = datetime.now()
-    return file_mtime < basho_end <= now
-
-
-def _basho_end_datetime(year: int, month: int) -> datetime:
-    return _second_sunday(year, month) + timedelta(days=15)
-
-
-def _second_sunday(year: int, month: int) -> datetime:
-    first_of_month = datetime(year, month, 1, 8, 0, 0)
-    weekday = first_of_month.weekday()
-    days_until_sunday = (6 - weekday) % 7
-    first_sunday_day = 1 + days_until_sunday
-    second_sunday_day = first_sunday_day + 7
-    return datetime(year, month, second_sunday_day, 8, 0, 0)
 
 
 def _is_no_data_basho(date: BashoDate) -> bool:
