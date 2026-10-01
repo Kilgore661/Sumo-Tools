@@ -20,11 +20,14 @@ direct helper from this directory.
 ## Result Layout
 
 Wins, losses and absences remain separate sortable columns with centred
-headings and values. Narrow, non-sortable separator columns render the record
-as `W - L - A`; the second separator is blank when the absence count is blank
-or zero. Result-count and separator columns opt out of the shared 24-pixel
-minimum column width and have no horizontal cell or sort-button padding or
-margin, so the record remains compact at wide viewport sizes.
+headings and values. Narrow, non-sortable separator columns use `-` headings and
+render the record as `W - L - A`; the second body separator is blank when the
+absence count is blank or zero. Result-count and separator columns opt out of
+the shared 24-pixel minimum column width and have no horizontal cell or
+sort-button padding or
+margin, so the record remains compact at wide viewport sizes. The wins column
+retains the standard `0.4rem` left inset used by ordinary table cells, providing
+the same visual separation from the preceding Chii column.
 
 ## Refactor Rule
 

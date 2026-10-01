@@ -93,6 +93,8 @@ console.log(renderBashoResultsPresentationTable(model));
             f'{heading}</span>'
         ) in html
 
+    assert html.count('data-column-role="record-separator">-</th>') == 4
+
     assert html.count("margin: 0; text-align: center;") >= 6
 
 

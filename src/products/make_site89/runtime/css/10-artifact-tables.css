@@ -129,6 +129,10 @@
   padding-right: 0;
 }
 
+.brb-redesign-table [data-column-path$=".result.wins"] {
+  padding-left: 0.4rem;
+}
+
 .banzuke-changes-table [data-column-id="result"] {
   white-space: nowrap;
 }

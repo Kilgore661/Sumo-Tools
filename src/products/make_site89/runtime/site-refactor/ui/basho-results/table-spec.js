@@ -82,9 +82,9 @@ function recordSpec() {
     ]),
     group("result", "Result", [
       column("wins", "W", { sort_kind: "numeric", presentation: PRESENTATION.COMPACT_COUNT }),
-      column("wins_losses_separator", "", { sort_kind: "none", presentation: PRESENTATION.RECORD_SEPARATOR }),
+      column("wins_losses_separator", "-", { sort_kind: "none", presentation: PRESENTATION.RECORD_SEPARATOR }),
       column("losses", "L", { sort_kind: "numeric", presentation: PRESENTATION.COMPACT_COUNT }),
-      column("losses_absences_separator", "", { sort_kind: "none", presentation: PRESENTATION.RECORD_SEPARATOR }),
+      column("losses_absences_separator", "-", { sort_kind: "none", presentation: PRESENTATION.RECORD_SEPARATOR }),
       column("absences", "A", { sort_kind: "numeric", presentation: PRESENTATION.COMPACT_COUNT }),
       column("prizes", "📦", {
         sort_kind: "prize_set",
