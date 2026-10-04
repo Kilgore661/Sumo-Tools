@@ -23,8 +23,19 @@ def _parse_bout_kimarite( kimarite_str: str) -> Union[Kimarite, Literal["fusen"]
         print(f"Warning: Unrecognized kimarite '{kimarite_str}', using default")
         return Kimarite.UNCLASSIFIED  # Fallback value
 
-def _convert_outcome( outcome_str: str) -> Outcome:
-    return Outcome[outcome_str]
+SOURCE_OUTCOMES = {
+    "W": Outcome.W,
+    "L": Outcome.L,
+    "FS": Outcome.FS,
+    "FP": Outcome.FP,
+    "D": Outcome.DRAW,
+}
+
+
+def _convert_outcome(outcome_str: str) -> Outcome:
+    """Translate one SumoDB daily-results token to the core model."""
+
+    return SOURCE_OUTCOMES[outcome_str]
 
 double_FP = {
     ( 1993, 1,  6, 2354, 2370 ),
@@ -117,7 +128,7 @@ def _parse_daily_results( year: int, month: int, day: Day,
                     decision = _parse_bout_kimarite(kimarite)
                     
                     # Only create BoutResult if outcomes are valid
-                    if cols[7] in Outcome.__members__ and cols[9] in Outcome.__members__:
+                    if cols[7] in SOURCE_OUTCOMES and cols[9] in SOURCE_OUTCOMES:
                         outcome1 = _convert_outcome(cols[7])
                         outcome2 = _convert_outcome(cols[9])
 

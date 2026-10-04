@@ -1600,6 +1600,26 @@ So:
 parser_daily.py = “parse bout outcomes against an already-validated roster context”
 ```
 
+#### Draw translation
+
+The core model can represent a drawn bout as
+`Outcome.DRAW`/`Outcome.DRAW`, and `BoutResult` accepts that outcome pair.
+The SumoDB daily-results HTML represents the outcome with the token `D`, while
+the core model calls it `Outcome.DRAW`.  The daily parser translates the source
+token explicitly and retains the bout in both `torikumi` and `results_lookup`.
+
+Three such bouts occur in the post-1988 source corpus currently used by the
+project:
+
+- 1994/03 day 5: Asanishiharu versus Tasai;
+- 1999/01 day 3: Ueda versus Sakaguchi; and
+- 1999/01 day 14: Hidenishiki versus Fusanonami.
+
+The source describes each as `D`/`D` with decision `itamiwake`.  Canonical
+`History` artefacts created before this translation was implemented omit these
+bouts and must be rebuilt.  Merely teaching a downstream analysis about the
+final-record `d` suffix does not repair a previously built artefact.
+
 ### 6.9 `parser_warning_logger.py`: diagnostics, not semantics
 
 Although not central to the data model, the warning logger is part of the parser’s operational structure. It owns diagnostic output and logging, not parsing semantics. Its presence matters because the parser is intended as a robust ingestion component that may need to record irregularities without polluting the core logic.
