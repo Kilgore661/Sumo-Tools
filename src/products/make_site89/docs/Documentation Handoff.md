@@ -7,6 +7,14 @@ review of its findings.** Read
 alongside the [analysis specification](../../../analysis/elo89_normalisation/docs/Proposal%20-%20Per-Chii%20Rating%20Drift.md).
 This pause does not imply a decision to change the model.
 
+An additional narrative review on 19 October 2026 is recorded in
+[Elo-89 Ratings Narrative Handoff](2026%2010%2019%20Elo-89%20Ratings%20Narrative%20Handoff.md).
+It preserves the missing progression from apparently simple performance
+measures, through the choice of an opponent-sensitive rating, to the expert
+question of what a rating system is as a model of sumo. Read it before
+restructuring or resuming the public account; it supplements this implementation
+and evidence handoff rather than changing the model.
+
 ## Where we are
 
 The deliverable is an account of Elo89, not of the whole Sumo Tools website.
