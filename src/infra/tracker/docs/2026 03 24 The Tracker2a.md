@@ -163,6 +163,13 @@ A required artifact is considered missing if the corresponding file does not exi
 
 The tracker is responsible only for ensuring that all required artifacts exist. It does not validate file contents beyond successful retrieval.
 
+This is not a continuing-freshness guarantee. SumoDB may revise a page after a
+successful retrieval, and the tracker does not routinely re-download the
+historical corpus to detect such corrections. See the project-level [Source
+Data Freshness and Upstream
+Revisions](../../docs/Source%20Data%20Freshness%20and%20Upstream%20Revisions.md)
+contract.
+
 ---
 
 ## 2.4 Determining required data
@@ -1324,6 +1331,12 @@ The system does not attempt:
 
 This keeps the system simple but shifts responsibility for deeper validation elsewhere.
 
+Deeper validation can identify known anomalies and flag their source pages for
+attention. It cannot establish continuing freshness against later upstream
+changes unless those pages are fetched again. In particular, a successfully
+parsed page may be superficially complete and still receive a later SumoDB
+correction.
+
 ---
 
 ## **4.4 Future work**
@@ -1523,6 +1536,10 @@ The tracker must be run from the project root:
   - accepted without revalidation (performance hack)
 
 - Proper model would revalidate or checksum
+
+- Revalidation checks known rules; checksums detect a change only when another
+  representation is available for comparison. Neither provides continuing
+  freshness without re-fetching the upstream page.
 
 - Action:
   

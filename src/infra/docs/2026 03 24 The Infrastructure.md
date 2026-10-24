@@ -646,6 +646,12 @@ The lifecycle described above reflects the behaviour of the system, but has two 
 * **Upstream mutability**
   Upstream data may change after a basho has been processed. The system does not automatically detect or incorporate such changes once the basho has passed its active period.
 
+This is a deliberate limit on the freshness contract, not merely a recovery
+defect. The system can establish validity against the checks known at
+acquisition time; it cannot guarantee continuing agreement with a source which
+may later be revised. See [Source Data Freshness and Upstream
+Revisions](Source%20Data%20Freshness%20and%20Upstream%20Revisions.md).
+
 ---
 
 ## 8. Failure and Recovery Model
@@ -844,6 +850,12 @@ It:
 * does not enforce consistency beyond what is expressed in the domain model
 
 Upstream changes are not automatically detected or incorporated once a basho has passed its active processing window.
+
+Accordingly, public consumers must be told that historical results reflect the
+version captured at download time and may omit later SumoDB corrections. The
+project-level wording and the distinction between acquisition validity and
+continuing freshness are defined in [Source Data Freshness and Upstream
+Revisions](Source%20Data%20Freshness%20and%20Upstream%20Revisions.md).
 
 ---
 

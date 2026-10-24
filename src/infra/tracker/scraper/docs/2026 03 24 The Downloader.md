@@ -4,6 +4,13 @@
 
 Throughout this project, *validation* of an existing file is currently mostly implicit rather than re-checked. A file is validated when first downloaded, then written read-only, and later treated as acceptable if it still exists.. (Deleting the file would be OK, because it would be downloaded again.) This is because checking a file for validity takes an unacceptably long time in development/testing. Sttictly speaking then,  "usable" is a synonym for "exists" until the project is complete.
 
+Even a file which passed every applicable check when downloaded may later be
+revised by SumoDB. The downloader does not routinely re-fetch historical pages
+to discover such revisions. Its checks can establish only validity at
+acquisition, not continuing freshness. The project-level contract and required
+user caveat are recorded in [Source Data Freshness and Upstream
+Revisions](../../../docs/Source%20Data%20Freshness%20and%20Upstream%20Revisions.md).
+
 ## 1.1 Purpose
 
 The downloader module provides the basic data-acquisition functionality of the tracker: it downloads whatever sumo data the tracker asks for.
@@ -285,3 +292,9 @@ It does not guarantee:
 * completeness of the request set
 * correctness of HTML beyond basic heuristics
 * recovery from failure within a single run
+* agreement with later corrections made to an upstream page
+
+Known semantic rules belong after parsing rather than in the downloader's
+minimal HTML heuristics. A violation should identify the affected source page
+for re-download or manual attention. Passing those rules still does not prove
+that SumoDB will not revise a valid-looking value later.
