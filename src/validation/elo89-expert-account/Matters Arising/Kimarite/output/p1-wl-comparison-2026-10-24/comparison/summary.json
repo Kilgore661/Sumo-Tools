@@ -1,0 +1,52 @@
+{
+  "by_division": {
+    "Jonidan": {
+      "count": 420,
+      "maximum_absolute": 49.408339415454066,
+      "mean": -23.60472894674071,
+      "mean_absolute": 24.21296687254353,
+      "rms": 25.526866541130516
+    },
+    "Jonokuchi": {
+      "count": 153,
+      "maximum_absolute": 83.35690483985013,
+      "mean": -9.771446189153162,
+      "mean_absolute": 20.380611114206268,
+      "rms": 25.583522860715075
+    },
+    "Juryo": {
+      "count": 28,
+      "maximum_absolute": 115.28194844833615,
+      "mean": 85.67018724270697,
+      "mean_absolute": 85.67018724270697,
+      "rms": 87.77945796657622
+    },
+    "Makushita": {
+      "count": 123,
+      "maximum_absolute": 538.271041449334,
+      "mean": 29.8428906013718,
+      "mean_absolute": 30.526757227329618,
+      "rms": 60.47327666046924
+    },
+    "Makuuchi": {
+      "count": 64,
+      "maximum_absolute": 264.6138574707443,
+      "mean": 121.08663389356255,
+      "mean_absolute": 121.08663389356255,
+      "rms": 126.79384258541782
+    },
+    "Sandanme": {
+      "count": 204,
+      "maximum_absolute": 125.59657633819552,
+      "mean": -11.813568291084177,
+      "mean_absolute": 14.072242131419424,
+      "rms": 17.25126863809848
+    }
+  },
+  "changed_prior_count": 992,
+  "count": 992,
+  "maximum_absolute": 538.271041449334,
+  "mean": -1.743121775953407e-13,
+  "mean_absolute": 30.303949528928168,
+  "rms": 46.32677346263164
+}

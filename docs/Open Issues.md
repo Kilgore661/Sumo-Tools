@@ -128,3 +128,10 @@ repair should establish one shared semantic distinction between:
 The audit must cover code, tests, diagnostics, generated statistics and prose.
 Correcting only the principal ratings simulator would leave other published or
 analytical bout populations inconsistent.
+
+This defect also affects the canonical `P1` entrant prior used by Elo-89, even
+though the Elo-89 production replay itself already rates binary `W/L` outcomes
+without requiring a kimarite. The required `P1` correction, controlled
+regeneration, predictive comparison, adoption procedure and `_boot89.ps1`
+boundary are recorded in
+[`Elo-89 P1 Missing-Kimarite Repair.md`](Elo-89%20P1%20Missing-Kimarite%20Repair.md).

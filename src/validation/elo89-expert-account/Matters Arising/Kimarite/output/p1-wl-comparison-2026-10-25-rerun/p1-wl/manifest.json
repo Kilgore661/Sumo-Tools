@@ -1,0 +1,22 @@
+{
+  "converged": true,
+  "convergence": {
+    "converged": true,
+    "final_maximum_change": 9.727843681064769,
+    "iterations_taken": 18,
+    "maximum_iterations": 200,
+    "threshold": 10.0
+  },
+  "counts": {
+    "excluded_blank_kimarite": 0,
+    "excluded_fusen": 3034,
+    "excluded_non_binary": 3,
+    "rated_blank_kimarite": 33521,
+    "rated_results": 581634,
+    "raw_results": 584671
+  },
+  "eligibility": "p1-wl",
+  "final_delta": 9.727843681064769,
+  "iterations": 18,
+  "prior_count": 975
+}

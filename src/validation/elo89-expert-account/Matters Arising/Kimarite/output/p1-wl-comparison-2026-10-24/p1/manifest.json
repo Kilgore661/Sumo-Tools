@@ -1,0 +1,15 @@
+{
+  "converged": false,
+  "counts": {
+    "excluded_blank_kimarite": 33521,
+    "excluded_fusen": 3033,
+    "excluded_non_binary": 0,
+    "rated_blank_kimarite": 0,
+    "rated_results": 548117,
+    "raw_results": 584671
+  },
+  "eligibility": "p1",
+  "final_delta": 32.568054967056014,
+  "iterations": 200,
+  "prior_count": 992
+}

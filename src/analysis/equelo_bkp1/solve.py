@@ -10,7 +10,7 @@ from ...sumo_core.History import History
 from .model import FixedPointResult, IterationRow, ReplayResult
 from .params import KFn, MODEL_BASE
 from .recenter import recenter
-from .simulate import replay
+from .simulate import BoutEligibility, replay
 
 
 def solve(
@@ -20,6 +20,7 @@ def solve(
     epsilon: float = 10.0,
     max_iterations: int = 200,
     progress: Callable[[IterationRow], None] | None = None,
+    eligibility: BoutEligibility = BoutEligibility.P1,
 ) -> FixedPointResult:
     domain = {chii for basho in history.values() for chii in basho.banzuke.rikchii.values()}
     support = _chii_support(history)
@@ -28,7 +29,12 @@ def solve(
     final_delta = 0.0
 
     for iteration in range(1, max_iterations + 1):
-        current_replay = replay(history, priors, divisional_k)
+        current_replay = replay(
+            history,
+            priors,
+            divisional_k,
+            eligibility=eligibility,
+        )
         raw = aggregate_by_chii(history, current_replay)
         centred = recenter(raw, base=MODEL_BASE, support=support)
         next_priors = centred.ratings

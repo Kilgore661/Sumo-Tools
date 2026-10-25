@@ -1,0 +1,68 @@
+{
+  "comparison": {
+    "prior_rows": "comparison/prior_comparison.csv",
+    "summary": "comparison/summary.json"
+  },
+  "experiment": "P1-WL same-History comparison",
+  "history": {
+    "basho_count": 225,
+    "end": "2026/09",
+    "kind": "annotated History zip",
+    "path": "X:\\Sumo-Tools\\files\\output\\Historys\\1958_01 to 2026_11.zip",
+    "selected_history_sha256": "2b2a963422ec3b02d2acbd767f50b1da5fce38e78a661a052a24553f4a5fcbf4",
+    "sha256": "afddcc2a77aa237d539073008bf46414989eb766cad8b281cf719963141793ca",
+    "start": "1989/01"
+  },
+  "model": {
+    "base": 1517.0,
+    "controlled_difference": "bout eligibility only",
+    "epsilon": 10.0,
+    "history_preprocessing": "oracle annotation_only",
+    "k_config": "X:\\Sumo-Tools\\files\\input\\elo_fide.json",
+    "k_config_sha256": "cd69609fbb1c40a90e93afbe8055f4305a4cbae3d6dd8209cf9456d60fd24dd7",
+    "max_iterations": 200,
+    "q": 400.0
+  },
+  "runtime": {
+    "total_seconds": 37.33329500001855
+  },
+  "schema_version": 1,
+  "variants": {
+    "p1": {
+      "converged": true,
+      "convergence": {
+        "converged": true,
+        "final_maximum_change": 9.594916131855598,
+        "iterations_taken": 18,
+        "maximum_iterations": 200,
+        "threshold": 10.0
+      },
+      "eligibility": "p1",
+      "files": {
+        "iterations": "p1/iterations.csv",
+        "manifest": "p1/manifest.json",
+        "prior": "p1/prior.csv"
+      },
+      "final_delta": 9.594916131855598,
+      "iterations": 18
+    },
+    "p1-wl": {
+      "converged": true,
+      "convergence": {
+        "converged": true,
+        "final_maximum_change": 9.727843681064769,
+        "iterations_taken": 18,
+        "maximum_iterations": 200,
+        "threshold": 10.0
+      },
+      "eligibility": "p1-wl",
+      "files": {
+        "iterations": "p1-wl/iterations.csv",
+        "manifest": "p1-wl/manifest.json",
+        "prior": "p1-wl/prior.csv"
+      },
+      "final_delta": 9.727843681064769,
+      "iterations": 18
+    }
+  }
+}
