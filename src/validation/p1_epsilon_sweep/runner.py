@@ -37,6 +37,7 @@ from src.analysis.prediction.bouts import select_rated_bouts
 from src.infra.persistence.annotated_serialiser import load_history_with_annotations
 from src.sumo_core.Chii import Chii
 from src.sumo_core.History import Date, History
+from src.validation.paths import ELO89_MATTERS_OUTPUT_ROOT
 from src.validation.provenance import history_fingerprint
 
 
@@ -65,10 +66,7 @@ DEFAULT_EPSILONS = (
     0.2,
     0.1,
 )
-DEFAULT_OUTPUT_PARENT = Path(
-    "src/validation/elo89-expert-account/Matters Arising/"
-    "P1 Epsilon Sweep/output"
-)
+DEFAULT_OUTPUT_PARENT = ELO89_MATTERS_OUTPUT_ROOT / "P1 Epsilon Sweep" / "output"
 DEFAULT_REFERENCE_PRIOR = Path("files/output/analysis/equelo_bkp1/prior.csv")
 ELO89_START = Date.from_ints(1989, 1)
 ITERATION_FIELDS = (

@@ -34,15 +34,13 @@ from src.analysis.equelo_population_policy.predict_candidate import (
 from src.analysis.prediction.bouts import select_rated_bouts
 from src.sumo_core.BasicEnums import Division, MSD
 from src.sumo_core.History import Date, History
+from src.validation.paths import KIMARITE_OUTPUT_ROOT
 
 from .audit import load_history
 from .p1_wl import history_fingerprint
 
 
-DEFAULT_OUTPUT_PARENT = Path(
-    "src/validation/elo89-expert-account/Matters Arising/Kimarite/"
-    "P1-WL Evaluation/output"
-)
+DEFAULT_OUTPUT_PARENT = KIMARITE_OUTPUT_ROOT / "P1-WL Evaluation" / "output"
 DEFAULT_PUBLISHED_P1 = Path("files/output/analysis/equelo_bkp1/prior.csv")
 DEFAULT_OLD_PRIOR = Path(
     "files/output/Equelo/boundary_reconciliation/"

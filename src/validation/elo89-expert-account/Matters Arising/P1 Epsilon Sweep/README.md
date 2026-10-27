@@ -30,6 +30,9 @@ as soon as they become available. It has no arbitrary iteration ceiling: it
 stops when the smallest requested epsilon has been reached. Ordinary
 Control-C termination therefore preserves all completed evidence.
 
+By default, new runs are written beneath
+`files/output/validation/elo89-expert-account/Matters Arising/P1 Epsilon Sweep/output/`.
+
 ## 2026-10-26 result
 
 The full default run is in `output/epsilon-sweep-2026-10-26`; a short

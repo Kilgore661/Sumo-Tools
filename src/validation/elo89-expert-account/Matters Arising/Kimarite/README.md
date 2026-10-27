@@ -191,7 +191,7 @@ the repaired frozen History snapshot:
 py -m src.validation.kimarite.p1_wl `
   --history-zip "files/output/Historys/1958_01 to 2026_11.zip" `
   --start 1989-01 `
-  --output "src/validation/elo89-expert-account/Matters Arising/Kimarite/output/p1-wl-comparison"
+  --output "files/output/validation/elo89-expert-account/Matters Arising/Kimarite/output/p1-wl-comparison"
 ```
 
 The command refuses to overwrite an existing comparison directory. It writes

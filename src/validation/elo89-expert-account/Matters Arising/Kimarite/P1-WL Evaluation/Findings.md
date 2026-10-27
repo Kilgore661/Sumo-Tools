@@ -27,7 +27,7 @@ binary W/L result is rating evidence even when its kimarite is absent.
 ## Adopted run
 
 The adopted evidence is in
-[`output/p1-wl-evaluation-2026-10-25-v2`](output/p1-wl-evaluation-2026-10-25-v2).
+`files/output/validation/elo89-expert-account/Matters Arising/Kimarite/P1-WL Evaluation/output/p1-wl-evaluation-2026-10-27-canonical`.
 It was produced by `src.validation.kimarite.p1_wl_evaluation` in 155.259
 seconds. The manifest binds all inputs and parameters. In particular:
 

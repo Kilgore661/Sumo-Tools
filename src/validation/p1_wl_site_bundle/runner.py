@@ -25,16 +25,19 @@ from src.infra.persistence.annotated_serialiser import load_history_with_annotat
 from src.infra.torikumi import Future, load_future
 from src.products.make_site89.bundle import SiteDataBundle, load_site_data_bundle
 from src.sumo_core.History import Date, History
+from src.validation.paths import KIMARITE_OUTPUT_ROOT
 from src.validation.provenance import history_fingerprint
 
 
-DEFAULT_CANDIDATE_PRIOR = Path(
-    "src/validation/elo89-expert-account/Matters Arising/Kimarite/"
-    "output/p1-wl-comparison-2026-10-25-rerun/p1-wl/prior.csv"
+DEFAULT_CANDIDATE_PRIOR = (
+    KIMARITE_OUTPUT_ROOT
+    / "output"
+    / "p1-wl-comparison-2026-10-27-canonical"
+    / "p1-wl"
+    / "prior.csv"
 )
-DEFAULT_OUTPUT_PARENT = Path(
-    "src/validation/elo89-expert-account/Matters Arising/Kimarite/"
-    "P1-WL Site Bundle Comparison/output"
+DEFAULT_OUTPUT_PARENT = (
+    KIMARITE_OUTPUT_ROOT / "P1-WL Site Bundle Comparison" / "output"
 )
 ELO89_START = Date.from_ints(1989, 1)
 DEPENDENCY_CLASS = {

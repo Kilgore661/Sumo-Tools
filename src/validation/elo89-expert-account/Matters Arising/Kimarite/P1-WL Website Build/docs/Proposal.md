@@ -43,9 +43,9 @@ the shared inspection surface which the inaccessible `A:` mapping cannot.
 The first run must use the candidate bundle from:
 
 ```text
-src/validation/elo89-expert-account/Matters Arising/Kimarite/
+files/output/validation/elo89-expert-account/Matters Arising/Kimarite/
   P1-WL Site Bundle Comparison/output/
-  site-bundle-comparison-2026-10-27-run3/candidate
+  site-bundle-comparison-2026-10-27-canonical/candidate
 ```
 
 Before building, verify:
@@ -82,7 +82,8 @@ the experiment exercises the real product assembly rather than a fork. It
 should:
 
 1. require or default to the explicit accepted candidate bundle;
-2. create a new timestamped run beneath this work package's `output/`;
+2. create a new timestamped run beneath the corresponding work-package
+   directory in `files/output/validation/`;
 3. refuse to overwrite an existing run;
 4. invoke `src.products.make_site89.build.build_site` directly;
 5. use development cache-busting for the interactive inspection build;

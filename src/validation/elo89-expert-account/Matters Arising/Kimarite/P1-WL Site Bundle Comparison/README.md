@@ -33,8 +33,8 @@ Unless superseded by an explicitly recorded correction, the candidate input
 is:
 
 ```text
-src/validation/elo89-expert-account/Matters Arising/Kimarite/
-  output/p1-wl-comparison-2026-10-25-rerun/p1-wl/prior.csv
+files/output/validation/elo89-expert-account/Matters Arising/Kimarite/
+  output/p1-wl-comparison-2026-10-27-canonical/p1-wl/prior.csv
 ```
 
 Its SHA-256 recorded by the adopted evaluation is
@@ -78,10 +78,10 @@ py -m src.validation.p1_wl_site_bundle `
   --start 1989-01 `
   --end 2026-09 `
   --baseline-prior ".\files\output\analysis\equelo_bkp1\prior.csv" `
-  --candidate-prior ".\src\validation\elo89-expert-account\Matters Arising\Kimarite\output\p1-wl-comparison-2026-10-25-rerun\p1-wl\prior.csv" `
+  --candidate-prior ".\files\output\validation\elo89-expert-account\Matters Arising\Kimarite\output\p1-wl-comparison-2026-10-27-canonical\p1-wl\prior.csv" `
   --banzuke-source-root ".\files\output\bcr" `
   --future ".\files\output\torikumi\future.json" `
-  --output ".\src\validation\elo89-expert-account\Matters Arising\Kimarite\P1-WL Site Bundle Comparison\output\site-bundle-comparison-2026-10-27-run3"
+  --output ".\files\output\validation\elo89-expert-account\Matters Arising\Kimarite\P1-WL Site Bundle Comparison\output\site-bundle-comparison-2026-10-27-canonical"
 ```
 
 The program returns zero when both bundles validate and no comparison

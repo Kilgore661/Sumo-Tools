@@ -14,6 +14,7 @@ from src.infra.persistence.annotated_serialiser import load_history_with_annotat
 from src.sumo_core.BasicEnums import Division, MSD, Outcome
 from src.sumo_core.Chii import Chii
 from src.sumo_core.History import Date, History
+from src.validation.paths import KIMARITE_OUTPUT_ROOT
 
 
 DIVISIONS = (
@@ -25,9 +26,7 @@ DIVISIONS = (
     "Jonokuchi",
 )
 
-DEFAULT_OUTPUT_DIR = Path(
-    "src/validation/elo89-expert-account/Matters Arising/Kimarite/output"
-)
+DEFAULT_OUTPUT_DIR = KIMARITE_OUTPUT_ROOT / "output"
 
 
 def count_missing_kimarite(

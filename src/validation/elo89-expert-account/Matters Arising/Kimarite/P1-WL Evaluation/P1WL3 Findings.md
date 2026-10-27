@@ -34,7 +34,7 @@ Their declared controlled difference remains bout eligibility.
 | P1-WL | 3 | 400 | 310 | 2.989262 |
 
 The repeated downstream evaluation is in
-[`output/p1-wl3-evaluation-2026-10-25`](output/p1-wl3-evaluation-2026-10-25).
+`files/output/validation/elo89-expert-account/Matters Arising/Kimarite/P1-WL Evaluation/output/p1-wl3-evaluation-2026-10-25`.
 It used the same six-model initialisation test and the same three exact
 Elo-89 replays as the accepted evaluation. Runtime was 155.719 seconds and
 the common forecast domain contained 581,634 bouts.

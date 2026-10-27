@@ -18,7 +18,7 @@ deployed.
 The adopted run is:
 
 ```text
-output/site-bundle-comparison-2026-10-27-run3
+files/output/validation/elo89-expert-account/Matters Arising/Kimarite/P1-WL Site Bundle Comparison/output/site-bundle-comparison-2026-10-27-canonical
 ```
 
 It compared two complete `site89` data bundles over 225 basho from `1989/01`

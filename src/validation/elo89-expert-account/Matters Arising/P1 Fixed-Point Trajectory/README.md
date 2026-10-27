@@ -241,7 +241,7 @@ py -m src.validation.p1_trajectory `
   --start 1989-01 `
   --end 2026-09 `
   --eligibility p1-wl `
-  --output ".\src\validation\elo89-expert-account\Matters Arising\P1 Fixed-Point Trajectory\output\p1-wl-trajectory-<date-time>"
+  --output ".\files\output\validation\elo89-expert-account\Matters Arising\P1 Fixed-Point Trajectory\output\p1-wl-trajectory-<date-time>"
 ```
 
 There is deliberately no `--epsilon` and no `--max-iterations` option.

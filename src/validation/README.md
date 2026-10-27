@@ -11,13 +11,22 @@ Each validation project should keep together:
 - runnable code;
 - the exact input identity, including hashes where practical;
 - the invocation and relevant code version;
-- persisted outputs; and
+- the location and identity of its generated outputs;
+- any compact evidence deliberately selected for persistence; and
 - findings and any resulting decision.
 
-Outputs stored inside this package are intentional repository artifacts. They
-must be committed with the code and documentation that explain them. A rerun
-must not silently overwrite an adopted result without recording the changed
-input or implementation.
+Complete generated runs belong beneath `files/output/validation`, mirroring the
+relevant project structure under `src/validation`. That output tree is ignored
+by Git: it may contain large replay products, websites and intermediate files
+without obscuring source changes or inflating the repository. Validation CLIs
+must use this tree by default while retaining an explicit output-path option.
+
+Code, documentation and findings belong inside this package. Compact evidence
+may also be copied here when it is needed to support a committed conclusion;
+such evidence is an intentional repository artifact and must retain enough
+provenance to identify the complete generated run. A rerun must not silently
+overwrite an adopted result without recording the changed input or
+implementation.
 
 ## Scope: the January 1989 Elo-89 line
 

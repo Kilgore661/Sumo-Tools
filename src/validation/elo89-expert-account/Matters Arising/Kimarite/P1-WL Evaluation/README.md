@@ -64,10 +64,9 @@ fit unless a discrepancy is found before implementation:
 The two new prior inputs are the control and candidate produced in the adopted
 same-History run:
 
-- incumbent-semantics control:
-  `../output/p1-wl-comparison-2026-10-25-rerun/p1/prior.csv`;
-- P1-WL candidate:
-  `../output/p1-wl-comparison-2026-10-25-rerun/p1-wl/prior.csv`.
+- incumbent-semantics control from the canonical comparison beneath
+  `files/output/validation/`;
+- P1-WL candidate from that same canonical comparison.
 
 Their exact file and source-manifest hashes must be calculated and written to
 the evaluation manifest. Paths alone are not sufficient provenance.
@@ -367,9 +366,9 @@ py -m src.validation.kimarite.p1_wl_evaluation `
   --history-zip ".\files\output\Historys\1958_01 to 2026_11.zip" `
   --start 1989-01 `
   --end 2026-09 `
-  --p1 ".\src\validation\elo89-expert-account\Matters Arising\Kimarite\output\p1-wl-comparison-2026-10-25-rerun\p1\prior.csv" `
-  --p1-wl ".\src\validation\elo89-expert-account\Matters Arising\Kimarite\output\p1-wl-comparison-2026-10-25-rerun\p1-wl\prior.csv" `
-  --output ".\src\validation\elo89-expert-account\Matters Arising\Kimarite\P1-WL Evaluation\output\<run-id>"
+  --p1 ".\files\output\validation\elo89-expert-account\Matters Arising\Kimarite\output\p1-wl-comparison-2026-10-27-canonical\p1\prior.csv" `
+  --p1-wl ".\files\output\validation\elo89-expert-account\Matters Arising\Kimarite\output\p1-wl-comparison-2026-10-27-canonical\p1-wl\prior.csv" `
+  --output ".\files\output\validation\elo89-expert-account\Matters Arising\Kimarite\P1-WL Evaluation\output\<run-id>"
 ```
 
 This interface is part of the proposal and may be refined during

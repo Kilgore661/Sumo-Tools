@@ -12,6 +12,7 @@ from time import perf_counter
 
 from src.products.make_site89.build import build_site
 from src.products.make_site89.bundle import load_site_data_bundle
+from src.validation.paths import KIMARITE_OUTPUT_ROOT
 
 
 EXPECTED_PRIOR_SHA256 = (
@@ -19,15 +20,14 @@ EXPECTED_PRIOR_SHA256 = (
 )
 EXPECTED_HISTORY_START = "1989/01"
 EXPECTED_HISTORY_END = "2026/09"
-DEFAULT_CANDIDATE_BUNDLE = Path(
-    "src/validation/elo89-expert-account/Matters Arising/Kimarite/"
-    "P1-WL Site Bundle Comparison/output/"
-    "site-bundle-comparison-2026-10-27-run3/candidate"
+DEFAULT_CANDIDATE_BUNDLE = (
+    KIMARITE_OUTPUT_ROOT
+    / "P1-WL Site Bundle Comparison"
+    / "output"
+    / "site-bundle-comparison-2026-10-27-canonical"
+    / "candidate"
 )
-DEFAULT_OUTPUT_PARENT = Path(
-    "src/validation/elo89-expert-account/Matters Arising/Kimarite/"
-    "P1-WL Website Build/output"
-)
+DEFAULT_OUTPUT_PARENT = KIMARITE_OUTPUT_ROOT / "P1-WL Website Build" / "output"
 PREVIEW_PORT = 8766
 
 

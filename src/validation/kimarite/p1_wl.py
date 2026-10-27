@@ -29,14 +29,13 @@ from src.analysis.equelo.expt1.Oracle import make_oracle
 from src.sumo_core.BasicEnums import MSD
 from src.sumo_core.Chii import Chii
 from src.sumo_core.History import Date, History
+from src.validation.paths import KIMARITE_OUTPUT_ROOT
 from src.validation.provenance import history_fingerprint
 
 from .audit import load_history
 
 
-DEFAULT_OUTPUT_PARENT = Path(
-    "src/validation/elo89-expert-account/Matters Arising/Kimarite/output"
-)
+DEFAULT_OUTPUT_PARENT = KIMARITE_OUTPUT_ROOT / "output"
 ELO89_START = Date.from_ints(1989, 1)
 
 

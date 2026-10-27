@@ -37,7 +37,7 @@ comparison run:
 
 ```text
 ../P1-WL Site Bundle Comparison/
-  output/site-bundle-comparison-2026-10-27-run3/candidate
+  output/site-bundle-comparison-2026-10-27-canonical/candidate
 ```
 
 That bundle was produced from P1-WL prior SHA-256
@@ -53,7 +53,8 @@ merely trusting the directory name.
 This tranche may:
 
 - call the normal `make_site89` builder with the explicit candidate bundle;
-- write a timestamped site and build manifest beneath this folder's `output/`;
+- write a timestamped site and build manifest beneath the corresponding
+  `files/output/validation/` work-package directory;
 - serve that output from the repository workspace on port 8766; and
 - inspect the site in both automated and human browsers.
 
@@ -80,9 +81,10 @@ py -m src.validation.kimarite.p1_wl_website
 ```
 
 The default selects the accepted run3 candidate bundle and creates a
-timestamped directory beneath `P1-WL Website Build/output/`. An explicit new
-run directory can be supplied with `--output PATH`. The command refuses to
-overwrite an existing run.
+timestamped directory beneath
+`files/output/validation/elo89-expert-account/Matters Arising/Kimarite/P1-WL Website Build/output/`.
+An explicit new run directory can be supplied with `--output PATH`. The
+command refuses to overwrite an existing run.
 
 On success it prints the exact `py -m http.server` command for the generated
 site and the shared preview URL. Run that server command separately so its
@@ -93,7 +95,7 @@ lifetime remains under ordinary console control.
 The completed build is retained at:
 
 ```text
-output/p1-wl-website-2026-10-27_12-06-00
+files/output/validation/elo89-expert-account/Matters Arising/Kimarite/P1-WL Website Build/output/p1-wl-website-2026-10-27-canonical
 ```
 
 It contains a 394-file website and a provenance manifest binding it to the

@@ -24,13 +24,11 @@ from src.analysis.equelo_bkp1.solve import initial_prior_state, iterate_once
 from src.infra.persistence.annotated_serialiser import load_history_with_annotations
 from src.sumo_core.Chii import Chii
 from src.sumo_core.History import Date, History
+from src.validation.paths import ELO89_MATTERS_OUTPUT_ROOT
 from src.validation.provenance import history_fingerprint
 
 
-DEFAULT_OUTPUT_PARENT = Path(
-    "src/validation/elo89-expert-account/Matters Arising/"
-    "P1 Fixed-Point Trajectory/output"
-)
+DEFAULT_OUTPUT_PARENT = ELO89_MATTERS_OUTPUT_ROOT / "P1 Fixed-Point Trajectory" / "output"
 ELO89_START = Date.from_ints(1989, 1)
 ITERATION_FIELDS = (
     "iteration",

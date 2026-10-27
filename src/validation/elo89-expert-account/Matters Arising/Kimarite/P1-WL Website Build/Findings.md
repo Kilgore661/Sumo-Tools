@@ -16,7 +16,7 @@ kimarite does not introduce a material downstream problem.
 The completed run is:
 
 ```text
-output/p1-wl-website-2026-10-27_12-06-00
+files/output/validation/elo89-expert-account/Matters Arising/Kimarite/P1-WL Website Build/output/p1-wl-website-2026-10-27-canonical
 ```
 
 Its manifest records:

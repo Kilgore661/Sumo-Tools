@@ -2,6 +2,9 @@
 *.swp
 __pycache__
 /files/output/*
+# Validation generators write to files/output/validation. Keep any legacy or
+# accidentally redirected full runs out of the source/documentation tree too.
+/src/validation/elo89-expert-account/**/output/*
 /node_modules/
 /.venv/
 /venv/
