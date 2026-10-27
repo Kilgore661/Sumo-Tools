@@ -29,6 +29,7 @@ from src.analysis.equelo.expt1.Oracle import make_oracle
 from src.sumo_core.BasicEnums import MSD
 from src.sumo_core.Chii import Chii
 from src.sumo_core.History import Date, History
+from src.validation.provenance import history_fingerprint
 
 from .audit import load_history
 
@@ -155,33 +156,6 @@ def run_comparison(
         encoding="utf-8",
     )
     return output_root
-
-
-def history_fingerprint(history: History) -> str:
-    """Return a deterministic fingerprint of the selected P1 input fields."""
-
-    digest = hashlib.sha256()
-    for date in sorted(history):
-        digest.update(f"date:{date}\n".encode())
-        basho = history[date]
-        for rikishi, chii in sorted(
-            basho.banzuke.rikchii.items(), key=lambda item: int(item[0])
-        ):
-            digest.update(f"rank:{int(rikishi)}:{chii.ordinal()}\n".encode())
-        for day in sorted(basho.summary):
-            bouts = sorted(
-                basho.summary[day].results_lookup.values(),
-                key=lambda bout: (int(bout.rikishi1), int(bout.rikishi2)),
-            )
-            for bout in bouts:
-                decision = getattr(bout.decision, "value", bout.decision)
-                digest.update(
-                    (
-                        f"bout:{int(day)}:{int(bout.rikishi1)}:{bout.outcome1.name}:"
-                        f"{int(bout.rikishi2)}:{bout.outcome2.name}:{decision}\n"
-                    ).encode()
-                )
-    return digest.hexdigest()
 
 
 def _write_variant(

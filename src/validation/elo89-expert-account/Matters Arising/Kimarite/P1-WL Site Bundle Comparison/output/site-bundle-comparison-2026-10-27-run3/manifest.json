@@ -1,0 +1,66 @@
+{
+  "ancillary_inputs": {
+    "banzuke_source": {
+      "file_count": 6,
+      "path": "X:\\Sumo-Tools\\files\\output\\bcr",
+      "tree_sha256": "56b60af63d829a8f7a00c0bbddf9c6f6388c931a703551b920c47ab21544593c"
+    },
+    "bio_store": {
+      "path": "X:\\Sumo-Tools\\files\\output\\infra\\get_bios\\rikishi_bios.json",
+      "sha256": "535bff2eca129a0b4457e45fa6a8105a8fa049b462fb51f51a63da0209272072"
+    },
+    "future": {
+      "completed_through": 15,
+      "date": "2026/09",
+      "day_count": 15,
+      "generated_at": "2026-10-04T10:31:57.473558+00:00"
+    }
+  },
+  "completed_at_utc": "2026-10-27T11:32:44.376858+00:00",
+  "controlled_difference": "fixed Elo-89 prior only",
+  "experiment": "controlled P1 versus P1-WL site-bundle comparison",
+  "history": {
+    "basho_count": 225,
+    "end": "2026/09",
+    "kind": "annotated History zip",
+    "path": "X:\\Sumo-Tools\\files\\output\\Historys\\1958_01 to 2026_11.zip",
+    "selected_history_sha256": "46d10d006d394a146a4f0d54491741905248d3ef643ee74d05f5ee2f6543806a",
+    "sha256": "afddcc2a77aa237d539073008bf46414989eb766cad8b281cf719963141793ca",
+    "start": "1989/01"
+  },
+  "outputs": {
+    "baseline_bundle": "baseline",
+    "candidate_bundle": "candidate",
+    "file_comparison": "comparison/files.csv",
+    "largest_differences": "comparison/largest_numeric_differences.csv",
+    "numeric_comparison": "comparison/numeric_differences.csv",
+    "sekitori_differences": "comparison/sekitori_rating_differences.csv",
+    "sekitori_summary": "comparison/sekitori_rating_summary.csv",
+    "violations": "comparison/violations.csv"
+  },
+  "priors": {
+    "baseline": {
+      "path": "X:\\Sumo-Tools\\files\\output\\analysis\\equelo_bkp1\\prior.csv",
+      "sha256": "bd2ed9868c883fda5a52615ed96b4430f4d6c2c06db53474bd0e84757497f003"
+    },
+    "candidate": {
+      "path": "X:\\Sumo-Tools\\src\\validation\\elo89-expert-account\\Matters Arising\\Kimarite\\output\\p1-wl-comparison-2026-10-25-rerun\\p1-wl\\prior.csv",
+      "sha256": "6f5a3bc59dcdbd279e150f53ef0848ae658f2ee72b1371174976c6387cb70486"
+    }
+  },
+  "runtime_seconds": 200.10101770004258,
+  "schema_version": 1,
+  "started_at_utc": "2026-10-27T11:29:24.647066+00:00",
+  "status": "complete",
+  "summary": {
+    "artifact_count": 22,
+    "changed_files": 261,
+    "compared_files": 305,
+    "model_independent_changed_files": 0,
+    "sekitori_rating_observations": 217359,
+    "semantic_changed_files": 261,
+    "validated_history_end": "2026/09",
+    "validated_history_start": "1989/01",
+    "violations": []
+  }
+}

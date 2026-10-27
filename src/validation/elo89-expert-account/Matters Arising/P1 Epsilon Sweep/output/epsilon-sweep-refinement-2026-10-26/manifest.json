@@ -1,0 +1,85 @@
+{
+  "best": {
+    "mean_brier_loss": {
+      "epsilon": 8.0,
+      "iteration": 21,
+      "maximum_change": 7.908805201142286,
+      "value": 0.24194916455145915
+    },
+    "mean_log_loss": {
+      "epsilon": 8.5,
+      "iteration": 20,
+      "maximum_change": 8.094251706242403,
+      "value": 0.6770829589208046
+    }
+  },
+  "completed_at_utc": "2026-10-26T15:42:45.819161+00:00",
+  "epsilons_descending": [
+    9.0,
+    8.5,
+    8.0
+  ],
+  "evaluation": {
+    "kind": "retrospective initialisation forecast replay",
+    "warning": "The fitted prior and scores use the same historical interval; this is model-selection evidence, not prospective validation."
+  },
+  "experiment": "P1-WL epsilon stopping-threshold sweep",
+  "history": {
+    "basho_count": 225,
+    "end": "2026/09",
+    "kind": "annotated History zip",
+    "path": "X:\\Sumo-Tools\\files\\output\\Historys\\1958_01 to 2026_11.zip",
+    "preprocessing": "oracle annotation_only",
+    "selected_history_sha256": "2b2a963422ec3b02d2acbd767f50b1da5fce38e78a661a052a24553f4a5fcbf4",
+    "sha256": "afddcc2a77aa237d539073008bf46414989eb766cad8b281cf719963141793ca",
+    "start": "1989/01"
+  },
+  "model": {
+    "base": 1517.0,
+    "convergence_rule": "first iteration with maximum change < epsilon",
+    "eligibility": "p1-wl",
+    "eligibility_counts": {
+      "excluded_blank_kimarite": 0,
+      "excluded_fusen": 3034,
+      "excluded_non_binary": 3,
+      "rated_blank_kimarite": 33521,
+      "rated_results": 581634,
+      "raw_results": 584671
+    },
+    "initial_map": "every literal chii set to 1517.0",
+    "k_config": {
+      "path": "X:\\Sumo-Tools\\files\\input\\elo_fide.json",
+      "sha256": "cd69609fbb1c40a90e93afbe8055f4305a4cbae3d6dd8209cf9456d60fd24dd7"
+    },
+    "population_policy": "legacy_departure",
+    "q": 400.0,
+    "recentering": "support-proportional"
+  },
+  "outputs": {
+    "iterations": "iterations.csv",
+    "priors": "priors",
+    "results": "results.csv"
+  },
+  "reference": {
+    "mean_brier_loss": 0.24198197008425268,
+    "mean_log_loss": 0.677111527713116,
+    "name": "published P1",
+    "pair_count": 484,
+    "pairing_rule": "unweighted mean of available east/west literal-chii ratings",
+    "prior": {
+      "path": "X:\\Sumo-Tools\\files\\output\\analysis\\equelo_bkp1\\prior.csv",
+      "sha256": "bd2ed9868c883fda5a52615ed96b4430f4d6c2c06db53474bd0e84757497f003"
+    },
+    "source_row_count": 975
+  },
+  "runtime_seconds": 34.94495669999742,
+  "schema_version": 1,
+  "selection": {
+    "excluded_draw_count": 3,
+    "excluded_fusen_count": 3034,
+    "rated_bout_count": 581634,
+    "raw_result_count": 584671
+  },
+  "started_at_utc": "2026-10-26T15:42:15.436824+00:00",
+  "status": "complete"
+}

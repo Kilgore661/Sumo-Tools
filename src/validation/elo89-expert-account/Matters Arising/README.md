@@ -69,20 +69,22 @@ The governing question is:
 **Question:** Is a represented W/L result valid rating evidence when no
 kimarite is recorded?
 
-**Present view:** Yes. If the winner, loser and all other required bout
+**Decision:** Yes. If the winner, loser and all other required bout
 attributes are known, absence of kimarite should not disqualify the result.
 Kimarite is not an input to the Elo-89 model and there was never an intention
 to model technique.
 
-The recollection to verify is that exclusion of `decision="blank"` was an
-arbitrary expedient inherited from earlier work rather than a considered
-definition of valid competitive evidence. If so, the model should positively
-select represented W/L outcomes everywhere and treat the kimarite field as
-irrelevant to rating eligibility.
+The investigation confirmed that exclusion of `decision="blank"` was not a
+necessary part of the rating model. The model should positively select
+represented W/L outcomes everywhere and treat the kimarite field as irrelevant
+to rating eligibility.
 
-This could expand the observation set used to fit P1 and affect every rating
-which depends on that fitted prior. The likely size of the effect is expected
-to be small, but must be measured rather than assumed.
+The replacement prior is P1-WL, fitted from all represented binary W/L
+results. The controlled evaluation found small downstream changes and retained
+the case for informed initialisation. Stopping-threshold sensitivity showed
+that epsilon 10 lies in the useful early-stopping region and that further
+numerical convergence is harmful. The exploration is concluded; production
+promotion and artifact regeneration remain implementation work.
 
 ### 2. Disappearance and reappearance
 
@@ -132,6 +134,26 @@ The evidence review must identify:
 This matter may be almost empty, a data-quality problem, or a genuine test of
 the rating population's boundary. No position should be inferred from its
 expected rarity.
+
+## Concluded supporting matter
+
+### P1 fixed-point trajectory
+
+The epsilon-3 P1/P1-WL sensitivity run showed that a tighter numerical
+stopping condition can produce a substantially less useful prior and extreme
+values in sparse literal-chii cells. This raises a question about the P1
+iteration itself rather than about missing-kimarite eligibility: what complete
+rating maps are produced as iteration count increases?
+
+The open-ended trajectory recorder is specified in
+[`P1 Fixed-Point Trajectory/README.md`](P1%20Fixed-Point%20Trajectory/README.md).
+It is implemented under `src.validation.p1_trajectory`. The recorded
+trajectory and the subsequent epsilon sweep established that continued
+iteration drives sparse literal-chii cells to extreme values and worsens
+predictive loss. A local refinement found only negligible improvements over
+epsilon 10 at iterations 20 and 21. The project therefore retains epsilon 10
+and closes this supporting exploration alongside the P1-WL decision. See
+[`P1 Epsilon Sweep/README.md`](P1%20Epsilon%20Sweep/README.md).
 
 ## Common investigation method
 
@@ -239,6 +261,7 @@ orientation, evidence audit, experiment specification, findings and decision:
 Matters Arising/
     README.md
     Kimarite/
+    P1 Fixed-Point Trajectory/
     02 Disappearance and Reappearance/
     03 Off-Banzuke Results/
 ```

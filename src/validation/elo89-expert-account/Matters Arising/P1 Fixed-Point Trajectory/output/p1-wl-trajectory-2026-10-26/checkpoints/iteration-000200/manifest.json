@@ -1,0 +1,22 @@
+{
+  "base": 1517.0,
+  "current_maximum_change": 4.560217476575417,
+  "elapsed_seconds": 257.61076529999264,
+  "eligibility": "p1-wl",
+  "gradient_10": -0.0175365495909773,
+  "history_selected_sha256": "2b2a963422ec3b02d2acbd767f50b1da5fce38e78a661a052a24553f4a5fcbf4",
+  "iteration": 200,
+  "kind": "P1 fixed-point trajectory checkpoint",
+  "maximum_change_chii": "Jk65e",
+  "maximum_change_support": 9,
+  "prior": {
+    "path": "prior.csv",
+    "sha256": "d7c4df9dcde6f4bb6f88385b32fb9244c54ac40c9f7b2151f343e99275045fe3"
+  },
+  "q": 400.0,
+  "schema_version": 1,
+  "trajectory_manifest": {
+    "path": "../../manifest.json",
+    "sha256": "bdad111cf31449798581e5a7d684e6bc28e30c587af758a5fc84891a3b48ae08"
+  }
+}

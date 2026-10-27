@@ -10,6 +10,7 @@ from src.infra.live_store.api import get_history
 from src.infra.persistence.annotated_serialiser import load_history_with_annotations
 from src.infra.torikumi import load_future
 from src.infra.torikumi.persistence import DEFAULT_FUTURE_PATH
+from src.analysis.elo89.producer import DEFAULT_PRIOR
 
 from .producer import DEFAULT_BANZUKE_SOURCE, DEFAULT_OUTPUT_ROOT, produce_site89_bundle
 
@@ -23,6 +24,12 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--output-root", type=Path, default=DEFAULT_OUTPUT_ROOT)
     parser.add_argument("--banzuke-source-root", type=Path, default=DEFAULT_BANZUKE_SOURCE)
+    parser.add_argument(
+        "--prior",
+        type=Path,
+        default=DEFAULT_PRIOR,
+        help="Fixed Elo-89 entrant prior; ordinary production uses the canonical default.",
+    )
     parser.add_argument(
         "--future",
         type=Path,
@@ -49,6 +56,7 @@ def main(argv: list[str] | None = None) -> int:
         output_root=args.output_root,
         history_source=history_source,
         banzuke_source_root=args.banzuke_source_root,
+        prior_path=args.prior,
         future=load_future(args.future) if args.future.is_file() else None,
     )
     print(root)

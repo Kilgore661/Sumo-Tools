@@ -22,37 +22,23 @@ def solve(
     progress: Callable[[IterationRow], None] | None = None,
     eligibility: BoutEligibility = BoutEligibility.P1,
 ) -> FixedPointResult:
-    domain = {chii for basho in history.values() for chii in basho.banzuke.rikchii.values()}
-    support = _chii_support(history)
-    priors = {chii: MODEL_BASE for chii in domain}
+    priors, support = initial_prior_state(history)
     rows: list[IterationRow] = []
     final_delta = 0.0
 
     for iteration in range(1, max_iterations + 1):
-        current_replay = replay(
+        priors, row = iterate_once(
             history,
             priors,
+            support,
             divisional_k,
+            iteration=iteration,
             eligibility=eligibility,
         )
-        raw = aggregate_by_chii(history, current_replay)
-        centred = recenter(raw, base=MODEL_BASE, support=support)
-        next_priors = centred.ratings
-        max_chii = max(domain, key=lambda chii: abs(next_priors[chii] - priors[chii]))
-        final_delta = abs(next_priors[max_chii] - priors[max_chii])
-        row = IterationRow(
-            iteration=iteration,
-            max_prior_change=final_delta,
-            max_change_chii=str(max_chii),
-            max_change_observation_count=support[max_chii],
-            mean_recentering_adjustment=centred.mean_adjustment,
-            minimum_recentering_adjustment=centred.minimum_adjustment,
-            maximum_recentering_adjustment=centred.maximum_adjustment,
-        )
+        final_delta = row.max_prior_change
         rows.append(row)
         if progress is not None:
             progress(row)
-        priors = next_priors
         if final_delta < epsilon:
             return FixedPointResult(
                 priors=priors,
@@ -69,6 +55,62 @@ def solve(
         iterations=max_iterations,
         final_delta=final_delta,
         iteration_rows=tuple(rows),
+    )
+
+
+def initial_prior_state(
+    history: History,
+) -> tuple[dict[Chii, float], dict[Chii, int]]:
+    """Return the canonical starting map and literal-chii support."""
+
+    domain = {
+        chii
+        for basho in history.values()
+        for chii in basho.banzuke.rikchii.values()
+    }
+    if not domain:
+        raise ValueError("Cannot initialise a fixed-point solve from empty History")
+    support = _chii_support(history)
+    return {chii: MODEL_BASE for chii in domain}, support
+
+
+def iterate_once(
+    history: History,
+    priors: dict[Chii, float],
+    support: dict[Chii, int],
+    divisional_k: KFn,
+    *,
+    iteration: int,
+    eligibility: BoutEligibility = BoutEligibility.P1,
+) -> tuple[dict[Chii, float], IterationRow]:
+    """Apply one canonical BKP1 fixed-point iteration."""
+
+    if iteration < 1:
+        raise ValueError("iteration must be positive")
+    if set(priors) != set(support):
+        raise ValueError("Prior and support domains differ")
+    current_replay = replay(
+        history,
+        priors,
+        divisional_k,
+        eligibility=eligibility,
+    )
+    raw = aggregate_by_chii(history, current_replay)
+    centred = recenter(raw, base=MODEL_BASE, support=support)
+    next_priors = centred.ratings
+    max_chii = max(
+        priors,
+        key=lambda chii: abs(next_priors[chii] - priors[chii]),
+    )
+    final_delta = abs(next_priors[max_chii] - priors[max_chii])
+    return next_priors, IterationRow(
+        iteration=iteration,
+        max_prior_change=final_delta,
+        max_change_chii=str(max_chii),
+        max_change_observation_count=support[max_chii],
+        mean_recentering_adjustment=centred.mean_adjustment,
+        minimum_recentering_adjustment=centred.minimum_adjustment,
+        maximum_recentering_adjustment=centred.maximum_adjustment,
     )
 
 

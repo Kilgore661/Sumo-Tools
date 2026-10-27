@@ -1,0 +1,11 @@
+{
+  "artifact_count": 22,
+  "changed_files": 261,
+  "compared_files": 305,
+  "model_independent_changed_files": 0,
+  "sekitori_rating_observations": 217359,
+  "semantic_changed_files": 261,
+  "validated_history_end": "2026/09",
+  "validated_history_start": "1989/01",
+  "violations": []
+}

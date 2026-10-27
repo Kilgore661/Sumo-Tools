@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from src.analysis.elo89 import Elo89Artifacts, produce_elo89
+from src.analysis.elo89.producer import DEFAULT_PRIOR
 from src.infra.get_bios.api import load_bio_store
 from src.infra.torikumi import Future
 from src.sumo_core.History import History
@@ -35,6 +36,7 @@ def produce_site89_bundle(
     output_root: Path = DEFAULT_OUTPUT_ROOT,
     history_source: str = "provided History",
     banzuke_source_root: Path = DEFAULT_BANZUKE_SOURCE,
+    prior_path: Path = DEFAULT_PRIOR,
     future: Future | None = None,
 ) -> Path:
     dates = sorted(history)
@@ -50,6 +52,7 @@ def produce_site89_bundle(
     produce_elo89(
         history=history,
         output_root=elo_root,
+        prior_path=prior_path,
         history_source=history_source,
     )
     ratings = Elo89Artifacts.load(elo_root)

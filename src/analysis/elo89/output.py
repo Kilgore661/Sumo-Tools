@@ -8,6 +8,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from src.analysis.elo_model_selection.model import AdoptedPrior
+from src.sumo_core.Chii import Chii
 
 from .model import Elo89Run
 
@@ -72,6 +73,7 @@ def write_elo89_outputs(
                 },
                 "prior": {
                     "source": prior.source_path,
+                    "source_sha256": prior.sha256,
                     "copied_to": paths.prior.name,
                     "pair_count": len(prior.rating_by_pair),
                     "fallback_rating": prior.fallback_rating,
@@ -105,10 +107,18 @@ def write_elo89_outputs(
 
 def _write_prior(path: Path, prior: AdoptedPrior) -> None:
     with path.open("w", newline="", encoding="utf-8") as stream:
-        writer = csv.DictWriter(stream, fieldnames=("rank_pair", "rating"))
+        writer = csv.DictWriter(
+            stream, fieldnames=("rank_pair", "ordinal", "rating")
+        )
         writer.writeheader()
         for rank_pair, rating in sorted(prior.rating_by_pair.items()):
-            writer.writerow({"rank_pair": rank_pair, "rating": _number(rating)})
+            writer.writerow(
+                {
+                    "rank_pair": rank_pair,
+                    "ordinal": Chii.from_str(rank_pair).ordinal(),
+                    "rating": _number(rating),
+                }
+            )
 
 
 def _write_json(path: Path, payload: object) -> None:

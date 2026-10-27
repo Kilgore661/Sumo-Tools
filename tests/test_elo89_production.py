@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import csv
+import json
+
 import pytest
 
 from src.analysis.elo_model_selection.model import (
@@ -8,6 +11,7 @@ from src.analysis.elo_model_selection.model import (
     _context,
 )
 from src.analysis.elo89.replay import replay_elo89
+from src.analysis.elo89.output import _write_prior, write_elo89_outputs
 from src.analysis.equelo_population_policy.predict_population_policy import (
     run_whole_population_model,
 )
@@ -111,6 +115,60 @@ def test_production_replay_exposes_daily_and_normalised_end_snapshots() -> None:
         run.target_mean
     )
     assert run.day_end_ratings[date][Day(1)] != run.basho_end_ratings[date]
+
+
+def test_saved_paired_prior_includes_chii_ordinal(tmp_path) -> None:
+    prior = AdoptedPrior(
+        source_path="fixture.csv",
+        sha256="fixture",
+        rating_by_pair={"Y1": 2500.0, "J1": 1800.0},
+        fallback_rating=1800.0,
+    )
+    output = tmp_path / "prior.csv"
+
+    _write_prior(output, prior)
+
+    with output.open(newline="", encoding="utf-8") as stream:
+        rows = list(csv.DictReader(stream))
+    assert tuple(rows[0]) == ("rank_pair", "ordinal", "rating")
+    assert {row["rank_pair"]: int(row["ordinal"]) for row in rows} == {
+        "J1": Chii.from_str("J1").ordinal(),
+        "Y1": Chii.from_str("Y1").ordinal(),
+    }
+
+
+def test_output_manifest_records_prior_source_hash(tmp_path) -> None:
+    date = _date(1989, 1)
+    history = History(
+        {date: _basho({1: "M1e", 2: "J1w"}, [_bout(1, Outcome.W, 2, Outcome.L)])}
+    )
+    prior = AdoptedPrior(
+        source_path="fixture.csv",
+        sha256="fixed-prior-sha256",
+        rating_by_pair={"M1": 1600.0, "J1": 1400.0},
+        fallback_rating=1400.0,
+    )
+    run = replay_elo89(
+        history=history,
+        start_date=date,
+        end_date=date,
+        prior=prior,
+        divisional_k=lambda _ordinal: 20.0,
+    )
+
+    paths = write_elo89_outputs(
+        run=run,
+        prior=prior,
+        output_root=tmp_path / "elo89",
+        history_source="fixture",
+        start_date=date,
+        end_date=date,
+        k_config_path=tmp_path / "k.json",
+        q=400.0,
+    )
+
+    manifest = json.loads(paths.manifest.read_text(encoding="utf-8"))
+    assert manifest["prior"]["source_sha256"] == "fixed-prior-sha256"
 
 
 def _date(year: int, month: int) -> Date:

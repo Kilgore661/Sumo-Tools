@@ -2,15 +2,56 @@
 
 ## Status
 
-Active validation record for the first matter arising from the Elo-89 expert
-account.
+Concluded validation record for the first matter arising from the Elo-89
+expert account.
 
 This folder investigates the treatment of represented results for which no
 kimarite is recorded. The descriptive audit and controlled P1/P1-WL prior
-comparison have now been run. The provisional prior-level findings are
+comparison and stopping-threshold sensitivity work have now been run. The
+prior-level findings are
 recorded in
 [`P1-WL Prior Comparison - Findings.md`](P1-WL%20Prior%20Comparison%20-%20Findings.md).
-No production rating-code change or final model decision has been made.
+The model decision is recorded below. Promotion into production rating code
+and regeneration of the published artifacts remain separate implementation
+work.
+
+## Decision
+
+P1-WL is accepted as the replacement for P1. A represented binary W/L result
+is rating evidence whether or not its kimarite is recorded. Kimarite is not an
+input to Elo-89, and absence of that descriptive field is not a reason to
+discard otherwise usable evidence about who fought and who won.
+
+The accepted fit retains epsilon 10. A broad sweep found negligible raw-score
+improvements at iterations 20 and 21, selected by epsilon 8.5 and 8
+respectively, but no practically persuasive advantage over epsilon 10 at
+iteration 18. Tighter thresholds then deteriorated rapidly because sparse
+literal-chii cells became extreme. Epsilon 10 therefore remains the simple,
+tested early-stopping rule; it is understood as material regularisation, not
+as proof of numerical convergence.
+
+This closes the P1-variant exploration. Its conclusion is that P1-WL is good
+enough for the intended role and, unlike P1, consistently includes all
+otherwise valid represented results, with or without kimarite.
+
+The next tranche followed the accepted prior through the site-data publication
+boundary. Its specification and completed findings are in
+[`P1-WL Site Bundle Comparison/`](P1-WL%20Site%20Bundle%20Comparison/README.md).
+That work treated P1-WL as fixed, found no invariant violations, and concluded
+that a complete non-deployed web site should now be generated with P1-WL for
+page-level inspection. It did not reopen model selection or install the
+candidate as the canonical production prior.
+
+The website-build and shared-preview tranche is completed and recorded in
+[`P1-WL Website Build/`](P1-WL%20Website%20Build/README.md). It assembled the
+accepted candidate beneath the validation package and served it at the
+workspace-standard `http://localhost:8766/`, avoiding the inaccessible
+production mapping on `A:`. The user inspected the working site and found no
+obvious problem. No deployment was performed and the canonical P1 prior was
+not changed.
+
+This completes the Kimarite matter. The retained evidence supports using
+P1-WL as the replacement prior in a separate production change.
 
 The first audit is implemented by `src.validation.kimarite`. It counts each
 represented binary W/L result whose decision is `"blank"`, assigning a
@@ -76,31 +117,30 @@ disappeared. This both establishes the 33,521 count and demonstrates why a
 validation interval and a precisely identified source snapshot are part of the
 finding rather than incidental command details.
 
-## The issue as presently understood
+## The issue and adopted interpretation
 
 Some represented bouts identify a winner and loser but do not record a
 kimarite. Parts of the project treat those W/L outcomes as valid rating
 evidence; at least one earlier process has excluded records whose decision
 field is `blank`.
 
-That creates a possible inconsistency. Elo-89 uses the identities of the
+That created an inconsistency. Elo-89 uses the identities of the
 competitors and the result of the bout. It does not otherwise use kimarite. If
-the missing field means only that the winning technique was not recorded, it
-is not yet clear why that omission should disqualify an otherwise known
-result.
+the missing field means only that the winning technique was not recorded,
+that omission does not disqualify an otherwise known result.
 
-The present intuition is therefore:
+The adopted rule is therefore:
 
 > A represented W/L result should count as rating evidence whether or not its
 > kimarite is recorded, provided that it has the same required attributes and
 > reliability as other represented W/L results.
 
-This is a starting view, not the conclusion of the mini-project.
+This view was tested and is now the adopted conclusion of the mini-project.
 
-## What is not yet settled
+## Questions investigated
 
-Before specifying work, we need to understand what “missing kimarite” means in
-the actual sources and code. Questions include:
+The investigation was framed by the following questions about what “missing
+kimarite” means in the actual sources and code:
 
 - Does `decision="blank"` consistently mean that winner and loser are known
   but kimarite is absent?
@@ -112,13 +152,13 @@ the actual sources and code. Questions include:
 - If the rule changes, which fitted artifacts, replays, evaluations and
   published outputs would need to be regenerated?
 
-These questions indicate why the issue matters. They do not yet constitute an
-approved investigation plan.
+The audit and controlled comparisons resolved the rating-policy question.
+Promotion still needs to trace and regenerate every production consumer
+identified by the final question.
 
-## Working approach
+## Investigation approach followed
 
-The next step is to orient ourselves within this bounded issue before writing
-an experiment specification. That orientation should establish:
+The work first oriented itself within this bounded issue and established:
 
 1. the meanings carried by the relevant source fields;
 2. the current behaviour of each affected pipeline;
@@ -127,8 +167,8 @@ an experiment specification. That orientation should establish:
    and
 5. which questions are semantic, empirical or merely implementation details.
 
-Only then should this folder acquire separate audit, proposal, findings or
-decision documents.
+Those steps produced the audit, comparison, sensitivity and decision records
+retained in this folder and the related P1 exploration folders.
 
 ## P1-WL comparison code
 
@@ -168,6 +208,28 @@ total wall-clock run time in seconds.
 The complete historical determination was run on 25 October 2026. Both fits
 converged in 18 iterations. See the findings document for the provenance,
 results, interpretation and proposed next step.
+
+The downstream tests are specified in
+[`P1-WL Evaluation/README.md`](P1-WL%20Evaluation/README.md) and their results
+are recorded in
+[`P1-WL Evaluation/Findings.md`](P1-WL%20Evaluation/Findings.md). P1-WL retains
+the case for informed initialisation and produces small, controlled but
+non-zero downstream changes in exact Elo-89. The evidence supports adoption
+of the positive binary-W/L rule followed by regeneration of dependent
+artifacts; no production artifact has yet been changed.
+
+A sensitivity run with epsilon reduced from 10 to 3 is recorded separately in
+[`P1-WL Evaluation/P1WL3 Findings.md`](P1-WL%20Evaluation/P1WL3%20Findings.md).
+Although both epsilon-3 variants meet their numerical stopping rule, sparse
+literal-rank cells become extreme and predictive performance deteriorates
+materially. P1WL3 is rejected; this does not alter the acceptance of the
+epsilon-10 P1-WL repair, but it shows that the current stopping threshold acts
+as de facto regularisation rather than mere numerical precision.
+
+The subsequent broad sweep and local refinement are recorded in
+[`../P1 Epsilon Sweep/README.md`](../P1%20Epsilon%20Sweep/README.md). They
+confirm that the useful stopping region is iterations 18--21 and do not supply
+a material reason to replace the established epsilon-10 rule.
 
 ## Relationship to the parent tranche
 

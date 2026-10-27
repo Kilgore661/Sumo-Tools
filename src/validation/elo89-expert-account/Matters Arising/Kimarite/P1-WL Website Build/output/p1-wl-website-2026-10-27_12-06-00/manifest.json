@@ -1,0 +1,49 @@
+{
+  "build": {
+    "cache_mode": "dev",
+    "preview_port": 8766,
+    "preview_url": "http://localhost:8766/",
+    "site_root": "site"
+  },
+  "completed_at_utc": "2026-10-27T12:06:03.864096+00:00",
+  "experiment": "Kimarite P1-WL website build",
+  "input": {
+    "accepted_prior_sha256": "6f5a3bc59dcdbd279e150f53ef0848ae658f2ee72b1371174976c6387cb70486",
+    "artifact_count": 22,
+    "bundle_manifest": {
+      "path": "X:\\Sumo-Tools\\src\\validation\\elo89-expert-account\\Matters Arising\\Kimarite\\P1-WL Site Bundle Comparison\\output\\site-bundle-comparison-2026-10-27-run3\\candidate\\manifest.json",
+      "sha256": "2fac2acff8621332957aa15aeccdca7f89e62b90f544e60a68f7f3b2054629c1",
+      "size": 23710
+    },
+    "bundle_root": "X:\\Sumo-Tools\\src\\validation\\elo89-expert-account\\Matters Arising\\Kimarite\\P1-WL Site Bundle Comparison\\output\\site-bundle-comparison-2026-10-27-run3\\candidate",
+    "copied_prior": {
+      "path": "X:\\Sumo-Tools\\src\\validation\\elo89-expert-account\\Matters Arising\\Kimarite\\P1-WL Site Bundle Comparison\\output\\site-bundle-comparison-2026-10-27-run3\\candidate\\sources\\elo89\\prior.csv",
+      "sha256": "4b3d4f5858ad4ae07d54ee5c3b4facaad3e842e39fa2af8a3e87aeeebb8eb241",
+      "size": 15046
+    },
+    "copied_prior_pair_count": 484,
+    "history_end": "2026/09",
+    "history_start": "1989/01",
+    "rating_manifest": {
+      "path": "X:\\Sumo-Tools\\src\\validation\\elo89-expert-account\\Matters Arising\\Kimarite\\P1-WL Site Bundle Comparison\\output\\site-bundle-comparison-2026-10-27-run3\\candidate\\sources\\elo89\\manifest.json",
+      "sha256": "a34a07f5b37e8108ce5670d04a5aeaaf26222264810d8ed21cdfa920cf6d5458",
+      "size": 1118
+    }
+  },
+  "output": {
+    "entrypoint": "site/index.html",
+    "file_count": 394,
+    "reported_file_count": 394,
+    "total_bytes": 41276733,
+    "tree_sha256": "042e8929133a1f5667fc592f123eaaab31122ede136642fe210705c17854dcba"
+  },
+  "ownership": {
+    "assembler_dependency": "src.products.make_site89.build.build_site",
+    "deployment_invoked": false,
+    "orchestrator": "src.validation.kimarite.p1_wl_website"
+  },
+  "runtime_seconds": 3.351669600000605,
+  "schema_version": 1,
+  "started_at_utc": "2026-10-27T12:06:00.547928+00:00",
+  "status": "complete"
+}
