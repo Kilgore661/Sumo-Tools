@@ -2,13 +2,22 @@
 
 ## Status
 
-This folder begins the next tranche of Elo-89 work.
+The three matters raised by the baseline expert account have been
+investigated. Missing-kimarite eligibility and frozen rating persistence
+produced accepted changes to the intended Elo-89 contract. Represented
+off-banzuke results were discounted as a realised post-1988 issue because all
+five known cases are Mz bouts from `1974-11`.
 
-The thirteen-chapter expert account committed as `aa311ee` is the baseline for
-this tranche. Its chapters are not being revised while the first matters
-arising are investigated. The investigations may confirm the present model,
-identify simple code corrections or require changes to the model contract and
-its account.
+The consolidated decisions, actions, deferrals and account-revision map are
+recorded in
+[`Three Matters - Summary and Review Handoff.md`](Three%20Matters%20-%20Summary%20and%20Review%20Handoff.md).
+The next tranche is to create and review a successor expert account: first
+incorporating these decisions, then looking systematically for further issues.
+
+The thirteen-chapter expert account committed as `aa311ee` remains the
+baseline for this tranche. It has not been rewritten in place. A successor
+account will incorporate the accepted decisions while preserving this folder
+as the record of how they arose.
 
 This README records the questions, present intuitions and agreed common method.
 Individual matter folders contain the analysis, tests, evidence and conclusions
@@ -50,11 +59,11 @@ mini-project in its own right until the project can say:
 - what controlled evidence says about the consequences; and
 - whether the rule should be retained, corrected or replaced.
 
-The expected outcome is that the first three matters may prove to be simple
-code corrections with no significant practical effect. That is a hypothesis,
-not a conclusion. A small numerical effect would not by itself make a semantic
-correction unnecessary, and a large effect would not by itself determine which
-rule expresses the intended rating model.
+The expected outcome was that the three identified matters might prove to be
+simple code corrections with no significant practical effect. That was a
+hypothesis, not a conclusion. A small numerical effect would not by itself
+make a semantic correction unnecessary, and a large effect would not by
+itself determine which rule expresses the intended rating model.
 
 The governing question is:
 
@@ -62,7 +71,7 @@ The governing question is:
 > should its state preserve and which represented events should count as
 > evidence?
 
-## The first three matters
+## The three matters
 
 ### 1. Results without kimarite
 
@@ -123,13 +132,23 @@ substituted an unstable exact-Jonokuchi prior; no unexplained sekitori
 disturbance was found. The policy is accepted. Production promotion and
 artifact regeneration remain implementation work.
 
-### 3. Results involving off-banzuke rikishi
+### 3. [Results involving off-banzuke rikishi](Off-Banzuke%20Results/README.md)
 
 **Question:** Should a represented W/L result be rated when one or both
 participants are absent from the current banzuke representation?
 
-**Present view:** Undecided. The case is thought to be unusual, but its nature
-and frequency must be established before a policy is chosen.
+**Finding:** The repaired History contains five represented bouts with an
+endpoint absent from the same-basho parsed banzuke. All five missing endpoints
+have literal source status `Mz`, and all five bouts occurred in `1974-11`.
+There are no such bouts in the post-1988 Elo-89 interval. The seven formerly
+reported `2026-07` cases are a repaired TD parsing defect: RikId 13011 is now
+correctly represented at `Sd80eTD`.
+
+Consequently, inclusion versus exclusion has no realised numerical effect on
+the represented Elo-89 history and no historical rating comparison is needed.
+The prospective code/prose contract can be resolved alongside the separate
+question of whether and how source-level Mz results omitted upstream should be
+represented.
 
 The evidence review must identify:
 
@@ -141,9 +160,8 @@ The evidence review must identify:
 - whether the participant enters the active population for normalisation; and
 - how the cases overlap with disappearance and reappearance.
 
-This matter may be almost empty, a data-quality problem, or a genuine test of
-the rating population's boundary. No position should be inferred from its
-expected rarity.
+The census and reconciliation are recorded in
+[`Off-Banzuke Results/docs/Findings.md`](Off-Banzuke%20Results/docs/Findings.md).
 
 ## Concluded supporting matter
 
