@@ -86,13 +86,17 @@ that epsilon 10 lies in the useful early-stopping region and that further
 numerical convergence is harmful. The exploration is concluded; production
 promotion and artifact regeneration remain implementation work.
 
-### 2. Disappearance and reappearance
+### 2. [Disappearance and reappearance](Rating%20Persistence/README.md)
 
 **Question:** Should a rikishi who leaves the represented active population
 and later reappears retain his previous rating or be reinitialised from P1?
 
-**Present view:** He should retain it. Absence of competition supplies no new
-bout evidence, so it should neither update nor erase the existing estimate.
+**Decision:** He retains it. Absence of competition supplies no new bout
+evidence, so it neither updates nor erases the existing estimate. The rating
+is held as a literal frozen value outside the active population: it receives
+no updates or common shifts and contributes to no means or normalisation. If
+the rikishi returns, that value and its provenance are restored before the
+ordinary start-of-basho adjustment.
 
 The investigation must distinguish:
 
@@ -110,8 +114,14 @@ the archived rating through those common shifts would preserve its relation to
 the scale but would change its numerical value without individual bout
 evidence. That choice is part of the model contract.
 
-The numerical effect is less predictable than for missing kimarite and may be
-concentrated in a small number of lifecycle episodes.
+The controlled P1-WL replay covered all 437 post-1988 return events. Its reset
+control exactly reproduced canonical Elo-89 and no invariant failed. Frozen
+persistence improved both log loss and Brier score globally and in every
+aggregate return-focused window. The largest differences were explainable
+lower-division cases where reset discarded extensive career evidence and
+substituted an unstable exact-Jonokuchi prior; no unexplained sekitori
+disturbance was found. The policy is accepted. Production promotion and
+artifact regeneration remain implementation work.
 
 ### 3. Results involving off-banzuke rikishi
 
