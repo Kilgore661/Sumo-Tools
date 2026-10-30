@@ -120,7 +120,7 @@ Given a valid `History`, the rating path is conceptually:
 ```text
 History
     |
-    +-- select results through and including prior-through
+    +-- select results through and including last-prior-basho
     |       |
     |       +-- fit and persist P1-WL
     |
@@ -133,13 +133,13 @@ History
 The P1-WL artifact depends on:
 
 - the exact input `History`;
-- the inclusive `prior-through` basho; and
+- the inclusive `last-prior-basho`; and
 - the fitting algorithm and configuration.
 
-Omitting `prior-through` during development means using all available results.
-A frozen release will require an explicit value. The Elo-89 replay may extend
-beyond that value, and never-rated rikishi appearing later are still
-initialised from the fixed P1-WL table.
+The production default is 2026/09. It is the final basho included, not the
+first basho excluded. The Elo-89 replay may extend beyond that value, and
+never-rated rikishi appearing later are still initialised from the fixed
+P1-WL table.
 
 Artifact names should be readable, while content hashes provide exact
 identity. Manifests should connect a readable build identifier to hashes of
@@ -211,8 +211,6 @@ locally cached page still matches the current SumoDB page.
 - Implement atomic mutual exclusion between History publication and the
   complete site-data build.
 - Add live-store History generation identities and freshness-aware access.
-- Make `prior-through` an explicit inclusive P1-WL fitting parameter and
-  manifest field.
 - Bind readable artifact/build identifiers to exact content hashes.
 - Decide when production should switch from a whole-build lock to one explicit
   immutable History snapshot per build.

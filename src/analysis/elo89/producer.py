@@ -8,11 +8,12 @@ from src.analysis.equelo.expt1.params import load_divisional_k_fn
 from src.analysis.equelo_population_policy.predict_candidate import load_alpha_prior
 from src.sumo_core.History import History
 
+from .config import ACCEPTED_PRIOR_PATH
 from .output import Elo89OutputPaths, write_elo89_outputs
 from .replay import Q, replay_elo89
 
 
-DEFAULT_PRIOR = Path("files/output/analysis/equelo_bkp1/prior.csv")
+DEFAULT_PRIOR = ACCEPTED_PRIOR_PATH
 DEFAULT_K_CONFIG = Path("files/input/elo_fide.json")
 DEFAULT_OUTPUT_ROOT = Path("files/output/analysis/elo89")
 

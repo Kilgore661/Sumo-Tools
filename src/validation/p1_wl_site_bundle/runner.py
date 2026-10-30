@@ -15,7 +15,6 @@ from pathlib import Path, PurePosixPath
 import re
 from time import perf_counter
 
-from src.analysis.elo89.producer import DEFAULT_PRIOR
 from src.analysis.site89.producer import (
     DEFAULT_BANZUKE_SOURCE,
     produce_site89_bundle,
@@ -36,6 +35,7 @@ DEFAULT_CANDIDATE_PRIOR = (
     / "p1-wl"
     / "prior.csv"
 )
+LEGACY_P1_PRIOR = Path("files/output/analysis/equelo_bkp1/prior.csv")
 DEFAULT_OUTPUT_PARENT = (
     KIMARITE_OUTPUT_ROOT / "P1-WL Site Bundle Comparison" / "output"
 )
@@ -98,7 +98,7 @@ def run_comparison(
     history: History,
     *,
     output_root: Path,
-    baseline_prior: Path = DEFAULT_PRIOR,
+    baseline_prior: Path = LEGACY_P1_PRIOR,
     candidate_prior: Path = DEFAULT_CANDIDATE_PRIOR,
     banzuke_source_root: Path = DEFAULT_BANZUKE_SOURCE,
     future: Future | None = None,
@@ -817,7 +817,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--history-zip", required=True, type=Path)
     parser.add_argument("--start", type=_parse_date, default=ELO89_START)
     parser.add_argument("--end", type=_parse_date)
-    parser.add_argument("--baseline-prior", type=Path, default=DEFAULT_PRIOR)
+    parser.add_argument("--baseline-prior", type=Path, default=LEGACY_P1_PRIOR)
     parser.add_argument("--candidate-prior", type=Path, default=DEFAULT_CANDIDATE_PRIOR)
     parser.add_argument("--banzuke-source-root", type=Path, default=DEFAULT_BANZUKE_SOURCE)
     parser.add_argument("--future", type=Path)
