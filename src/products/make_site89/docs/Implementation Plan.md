@@ -42,26 +42,50 @@ The following are not part of this implementation:
 The intended flow is:
 
 ```text
-post-1988 History + established basic inputs
-                    |
-                    v
-             Elo-89 producer
-                    |
-                    v
-       seven publication-data producers
-                    |
-                    v
-          complete site-data bundle
-                    |
-                    v
-              make_site89
-                    |
-                    v
-             static website tree
+downloaded source data
+        |
+        v
+canonical History
+        |
+        +-----------------------------+
+        |                             |
+        v                             v
+P1-WL fitting                  other History analyses
+        |                      and derived artifacts
+        v                             |
+Elo-89 replay                        |
+        |                             |
+        v                             |
+rating artifacts                     |
+        |                             |
+        +-------------+---------------+
+                      |
+bio data and          |
+other sources --------+
+                      |
+                      v
+              website data bundle
+                      |
+                      v
+                 make_site89
+                      |
+                      v
+              static website tree
 ```
 
 The production orchestration may invoke analyses. `make_site89` may not. Its
 input is a coherent collection of already-produced, site-facing files.
+
+The source-freshness boundary, live-History race and required safe-build
+protocol are recorded in [Site Build Data Integrity and History
+Consistency](2026-10-30%20Site%20Build%20Data%20Integrity%20and%20History%20Consistency.md).
+
+The diagram is conceptual rather than a claim that canonical `History` is
+mutated. P1-WL and the Elo-89 replay produce separately identified artifacts
+keyed back to basho, rikishi and bouts. The bundle combines those artifacts
+with model-independent History derivations and other sources such as
+biographical data. This keeps observed History, model-derived values and final
+presentation distinct.
 
 ## Elo-89 production output
 
