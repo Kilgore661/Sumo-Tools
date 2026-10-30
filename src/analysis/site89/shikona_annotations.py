@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from src.analysis.banzuke_compare.results import calculate_record
+from src.sumo_core.Banzuke import Banzuke
 from src.sumo_core.BasicEnums import MSD, Prize
 from src.sumo_core.BasicPrimitives import RikId
 from src.sumo_core.History import Date, History
@@ -36,16 +37,24 @@ class ShikonaAnnotation:
 
 
 def banzuke_annotations(
-    history: History, date: Date
+    history: History,
+    date: Date,
+    *,
+    banzuke: Banzuke | None = None,
 ) -> dict[RikId, ShikonaAnnotation]:
-    """Return fixed start-of-basho annotations for one current banzuke."""
+    """Return fixed start-of-basho annotations for one published banzuke.
 
-    state = history(date)
-    highest = _first_time_highest_chii_flags(history, date)
-    prospects = _promotion_prospects_at_start(history, date)
+    ``banzuke`` permits the newly published next banzuke to be annotated before
+    its basho has acquired a state in History.  Historical callers normally
+    omit it and use the banzuke represented by ``date`` in History.
+    """
+
+    current = history(date).banzuke if banzuke is None else banzuke
+    highest = _first_time_highest_chii_flags(history, date, current)
+    prospects = _promotion_prospects_at_start(history, date, current)
     return {
         rikishi_id: _combine(highest[rikishi_id], prospects.get(rikishi_id))
-        for rikishi_id in state.banzuke.riks
+        for rikishi_id in current.riks
     }
 
 
@@ -114,8 +123,9 @@ def _combine(
     )
 
 
-def _first_time_highest_chii_flags(history: History, date: Date) -> dict[RikId, bool]:
-    current = history(date).banzuke
+def _first_time_highest_chii_flags(
+    history: History, date: Date, current: Banzuke
+) -> dict[RikId, bool]:
     prior_best_ordinals: dict[RikId, int] = {}
     for candidate in sorted(history):
         if candidate >= date:
@@ -134,7 +144,7 @@ def _first_time_highest_chii_flags(history: History, date: Date) -> dict[RikId, 
 
 
 def _promotion_prospects_at_start(
-    history: History, date: Date
+    history: History, date: Date, current: Banzuke
 ) -> dict[RikId, ShikonaAnnotation]:
     held_before = [
         candidate
@@ -144,11 +154,10 @@ def _promotion_prospects_at_start(
     if not held_before:
         return {}
 
-    current = history(date)
     previous_date = held_before[-1]
     previous = history(previous_date)
     result = {}
-    for rikishi_id, chii in current.banzuke.rikchii.items():
+    for rikishi_id, chii in current.rikchii.items():
         if chii.level in _OZEKI32_LEVELS and len(held_before) >= 2:
             prior_states = [history(candidate) for candidate in held_before[-2:]]
             prior_chii = [state.banzuke.rikchii.get(rikishi_id) for state in prior_states]

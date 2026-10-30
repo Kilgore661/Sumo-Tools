@@ -173,6 +173,27 @@ def test_first_banzuke_appearance_is_a_first_time_career_high():
     assert banzuke_annotations(history, date)[CANDIDATE].highest_chii is True
 
 
+def test_next_published_banzuke_can_be_annotated_before_history_exists():
+    dates = (_date(2025, 9), _date(2025, 11), _date(2026, 1))
+    history = History(
+        {
+            dates[0]: _state("K1e", wins=8),
+            dates[1]: _state("S1e", wins=14),
+        }
+    )
+    published_banzuke = _state("S1e", days=0).banzuke
+
+    annotation = banzuke_annotations(
+        history, dates[2], banzuke=published_banzuke
+    )[CANDIDATE]
+
+    assert annotation.highest_chii is False
+    assert (annotation.promotion_kind, annotation.promotion_required) == (
+        "ozeki32",
+        10,
+    )
+
+
 def _date(year: int, month: int) -> Date:
     return Date(Year(year), Month(month))
 
