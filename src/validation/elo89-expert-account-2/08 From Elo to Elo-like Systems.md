@@ -1,9 +1,5 @@
 # 8. From Elo to Elo-like Systems
 
-> **Draft status:** First continuous-prose draft. This chapter proposes working
-> terminology for this account; it does not claim that “Elo-like” has one
-> universally agreed technical definition.
-
 ## “Elo” names an idea before it names a complete system
 
 Chapter 5 described ordinary Elo as a compact mathematical object. Current

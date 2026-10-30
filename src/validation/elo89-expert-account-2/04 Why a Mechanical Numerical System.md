@@ -1,9 +1,5 @@
 # 4. Why a Mechanically Derived Numerical System?
 
-> **Draft status:** First continuous-prose draft. The numerical example is
-> illustrative; a later editorial pass may replace it with named cases from a
-> frozen published standings snapshot.
-
 ## Why not just count the wins?
 
 Suppose we want to know who has performed best over the last six basho. An

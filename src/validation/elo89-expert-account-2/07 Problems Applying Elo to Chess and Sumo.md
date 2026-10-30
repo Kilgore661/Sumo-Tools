@@ -1,10 +1,5 @@
 # 7. Problems Applying Elo to Chess and Sumo
 
-> **Draft status:** First continuous-prose draft. The chapter distinguishes
-> mathematical consequences, observed data conditions, empirical findings and
-> unresolved modelling risks. It is not an audit of current FIDE regulations
-> or a claim that every possible defect has been demonstrated in sumo.
-
 ## The equations are not a complete rating institution
 
 Ordinary Elo provides a probability equation, an update equation and a
@@ -201,9 +196,11 @@ the same number without deserving the same confidence.
 The absence of an uncertainty coordinate is a known limitation of ordinary
 point-rating Elo. It is not yet an empirically measured defect of Elo-89
 relative to an uncertainty-aware sumo model: the project has not run a
-controlled production comparator of that kind. The importance of the omission
-is therefore well motivated, but the size of the available improvement is
-TBD.
+controlled production comparator of that kind. This is a deliberate boundary
+of the present work. Elo-89 first asks whether an Elo-like point-rating system
+is useful for sumo. Whether a Glicko-like uncertainty state would materially
+improve the model remains one open subject among several, not a predetermined
+next step.
 
 ## 6. Missing history cannot be inferred by the recurrence
 

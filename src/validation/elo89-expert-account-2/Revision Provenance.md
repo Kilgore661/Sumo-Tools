@@ -22,20 +22,4 @@ This edition describes the intended successor Elo-89 contract:
    population and restored on return before the ordinary start-of-basho
    adjustment. An inactive archive receives no updates or common shifts and
    contributes to no active mean.
-3. The repaired History contains no represented off-banzuke result in the
-   post-1988 interval. The five known cases are Mz bouts from `1974-11` and do
-   not affect Elo-89.
-
-## Implementation boundary
-
-These are accepted model decisions, supported by the retained validation
-work. At the time this edition was drafted, canonical production promotion
-and regeneration of the public artifacts were still outstanding. Therefore:
-
-- normative passages state the accepted successor contract;
-- historical passages identify the earlier P1/reset implementation when that
-  distinction matters; and
-- no candidate validation site is described as the deployed public site.
-
-The account must be checked again against the promoted implementation and
-artifact identities before public integration.
+These are accepted model decisions supported by the retained validation work.

@@ -1,9 +1,5 @@
 # 10. Why Elo-89 Makes Those Choices
 
-> **Draft status:** First continuous-prose draft. This chapter is a decision
-> account, not a claim that every component was selected by one experiment or
-> that the tested alternatives exhaust the design space.
-
 ## Different choices have different kinds of support
 
 Chapter 9 specified Elo-89 as though it were an executable contract. That is
@@ -37,7 +33,7 @@ constant K.
 | Component | Main status | Reason for the retained choice | Important qualification |
 | --- | --- | --- | --- |
 | January 1989 epoch | Modelling judgement and inherited research boundary | Begins the deliberately modern, sufficiently complete comparison domain used by Basic Elo | No epoch search established January 1989 as uniquely optimal; pre-1989 lower-division evidence is substantial but irregular |
-| Binary fought-result domain | Modelling judgement, checked by census and replay | Uses represented W/L evidence, including 33,521 post-1988 results with missing kimarite, while excluding fusen and non-binary outcomes | Alternative treatment of fusen was not selected experimentally; no realised post-1988 off-banzuke case exists |
+| Binary fought-result domain | Modelling judgement, checked by census and replay | Uses represented W/L evidence, including 33,521 post-1988 results with missing kimarite, while excluding fusen and non-binary outcomes | Alternative treatment of fusen was not selected experimentally |
 | `RikId` identity and forecast-before-update chronology | Engineering necessity | Preserves one career across shikona changes and prevents the result being used in its own forecast | These choices support a valid experiment; they are not empirical discoveries about ability |
 | (q=400) | Inherited convention with diagnostic support | Keeps the canonical Basic Elo probability scale; mature-rating calibration supplied no compelling reason for a global change | It was not chosen by a comprehensive search and is not proved optimal |
 | Divisional K | Evidence-led selection plus inherited schedule | It modestly improved retrospective log and Brier loss, and lets lower-division ratings respond faster | The exact K values were not independently optimised; division is only a proxy for rating maturity |
@@ -85,9 +81,7 @@ fall outside the two-outcome model.
 
 This is principally a semantic modelling choice. The project has not shown
 by controlled comparison that every possible numerical treatment of fusen is
-worse. Chapter 9 also identified a prospective ambiguity about off-banzuke
-W/L records; that needs an explicit contract decision rather than a rationale
-invented after the fact.
+worse.
 
 ## Why (q=400)?
 

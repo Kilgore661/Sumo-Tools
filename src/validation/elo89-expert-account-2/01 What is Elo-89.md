@@ -1,9 +1,5 @@
 # 1. What is Elo-89?
 
-> **Draft status:** First continuous-prose draft. The descriptions here are
-> deliberately provisional: later chapters define *rating*, *model* and
-> *competitive performance*, then examine whether Elo-89 earns those words.
-
 ## The short answer
 
 Elo-89 is an Elo-like numerical rating system for the represented professional
@@ -57,6 +53,13 @@ examine its consequences. In particular, a common population shift changes
 the displayed level of every affected rating but preserves all rating
 differences—and hence all model probabilities—at that instant. It does not
 make questions of comparison through historical time disappear.
+
+Elo-89 is deliberately a point-rating model. At this stage the project is
+testing whether an Elo-like system is a useful way to represent sumo results;
+it does not yet try to represent how uncertain each individual rating is. If
+the Elo-like approach proves applicable, uncertainty-aware systems, including
+Glicko-like systems, are one possible subject for later investigation alongside
+the other open modelling questions considered in this account.
 
 ## What does an Elo-89 number claim to represent?
 

@@ -1,9 +1,5 @@
 # 13. Other Choices Are Possible
 
-> **Draft status:** First continuous-prose draft. This chapter maps coherent
-> alternatives and the conditions for comparing them. It is not a literature
-> review and does not imply that untested alternatives are already superior.
-
 ## A chosen model is not the only possible model
 
 Elo-89 is one explicit answer to a sequence of questions which the results do
@@ -139,11 +135,14 @@ not inferred from one invariance theorem.
 
 ### Uncertainty and additional state
 
-An Elo-family successor could maintain both a point estimate and an uncertainty
-coordinate, as Glicko-like systems do, or attach an evidential-support summary
-without changing updates. Those are different proposals. If uncertainty
-affects updating, the rating path itself changes; if it is merely reported,
-the original Elo-89 calculation remains intact.
+Elo-89 deliberately stops at a point rating while the project establishes
+whether an Elo-like system is applicable to sumo. No successor is fixed in
+advance. A Glicko-like system maintaining both a point estimate and an
+uncertainty coordinate is one possible direction among the alternatives in
+this chapter. Merely attaching an evidential-support summary without changing
+updates would be a different proposal. If uncertainty affects updating, the
+rating path itself changes; if it is merely reported, the original Elo-89
+calculation remains intact.
 
 ### Matchup structure
 
@@ -228,9 +227,9 @@ so and do not call the result out-of-sample.
 ### 4. Compare on matched evidence
 
 Models should forecast the same selected bouts from the same History snapshot
-where their claims permit it. Bout identities, exclusions and source hashes
-must be preserved. A different dataset can answer a useful question, but not a
-paired superiority claim without further work.
+where their claims permit it. Bout identities, exclusions and the input
+snapshot must be identified. A different dataset can answer a useful question,
+but not a paired superiority claim without further work.
 
 ### 5. Use relevant baselines and proper scores
 
@@ -292,7 +291,7 @@ artifact identity even if the abstract model contract remains the same.
 Examples include:
 
 - `Elo-89 with P1-WL and archived return ratings`: the revised contract in
-  this account, requiring a newly identified production release;
+  this account;
 - `Elo-89 with inactivity decay`: a different lifecycle model;
 - `Elo-89 with uncertainty-dependent K`: a different update model; and
 - `Elo-89 ratings rounded to integers`: the same model with a presentation
@@ -317,9 +316,11 @@ The final position of this account is therefore:
 
 > Elo-89 is the project's present, explicit and testable model of modern sumo
 > performance. It is neither a corrected banzuke nor the inevitable numerical
-> meaning of strength. Other choices are possible. They become advances when
-> their purposes are clear, their contracts reproducible and their claims
-> better supported by relevant evidence.
+> meaning of strength. Its present purpose is to establish whether an Elo-like
+> point-rating system is applicable. Glicko-like uncertainty, matchup structure,
+> responsiveness and the other alternatives discussed here remain open subjects.
+> They become advances when their purposes are clear, their contracts
+> reproducible and their claims better supported by relevant evidence.
 
 ## Working sources
 

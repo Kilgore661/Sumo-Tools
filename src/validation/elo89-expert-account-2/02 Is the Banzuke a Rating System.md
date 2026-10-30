@@ -1,9 +1,5 @@
 # 2. Isn't That What the Banzuke Does?
 
-> **Draft status:** First continuous-prose draft. This chapter uses *rating
-> system* in both an ordinary and a narrower technical sense. Chapter 3 will
-> make the technical vocabulary precise.
-
 ## The short answer
 
 In an ordinary sense, yes. The banzuke evaluates and orders rikishi. Bout

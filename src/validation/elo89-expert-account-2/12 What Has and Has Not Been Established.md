@@ -1,12 +1,8 @@
 # 12. What Has and Has Not Been Established?
 
-> **Draft status:** First continuous-prose draft. This chapter is a claim
-> register for the account as a whole. Numerical findings remain attached to
-> their declared model, input snapshot and observation stage.
-
 ## Why a claim register is necessary
 
-The preceding chapters contain equations, implementation rules, experiments,
+The preceding chapters contain equations, model rules, experiments,
 interpretations and judgements. All can be true without having the same
 epistemic status.
 
@@ -37,20 +33,15 @@ contract, not because an experiment discovered them.
 | --- | --- |
 | Elo-89 begins with the represented January 1989 history | Model epoch |
 | Its state is one carried point rating per active `RikId`, plus frozen ratings for previously rated inactive rikishi | State and identity |
-| A represented W/L result is rated; paired fusen and other non-W/L outcomes are excluded by the production selector | Evidence domain |
+| A represented W/L result is rated; paired fusen and other non-W/L outcomes are excluded | Evidence domain |
 | Current rating differences map to probabilities with (q=400) | Expectation rule |
 | K is 10 for Y/O/S/K, 15 for M, 25 for J and 35 below Juryo | Update policy |
 | A never-rated rikishi is initialised from paired P1-WL, fixed on 30 October 2026 from history through the September 2026 basho | Initialisation |
-| The active population is banzuke membership plus participants in selected rated bouts | Population |
+| The active population is banzuke membership | Population |
 | Leaving the active population freezes the literal rating; return restores it before the start shift | Lifecycle |
 | Common start- and end-of-basho shifts restore the first active population's mean | Population operator |
 | Forecasts precede their result updates | Chronology |
 | Basho-start, immediate post-bout, day-end and normalised basho-end states are distinct observations | Publication contract |
-
-The off-banzuke clause reports the retained implementation. Chapter 9 records
-that older prose states a different policy. A census found no triggering case
-in the post-1988 domain, so it has no realised Elo-89 effect; prospective policy
-and source-completeness checks remain to be made explicit.
 
 ## 2. What follows mathematically
 
@@ -197,7 +188,7 @@ modelling judgements on the published scale.
 The per-chii drift study found substantial historical movement and reversals
 among rank-group means despite exact reconciliation of the global population
 mean. It verified those movements against a saved January 1989--July 2026
-production run.
+replay.
 
 This establishes temporal movement in model outputs by chii. It does not
 identify whether the cause is changing occupants, sumo strength, schedule,
@@ -206,7 +197,7 @@ of algorithmic inflation.
 
 ### Toy results remain conditional toy results
 
-Under a correctly specified stationary toy process, the implementation
+Under a correctly specified stationary toy process, the replay
 recovered the hidden skill-gap structure according to predefined stability
 criteria. In the tested two-division worlds, particular sparse boundary
 bridges were sufficient to make the scales commensurate.
@@ -224,12 +215,12 @@ Several valid results use different source histories or cut-offs.
 | Final model-selection and population-policy gate | 574,863 common W/L bouts, 1989/01--2026/07, frozen comparison snapshot |
 | Chii-order probe | 579,412 unequal-chii W/L bouts, same nominal dates but a later History snapshot |
 | Per-chii drift study | Saved Elo-89 run through 2026/07, 224 basho and 160,185 rikishi/basho observations |
-| Current inspected production artifact | Through 2026/09, 581,634 rated bouts |
+| Current inspected Elo-89 replay | Through 2026/09, 581,634 rated bouts |
 
 Different counts do not automatically contradict one another. They prevent
 unqualified numerical combination. A claim must cite its own snapshot rather
 than borrowing a newer denominator or presenting an older score as though it
-were calculated on current production data.
+were calculated on newer data.
 
 ## 4. What has been accepted as judgement
 
@@ -302,23 +293,6 @@ The project has not established that:
 
 These are not all prerequisites for publishing a useful model. They define
 the boundary around the claims which publication may safely make.
-
-## Known defects are not open philosophical questions
-
-Three concrete engineering matters remain after the model investigations:
-
-1. accepted P1-WL and frozen persistence must be promoted into the canonical
-   production pipeline as one identified release;
-2. the off-banzuke W/L policy differs between retained code and named-model
-   prose; and
-3. production manifests do not yet bind every input and code identity with
-   stable hashes.
-
-The first is a release task, not an unresolved statistical comparison: the
-regeneration and evaluation have been performed. The second has no triggering
-post-1988 case but must be made prospective policy. The third weakens
-provenance but does not change the mathematical output already copied into a
-bundle.
 
 ## What would count against Elo-89?
 

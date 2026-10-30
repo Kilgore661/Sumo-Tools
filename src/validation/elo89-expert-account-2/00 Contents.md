@@ -2,10 +2,10 @@
 
 ## Status
 
-Second expert-facing account, revised after the three investigations raised by
-the baseline draft. This workspace is not yet part of the public website. It
-preserves the earlier account and incorporates the accepted P1-WL and frozen-
-persistence decisions. See [Revision Provenance](Revision%20Provenance.md).
+This is the current **top copy** of the expert-facing account and is considered
+complete as of 30 October 2026. It preserves the earlier account and
+incorporates the accepted P1-WL and frozen-persistence decisions. See
+[Revision Provenance](Revision%20Provenance.md).
 
 The aim is to write a complete account first. Once its definitions, argument,
 evidence and criticism are satisfactory, relevant portions can be adapted for
@@ -158,10 +158,9 @@ sources to mine, not files governed by this contents page. The principal
 orientation note for this workspace is the adjacent
 [Elo-89 Ratings Narrative Handoff](../../products/make_site89/docs/2026%2010%2019%20Elo-89%20Ratings%20Narrative%20Handoff.md).
 
-## Next
+## Completion
 
 All thirteen chapters now incorporate the decisions from the baseline
-account's completed Matters Arising work. The next step after committing this
-edition is a fresh issue review for contradictions, thin evidence and further
-bounded matters arising. Production promotion and website integration remain
-separate implementation work.
+account's completed Matters Arising work. This edition is complete. Any later
+substantive change should arise from a newly identified modelling question or
+from evidence which warrants a revised top copy.

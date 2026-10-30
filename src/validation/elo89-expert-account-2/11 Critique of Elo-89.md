@@ -1,10 +1,5 @@
 # 11. Critique of Elo-89
 
-> **Draft status:** First continuous-prose draft. The chapter distinguishes
-> known defects, measured limitations, structural assumptions and plausible
-> but untested objections. It does not treat every criticism as a reason to
-> withdraw the model.
-
 ## The standard of criticism
 
 Elo-89 should be judged against the purpose stated in Chapter 3: a
@@ -18,8 +13,7 @@ and Brier loss over Basic Elo and the other tested candidates, its rules are
 explicit, and its visible complexities answer real problems of initialisation
 and open populations. Those successes make critique more exacting, not less
 necessary. A useful model can still misrepresent uncertainty, depend on
-historically fitted assumptions, work unevenly across populations and contain
-correctable implementation defects.
+historically fitted assumptions and work unevenly across populations.
 
 The criticisms below therefore ask four different questions:
 
@@ -34,17 +28,16 @@ The criticisms below therefore ask four different questions:
 | Issue | Present evidence | Current disposition |
 | --- | --- | --- |
 | One scalar state | Structurally cannot express persistent non-transitive or context-specific effects; their size in sumo is unmeasured | Research question and interpretation limit |
-| No individual uncertainty state | Ratings with very different support can have the same value; immature-versus-mature calibration is materially weaker | Important limitation; comparator still TBD |
+| No individual uncertainty state | Ratings with very different support can have the same value; immature-versus-mature calibration is materially weaker | Deliberately outside the present point-rating model; one open subject for possible successor research |
 | Divisional K is a coarse proxy | Small aggregate improvement, but exact schedule was not optimised and cross-boundary behaviour is weaker | Accepted trade-off; candidate for successor research |
 | P1-WL is future-informed within its fitting period | Results through September 2026 helped construct the prior used within that history | Disclosure; the table is fixed from 30 October 2026 and later evidence cannot refit it |
-| P1 omitted known W/L bouts with blank kimarite | Confirmed and repaired by P1-WL; matched comparison found no material degradation | Resolved model defect; production promotion remains |
+| P1 omitted known W/L bouts with blank kimarite | Confirmed and repaired by P1-WL; matched comparison found no material degradation | Resolved by the selected P1-WL prior |
 | Sparse and high-churn lower ranks | Earlier fixed points produced extreme rare-rank values; current lower-rank shapes and support remain difficult | Qualified publication and further research |
 | Population normalisation affects displayed changes | Reconciled contribution audit; generally modest relative to end rating but sometimes decisive for the sign of a change | Accepted with disclosure |
 | Fixed global mean does not stabilise each chii | Measured rank-specific movement and reversals through time | Limits cross-era and rank-level interpretation |
 | Frozen return state can become stale | Persistence won the controlled comparison, but a point rating cannot express uncertainty accumulated during absence | Accepted lifecycle rule with an interpretation limit |
 | Selective schedule and connectivity | Sumo bouts are not random; subgroup and toy evidence show uneven support | Limit claims to represented matchup network |
 | Retrospective model selection | The final model and prior were selected on history through September 2026 | Major evidence qualification; genuinely later evidence begins after the freeze |
-| Off-banzuke contract and manifest identity | Code/prose mismatch and incomplete source hashing identified in Chapter 9 | Engineering and documentation work |
 
 ## 1. One number may not be enough
 
@@ -99,10 +92,11 @@ estimate without an invented injury penalty is defensible, while continuing
 to present it as equally well supported would be stronger than the model
 justifies.
 
-An uncertainty-aware Elo-family model is therefore a natural comparator.
-That investigation has not been done. It remains unknown whether the added
-parameters and assumptions would improve sumo forecasts enough to justify the
-complexity.
+An uncertainty-aware Elo-family model is therefore one possible comparator,
+not a requirement of the present exploration or a predetermined successor.
+That investigation has not been done. Glicko-like systems belong among the
+open subjects for later research, alongside alternative responsiveness,
+matchup structure, population anchoring and other model choices.
 
 ## 3. Divisional K is useful but crude
 
@@ -163,7 +157,7 @@ This issue was categorically different from the preceding qualifications. It
 concerned inconsistent data semantics in the retained P1 artifact and has now
 been investigated.
 
-The Elo-89 production replay rates every represented binary W/L result whether
+The Elo-89 replay rates every represented binary W/L result whether
 or not kimarite is recorded. The replay which generated canonical P1 instead
 skips records whose `decision` field is `blank`. In the parsed History, blank
 commonly means that kimarite is missing, not that the winner and loser are
@@ -172,7 +166,7 @@ unknown.
 Consequently, Elo-89 uses the intended result domain after initialisation but
 uses an entrant prior estimated from an unnecessarily reduced domain. This is
 not evidence that the current ratings are useless and it does not make the
-production bout ledger wrong. It is a correctable defect in a fitted input.
+rated bout ledger wrong. It is a correctable defect in a fitted input.
 
 The whole table was therefore regenerated as P1-WL on one frozen History
 snapshot using positive W/L eligibility. This admitted 33,521 additional
@@ -182,8 +176,8 @@ degradation. P1-WL is the accepted replacement.
 
 The remaining criticism is evidential rather than eligibility: P1-WL is
 future-informed within its fitting period, still inherits sparse low-rank
-cells and still requires explicit production promotion rather than silent
-refitting by routine builds.
+cells and must remain fixed after its declared fitting boundary rather than
+being silently refitted as later results arrive.
 
 ## 6. The lowest ranks remain the least secure
 
@@ -335,37 +329,9 @@ The absence of prospective evidence does not erase the retrospective result
 or prohibit publication. It limits the strength of claims such as “validated
 probability” and leaves open how well the selected advantage will persist.
 
-## 12. Reproducibility is good but not yet complete
-
-The production outputs expose detailed ledgers and snapshots, and the
-research comparisons preserve substantially stronger provenance than many
-informal rating projects. Chapter 9 nevertheless found two contract-level
-weaknesses.
-
-The named-model prose says off-banzuke results are excluded, while the retained
-selector would rate a represented off-banzuke W/L result and initialise the
-participant through its fallback. A census found only five represented cases,
-all Mz bouts in November 1974, and none in the post-1988 Elo-89 domain. The
-published model therefore has no realised numerical discrepancy, but its
-prospective policy and source completeness checks should still be explicit.
-
-The production manifest also does not hash every source needed to identify a
-run: it copies the P1-WL table but does not bind the prior source manifest, K
-configuration, History snapshot and code version through stable identities.
-These are fixable engineering and documentation defects. They do not require a
-new statistical model.
-
 ## What needs correction, disclosure or research?
 
-The critique supports three different responses.
-
-### Correct
-
-- Promote the accepted P1-WL and frozen-persistence contract into production
-  code, configuration, artifacts and public documentation together.
-- Resolve the off-banzuke eligibility contract before such a case affects a
-  production run.
-- Strengthen production artifact identity and hashing.
+The critique supports two different responses.
 
 ### Disclose
 
@@ -377,7 +343,7 @@ The critique supports three different responses.
 - Lower-rank and cross-boundary interpretations have weaker support.
 - A rating is frozen, not shifted or decayed, while its rikishi is inactive.
 
-### Investigate if the project seeks a successor
+### Investigate in a successor if Elo proves applicable
 
 - uncertainty-aware or support-dependent updates;
 - matchup and contextual residuals;
@@ -387,29 +353,29 @@ The critique supports three different responses.
 - prospective or rolling-origin evaluation; and
 - population anchors with clearer historical interpretation.
 
-Normalisation itself does not currently sit in the “correct” list. Its effects
-have been investigated and accepted with disclosure. Neither does the absence
-of an injury penalty: adding one without evidence would replace one limitation
-with an unsupported story.
+Normalisation is not presented as a defect requiring correction. Its effects
+have been investigated and accepted with disclosure. Nor is the absence of an
+injury penalty such a defect: adding one without evidence would replace one
+limitation with an unsupported story.
 
 ## Overall assessment
 
-Elo-89 is a disciplined and useful point-rating model, not a definitive theory
-of sumo strength. It succeeds at the central tasks for which it was built:
-turning unequal pairwise results into a changing opponent-sensitive scale,
-making probabilistic forecasts and exposing a reproducible modern history.
+Elo-89 is a disciplined exploration of an Elo-like point-rating model, not a
+definitive theory of sumo strength. It succeeds at the central tasks for which
+it was built: turning unequal pairwise results into a changing opponent-
+sensitive scale, making probabilistic forecasts and exposing a reproducible
+modern history.
 
-Its most important scientific limitation is that one point cannot express
-both strength and uncertainty. Its most important evidential limitation is
-retrospective selection with a prior which is future-informed within its
-fitting period. Its most important
-interpretive limitation is that a fixed global mean does not create an
-external timeless standard. Its clearest former data-semantic defect—the
-reduced bout domain used to fit P1—has been repaired by P1-WL. The clearest
-remaining engineering gap is that the accepted revised contract has not yet
-been promoted as one canonical production release.
+One deliberate limitation is that one point cannot express both strength and
+uncertainty. Whether a Glicko-like system improves on that limitation is an
+open question, as are the other possible extensions considered here. Its most
+important evidential limitation is retrospective selection with a prior which
+is future-informed within its fitting period. Its most important interpretive
+limitation is that a fixed global mean does not create an external timeless
+standard. Its clearest former data-semantic defect—the reduced bout domain
+used to fit P1—has been repaired by P1-WL.
 
-Those conclusions justify correction and continued investigation, not the
+Those conclusions justify qualified use and continued investigation, not the
 claim that the model has failed. Chapter 12 now separates more formally what
 the project has established from what remains assumption, judgement or open
 question.
@@ -427,4 +393,3 @@ question.
 - `../../../docs/Elo-89 P1 Missing Kimarite Repair.md`
 - `../elo89-expert-account/Matters Arising/Kimarite/P1-WL Evaluation/Findings.md`
 - `../elo89-expert-account/Matters Arising/Rating Persistence/Frozen Persistence Comparison/docs/Findings.md`
-- `../elo89-expert-account/Matters Arising/Off-Banzuke Results/docs/Findings.md`

@@ -117,6 +117,31 @@ def test_production_replay_exposes_daily_and_normalised_end_snapshots() -> None:
     assert run.day_end_ratings[date][Day(1)] != run.basho_end_ratings[date]
 
 
+def test_production_replay_rejects_rated_participant_absent_from_banzuke() -> None:
+    date = _date(1989, 1)
+    history = History(
+        {date: _basho({1: "M1e"}, [_bout(1, Outcome.W, 2, Outcome.L)])}
+    )
+    prior = AdoptedPrior(
+        source_path="fixture.csv",
+        sha256="fixture",
+        rating_by_pair={"M1": 1600.0},
+        fallback_rating=1600.0,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="participant absent from the same-basho banzuke.*unresolved Mz data",
+    ):
+        replay_elo89(
+            history=history,
+            start_date=date,
+            end_date=date,
+            prior=prior,
+            divisional_k=lambda _ordinal: 20.0,
+        )
+
+
 def test_saved_paired_prior_includes_chii_ordinal(tmp_path) -> None:
     prior = AdoptedPrior(
         source_path="fixture.csv",

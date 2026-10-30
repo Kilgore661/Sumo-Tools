@@ -1,11 +1,5 @@
 # 5. Ordinary Elo
 
-> **Draft status:** Second continuous-prose draft. This chapter defines a
-> binary, common-K form of ordinary Elo and develops properties which follow
-> from its equations. Questions about what those equations assume about
-> competition, and how they behave when applied to sumo, are deferred to
-> Chapters 6 and 7.
-
 ## The mathematical object
 
 Let two competitors, A and B, have ratings \(R_A\) and \(R_B\) immediately

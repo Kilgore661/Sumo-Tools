@@ -48,7 +48,9 @@ def replay_elo89(
         lambda: defaultdict(list)
     )
     for bout in selection.bouts:
-        bouts_by_date_and_day[bout.contest.id.date][bout.contest.id.day].append(bout)
+        date = bout.contest.id.date
+        require_rated_bout_banzuke_membership(history=history, bout=bout)
+        bouts_by_date_and_day[date][bout.contest.id.day].append(bout)
 
     dates = sorted(date for date in history if start_date <= date <= end_date)
     if not dates:
@@ -67,10 +69,6 @@ def replay_elo89(
         basho = history[date]
         by_day = bouts_by_date_and_day.get(date, {})
         active = set(basho.banzuke.riks)
-        for bouts in by_day.values():
-            for bout in bouts:
-                active.add(bout.contest.rikishi_a)
-                active.add(bout.contest.rikishi_b)
 
         departing = previous_active - active
         for rikishi in departing:
@@ -79,7 +77,7 @@ def replay_elo89(
         known = set(state.ratings)
         new_rikishi = active - known
         for rikishi in sorted(new_rikishi):
-            chii = basho.banzuke.rikchii.get(rikishi)
+            chii = basho.banzuke.rikchii[rikishi]
             rating, source = prior.rating_for(chii)
             state.ratings[rikishi] = rating
             state.sources[rikishi] = source
@@ -102,8 +100,8 @@ def replay_elo89(
                     _forecast_and_update(
                         state=state,
                         bout=bout,
-                        chii_a=basho.banzuke.rikchii.get(bout.contest.rikishi_a),
-                        chii_b=basho.banzuke.rikchii.get(bout.contest.rikishi_b),
+                        chii_a=basho.banzuke.rikchii[bout.contest.rikishi_a],
+                        chii_b=basho.banzuke.rikchii[bout.contest.rikishi_b],
                         divisional_k=divisional_k,
                         q=q,
                     )
@@ -145,12 +143,33 @@ def replay_elo89(
     )
 
 
+def require_rated_bout_banzuke_membership(
+    *, history: History, bout: RatedBout
+) -> None:
+    """Reject a rated bout whose participants are not on its basho banzuke."""
+
+    date = bout.contest.id.date
+    banzuke_rikishi = set(history[date].banzuke.riks)
+    participants = (bout.contest.rikishi_a, bout.contest.rikishi_b)
+    missing = tuple(
+        rikishi for rikishi in participants if rikishi not in banzuke_rikishi
+    )
+    if missing:
+        raise ValueError(
+            "Elo-89 rated bout contains a participant absent from the "
+            f"same-basho banzuke: date={date}, day={bout.contest.id.day}, "
+            f"participants={participants}, missing={missing}. This indicates "
+            "an invalid History or a parsing error (for example, unresolved "
+            "Mz data)."
+        )
+
+
 def _forecast_and_update(
     *,
     state: _State,
     bout: RatedBout,
-    chii_a: Chii | None,
-    chii_b: Chii | None,
+    chii_a: Chii,
+    chii_b: Chii,
     divisional_k: Callable[[int], float],
     q: float,
 ) -> Forecast:
@@ -159,8 +178,8 @@ def _forecast_and_update(
     rating_a = state.ratings[a]
     rating_b = state.ratings[b]
     probability = 1.0 / (1.0 + 10.0 ** ((rating_b - rating_a) / q))
-    k_a = divisional_k(chii_a.ordinal()) if chii_a else 35.0
-    k_b = divisional_k(chii_b.ordinal()) if chii_b else 35.0
+    k_a = divisional_k(chii_a.ordinal())
+    k_b = divisional_k(chii_b.ordinal())
     residual = float(bout.a_won) - probability
     delta_a = k_a * residual
     delta_b = -k_b * residual

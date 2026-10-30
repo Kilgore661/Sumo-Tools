@@ -1,9 +1,5 @@
 # 3. What is a Rating System?
 
-> **Draft status:** First continuous-prose draft. It proposes a working
-> definition for this account and identifies where the interpretation of
-> Elo-89 remains conditional rather than settled.
-
 ## A working definition
 
 A rating system is a model which turns selected evidence about a set of

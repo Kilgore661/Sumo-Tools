@@ -1,10 +1,5 @@
 # 6. The Model of Competition in Elo
 
-> **Draft status:** First continuous-prose draft. This chapter distinguishes
-> what the Elo equations define from stronger interpretations which require
-> additional assumptions. It describes the model before judging its adequacy
-> for chess or sumo.
-
 ## From equations to a model
 
 The equations in Chapter 5 are not model-free calculations. They impose a

@@ -1,11 +1,5 @@
 # 9. The Exact Elo-89 Model
 
-> **Draft status:** Second specification draft. It incorporates the first
-> three matters-arising decisions: W/L eligibility does not depend on
-> kimarite, the entrant prior is P1-WL, and ratings are frozen across absence.
-> Promotion of this revised contract into the canonical production pipeline
-> remains a separate engineering step.
-
 ## What the name denotes
 
 **Elo-89**, written (E_{89}), is the project's selected numerical rating
@@ -35,14 +29,14 @@ style interaction or explicit model of torikumi selection.
 | --- | --- |
 | Model identifier | `elo-89` / (E_{89}) |
 | Epoch | The supplied history must begin at `1989/01` |
-| End | The last basho in the particular production history; not fixed by the model name |
+| End | The last basho in the particular represented history; not fixed by the model name |
 | Competitor identity | Stable `RikId`, not shikona |
 | Rated result | Every represented result whose outcome pair is exactly W/L |
 | Excluded result | Paired fusen outcomes FS/FP; every other non-W/L outcome |
 | Expectation scale | (q=400) |
-| K | 10 for Y/O/S/K; 15 for M; 25 for J; 35 below Juryo or when chii is absent |
-| Entrant rating | Frozen paired P1-WL value for the current chii; the minimum P1-WL value when no chii exists |
-| Active population | Banzuke members, plus participants in rated W/L results represented for that basho |
+| K | 10 for Y/O/S/K; 15 for M; 25 for J; 35 below Juryo |
+| Entrant rating | Frozen paired P1-WL value for the current chii |
+| Active population | Banzuke members |
 | Departure | The literal rating is archived; it receives no bout update or population shift while inactive |
 | Return | The frozen rating is restored before the ordinary start-of-basho shift |
 | Target mean | Raw mean of the first non-empty active population after P1-WL initialisation |
@@ -54,7 +48,7 @@ The rest of the chapter makes each line precise.
 
 ## Inputs and time domain
 
-An Elo-89 production replay consumes:
+An Elo-89 replay consumes:
 
 1. a `History` whose first represented basho is January 1989;
 2. an inclusive final basho determined by that history;
@@ -83,10 +77,7 @@ the pair of recorded outcomes.
 
 - Exactly one W and one L produces a rated bout.
 - An FS/FP pair is counted as an excluded fusen and produces no update.
-- Every other outcome combination is excluded and currently reported under
-  the implementation field `excluded_draw_count`. That field name is broader
-  than the underlying category: it means “other non-binary result”, not
-  necessarily a literal draw.
+- Every other outcome combination is excluded as a non-binary result.
 
 A known W/L result remains eligible when its kimarite or decision text is
 blank. No result is inferred where the represented history has none.
@@ -128,8 +119,7 @@ the applicable value from this same table. Choosing a different fitting
 boundary would create a different prior artifact and would require an explicit
 revision of the model account; it is not part of an ordinary replay extension.
 
-If a rikishi has no chii, the replay uses the minimum value in the paired
-P1-WL table. If a non-null represented chii maps to no P1-WL entry, the replay fails;
+If a represented chii maps to no P1-WL entry, the replay fails;
 it does not silently choose a neighbouring rank.
 
 ### How the frozen source table was produced
@@ -177,14 +167,9 @@ at low-support chii. Elo-89 therefore holds externally produced P1-WL fixed.
 Let (A_t) be the active population for basho (t). In the retained replay,
 
 \[
-A_t={\text{rikishi on the basho banzuke}\}
-\cup
-\{\text{participants in its rated W/L bouts}\}.
+A_t={\text{rikishi on the basho banzuke}\}.
 \tag{9.2}
 \]
-
-The union matters to the formal implementation even though the current
-production ledger contains no rated bout participant with a missing chii.
 
 Before basho (t), the literal rating of every rikishi in
 (A_{t-1}\setminus A_t) is moved to an inactive archive. An archived rating
@@ -218,9 +203,8 @@ has been initialised from P1-WL, Elo-89 calculates
 This becomes the target mean for the entire run. It is not the 1,517 mean used
 inside the upstream P1-WL producer and it is not a separately chosen round
 number. It depends on the first active population and the frozen paired prior.
-Its numerical value must therefore be recorded by each promoted production
-artifact; the definition is Equation 9.3 rather than a permanently specified
-round number.
+Its numerical value is therefore a consequence of the stated inputs; the
+definition is Equation 9.3 rather than a permanently specified round number.
 
 At the first basho, the raw active mean already equals the newly defined
 target, so the first start adjustment is zero.
@@ -280,7 +264,6 @@ Each rikishi has a K determined by his chii on the current basho's banzuke:
 | Maegashira | 15 |
 | Juryo | 25 |
 | Makushita, Sandanme, Jonidan or Jonokuchi | 35 |
-| No represented chii | 35 |
 
 The simultaneous update is
 
@@ -343,7 +326,7 @@ model, provided the observation stage is named.
 The recurrence can be summarised as follows:
 
 ```text
-form active set from banzuke members and rated-bout participants
+form active set from banzuke members
 archive literal ratings belonging to the previous active set but not this one
 restore archived ratings for returning rikishi
 initialise only never-rated active rikishi from frozen paired P1-WL
@@ -367,69 +350,11 @@ leave archived ratings numerically unchanged
 This algorithm, the paired P1-WL values, the K table and the represented history
 are sufficient to reconstruct the rating states.
 
-## Production observations and artifacts
+## Observation stages
 
-One production run writes:
-
-| Artifact | Meaning |
-| --- | --- |
-| `prior.csv` | The paired P1-WL values actually consumed by the run |
-| `basho_start_ratings.json` | State after membership changes, restoration or P1-WL initialisation, and the start shift |
-| `day_end_ratings.json` | State after each represented day's eligible bout updates, before the basho-end shift |
-| `basho_end_ratings.json` | State after the end shift |
-| `bout_ledger.csv` | Pre-bout ratings, probability, result, K values, deltas and immediate post-bout ratings |
-| `basho_adjustments.csv` | Active counts, raw means and common start/end shifts |
-| `manifest.json` | Model identifier, date interval, parameter paths, target mean, result counts and file names |
-
-Different website tools may consume different observations. A “rating at the
-start of the basho”, a probability offered before a bout, a rating after day
+A “rating at the start of the basho”, a probability offered before a bout, a rating after day
 15 and a normalised basho-end rating are not interchangeable. A public label
 must identify which one it uses.
-
-## Contract and engineering issues exposed by this account
-
-Three points require engineering or documentation resolution.
-
-### 1. Off-banzuke result wording
-
-The existing named-model table says that off-banzuke results are excluded and
-reported. The retained Elo-89 selector does not perform that exclusion. It
-rates every represented W/L result and the replay explicitly adds rated-bout
-participants to the active population even when they are absent from the
-banzuke. In that case they receive the unranked P1-WL fallback and K=35.
-
-A census of the current frozen history found five represented bouts with one
-endpoint absent from the same-basho banzuke. All five were Mz bouts in November
-1974. It found no such bout in the Elo-89 era beginning in 1989. Seven apparent
-2026 cases were repaired representations whose participants were present at
-`Sd80eTD`. The issue therefore has no realised effect on Elo-89 ratings.
-
-The prospective contract still matters if a future post-1988 source record is
-genuinely off-banzuke. Because no observed Elo-89 result distinguishes the two
-rules, this account records the implementation behaviour and leaves deliberate
-prospective policy and source-completeness checks as engineering work.
-
-### 2. Artifact identity in the manifest
-
-The output bundle copies the exact paired prior values it consumed, so the
-replay input is preserved. Its manifest does not currently record a SHA-256
-for that copied prior, the K configuration, the source history or the replay
-code. It records paths and a free-text history description instead.
-
-That is weaker than the three-layer reproducibility standard in Chapter 8. A
-release can still be audited from its copied inputs and ledger, but the
-manifest should eventually bind the model contract, fitted artifact, K file,
-history snapshot and code version with stable identities. Adding those
-identities would strengthen provenance without changing the Elo-89 equations.
-
-### 3. Production promotion
-
-The validation packages have produced and compared P1-WL replays, a frozen-
-persistence candidate and a locally inspectable P1-WL website. Those results
-justify the model decisions recorded here. They have not, by themselves,
-replaced the canonical producer or public website build. Production code,
-configuration, artifact identities and public documentation must be changed
-together before a release can truthfully claim this complete contract.
 
 ## Scope boundary
 
@@ -456,7 +381,4 @@ to them explicitly.
 - `../../analysis/equelo_population_policy/predict_candidate.py`
 - `../elo89-expert-account/Matters Arising/Kimarite/P1-WL Evaluation/Findings.md`
 - `../elo89-expert-account/Matters Arising/Rating Persistence/Frozen Persistence Comparison/docs/Findings.md`
-- `../elo89-expert-account/Matters Arising/Off-Banzuke Results/docs/Findings.md`
 - `../../analysis/docs/story/15 Tranche 1 - Population Normalisation Policy.md`
-- `../../analysis/docs/story/21 Elo-89 Website Production Handoff.md`
-- `../../products/make_site89/docs/Documentation Handoff.md`
