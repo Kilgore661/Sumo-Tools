@@ -50,7 +50,7 @@ def run_experiment(
     start: Date,
     end: Date,
 ) -> tuple[PolicyReplay, PolicyReplay, list[str]]:
-    """Run canonical control and frozen candidate and verify control equality."""
+    """Run reset control and frozen candidate; verify production equality."""
 
     prior, _conversion = load_alpha_prior(prior_path.resolve())
     divisional_k = load_divisional_k_fn(k_config.resolve())
@@ -81,8 +81,8 @@ def run_experiment(
         q=Q,
     )
     violations: list[str] = []
-    if control.run != canonical:
-        violations.append("Validation reset replay does not exactly equal canonical Elo-89")
+    if candidate.run != canonical:
+        violations.append("Validation frozen replay does not exactly equal canonical Elo-89")
     if control.run.target_mean != candidate.run.target_mean:
         violations.append("Control and candidate target means differ")
     if _forecast_keys(control) != _forecast_keys(candidate):
@@ -160,7 +160,7 @@ def write_comparison(
         "return_event_count": len(candidate.returns),
         "distinct_returning_rikishi": len({int(event.rikishi) for event in candidate.returns}),
         "forecast_count": len(control.run.forecasts),
-        "control_equals_canonical": control.run == replay_elo89(
+        "candidate_equals_canonical": candidate.run == replay_elo89(
             history=history,
             start_date=start,
             end_date=end,
@@ -528,7 +528,7 @@ def _findings(
 - Return events: **{int(summary['return_event_count']):,}**
 - Distinct returning rikishi: **{int(summary['distinct_returning_rikishi']):,}**
 - Rated forecasts: **{int(summary['forecast_count']):,}**
-- Control exactly equals canonical P1-WL Elo-89: **{summary['control_equals_canonical']}**
+- Frozen candidate exactly equals canonical P1-WL Elo-89: **{summary['candidate_equals_canonical']}**
 - Invariant violations: **{int(summary['violation_count']):,}**
 
 Negative score differences favour frozen persistence; positive differences
@@ -682,7 +682,7 @@ def main(argv: list[str] | None = None) -> int:
         DEFAULT_OUTPUT_ROOT
         / f"frozen-persistence-{_date_text(args.start)}-to-{_date_text(args.end)}-{datetime.now():%Y-%m-%d_%H-%M-%S}"
     )
-    print("Running canonical-equivalent reset control and frozen candidate...")
+    print("Running historical reset control and canonical frozen candidate...")
     control, candidate, violations = run_experiment(
         history=history,
         prior_path=args.prior,

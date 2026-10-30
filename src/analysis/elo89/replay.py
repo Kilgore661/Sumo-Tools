@@ -71,11 +71,12 @@ def replay_elo89(
         active = set(basho.banzuke.riks)
 
         departing = previous_active - active
-        for rikishi in departing:
-            state.ratings.pop(rikishi, None)
-            state.sources.pop(rikishi, None)
-        known = set(state.ratings)
-        new_rikishi = active - known
+        # Frozen persistence: inactive ratings, initialisation provenance and
+        # bout counts remain unchanged in state. Population operations below
+        # are explicitly scoped to ``active``, so archived ratings influence
+        # nothing until their rikishi returns.
+        previously_rated = set(state.ratings)
+        new_rikishi = active - previously_rated
         for rikishi in sorted(new_rikishi):
             chii = basho.banzuke.rikchii[rikishi]
             rating, source = prior.rating_for(chii)

@@ -44,7 +44,7 @@ def test_production_replay_matches_accepted_elo89_forecasts() -> None:
                 {1: "M1e", 2: "J1w"},
                 [_bout(1, Outcome.W, 2, Outcome.L)],
             ),
-            march: _basho({2: "J1w"}, []),
+            march: _basho({1: "M1e", 2: "J1w"}, []),
             may: _basho(
                 {1: "M1e", 2: "J1w"},
                 [_bout(2, Outcome.W, 1, Outcome.L)],
@@ -81,7 +81,43 @@ def test_production_replay_matches_accepted_elo89_forecasts() -> None:
         )
         assert actual_row.delta_a == pytest.approx(expected_row.delta_a)
         assert actual_row.delta_b == pytest.approx(expected_row.delta_b)
-    assert actual.basho_start_ratings[may][RikId(1)] == pytest.approx(1550.0)
+    assert actual.basho_start_ratings[may][RikId(1)] == pytest.approx(
+        actual.basho_end_ratings[march][RikId(1)]
+    )
+
+
+def test_production_replay_freezes_rating_across_absence() -> None:
+    january = _date(1989, 1)
+    march = _date(1989, 3)
+    may = _date(1989, 5)
+    history = History(
+        {
+            january: _basho({1: "M1e", 2: "J1w"}, []),
+            march: _basho({2: "J1w"}, []),
+            may: _basho({1: "J2e", 2: "J1w"}, []),
+        }
+    )
+    prior = AdoptedPrior(
+        source_path="fixture.csv",
+        sha256="fixture",
+        rating_by_pair={"M1": 1600.0, "J1": 1400.0, "J2": 1000.0},
+        fallback_rating=1000.0,
+    )
+
+    run = replay_elo89(
+        history=history,
+        start_date=january,
+        end_date=may,
+        prior=prior,
+        divisional_k=lambda _ordinal: 20.0,
+    )
+
+    assert run.target_mean == pytest.approx(1500.0)
+    assert run.basho_start_ratings[march][RikId(2)] == pytest.approx(1500.0)
+    assert run.basho_start_ratings[may][RikId(1)] == pytest.approx(1550.0)
+    assert run.basho_start_ratings[may][RikId(2)] == pytest.approx(1450.0)
+    assert run.adjustments[1].departing_rikishi_count == 1
+    assert run.adjustments[2].new_rikishi_count == 0
 
 
 def test_production_replay_exposes_daily_and_normalised_end_snapshots() -> None:
@@ -194,6 +230,7 @@ def test_output_manifest_records_prior_source_hash(tmp_path) -> None:
 
     manifest = json.loads(paths.manifest.read_text(encoding="utf-8"))
     assert manifest["prior"]["source_sha256"] == "fixed-prior-sha256"
+    assert manifest["rating_lifecycle"] == "frozen across absence"
 
 
 def _date(year: int, month: int) -> Date:

@@ -21,7 +21,7 @@ from src.sumo_core.Summary import BoutResult, DailyResults, ResultLookup, Summar
 from src.validation.rating_persistence_comparison.replay import replay_policy
 
 
-def test_reset_policy_exactly_matches_canonical_elo89() -> None:
+def test_frozen_policy_exactly_matches_canonical_elo89() -> None:
     history, prior = _gap_history()
     start, end = min(history), max(history)
 
@@ -32,16 +32,16 @@ def test_reset_policy_exactly_matches_canonical_elo89() -> None:
         prior=prior,
         divisional_k=lambda _ordinal: 20.0,
     )
-    control = replay_policy(
+    candidate = replay_policy(
         history=history,
         start_date=start,
         end_date=end,
         prior=prior,
         divisional_k=lambda _ordinal: 20.0,
-        policy="reset",
+        policy="frozen",
     )
 
-    assert control.run == canonical
+    assert candidate.run == canonical
 
 
 def test_frozen_policy_restores_unchanged_archive_and_retains_support() -> None:

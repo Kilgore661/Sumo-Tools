@@ -79,6 +79,7 @@ def write_elo89_outputs(
                     "fallback_rating": prior.fallback_rating,
                 },
                 "q": q,
+                "rating_lifecycle": "frozen across absence",
                 "k_config": str(k_config_path),
                 "target_mean": run.target_mean,
                 "selection": {
