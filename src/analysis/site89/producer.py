@@ -6,6 +6,7 @@ import json
 import shutil
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Callable
 
 from src.analysis.elo89 import Elo89Artifacts, produce_elo89
 from src.analysis.elo89.producer import DEFAULT_PRIOR
@@ -38,7 +39,9 @@ def produce_site89_bundle(
     banzuke_source_root: Path = DEFAULT_BANZUKE_SOURCE,
     prior_path: Path = DEFAULT_PRIOR,
     future: Future | None = None,
+    progress: Callable[[str], None] | None = None,
 ) -> Path:
+    report = progress if progress is not None else lambda _message: None
     dates = sorted(history)
     if not dates or str(dates[0]) != "1989/01":
         raise ValueError("The site89 production History must begin at 1989/01")
@@ -49,6 +52,7 @@ def produce_site89_bundle(
     site_root.mkdir(parents=True)
 
     elo_root = work_root / "elo89"
+    report("Replaying Elo-89 ratings...")
     produce_elo89(
         history=history,
         output_root=elo_root,
@@ -66,6 +70,8 @@ def produce_site89_bundle(
             generated_at=datetime.now(timezone.utc),
         )
     artifacts = {
+        # Keep these reports at artifact boundaries: some producers take long
+        # enough that a silent build otherwise looks stalled.
         "torikumi": produce_torikumi(
             history=history,
             future=future,
@@ -73,6 +79,7 @@ def produce_site89_bundle(
             output_root=site_root / "current-sumo/torikumi/data",
         )
     }
+    report("Producing model-independent history artifacts...")
     artifacts.update(
         produce_model_independent(
             history=history,
@@ -81,6 +88,7 @@ def produce_site89_bundle(
         )
     )
 
+    report("Producing basho results and career comparisons...")
     artifacts["basho_results_browser"] = produce_basho_results(
         history=history,
         ratings=ratings,
@@ -91,6 +99,7 @@ def produce_site89_bundle(
         ratings=ratings,
         output_root=site_root / "rikishi/career-comparisons/data",
     )
+    report("Producing rating records and current-sumo artifacts...")
     artifacts["rating_changes"] = produce_rating_changes(
         history=history,
         ratings=ratings,
@@ -109,6 +118,7 @@ def produce_site89_bundle(
         ratings=ratings,
         output_root=site_root / "current-sumo/banzuke-changes",
     )
+    report("Producing model diagnostics and standings...")
     artifacts["typical_rating_values"] = (
         produce_typical_rating_values(
             ratings=ratings,
@@ -124,6 +134,7 @@ def produce_site89_bundle(
         history=history,
         output_root=site_root / "current-sumo/standings-by-wins/data",
     )
+    report("Producing rikishi bio data...")
     artifacts["rikishi_bio_data"] = (
         produce_rikishi_bio_data(
             history=history,
@@ -178,6 +189,7 @@ def produce_site89_bundle(
             for artifact_id, paths in sorted(artifacts.items())
         ],
     }
+    report("Writing and validating the site-data manifest...")
     (output_root / "manifest.json").write_text(
         json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
     )
