@@ -31,7 +31,7 @@ const BANZUKE_SCAN_TABLE_SPEC = [
     children: [
       { key: "old_chii", id: "old_chii", label: "Chii", heading: "Chii", sort_kind: "chii_ordinal" },
       { key: "result", id: "result", label: "Result", heading: "Result", help: "Result movement means rank-group movement. See Notes.", note_id: "note_result", sort_kind: "record" },
-      { key: "delta", id: "delta", label: "Change", heading: "Change", help: "Size of movement. See Notes.", note_id: "note_delta", sort_kind: "numeric", align: "right" },
+      { key: "delta", id: "delta", label: "ΔBz", heading: "ΔBz", help: "Size of movement. See Notes.", note_id: "note_delta", sort_kind: "numeric", align: "right" },
     ],
   },
 ];
@@ -132,9 +132,10 @@ function renderBanzukeScanTable(artifact, rows, state) {
 
 function renderBanzukeScanHead(visiblePaths, columns, sortState, boundaries) {
   const columnsByPath = new Map(columns.map(column => [column.path, column]));
+  const headingSpec = banzukeScanHeadingSpec(visiblePaths);
   return [
     '<thead>',
-    ...headerRows(BANZUKE_SCAN_TABLE_SPEC, visiblePaths).map(row => [
+    ...headerRows(headingSpec, visiblePaths).map(row => [
       '<tr>',
       ...row.map(cell => renderBanzukeScanHeadingCell(
         cell,
@@ -146,6 +147,20 @@ function renderBanzukeScanHead(visiblePaths, columns, sortState, boundaries) {
     ].join("")),
     '</thead>',
   ].join("");
+}
+
+// A lone movement column needs no one-column "Previous Basho" group. Flatten
+// that projection so its complete visible heading is the compact ΔBz label.
+function banzukeScanHeadingSpec(visiblePaths) {
+  const deltaOnly = visiblePaths.has("previous_basho.delta")
+    && !visiblePaths.has("previous_basho.old_chii")
+    && !visiblePaths.has("previous_basho.result");
+  if (!deltaOnly) return BANZUKE_SCAN_TABLE_SPEC;
+  return BANZUKE_SCAN_TABLE_SPEC.flatMap(node => {
+    if (node.key !== "previous_basho") return [node];
+    const delta = node.children.find(child => child.key === "delta");
+    return [{ ...delta, key: "previous_basho.delta" }];
+  });
 }
 
 function renderBanzukeScanHeadingCell(cell, column, sortState, boundaries) {
