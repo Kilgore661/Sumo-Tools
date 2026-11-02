@@ -35,6 +35,11 @@ def test_live_store_workflow_produces_bundle_and_forwards_existing_flags(
         "DEFAULT_FUTURE_PATH",
         tmp_path / "absent-future.json",
     )
+    monkeypatch.setattr(
+        build_site89,
+        "NEW_BANZUKE_JSON",
+        tmp_path / "absent-banzuke.json",
+    )
 
     bundle = tmp_path / "bundle"
     output = tmp_path / "site"
@@ -53,6 +58,7 @@ def test_live_store_workflow_produces_bundle_and_forwards_existing_flags(
     assert captured["production"]["history"] is selected_history
     assert captured["production"]["output_root"] == bundle
     assert captured["production"]["future"] is None
+    assert captured["production"]["new_banzuke"] is None
     assert forwarded == argv
 
 

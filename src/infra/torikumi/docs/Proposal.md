@@ -219,10 +219,16 @@ Completed-results retrieval is a historical full-prefix, gap-filling process.
 Torikumi retrieval is different: future pages are time-sensitive and cannot
 be assumed to be retrospectively recoverable from an evolving source URL.
 
-The updater uses the supplied History's latest represented basho and probes
-all Days 1 through 15. A page is retained only when the new parser positively
-recognizes a usable torikumi. Probing the full bounded range retains schedules
-for viewers who have not yet watched days whose results are already known.
+The original updater used the supplied History's latest represented basho and
+probed all Days 1 through 15. That policy failed in the pre-basho interval and
+made unnecessary requests. The repaired lifecycle is specified in
+`Lifecycle Repair Proposal.md`: an incomplete History basho is active;
+otherwise its independently published immediate-successor New Banzuke is the
+upcoming target. Accepted earlier days are retained, the latest accepted day
+is refreshed, and acquisition stops at the first positively recognised
+unpublished day. This retains schedules for viewers who have not yet watched
+days whose results are already known without repeatedly downloading the full
+basho.
 
 The implementation does not hard-code how many advance days are available on
 a particular basho day. It publishes whichever days were actually acquired
@@ -360,8 +366,8 @@ duplication without weakening the existing production boundary.
 ## Production commands
 
 The artifact can be refreshed without rebuilding Elo89. By default the
-command reads the published live store and downloads every available
-torikumi for its latest basho:
+command reads the published live store and the persisted New Banzuke, selects
+the active or upcoming basho, and downloads the available published prefix:
 
 ```text
 python -m src.infra.torikumi

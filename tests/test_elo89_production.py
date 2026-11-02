@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import json
+from pathlib import Path
 
 import pytest
 
@@ -11,6 +12,8 @@ from src.analysis.elo_model_selection.model import (
     _context,
 )
 from src.analysis.elo89.replay import replay_elo89
+from src.analysis.elo89.api import Elo89Artifacts
+from src.analysis.elo89.projection import project_basho_start_ratings
 from src.analysis.elo89.output import _write_prior, write_elo89_outputs
 from src.analysis.equelo_population_policy.predict_population_policy import (
     run_whole_population_model,
@@ -118,6 +121,66 @@ def test_production_replay_freezes_rating_across_absence() -> None:
     assert run.basho_start_ratings[may][RikId(2)] == pytest.approx(1450.0)
     assert run.adjustments[1].departing_rikishi_count == 1
     assert run.adjustments[2].new_rikishi_count == 0
+
+
+def test_projected_upcoming_start_matches_replay_with_returnee_and_newcomer() -> None:
+    january = _date(1989, 1)
+    march = _date(1989, 3)
+    may = _date(1989, 5)
+    prior = AdoptedPrior(
+        source_path="fixture.csv",
+        sha256="fixture",
+        rating_by_pair={"M1": 1600.0, "J1": 1400.0, "J2": 1200.0},
+        fallback_rating=1200.0,
+    )
+    represented = History(
+        {
+            january: _basho({1: "M1e", 2: "J1w"}, []),
+            march: _basho({2: "J1w"}, []),
+        }
+    )
+    represented_run = replay_elo89(
+        history=represented,
+        start_date=january,
+        end_date=march,
+        prior=prior,
+        divisional_k=lambda _ordinal: 20.0,
+    )
+    artifacts = Elo89Artifacts(
+        root=Path("unused"),
+        manifest={"target_mean": represented_run.target_mean},
+        prior=prior.rating_by_pair,
+        basho_start_ratings={},
+        day_end_ratings={},
+        basho_end_ratings={
+            str(date): {
+                str(int(rikishi)): rating
+                for rikishi, rating in values.items()
+            }
+            for date, values in represented_run.basho_end_ratings.items()
+        },
+        bout_ledger=(),
+    )
+    upcoming = _basho({1: "J2e", 2: "J1w", 3: "J2w"}, []).banzuke
+
+    projected = project_basho_start_ratings(
+        ratings=artifacts,
+        banzuke=upcoming,
+    )
+    extended = History({**represented, may: _basho({1: "J2e", 2: "J1w", 3: "J2w"}, [])})
+    extended_run = replay_elo89(
+        history=extended,
+        start_date=january,
+        end_date=may,
+        prior=prior,
+        divisional_k=lambda _ordinal: 20.0,
+    )
+    expected = {
+        str(int(rikishi)): rating
+        for rikishi, rating in extended_run.basho_start_ratings[may].items()
+    }
+
+    assert projected == pytest.approx(expected)
 
 
 def test_production_replay_exposes_daily_and_normalised_end_snapshots() -> None:

@@ -84,7 +84,13 @@ def test_torikumi_command_uses_live_store_by_default(
 ) -> None:
     history = object()
     captured = {}
+    target = SimpleNamespace(date=DATE, source="test target")
     monkeypatch.setattr(torikumi_cli, "get_history", lambda: history)
+    monkeypatch.setattr(
+        torikumi_cli,
+        "resolve_torikumi_target",
+        lambda value, new: target,
+    )
     monkeypatch.setattr(
         torikumi_cli,
         "refresh_future",
@@ -94,8 +100,19 @@ def test_torikumi_command_uses_live_store_by_default(
         ),
     )
 
-    assert torikumi_cli.main(["--output-root", str(tmp_path)]) == 0
-    assert captured == {"history": history, "output_root": tmp_path}
+    assert torikumi_cli.main(
+        [
+            "--output-root",
+            str(tmp_path),
+            "--new-banzuke",
+            str(tmp_path / "absent.json"),
+        ]
+    ) == 0
+    assert captured == {
+        "history": history,
+        "target": target,
+        "output_root": tmp_path,
+    }
 
 
 def test_torikumi_command_accepts_explicit_history_zip(
@@ -105,6 +122,7 @@ def test_torikumi_command_accepts_explicit_history_zip(
     history = object()
     captured = {}
     history_zip = tmp_path / "history.zip"
+    target = SimpleNamespace(date=DATE, source="test target")
     monkeypatch.setattr(
         torikumi_cli,
         "get_history",
@@ -123,40 +141,55 @@ def test_torikumi_command_accepts_explicit_history_zip(
             or SimpleNamespace(days=())
         ),
     )
+    monkeypatch.setattr(
+        torikumi_cli,
+        "resolve_torikumi_target",
+        lambda value, new: target,
+    )
 
     assert torikumi_cli.main(
-        ["--history-zip", str(history_zip), "--output-root", str(tmp_path)]
+        [
+            "--history-zip",
+            str(history_zip),
+            "--output-root",
+            str(tmp_path),
+            "--new-banzuke",
+            str(tmp_path / "absent.json"),
+        ]
     ) == 0
     assert captured == {
         "path": str(history_zip.with_suffix("")),
         "history": history,
+        "target": target,
         "output_root": tmp_path,
     }
 
 
-def test_scraper_probes_every_day_and_keeps_completed_pairings(tmp_path: Path) -> None:
-    history = {DATE: SimpleNamespace(summary=SimpleNamespace(last_defined=lambda: Day(13)))}
+def test_scraper_probes_published_prefix_and_keeps_completed_pairings(tmp_path: Path) -> None:
+    history = {DATE: SimpleNamespace(summary=SimpleNamespace(last_defined=lambda: Day(1)))}
     requested = []
 
     def fetch(url: str) -> str | None:
         requested.append(url)
-        if "d=13" in url:
-            return page(13, result=True)
-        if "d=14" in url:
-            return page(14)
+        if "d=1&" in url:
+            return page(1, result=True)
+        if "d=2&" in url:
+            return page(2)
         return None
 
     future = refresh_future(
         history, output_root=tmp_path, fetch_text=fetch, now=NOW
     )
 
-    assert [int(day.day) for day in future.days] == [13, 14]
+    assert [int(day.day) for day in future.days] == [1, 2]
     assert future.days[0].result_count == 1
     assert [url.rsplit("d=", 1)[1].split("&", 1)[0] for url in requested] == [
-        str(day) for day in range(1, 16)
+        "1",
+        "2",
+        "3",
     ]
-    assert (tmp_path / "raw" / "2026 09" / "13.html").is_file()
-    assert (tmp_path / "raw" / "2026 09" / "14.html").is_file()
+    assert (tmp_path / "raw" / "2026 09" / "01.html").is_file()
+    assert (tmp_path / "raw" / "2026 09" / "02.html").is_file()
 
 
 def test_annotation_uses_latest_existing_rating_snapshot(tmp_path: Path) -> None:

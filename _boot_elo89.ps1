@@ -38,8 +38,8 @@ try {
     $NoBuild = $args -contains "--no-build"
 
     if (-not $NoBuild) {
-        Run-PythonModule "src.infra.torikumi"
         Run-PythonModule "src.infra.new_banzuke"
+        Run-PythonModule "src.infra.torikumi"
         Run-PythonModule "src.analysis.banzuke_compare.publisher"
     }
 

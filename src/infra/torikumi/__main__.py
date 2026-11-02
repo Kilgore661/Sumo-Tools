@@ -6,11 +6,13 @@ import argparse
 from pathlib import Path
 
 from src.infra.live_store.api import get_history
+from src.infra.new_banzuke.api import NEW_BANZUKE_JSON, load_new_banzuke
 from src.infra.persistence.annotated_serialiser import load_history_with_annotations
 from src.sumo_core.History import History
 
-from .persistence import DEFAULT_OUTPUT_ROOT
-from .scraper import refresh_future
+from .persistence import DEFAULT_OUTPUT_ROOT, load_future
+from .scraper import TorikumiRefreshError, refresh_future
+from .target import resolve_torikumi_target
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -21,9 +23,37 @@ def main(argv: list[str] | None = None) -> int:
         help="Use an explicit annotated History zip instead of the live store.",
     )
     parser.add_argument("--output-root", type=Path, default=DEFAULT_OUTPUT_ROOT)
+    parser.add_argument("--new-banzuke", type=Path, default=NEW_BANZUKE_JSON)
     args = parser.parse_args(argv)
     history = load_history(args.history_zip)
-    future = refresh_future(history, output_root=args.output_root)
+    new_banzuke = (
+        load_new_banzuke(args.new_banzuke)
+        if args.new_banzuke.is_file()
+        else None
+    )
+    target = resolve_torikumi_target(history, new_banzuke)
+    if target is None:
+        print("No active or published upcoming basho requires Torikumi refresh")
+        return 0
+    print(f"Torikumi target: {target.date} ({target.source})")
+    try:
+        future = refresh_future(
+            history,
+            target=target,
+            output_root=args.output_root,
+        )
+    except TorikumiRefreshError as exc:
+        existing_path = args.output_root / "future.json"
+        if existing_path.is_file():
+            existing = load_future(existing_path)
+            if existing.date == target.date:
+                print(
+                    f"[torikumi] refresh failed; retaining {target.date} "
+                    f"snapshot: {exc}"
+                )
+                return 0
+        print(f"[torikumi] refresh failed for {target.date}: {exc}")
+        return 1
     print(args.output_root / "future.json")
     available = ", ".join(str(int(day.day)) for day in future.days) or "none"
     print(f"Available torikumi days: {available}")

@@ -44,12 +44,10 @@ try {
     $NoBuild = $args -contains "--no-build"
 
     if (-not $NoBuild) {
-        # Refresh the Torikumi snapshot from the live History before producing
-        # the site-data bundle.
-        Run-PythonModule "src.infra.torikumi"
-
         # Refresh the structural Banzuke Changes input consumed by site89.
         Run-PythonModule "src.infra.new_banzuke"
+        # Select the active or upcoming basho using that New Banzuke.
+        Run-PythonModule "src.infra.torikumi"
         Run-PythonModule "src.analysis.banzuke_compare.publisher"
     }
 

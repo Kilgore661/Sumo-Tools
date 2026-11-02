@@ -11,6 +11,7 @@ from typing import Callable
 from src.analysis.elo89 import Elo89Artifacts, produce_elo89
 from src.analysis.elo89.producer import DEFAULT_PRIOR
 from src.infra.get_bios.api import load_bio_store
+from src.infra.new_banzuke.api import NewBanzuke
 from src.infra.torikumi import Future
 from src.sumo_core.History import History
 
@@ -39,6 +40,7 @@ def produce_site89_bundle(
     banzuke_source_root: Path = DEFAULT_BANZUKE_SOURCE,
     prior_path: Path = DEFAULT_PRIOR,
     future: Future | None = None,
+    new_banzuke: NewBanzuke | None = None,
     progress: Callable[[str], None] | None = None,
 ) -> Path:
     report = progress if progress is not None else lambda _message: None
@@ -63,11 +65,32 @@ def produce_site89_bundle(
     current_date = dates[-1]
     current_cutoff = history[current_date].summary.last_defined()
     if future is None:
+        future_date = (
+            new_banzuke.date
+            if new_banzuke is not None and new_banzuke.date > current_date
+            else current_date
+        )
         future = Future(
-            date=current_date,
-            completed_through=current_cutoff,
+            date=future_date,
+            completed_through=(
+                current_cutoff if future_date == current_date else None
+            ),
             days=(),
             generated_at=datetime.now(timezone.utc),
+        )
+    upcoming_banzuke = None
+    if future.date not in history:
+        if new_banzuke is None or new_banzuke.date != future.date:
+            actual = None if new_banzuke is None else str(new_banzuke.date)
+            raise ValueError(
+                f"Torikumi target {future.date} is outside History but matching "
+                f"New Banzuke is {actual}"
+            )
+        upcoming_banzuke = new_banzuke.to_banzuke()
+    elif new_banzuke is not None and new_banzuke.date > current_date:
+        raise ValueError(
+            f"Torikumi snapshot {future.date} is stale relative to published "
+            f"New Banzuke {new_banzuke.date}"
         )
     artifacts = {
         # Keep these reports at artifact boundaries: some producers take long
@@ -77,6 +100,7 @@ def produce_site89_bundle(
             future=future,
             ratings=ratings,
             output_root=site_root / "current-sumo/torikumi/data",
+            upcoming_banzuke=upcoming_banzuke,
         )
     }
     report("Producing model-independent history artifacts...")

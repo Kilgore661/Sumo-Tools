@@ -8,8 +8,10 @@ from math import isfinite
 from pathlib import Path
 
 from src.analysis.elo89.api import Elo89Artifacts
+from src.analysis.elo89.projection import project_basho_start_ratings
 from src.infra.get_bios.FullShikonaStore import FullShikonaStore
 from src.infra.torikumi import Future
+from src.sumo_core.Banzuke import Banzuke
 from src.sumo_core.BasicEnums import Division, MSD
 from src.sumo_core.History import History
 
@@ -46,23 +48,38 @@ def produce_torikumi(
     ratings: Elo89Artifacts,
     output_root: Path,
     names: FullShikonaStore | None = None,
+    upcoming_banzuke: Banzuke | None = None,
 ) -> tuple[Path, ...]:
     """Write an index and one annotated CSV for each published torikumi day."""
 
     date_key = str(future.date)
-    if future.date not in history:
-        raise ValueError(f"Future basho {date_key} is not present in History")
+    if future.date in history:
+        banzuke = history[future.date].banzuke
+        projected_start = None
+    else:
+        if upcoming_banzuke is None:
+            raise ValueError(
+                f"Future basho {date_key} is absent from History and has no "
+                "matching upcoming banzuke"
+            )
+        banzuke = upcoming_banzuke
+        projected_start = project_basho_start_ratings(
+            ratings=ratings,
+            banzuke=banzuke,
+        )
     q = float(ratings.manifest.get("q", 0))
     if not isfinite(q) or q <= 0:
         raise ValueError(f"Elo-89 manifest contains an invalid q: {q!r}")
 
     names = names if names is not None else FullShikonaStore.from_sources(history)
-    banzuke = history[future.date].banzuke
     paths: list[Path] = []
     entries = []
     for future_day in future.days:
         rating_values, rating_cutoff = _rating_snapshot_before_day(
-            ratings, date_key, int(future_day.day)
+            ratings,
+            date_key,
+            int(future_day.day),
+            projected_start=projected_start,
         )
         rows = []
         for bout in future_day.bouts:
@@ -153,7 +170,11 @@ def produce_torikumi(
 
 
 def update_existing_bundle(
-    *, history: History, future: Future, bundle_root: Path
+    *,
+    history: History,
+    future: Future,
+    bundle_root: Path,
+    upcoming_banzuke: Banzuke | None = None,
 ) -> tuple[Path, ...]:
     """Add or replace Torikumi in an already-produced site89 data bundle."""
 
@@ -170,6 +191,7 @@ def update_existing_bundle(
         future=future,
         ratings=ratings,
         output_root=output_root,
+        upcoming_banzuke=upcoming_banzuke,
     )
     artifact = {
         "id": "torikumi",
@@ -184,13 +206,19 @@ def update_existing_bundle(
 
 
 def _rating_snapshot_before_day(
-    ratings: Elo89Artifacts, date_key: str, day: int
+    ratings: Elo89Artifacts,
+    date_key: str,
+    day: int,
+    *,
+    projected_start: dict[str, float] | None = None,
 ) -> tuple[dict[str, float], str]:
     day_values = ratings.day_end_ratings.get(date_key, {})
     preceding_days = [value for value in day_values if int(value) < day]
     if preceding_days:
         preceding_day = max(preceding_days, key=lambda value: int(value))
         return day_values[preceding_day], f"end of Day {int(preceding_day)}"
+    if projected_start is not None:
+        return projected_start, "projected start of basho"
     try:
         return ratings.basho_start_ratings[date_key], "start of basho"
     except KeyError as error:

@@ -51,6 +51,7 @@ def test_live_workflow_produces_independent_bundle_and_forwards_flags(
     )
     monkeypatch.setattr(build_elo89, "run_make_elo89", lambda argv: forwarded.extend(argv))
     monkeypatch.setattr(build_elo89, "DEFAULT_FUTURE_PATH", tmp_path / "absent.json")
+    monkeypatch.setattr(build_elo89, "NEW_BANZUKE_JSON", tmp_path / "absent-banzuke.json")
     bundle = tmp_path / "elo89-bundle"
     output = tmp_path / "make_elo89"
     argv = [
@@ -68,6 +69,7 @@ def test_live_workflow_produces_independent_bundle_and_forwards_flags(
     assert captured["year"] == 1989
     assert captured["production"]["history"] is selected_history
     assert captured["production"]["output_root"] == bundle
+    assert captured["production"]["new_banzuke"] is None
     assert callable(captured["production"]["progress"])
     assert forwarded == argv
 
