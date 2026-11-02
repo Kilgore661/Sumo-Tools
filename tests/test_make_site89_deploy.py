@@ -1,13 +1,18 @@
 import json
 from pathlib import Path
+from types import SimpleNamespace
+import sys
 
 import pytest
 
 from src.products.make_site89.__main__ import build_parser
 from src.products.make_site89.deploy import (
+    DeployTarget,
     build_output_from_existing,
+    deploy_sftp,
     deploy_targets,
     load_deployment_plan,
+    preflight_deploy_target,
     select_deploy_targets,
 )
 
@@ -69,3 +74,134 @@ def test_cli_accepts_make_site2_style_local_only_mode() -> None:
     args = build_parser().parse_args(["--local-only"])
 
     assert args.local_only
+
+
+def test_local_only_filters_configured_sftp_target(tmp_path: Path) -> None:
+    config_path = tmp_path / "targets.json"
+    config_path.write_text(
+        json.dumps(
+            {
+                "default_targets": ["local", "remote"],
+                "targets": {
+                    "local": {
+                        "method": "win_copy",
+                        "location": str(tmp_path / "local"),
+                    },
+                    "remote": {
+                        "method": "sftp",
+                        "host": "example.test",
+                        "user": "tester",
+                        "location": "/remote/site",
+                    },
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    plan = load_deployment_plan(config_path)
+
+    assert tuple(target.name for target in select_deploy_targets(plan)) == (
+        "local",
+        "remote",
+    )
+    assert tuple(
+        target.name for target in select_deploy_targets(plan, local_only=True)
+    ) == ("local",)
+
+
+def test_sftp_preflight_uses_environment_password(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from src.products.make_site89 import deploy as site89_deploy
+
+    connected: list[tuple[str, str]] = []
+
+    class Transport:
+        def __init__(self, target):
+            self.target = target
+
+        def connect(self, *, username: str, password: str) -> None:
+            connected.append((username, password))
+
+        def close(self) -> None:
+            return None
+
+    monkeypatch.setitem(sys.modules, "paramiko", SimpleNamespace(Transport=Transport))
+    monkeypatch.setenv("TEST_SITE89_PASSWORD", "secret")
+
+    checked = preflight_deploy_target(
+        DeployTarget(
+            name="remote",
+            method="sftp",
+            location="/remote/site",
+            host="example.test",
+            user="tester",
+            password_env="TEST_SITE89_PASSWORD",
+            password_required=True,
+        )
+    )
+
+    assert checked.password == "secret"
+    assert connected == [("tester", "secret")]
+
+
+def test_sftp_uploads_generated_tree_without_remote_deletion(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    uploaded: list[str] = []
+    made: list[str] = []
+
+    class Transport:
+        def __init__(self, target):
+            self.target = target
+
+        def connect(self, *, username: str, password: str) -> None:
+            return None
+
+        def close(self) -> None:
+            return None
+
+    class SFTPClient:
+        @classmethod
+        def from_transport(cls, transport):
+            return cls()
+
+        def stat(self, remote_dir: str) -> None:
+            if remote_dir == "/remote/site/runtime":
+                raise FileNotFoundError
+
+        def mkdir(self, remote_dir: str) -> None:
+            made.append(remote_dir)
+
+        def put(self, source: str, remote_file: str) -> None:
+            uploaded.append(remote_file)
+
+    paramiko = SimpleNamespace(Transport=Transport, SFTPClient=SFTPClient)
+    monkeypatch.setitem(sys.modules, "paramiko", paramiko)
+    output_root = tmp_path / "output"
+    (output_root / "runtime").mkdir(parents=True)
+    (output_root / "index.html").write_text("index", encoding="utf-8")
+    (output_root / "runtime" / "site.js").write_text("js", encoding="utf-8")
+
+    result = deploy_sftp(
+        build_output_from_existing(output_root),
+        DeployTarget(
+            name="remote",
+            method="sftp",
+            location="/remote/site",
+            host="example.test",
+            user="tester",
+            password="secret",
+        ),
+    )
+
+    assert result.file_count == 2
+    assert made == ["/remote/site/runtime"]
+    assert uploaded == [
+        "/remote/site/index.html",
+        "/remote/site/runtime/site.js",
+    ]
+    assert "uploading 2/2: runtime/site.js" in capsys.readouterr().out

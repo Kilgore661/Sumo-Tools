@@ -1,4 +1,4 @@
-"""Assemble and locally deploy the accepted Elo-89 website."""
+"""Assemble and deploy the accepted Elo-89 website."""
 
 from __future__ import annotations
 
@@ -11,6 +11,7 @@ from src.products.make_site89.deploy import (
     build_output_from_existing,
     deploy_targets,
     load_deployment_plan,
+    preflight_deploy_targets,
     select_deploy_targets,
 )
 
@@ -25,7 +26,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
             "Build the accepted Elo-89 site into its independent make_elo89 "
-            "output tree and deploy it to the configured sumo-elo89 target."
+            "output tree and deploy it to the configured sumo-elo89 targets."
         )
     )
     parser.add_argument(
@@ -58,7 +59,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--local-only",
         action="store_true",
-        help="Deploy only local filesystem-copy targets (currently the only kind).",
+        help="Deploy only local filesystem-copy targets and skip remote SFTP.",
     )
     return parser
 
@@ -74,6 +75,11 @@ def main(argv: list[str] | None = None) -> None:
     started = time()
     args = build_parser().parse_args(argv)
     reject_conflicting_modes(args)
+    targets = ()
+    if not args.build_only:
+        plan = load_deployment_plan(DEFAULT_DEPLOY_TARGETS_PATH)
+        targets = select_deploy_targets(plan, local_only=args.local_only)
+        targets = preflight_deploy_targets(targets)
     if args.no_build:
         output = build_output_from_existing(args.output)
         print(f"Using existing build: {output.root}")
@@ -86,8 +92,6 @@ def main(argv: list[str] | None = None) -> None:
         print(f"Built: {output.entrypoint}")
         print(f"Files: {output.file_count}")
     if not args.build_only:
-        plan = load_deployment_plan(DEFAULT_DEPLOY_TARGETS_PATH)
-        targets = select_deploy_targets(plan, local_only=args.local_only)
         for result in deploy_targets(output, targets):
             print(
                 f"Deployed {result.file_count} files to "

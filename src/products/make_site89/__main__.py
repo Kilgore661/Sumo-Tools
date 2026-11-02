@@ -12,6 +12,7 @@ from .deploy import (
     build_output_from_existing,
     deploy_targets,
     load_deployment_plan,
+    preflight_deploy_targets,
     select_deploy_targets,
 )
 
@@ -78,6 +79,11 @@ def main(argv: list[str] | None = None) -> None:
     started = time()
     args = build_parser().parse_args(argv)
     reject_conflicting_modes(args)
+    targets = ()
+    if not args.build_only:
+        plan = load_deployment_plan(DEFAULT_DEPLOY_TARGETS_PATH)
+        targets = select_deploy_targets(plan, local_only=args.local_only)
+        targets = preflight_deploy_targets(targets)
     if args.no_build:
         output = build_output_from_existing(args.output)
         print(f"Using existing build: {output.root}")
@@ -90,8 +96,6 @@ def main(argv: list[str] | None = None) -> None:
         print(f"Built: {output.entrypoint}")
         print(f"Files: {output.file_count}")
     if not args.build_only:
-        plan = load_deployment_plan(DEFAULT_DEPLOY_TARGETS_PATH)
-        targets = select_deploy_targets(plan, local_only=args.local_only)
         for result in deploy_targets(output, targets):
             print(
                 f"Deployed {result.file_count} files to "

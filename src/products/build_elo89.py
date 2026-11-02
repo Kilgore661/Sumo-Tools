@@ -1,4 +1,4 @@
-"""Produce, assemble and locally deploy the independent Elo-89 site."""
+"""Produce, assemble and deploy the independent Elo-89 site."""
 
 from __future__ import annotations
 

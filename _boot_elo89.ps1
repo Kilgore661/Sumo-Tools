@@ -1,7 +1,8 @@
 # _boot_elo89.ps1
 #
 # Refresh the accepted Elo-89 inputs, produce its independent bundle, assemble
-# files/output/make_elo89, and deploy only to the configured sumo-elo89 target.
+# files/output/make_elo89, and deploy to the configured sumo-elo89 targets.
+# Pass --local-only to skip the remote SFTP target.
 
 $ErrorActionPreference = "Stop"
 

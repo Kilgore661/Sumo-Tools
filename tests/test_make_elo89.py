@@ -22,10 +22,18 @@ def test_make_elo89_defaults_are_independent() -> None:
 def test_make_elo89_local_target_is_independent() -> None:
     plan = load_deployment_plan(Path("distro/make_elo89_targets.json"))
     target = plan.targets["local_apache"]
+    remote = plan.targets["remote_661"]
 
     assert target.location == "A:/local/html/sumo-elo89"
     assert target.url == "http://192.168.0.146/sumo-elo89/"
     assert "sumo-tools89" not in target.location
+    assert plan.default_targets == ("local_apache", "remote_661")
+    assert remote.method == "sftp"
+    assert remote.host == "www.661.org.uk"
+    assert remote.user == "root"
+    assert remote.location == "/var/www/html/sumo-elo89"
+    assert remote.url == "http://68.66.241.105/sumo-elo89/"
+    assert remote.password_env == "GEOLOCATION"
 
 
 def test_live_workflow_produces_independent_bundle_and_forwards_flags(
