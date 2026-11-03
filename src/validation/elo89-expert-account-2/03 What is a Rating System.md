@@ -95,8 +95,8 @@ rating system, decisions are required about at least the following:
   the interpretation of a result;
 - **time:** how quickly new evidence changes the state and how old evidence
   persists;
-- **population:** how entry, departure, absence, return, divisions and weakly
-  connected groups are handled;
+- **population:** which competitors are represented at each point, and how
+  divisions and weakly connected groups are handled;
 - **outcome:** how states become expectations or probabilities;
 - **uncertainty:** whether the amount and quality of supporting evidence are
   represented; and
@@ -189,8 +189,8 @@ the complete forecasts with simple baselines and alternative models.
 Evaluation must respect time. A pre-bout state may use only information that
 would have been available before the bout. Performance should be examined not
 only in aggregate but across relevant periods and populations, especially
-where entrants, returning rikishi or sparse records may behave differently.
-Sensitivity to reasonable modelling alternatives should also be reported.
+for newly rated rikishi and ratings supported by sparse records. Sensitivity
+to reasonable modelling alternatives should also be reported.
 
 Prediction is powerful evidence because the claim can be contradicted by new
 outcomes. It is not, by itself, proof that the rating is the true cause or
@@ -247,10 +247,3 @@ take those simpler possibilities seriously. What, for example, would it mean
 to rate rikishi by the wins accumulated over the last six basho?
 
 That is the subject of the next chapter.
-
-## Working sources
-
-- `../../analysis/docs/story/02 Narrative and Validation Structure.md`
-- `../../analysis/docs/2026 09 11 Strength, Purpose and Model Bias - Lab Note.md`
-- `../../analysis/docs/2026 09 26 Chii and the Measurement of Strength.md`
-- `../../../docs/What It Means to Test a Sumo Model.md`

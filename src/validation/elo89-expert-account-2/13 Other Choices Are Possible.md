@@ -2,17 +2,16 @@
 
 ## A chosen model is not the only possible model
 
-Elo-89 is one explicit answer to a sequence of questions which the results do
-not answer automatically. It chooses bout-winning capacity as the target,
-represents that capacity by one changing scalar, updates it through an Elo
-residual, initialises from chii, varies responsiveness by division and anchors
-an open population with common shifts.
+Elo-89 is one explicit answer to questions which the results do not answer
+automatically. It chooses bout-winning capacity as the target, represents that
+capacity by one changing scalar, updates it through an Elo residual, assigns
+first ratings from chii, varies responsiveness by division and anchors an open
+population with common shifts.
 
-Other investigators may reasonably choose differently. That conclusion does
-not make every choice equally good or the evidence irrelevant. A useful
-alternative must say what it is trying to measure, define how observations
-produce its output, expose its assumptions and permit results to count against
-it.
+Other investigators may reasonably choose differently. That does not make
+every choice equally good or the evidence irrelevant. A useful alternative
+must say what it is trying to measure, define how observations produce its
+output, expose its assumptions and permit results to count against it.
 
 The alternative is not “subjective opinion” on one side and “the objective
 Elo-89 answer” on the other. Elo-89 itself embodies purposes and judgements.
@@ -25,13 +24,13 @@ Several quantities can all be interesting without being interchangeable:
 
 - **recent achievement**: wins accumulated over a declared window;
 - **success rate**: wins per represented bout;
-- **basho production**: credited wins per tournament entered;
+- **basho production**: credited wins per tournament appearance;
 - **official standing**: position and status on the banzuke;
 - **current bout-winning capacity**: estimated probability against specified
   opponents at a specified time;
 - **sustained dominance**: performance maintained over a longer interval;
-- **career greatness**: some declared combination of peak, duration,
-  achievement and opposition; and
+- **career greatness**: a declared combination of peak, duration, achievement
+  and opposition; and
 - **historical relative standing**: comparison within or across changing eras
   under a stated anchor.
 
@@ -40,8 +39,7 @@ poor answer to the fifth. A peak Elo rating can answer one definition of peak
 strength without settling career greatness. The banzuke can be authoritative
 for official standing without supplying cardinal distances between positions.
 
-Before changing the algorithm, an alternative should therefore complete the
-sentence:
+Before changing the algorithm, an alternative should complete the sentence:
 
 > This system is intended to estimate or summarise ______, for ______, using
 > ______ evidence, over ______ time and population boundaries.
@@ -56,8 +54,8 @@ remain useful when their limits are declared.
 
 | Method | Coherent interpretation | Principal limitation |
 | --- | --- | --- |
-| Wins in the last (n) basho | Recent credited production over a fixed tournament window | Entrants and absentees have unequal opportunities |
-| Wins in the last (m) bouts | Recent success rate over an equal bout count | Calendar duration and opponent populations differ |
+| Wins in the last \(n\) basho | Recent credited production over a fixed tournament window | Rikishi have unequal bout opportunities |
+| Wins in the last \(m\) bouts | Recent success rate over an equal bout count | Calendar duration and opponent populations differ |
 | Wins per basho | Production per tournament appearance | Definitions of appearance and absence matter |
 | Wins per bout | Observed strike rate | Ignores unequal opposition unless extended |
 | Follow the stronger chii | Use official ordering as the favourite | Chii gaps have no supplied probability geometry |
@@ -68,10 +66,10 @@ unique ranking. Their disagreements reveal that “performance” has multiple
 dimensions and denominators. They can serve as independent views and as
 baselines for more elaborate models.
 
-The existing chii probe, for example, found that the stronger chii won 52.637%
-of eligible unequal-chii bouts on its declared snapshot. That makes chii an
-informative baseline. It does not yet supply a calibrated probability model or
-a matched comparison showing whether its favourite wins more often than
+The chii probe, for example, found that the stronger chii won 52.637% of
+eligible unequal-chii bouts on its declared snapshot. That makes chii an
+informative baseline. It does not supply a calibrated probability model or a
+matched comparison showing whether its favourite wins more often than
 Elo-89's.
 
 ## Alternatives within the Elo family
@@ -81,68 +79,66 @@ one or more policies.
 
 ### Expectation rule
 
-Another system could choose a different q, fit q by division or maturity, use
-another monotone link, or add a home-like or contextual term where sumo evidence
-supports one. Such a change alters the meaning of a rating gap and must be
-evaluated as a new model, not merely a new display scale.
+Another system could choose a different \(q\), fit \(q\) by division or
+rating maturity, use another monotone link, or add a contextual term where
+sumo evidence supports one. Such a change alters the meaning of a rating gap
+and must be evaluated as a new model, not merely a new display scale.
 
 ### Responsiveness
 
-K could be constant, based on prior bout count, vary continuously with an
+\(K\) could be constant, based on prior bout count, vary continuously with an
 uncertainty estimate, respond to age or career stage, or be learned inside a
-dynamic model. Any rule faces the same trade-off between following real change
-and chasing random results. An appealing life-cycle story is not a substitute
-for later-bout evidence.
+dynamic model. Every rule faces the trade-off between following real change
+and chasing random results. An appealing career story is not a substitute for
+later-bout evidence.
 
 ### Initialisation
 
-Entrants could start equally, by division, by chii, through a contextual rank
-model, from amateur or collegiate evidence, or from a distribution rather than
-a point. A prior could be fixed once, estimated only from earlier data at each
-forecast origin, or allowed to evolve by era.
+First ratings could be equal, depend only on division, depend on chii, use a
+contextual rank model, incorporate amateur or collegiate evidence, or begin as
+a distribution rather than a point. A first-rating rule could be fixed once,
+estimated using only earlier data at each forecast origin, or allowed to vary
+by era.
 
 Each answer changes both early forecasts and the information entering the
-population. A prior fitted from future outcomes can be useful for historical
-reconstruction, but it must not be described as prospectively available at
-the earlier date.
+population. A table fitted from later outcomes can be useful for historical
+reconstruction, but it must not be described as prospectively available at an
+earlier date.
 
 Elo-89 fixes P1-WL on 30 October 2026 using represented results through the
-September 2026 basho. Alternative fitting boundaries can be investigated
-privately, but adopting one would revise the identified model rather than
-silently update its prior.
+September 2026 basho. Alternative fitting boundaries can be evaluated
+separately, but adopting one would revise the fitted artifact rather than
+silently update it.
 
-### Inactivity, departure and return
+### Inactivity and uncertainty
 
-A system could retain the last rating, decay it, shrink it toward an entrant
-prior, archive and restore it, widen uncertainty without moving the point, or
-treat specific administrative statuses separately. None follows automatically
-from non-appearance. Direction, rate and trigger all require specification.
+A system could leave the point estimate unchanged when no eligible bout
+occurs, widen uncertainty without moving the point, shrink an estimate toward
+a reference distribution, or model time evolution explicitly. It could also
+distinguish administrative statuses where the evidence supports doing so.
 
-Elo-89 now selects literal archive-and-restore: the inactive rating receives
-neither bout updates nor population shifts. It was modestly better than reset-
-to-prior in the controlled replay, particularly just after return. Decay,
-shrinkage and uncertainty growth remain genuine alternatives because they were
-not part of that comparison.
+None of these policies follows automatically from non-appearance. The
+direction, rate and trigger require specification. Elo-89 makes no individual
+bout update without an eligible result and does not represent uncertainty
+separately. Uncertainty growth, shrinkage and time evolution remain genuine
+alternatives because they have not been tested in a comparable sumo model.
 
 ### Population and anchoring
 
 The scale could be left floating, anchored by a fixed mean, tied to a reference
 group, normalised within divisions, linked through bridge bouts, or estimated
-in a model with explicit era effects. A current common shift may preserve
-current probabilities while still changing relationships with future entrants.
+in a model with explicit era effects. A common shift may preserve current
+probabilities while still changing relationships with later first ratings.
 Historical comparability must therefore be evaluated over the whole process,
 not inferred from one invariance theorem.
 
 ### Uncertainty and additional state
 
-Elo-89 deliberately stops at a point rating while the project establishes
-whether an Elo-like system is applicable to sumo. No successor is fixed in
-advance. A Glicko-like system maintaining both a point estimate and an
-uncertainty coordinate is one possible direction among the alternatives in
-this chapter. Merely attaching an evidential-support summary without changing
-updates would be a different proposal. If uncertainty affects updating, the
-rating path itself changes; if it is merely reported, the original Elo-89
-calculation remains intact.
+Elo-89 is a point-rating model. A Glicko-like system maintaining both a point
+estimate and an uncertainty coordinate is one possible alternative. Merely
+reporting an evidential-support summary without changing updates would be a
+different proposal. If uncertainty affects updating, the rating path itself
+changes; if it is only reported, the Elo-89 calculation remains intact.
 
 ### Matchup structure
 
@@ -159,46 +155,41 @@ Candidate families include:
 - batch Bradley--Terry-style fits over declared windows;
 - dynamic paired-comparison models with explicit latent evolution;
 - Bayesian state-space models which carry distributions rather than points;
-- TrueSkill-like multiplayer or uncertainty-aware constructions adapted to
-  the actual pairwise setting;
+- uncertainty-aware constructions adapted to the pairwise setting;
 - opponent-adjusted regression models; and
 - ensembles combining distinct signals where the combination is fixed and
   evaluated honestly.
 
 These names identify research directions, not completed alternatives in this
-repository. Each introduces its own choices about time, regularisation,
-population, missing evidence and interpretation. Greater sophistication does
-not guarantee better measurement or forecasting.
+repository. Each introduces choices about time, regularisation, population,
+missing evidence and interpretation. Greater sophistication does not
+guarantee better measurement or forecasting.
 
-The project has not performed a controlled comparison between Elo-89 and a
-materially different non-Elo family. It should not claim that Elo won such a
-contest.
+Elo-89 has not been compared under a common protocol with a materially
+different non-Elo family. It should not be described as having won such a
+comparison.
 
-## What has actually been compared here?
+## Which alternatives have actually been evaluated?
 
-The status of alternatives matters.
+The status of an alternative matters.
 
-| Alternative | Status in this project |
+| Question | Present status |
 | --- | --- |
-| Constant 50--50 probability | Direct scored baseline |
-| Basic Elo with common K and common initialisation | Direct scored comparator |
-| Constant versus divisional K | Controlled factorial comparison |
-| Constant versus informed initialisation | Controlled factorial comparison |
-| Older informed prior versus P1 | Retrospective predictive comparison |
-| No population adjustment, Expt2 departure redistribution and whole-population preservation | Direct final comparison with fixed P1 |
-| P1 versus outcome-complete P1-WL | Matched prior, predictive and downstream-artifact comparison; P1-WL selected |
-| Reset-to-prior versus frozen persistence on return | Controlled complete replay and return-window comparison; frozen persistence selected |
-| Chii-order favourite | Separate descriptive baseline on a later snapshot; not a matched probability comparison |
-| Elo-58 historical extension | Separate qualified research model, not a peer final-candidate test |
-| Different q values | Historical experiments exist, but no comprehensive final-contract selection grid |
-| Inactivity decay, shrinkage or uncertainty growth | Not evaluated as production comparators |
-| Uncertainty-aware Elo family | Not evaluated as a production comparator |
+| Does a rating model contain information beyond a neutral 50--50 probability? | Directly scored retrospectively |
+| Constant versus divisional \(K\) | Controlled retrospective comparison |
+| Equal versus informed first ratings | Controlled retrospective comparison |
+| No population adjustment versus whole-population preservation | Direct retrospective comparison with the first-rating input held fixed |
+| P1-WL as a first-rating table | Evaluated retrospectively within its fitting history and through the complete Elo-89 calculation |
+| Chii order as a favourite | Separate descriptive baseline, not a matched probability comparison |
+| Comprehensive \(q\) or expectation-curve search | Not performed for the final contract |
+| Uncertainty evolution during inactivity | Not evaluated comparatively |
+| Uncertainty-aware Elo family | Not evaluated comparatively |
 | Style or non-transitive interaction model | Not evaluated systematically |
-| Dynamic Bayesian or other non-Elo model | Not evaluated |
+| Dynamic Bayesian or another non-Elo family | Not evaluated |
 
-This table prevents two symmetrical errors: dismissing Elo-89 because an
-imagined alternative might be better, and defending it by implying that every
-alternative has already lost.
+This distinction prevents two symmetrical errors: dismissing Elo-89 because
+an imagined alternative might be better, and defending it by implying that
+every alternative has already lost.
 
 ## A fair comparison protocol
 
@@ -215,35 +206,37 @@ evaluation.
 ### 2. Freeze the complete contract
 
 Specify evidence eligibility, identity, chronology, state, initialisation,
-parameters, inactivity, return, population, anchoring and observation stage.
-“Use Glicko” or “use recent form” is no more reproducible than “use Elo”.
+parameters, treatment of inactivity and uncertainty, population, anchoring and
+observation stage. “Use Glicko” or “use recent form” is no more reproducible
+than “use Elo”.
 
 ### 3. Preserve chronological honesty
 
-A forecast at time (t) may use only information declared available before
+A forecast at time \(t\) may use only information declared available before
 that forecast. If later history is used to fit a retrospective artifact, say
 so and do not call the result out-of-sample.
 
 ### 4. Compare on matched evidence
 
-Models should forecast the same selected bouts from the same History snapshot
-where their claims permit it. Bout identities, exclusions and the input
-snapshot must be identified. A different dataset can answer a useful question,
-but not a paired superiority claim without further work.
+Models should forecast the same selected bouts from the same source-data
+snapshot where their claims permit it. Bout identities, exclusions and the
+input snapshot must be identified. A different dataset can answer a useful
+question, but not a paired superiority claim without further work.
 
 ### 5. Use relevant baselines and proper scores
 
-For probability models, include 50--50, Basic Elo and the incumbent Elo-89
-where appropriate. Report log and Brier loss, calibration and discrimination
-rather than winner accuracy alone. A deterministic favourite rule and a
-probability forecast should not be compared through whichever metric flatters
-one of them.
+For probability models, include 50--50, a simple Elo baseline and the incumbent
+Elo-89 where appropriate. Report log and Brier loss, calibration and
+discrimination rather than winner accuracy alone. A deterministic favourite
+rule and a probability forecast should not be compared through whichever
+metric flatters one of them.
 
 ### 6. Examine populations concealed by the aggregate
 
-Report maturity, division, cross-boundary, entry, return and historical-period
-subgroups fixed in advance where possible. An aggregate gain should not conceal
-a practically important population regression.
+Report rating maturity, division, cross-boundary, first-rating stage,
+inactivity and historical-period subgroups fixed in advance where possible.
+An aggregate gain should not conceal a practically important population
+regression.
 
 ### 7. Quantify uncertainty and sensitivity
 
@@ -253,10 +246,10 @@ record whether the conclusion survives.
 
 ### 8. Preserve artifacts and failure
 
-Save forecasts, parameters, source identities, code identity and evaluation
-outputs. Negative results are part of the research record. A model should not
-be repeatedly adjusted until a preferred ranking appears and then presented
-without its search history.
+Save forecasts, parameters, source identities, implementation version and
+evaluation outputs. Negative results are part of the research record. A model
+should not be repeatedly adjusted until a preferred ranking appears and then
+presented without its search history.
 
 ### 9. Obtain later evidence
 
@@ -266,11 +259,11 @@ must reconstruct every fitted component using only information then available.
 
 ## Improvement is multidimensional
 
-A proposed successor can be better in one sense and worse in another.
+A proposed alternative can be better in one sense and worse in another.
 
 - Lower log loss may accompany worse calibration in a particular group.
 - Faster response may increase rating noise.
-- Better entrant forecasts may use more institutional prior information.
+- Better first-rating forecasts may use more institutional information.
 - A stable historical scale may require a stronger anchoring assumption.
 - Explicit uncertainty may improve honesty while making the model harder to
   explain and maintain.
@@ -278,23 +271,25 @@ A proposed successor can be better in one sense and worse in another.
 
 The decision therefore needs a declared priority order and guardrails. Elo-89
 used aggregate log loss as primary, Brier loss as corroboration and subgroup
-calibration as a qualification. Another project may choose differently, but
-it should choose before inspecting which rule produces the preferred winner.
+calibration as a qualification. Another investigation may choose differently,
+but it should choose before inspecting which rule produces the preferred
+winner.
 
 ## When does an alternative need a new name?
 
 A changed system needs a distinct model identity when it can alter admitted
-evidence, forecasts, state updates, lifecycle, population operation or the
-meaning of the output. A new fitted prior or source snapshot also needs a new
-artifact identity even if the abstract model contract remains the same.
+evidence, forecasts, state updates, treatment of inactivity, population
+operation or the meaning of the output. A new fitted table or source snapshot
+also needs a distinct artifact or release identity even if the abstract model
+contract remains the same.
 
 Examples include:
 
-- `Elo-89 with P1-WL and archived return ratings`: the revised contract in
-  this account;
-- `Elo-89 with inactivity decay`: a different lifecycle model;
-- `Elo-89 with uncertainty-dependent K`: a different update model; and
-- `Elo-89 ratings rounded to integers`: the same model with a presentation
+- Elo-89 with a refitted P1-WL table: the same abstract first-rating rule with
+  a new fitted artifact which must be identified;
+- Elo-89 with an uncertainty coordinate: a different state model;
+- Elo-89 with uncertainty-dependent \(K\): a different update model; and
+- Elo-89 ratings rounded to integers: the same model with a presentation
   change, provided no rounded value is fed back into calculation.
 
 Names should make important differences retrievable. They need not encode the
@@ -302,10 +297,10 @@ entire specification, but they must point unambiguously to it.
 
 ## An invitation, not a claim of finality
 
-Elo-89 should be used because its present bounded claim is useful and supported,
-not because every alternative has been eliminated. Its contract and evidence
-make disagreement productive: another investigator can replace one choice,
-hold the others fixed and discover whether the result improves.
+Elo-89 should be used because its bounded claim is useful and supported, not
+because every alternative has been eliminated. Its contract and evidence make
+disagreement productive: another investigator can replace one choice, hold
+the others fixed and discover whether the result improves.
 
 The most valuable alternatives will not be those which merely produce a more
 agreeable all-time list. They will explain what new information or assumption
@@ -314,21 +309,10 @@ surprising results are allowed to stand.
 
 The final position of this account is therefore:
 
-> Elo-89 is the project's present, explicit and testable model of modern sumo
-> performance. It is neither a corrected banzuke nor the inevitable numerical
-> meaning of strength. Its present purpose is to establish whether an Elo-like
-> point-rating system is applicable. Glicko-like uncertainty, matchup structure,
-> responsiveness and the other alternatives discussed here remain open subjects.
-> They become advances when their purposes are clear, their contracts
-> reproducible and their claims better supported by relevant evidence.
-
-## Working sources
-
-- `../../analysis/docs/2026 09 11 Strength, Purpose and Model Bias - Lab Note.md`
-- `../../analysis/docs/2026 09 26 Chii and the Measurement of Strength.md`
-- `../../analysis/docs/story/12 Elo-family Model Lineage and Analysis Triage.md`
-- `../../analysis/docs/story/22 Elo-89 Rating System Appraisal.md`
-- `../../analysis/elo_model_selection/README.md`
-- `../../analysis/chii_prediction/docs/Findings.md`
-- `../../analysis/toy_elo/README.md`
-- `../../analysis/README.md`
+> Elo-89 is the present explicit and testable point-rating account of modern
+> sumo performance. It is neither a corrected banzuke nor the inevitable
+> numerical meaning of strength. Glicko-like uncertainty, matchup structure,
+> alternative responsiveness and the other models discussed here remain open
+> subjects. They become advances when their purposes are clear, their
+> contracts reproducible and their claims better supported by relevant
+> evidence.

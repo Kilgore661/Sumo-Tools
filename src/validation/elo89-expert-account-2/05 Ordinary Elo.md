@@ -168,7 +168,7 @@ With \(q=400\), useful landmarks are:
 | +400 | 90.9% |
 
 A rating difference has no complete probability interpretation without its
-q. The probability depends on the dimensionless ratio \(d/q\).
+\(q\). The probability depends on the dimensionless ratio \(d/q\).
 
 ## The sign and size of an update
 
@@ -208,7 +208,7 @@ and hence
 \]
 
 The winner always rises and the loser always falls. The changes can approach
-K in magnitude but cannot equal it at a finite rating difference.
+\(K\) in magnitude but cannot equal it at a finite rating difference.
 
 Equations (5.11) and (5.13) also formalise “surprise”. A win receives more
 credit when its pre-contest probability was smaller; a loss costs more when
@@ -239,9 +239,9 @@ R'_A+R'_B=R_A+R_B.
 The contest redistributes rating points between the two competitors without
 creating or destroying them. Repeating the argument shows that bout updates
 preserve the total rating of a fixed, closed set of competitors when every
-contest occurs within that set and every update uses the same K.
+contest occurs within that set and every update uses the same \(K\).
 
-The common-K condition is essential to this theorem. Replacing K with
+The common-K condition is essential to this theorem. Replacing \(K\) with
 competitor-specific values changes the equations, and (5.15) no longer follows
 in general. The reasons for making such a change are not part of ordinary Elo
 as defined here.
@@ -275,9 +275,8 @@ A\text{ wins}\implies F(d')>F(d),
 A\text{ loses}\implies F(d')<F(d).
 \]
 
-The update does not ordinarily reverse the complete accumulated comparison
-after one contest. Whether it can do so in a particular case follows from the
-sizes of \(d\), K and the residual.
+Movement towards the winner need not reverse the ordering after one contest.
+Whether it does depends on the sizes of \(d\), \(K\) and the residual.
 
 ## Expected change under the model
 
@@ -410,8 +409,8 @@ so the probabilities are unchanged. The transformed update is
 \]
 
 Thus the transformed process is the same process expressed in different
-rating units. The numerical sizes of q, K and the ratings must be interpreted
-together; none supplies an independent physical unit.
+rating units. The numerical sizes of \(q\), \(K\) and the ratings must be
+interpreted together; none supplies an independent physical unit.
 
 Combining a positive rescaling with a common shift gives the general affine
 change of coordinates
@@ -466,10 +465,3 @@ through time appropriately. Those are questions about the model of competition
 embodied by the equations.
 
 That is the subject of the next chapter.
-
-## Working sources
-
-- `../../products/make_site89/docs/Elo89 Account - 03 From Rating Differences to Winning Chances.html`
-- `../../products/make_site89/docs/Elo89 Account - 04 Learning from Results - The Update Rule.html`
-- `../../products/make_site89/prose/Elo Ratings.html`
-- `../../analysis/docs/story/06 Draft Standard Elo Account for the STEM Reader.md`

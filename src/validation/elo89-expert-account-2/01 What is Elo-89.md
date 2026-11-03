@@ -38,10 +38,8 @@ In outline, Elo-89:
 - begins with the substantially represented record in January 1989—the source
   of “89” in its name;
 - uses paired binary win/loss results selected under a declared bout policy;
-- gives a newly represented rikishi an initial rating derived from his
-  banzuke position through a fixed table called **P1-WL**;
-- freezes an established rating outside the active population and restores it
-  if that rikishi later returns;
+- assigns a first rating to a rikishi without an existing rating from his
+  banzuke position, using a fixed table called **P1-WL**;
 - makes ratings more or less responsive according to broad rank group through
   a divisional **K** schedule; and
 - applies common shifts to keep the represented population centred on a fixed
@@ -54,12 +52,11 @@ the displayed level of every affected rating but preserves all rating
 differences—and hence all model probabilities—at that instant. It does not
 make questions of comparison through historical time disappear.
 
-Elo-89 is deliberately a point-rating model. At this stage the project is
-testing whether an Elo-like system is a useful way to represent sumo results;
-it does not yet try to represent how uncertain each individual rating is. If
-the Elo-like approach proves applicable, uncertainty-aware systems, including
-Glicko-like systems, are one possible subject for later investigation alongside
-the other open modelling questions considered in this account.
+Elo-89 is deliberately a point-rating model. It does not separately represent
+how uncertain each individual rating is: two equal ratings have the same
+numerical effect even if one rests on much more evidence than the other.
+Uncertainty-aware systems, including Glicko-like systems, are possible
+alternatives, but they are not part of Elo-89.
 
 ## What does an Elo-89 number claim to represent?
 
@@ -104,9 +101,3 @@ is the banzuke already a rating system, and in what sense are Elo-89 and the
 banzuke doing different jobs?
 
 That is the subject of the next chapter.
-
-## Working sources
-
-- `../../products/make_site89/docs/2026 10 19 Elo-89 Ratings Narrative Handoff.md`
-- `../../products/make_site89/prose/Elo-89 Ratings.html`
-- `../../analysis/elo89/replay.py`

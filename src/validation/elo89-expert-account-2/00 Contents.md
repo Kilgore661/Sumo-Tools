@@ -6,6 +6,12 @@ This is the current **top copy** of the expert-facing account and is considered
 complete as of 30 October 2026. It preserves the earlier account and
 incorporates the accepted P1-WL and frozen-persistence decisions. See
 [Revision Provenance](Revision%20Provenance.md).
+Chapter-level research provenance is collected separately in
+[Working Sources](Working%20Sources.md).
+The pre-review Chapter 10 has also been retained as an
+[Elo-89 Development and Decision Narrative](Elo-89%20Development%20and%20Decision%20Narrative.md).
+It and the other non-chapter documents in this folder will be reviewed after
+the numbered account is complete.
 
 The aim is to write a complete account first. Once its definitions, argument,
 evidence and criticism are satisfactory, relevant portions can be adapted for
@@ -89,13 +95,13 @@ What is Elo-89?
    observation stages.
 
 10. [Why Elo-89 Makes Those Choices](10%20Why%20Elo-89%20Makes%20Those%20Choices.md)
-    Explain what was selected by evidence, accepted as a modelling judgement,
-    inherited for continuity or left unresolved.
+    Explain what is supported empirically, accepted as a modelling judgement,
+    required for reproducibility or left as an open question.
 
 11. [Critique of Elo-89](11%20Critique%20of%20Elo-89.md)
     Assess one-dimensional strength, point uncertainty, P1-WL's future-
-    informed fitting period, normalisation, drift, frozen but stale ratings, immature ratings,
-    historical interpretation and known limitations.
+    informed fitting period, normalisation, drift, inactivity, immature
+    ratings, historical interpretation and known limitations.
 
 12. [What Has and Has Not Been Established?](12%20What%20Has%20and%20Has%20Not%20Been%20Established.md)
     Separate definitions, mathematical consequences, empirical findings,

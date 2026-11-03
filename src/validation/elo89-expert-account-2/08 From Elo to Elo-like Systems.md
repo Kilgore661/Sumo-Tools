@@ -9,13 +9,14 @@ to run a historical rating system. The equations do not select the evidence,
 initialise the recurrence or define the population.
 
 Those surrounding choices are sometimes described as implementation details.
-That description is unsafe. Change the entrant rating, the K policy or the
-population operation and later ratings can change. Change the admissible bouts
-or their order and the recurrence processes different evidence. The resulting
-systems may all inherit the Elo idea, but they are not the same model.
+That description is unsafe. Change the first-rating rule, the \(K\) policy or
+the population operation and later ratings can change. Change the admissible
+bouts or their order and the recurrence processes different evidence. The
+resulting systems may all inherit the Elo idea, but they are not the same
+model.
 
 This account therefore uses **ordinary Elo** for the binary, logistic,
-common-K equations studied in Chapter 5, and **Elo-like system** for a complete
+common-\(K\) equations studied in Chapter 5, and **Elo-like system** for a complete
 rating system built around recognisably the same expectation-and-update idea.
 
 ## A working definition
@@ -59,14 +60,14 @@ records into a sequence of states. Its main choice axes include the following.
 | Evidence domain | Which contests and results are represented? | It defines what the rating is evidence about and which updates occur. |
 | Epoch | When does the recurrence begin? | It creates the initial-state problem and limits the history the model can have learned. |
 | Identity | What counts as the same continuing competitor? | Merged or split identities alter the state carried into later contests. |
-| Outcome representation | Are wins, losses, draws, absences and administrative results distinct? | The numerical score supplied to the update depends on this classification. |
+| Outcome representation | Are wins, losses, draws and administrative results distinct? | The numerical score supplied to the update depends on this classification. |
 | Expectation rule | How do state differences become expected scores, and what scale parameter is used? | It determines the meaning of a rating gap. |
-| Update policy | Is K constant, divisional, experience-dependent or otherwise variable? | It controls responsiveness and may change conservation properties. |
-| Initialisation | What state is assigned at the epoch and on later entry? | It determines the forecast before contest evidence has accumulated. |
+| Update policy | Is \(K\) constant, divisional, experience-dependent or otherwise variable? | It controls responsiveness and may change conservation properties. |
+| Initialisation | What state is assigned at the epoch or whenever no existing state is available? | It determines the forecast before contest evidence has accumulated. |
 | Chronology | In what order are contests processed, and are updates immediate or grouped into rating periods? | Sequential Elo is generally order-dependent. |
-| Persistence | What happens during absence, departure and return? | It determines which old evidence survives and when a competitor is treated as new. |
-| Population | Who belongs to the rated population at each point? | Entry and removal affect population summaries and any population-level operation. |
-| Scale control | Is the scale allowed to float, or is some location or distribution anchored? | It affects longitudinal interpretation and, through later entry, can affect future differences. |
+| Inactivity | Does state or uncertainty change when no represented contest occurs? | It determines what, if anything, the passage of time without contest evidence changes. |
+| Population | Who belongs to the rated population at each point? | Adding or removing ratings affects population summaries and any population-level operation. |
+| Scale control | Is the scale allowed to float, or is some location or distribution anchored? | It affects longitudinal interpretation and can affect future differences when later ratings are assigned from a fixed prior. |
 | Uncertainty | Is there only a point state, or is evidential precision represented separately? | Equal printed ratings need not be equally well supported. |
 | Observation | At what stage is a rating exposed: before a bout, after a bout, at basho end or at another boundary? | Different snapshots can all be correct states of the same recurrence. |
 
@@ -85,20 +86,21 @@ the word Elo does not supply them.
 
 The table is a checklist, not a set of independent switches.
 
-The expectation scale and K are expressed in rating units. Rescaling the
+The expectation scale and \(K\) are expressed in rating units. Rescaling the
 rating coordinate while transforming both consistently can describe the same
 dynamics, whereas changing only one changes the model.
 
-Common K makes each ordinary two-player update zero-sum. Giving the two
+Common \(K\) makes each ordinary two-player update zero-sum. Giving the two
 competitors unequal gains generally removes that theorem. A policy introduced
 to make one group more responsive can therefore also alter population
 accounting.
 
-An entrant prior and a population anchor also interact. A common additive
-shift applied to every current rating preserves all current rating differences
-and hence all current Elo probabilities. It is not necessarily neutral over
-the whole future history. If later entrants continue to receive ratings from a
-fixed external prior, their differences from the shifted incumbents change.
+An initialisation prior and a population anchor also interact. A common
+additive shift applied to every current rating preserves all current rating
+differences and hence all current Elo probabilities. It is not necessarily
+neutral over the whole future history. If competitors receiving their first
+ratings continue to receive them from a fixed external prior, their
+differences from the shifted incumbents change.
 
 Evidence and fitting interact as well. A prior estimated using later career
 information may be useful for retrospective reconstruction, but it cannot be
@@ -107,26 +109,24 @@ same contests help construct a parameter and then assess it, the evaluation
 must account for that information reuse.
 
 These interactions are why a model cannot safely be described by mentioning
-only its most conspicuous modification, such as “divisional K” or “rank-based
+only its most conspicuous modification, such as “divisional \(K\)” or “rank-based
 initialisation”.
 
 ## When does a choice make a different model?
 
-For this project, a change defines a materially different model when it can
-change at least one of the following:
+A change defines a materially different model when it can change at least one
+of the following:
 
 - which evidence is admitted or how it is represented;
 - the forecast assigned before a represented contest;
 - the state produced after it;
-- the state carried across entry, absence, departure or return; or
+- the state retained during periods without represented contests; or
 - the intended interpretation of the resulting number.
 
 This criterion is intentionally stricter than asking whether two runs happen
-to print different values in one table. A correction to code may change the
-output while restoring the same intended model contract. Conversely, two
-policies may produce identical values on a particular dataset but remain
-different models because they would diverge when the triggering condition
-occurred.
+to print different values in one table. Two policies may produce identical
+values on a particular dataset but remain different models because they would
+diverge when the triggering condition occurred.
 
 Presentation alone need not define a new rating model. Rounding a displayed
 value or choosing a chart colour changes the publication, not the recurrence.
@@ -134,8 +134,8 @@ But selecting a pre-bout instead of post-bout state changes which model state
 the publication claims to show and must be named in the observation contract.
 
 The practical rule is simple: if a choice could change the evidence, forecast,
-update, persistence or meaning, it belongs in the specification and should be
-versioned deliberately.
+update, retained state or meaning, it belongs in the specification and should
+be versioned deliberately.
 
 ## Three things must be frozen
 
@@ -143,17 +143,18 @@ A reproducible published rating requires more than a model name.
 
 | Layer | What must be frozen | Examples |
 | --- | --- | --- |
-| Model contract | The rules which map admissible history and parameters to states | evidence domain, expectation equation, K policy, entry and population rules |
-| Fitted artifact | Numerical inputs learned or selected outside the recurrence | an entrant-prior table, fitted coefficients, source-data and code identity |
-| Run and observation contract | The concrete history processed and the state exposed | data cut-off, ordering, snapshot boundary, rounding and release identifier |
+| Model contract | The rules which map admissible history and parameters to states | evidence domain, expectation equation, \(K\) policy, initialisation and population rules |
+| Fitted artifact | Numerical inputs learned or selected outside the recurrence | a first-rating table and fitted coefficients |
+| Run and observation contract | The concrete history processed and the state exposed | source-data release, data cut-off, ordering, snapshot boundary, rounding and release identifier |
 
 The distinction prevents several ambiguities.
 
-A fitted prior table is not the general rule which says how the table will be
-used. Re-estimating that table under the same fitting procedure may create a
-new artifact and new ratings without changing the abstract model contract. A
-publication can also select a different valid observation point without
-changing the internal recurrence, although it has changed what readers see.
+A fitted first-rating table is not the general rule which says how the table
+will be used. Re-estimating that table under the same fitting procedure may
+create a new artifact and new ratings without changing the abstract model
+contract. A publication can also select a different valid observation point
+without changing the internal recurrence, although it has changed what
+readers see.
 
 For serious comparison, all three layers need identities. A convenient short
 name can point to them, but it cannot replace them.
@@ -161,21 +162,8 @@ name can point to them, but it cannot replace them.
 ## Names are claims about contracts
 
 “Elo” is therefore too broad to be a reproducible model name. Even a compact
-label such as “divisional-K plus prior” identifies a family unless the values,
+label such as “divisional-\(K\) plus prior” identifies a family unless the values,
 construction and surrounding population policies are fixed.
-
-The repository's research lineage illustrates the point. Basic Elo and the
-experimental variants which added divisional K, informed initialisation or
-both were valuable comparators. They established that the choice of prior had
-a material effect in the tested history and that the K policy had a smaller
-but still model-defining effect. They did not thereby define every later
-population, persistence or publication rule.
-
-Research names should accordingly preserve lineage without pretending that
-an experiment is the current production contract. A candidate can be the
-ancestor of a published model without being interchangeable with it. Evidence
-obtained from a candidate remains evidence about that candidate unless the
-relevant equivalence has been shown.
 
 ## Elo-89 is one specified member of the family
 
@@ -184,28 +172,18 @@ an expected result, and each represented result updates the competitors'
 states according to its surprise. Its identity, however, comes from the whole
 contract rather than from that core alone.
 
-The epoch, bout domain, rating scale, divisional K policy, entrant prior,
-population normalisation, departure and return rules, chronology and
+The epoch, bout domain, rating scale, divisional \(K\) policy, first-rating
+rule, population normalisation, treatment of inactivity, chronology and
 observation stages together determine what an Elo-89 rating is. Some of those
 choices respond to the difficulties identified in Chapter 7. Others are
 pragmatic judgements or boundaries of the available evidence. None follows
 merely from writing down the ordinary Elo equations.
 
-For the successor Elo-89 contract, those axes now include positive binary-W/L
-eligibility irrespective of kimarite, the epsilon-10 P1-WL entrant artifact,
-and literal frozen persistence across absence from the represented active
-population. Those are selected rules, not examples of alternatives still left
-open. Chapters 9 and 10 state their mechanics and evidential basis.
+The contract includes the definition of an eligible result, the P1-WL
+first-rating table, and an unchanged point rating when no eligible result
+occurs. These are selected rules, not examples of alternatives still left
+open.
 
 Chapter 9 states that exact contract. Chapter 10 then asks why those choices
-were made and distinguishes empirical selection from modelling judgement,
-inheritance and unresolved work.
-
-## Working sources
-
-- `../../analysis/docs/Elo-family Named Model Table.html`
-- `../../analysis/docs/story/12 Elo-family Model Lineage and Analysis Triage.md`
-- `../../analysis/docs/story/15 Tranche 1 - Population Normalisation Policy.md`
-- `../../analysis/elo_model_selection/README.md`
-- `../../analysis/elo_model_selection/docs/Results 1.md`
-- `../../analysis/README.md`
+were made and distinguishes empirical selection from modelling judgement and
+unresolved work.

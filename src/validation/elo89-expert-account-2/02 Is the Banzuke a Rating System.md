@@ -40,8 +40,7 @@ able to compete.
 
 None of this requires us to treat chii as “mere labels”. Chii contain valuable
 information about performance. Elo-89 itself acknowledges that information:
-its P1-WL table uses banzuke position when a rikishi first enters the
-represented rating population. 
+its P1-WL table uses banzuke position when a rikishi receives his first rating.
 
 The narrower question is whether the information in chii already supplies the
 kind of measure that Elo-89 is intended to construct.
@@ -67,10 +66,8 @@ are statuses with special promotion and retention histories. Sekiwake and
 Komusubi are named ranks. The divisions below them contain numbered positional
 lists, while division boundaries can mark substantial institutional changes.
 East and west distinguish places within nominal ranks. Writing all of these in
-one sequence is useful for ordering and software, but it does not reveal a
-uniform geometry of strength hidden inside the hierarchy.
-
-
+one sequence provides a convenient ordering, but it does not reveal a uniform
+geometry of strength hidden inside the hierarchy.
 
 ## The banzuke preserves a path
 
@@ -109,7 +106,7 @@ does not mean whim or arbitrariness. Nor does the presence of judgement make
 the resulting positions less official or less meaningful.
 
 Elo-89 also embodies judgement. People chose its evidence, probability curve,
-update rates, entrant policy, population policy and observation points. A
+update rates, initialisation policy, population policy and observation points. A
 mechanical calculation does not escape those decisions. Its distinctive
 property is that the decisions are fixed in advance as an explicit model.
 Once the model version and input record are fixed, the same calculation can be
@@ -135,13 +132,11 @@ views together tell a richer story than either alone. No discrepancy, by
 itself, identifies which explanation is correct.
 
 The comparison also needs one important qualification: Elo-89 is not wholly
-independent of chii. P1-WL uses banzuke position to initialise a rikishi on
-first entry. Early agreement between his rating and chii is therefore partly
-built into the model. Subsequent eligible results can move the rating away
-from that starting value, but agreement with the banzuke cannot be treated as
-uncontaminated validation of Elo-89. Return after a represented gap is
-different: the established rating is restored rather than replaced by the
-new chii's prior.
+independent of chii. P1-WL uses banzuke position when a rikishi's first rating
+is assigned. Early agreement between his rating and chii is therefore partly
+built into the model. Subsequent eligible results can reduce the influence of
+that starting value, but agreement—especially for a rating supported by few
+results—cannot be treated as independent validation of Elo-89.
 
 Conversely, disagreement is not automatically evidence in Elo-89's favour.
 The rating may omit relevant context, respond at the wrong rate, rest on too
@@ -166,10 +161,3 @@ question. What, in fact, is a rating system? What must its numbers mean, what
 work should they do, and by what standards should we call the system good?
 
 That is the subject of the next chapter.
-
-## Working sources
-
-- `../../products/make_site89/prose/Why ratings.html`
-- `../../products/make_site89/docs/Elo89 Account - 02 Why Ratings When We Already Have Chii.html`
-- `../../analysis/docs/2026 09 26 Chii and the Measurement of Strength.md`
-- `../../products/make_site89/prose/Elo-89 vs Chii.html`

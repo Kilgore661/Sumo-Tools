@@ -2,7 +2,7 @@
 
 ## What the name denotes
 
-**Elo-89**, written (E_{89}), is the project's selected numerical rating
+**Elo-89**, written \(E_{89}\), is the selected numerical rating
 system for the sufficiently complete represented sumo record beginning in
 January 1989.
 
@@ -10,12 +10,11 @@ The name denotes the complete contract in this chapter, not merely the Elo
 probability equation. In particular it denotes:
 
 - a January 1989 epoch and a chronological binary-result stream;
-- one carried point rating for each active rikishi and a frozen rating for
-  each inactive rikishi who has previously been rated;
-- the (q=400) logistic expectation rule;
-- a rank-level K schedule;
-- first-entry initialisation from the frozen P1-WL entrant-prior artifact;
-- frozen persistence across absence from the active population;
+- one stored point rating for each previously rated rikishi;
+- the \(q=400\) logistic expectation rule;
+- a rank-level \(K\) schedule;
+- first-rating initialisation from the fixed P1-WL table;
+- no rating change while a rikishi is outside the active population;
 - common start- and end-of-basho shifts which preserve a fixed active-
   population mean; and
 - defined pre-bout, post-bout, day-end and basho-boundary observations.
@@ -27,63 +26,57 @@ style interaction or explicit model of torikumi selection.
 
 | Component | Elo-89 rule |
 | --- | --- |
-| Model identifier | `elo-89` / (E_{89}) |
-| Epoch | The supplied history must begin at `1989/01` |
+| Model | Elo-89 / \(E_{89}\) |
+| Epoch | January 1989 |
 | End | The last basho in the particular represented history; not fixed by the model name |
-| Competitor identity | Stable `RikId`, not shikona |
+| Competitor identity | Stable rikishi identifier, not shikona |
 | Rated result | Every represented result whose outcome pair is exactly W/L |
 | Excluded result | Paired fusen outcomes FS/FP; every other non-W/L outcome |
-| Expectation scale | (q=400) |
-| K | 10 for Y/O/S/K; 15 for M; 25 for J; 35 below Juryo |
-| Entrant rating | Frozen paired P1-WL value for the current chii |
+| Expectation scale | \(q=400\) |
+| \(K\) | 10 for Yokozuna/Ozeki/Sekiwake/Komusubi; 15 for Maegashira; 25 for Juryo; 35 below Juryo |
+| First rating | Fixed paired P1-WL value for the current chii |
 | Active population | Banzuke members |
-| Departure | The literal rating is archived; it receives no bout update or population shift while inactive |
-| Return | The frozen rating is restored before the ordinary start-of-basho shift |
+| Inactivity | A stored rating receives no bout update or population shift while its rikishi is outside the active population |
 | Target mean | Raw mean of the first non-empty active population after P1-WL initialisation |
 | Population operation | One common shift to the target before the basho and another after its bouts |
-| Bout chronology | Basho, then day, then canonical rikishi pair |
-| Published internal observations | Basho start, pre- and post-bout, day end, and normalised basho end |
+| Bout chronology | Basho, then day |
+| Defined observations | Basho start, pre- and post-bout, day end, and normalised basho end |
 
 The rest of the chapter makes each line precise.
 
 ## Inputs and time domain
 
-An Elo-89 replay consumes:
+An Elo-89 calculation requires:
 
-1. a `History` whose first represented basho is January 1989;
+1. represented history beginning in January 1989;
 2. an inclusive final basho determined by that history;
-3. the paired P1-WL prior table; and
-4. the fixed K configuration.
+3. the paired P1-WL first-rating table; and
+4. the fixed \(K\) schedule.
 
-The producer rejects a history whose first sorted date is not `1989/01`. It
-does not require one permanent final date: extending the site through a later
-basho means running the same model over a longer history. A reproducible
-release must therefore record its data cut-off as well as the model name.
+The model does not require one permanent final date: extending the represented
+record through a later basho means applying the same model to a longer
+history. A reproducible release must therefore record its data cut-off as well
+as the model name.
 
 Basho are processed in increasing date order. Within a basho, represented days
-are processed in increasing day order. Within a day, eligible bouts are
-ordered by the canonical pair of `RikId` values. In an ordinary torikumi,
-same-day bouts are disjoint and their relative order has no effect. The
-canonical ordering nevertheless makes the result deterministic if the data
-ever contain multiple eligible appearances by one rikishi on one day.
+are processed in increasing day order. In an ordinary torikumi, same-day bouts
+are disjoint, so their relative processing order has no effect.
 
 There is no update merely because calendar time passes. Only the explicit
 population operations and represented W/L results change ratings.
 
 ## The rated-result domain
 
-For every represented result in the inclusive replay interval, Elo-89 examines
+For every represented result in the calculation period, Elo-89 examines
 the pair of recorded outcomes.
 
 - Exactly one W and one L produces a rated bout.
 - An FS/FP pair is counted as an excluded fusen and produces no update.
 - Every other outcome combination is excluded as a non-binary result.
 
-A known W/L result remains eligible when its kimarite or decision text is
-blank. No result is inferred where the represented history has none.
+No result is inferred where the represented history has none.
 
-The rated bout is put into canonical participant orientation. If the lower
-`RikId` is designated A, its score is
+For either participant designated A, the score is
 
 \[
 s_A=
@@ -94,101 +87,64 @@ s_A=
 \tag{9.1}
 \]
 
-The orientation has no substantive effect; it provides deterministic bout
-identity and output order.
-
-## P1-WL: the entrant-prior artifact
+## P1-WL: the first-rating table
 
 P1-WL answers a narrow question: what rating should Elo-89 assign before a
-rikishi has ever had a carried Elo-89 rating? It is a table indexed by banzuke
-chii, not a table of the current abilities of the rikishi occupying those
-chii. It is not used again merely because an established rikishi has been
-absent.
+rikishi has ever had an Elo-89 rating? It is a table indexed by banzuke chii,
+not a table of the current abilities of the rikishi occupying those chii. A
+rikishi who already has a stored rating is not assigned another first rating.
 
-The replay consumes a frozen **paired P1-WL table**. It does not estimate that
-table again while calculating Elo-89. For a represented chii, annotations are
-removed and east and west values belonging to the same rank pair are averaged
-without support weights. Numbered positions above Maegashira are collapsed to
-their level's first position by the retained rank-family policy. This produces
-one value for labels such as Y, O, S, K, M1, J1 and so on.
+Elo-89 uses a fixed **paired P1-WL table**. It does not estimate that table
+again while calculating ratings. East and west values belonging to the same
+rank pair are averaged, and numbered positions above Maegashira are treated as
+the same rank level. This produces one value for labels such as Y, O, S, K,
+M1, J1 and so on.
 
-The table was fixed on **30 October 2026** from the represented Elo-89 history
-through the September 2026 basho. Results from November 2026 onward do not
-alter it. A never-rated rikishi appearing after the freeze date still receives
-the applicable value from this same table. Choosing a different fitting
-boundary would create a different prior artifact and would require an explicit
-revision of the model account; it is not part of an ordinary replay extension.
+Every chii to which the model is applied must have a P1-WL value; a
+neighbouring rank is not substituted for a missing value.
 
-If a represented chii maps to no P1-WL entry, the replay fails;
-it does not silently choose a neighbouring rank.
+### How the table was obtained
 
-### How the frozen source table was produced
+P1-WL was estimated retrospectively from represented post-1988 results by
+relating ratings to banzuke chii. Its purpose is to give a first rating that is
+closer to the level indicated by the banzuke, thereby reducing initialisation
+lag.
 
-The side-specific source for P1-WL was constructed by a separate iterative
-procedure over the post-1988 history:
+The table was fixed on **30 October 2026** using history through the September
+2026 basho. Later results do not alter it, and a rikishi receiving his first
+rating after the freeze date receives a value from this same table. Within the
+fitted period P1-WL is future-informed: later career results contributed to
+values used for earlier first ratings. Agreement between those ratings and
+chii during that period is therefore not independent validation. From
+November 2026 onward, P1-WL acts as a fixed prior because subsequent results
+did not contribute to its construction. A different fitting boundary would
+define a different first-rating table.
 
-1. every chii in the producer's represented domain starts at 1,517;
-2. the history is replayed with (q=400), the retained K schedule and the
-   legacy departure-redistribution population rule;
-3. basho-start ratings are pooled by chii and averaged to obtain a revised
-   chii map;
-4. enough correction mass to restore an unweighted map mean of 1,517 is
-   allocated among chii in proportion to their observation counts; and
-5. the revised map becomes the entrant table for the next pass.
+The detailed fitting procedure and the fixed values are available in the
+repository. They are inputs to Elo-89 rather than additional steps in its
+recurrence.
 
-The accepted run stopped after 18 passes when the maximum change between
-successive maps was 9.7278 points, below its ten-point stopping tolerance. It
-contained 975 side-specific chii values. The stopping rule establishes what
-artifact was produced; it is not a theorem of unique or exact convergence.
+## Active population and stored ratings
 
-Unlike its predecessor P1, the P1-WL producer admits every represented binary
-W/L result without requiring a populated kimarite. In the accepted post-1988
-history this adds 33,521 rated results, all in Makushita and below; it rates
-581,634 results in total, excludes 3 other non-binary results and excludes
-3,034 paired fusen results. Within the fitted history, P1-WL is future-informed:
-later history contributed to the table used to initialise earlier entrants.
-For results from November 2026 onward it is instead a fixed prior, because
-those results cannot contribute to its construction. These are properties of
-the fitted artifact, not hidden steps in the Elo-89 recurrence.
-
-P1-WL was compared with P1 over the same history. Its complete-replay mean log
-loss was 0.675290 and its Brier score was 0.241185; the differences from P1
-were small and slightly favoured P1-WL on those two measures, while raw
-accuracy slightly favoured P1. The comparison supports P1-WL as an acceptable
-replacement. It does not establish that the fixed-point construction or its
-ten-point stopping tolerance is uniquely optimal.
-
-The separation is essential. Feeding Elo-89's whole-population operator back
-into the literal-chii fixed-point procedure produced unstable extreme values
-at low-support chii. Elo-89 therefore holds externally produced P1-WL fixed.
-
-## Active population and lifecycle
-
-Let (A_t) be the active population for basho (t). In the retained replay,
+Let \(A_t\) be the active population for basho \(t\):
 
 \[
-A_t={\text{rikishi on the basho banzuke}\}.
+A_t=\{\text{rikishi on the basho banzuke}\}.
 \tag{9.2}
 \]
 
-Before basho (t), the literal rating of every rikishi in
-(A_{t-1}\setminus A_t) is moved to an inactive archive. An archived rating
-receives no bout update and no common population shift. If its rikishi later
-returns to (A_t), that same literal number is restored before the ordinary
-start-of-basho shift. Only a rikishi with neither a carried nor an archived
-rating is initialised from P1-WL using his chii for basho (t).
+At each basho, every member of \(A_t\) who already has a stored rating
+continues from that rating. A member without a stored rating receives the
+P1-WL value for his chii in basho \(t\). A stored rating belonging to a rikishi
+outside \(A_t\) receives neither bout updates nor common population shifts.
 
 A banzuke member remains active even if he has no rated bout in that basho.
 His rating participates in both population shifts but receives no bout update.
 
-The rule models absence of new information: no represented competition means
-no rating update. It does not claim that underlying ability was literally
-constant during the absence. A census found 437 return events involving 365
-rikishi; 436 were Jk-to-Jk and 424 had explicit Mz status. A controlled replay
-found no invariant violation and modest predictive improvement from freezing,
-especially immediately after return. The rule is therefore evidence-supported
-and conceptually coherent, while uncertainty growth or decay during absence
-remains unmodelled.
+The rule models absence of new contest information: without a represented
+eligible result, there is no bout update. It does not claim that underlying
+ability was literally constant, and Elo-89 does not model any growth in
+uncertainty during inactivity.
 
 ## The fixed target mean
 
@@ -200,20 +156,18 @@ has been initialised from P1-WL, Elo-89 calculates
 \tag{9.3}
 \]
 
-This becomes the target mean for the entire run. It is not the 1,517 mean used
-inside the upstream P1-WL producer and it is not a separately chosen round
-number. It depends on the first active population and the frozen paired prior.
-Its numerical value is therefore a consequence of the stated inputs; the
-definition is Equation 9.3 rather than a permanently specified round number.
+This becomes the target mean for the entire calculation. It is not a
+separately chosen round number. It depends on the first active population and
+the fixed paired first-rating table, so its numerical value is a consequence
+of the stated inputs.
 
 At the first basho, the raw active mean already equals the newly defined
 target, so the first start adjustment is zero.
 
 ## Start-of-basho population operation
 
-Once departures have been archived, returns restored and entrants initialised,
-calculate the raw
-active mean
+Once \(A_t\) has been formed and members without stored ratings have been
+initialised, calculate the raw active mean
 
 \[
 \bar R_t^{\mathrm{raw,start}}
@@ -235,7 +189,8 @@ R_i\leftarrow R_i+c_t^{\mathrm{start}}
 This restores the mean after changes in membership. Because it is a common
 shift, it preserves every rating difference and every Elo probability among
 the current active rikishi at that instant. It changes their shared coordinate
-relative to the fixed P1-WL values from which future entrants will be initialised.
+relative to the fixed P1-WL values from which later first ratings will be
+assigned.
 
 The resulting state is the **basho-start rating** observation.
 
@@ -256,9 +211,10 @@ e_A=s_A-p_A.
 \tag{9.7}
 \]
 
-Each rikishi has a K determined by his chii on the current basho's banzuke:
+Each rikishi has a \(K\) determined by his chii on the current basho's
+banzuke:
 
-| Chii level | K |
+| Chii level | \(K\) |
 | --- | ---: |
 | Yokozuna, Ozeki, Sekiwake or Komusubi | 10 |
 | Maegashira | 15 |
@@ -274,10 +230,10 @@ R_B' = R_B-K_Be_A.
 \tag{9.8}
 \]
 
-The next eligible bout sees these updated ratings. K is based on the fixed
+The next eligible bout sees these updated ratings. \(K\) is based on the fixed
 basho chii, not on a rank recalculated after each result.
 
-When (K_A\ne K_B), the bout creates net rating mass
+When \(K_A\ne K_B\), the bout creates net rating mass
 
 \[
 \Delta(R_A+R_B)=(K_A-K_B)e_A.
@@ -290,9 +246,9 @@ the active population.
 
 ## Day-end and end-of-basho states
 
-After all eligible bouts on a represented day have been updated, the replay
-records a **day-end rating** for every active rikishi. There is no population
-shift between days.
+After all eligible bouts on a represented day have been updated, the
+calculation records a **day-end rating** for every active rikishi. There is no
+population shift between days.
 
 After the final represented day of the basho, calculate
 
@@ -325,60 +281,34 @@ model, provided the observation stage is named.
 
 The recurrence can be summarised as follows:
 
-```text
-form active set from banzuke members
-archive literal ratings belonging to the previous active set but not this one
-restore archived ratings for returning rikishi
-initialise only never-rated active rikishi from frozen paired P1-WL
-on the first non-empty basho, set the target to the resulting raw mean
-shift every active rating by one common amount to restore the target mean
-record basho-start ratings
+1. Form the active population from the basho banzuke.
+2. Continue each member from his stored rating, assigning P1-WL only where no
+   stored rating exists.
+3. At the first basho, set the target mean from this initial active
+   population.
+4. Apply the common start shift and record basho-start ratings.
+5. Process represented days in order. For every eligible bout, record the
+   forecast, update both ratings using their current-basho \(K\), and record
+   the resulting ratings. Record the whole active population at day end.
+6. Apply the common end shift and record normalised basho-end ratings.
+7. Retain every stored rating for use in later basho. A rating outside the
+   active population remains numerically unchanged.
 
-for each represented day, in order:
-    for each eligible W/L bout, in canonical-pair order:
-        record the pre-bout forecast
-        update both ratings with their own current-basho K
-        record the post-bout ratings
-    record day-end ratings for the whole active population
-
-shift every active rating by one common amount to restore the target mean
-record normalised basho-end ratings
-carry those ratings forward for rikishi who remain active
-leave archived ratings numerically unchanged
-```
-
-This algorithm, the paired P1-WL values, the K table and the represented history
-are sufficient to reconstruct the rating states.
+These rules, the paired P1-WL values, the \(K\) table and the represented
+history are sufficient to reconstruct the rating states.
 
 ## Observation stages
 
-A “rating at the start of the basho”, a probability offered before a bout, a rating after day
-15 and a normalised basho-end rating are not interchangeable. A public label
-must identify which one it uses.
+A “rating at the start of the basho”, a probability offered before a bout, a
+rating after day 15 and a normalised basho-end rating are not interchangeable.
+A public label must identify which one it uses.
 
 ## Scope boundary
 
-This chapter says what the revised Elo-89 contract calculates. It has not
-argued that January 1989, P1-WL, this K schedule or whole-population
-preservation is uniquely correct. Nor
-has it claimed that a fixed population mean establishes stable rating meaning
-at every chii or across every historical period.
+This chapter says what the Elo-89 contract calculates. It has not argued that
+January 1989, P1-WL, this \(K\) schedule or whole-population normalisation is
+uniquely correct. Nor has it claimed that a fixed population mean establishes
+stable rating meaning at every chii or across every historical period.
 
 Those are questions about evidence and modelling judgement. Chapter 10 turns
 to them explicitly.
-
-## Working sources
-
-- `../../analysis/elo89/model.py`
-- `../../analysis/elo89/replay.py`
-- `../../analysis/elo89/producer.py`
-- `../../analysis/elo89/output.py`
-- `../../analysis/prediction/bouts.py`
-- `../../analysis/equelo_bkp1/README.md`
-- `../../analysis/equelo_bkp1/solve.py`
-- `../../analysis/equelo_bkp1/simulate.py`
-- `../../analysis/equelo_bkp1/recenter.py`
-- `../../analysis/equelo_population_policy/predict_candidate.py`
-- `../elo89-expert-account/Matters Arising/Kimarite/P1-WL Evaluation/Findings.md`
-- `../elo89-expert-account/Matters Arising/Rating Persistence/Frozen Persistence Comparison/docs/Findings.md`
-- `../../analysis/docs/story/15 Tranche 1 - Population Normalisation Policy.md`

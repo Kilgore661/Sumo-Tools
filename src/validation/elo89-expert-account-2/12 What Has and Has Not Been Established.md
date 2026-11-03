@@ -6,20 +6,20 @@ The preceding chapters contain equations, model rules, experiments,
 interpretations and judgements. All can be true without having the same
 epistemic status.
 
-Defining Elo-89 does not prove it is a good model. Deriving a property of its
-equations does not show that sumo satisfies the corresponding assumptions. A
-retrospective predictive improvement is empirical evidence, but not a
+Defining Elo-89 does not prove that it is a good model. Deriving a property of
+its equations does not show that sumo satisfies the corresponding assumptions.
+A retrospective predictive improvement is empirical evidence, but not
 prospective validation. Accepting a measured effect as tolerable is a
 judgement, not a finding that the effect is zero.
 
-This chapter therefore separates six categories:
+This chapter separates six categories:
 
 1. model definitions;
 2. mathematical consequences;
 3. empirical findings;
 4. modelling judgements;
 5. assumptions and interpretations; and
-6. open questions or known defects.
+6. open questions and known limitations.
 
 “Established” below always means established within the declared scope. It
 does not mean universal, timeless or beyond revision.
@@ -31,17 +31,18 @@ contract, not because an experiment discovered them.
 
 | Definition | Scope |
 | --- | --- |
-| Elo-89 begins with the represented January 1989 history | Model epoch |
-| Its state is one carried point rating per active `RikId`, plus frozen ratings for previously rated inactive rikishi | State and identity |
+| Elo-89 begins with represented history in January 1989 | Model epoch |
+| Its state is one stored point rating for each previously rated rikishi, identified independently of shikona | State and identity |
 | A represented W/L result is rated; paired fusen and other non-W/L outcomes are excluded | Evidence domain |
-| Current rating differences map to probabilities with (q=400) | Expectation rule |
-| K is 10 for Y/O/S/K, 15 for M, 25 for J and 35 below Juryo | Update policy |
-| A never-rated rikishi is initialised from paired P1-WL, fixed on 30 October 2026 from history through the September 2026 basho | Initialisation |
-| The active population is banzuke membership | Population |
-| Leaving the active population freezes the literal rating; return restores it before the start shift | Lifecycle |
-| Common start- and end-of-basho shifts restore the first active population's mean | Population operator |
-| Forecasts precede their result updates | Chronology |
-| Basho-start, immediate post-bout, day-end and normalised basho-end states are distinct observations | Publication contract |
+| Current rating differences map to probabilities with \(q=400\) | Expectation rule |
+| \(K\) is 10 for Yokozuna/Ozeki/Sekiwake/Komusubi, 15 for Maegashira, 25 for Juryo and 35 below Juryo | Update policy |
+| A rikishi without a stored rating receives the paired P1-WL value for his current chii | First rating |
+| P1-WL was fixed on 30 October 2026 using history through the September 2026 basho | Fitted input |
+| The active population consists of banzuke members | Population |
+| An active rikishi without an eligible result receives no individual bout update; a stored rating outside the active population receives neither bout updates nor population shifts | Inactivity |
+| Common start- and end-of-basho shifts restore the first active population's mean | Population operation |
+| Forecasts precede the result updates to which they are compared | Chronology |
+| Basho-start, pre-bout, immediate post-bout, day-end and normalised basho-end states are distinct observations | Publication contract |
 
 ## 2. What follows mathematically
 
@@ -50,221 +51,174 @@ They do not depend on whether Elo-89 predicts sumo well.
 
 | Consequence | Qualification |
 | --- | --- |
-| (p_A+p_B=1) for the binary logistic expectation | Assumes the same pre-bout rating difference and (q) |
-| Increasing A's rating relative to B increases (p_A) monotonically | A property of the logistic link |
-| Equal ratings imply 50--50; a 400-point gap implies decimal odds of 10:1 | Given (q=400) |
+| \(p_A+p_B=1\) for the binary logistic expectation | Assumes the same pre-bout rating difference and \(q\) |
+| Increasing A's rating relative to B increases \(p_A\) monotonically | Property of the logistic link |
+| Equal ratings imply 50--50; a 400-point gap implies decimal odds of 10:1 | Given \(q=400\) |
 | Adding the same constant to every rating in a comparison changes no probability | Translation invariance |
-| With common K, the two rating changes sum to zero | Bout-level conservation only |
-| With unequal K, net bout mass is ((K_A-K_B)(s_A-p_A)) | Explains the need to account for dual-K movement |
-| A common population shift preserves every current gap, order and probability within the shifted set | It can still affect later entrant comparisons |
-| Entry or departure can change the population mean even when every bout is zero-sum | Open-population accounting identity |
+| With common \(K\), the two rating changes sum to zero | Bout-level conservation only |
+| With unequal \(K\), net bout mass is \((K_A-K_B)(s_A-p_A)\) | Explains the need to account for unequal-\(K\) movement |
+| A common population shift preserves every current gap, order and probability within the shifted set | It can still affect comparisons with later first ratings |
+| Adding or removing ratings can change the population mean even when every bout is zero-sum | Open-population accounting identity |
 | Disconnected comparison components have unidentified relative offsets | A path is required to place components on one empirically related scale |
-| Sequential Elo is generally dependent on event order | Canonical ordering is therefore part of the contract |
-| A recurrence requires initial state | A common numerical origin is arbitrary; equality of initial states is not |
+| Sequential Elo is generally dependent on event order | Chronology is therefore part of the contract |
+| A recurrence requires an initial state | A common numerical origin is arbitrary; equality of initial states is not |
 
-None of these theorems establishes that one scalar is sufficient, that the
-chosen K values are correct, that the active mean represents constant true
-ability or that historical ratings are externally comparable.
+None of these consequences establishes that one scalar is sufficient, that the
+chosen \(K\) values are correct, that the active mean represents constant
+underlying ability or that historical ratings are externally comparable.
 
 ## 3. What the empirical work has found
 
-### Basic Elo contains predictive information
+### Elo-like ratings contain retrospective predictive information
 
-On the declared 1989/01--2026/07 model-selection snapshot, Basic Elo achieved
-mean log loss 0.682753 and Brier loss 0.244687, compared with 0.693147 and 0.25
-for a constant 50--50 probability. This establishes modest retrospective
-predictive information for that exact Basic Elo model and bout domain.
+Across the tested post-1988 histories, ordinary Elo-like ratings and the
+selected Elo-89 policies produced lower log and Brier loss than a neutral
+50--50 forecast. The current model therefore extracts predictive information
+from prior represented results.
 
-It does not establish that Basic Elo is optimal, that all periods and
-divisions benefit equally or that the same advantage will occur prospectively.
+This does not establish that the advantage is uniform across periods,
+divisions or levels of rating maturity, or that it will persist prospectively.
 
-### Informed initialisation and divisional K improved the tested model
+### Informed initialisation and divisional \(K\) improved tested forecasts
 
-In the controlled four-cell comparison over 574,863 common bouts:
+Controlled comparisons found that informed first ratings produced the larger
+improvement in retrospective log and Brier loss. Divisional \(K\) supplied a
+smaller favourable improvement over constant \(K\).
 
-| Model | Mean log loss | Mean Brier loss |
-| --- | ---: | ---: |
-| Basic Elo (B) | 0.682753 | 0.244687 |
-| Divisional-K (B_k) | 0.682015 | 0.244355 |
-| Informed-prior (B_P) | 0.678055 | 0.242439 |
-| Combined old (B_{kP}) | 0.676945 | 0.241968 |
+These findings support using rank information at first rating and a variable
+responsiveness policy. They do not show that P1-WL is the uniquely best prior,
+that division is the best responsiveness measure or that the exact
+10/15/25/35 schedule is optimal.
 
-Most of the improvement came from informed initialisation; divisional K added
-a smaller favourable effect. The result concerns the tested policies, not all
-possible priors or variable-K rules.
+### P1-WL provides useful first ratings
 
-The prior was fitted from the broad history being scored. These are controlled
-retrospective comparisons, not out-of-sample validation of informed
-initialisation.
+On matched represented history, P1-WL preserved the measured advantage of
+informed initialisation over equal initialisation and behaved coherently when
+propagated through Elo-89.
 
-### P1-WL is an acceptable repair of P1
+P1-WL was fitted from the broad history in which it was retrospectively
+evaluated. The finding establishes usefulness within that history, not an
+independent chii scale or unseen-data validation. Sparse chii remain less
+securely supported than common ones.
 
-Canonical (q=400) P1 with divisional K and no population adjustment achieved
-mean log loss 0.677319. It retained roughly 94% of the old combined model's
-incremental log-loss improvement over Basic Elo. The remaining disadvantage
-was concentrated mainly before 30 prior rated bouts.
+### Whole-population preservation led the tested population policies
 
-P1-WL applies the same construction to every represented W/L result and adds
-33,521 formerly omitted post-1988 observations. Its matched complete replay
-gave mean log loss 0.675290 and Brier score 0.241185, both slightly better than
-P1, while raw accuracy was slightly worse. Rating and website comparisons
-found no material downstream problem.
+With the first-rating table held fixed, whole-population mean preservation
+improved log and Brier loss relative to the tested no-adjustment policy.
+Basho-block analysis supported the direction of the log-loss difference.
 
-This establishes P1-WL as a credible repaired initialisation artifact in the
-tested family. It does not establish that P1-WL is a timeless chii scale or
-that its support-proportional construction was selected solely by predictive
-evidence.
-
-### Frozen persistence improved the tested return policy
-
-A census identified 437 return events involving 365 rikishi. Of these, 436
-were Jk-to-Jk and 424 carried explicit Mz status; no represented bouts occurred
-during the post-1988 gaps. Against an exact reset-policy control, restoring the
-frozen rating improved mean log loss by 0.000512 and Brier score by 0.000260
-over 581,634 forecasts. Improvements were larger on the first return bout and
-remained positive over the first seven bouts and the return basho. No tested
-replay invariant was violated.
-
-This supports frozen persistence over reset-to-prior for the observed domain.
-It does not establish that ability remained physically constant, or that
-freezing beats an explicit uncertainty or decay model which has not been run.
-
-### Whole-population preservation led the tested final candidates
-
-Holding P1 fixed on the same 574,863-bout domain produced:
-
-| Population policy | Mean log loss | Mean Brier loss | Aggregate ECE |
-| --- | ---: | ---: | ---: |
-| No population adjustment | 0.677319 | 0.242086 | 0.014453 |
-| Expt2 departure redistribution | 0.684196 | 0.245148 | 0.017651 |
-| Elo-89 whole-population preservation | **0.675629** | **0.241362** | 0.014537 |
-
-Elo-89 improved log loss over no adjustment by 0.001690 and over the old
-combined model by 0.001316; the recorded basho-block bootstrap intervals
-excluded zero. Brier loss agreed. The old combined model retained slightly
-better aggregate ECE.
-
-This supports selecting Elo-89 under the declared primary criterion. It does
-not show that the model wins every metric, every maturity band or every
-plausible alternative.
+This supports the selected policy under the declared proper-score criterion.
+It does not show that a fixed active mean is a fact about average sumo ability,
+or that the policy wins every metric, subgroup or plausible alternative.
 
 ### Rating maturity matters
 
-Calibration was materially weaker when a rating with fewer than 30 prior
-bouts faced a more established rating. Later maturity groups were much more
-closely calibrated, and two immature ratings could be well calibrated against
-one another while remaining weakly discriminating.
+Calibration was materially weaker when a rating with very little prior bout
+evidence faced a more established rating. Later maturity groups were more
+closely calibrated, while two immature ratings could appear well calibrated
+against one another without strongly discriminating between them.
 
-This establishes heterogeneity hidden by an aggregate calibration curve. It
-does not quantify an uncertainty distribution for any individual rating.
+This establishes heterogeneity hidden by an aggregate calibration curve. The
+analysis was conducted on closely related retrospective candidates rather than
+a model with an explicit uncertainty state, so it does not quantify an
+uncertainty distribution for any individual Elo-89 rating.
 
 ### The banzuke contains outcome information
 
-On a later History snapshot over the same nominal dates, simply choosing the
-stronger chii selected the winner in 52.637% of 579,412 eligible unequal-chii
-bouts. The rate exceeded 50% in every reported division group.
+An independent chii-order probe found that choosing the stronger chii selected
+the winner in 52.637% of 579,412 eligible unequal-chii bouts, with a rate above
+50% in every reported division group.
 
-This establishes that chii order is informative. It does not establish a
-matched winner-selection ordering between chii and Elo: the probe used a
-different source snapshot, and it did not compare their favourites bout by
-bout. Treating the chii selection as a literal probability of one also gives
-poor proper scores and infinite log loss on an upset.
+This establishes that chii order is informative. It does not provide a matched
+winner-selection comparison between chii and Elo-89, and it does not justify
+treating the stronger chii as certain to win.
 
-### Normalisation effects have been measured and accepted
+### Normalisation effects have been measured
 
-The accounting reconstruction reconciled Elo-89 rating changes into bout,
-start-shift, end-shift and reinitialisation contributions. Normalisation can
-determine the sign of a particular displayed change. Across 51 recent sliding
-12-basho windows, however, every eligible Makuuchi and Juryo observation had a
-net signed contribution within ±1% of end rating. Full-history low-division
-exceptions were larger.
+The accounting reconstruction separated Elo-89 rating changes into bout,
+start-shift, end-shift and first-rating contributions. Normalisation can
+determine the sign of a particular displayed change.
 
-The reconstruction and distributions are findings. The one- and five-percent
-benchmarks, and the conclusion that the observed effect is acceptable, are
+Across 51 recent sliding 12-basho windows, every eligible Makuuchi and Juryo
+observation had a net signed normalisation contribution within ±1% of ending
+rating. Full-history lower-division exceptions were larger.
+
+The reconstruction and distributions are empirical findings. The percentage
+benchmarks and the conclusion that the observed effects are acceptable are
 modelling judgements on the published scale.
 
 ### A fixed mean does not make chii stationary
 
 The per-chii drift study found substantial historical movement and reversals
 among rank-group means despite exact reconciliation of the global population
-mean. It verified those movements against a saved January 1989--July 2026
-replay.
+mean.
 
 This establishes temporal movement in model outputs by chii. It does not
-identify whether the cause is changing occupants, sumo strength, schedule,
-banzuke structure, model behaviour or a mixture. It is not by itself evidence
-of algorithmic inflation.
+identify whether the cause is changing occupants, competitive ability,
+schedule, banzuke structure, model behaviour or a mixture. It is not by itself
+evidence of algorithmic inflation.
 
 ### Toy results remain conditional toy results
 
-Under a correctly specified stationary toy process, the replay
+Under a correctly specified stationary toy process, the rating calculation
 recovered the hidden skill-gap structure according to predefined stability
-criteria. In the tested two-division worlds, particular sparse boundary
-bridges were sufficient to make the scales commensurate.
+criteria. In tested two-division worlds, particular sparse boundary bridges
+were sufficient to make the scales commensurate.
 
-These findings validate machinery and demonstrate possibility under declared
-conditions. They do not show that historical sumo is generated by the Elo
-model or that every real division and era is adequately connected.
+These findings validate the calculation and demonstrate possibility under
+declared conditions. They do not show that historical sumo is generated by
+the Elo model or that every real division and era is adequately connected.
 
-## Evidence snapshots must not be merged silently
+### Evidence snapshots must remain attached to their findings
 
-Several valid results use different source histories or cut-offs.
-
-| Investigation | Declared scope |
-| --- | --- |
-| Final model-selection and population-policy gate | 574,863 common W/L bouts, 1989/01--2026/07, frozen comparison snapshot |
-| Chii-order probe | 579,412 unequal-chii W/L bouts, same nominal dates but a later History snapshot |
-| Per-chii drift study | Saved Elo-89 run through 2026/07, 224 basho and 160,185 rikishi/basho observations |
-| Current inspected Elo-89 replay | Through 2026/09, 581,634 rated bouts |
-
-Different counts do not automatically contradict one another. They prevent
-unqualified numerical combination. A claim must cite its own snapshot rather
-than borrowing a newer denominator or presenting an older score as though it
-were calculated on newer data.
+The investigations above used declared histories and cut-offs appropriate to
+their questions. Different bout counts do not automatically contradict one
+another, but results from different snapshots must not be combined as though
+they came from one calculation. Each numerical claim retains the scope of its
+own evidence.
 
 ## 4. What has been accepted as judgement
 
-The project has made the following defensible choices without claiming that
-the data uniquely demanded them:
+The following choices are defensible without being uniquely demanded by the
+data:
 
 - January 1989 is the modern operational boundary.
 - Competitive strength is represented by one opponent-sensitive point state.
-- (q=400) is retained rather than selected through a comprehensive search.
-- The exact 10/15/25/35 schedule is used as the variable-K policy.
-- P1-WL's unsmoothed and sometimes non-monotone values are preferable to imposing
-  the curve expected in advance.
+- \(q=400\) is retained without a comprehensive scale search.
+- The 10/15/25/35 schedule implements variable \(K\).
+- P1-WL's unsmoothed and sometimes non-monotone values are retained rather
+  than forcing the expected curve in advance.
 - The P1-WL fitting period ends with the September 2026 basho; the table is
-  fixed from 30 October 2026 and ordinary later replays do not refit it.
-- A common fixed mean is the chosen longitudinal anchor.
+  fixed from 30 October 2026 and later calculations do not refit it.
+- A common fixed mean is the longitudinal anchor.
 - Normalisation's measured contribution is acceptable with disclosure.
-- A rikishi who remains represented receives no invented inactivity penalty.
-- A rikishi's literal rating is frozen outside the active population and
-  restored on return.
+- No individual bout update is invented when no eligible result occurs.
+- A stored rating outside the active population receives no population shift.
 - Lower divisions remain included despite weaker support.
-- Log loss is the primary selection measure; Brier and calibration provide
-  corroboration and qualification.
+- Log loss is the primary selection measure; Brier loss and calibration
+  provide corroboration and qualification.
 
-These are not arbitrary merely because judgement is involved. Each has a
-purpose and some supporting argument. They remain contestable because other
+These choices are not arbitrary merely because judgement is involved. Each
+has a purpose and supporting argument. They remain contestable because other
 reasonable purposes or assumptions could support different choices.
 
 ## 5. What is assumed or interpreted
 
-Using an Elo-89 rating as an account of “strength” requires additional
-interpretation beyond the algorithm:
+Using an Elo-89 rating as an account of “strength” requires interpretation
+beyond the algorithm:
 
-- that capacity to win represented pairwise bouts is the relevant aspect of
+- capacity to win represented pairwise bouts is the relevant aspect of
   strength;
-- that one scalar is a useful approximation across the observed schedule;
-- that older results should persist through the fixed-K recurrence until
-  displaced by later evidence;
-- that the banzuke supplies appropriate prior information at entry;
-- that division is an adequate proxy for responsiveness;
-- that the selected active population and anchor support the desired
-  longitudinal comparisons; and
-- that the observed torikumi network supports the comparisons actually made.
+- one scalar is a useful approximation across the observed schedule;
+- older results should persist through the recurrence until displaced by
+  later evidence;
+- the banzuke supplies appropriate information when a first rating is needed;
+- division is an adequate proxy for responsiveness;
+- the selected active population and anchor support the intended longitudinal
+  comparisons; and
+- the observed torikumi network supports the comparisons actually made.
 
-The retrospective scores test consequences of the whole fitted system. They
+Retrospective scores test consequences of the fitted system as a whole. They
 do not separately prove every assumption. Nor does a plausible ranking prove
 the interpretation: tuning until favoured rikishi or expected chii appear in
 the desired order would reintroduce the model bias this project seeks to
@@ -278,21 +232,21 @@ The project has not established that:
   strength;
 - one-dimensional strength is sufficient for all important sumo matchups;
 - style or other non-transitive effects are negligible;
-- the exact q, K schedule, prior, epoch or anchor is uniquely optimal;
+- the exact \(q\), \(K\) schedule, first-rating table, epoch or anchor is
+  uniquely optimal;
 - a point rating reports how precisely an individual's strength is known;
-- inactivity leaves either ability or uncertainty unchanged, even though the
-  selected point estimate is frozen in the absence of result evidence;
-- frozen persistence is superior to every possible decay, shrinkage or
-  uncertainty-aware return model;
+- inactivity leaves either ability or uncertainty unchanged;
+- the current treatment of inactivity is superior to every uncertainty-aware,
+  shrinkage or evidence-based time model;
 - a fixed population mean makes equal ratings fully comparable across eras;
 - the lowest ranks are as reliably represented as mature upper-division
   populations;
 - Elo-89 beats a fitted probabilistic chii model, an uncertainty-aware model,
-  a dynamic paired-comparison model or every other reasonable family;
+  a dynamic paired-comparison model or every other reasonable family; or
 - retrospective superiority will persist prospectively.
 
 These are not all prerequisites for publishing a useful model. They define
-the boundary around the claims which publication may safely make.
+the boundary around the claims publication may safely make.
 
 ## What would count against Elo-89?
 
@@ -305,10 +259,10 @@ Elo-89 could include:
   better later-bout forecasts and no concealed subgroup regression;
 - stable matchup residuals demonstrating that the scalar representation
   systematically fails;
-- severe sensitivity to reasonable prior, K, epoch or population choices;
+- severe sensitivity to reasonable first-rating, \(K\), epoch or population
+  choices;
 - disconnected or weakly bridged populations being used for claims the data
-  cannot support;
-- corrected-prior evidence materially degrading the selected system; or
+  cannot support; or
 - model outputs whose documented interpretation no longer serves the site's
   stated purpose.
 
@@ -322,30 +276,15 @@ Elo-89 has established a bounded claim:
 
 > On the declared modern represented history, this specified Elo-like system
 > extracts modest predictive information from prior outcomes, improves on the
-> tested simpler Elo variants under the declared retrospective proper-score
-> criterion, and provides a reproducible opponent-sensitive rating history.
+> tested declared alternatives under the retrospective proper-score criterion,
+> and provides a reproducible opponent-sensitive rating history.
 
 It has not established a definitive measure of sumo strength. Its results are
-conditional on a scalar model, a P1-WL artifact which is future-informed
-within its pre-freeze fitting history, a chosen responsiveness and frozen-
-persistence policy, an open-population anchor, the
-observed schedule and a retrospective evidence base.
+conditional on a scalar model, a P1-WL table which is future-informed within
+its fitting history, a chosen responsiveness policy, the treatment of
+inactivity, an open-population anchor, the observed schedule and a
+retrospective evidence base.
 
-That combination is enough to justify use with explicit qualifications. It is
-also enough to make alternative choices meaningful and testable. The final
-chapter explains how.
-
-## Working sources
-
-- `../../analysis/elo_model_selection/docs/Results 1.md`
-- `../../analysis/equelo_population_policy/README.md`
-- `../../analysis/docs/story/15 Tranche 1 - Population Normalisation Policy.md`
-- `../../analysis/docs/story/22 Elo-89 Rating System Appraisal.md`
-- `../../analysis/chii_prediction/docs/Findings.md`
-- `../../analysis/elo89_normalisation/docs/Normalisation Investigation.md`
-- `../../analysis/elo89_normalisation/docs/Per-Chii Drift Findings.md`
-- `../../analysis/toy_elo/README.md`
-- `../../../docs/Elo-89 P1 Missing Kimarite Repair.md`
-- `../elo89-expert-account/Matters Arising/Kimarite/P1-WL Evaluation/Findings.md`
-- `../elo89-expert-account/Matters Arising/Rating Persistence/Frozen Persistence Comparison/docs/Findings.md`
-- `../elo89-expert-account/Matters Arising/Off-Banzuke Results/docs/Findings.md`
+That is enough to justify use with explicit qualifications. It is also enough
+to make alternative choices meaningful and testable. The final chapter
+explains how.

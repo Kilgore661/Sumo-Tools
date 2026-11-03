@@ -2,357 +2,252 @@
 
 ## Different choices have different kinds of support
 
-Chapter 9 specified Elo-89 as though it were an executable contract. That is
-necessary for reproduction, but the uniform presentation can conceal how the
-contract was reached.
+Chapter 9 specified the Elo-89 contract. Exact specification is necessary for
+reproduction, but it does not show why each choice was made or how strongly
+the available evidence supports it.
 
-Some choices were selected by controlled retrospective comparisons. Some were
-inherited from Basic Elo or earlier Equelo work and retained because the
-evidence supplied no reason to change them. Some are modelling judgements
-needed to make an open historical rating population well defined. Others are
-engineering consequences of asking for deterministic, publishable results.
+This chapter uses four descriptions:
 
-This chapter uses the following labels:
-
-- **evidence-led selection**: declared alternatives were compared on relevant
+- **empirical evidence**: declared alternatives were compared on relevant
   recorded outcomes;
-- **modelling judgement**: a necessary interpretation or policy was chosen,
-  with reasons but without a decisive comparative experiment;
-- **inherited convention**: a prior project choice was held fixed so that
-  other questions could be isolated;
-- **engineering necessity**: the recurrence or publication cannot be
-  reproduced without the choice; and
+- **modelling judgement**: a necessary interpretation or policy was chosen
+  for stated reasons without a decisive comparative experiment;
+- **reproducibility requirement**: the model or publication cannot be
+  reconstructed unambiguously without fixing the choice; and
 - **open question**: a plausible alternative has not been tested adequately.
 
-One choice can have more than one status. Divisional K, for example, has an
-inherited numerical schedule but its inclusion was also tested against
-constant K.
+A choice can have more than one status. Divisional \(K\), for example, has
+empirical support as a general policy, while its exact numerical schedule
+remains partly a modelling judgement.
 
 ## Decision register
 
-| Component | Main status | Reason for the retained choice | Important qualification |
+| Component | Main status | Reason for the choice | Important qualification |
 | --- | --- | --- | --- |
-| January 1989 epoch | Modelling judgement and inherited research boundary | Begins the deliberately modern, sufficiently complete comparison domain used by Basic Elo | No epoch search established January 1989 as uniquely optimal; pre-1989 lower-division evidence is substantial but irregular |
-| Binary fought-result domain | Modelling judgement, checked by census and replay | Uses represented W/L evidence, including 33,521 post-1988 results with missing kimarite, while excluding fusen and non-binary outcomes | Alternative treatment of fusen was not selected experimentally |
-| `RikId` identity and forecast-before-update chronology | Engineering necessity | Preserves one career across shikona changes and prevents the result being used in its own forecast | These choices support a valid experiment; they are not empirical discoveries about ability |
-| (q=400) | Inherited convention with diagnostic support | Keeps the canonical Basic Elo probability scale; mature-rating calibration supplied no compelling reason for a global change | It was not chosen by a comprehensive search and is not proved optimal |
-| Divisional K | Evidence-led selection plus inherited schedule | It modestly improved retrospective log and Brier loss, and lets lower-division ratings respond faster | The exact K values were not independently optimised; division is only a proxy for rating maturity |
-| P1-WL initialisation | Evidence-led selection plus modelling judgement | It retains the advantages of informed initialisation while using all represented W/L evidence through September 2026 | It is future-informed within that fitting period; low-support chii remain problematic, and its construction contains judgement |
-| Fixed P1-WL | Evidence-led rejection of feedback | Re-solving the prior through the production population operator recreated extreme low-support values | Fixing the artifact does not establish that P1-WL is timeless or uniquely correct |
-| Whole-population mean preservation | Evidence-led selection plus anchoring judgement | It gave the best tested aggregate log and Brier loss and controls the coordinate carried by incumbents relative to future entrants | The old model retained slightly better aggregate calibration error; a fixed mean does not prove absolute cross-era equivalence |
-| Start and end common shifts | Modelling and accounting judgement | The start shift handles turnover; the end shift exactly absorbs unequal-K mass while preserving current differences | The end correction is tiny and adds almost no tested predictive benefit |
-| Departure freezes; return restores | Evidence-supported modelling judgement | Absence supplies no bout information; restoration modestly improved complete-replay and return-window proper scores | A frozen point estimate does not express growing uncertainty or physical change during absence |
-| No inactivity decay while still represented | Modelling judgement | Absence alone supplies no quantified direction or magnitude of change | Confidence may become less secure even when the point estimate is retained |
-| Point rating only | Inherited simplification | Keeps the system transparent and close to Elo | No uncertainty-aware production comparator has been run |
-| Multiple observation stages | Engineering and publication necessity | Different tools legitimately require pre-bout, day-end or basho-boundary states | Every publication must name the stage it uses |
+| January 1989 epoch | Modelling judgement | Defines a modern period with sufficiently complete represented all-division evidence | No search established it as uniquely optimal; earlier lower-division evidence is substantial but irregular |
+| Binary fought-result domain | Modelling judgement | Uses represented W/L evidence while excluding fusen and other outcomes outside the binary fought-bout model | Alternative numerical treatments of fusen were not compared comprehensively |
+| Stable identity and forecast-before-update chronology | Reproducibility requirement | Preserves one career across shikona changes and prevents a result entering its own forecast | These rules make the calculation well defined; they are not findings about ability |
+| \(q=400\) | Convention with diagnostic support | Gives rating gaps their conventional Elo interpretation and is adequately calibrated for mature ratings | It was not selected by a comprehensive search |
+| Divisional \(K\) | Empirical evidence and modelling judgement | Retrospective comparisons favoured faster adjustment in lower divisions | The exact values were not independently optimised; division is only a proxy for maturity and change |
+| P1-WL first ratings | Empirical evidence and modelling judgement | Rank-informed initialisation reduces the weakness of ratings with little bout evidence | The table is future-informed within its fitting period, and sparse chii remain difficult |
+| Fixed P1-WL table | Reproducibility requirement | Keeps later calculations comparable and allows subsequent results to test a genuinely fixed prior | Freezing does not make the table timeless or uniquely correct |
+| Whole-population mean preservation | Empirical evidence and anchoring judgement | It performed better than the tested no-adjustment alternative and maintains a declared longitudinal coordinate | A fixed mean does not prove absolute equality of the scale across eras |
+| Start and end common shifts | Modelling and accounting judgement | The start shift handles membership change; the end shift absorbs net mass from unequal-\(K\) bouts | Common shifts preserve current differences but can contribute to displayed rating changes |
+| No bout update without an eligible result | Modelling judgement | No fought-bout evidence supplies no measured direction or magnitude of individual change | The point estimate can remain unchanged while confidence in it becomes less secure |
+| Point rating only | Modelling judgement and open question | Keeps the system transparent and close to ordinary Elo | No uncertainty-aware sumo comparator has been tested |
+| Multiple observation stages | Reproducibility requirement | Pre-bout, day-end and basho-boundary states answer different publication needs | Every published value must identify its stage |
 
 ## Why begin in January 1989?
 
-The initial purpose was to ask whether a deliberately simple Elo model could
-extract information from the modern represented record. January 1989 supplied
-a practical boundary after which the all-division data used by the project
-were treated as sufficiently complete for a common chronological comparison.
-Every subsequent candidate could then be scored on the same domain.
+January 1989 is a practical evidence boundary. From that point, the represented
+all-division record is sufficiently complete for a common chronological
+calculation and for like-for-like retrospective evaluation.
 
-This is a defensible scope choice, not a discovered discontinuity in sumo. The
-later completeness audit showed that the pre-1989 record is neither uniformly
-complete nor generally empty. Makuuchi and Juryo are complete throughout the
-audited period, while lower-division coverage improves irregularly and
-contains both complete and sparse basho. There is no single date on which all
-historical evidence changes character.
+This is a defensible scope choice, not a discovered discontinuity in sumo.
+The completeness audit found that the earlier record is neither uniformly
+complete nor generally empty. Makuuchi and Juryo are complete much earlier,
+while lower-division coverage improves irregularly and contains both complete
+and sparse basho. There is no single date on which all historical evidence
+changes character.
 
-Elo-89 therefore says: *this is the model's modern evidence boundary*. It does
-not say that relevant competition began in 1989, or that no earlier rating
-system can be constructed. Elo-58 is the project's qualified attempt to ask
-that different historical question.
+Elo-89 therefore says that January 1989 is its modern evidence boundary. It
+does not say that relevant competition began then or that an earlier-history
+rating system cannot be constructed.
 
-## Why retain the binary result domain?
+## Why retain the binary fought-result domain?
 
-The model is intended to learn from represented competitive results. A W/L
-pair records the evidence needed by its binary update even when kimarite is
-missing. Excluding such a result merely because a technique field is blank
-would discard known outcome evidence for an unrelated metadata omission.
+Elo-89 is intended to learn from represented competitive results. A W/L pair
+contains the evidence required by its binary update.
 
-Fusen are treated differently. They identify a winner and loser
-administratively, but not the outcome of a fought bout under the same
-competitive process. Excluding them avoids silently treating non-contest
-events as ordinary performance evidence. Other non-binary outcomes likewise
-fall outside the two-outcome model.
+Fusen identify a winner and loser administratively, but not the outcome of a
+fought bout under the same competitive process. Excluding them avoids silently
+treating non-contest events as ordinary performance evidence. Other non-binary
+outcomes likewise fall outside the two-outcome model.
 
-This is principally a semantic modelling choice. The project has not shown
-by controlled comparison that every possible numerical treatment of fusen is
-worse.
+This is principally a semantic modelling choice. The available work has not
+shown by controlled comparison that every possible numerical treatment of
+fusen is worse.
 
-## Why (q=400)?
+## Why \(q=400\)?
 
-The value (q=400) came from the canonical Basic Elo baseline. Holding it
-fixed made the later factorial comparison answer clear questions about K and
-initialisation instead of changing the probability scale at the same time.
-When P1 was rebuilt, its maintained producer was also moved to (q=400), so
-the prior and replay no longer mixed the Basic Elo scale with legacy
-(q=900) machinery.
+The value \(q=400\) gives rating differences the familiar Elo interpretation:
+a 400-point advantage corresponds to an expected score of about 0.91 under the
+model's logistic equation. Retaining a fixed scale also makes rating gaps and
+the \(K\) schedule interpretable in stable units.
 
-Calibration analysis gave a reason not to interrupt the model-selection story
-for a global q search. Apparent aggregate overconfidence was concentrated
-mainly in contests where an immature rating faced a mature one. Once both
-ratings had more evidence, calibration on the (q=400) scale was much closer.
-Changing q globally might improve one weakly supported population while
-damaging mature comparisons.
+Calibration analysis found no compelling reason for a global change.
+Apparent aggregate overconfidence was concentrated mainly in contests where an
+immature rating faced a mature one. When both ratings had more supporting
+evidence, calibration on the \(q=400\) scale was substantially better. A
+global change might improve a weakly supported group while damaging mature
+comparisons.
 
-That is support for retention, not optimisation evidence. The project did not
-compare a declared grid of q values under otherwise identical final Elo-89
-conditions. A later study could still ask whether another expectation curve
-or scale improves prospective forecasts.
+That supports retention, not optimality. Elo-89 has not been compared across a
+comprehensive declared grid of \(q\) values or expectation curves.
 
-## Why divisional K?
+## Why divisional \(K\)?
 
-The substantive idea is that lower-division ratings often belong to newer or
-more rapidly developing rikishi and should respond faster, while upper-
-division ratings usually have more evidence and should be less volatile.
-Division is used as an observable proxy for those differences. It is not an
-individual measurement of uncertainty or rate of development.
+Lower-division ratings often belong to newer or more rapidly developing
+rikishi and therefore benefit from faster adjustment. Upper-division ratings
+usually have more accumulated evidence and can reasonably be less volatile.
+Division is an observable proxy for these differences, not an individual
+measurement of uncertainty or development.
 
-The controlled two-by-two comparison separated constant versus divisional K
-from constant versus informed initialisation. Divisional K improved mean log
-loss by 0.000738 under constant initialisation and by 0.001110 with the older
-informed prior. The effects were favourable but much smaller than the effect
-of informed initialisation. Brier loss agreed with the aggregate ordering.
+Controlled retrospective comparisons found that divisional \(K\) modestly
+improved both log loss and Brier loss relative to constant \(K\). The benefit
+was appreciably smaller than the benefit of informed initialisation, but it
+was consistent with the intended mechanism.
 
-This supports including a variable K policy. It does not show that the exact
-schedule 10/15/25/35 is uniquely or locally optimal. Those values were an
-inherited FIDE-style schedule, held fixed during model selection. Nor does it
-show that division is better than direct experience, age, estimated
-uncertainty or another responsiveness model.
+The comparison supports a variable-\(K\) policy. It does not show that
+10/15/25/35 is uniquely or locally optimal, or that division is better than
+direct experience, age, estimated uncertainty or another responsiveness
+model.
 
-The cost is also explicit. When opponents have different K values, their
-updates are not zero-sum. The cumulative audit found this mass flow small
-relative to turnover effects, and Elo-89's post-basho common shift accounts
-for it exactly at population level. That makes it manageable, not
-mathematically nonexistent.
+When opponents have different \(K\) values, their updates are not zero-sum.
+The resulting rating mass is small relative to membership effects, and the
+end-of-basho common shift accounts for it exactly at active-population level.
+That makes the consequence controlled, not nonexistent.
 
-## Why use an informed prior at all?
+## Why use P1-WL?
 
-Equal initialisation is simple only in notation. At the January 1989 epoch it
-would give an established Yokozuna and a low-ranked newcomer the same prior
-state; on later entry it would discard information already present in chii.
-The relevant question was therefore not whether to pretend ignorance, but how
-to use rank evidence without forcing subsequent ratings to reproduce the
-banzuke.
+Equal initialisation is simple only in notation. At the January 1989 boundary
+it would assign an established Yokozuna and a low-ranked rikishi the same
+state; later, it would ignore information already present in the banzuke when
+a first rating is required.
 
-The original factorial comparison provided strong retrospective support for
-informed initialisation. Relative to Basic Elo, the older prior improved mean
-log loss by 0.004698 with constant K; with divisional K, most of the combined
-improvement still came from the prior. The benefit was concentrated where it
-should be: new and immature ratings.
+P1-WL uses chii as limited starting evidence. It aims to place a first rating
+nearer a useful part of the scale, reducing initialisation lag without forcing
+subsequent ratings to remain aligned with the banzuke. Retrospective
+comparisons show that informed initialisation materially improves proper
+scores, especially for ratings with little bout evidence.
 
-This establishes that informed starting information is useful in the tested
-history. It does not by itself select P1.
-
-## Why P1-WL rather than the older prior?
-
-The old informed prior was a contextual construction and remained slightly
-better than early P1 candidates in retrospective prediction. P1 was developed
-to repair a different problem: repeated uniform recentering of a literal-chii
-fixed point allowed rare low-support cells to acquire absurd values.
-
-The support-proportional rule used for P1 materially changes differences in
-the chii map. Its adoption was therefore a modelling judgement, informed by
-support diagnostics and inspection of the resulting curve rather than a
-neutral coordinate change. The project deliberately retained visible
-discontinuities and did not smooth the table merely to make ratings descend
-monotonically with rank.
-
-The canonical (q=400) P1 then passed the existing predictive gate. With
-divisional K and no population adjustment it achieved mean log loss 0.677319,
-very close to the older model's 0.676945, and retained about 94% of the old
-model's improvement over Basic Elo. Its remaining deficit was concentrated in
-the first 30 rated bouts.
-
-P1 was accepted as a credible, reproducible prior which repaired a known
-construction pathology while preserving most measured predictive value. It
-was not selected because it won every score: it did not.
-
-P1-WL is the repaired successor to P1. It applies the same construction to
-binary W/L results whether or not kimarite is populated. A matched replay
-showed nearly identical rating structure and slightly better aggregate log
-loss and Brier score, though slightly worse raw accuracy. This was sufficient
-to replace P1: the outcome field is evidence for Elo, while the technique field
-is not.
-
-Both prior artifacts use later history to initialise earlier entrants within
-the retrospective fitting period. The result through September 2026 is model-
-selection evidence and an internal coherence check, not unseen-data
-validation. P1-WL was fixed on 30 October 2026; results from November 2026
-onward cannot refit it and therefore provide a different kind of evidence.
+The qualification is important. P1-WL was estimated from the same historical
+period in which many of its first ratings are evaluated. Later career evidence
+therefore helped determine values used earlier in that period. These results
+show retrospective usefulness and internal coherence, not unseen-data
+validation. Low-support chii also remain less securely estimated than common
+ones.
 
 ## Why hold P1-WL fixed?
 
-It might appear tidier to produce P1 using the same whole-population operation
-used by the final replay. That was tested. When the operator was allowed to
-feed back into the literal-chii fixed-point loop, low-support values became
-extreme again: the two-observation `Jk73w` cell rose to about 3,168, and the
-solve took 71 iterations rather than 18.
+P1-WL was fitted using represented history through the September 2026 basho
+and then fixed. Extending Elo-89 through later basho does not re-estimate it.
 
-Controls showed that the pathology came from feedback between turnover
-correction and entrant-prior estimation, not from the small unequal-K mass
-correction. Thus two individually coherent ideas did not form a coherent
-self-generating loop.
+This boundary serves two purposes. It makes a release reproducible: the same
+first-rating input is used whenever the same model version is named. It also
+allows results from November 2026 onward to provide genuinely prospective
+evidence about a prior which they did not help construct.
 
-The retained boundary, inherited by P1-WL, is evidence-led:
-
-1. P1-WL is an externally fitted, frozen initialisation artifact; and
-2. whole-population preservation operates only during the subsequent Elo-89
-   replay.
-
-Re-estimating P1-WL on later data would create a revised fitted model and would
-require the public account to identify that change. It is not a step performed
-as later basho are added to an ordinary Elo-89 replay.
+A later refit may eventually be justified, but it would create a new fitted
+artifact and should be identified explicitly rather than treated as an
+ordinary extension of the existing calculation.
 
 ## Why preserve the whole-population mean?
 
-Ordinary equal-K Elo conserves rating mass within a bout. It does not prevent
-the active mean moving when entrants and departures carry different ratings
-into and out of an open population. Elo-89 needs an anchor if ratings printed
-at different dates are to remain on one administered coordinate.
+Equal-\(K\) Elo conserves rating mass within a bout. It does not prevent the
+active mean moving when ratings are added to or removed from an open
+population. Elo-89 therefore needs an explicit anchor if numbers printed at
+different dates are to occupy one administered coordinate.
 
-Three policies were compared with canonical P1 held fixed on the same 574,863
-bouts:
+Retrospective comparisons found that whole-population mean preservation
+improved both log loss and Brier loss relative to leaving the population
+unadjusted. Basho-block analysis supported the direction of the log-loss
+difference. The gain was concentrated among younger ratings, which is
+consistent with the mechanism.
 
-| Population policy | Mean log loss | Mean Brier loss | Aggregate ECE |
-| --- | ---: | ---: | ---: |
-| No population adjustment | 0.677319 | 0.242086 | 0.014453 |
-| Expt2 departure redistribution | 0.684196 | 0.245148 | 0.017651 |
-| Whole-population preservation | **0.675629** | **0.241362** | 0.014537 |
+A common shift cannot change probabilities among the rikishi active when it is
+applied. It does, however, change the coordinate they carry relative to fixed
+P1-WL values used for later first ratings. This explains how an operation
+which preserves current differences can affect later forecasts.
 
-Whole-population preservation improved log loss by 0.001690 over no
-adjustment and by 0.008568 over Expt2 departure redistribution. The recorded
-basho-block bootstrap intervals excluded zero, and Brier loss agreed. It also
-beat the previous overall candidate, although that older model retained a
-slightly lower aggregate ECE.
-
-The improvement was concentrated in younger ratings. This matches the
-mechanism: a common shift cannot change probabilities among present rikishi at
-the instant it is applied, but it changes the coordinate incumbents carry
-relative to fixed P1-WL ratings assigned to later entrants.
-
-The policy was therefore selected on the predeclared primary log-loss
-criterion with corroboration from Brier loss and a coherent mechanism. It was
-not selected because a constant population mean is a theorem about constant
-sumo ability. The anchor is an administered modelling convention which makes
-longitudinal numbers interpretable under declared assumptions.
+The policy is an administered anchor, not a theorem that average sumo ability
+is constant. It makes longitudinal ratings interpretable conditional on the
+declared population model; it does not independently prove absolute
+cross-era equivalence.
 
 ## Why shift both before and after a basho?
 
-The start shift addresses the large effect: entry and departure change the
-active population. The end shift addresses the much smaller net mass created
-by unequal K values during the bouts.
+The start shift corrects the active mean after membership changes. The end
+shift removes the much smaller net mass created by unequal-\(K\) bout updates.
+Both add one common value to every active rating, preserving current order,
+rating gaps and matchup probabilities at the moment of application.
 
-The controlled replay found average corrections of roughly 3.975 points per
-active rikishi at the start and 0.040 at the end. A start-only policy and a
-start-plus-end policy had virtually identical diagnostic losses. Thus the
-post-bout shift is retained mainly because it closes the accounting contract:
-every published basho-end population has exactly the target mean.
+In the controlled analysis, the mean absolute adjustment was about 3.975
+points per active rikishi at basho start and 0.040 points at basho end. The end
+shift contributed almost no measured predictive improvement, but it closes
+the accounting contract: every published basho-end active population has
+exactly the target mean.
 
-Both shifts are common additions. They preserve current ranking, gaps and
-matchup probabilities at application time. Over a longer history they are not
-causally inert, because later entrants arrive from fixed P1-WL.
+Common shifts are not irrelevant to reported individual changes. Positive and
+negative contributions substantially cancel over time, and recent Makuuchi
+and Juryo effects were small relative to ending ratings, but larger
+low-division cases occur in the full history. The appropriate conclusion is
+acceptance with disclosure, not that normalisation has no effect.
 
-The later normalisation audit found that common shifts can contribute
-appreciably to a particular displayed rating change, even though signed
-effects substantially cancel. Across 51 recent sliding 12-basho windows, all
-eligible Makuuchi and Juryo observations had a net normalisation contribution
-within one per cent of end rating. The full-history record contains larger
-low-division exceptions. The retained judgement is acceptance with
-disclosure, not a claim of zero effect.
+## Why does inactivity produce no bout update?
 
-## Why these lifecycle rules?
+A rikishi on the banzuke remains in the active population even when he records
+no eligible bout. His point rating receives the common population shifts but
+no individual bout update. A stored rating outside the active population
+receives neither kind of change.
 
-A rikishi who remains on the banzuke remains in the active population even if
-he records no eligible bout. Elo-89 leaves his individual point estimate
-unchanged apart from the common population shifts. An injury or absence may
-matter, but absence alone does not state the size or even the direction of an
-ability change. Adding automatic decay would turn a plausible story into an
-unmeasured numerical rule.
+This follows the principle that a rating changes in response to represented
+bout evidence. Inactivity may accompany injury, recovery, deterioration or no
+material change, but inactivity alone does not quantify the direction or size
+of any ability change. Automatic decay would insert a numerical claim not
+supplied by the bout record.
 
-When a rikishi leaves the represented population, Elo-89 archives the literal
-rating. It receives neither bout updates nor common population shifts while
-inactive. On return it is restored before the ordinary start shift. This makes
-“absence of competition means absence of rating information” one consistent
-rule rather than treating a temporary disappearance as a new career.
-
-The choice was tested against the former reset-to-prior policy over 581,634
-forecasts. Frozen persistence improved complete-replay mean log loss by
-0.000512 and Brier score by 0.000260; the advantage was larger on the first
-return bout and remained positive over the first seven bouts and return basho.
-No replay invariant failed. Most of the 437 return events were low-division
-Mz/Jk representation effects, so the result should not be inflated into a
-general theory of recovery after injury. It is enough to support persistence.
+An unchanged point estimate must not be mistaken for unchanged certainty.
+Elo-89 has no separate uncertainty coordinate which can widen while the
+estimate receives no new contest support. Whether such a state would improve
+sumo forecasts remains an open empirical question.
 
 ## Why select by log loss?
 
-The model is used to attach probabilities to binary outcomes, so the primary
-comparison used mean log loss calculated from forecasts made before their
-results were processed. Log loss is a proper scoring rule and strongly
-penalises confident errors. Brier loss was retained as an independent proper-
-score check; calibration diagnostics examined whether nominal probabilities
-matched observed frequencies in important subgroups.
+Elo-89 attaches probabilities to binary outcomes, so candidate comparisons
+used mean log loss calculated from forecasts made before the corresponding
+results were processed. Log loss is a proper scoring rule and penalises
+confident errors. Brier loss supplied a second proper-score check, while
+calibration analysis examined whether nominal probabilities matched observed
+frequencies in important subgroups.
 
-The project declared log loss as primary before inspecting the model ordering.
-That matters because different summaries did not choose exactly the same
-winner. Elo-89 had the best tested aggregate log and Brier loss. The older
-informed-prior model had slightly better aggregate ECE, and alternatives were
-slightly better in the longest-career bands. Changing the decision rule after
-seeing those results would obscure rather than resolve the trade-off.
+Log loss was declared as the primary criterion before the candidate ordering
+was inspected. That matters because no single summary dominates every
+interpretive question. The selected model performed best on the declared
+aggregate log-loss criterion and was supported by Brier loss, while calibration
+and subgroup results supplied qualifications rather than universal victory.
 
 The resulting claim is deliberately bounded:
 
 > Elo-89 is the selected model among the tested candidates under the declared
-> retrospective primary criterion, with agreeing Brier evidence and recorded
+> retrospective primary criterion, with supporting Brier evidence and recorded
 > calibration qualifications.
 
-It is not “the true model of sumo” or the winner of every possible evaluation.
+It is not the true model of sumo or the winner of every possible evaluation.
 
 ## What evidence could change these decisions?
 
-The model is frozen for production, not insulated from criticism. A serious
-alternative would need an exact contract and a like-for-like comparison. The
-most informative new evidence would include:
+The most informative new evidence would include:
 
-- prospective or rolling-origin results for the frozen P1-WL model;
-- a declared q or expectation-curve comparison which protects the already
-  good calibration of mature ratings;
+- prospective or rolling-origin results for the fixed P1-WL model;
+- a declared \(q\) or expectation-curve comparison which protects the
+  calibration of mature ratings;
 - a responsiveness policy based directly on rating support or uncertainty,
-  compared with divisional K;
-- an uncertainty-aware model which improves forecasts and communicates stale
-  or immature estimates better;
-- an uncertainty or decay treatment for genuine long absences, compared with
-  the selected frozen point-rating rule;
+  compared with divisional \(K\);
+- an uncertainty-aware model which improves forecasts and communicates
+  immature or inactive estimates more fully;
+- an evidence-based model of how uncertainty, rather than assumed ability,
+  changes during inactivity;
 - a population anchor with clearer historical interpretation and equal or
   better predictive behaviour; or
-- evidence that a subgroup regression is large enough to outweigh aggregate
+- evidence that subgroup regressions are large enough to outweigh aggregate
   gains.
 
-Until such evidence exists, the present choices are defensible. Their status
-must nevertheless remain attached to them: tested selection where comparison
-was performed, judgement where it was not, and open question where the
-project's work is still thin.
+Until such evidence exists, the present choices are defensible rather than
+final. Their status should remain attached to them: empirical selection where
+comparison was performed, modelling judgement where it was not,
+reproducibility requirement where the model must choose, and open question
+where the evidence remains thin.
 
-Chapter 11 now critiques Elo-89 on those terms rather than criticising it for
-failing to prove claims it does not make.
-
-## Working sources
-
-- `../../analysis/elo_model_selection/README.md`
-- `../../analysis/elo_model_selection/docs/Results 1.md`
-- `../../analysis/prediction/docs/experiments/Findings.md`
-- `../../analysis/equelo_bkp1/README.md`
-- `../../analysis/equelo_population_policy/README.md`
-- `../../analysis/docs/story/07 Draft Equelo Account for the STEM Reader.md`
-- `../../analysis/docs/story/15 Tranche 1 - Population Normalisation Policy.md`
-- `../../analysis/docs/story/16 Handoff After Tranche 1.md`
-- `../../analysis/docs/story/17 Pre-1989 Bout-Data Completeness and Rating Persistence.md`
-- `../../analysis/docs/story/22 Elo-89 Rating System Appraisal.md`
-- `../../analysis/elo89_normalisation/docs/Normalisation Investigation.md`
-- `../elo89-expert-account/Matters Arising/Kimarite/P1-WL Evaluation/Findings.md`
-- `../elo89-expert-account/Matters Arising/Rating Persistence/Frozen Persistence Comparison/docs/Findings.md`
-- `../elo89-expert-account/Matters Arising/Off-Banzuke Results/docs/Findings.md`
+Chapter 11 critiques Elo-89 on those terms rather than requiring it to prove
+claims it does not make.

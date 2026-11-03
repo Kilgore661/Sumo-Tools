@@ -8,8 +8,10 @@ obvious answer is: count each rikishi's wins and put the largest total first.
 That is a legitimate calculation. If the question is literally “who
 accumulated the most credited wins in this period?”, the total answers it. The
 problem begins when the total is allowed to answer a broader question without
-further argument. Rikishi do not all receive or take the same number of bout
-opportunities. They may miss individual days or complete basho, compete under different divisional schedules, or move between divisions during the selected period.
+further argument. Rikishi do not all have the same number of bout
+opportunities. They may miss individual days or complete basho, compete under
+different divisional schedules, or move between divisions during the selected
+period.
 
 Once exposure differs, “most wins” and “most successful when competing” are
 not the same idea.
@@ -19,9 +21,9 @@ fights 90 bouts and wins 45. Rikishi B competes in three, fights 45 bouts and
 wins 27.
 
 | Rikishi | Wins | Wins per selected basho | Wins per bout fought |
-| ------- | ----:| -----------------------:| --------------------:|
-| A       | 45   | 7.5                     | 50%                  |
-| B       | 27   | 4.5                     | 60%                  |
+| --- | ---: | ---: | ---: |
+| A | 45 | 7.5 | 50% |
+| B | 27 | 4.5 | 60% |
 
 The first two columns favour A; the last favours B. No arithmetic error has
 occurred. The measures disagree because they retain different meanings.
@@ -45,7 +47,7 @@ problem, not a deliberately weak alternative invented to make Elo look good.
 It provides a useful rolling view of recent results and publishes two related
 scales:
 
-- **Average** is credited wins divided by the selected number of basho; and
+- **Average** is credited wins divided by the number of selected basho; and
 - **Win %** is credited wins divided by expected bout opportunities over that
   period.
 
@@ -80,9 +82,9 @@ The denominator is only one choice. A rolling wins table must also specify:
 - **ties and filtering:** how the displayed comparison set determines places.
 
 The present standings product makes one coherent set of choices: credited
-wins including fusensho, the selected basho window, expected bout opportunity,
-and a user-selectable current-versus-all population. Other choices could be
-equally reproducible and answer different questions.
+wins including fusensho, the selected basho window, expected bout
+opportunities, and a user-selectable current-versus-all population. Other
+choices could be equally reproducible and answer different questions.
 
 This is not a criticism of the product. A useful measure must choose. The
 lesson is that simplicity at the point of display can conceal substantial
@@ -109,7 +111,7 @@ comparable merely by dividing every total by the number of opportunities.
 
 One response is to assign each opponent a level and weight a result
 accordingly. But where does that level come from? Current chii supplies useful
-information but not the cardinal scale discussed in Section 2. Recent win
+information but not the cardinal scale discussed in Chapter 2. Recent win
 percentage has the same unequal-opposition problem. Asking experts to assign a
 number returns us to an informed but case-dependent judgement.
 
@@ -178,11 +180,3 @@ scrutiny.
 
 The next chapter begins that scrutiny with ordinary Elo: the probability
 equation, the update rule and the role of its parameters.
-
-## Working sources
-
-- `../../analysis/standings/README.md`
-- `../../analysis/standings/docs/Specification.md`
-- `../../analysis/standings/docs/Rationale.md`
-- `../../analysis/standings/docs/UI Feature Impact Taxonomy.md`
-- `../../products/make_site2/prose/archive/Elo Ratings.html`

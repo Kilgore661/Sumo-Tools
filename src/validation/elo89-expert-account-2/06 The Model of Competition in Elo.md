@@ -118,11 +118,11 @@ an initial state
     -> a sequence of later rating states
 ```
 
-In a population whose membership changes, the same question reappears whenever
-a competitor first becomes represented: what state should enter the recurrence
-at that point? Section 7 examines the practical difficulty. The present point
-is structural: initialisation is part of the rating model, not administrative
-preparation performed outside it.
+In a population whose membership changes, the same question arises whenever a
+competitor has no existing rating: what initial state should be assigned?
+Chapter 7 examines the practical difficulty. The present point is structural:
+initialisation is part of the rating model, not administrative preparation
+performed outside it.
 
 ## One competitor, one scalar
 
@@ -361,8 +361,8 @@ ordinary Elo rating.
 
 The operational model makes a compact set of commitments:
 
-- every represented competitor enters the recurrence with an assigned initial
-  state;
+- every competitor must have an assigned initial state before his first rated
+  contest;
 - every competitor is represented at an instant by one scalar state;
 - the difference of two states is sufficient for the matchup probability;
 - one common logistic curve maps every difference to probability;
@@ -384,12 +384,3 @@ material failures, and whether added complexity earns its place.
 Those are empirical and applied questions. We now turn from the model implied
 by ordinary Elo to the difficulties encountered when that model is used in
 chess and, especially, professional sumo.
-
-## Working sources
-
-- `../../analysis/docs/2026 09 11 Strength, Purpose and Model Bias - Lab Note.md`
-- `../../analysis/docs/2026 09 26 Chii and the Measurement of Strength.md`
-- `../../../docs/What It Means to Test a Sumo Model.md`
-- `../../../docs/Foundations/01-what-is-this-about.md`
-- `../../../docs/Foundations/02-base-model.md`
-- `../../../docs/Foundations/05-mathematical-context.md`
