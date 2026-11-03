@@ -41,9 +41,7 @@ able to compete.
 None of this requires us to treat chii as “mere labels”. Chii contain valuable
 information about performance. Elo-89 itself acknowledges that information:
 its P1-WL table uses banzuke position when a rikishi first enters the
-represented rating population. A returning rikishi instead resumes his frozen
-rating, so a temporary representational gap does not erase his earlier bout
-evidence.
+represented rating population. 
 
 The narrower question is whether the information in chii already supplies the
 kind of measure that Elo-89 is intended to construct.
@@ -72,12 +70,7 @@ East and west distinguish places within nominal ranks. Writing all of these in
 one sequence is useful for ordering and software, but it does not reveal a
 uniform geometry of strength hidden inside the hierarchy.
 
-The repository's `Chii.ordinal()` illustrates the point. It provides a
-consistent machine ordering for banzuke positions. Arithmetic performed on
-its codes does not thereby become arithmetic on competitive strength. To turn
-chii into a numerical performance scale, we would have to decide the sizes of
-the gaps within ranks, between rank classes and across divisions. Those would
-be new modelling choices, not facts read directly from the banzuke.
+
 
 ## The banzuke preserves a path
 

@@ -9,9 +9,7 @@ That is a legitimate calculation. If the question is literally “who
 accumulated the most credited wins in this period?”, the total answers it. The
 problem begins when the total is allowed to answer a broader question without
 further argument. Rikishi do not all receive or take the same number of bout
-opportunities. They may miss individual days or complete basho, enter or leave
-the population, compete under different divisional schedules, or move between
-divisions during the selected period.
+opportunities. They may miss individual days or complete basho, compete under different divisional schedules, or move between divisions during the selected period.
 
 Once exposure differs, “most wins” and “most successful when competing” are
 not the same idea.
@@ -21,9 +19,9 @@ fights 90 bouts and wins 45. Rikishi B competes in three, fights 45 bouts and
 wins 27.
 
 | Rikishi | Wins | Wins per selected basho | Wins per bout fought |
-| --- | ---: | ---: | ---: |
-| A | 45 | 7.5 | 50% |
-| B | 27 | 4.5 | 60% |
+| ------- | ----:| -----------------------:| --------------------:|
+| A       | 45   | 7.5                     | 50%                  |
+| B       | 27   | 4.5                     | 60%                  |
 
 The first two columns favour A; the last favours B. No arithmetic error has
 occurred. The measures disagree because they retain different meanings.

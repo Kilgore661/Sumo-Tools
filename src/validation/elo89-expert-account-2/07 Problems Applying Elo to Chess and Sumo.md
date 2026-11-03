@@ -6,18 +6,19 @@ Ordinary Elo provides a probability equation, an update equation and a
 recursive state. Applying those ideas to an enduring human competition
 requires more.
 
-Chess and professional sumo both have competitors who enter, improve, become
-inactive, return and leave. Their contest records form incomplete networks
-rather than permanent full round robins. The evidence available at the start
-of a calculation may not include the beginning of every career, and the
-meaning of a rating may be expected to persist across many years.
+Chess and professional sumo both have competitors who enter, improve or
+decline, become inactive, return and leave. Their contest records form
+incomplete networks rather than permanent full round robins. The evidence
+available at the start of a calculation may not include the beginning of every
+career, and the meaning of a rating may be expected to persist across many
+years.
 
 An administered chess system supplies policies around the Elo core. A sumo
 system must do the same. Those policies should not be mistaken for deductions
 from the two ordinary equations.
 
 The manifestations differ. Chess permits draws and is played across many
-tournaments and rating pools. Sumo's represented outcomes are predominantly
+tournaments and rating pools. Sumo's represented outcomes are 
 binary, its schedule is strongly structured by banzuke and division, and its
 careers proceed through a changing hierarchical population. The common lesson
 is that “use Elo” does not identify one complete model.
@@ -335,19 +336,19 @@ the same formula throughout.
 
 The problems above do not all have the same status.
 
-| Issue | Present status |
-| --- | --- |
-| An initial state is required | Mathematical consequence |
-| Equal initialisation creates equal initial probabilities | Mathematical consequence |
-| Entry and departure can move the population mean | Mathematical consequence |
-| Disconnected components have unidentified relative offsets | Mathematical consequence |
-| Fixed-K individual ratings continue to fluctuate | Mathematical consequence supported by toy experiments |
-| Sumo has irregular historical coverage and ranked-population gaps | Audited data finding |
-| Basic Elo behaviour differs by sumo population and period | Empirical finding for the tested model |
-| The observed Makuuchi–Juryo bridge can connect a toy scale | Conditional experimental finding |
-| Individual uncertainty would materially improve the production model | Plausible, not yet tested comparatively |
-| Stable style cycles materially damage scalar Elo in sumo | Open empirical question |
-| One anchoring policy establishes unconditional cross-era equivalence | Not established |
+| Issue                                                                | Present status                                        |
+| -------------------------------------------------------------------- | ----------------------------------------------------- |
+| An initial state is required                                         | Mathematical consequence                              |
+| Equal initialisation creates equal initial probabilities             | Mathematical consequence                              |
+| Entry and departure can move the population mean                     | Mathematical consequence                              |
+| Disconnected components have unidentified relative offsets           | Mathematical consequence                              |
+| Fixed-K individual ratings continue to fluctuate                     | Mathematical consequence supported by toy experiments |
+| Sumo has irregular historical coverage and ranked-population gaps    | Audited data finding                                  |
+| Basic Elo behaviour differs by sumo population and period            | Empirical finding for the tested model                |
+| The observed Makuuchi–Juryo bridge can connect a toy scale           | Conditional experimental finding                      |
+| Individual uncertainty would materially improve the production model | Plausible, not yet tested comparatively               |
+| Stable style cycles materially damage scalar Elo in sumo             | Open empirical question                               |
+| One anchoring policy establishes unconditional cross-era equivalence | Not established                                       |
 
 Ordinary Elo nevertheless has demonstrated information about sumo results. A
 specified post-1988 Basic Elo model performed better than a neutral 50–50

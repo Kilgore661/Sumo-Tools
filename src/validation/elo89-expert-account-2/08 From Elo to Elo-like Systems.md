@@ -6,8 +6,7 @@ Chapter 5 described ordinary Elo as a compact mathematical object. Current
 ratings determine an expected score, and the difference between the observed
 and expected score moves the ratings. Chapter 7 showed that this is not enough
 to run a historical rating system. The equations do not select the evidence,
-initialise the recurrence, define the population or decide what happens when a
-competitor leaves and returns.
+initialise the recurrence or define the population.
 
 Those surrounding choices are sometimes described as implementation details.
 That description is unsafe. Change the entrant rating, the K policy or the

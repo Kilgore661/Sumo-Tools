@@ -333,10 +333,11 @@ with age, recover from injury or lose precision during inactivity. If ratings
 are interpreted as estimates of a changing real quantity, those dynamics are
 being handled only implicitly through the stream of observed residuals.
 
-We should therefore avoid both overstatements:
+We should therefore distinguish adaptation from an explicit model of change:
 
-- ordinary Elo does not simply assume that competitors never change; and
-- ordinary Elo does not provide a fully specified model of how they change.
+- ordinary Elo can adapt a competitor's rating as new results arrive; but
+- it does not specify how the competitor's underlying ability changes through
+  time.
 
 ## Probability, uncertainty and information
 
@@ -352,8 +353,9 @@ confidence measure because no such quantity exists in the model.
 
 Outcome uncertainty and rating uncertainty are different. The first is
 represented by \(F(R_A-R_B)\); the second is absent from bare point-rating Elo.
-Adding it would create a richer model rather than reveal a quantity already
-encoded in the rating.
+A Glicko-like system adds a separate uncertainty state for the latter. That
+creates a richer model rather than revealing a quantity already encoded in an
+ordinary Elo rating.
 
 ## What ordinary Elo claims—and omits
 
