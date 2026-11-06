@@ -49,9 +49,12 @@ present. The decision and exact experimental artifact hashes are recorded in
 [`Prior Aggregation`](../../../validation/elo89-expert-account/Matters%20Arising/Prior%20Aggregation/README.md).
 
 The successor is not yet installed by `src.analysis.elo89.config`. Production
-promotion must first freeze the selected 484 paired rows in a strict input
-schema, bind them to the derivation manifest, update the loader and provenance,
-and regenerate the full Elo-89 replay and site-data bundle.
+will consume the frozen 484-row strict table at
+[`equelo_prior_aggregation/results/priors.csv`](../../equelo_prior_aggregation/results/priors.csv).
+Its SHA-256 is
+`41430ce50f61bf2769ee7b37e4c964d5ecd00e78fe554a9790a869ad35955d38`.
+The remaining promotion work is to update the loader and provenance and then
+regenerate the full Elo-89 replay and site-data bundle.
 
 ## Publication TBD
 

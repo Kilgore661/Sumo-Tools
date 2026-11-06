@@ -7,6 +7,7 @@ from collections import defaultdict
 import csv
 from dataclasses import dataclass
 import hashlib
+import io
 import json
 import math
 from pathlib import Path
@@ -24,6 +25,7 @@ DEFAULT_P1 = Path(
 DEFAULT_P1_WL = Path(
     "files/output/analysis/elo89/prior/2026-09/run-001/prior.csv"
 )
+DEFAULT_PERSISTED_PRIOR = Path(__file__).resolve().parent / "results" / "priors.csv"
 POLICIES = (
     "legacy_unweighted",
     "support_weighted",
@@ -151,6 +153,7 @@ def run_experiment(
     p1_wl_path: Path,
     output: Path,
     repository_root: Path | None = None,
+    persisted_prior_path: Path | None = None,
 ) -> Path:
     """Run all policies for P1 and P1-WL and retain auditable artifacts."""
 
@@ -169,6 +172,13 @@ def run_experiment(
     }
     _validate_domains(aggregated)
 
+    persisted_prior = None
+    if persisted_prior_path is not None:
+        persisted_prior = _persist_official_prior(
+            persisted_prior_path.resolve(),
+            aggregated[("p1-wl", "support_weighted")],
+        )
+
     output.mkdir(parents=True)
     paired_path = output / "paired_priors.csv"
     comparison_path = output / "comparison.csv"
@@ -183,7 +193,11 @@ def run_experiment(
     manifest = {
         "schema_version": 1,
         "experiment": "Equelo literal-prior aggregation policy comparison",
-        "status": "experimental; no prior promoted and no production replay changed",
+        "status": (
+            "P1-prime-WL accepted and persisted; production replay unchanged"
+            if persisted_prior is not None
+            else "experimental comparison; production replay unchanged"
+        ),
         "sources": {
             name: {
                 "path": str(path),
@@ -226,6 +240,18 @@ def run_experiment(
             "p1/support_weighted": "P1-prime",
             "p1-wl/support_weighted": "P1-prime-WL",
         },
+        "persisted_official_prior": (
+            None
+            if persisted_prior is None
+            else {
+                "path": str(persisted_prior),
+                "sha256": _sha256(persisted_prior),
+                "row_count": len(aggregated[("p1-wl", "support_weighted")]),
+                "schema": ["rank_pair", "ordinal", "rating"],
+                "source": "p1-wl/support_weighted",
+                "candidate": "P1-prime-WL",
+            }
+        ),
         "software": _software_revision(root),
         "outputs": {
             path.name: {"sha256": _sha256(path)}
@@ -347,6 +373,41 @@ def _comparison_rows(
     return result
 
 
+def _persist_official_prior(
+    path: Path,
+    rows: Sequence[AggregatedPriorRow],
+) -> Path:
+    """Persist the accepted P1-prime-WL table without silently replacing it."""
+
+    stream = io.StringIO(newline="")
+    writer = csv.DictWriter(
+        stream,
+        fieldnames=("rank_pair", "ordinal", "rating"),
+        lineterminator="\n",
+    )
+    writer.writeheader()
+    writer.writerows(
+        {
+            "rank_pair": row.rank_pair,
+            "ordinal": row.ordinal,
+            "rating": row.rating,
+        }
+        for row in rows
+    )
+    content = stream.getvalue().encode("utf-8")
+    if path.exists():
+        if path.read_bytes() != content:
+            raise FileExistsError(
+                "Refusing to replace a different persisted official prior: "
+                f"{path}"
+            )
+        return path
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("xb") as destination:
+        destination.write(content)
+    return path
+
+
 def _findings(rows: list[dict[str, object]]) -> str:
     indexed = {str(row["rank_pair"]): row for row in rows}
     lines = [
@@ -454,6 +515,15 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--p1", type=Path, default=DEFAULT_P1)
     parser.add_argument("--p1-wl", type=Path, default=DEFAULT_P1_WL)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument(
+        "--persisted-prior",
+        type=Path,
+        default=DEFAULT_PERSISTED_PRIOR,
+        help=(
+            "Fixed P1-prime-WL paired-prior path. An identical existing file is "
+            "accepted; a different file is never replaced silently."
+        ),
+    )
     return parser
 
 
@@ -463,6 +533,7 @@ def main(argv: list[str] | None = None) -> int:
         p1_path=args.p1,
         p1_wl_path=args.p1_wl,
         output=args.output,
+        persisted_prior_path=args.persisted_prior,
     )
     print(f"Output: {output}")
     print((output / "findings.md").read_text(encoding="utf-8"))

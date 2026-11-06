@@ -133,7 +133,16 @@ python -m src.analysis.equelo_prior_aggregation --output <new-output-directory>
 
 The defaults select the retained same-History P1 literal fit and the accepted
 P1-WL literal fit. Alternative qualifying sources may be supplied explicitly.
-The runner refuses to overwrite an existing output directory.
+The runner refuses to overwrite an existing output directory. By default it
+also materialises the accepted P1-prime-WL rows at the fixed repository path:
+
+```text
+src/analysis/equelo_prior_aggregation/results/priors.csv
+```
+
+An identical existing `priors.csv` is accepted, making reproduction
+idempotent. If a run derives different content, it refuses to replace the
+persisted official prior silently.
 
 ## Retained run
 
@@ -173,6 +182,12 @@ Acceptance does not make the experimental runner a production dependency.
 Production must consume a frozen paired prior through a strict loader and must
 record the frozen prior and derivation-manifest hashes.
 
+The accepted standalone table is
+[`results/priors.csv`](results/priors.csv), with SHA-256
+`41430ce50f61bf2769ee7b37e4c964d5ecd00e78fe554a9790a869ad35955d38`.
+It contains 484 rows in the strict schema `rank_pair,ordinal,rating` and no
+experimental comparator columns.
+
 ## Output contract
 
 A run retains outputs without overwriting existing artifacts:
@@ -183,6 +198,13 @@ files/output/analysis/equelo_prior_aggregation/<run-id>/
     paired_priors.csv
     comparison.csv
     findings.md
+```
+
+The accepted P1-prime-WL result is the deliberate exception to the normal
+`files/output` boundary. It is persisted in the repository at:
+
+```text
+src/analysis/equelo_prior_aggregation/results/priors.csv
 ```
 
 The manifest should record source identities, grouping and weighting policies,
@@ -223,5 +245,5 @@ The initial package will not:
 
 The package contains a command-line runner, strict literal-prior loading,
 generic policy aggregation, retained artifact generation, focused tests, and
-one retained run. The subsequent decision selects P1-prime-WL as the official
-successor prior; this package does not install it in production.
+one retained run. The accepted P1-prime-WL table is persisted under `results`;
+this package does not yet install it in the Elo-89 replay.

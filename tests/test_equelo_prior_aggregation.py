@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import json
+from pathlib import Path
 
 import pytest
 
@@ -125,11 +126,13 @@ def test_run_experiment_writes_hashed_artifacts_and_refuses_overwrite(tmp_path):
     _write_prior(p1, rows)
     _write_prior(p1_wl, rows)
     output = tmp_path / "output"
+    persisted = tmp_path / "results" / "priors.csv"
 
     run_experiment(
         p1_path=p1,
         p1_wl_path=p1_wl,
         output=output,
+        persisted_prior_path=persisted,
     )
 
     assert {path.name for path in output.iterdir()} == {
@@ -144,9 +147,71 @@ def test_run_experiment_writes_hashed_artifacts_and_refuses_overwrite(tmp_path):
         "comparison.csv",
         "findings.md",
     }
+    assert manifest["persisted_official_prior"]["path"] == str(persisted.resolve())
+    with persisted.open(newline="", encoding="utf-8") as stream:
+        persisted_rows = list(csv.DictReader(stream))
+    assert tuple(persisted_rows[0]) == ("rank_pair", "ordinal", "rating")
+    assert [row["rank_pair"] for row in persisted_rows] == ["K1", "M1"]
+    assert float(persisted_rows[0]["rating"]) == pytest.approx(2332.5)
+
+    second_output = tmp_path / "second-output"
+    run_experiment(
+        p1_path=p1,
+        p1_wl_path=p1_wl,
+        output=second_output,
+        persisted_prior_path=persisted,
+    )
+
     with pytest.raises(FileExistsError, match="Refusing to overwrite"):
         run_experiment(
             p1_path=p1,
             p1_wl_path=p1_wl,
             output=output,
+            persisted_prior_path=persisted,
         )
+
+
+def test_run_experiment_refuses_to_replace_different_persisted_prior(tmp_path):
+    p1 = tmp_path / "p1.csv"
+    p1_wl = tmp_path / "p1-wl.csv"
+    rows = (
+        ("K1e", 100, 2400),
+        ("K1w", 100, 2300),
+        ("M1e", 100, 2250),
+        ("M1w", 100, 2200),
+    )
+    _write_prior(p1, rows)
+    _write_prior(p1_wl, rows)
+    persisted = tmp_path / "results" / "priors.csv"
+    run_experiment(
+        p1_path=p1,
+        p1_wl_path=p1_wl,
+        output=tmp_path / "first-output",
+        persisted_prior_path=persisted,
+    )
+    changed = list(rows)
+    changed[0] = ("K1e", 100, 2500)
+    _write_prior(tmp_path / "changed.csv", changed)
+
+    with pytest.raises(FileExistsError, match="different persisted official prior"):
+        run_experiment(
+            p1_path=p1,
+            p1_wl_path=tmp_path / "changed.csv",
+            output=tmp_path / "rejected-output",
+            persisted_prior_path=persisted,
+        )
+
+    assert not (tmp_path / "rejected-output").exists()
+
+
+def test_repository_persists_the_accepted_p1_prime_wl_prior():
+    path = Path("src/analysis/equelo_prior_aggregation/results/priors.csv")
+
+    with path.open(newline="", encoding="utf-8") as stream:
+        rows = list(csv.DictReader(stream))
+
+    assert tuple(rows[0]) == ("rank_pair", "ordinal", "rating")
+    assert len(rows) == 484
+    indexed = {row["rank_pair"]: float(row["rating"]) for row in rows}
+    assert indexed["K1"] == pytest.approx(2323.047888779248)
+    assert indexed["M1"] == pytest.approx(2301.520014989377)

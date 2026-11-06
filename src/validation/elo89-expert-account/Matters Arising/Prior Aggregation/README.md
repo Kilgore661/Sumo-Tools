@@ -96,21 +96,29 @@ The retained identities are:
 | Comparison table | `8aa75142270e07e6f3f0f03e96f69a56d27448f634f2602144af3cb6e12e9bbe` |
 | Generated findings | `83f273970a9071d1f3ad20843f963684314ced45f88411a215bceafbb7e5dc27` |
 
-The combined experimental table is an audit artifact, not the eventual strict
-production input. Promotion must freeze the selected 484 paired rows in the
-production schema and bind that file to its derivation manifest.
+The selected 484 rows are now persisted on their own at:
+
+```text
+src/analysis/equelo_prior_aggregation/results/priors.csv
+```
+
+That strict `rank_pair,ordinal,rating` file has SHA-256
+`41430ce50f61bf2769ee7b37e4c964d5ecd00e78fe554a9790a869ad35955d38`.
+
+The combined experimental table remains the audit artifact. The standalone
+`results/priors.csv` is the frozen strict input selected for production.
 
 ## Production consequence
 
-The next implementation tranche must:
+The fixed paired prior is now persisted. The remaining production tranche
+must:
 
-1. freeze the selected P1-prime-WL paired prior and derivation manifest;
-2. replace dynamic aggregation in the Elo-89 producer with a strict paired-
+1. replace dynamic aggregation in the Elo-89 producer with a strict paired-
    prior loader;
-3. record both frozen artifact hashes in production provenance;
-4. replay the complete Elo-89 history without changing replay mathematics;
-5. regenerate the complete `files/output/analysis/site89_bundle`; and
-6. revise public typical-rating and provenance wording that describes the
+2. record the frozen prior and derivation hashes in production provenance;
+3. replay the complete Elo-89 history without changing replay mathematics;
+4. regenerate the complete `files/output/analysis/site89_bundle`; and
+5. revise public typical-rating and provenance wording that describes the
    prior as a simple east/west average.
 
 Until that tranche is complete, the accepted successor contract and the
