@@ -52,12 +52,12 @@ scales:
   period.
 
 The second denominator deserves attention. It is not simply the number of
-bouts which happen to have a recorded result. The current product uses
-*expected* bouts, based on the division in which the rikishi was scheduled to
-compete. That policy prevents every missed contest from vanishing harmlessly
-from the denominator, but it is itself a choice. Another table could use bouts
-actually fought, bouts for which the rikishi was available, basho in which he
-appeared, or some other defined exposure.
+bouts actually fought. The current product uses *expected* bouts, based on the
+division in which the rikishi was scheduled to compete. That policy prevents
+every missed contest from vanishing harmlessly from the denominator, but it is
+itself a choice. Another table could use bouts actually fought, bouts for which
+the rikishi was available, basho in which he appeared, or some other defined
+exposure.
 
 Expected opportunities also differ across divisions. Consequently, division
 history and movement during the window can affect the relation between Average

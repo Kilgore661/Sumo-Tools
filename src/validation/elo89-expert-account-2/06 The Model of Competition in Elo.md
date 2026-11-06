@@ -61,8 +61,8 @@ to the intended real-world meaning of strength.
 ## A recurrence needs an initial state
 
 The Elo equations describe how one rating state becomes the next. They do not
-create the first state. Before the first represented contest can be processed,
-the model must assign an initial rating to every competitor already present.
+create the first state. Before the first eligible contest can be processed, the
+model must assign an initial rating to every competitor already present.
 
 Write that initial state as
 

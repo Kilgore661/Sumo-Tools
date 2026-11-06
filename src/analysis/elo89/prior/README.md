@@ -21,6 +21,36 @@ files/output/analysis/elo89/prior/YYYY-MM/run-NNN/
     manifest.json
 ```
 
+## Accepted and paired tables
+
+`src.analysis.elo89.config` declares which immutable run is accepted by
+Elo-89. The accepted fitted table is currently:
+
+```text
+files/output/analysis/elo89/prior/2026-09/run-001/prior.csv
+```
+
+That fitting output contains separate values for east and west chii. When
+Elo-89 loads it, values belonging to the same rank pair are averaged. Every
+production replay writes the resulting paired table as `prior.csv` in the
+replay output. In the standard site-data bundle, the exact paired values used
+are therefore in:
+
+[`files/output/analysis/site89_bundle/sources/elo89/prior.csv`](../../../../files/output/analysis/site89_bundle/sources/elo89/prior.csv)
+
+The adjacent `manifest.json` records the fitted table's path and SHA-256 hash,
+as well as the number of rank pairs written. Both CSV files are generated
+artifacts under `files/output`; they are not source-controlled files.
+
+## Publication TBD
+
+**TBD: finalise the content and stable repository location of P1-WL.** The
+current fitted and paired tables are generated artifacts under `files/output`
+and are therefore absent from a clean checkout. Before the expert account is
+published as a permanent repository document, the accepted values and the
+provenance needed to identify them must be placed at a stable, source-controlled
+location and the links above updated.
+
 There is deliberately no output-path command-line option. Existing runs are
 never overwritten, and run numbering is local to the selected boundary.
 

@@ -23,6 +23,13 @@ schedule is strongly structured by banzuke and division, and its careers
 proceed through a changing hierarchical population. The common lesson is that
 “use Elo” does not identify one complete model.
 
+Some of the problems below force an operational choice: a rating system cannot
+run until it has fixed an epoch, initial ratings, an update policy and a
+population policy. Others identify limits which a simple point-rating system
+may acknowledge without solving, such as estimation uncertainty, selective
+schedules and persistent matchup effects. Keeping those two categories apart
+is essential. A complete specification need not be a complete model of sumo.
+
 ## 1. Initialisation is unavoidable
 
 Chapter 6 showed that a recurrence needs an initial state. There are two
@@ -36,7 +43,7 @@ them.
 
 The **first-rating problem** arises whenever a competitor without an existing
 rating first appears after the epoch. A rating must be assigned before his
-first represented contest can be forecast or updated. The ordinary equations
+first eligible contest can be forecast or updated. The ordinary equations
 do not supply it.
 
 A common initial value has an arbitrary *level* but a substantive *equality*.
@@ -110,8 +117,8 @@ labelled 2,200 decades later need not occupy equivalent positions on a stable
 scale.
 
 The problem exists in principle wherever a rating population is open. It is
-especially visible in sumo because the represented population changes
-continuously rather than only in exceptional circumstances.
+especially visible in sumo because the active population changes continuously
+rather than only in exceptional circumstances.
 
 ## 3. Competitors change, while the update rule does not explain how
 
@@ -188,32 +195,20 @@ compared with an uncertainty-aware sumo model. Whether a Glicko-like state
 would materially improve its predictions therefore remains an open empirical
 question.
 
-## 6. Missing history cannot be inferred by the recurrence
+## 6. The data boundary fixes the epoch
 
-Elo can process only represented results. If a career began before the data or
-if bouts are missing within it, the update process cannot reconstruct those
-outcomes from nothing.
+An Elo recurrence cannot reconstruct bouts which are absent from its input.
+This matters when choosing where a historical calculation should begin.
 
-This differs from ordinary uncertainty about a recorded upset. Missing history
-removes edges from the comparison network and can leave a competitor's state
-too dependent on its initial value or on a small, unrepresentative subset of
-opponents.
+Before January 1989, lower-division bout records are incomplete. From January
+1989, SumoDB contains every banzuke and every bout between rikishi on the
+banzuke. Elo-89 therefore begins at that boundary. This is not a claim that
+careers or professional sumo began in January 1989; it is a direct statement
+of the period for which the required record is complete.
 
-Historical sumo makes this issue concrete. Makuuchi and Juryo records are
-complete much earlier than the lower-division record. The project's audit also
-shows that pre-1989 lower-division evidence is not simply absent: many basho
-are complete and others are partially represented, with coverage improving at
-different dates in different divisions. The resulting boundary is irregular,
-not one clean moment at which all evidence changes from missing to complete.
-
-Missing history does not erase information learned from represented results,
-but it weakens claims about how completely the resulting rating reflects a
-career. The audit does not quantify the predictive harm caused by the missing
-results.
-
-The 1989 starting point used by Elo-89 is therefore a model and evidence
-boundary chosen to obtain a sufficiently complete represented record. It is
-not a claim that careers or competitive history began in January 1989.
+The first six sections identify choices and boundaries which a working system
+must make explicit. The remaining problems are limitations on what can be
+inferred even after the calculation has been completely specified.
 
 ## 7. Comparisons require a connected result network
 
@@ -326,7 +321,7 @@ The problems above do not all have the same status.
 | Adding or removing ratings can move the population mean | Mathematical consequence |
 | Disconnected components have unidentified relative offsets | Mathematical consequence |
 | Fixed-\(K\) individual ratings continue to fluctuate | Mathematical consequence supported by toy experiments |
-| Sumo has irregular historical coverage | Audited data finding |
+| Pre-1989 lower-division bout coverage is incomplete | Audited data finding |
 | Simple Elo baseline performance differs by population and period | Empirical finding for the tested model |
 | Cross-division bridge bouts can identify relative offsets in tested toy models | Conditional experimental finding |
 | An uncertainty-aware model would materially improve predictions | Open empirical question |
@@ -335,12 +330,13 @@ The problems above do not all have the same status.
 
 Ordinary Elo nevertheless has demonstrated information about sumo results. A
 specified simple Elo model performed better than a neutral 50–50 forecast over
-the represented post-1988 history. That existential result matters: the
+eligible bouts from January 1989 onward. That existential result matters: the
 difficulties in this chapter do not make the model vacuous.
 
 They do show why the ordinary equations are only a starting point. Applying
 the Elo idea requires choices about initialisation, responsiveness,
-uncertainty, population membership, scale, missing evidence and publication.
-Different choices create different Elo-like systems.
+uncertainty, population membership, scale, data scope and publication. Some
+choices define the calculation; other questions remain acknowledged
+limitations. Different answers create different Elo-like systems.
 
 That is the subject of the next chapter.

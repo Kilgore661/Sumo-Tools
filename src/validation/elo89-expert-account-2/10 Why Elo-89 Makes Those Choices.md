@@ -24,9 +24,8 @@ remains partly a modelling judgement.
 
 | Component | Main status | Reason for the choice | Important qualification |
 | --- | --- | --- | --- |
-| January 1989 epoch | Modelling judgement | Defines a modern period with sufficiently complete represented all-division evidence | No search established it as uniquely optimal; earlier lower-division evidence is substantial but irregular |
-| Binary fought-result domain | Modelling judgement | Uses represented W/L evidence while excluding fusen and other outcomes outside the binary fought-bout model | Alternative numerical treatments of fusen were not compared comprehensively |
-| Stable identity and forecast-before-update chronology | Reproducibility requirement | Preserves one career across shikona changes and prevents a result entering its own forecast | These rules make the calculation well defined; they are not findings about ability |
+| January 1989 epoch | Data boundary and modelling judgement | Begins where SumoDB contains every banzuke and every bout between rikishi on the banzuke | Earlier lower-division records are incomplete; an earlier-history model would require a different evidence policy |
+| Binary fought-result domain | Modelling judgement | Uses recorded W/L results while excluding fusen and other outcomes outside the binary fought-bout model | Alternative numerical treatments of fusen were not compared comprehensively |
 | \(q=400\) | Convention with diagnostic support | Gives rating gaps their conventional Elo interpretation and is adequately calibrated for mature ratings | It was not selected by a comprehensive search |
 | Divisional \(K\) | Empirical evidence and modelling judgement | Retrospective comparisons favoured faster adjustment in lower divisions | The exact values were not independently optimised; division is only a proxy for maturity and change |
 | P1-WL first ratings | Empirical evidence and modelling judgement | Rank-informed initialisation reduces the weakness of ratings with little bout evidence | The table is future-informed within its fitting period, and sparse chii remain difficult |
@@ -39,16 +38,14 @@ remains partly a modelling judgement.
 
 ## Why begin in January 1989?
 
-January 1989 is a practical evidence boundary. From that point, the represented
-all-division record is sufficiently complete for a common chronological
-calculation and for like-for-like retrospective evaluation.
+January 1989 is a practical evidence boundary. From that point, SumoDB contains
+every banzuke and every bout between rikishi on the banzuke, providing the
+complete input required by Elo-89.
 
-This is a defensible scope choice, not a discovered discontinuity in sumo.
-The completeness audit found that the earlier record is neither uniformly
-complete nor generally empty. Makuuchi and Juryo are complete much earlier,
-while lower-division coverage improves irregularly and contains both complete
-and sparse basho. There is no single date on which all historical evidence
-changes character.
+This is a data boundary, not a discovered discontinuity in sumo. The earlier
+record contains useful evidence, but its lower-division bout coverage is
+incomplete. A model beginning earlier would therefore require a different
+evidence policy.
 
 Elo-89 therefore says that January 1989 is its modern evidence boundary. It
 does not say that relevant competition began then or that an earlier-history
@@ -56,7 +53,7 @@ rating system cannot be constructed.
 
 ## Why retain the binary fought-result domain?
 
-Elo-89 is intended to learn from represented competitive results. A W/L pair
+Elo-89 is intended to learn from eligible competitive results. A W/L pair
 contains the evidence required by its binary update.
 
 Fusen identify a winner and loser administratively, but not the outcome of a
@@ -130,7 +127,7 @@ ones.
 
 ## Why hold P1-WL fixed?
 
-P1-WL was fitted using represented history through the September 2026 basho
+P1-WL was fitted using eligible results through the September 2026 basho
 and then fixed. Extending Elo-89 through later basho does not re-estimate it.
 
 This boundary serves two purposes. It makes a release reproducible: the same
@@ -191,8 +188,8 @@ no eligible bout. His point rating receives the common population shifts but
 no individual bout update. A stored rating outside the active population
 receives neither kind of change.
 
-This follows the principle that a rating changes in response to represented
-bout evidence. Inactivity may accompany injury, recovery, deterioration or no
+This follows the principle that a rating changes in response to eligible bout
+evidence. Inactivity may accompany injury, recovery, deterioration or no
 material change, but inactivity alone does not quantify the direction or size
 of any ability change. Automatic decay would insert a numerical claim not
 supplied by the bout record.

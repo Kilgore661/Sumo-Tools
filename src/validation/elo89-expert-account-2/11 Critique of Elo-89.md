@@ -4,8 +4,8 @@
 
 Elo-89 should be judged against the purpose stated in Chapter 3: a
 reproducible, opponent-sensitive numerical account of changing bout-winning
-strength in the represented modern record. It is not a numerical banzuke, an
-injury report, a measurement of physical ability in isolation or a complete
+strength from January 1989 onward. It is not a numerical banzuke, an injury
+report, a measurement of physical ability in isolation or a complete
 definition of greatness.
 
 On that narrower standard, Elo-89 is credible. It led the declared
@@ -35,7 +35,7 @@ The criticisms below ask four different questions:
 | Population normalisation affects displayed changes | Contribution audit found generally modest effects relative to ending ratings but potentially material effects on particular changes | Accepted with disclosure |
 | Fixed global mean does not stabilise every chii | Measured rank-specific movement and reversals through time | Limits cross-era and rank-level interpretation |
 | Inactivity leaves support less current | Elo-89 retains a point estimate but has no uncertainty state which can widen without new bouts | Interpretation limit and open comparative question |
-| Selective schedule and connectivity | Sumo bouts are not random; subgroup and toy evidence show uneven support | Limit claims to the represented matchup network |
+| Selective schedule and connectivity | Sumo bouts are not random; subgroup and toy evidence show uneven support | Limit claims to the observed matchup network |
 | Retrospective model selection | The model and first-rating table were selected using history through September 2026 | Major evidence qualification; genuinely later results provide prospective evidence |
 
 ## 1. One number may not be enough
@@ -66,7 +66,7 @@ later forecasts or another declared measurement objective.
 ## 2. A point rating conceals how well it is known
 
 Two rikishi can have the same Elo-89 rating when one value rests on hundreds
-of represented bouts and the other is principally a P1-WL first rating. The
+of eligible bouts and the other is principally a P1-WL first rating. The
 printed number contains no confidence interval, rating deviation, effective
 sample size or age-of-evidence measure.
 
@@ -133,7 +133,7 @@ October 2026, so results from November 2026 onward cannot alter it.
 Third, P1-WL is a population average indexed by chii. Individuals at the same
 chii can differ greatly, especially in high-churn lower divisions where a rank
 can mix long-term lower-division rikishi, rapidly rising talent and careers
-with very little represented evidence. A useful average can still be a poor
+with very little bout evidence. A useful average can still be a poor
 first estimate for a particular person.
 
 P1-WL is therefore best understood as a historically fitted regulariser. It is
@@ -145,20 +145,21 @@ be presented as the ability naturally belonging to a rank.
 Elo-like ratings acquire meaning through a connected network of persistent
 competitors. Jonokuchi and low Jonidan have high churn, short records, rapid
 risers, weak long-stayers and historically changing banzuke depth. Many
-careers supply few represented bouts before their ratings can become mature.
+careers supply few eligible bouts before their ratings can become mature.
 
-The P1-WL rank curve is not strictly monotone at its lowest-support chii. That
-may reflect real population mixtures, changing banzuke structure, sparse
-support, model failure or several of these at once. Silently smoothing the
-curve would hide the evidence; treating every reversal as a discovery about
-sumo would overinterpret it.
+The P1-WL rank curve is not strictly monotone. Most reversals, including the
+largest, occur among sparsely supported lower chii, but reversals are not
+confined to them. They may reflect real population mixtures, changing banzuke
+structure, sparse support, model failure or several of these at once. Silently
+smoothing the curve would hide the evidence; treating every reversal as a
+discovery about sumo would overinterpret it.
 
 The lowest-division normalisation results are also the least reassuring. In
 the full-history 12-basho contribution study, all 219 observations outside the
 author's ±5% practical band belonged to Jonidan or Jonokuchi.
 
 Current inclusion is a pragmatic judgement. It allows broad career histories
-to be represented and makes model strain visible. Claims at the bottom of the
+to be included and makes model strain visible. Claims at the bottom of the
 banzuke should nevertheless be weaker, and experiments on churn,
 connectivity, alternative cut points and later sekitori performance remain
 justified.
@@ -174,7 +175,7 @@ population has different gaps from those later ratings, so subsequent
 forecasts and updates can differ.
 
 Second, published individual rating changes include every common shift
-received while represented. A displayed increase is not necessarily the sum
+received while active. A displayed increase is not necessarily the sum
 of positive bout evidence. In May 1992, for example, Konishiki's recorded bout
 contribution was about -26.1 points and his normalisation contribution about
 +30.4, producing a displayed increase of about +4.2.
@@ -201,7 +202,7 @@ coordinate, not the composition, schedule or rating distribution within the
 population.
 
 The per-chii drift study makes the distinction concrete. Among 382 numbered
-groups with at least 60 represented basho over ten years, full-history
+groups with at least 60 basho observations over ten years, full-history
 post-basho slopes ranged from -104.5 to +92.3 points per decade. M1 period
 means rose from about 2,293 in 1989--1993 to 2,512 in 2004--2008 and were about
 2,452 in the partial 2024--2026 period. Y1 rose from about 2,515 to 2,939 and
@@ -229,7 +230,7 @@ This embodies the principle that absence of competition supplies no new
 directional bout evidence. Inactivity may accompany injury, recovery,
 deterioration or no material change, but it does not quantify the direction or
 size of an ability change. Automatic decay would insert a numerical claim not
-supplied by the represented bouts.
+supplied by the eligible bouts.
 
 The unresolved issue is evidential support. An old point estimate need not be
 as securely informative as a recent one, and physical change may occur without
@@ -261,11 +262,11 @@ scalar model when extrapolating beyond densely observed regions.
 
 ## 10. Validation remains retrospective
 
-Across the represented post-1988 history, retrospective evaluations
+Across the history from January 1989 onward, retrospective evaluations
 consistently gave Elo-89 lower log and Brier loss than a neutral 50--50
 forecast. The current contract also led the declared proper-score comparisons
 used to select its main policies. The model therefore contains genuine
-predictive information about the represented results.
+predictive information about the eligible results.
 
 That evidence is retrospective. P1-WL was fitted using the broad period being
 scored, and the population policy and diagnostics were developed after

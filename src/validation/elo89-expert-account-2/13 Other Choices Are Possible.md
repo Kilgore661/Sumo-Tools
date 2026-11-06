@@ -23,7 +23,7 @@ be inspected and compared.
 Several quantities can all be interesting without being interchangeable:
 
 - **recent achievement**: wins accumulated over a declared window;
-- **success rate**: wins per represented bout;
+- **success rate**: wins per eligible bout;
 - **basho production**: credited wins per tournament appearance;
 - **official standing**: position and status on the banzuke;
 - **current bout-winning capacity**: estimated probability against specified
@@ -105,7 +105,7 @@ population. A table fitted from later outcomes can be useful for historical
 reconstruction, but it must not be described as prospectively available at an
 earlier date.
 
-Elo-89 fixes P1-WL on 30 October 2026 using represented results through the
+Elo-89 fixes P1-WL on 30 October 2026 using eligible results through the
 September 2026 basho. Alternative fitting boundaries can be evaluated
 separately, but adopting one would revise the fitted artifact rather than
 silently update it.
@@ -199,13 +199,13 @@ a common protocol.
 ### 1. State the target
 
 Define the real-world or operational claim. Is the output a probability for
-the next represented bout, a descriptive historical score, an official-policy
+the next eligible bout, a descriptive historical score, an official-policy
 aid or a measure of sustained achievement? Different targets need different
 evaluation.
 
 ### 2. Freeze the complete contract
 
-Specify evidence eligibility, identity, chronology, state, initialisation,
+Specify evidence eligibility, state, initialisation,
 parameters, treatment of inactivity and uncertainty, population, anchoring and
 observation stage. “Use Glicko” or “use recent form” is no more reproducible
 than “use Elo”.

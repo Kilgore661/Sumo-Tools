@@ -2,10 +2,9 @@
 
 ## The short answer
 
-Elo-89 is an Elo-like numerical rating system for the represented professional
-sumo record from January 1989 onward. It processes eligible wins and losses in
-chronological order and maintains one number—a rating—for each represented
-rikishi.
+Elo-89 is an Elo-like numerical rating system for rikishi on the banzuke from
+January 1989 onward. It processes eligible wins and losses in chronological
+order and maintains one number—a rating—for each rikishi.
 
 The ratings are opponent-sensitive. A win does not have one fixed value. Its
 effect depends on the two rikishi's ratings before the bout: defeating an
@@ -35,14 +34,13 @@ idea becomes a working sumo model.
 
 In outline, Elo-89:
 
-- begins with the substantially represented record in January 1989—the source
-  of “89” in its name;
+- begins in January 1989—the source of “89” in its name;
 - uses paired binary win/loss results selected under a declared bout policy;
 - assigns a first rating to a rikishi without an existing rating from his
   banzuke position, using a fixed table called **P1-WL**;
 - makes ratings more or less responsive according to broad rank group through
   a divisional **K** schedule; and
-- applies common shifts to keep the represented population centred on a fixed
+- applies common shifts to keep the active population centred on a fixed
   mean as that population changes.
 
 Those mechanisms are only signposts here. Later chapters explain ordinary Elo,

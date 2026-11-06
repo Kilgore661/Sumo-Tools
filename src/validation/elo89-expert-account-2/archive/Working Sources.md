@@ -1,10 +1,17 @@
 # Elo-89 Expert Account: Working Sources
 
+> **Archived:** This is the uncurated drafting source list. Use the public
+> appendix for the sources selected to define or support the current account.
+
 This companion document preserves the working-source lists collected during
 the drafting of the expert account. The lists are grouped by chapter and retain
 their original repository-relative paths. They record provenance and research
 history; inclusion here does not imply that every source describes the current
 model or belongs in the public account.
+
+The recorded paths are relative to the parent `elo89-expert-account-2`
+directory, where this document was originally stored, rather than to this
+archive directory.
 
 ## Chapter 1: What is Elo-89?
 

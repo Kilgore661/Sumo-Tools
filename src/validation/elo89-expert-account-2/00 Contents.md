@@ -1,21 +1,29 @@
 # Elo-89 Ratings: Expert Account
 
+## About this account
+
+This account is written for readers familiar with rating theory. It explains
+what Elo-89 is, how it works, why its principal choices were made, what
+evidence supports them and where the model may fail or mislead.
+
+It is a synthesis rather than a self-contained academic report: detailed
+derivations, experiments and implementation records are not all reproduced
+here. The entire project is
+[open source](https://github.com/Kilgore661/Sumo-Tools). Where supporting
+detail is omitted, the text or the
+[Research and Implementation Guide](Appendix%20-%20Research%20and%20Implementation%20Guide.md)
+points to the relevant work in the repository.
+
 ## Status
 
-This is the current **top copy** of the expert-facing account and is considered
-complete as of 30 October 2026. It preserves the earlier account and
-incorporates the accepted P1-WL and frozen-persistence decisions. See
-[Revision Provenance](Revision%20Provenance.md).
-Chapter-level research provenance is collected separately in
-[Working Sources](Working%20Sources.md).
-The pre-review Chapter 10 has also been retained as an
-[Elo-89 Development and Decision Narrative](Elo-89%20Development%20and%20Decision%20Narrative.md).
-It and the other non-chapter documents in this folder will be reviewed after
-the numbered account is complete.
+This is the current **top copy** of the expert-facing account. It incorporates
+the accepted Elo-89 contract and is undergoing its final substantive and
+publication review. Supporting research and implementation references are
+collected in the appendix.
 
-The aim is to write a complete account first. Once its definitions, argument,
-evidence and criticism are satisfactory, relevant portions can be adapted for
-interested and casual readers and considered for integration into the site.
+Once its definitions, argument, evidence and criticism are satisfactory,
+relevant portions can be adapted for interested and casual readers and
+integrated into the site.
 
 ## Intended outcome
 
@@ -90,8 +98,8 @@ What is Elo-89?
    the family define materially different models.
 
 9. [The Exact Elo-89 Model](09%20The%20Exact%20Elo-89%20Model.md)
-   Specify the epoch, evidence domain, represented population, `q`, divisional
-   K, P1-WL, chronology, population operations, frozen persistence and
+   Specify the epoch, evidence domain, active population, `q`, divisional K,
+   P1-WL, population operations, frozen persistence and
    observation stages.
 
 10. [Why Elo-89 Makes Those Choices](10%20Why%20Elo-89%20Makes%20Those%20Choices.md)
@@ -111,62 +119,9 @@ What is Elo-89?
     Invite explicit alternatives without implying that untested alternatives
     have already been compared or that every choice is arbitrary.
 
-## Research-audit principle
+## Appendix
 
-The structure is expected to force questions which the project has not yet
-answered. Each chapter should distinguish:
-
-```text
-settled definition
-mathematical consequence
-empirical finding
-modelling judgement
-thin evidence
-TBD
-outside present scope
-```
-
-A chapter must not fill a gap with plausible generalities. A complete account
-can state that work has not been done and decide whether that gap is a
-publication blocker, an accepted limitation or a future research programme.
-
-The presently visible pressure points include:
-
-- the exact real-world target denoted by “competitive performance” or
-  “strength”;
-- a formal account of what makes a rating model good for the project's stated
-  purpose;
-- individual evidential uncertainty and an uncertainty-aware comparator;
-- non-transitive style or matchup effects;
-- genuinely prospective evaluation of a frozen model and prior;
-- primary-source support for claims about Elo and institutional chess rating
-  practice; and
-- comparison with materially different, non-Elo model families.
-
-## Chapter method
-
-Every chapter file begins with:
-
-1. its purpose in the argument;
-2. the questions it must answer;
-3. existing repository work and evidence;
-4. known gaps or TBDs; and
-5. the next writing or research step.
-
-The chapters should eventually read as one argument, not an encyclopaedia and
-not a chronology of every experiment. Research history belongs where it
-explains a retained choice.
-
-## Existing material remains separate
-
-The existing HTML account drafts and public prose remain unchanged. They are
-sources to mine, not files governed by this contents page. The principal
-orientation note for this workspace is the adjacent
-[Elo-89 Ratings Narrative Handoff](../../products/make_site89/docs/2026%2010%2019%20Elo-89%20Ratings%20Narrative%20Handoff.md).
-
-## Completion
-
-All thirteen chapters now incorporate the decisions from the baseline
-account's completed Matters Arising work. This edition is complete. Any later
-substantive change should arise from a newly identified modelling question or
-from evidence which warrants a revised top copy.
+[Research and Implementation Guide](Appendix%20-%20Research%20and%20Implementation%20Guide.md)
+collects the principal explanatory accounts, empirical findings,
+implementation sources and reproducibility artifacts for the retained model.
+It distinguishes current support from superseded development history.

@@ -112,7 +112,10 @@ def _write_prior(path: Path, prior: AdoptedPrior) -> None:
             stream, fieldnames=("rank_pair", "ordinal", "rating")
         )
         writer.writeheader()
-        for rank_pair, rating in sorted(prior.rating_by_pair.items()):
+        for rank_pair, rating in sorted(
+            prior.rating_by_pair.items(),
+            key=lambda item: Chii.from_str(item[0]).ordinal(),
+        ):
             writer.writerow(
                 {
                     "rank_pair": rank_pair,

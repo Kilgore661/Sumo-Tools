@@ -259,6 +259,7 @@ def test_saved_paired_prior_includes_chii_ordinal(tmp_path) -> None:
         "J1": Chii.from_str("J1").ordinal(),
         "Y1": Chii.from_str("Y1").ordinal(),
     }
+    assert [row["rank_pair"] for row in rows] == ["Y1", "J1"]
 
 
 def test_output_manifest_records_prior_source_hash(tmp_path) -> None:

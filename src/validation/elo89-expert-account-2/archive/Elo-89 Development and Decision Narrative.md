@@ -1,5 +1,11 @@
 # Elo-89 Development and Decision Narrative
 
+> **Archived:** This document preserves a superseded development narrative.
+> It does not define the current Elo-89 model. Repository-relative source paths
+> near the end are recorded relative to the parent
+> `elo89-expert-account-2` directory, where this document was originally
+> stored.
+
 > **Working companion.** This preserves the pre-review version of Chapter 10
 > as a compact account of the project's development and decision history. It
 > is not part of the numbered expert account, and some interpretations—most

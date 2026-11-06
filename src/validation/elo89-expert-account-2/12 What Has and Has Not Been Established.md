@@ -31,9 +31,9 @@ contract, not because an experiment discovered them.
 
 | Definition | Scope |
 | --- | --- |
-| Elo-89 begins with represented history in January 1989 | Model epoch |
-| Its state is one stored point rating for each previously rated rikishi, identified independently of shikona | State and identity |
-| A represented W/L result is rated; paired fusen and other non-W/L outcomes are excluded | Evidence domain |
+| Elo-89 begins in January 1989 | Model epoch |
+| Its state is one stored point rating for each previously rated rikishi | State |
+| A recorded W/L result between rikishi on the banzuke is rated; paired fusen and other non-W/L outcomes are excluded | Evidence domain |
 | Current rating differences map to probabilities with \(q=400\) | Expectation rule |
 | \(K\) is 10 for Yokozuna/Ozeki/Sekiwake/Komusubi, 15 for Maegashira, 25 for Juryo and 35 below Juryo | Update policy |
 | A rikishi without a stored rating receives the paired P1-WL value for his current chii | First rating |
@@ -41,7 +41,7 @@ contract, not because an experiment discovered them.
 | The active population consists of banzuke members | Population |
 | An active rikishi without an eligible result receives no individual bout update; a stored rating outside the active population receives neither bout updates nor population shifts | Inactivity |
 | Common start- and end-of-basho shifts restore the first active population's mean | Population operation |
-| Forecasts precede the result updates to which they are compared | Chronology |
+| Forecasts precede the result updates to which they are compared | Forecast protocol |
 | Basho-start, pre-bout, immediate post-bout, day-end and normalised basho-end states are distinct observations | Publication contract |
 
 ## 2. What follows mathematically
@@ -60,7 +60,6 @@ They do not depend on whether Elo-89 predicts sumo well.
 | A common population shift preserves every current gap, order and probability within the shifted set | It can still affect comparisons with later first ratings |
 | Adding or removing ratings can change the population mean even when every bout is zero-sum | Open-population accounting identity |
 | Disconnected comparison components have unidentified relative offsets | A path is required to place components on one empirically related scale |
-| Sequential Elo is generally dependent on event order | Chronology is therefore part of the contract |
 | A recurrence requires an initial state | A common numerical origin is arbitrary; equality of initial states is not |
 
 None of these consequences establishes that one scalar is sufficient, that the
@@ -74,7 +73,7 @@ underlying ability or that historical ratings are externally comparable.
 Across the tested post-1988 histories, ordinary Elo-like ratings and the
 selected Elo-89 policies produced lower log and Brier loss than a neutral
 50--50 forecast. The current model therefore extracts predictive information
-from prior represented results.
+from prior eligible results.
 
 This does not establish that the advantage is uniform across periods,
 divisions or levels of rating maturity, or that it will persist prospectively.
@@ -92,7 +91,7 @@ that division is the best responsiveness measure or that the exact
 
 ### P1-WL provides useful first ratings
 
-On matched represented history, P1-WL preserved the measured advantage of
+On the same bout history, P1-WL preserved the measured advantage of
 informed initialisation over equal initialisation and behaved coherently when
 propagated through Elo-89.
 
@@ -207,7 +206,7 @@ reasonable purposes or assumptions could support different choices.
 Using an Elo-89 rating as an account of “strength” requires interpretation
 beyond the algorithm:
 
-- capacity to win represented pairwise bouts is the relevant aspect of
+- capacity to win eligible pairwise bouts is the relevant aspect of
   strength;
 - one scalar is a useful approximation across the observed schedule;
 - older results should persist through the recurrence until displaced by
@@ -239,7 +238,7 @@ The project has not established that:
 - the current treatment of inactivity is superior to every uncertainty-aware,
   shrinkage or evidence-based time model;
 - a fixed population mean makes equal ratings fully comparable across eras;
-- the lowest ranks are as reliably represented as mature upper-division
+- the lowest ranks are as reliably estimated as mature upper-division
   populations;
 - Elo-89 beats a fitted probabilistic chii model, an uncertainty-aware model,
   a dynamic paired-comparison model or every other reasonable family; or
@@ -274,7 +273,7 @@ adjustment toward expectation.
 
 Elo-89 has established a bounded claim:
 
-> On the declared modern represented history, this specified Elo-like system
+> On the record from January 1989 onward, this specified Elo-like system
 > extracts modest predictive information from prior outcomes, improves on the
 > tested declared alternatives under the retrospective proper-score criterion,
 > and provides a reproducible opponent-sensitive rating history.

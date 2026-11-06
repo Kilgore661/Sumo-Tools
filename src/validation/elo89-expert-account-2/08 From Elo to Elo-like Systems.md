@@ -9,10 +9,9 @@ to run a historical rating system. The equations do not select the evidence,
 initialise the recurrence or define the population.
 
 Those surrounding choices are sometimes described as implementation details.
-That description is unsafe. Change the first-rating rule, the \(K\) policy or
-the population operation and later ratings can change. Change the admissible
-bouts or their order and the recurrence processes different evidence. The
-resulting systems may all inherit the Elo idea, but they are not the same
+That description is unsafe. Change the first-rating rule, the \(K\) policy,
+the population operation or the admissible bouts and later ratings can change.
+The resulting systems may all inherit the Elo idea, but they are not the same
 model.
 
 This account therefore uses **ordinary Elo** for the binary, logistic,
@@ -24,7 +23,7 @@ rating system built around recognisably the same expectation-and-update idea.
 For the purposes of this account, a system is Elo-like when it has at least
 the following structure:
 
-1. each competitor has a numerical state carried from one represented contest
+1. each competitor has a numerical state carried from one eligible contest
    to the next;
 2. the competitors' current states determine an expected score for their
    contest;
@@ -57,15 +56,13 @@ records into a sequence of states. Its main choice axes include the following.
 
 | Axis | Question which the contract must answer | Why the answer matters |
 | --- | --- | --- |
-| Evidence domain | Which contests and results are represented? | It defines what the rating is evidence about and which updates occur. |
+| Evidence domain | Which contests and results are included? | It defines what the rating is evidence about and which updates occur. |
 | Epoch | When does the recurrence begin? | It creates the initial-state problem and limits the history the model can have learned. |
-| Identity | What counts as the same continuing competitor? | Merged or split identities alter the state carried into later contests. |
 | Outcome representation | Are wins, losses, draws and administrative results distinct? | The numerical score supplied to the update depends on this classification. |
 | Expectation rule | How do state differences become expected scores, and what scale parameter is used? | It determines the meaning of a rating gap. |
 | Update policy | Is \(K\) constant, divisional, experience-dependent or otherwise variable? | It controls responsiveness and may change conservation properties. |
 | Initialisation | What state is assigned at the epoch or whenever no existing state is available? | It determines the forecast before contest evidence has accumulated. |
-| Chronology | In what order are contests processed, and are updates immediate or grouped into rating periods? | Sequential Elo is generally order-dependent. |
-| Inactivity | Does state or uncertainty change when no represented contest occurs? | It determines what, if anything, the passage of time without contest evidence changes. |
+| Inactivity | Does state or uncertainty change when no eligible contest occurs? | It determines what, if anything, the passage of time without contest evidence changes. |
 | Population | Who belongs to the rated population at each point? | Adding or removing ratings affects population summaries and any population-level operation. |
 | Scale control | Is the scale allowed to float, or is some location or distribution anchored? | It affects longitudinal interpretation and can affect future differences when later ratings are assigned from a fixed prior. |
 | Uncertainty | Is there only a point state, or is evidential precision represented separately? | Equal printed ratings need not be equally well supported. |
@@ -118,9 +115,9 @@ A change defines a materially different model when it can change at least one
 of the following:
 
 - which evidence is admitted or how it is represented;
-- the forecast assigned before a represented contest;
+- the forecast assigned before an eligible contest;
 - the state produced after it;
-- the state retained during periods without represented contests; or
+- the state retained during periods without eligible contests; or
 - the intended interpretation of the resulting number.
 
 This criterion is intentionally stricter than asking whether two runs happen
@@ -145,7 +142,7 @@ A reproducible published rating requires more than a model name.
 | --- | --- | --- |
 | Model contract | The rules which map admissible history and parameters to states | evidence domain, expectation equation, \(K\) policy, initialisation and population rules |
 | Fitted artifact | Numerical inputs learned or selected outside the recurrence | a first-rating table and fitted coefficients |
-| Run and observation contract | The concrete history processed and the state exposed | source-data release, data cut-off, ordering, snapshot boundary, rounding and release identifier |
+| Run and observation contract | The concrete history processed and the state exposed | source-data release, data cut-off, snapshot boundary, rounding and release identifier |
 
 The distinction prevents several ambiguities.
 
@@ -168,22 +165,23 @@ construction and surrounding population policies are fixed.
 ## Elo-89 is one specified member of the family
 
 Elo-89 retains the recognisable Elo core: a current rating difference produces
-an expected result, and each represented result updates the competitors'
+an expected result, and each eligible result updates the competitors'
 states according to its surprise. Its identity, however, comes from the whole
 contract rather than from that core alone.
 
 The epoch, bout domain, rating scale, divisional \(K\) policy, first-rating
-rule, population normalisation, treatment of inactivity, chronology and
-observation stages together determine what an Elo-89 rating is. Some of those
-choices respond to the difficulties identified in Chapter 7. Others are
-pragmatic judgements or boundaries of the available evidence. None follows
-merely from writing down the ordinary Elo equations.
+rule, population normalisation, treatment of inactivity and observation stages
+together determine what an Elo-89 rating is. Some of those choices respond to
+the difficulties identified in Chapter 7. Others are pragmatic judgements or
+scope choices, including the January 1989 epoch. None follows merely from
+writing down the ordinary Elo equations.
 
 The contract includes the definition of an eligible result, the P1-WL
 first-rating table, and an unchanged point rating when no eligible result
 occurs. These are selected rules, not examples of alternatives still left
 open.
 
-Chapter 9 states that exact contract. Chapter 10 then asks why those choices
-were made and distinguishes empirical selection from modelling judgement and
-unresolved work.
+Elo-89 is one particular answer to these questions. Chapter 9 states that
+answer as an exact contract. Chapter 10 then asks why those choices were made
+and distinguishes empirical selection from modelling judgement and unresolved
+work.
