@@ -163,6 +163,21 @@ The evidence review must identify:
 The census and reconciliation are recorded in
 [`Off-Banzuke Results/docs/Findings.md`](Off-Banzuke%20Results/docs/Findings.md).
 
+## Subsequent concluded matter
+
+### [Prior aggregation](Prior%20Aggregation/README.md)
+
+**Question:** How should side-specific literal-chii ratings and support be
+aggregated into the paired prior consumed by Elo-89?
+
+**Decision:** Weight every mapped literal cell by its recorded support,
+including east/west cells and every numbered Y/O/S/K position present. Adopt
+the resulting P1-prime-WL paired values as the official successor entrant
+prior. The retained experiment shows that this corrects the K1-below-M1
+inversion already present in P1 while preserving the separately accepted
+missing-kimarite eligibility rule. Canonical installation, replay, and
+dependent artifact regeneration remain implementation work.
+
 ## Concluded supporting matter
 
 ### P1 fixed-point trajectory

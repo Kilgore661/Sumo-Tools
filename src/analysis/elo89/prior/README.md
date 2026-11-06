@@ -24,7 +24,7 @@ files/output/analysis/elo89/prior/YYYY-MM/run-NNN/
 ## Accepted and paired tables
 
 `src.analysis.elo89.config` declares which immutable run is accepted by
-Elo-89. The accepted fitted table is currently:
+the currently installed Elo-89 replay. The installed fitted table is:
 
 ```text
 files/output/analysis/elo89/prior/2026-09/run-001/prior.csv
@@ -41,6 +41,17 @@ are therefore in:
 The adjacent `manifest.json` records the fitted table's path and SHA-256 hash,
 as well as the number of rank pairs written. Both CSV files are generated
 artifacts under `files/output`; they are not source-controlled files.
+
+On 6 November 2026, the project accepted P1-prime-WL as the official successor
+entrant prior. It applies direct support weighting to every P1-WL literal cell
+mapped to a paired key, including east/west and every numbered Y/O/S/K position
+present. The decision and exact experimental artifact hashes are recorded in
+[`Prior Aggregation`](../../../validation/elo89-expert-account/Matters%20Arising/Prior%20Aggregation/README.md).
+
+The successor is not yet installed by `src.analysis.elo89.config`. Production
+promotion must first freeze the selected 484 paired rows in a strict input
+schema, bind them to the derivation manifest, update the loader and provenance,
+and regenerate the full Elo-89 replay and site-data bundle.
 
 ## Publication TBD
 
