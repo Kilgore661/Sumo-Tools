@@ -5,7 +5,10 @@
 **Repository:** `X:\Sumo-Tools`
 
 **Branch at handoff:** `dev`
+
 **Base HEAD before the checkpoint:** `0820eb7` (`Install P1-prime-WL prior and update account`)
+
+**First checkpoint:** `aa9f52d` (`Document P89 and checkpoint Appendix B`)
 
 ## Purpose of this handoff
 
@@ -43,7 +46,7 @@ account of:
 - support-weighted construction of the consumer table;
 - the Komusubi aggregation diagnostic;
 - reproducibility and evidence boundaries; and
-- mapping-space optimisation as future work.
+- entrant-prior sensitivity, selection and optimisation as future work.
 
 It is not yet final. The remaining work is mainly interpretive rather than a
 need to rediscover the construction.
@@ -69,10 +72,10 @@ src/analysis/equelo_prior_aggregation/results/.~lock.priors.csv#
 That lock file is not a project artifact and must not be committed. It should
 not be deleted while the corresponding application may still be using it.
 
-This handoff, the preliminary Appendix B and the matters arising are intended
-to be included in the requested documentation checkpoint, together with the
-coordinated P89 terminology and production-reference revisions. The temporary
-spreadsheet lock file is expressly excluded.
+This handoff, the preliminary Appendix B, the matters arising and the
+coordinated P89 terminology and production-reference revisions were included
+in checkpoint `aa9f52d`. The temporary spreadsheet lock file was expressly
+excluded.
 
 ## The current P89 artifact
 
@@ -118,13 +121,22 @@ It is not:
 - necessarily monotone; or
 - the uniquely correct or optimal entrant prior.
 
+The intellectual history now needs one further clarification. The project
+originally wanted informed priors in order to shorten the **initialisation
+gap**: the presumed gap between a new stored rating and the rikishi's latent
+ability. That gap surely exists in some sense, but it cannot be measured
+directly because true ability is unobservable. The fixed-point procedure did
+not measure or minimise it. At most, better early predictions can demonstrate
+a smaller **observable predictive penalty associated with initialisation**;
+they do not establish greater proximity to latent ability.
+
 The positive case for adopting it has three parts:
 
-1. **Predictive usefulness.** Controlled retrospective work established that
-   rank-informed initialisation improves on a flat starting value, especially
-   while individual ratings are immature. The complete-W/L fitted source
-   underlying P89 passed the retained predictive evaluation before final
-   aggregation.
+1. **Predictive usefulness.** The existing record indicates that a configured
+   Elo-89 predicts usefully and that informed initialisation was compared with
+   a flat starting value. The evidence audit below must reconstruct the exact
+   configurations, populations and score comparisons before the strength of
+   those claims is finalised.
 2. **Replay consistency.** The retained source does not change radically under
    another application of the replay-and-aggregation procedure. This is a
    necessary acceptance check: a candidate which contradicted its own
@@ -138,7 +150,9 @@ The preferred compact description is:
 
 > P89 is a reproducible, historically informed and schedule-conditioned
 > entrant prior. It is the current Elo-89 answer to the first-rating problem,
-> not a recovered law connecting chii to true ability.
+> not a recovered law connecting chii to true ability. Its construction
+> supplied one useful candidate; it has not been shown to minimise the
+> unobservable initialisation gap.
 
 The phrase **historically consistent** is safe only if it is explicitly
 limited to approximate consistency with the declared historical
@@ -148,14 +162,22 @@ unobservable historical ability or prove cross-era comparability.
 ## Fixed point, mapping search and mean preservation
 
 The code resembles a fixed-point finder for a historical reason: the project
-initially expected the fixed point to be the best answer. That expectation was
-not justified. The operator (F) was designed by the project, and satisfying
-(P=F(P)) would establish only self-consistency under that operator.
+initially expected the fixed point to be the best answer and to have a special
+interpretation in the sumo setting. That expectation was not justified. The
+operator (F) was designed by the project, and satisfying (P=F(P)) would
+establish only self-consistency under that operator. It would not show that
+the map minimises the initialisation gap.
 
 The epsilon sweep showed that continued numerical convergence eventually made
 log and Brier loss worse. The iteration is therefore now understood as one
-reproducible path through the space of chii-to-rating mappings. It found a
-useful early region; it did not prove that the limit is special.
+reproducible **candidate generator**: a path through the space of
+chii-to-rating mappings. It found a useful early region; it did not prove that
+the limit is special. For the logically separate question of whether a
+configured Elo-89 predicts successfully, it would not matter whether its P
+had come from this procedure, optimisation, expert judgement or, as a thought
+experiment, been picked out of a hat. The provenance of P matters for
+reproducibility, interpretation and choosing among candidates, not for the
+existence of a predictively useful configured model.
 
 Mean preservation is independent of that search. Elo-89 uses it as an
 intuitive inflation/deflation control for an open population. It would remain
@@ -331,67 +353,69 @@ main account's chapters on ordinary Elo, problems and critique. Appendix B
 needs enough of it to explain why P89 is schedule-conditioned and why boundary
 irregularities cannot simply be read as true ability.
 
-## Predictive evidence: wording that must be preserved
+## Predictive evidence: the two axes
+
+The discussion after the first checkpoint exposed two logically distinct axes
+on which the project has evaluated the model.
+
+1. **Absolute performance for a given P.** Does
+   \(\operatorname{Elo}_{89}(P)\) predict better than 50--50? This establishes
+   that a configured Elo-89 contains useful predictive information. For the
+   eligible binary outcomes, 50--50 has log loss \(\log 2\), approximately
+   0.6931, and Brier score 0.25. For this question, the provenance of P is not
+   material: a P obtained by fixed-point iteration, optimisation, judgement or
+   even an arbitrary draw can demonstrate the existence of a working
+   configuration.
+2. **The effect of changing P.** Holding the remainder of Elo-89 fixed, what
+   changes when constant, P89, random or otherwise constructed entrant maps
+   are substituted? This measures the contribution and sensitivity of the
+   prior choice. It is a separate question from whether Elo-89 works at all.
+
+These are not two independent gates which every candidate P must separately
+pass. On the same bouts and scoring rule, if P89 performs better than constant
+initialisation and the constant-initialisation model performs better than
+50--50, the ordering already implies that P89 performs better than 50--50.
+The 50--50 benchmark belongs principally to model-level validation; the
+constant and alternative-P comparisons belong to prior attribution and
+selection.
 
 The existing record should not be rewritten as though P89 “was never
-predictively checked”. The current understanding of the evidence chain,
-subject to the audit required in the next section, is:
+predictively checked”. The current understanding, subject to the audit below,
+is that informed initialisation was tested against flat initialisation and
+that the complete-W/L fitted source underlying P89 passed a retained
+predictive evaluation. Support-weighted aggregation was selected because it
+represents the observations more defensibly, not because its incremental
+forecast effect had been isolated. The final artifact separately passed strict
+loading, complete replay and site-build verification.
 
-- informed initialisation was tested against flat initialisation;
-- the complete-W/L fitted source underlying P89 passed the retained predictive
-  evaluation;
-- support-weighted aggregation was compared with the alternative pooling
-  rules and selected because it represents the underlying observations more
-  defensibly; and
-- the final artifact passed strict loading, complete replay and site-build
-  verification.
+## Predictive evidence audit required before Appendix B is finished
 
-What was not isolated was the incremental predictive effect of replacing the
-fitted source's legacy aggregation with support weighting. Support weighting
-was not selected because it had been shown to improve forecasts. It was
-selected because equal-cell aggregation gave arbitrary low-support cells the
-same influence as heavily represented cells.
+The retained experiments must be audited before the adoption argument is
+finalised. The audit should reconstruct rather than prejudge:
 
-This clarification has already been applied to the preliminary Appendix B,
-Chapter 12, Chapter 13, the Research and Implementation Guide and the
-aggregation README.
+- which P was used in each predictive experiment;
+- whether the configured model was compared with 50--50;
+- which informed priors were compared with constant initialisation;
+- the evaluation population and whether scores covered all bouts or an
+  entrant or early-history window;
+- whether prediction-before-update values, bout eligibility and proper-score
+  definitions were consistent; and
+- whether candidate selection and evaluation reused the same historical data.
 
-## Predictive benchmark audit required before Appendix B is finished
-
-Before the adoption argument is treated as complete, the retained experiments
-must be audited to establish exactly which configurations and evaluation
-populations were compared. Two separate tests are required because they answer
-different questions:
-
-1. **Official Elo-89 with P89 versus 50--50.** This asks whether the complete
-   model contains useful predictive information at all. For the eligible
-   binary outcomes, 50--50 has log loss \(\log 2\), approximately 0.6931, and
-   Brier score 0.25.
-2. **Official Elo-89 with P89 versus the same model with constant entrant
-   ratings.** This asks whether the additional rank-informed prior improves on
-   the simpler initialisation. It should be reported over the full evaluation
-   population and over an explicitly defined entrant or early-history window,
-   because the effect of an initial rating dissipates as bouts accumulate.
-
-The desired evidential position is that the exact official configuration
-passes both tests on a common, clearly described evaluation set. Beating
-constant initialisation would not rescue a complete model that failed to beat
-50--50. Conversely, beating 50--50 would establish some predictive usefulness
-for Elo-89 but would not by itself justify P89's extra complexity.
-
-The audit should first determine whether these comparisons have already been
-run; it should not assume that they are absent merely because the current
-accounts describe them incompletely. Any missing comparison should then be
-run using prediction-before-update values, identical bout eligibility and the
-same proper-score definitions.
+Any missing comparison can then be run within one common framework. For each
+candidate P, that framework should ideally report absolute log and Brier loss,
+improvement over 50--50, improvement over constant initialisation and results
+for both the full evaluation population and an explicitly defined early-rated
+period. The latter matters because the influence of an entrant prior
+dissipates as bout evidence accumulates.
 
 Results from the fitted historical period are development or model-selection
 evidence, not prospective validation. The intended freeze date is 30 October
 2026 and no later basho has yet supplied genuinely post-freeze evidence.
-Future eligible bouts provide the strongest prospective version of the first
-test and can also compare the frozen P89 and constant-initialisation variants.
-Until this audit is complete, Appendix B should not imply that both nested
-predictive requirements have been established.
+Future eligible bouts provide the strongest prospective test of the frozen
+official configuration. Until the audit is complete, Appendix B should not
+overstate either the absolute evidence for Elo-89 or the incremental evidence
+for P89.
 
 ## The seven remaining Appendix B tasks, updated
 
@@ -407,11 +431,14 @@ language.
 
 Appendix B should bring together, in one place:
 
-- the predictive benchmark audit above, including both the 50--50 and flat-
-  initialisation comparisons;
+- the two-axis distinction between absolute model performance and the
+  incremental effect of changing P;
+- the evidence audit above, without treating the 50--50 and
+  flat-initialisation comparisons as redundant gates for every candidate;
 - approximate replay consistency as necessary but not sufficient;
 - plausibility inspection as informed but informal judgement; and
-- the conclusion that none of these establishes a uniquely correct map.
+- the conclusion that none of these establishes a uniquely correct map or a
+  minimum unobservable initialisation gap.
 
 ### 3. Complete the account of “looked about right”
 
@@ -436,25 +463,49 @@ into a general monograph on Elo convergence.
 ### 6. Give the final interpretive statement
 
 End with a compact statement that P89 is a reproducible, historically informed
-and schedule-conditioned entrant prior, not a definitive chii-to-ability
-mapping or a statement about a particular rikishi.
+and schedule-conditioned entrant prior under which Elo-89 performs usefully.
+It is one selected candidate, not a definitive chii-to-ability mapping, a
+statement about a particular rikishi or a demonstrated minimum of the
+unobservable initialisation gap.
 
-### 7. Place future work correctly
+### 7. Broaden and place future work correctly
 
-The mapping-space programme is already recorded at:
+The existing mapping-optimisation proposal is recorded at:
 
 ```text
 src/validation/elo89-expert-account-2/Matters Arising/
   Entrant Prior Mapping Optimisation/README.md
 ```
 
-Appendix B should cross-reference it without trying to execute it. A future
-Elo-89 successor should also represent rating uncertainty explicitly, probably
-through a Glicko-like state. Glicko's rating deviation is pertinent to sparse
-evidence, inactivity and immature ratings, but it would not by itself solve
-selective scheduling, promotion bottlenecks, injuries or unobserved changing
-ability. Detailed successor design belongs in the critique, alternatives or a
-separate matter arising.
+That proposal should be broadened into an **entrant-prior sensitivity and
+selection** programme. Holding Elo-89 fixed, it should compare:
+
+- constant with non-constant priors;
+- P89 with a distribution of appropriately constrained random priors;
+- P89 with other constructed maps, including relevant epsilon iterations,
+  smoothing or monotonic variants and aggregation choices; and
+- P89 with maps produced by optimisation-based searches.
+
+Random P should be a family of meaningful null maps, not one pathological
+draw. Useful designs include permutations of P89 values across chii, random
+smooth maps with comparable mean, range and roughness, and controlled
+perturbations around constant or P89. The common framework should report
+absolute performance, the effect relative to constant, P89's position in the
+random-map distribution and uncertainty across evaluation periods. “Best P”
+must always mean best for a stated score, population, historical period and
+set of constraints; it does not mean the true map.
+
+Appendix B should cross-reference this programme without trying to execute all
+of it. The narrower evidence audit is required before Appendix B is final;
+the full random-prior and optimisation programme remains prominent future
+work.
+
+A future Elo-89 successor should also represent rating uncertainty explicitly,
+probably through a Glicko-like state. Glicko's rating deviation is pertinent
+to sparse evidence, inactivity and immature ratings, but it would not by
+itself solve selective scheduling, promotion bottlenecks, injuries or
+unobserved changing ability. Detailed successor design belongs in the
+critique, alternatives or a separate matter arising.
 
 ## One lower-tail caution
 
@@ -495,6 +546,10 @@ The audit should check:
 - that “historically consistent” is used only in the narrow declared sense;
 - that predictive evidence is neither understated nor attributed to the
   aggregation correction;
+- that absolute Elo-89 performance is distinguished from the incremental
+  effect of changing P;
+- that no reduction in the unobservable true-ability initialisation gap is
+  claimed from fixed-point consistency or predictive scores;
 - that the epsilon-8.5 promotion, new hash, iteration count and artifact date
   are consistent everywhere;
 - that local reversals are disclosed without invented causal explanations;
@@ -518,11 +573,13 @@ historical artifacts unless a later explicit decision removes them.
 
 ## Recommended continuation order
 
-1. Inspect and checkpoint the main expert-account revisions which were judged
-   commit-ready, excluding temporary lock files.
-2. Complete the predictive benchmark audit: recover the exact retained
-   comparisons, identify their populations and configurations, and run only
-   the missing 50--50 or constant-initialisation comparisons.
+1. Complete the predictive evidence audit: recover the exact retained
+   comparisons, identify their populations and configurations, separate
+   absolute model performance from the effect of P, and run only comparisons
+   which are actually missing.
+2. Broaden the existing mapping-optimisation matter into the entrant-prior
+   sensitivity and selection programme described above; this records future
+   work and need not be executed before Appendix B is finished.
 3. Implement the already-decided iteration-20 / epsilon-8.5 entrant-prior
    build, apply support-weighted aggregation and run the full verification
    chain.
@@ -547,16 +604,20 @@ historical artifacts unless a later explicit decision removes them.
 - P89 producer account: [`../../analysis/elo89/prior/README.md`](../../analysis/elo89/prior/README.md)
 - Epsilon-sweep account: [`../elo89-expert-account/Matters Arising/P1 Epsilon Sweep/README.md`](../elo89-expert-account/Matters%20Arising/P1%20Epsilon%20Sweep/README.md)
 - Boundary-monotonicity experiment: [`../../analysis/toy_elo/boundary_monotonicity/README.md`](../../analysis/toy_elo/boundary_monotonicity/README.md)
-- Mapping-optimisation matter: [`Matters Arising/Entrant Prior Mapping Optimisation/README.md`](Matters%20Arising/Entrant%20Prior%20Mapping%20Optimisation/README.md)
+- Existing mapping-optimisation matter, to be broadened into entrant-prior
+  sensitivity and selection: [`Matters Arising/Entrant Prior Mapping Optimisation/README.md`](Matters%20Arising/Entrant%20Prior%20Mapping%20Optimisation/README.md)
 
 ## Guardrails for the next session
 
 - Do not say that greater support causes a greater rating.
 - Do not say that both proper scores have their exact minimum at epsilon 8.5.
 - Do not say that P89 was never predictively evaluated.
-- Do not imply that the exact official P89 configuration has passed both the
-  50--50 and constant-initialisation benchmarks until the evidence audit has
-  established that result.
+- Do not treat 50--50 and constant initialisation as two independent gates
+  which every candidate P must separately pass.
+- Do not confuse evidence that a configured Elo-89 predicts with evidence
+  about the incremental contribution of P.
+- Do not say that P89 reduces the true-ability initialisation gap; only an
+  observable early-prediction penalty can be compared.
 - Do not present replay consistency as sufficient validation.
 - Do not present (P=F(P)) as proof of correctness.
 - Do not claim that connectivity, promotion congestion or changing banzuke
