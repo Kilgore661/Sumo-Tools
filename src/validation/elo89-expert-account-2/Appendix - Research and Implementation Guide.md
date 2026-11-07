@@ -29,7 +29,7 @@ The production implementation is divided as follows:
   recurrence, population shifts, forecasts and bout updates;
 - [`producer.py`](../../analysis/elo89/producer.py) binds the accepted prior,
   (K) schedule and input history to the replay;
-- [`config.py`](../../analysis/elo89/config.py) identifies the accepted P1-WL
+- [`config.py`](../../analysis/elo89/config.py) identifies the accepted P89
   fitting boundary and immutable run;
 - [`output.py`](../../analysis/elo89/output.py) writes the reproducible rating
   artifacts and their manifest; and
@@ -85,29 +85,24 @@ The [controlled retrospective model comparison](../../analysis/elo_model_selecti
 compares constant and divisional (K), and equal and informed
 initialisation, over the same eligible bouts. It supports the general use of
 divisional (K) and informed initialisation. It does not establish that the
-exact 10/15/25/35 schedule is optimal, and it predates the final P1-WL
+exact 10/15/25/35 schedule is optimal, and it predates the final P89
 artifact. The current schedule is therefore partly an empirically supported
 policy and partly a retained modelling judgement.
 
-## P1-WL first ratings
+## P89 first ratings
 
 The current production account is the
-[P1-WL README](../../analysis/elo89/prior/README.md). It identifies the
-accepted immutable fitted run, explains the conversion from side-specific
-chii values to rank-pair values and points to the exact paired CSV written by
-the standard Elo-89 replay.
+[P89 README](../../analysis/elo89/prior/README.md). The preliminary
+[Appendix B](Appendix%20B%20-%20The%20Elo-89%20Entrant%20Prior.md) explains the
+evidence rule, iterative mapping search, support-weighted aggregation and evidential
+limits. The retained
+[aggregation account](../../analysis/equelo_prior_aggregation/README.md)
+records the exact promotion decision and artifact identity.
 
-The principal supporting investigations are:
-
-- [P1-WL prior comparison](../elo89-expert-account/Matters%20Arising/Kimarite/P1-WL%20Prior%20Comparison%20-%20Findings.md),
-  which measures the effect of admitting every eligible W/L result regardless
-  of whether kimarite is recorded;
-- [P1-WL evaluation](../elo89-expert-account/Matters%20Arising/Kimarite/P1-WL%20Evaluation/Findings.md),
-  which evaluates the corrected prior both as an initialiser and inside the
-  complete Elo-89 calculation; and
-- [the rejected tighter fit](../elo89-expert-account/Matters%20Arising/Kimarite/P1-WL%20Evaluation/P1WL3%20Findings.md),
-  which shows why numerical convergence alone is not an acceptance criterion
-  for the unsmoothed literal-chii map.
+The principal open successor programme is the
+[Entrant Prior Mapping Optimisation](Matters%20Arising/Entrant%20Prior%20Mapping%20Optimisation/README.md)
+matter arising. It proposes a leakage-controlled comparison of regularised,
+hierarchical and optimisation-based alternatives; it does not alter P89.
 
 The fitting implementation is in
 [`src.analysis.elo89.prior`](../../analysis/elo89/prior/producer.py). The
@@ -117,8 +112,10 @@ accepted side-specific fitted artifact is generated at:
 files/output/analysis/elo89/prior/2026-09/run-001/prior.csv
 ```
 
-The exact paired values consumed by the standard site-data replay are in the
-generated [paired prior CSV](../../../files/output/analysis/site89_bundle/sources/elo89/prior.csv).
+The exact paired values consumed by production are persisted in the
+[P89 prior CSV](../../analysis/equelo_prior_aggregation/results/priors.csv).
+The standard site-data replay copies those values into its generated
+[`prior.csv`](../../../files/output/analysis/site89_bundle/sources/elo89/prior.csv).
 
 The retained table is empirical and unsmoothed. It is not constrained to be
 monotone with chii. The investigations above discuss sparse-cell instability
@@ -178,7 +175,7 @@ The main retained empirical comparisons are:
 | --- | --- | --- |
 | Does chronological Basic Elo contain information beyond 50--50? | [Basic Elo findings](../../analysis/prediction/docs/experiments/Findings.md) | Retrospective, beginning January 1989 |
 | Constant or divisional (K); equal or informed initialisation? | [Model-selection results](../../analysis/elo_model_selection/docs/Results%201.md) | Earlier fitted prior; supports policies rather than every final numerical choice |
-| Does P1-WL retain useful informed initialisation? | [P1-WL evaluation](../elo89-expert-account/Matters%20Arising/Kimarite/P1-WL%20Evaluation/Findings.md) | Retrospective within its fitting history |
+| Are informed first ratings useful, and is final P89 operationally valid? | [Appendix B](Appendix%20B%20-%20The%20Elo-89%20Entrant%20Prior.md) | P89 inherits a tested fitted-source lineage and has replay/build verification; the incremental effect of support-weighted aggregation was not isolated |
 | No population adjustment or whole-population preservation? | [Normalisation policy](../../analysis/docs/story/15%20Tranche%201%20-%20Population%20Normalisation%20Policy.md) | Comparison conditional on the fixed inputs used there |
 | How large are normalisation contributions? | [Normalisation investigation](../../analysis/elo89_normalisation/docs/Normalisation%20Investigation.md) | Diagnostic rather than a new model-selection gate |
 | Does a fixed mean stabilise every chii? | [Per-chii drift findings](../../analysis/elo89_normalisation/docs/Per-Chii%20Drift%20Findings.md) | Descriptive historical audit |
@@ -203,7 +200,7 @@ release include:
 
 - the site-bundle manifest;
 - the Elo-89 run manifest;
-- the paired P1-WL CSV and its source hash;
+- the paired P89 CSV and its source hash;
 - the exact (K) configuration;
 - the input-history identity and final basho;
 - the bout ledger containing pre-update forecasts; and

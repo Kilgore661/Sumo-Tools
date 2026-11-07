@@ -36,8 +36,8 @@ contract, not because an experiment discovered them.
 | A recorded W/L result between rikishi on the banzuke is rated; paired fusen and other non-W/L outcomes are excluded | Evidence domain |
 | Current rating differences map to probabilities with \(q=400\) | Expectation rule |
 | \(K\) is 10 for Yokozuna/Ozeki/Sekiwake/Komusubi, 15 for Maegashira, 25 for Juryo and 35 below Juryo | Update policy |
-| A rikishi without a stored rating receives the paired P1-WL value for his current chii | First rating |
-| P1-WL was fixed on 30 October 2026 using history through the September 2026 basho | Fitted input |
+| A rikishi without a stored rating receives the paired P89 value for his current chii | First rating |
+| P89 was fixed on 6 November 2026 using history through the September 2026 basho | Fitted input |
 | The active population consists of banzuke members | Population |
 | An active rikishi without an eligible result receives no individual bout update; a stored rating outside the active population receives neither bout updates nor population shifts | Inactivity |
 | Common start- and end-of-basho shifts restore the first active population's mean | Population operation |
@@ -85,20 +85,30 @@ improvement in retrospective log and Brier loss. Divisional \(K\) supplied a
 smaller favourable improvement over constant \(K\).
 
 These findings support using rank information at first rating and a variable
-responsiveness policy. They do not show that P1-WL is the uniquely best prior,
+responsiveness policy. They do not show that P89 is the uniquely best prior,
 that division is the best responsiveness measure or that the exact
 10/15/25/35 schedule is optimal.
 
-### P1-WL provides useful first ratings
+### Informed initialisation is useful; final P89 is operationally verified
 
-On the same bout history, P1-WL preserved the measured advantage of
-informed initialisation over equal initialisation and behaved coherently when
-propagated through Elo-89.
+The controlled evidence establishes that rank-informed first ratings improve
+retrospective forecasts over equal initialisation. P89 additionally defines a
+complete W/L evidence rule and combines literal cells by direct support
+weighting. The frozen P89 artifact has passed strict loading, a complete
+Elo-89 replay and the dependent site build.
 
-P1-WL was fitted from the broad history in which it was retrospectively
-evaluated. The finding establishes usefulness within that history, not an
-independent chii scale or unseen-data validation. Sparse chii remain less
-securely supported than common ones.
+Those checks establish reproducibility and production compatibility. P89 also
+has a tested predictive lineage: controlled experiments established the value
+of rank-informed starts, and the complete-W/L fitted source underlying P89
+passed the retained predictive evaluation before aggregation.
+
+The remaining evidential gap is narrower. No separate comparison isolated the
+incremental predictive effect of replacing the fitted source's legacy
+aggregation with support weighting. Support weighting was selected because it
+pools the underlying observations more defensibly, not because it was shown to
+improve forecast scores. P89 is also future-informed within its fitted
+history; this
+evidence is not an independent chii scale or unseen-data validation.
 
 ### Whole-population preservation led the tested population policies
 
@@ -185,9 +195,9 @@ data:
 - Competitive strength is represented by one opponent-sensitive point state.
 - \(q=400\) is retained without a comprehensive scale search.
 - The 10/15/25/35 schedule implements variable \(K\).
-- P1-WL's unsmoothed and sometimes non-monotone values are retained rather
+- P89's unsmoothed and sometimes non-monotone values are retained rather
   than forcing the expected curve in advance.
-- The P1-WL fitting period ends with the September 2026 basho; the table is
+- The P89 fitting period ends with the September 2026 basho; the table is
   fixed from 30 October 2026 and later calculations do not refit it.
 - A common fixed mean is the longitudinal anchor.
 - Normalisation's measured contribution is acceptable with disclosure.
@@ -279,7 +289,7 @@ Elo-89 has established a bounded claim:
 > and provides a reproducible opponent-sensitive rating history.
 
 It has not established a definitive measure of sumo strength. Its results are
-conditional on a scalar model, a P1-WL table which is future-informed within
+conditional on a scalar model, a P89 table which is future-informed within
 its fitting history, a chosen responsiveness policy, the treatment of
 inactivity, an open-population anchor, the observed schedule and a
 retrospective evidence base.

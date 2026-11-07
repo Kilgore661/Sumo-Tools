@@ -176,7 +176,7 @@ the difficulties identified in Chapter 7. Others are pragmatic judgements or
 scope choices, including the January 1989 epoch. None follows merely from
 writing down the ordinary Elo equations.
 
-The contract includes the definition of an eligible result, the P1-WL
+The contract includes the definition of an eligible result, the P89
 first-rating table, and an unchanged point rating when no eligible result
 occurs. These are selected rules, not examples of alternatives still left
 open.

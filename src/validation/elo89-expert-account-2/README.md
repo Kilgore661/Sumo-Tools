@@ -12,11 +12,14 @@ needed for exact specification.
 The chapter sequence and reading map are in [00 Contents](00%20Contents.md).
 Detailed research, implementation and artifact references are collected in
 the [Research and Implementation Guide](Appendix%20-%20Research%20and%20Implementation%20Guide.md).
+The construction of the frozen entrant prior is described separately in the
+preliminary [Appendix B](Appendix%20B%20-%20The%20Elo-89%20Entrant%20Prior.md).
 
 The preceding account remains preserved in
 [`../elo89-expert-account`](../elo89-expert-account), together with the
 Matters Arising investigations which led to this edition.
 
-The P1-WL values and their permanent repository location remain explicitly
-TBD in the [P1-WL production README](../../analysis/elo89/prior/README.md).
+The P89 values are persisted at
+[`equelo_prior_aggregation/results/priors.csv`](../../analysis/equelo_prior_aggregation/results/priors.csv)
+and documented in the [P89 production README](../../analysis/elo89/prior/README.md).
 Website integration remains separate from the account itself.

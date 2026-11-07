@@ -53,7 +53,7 @@ TYPICAL_RATING_VALUES_ARTIFACT = SectionedTableArtifact(
         TableColumn(id="rating", heading="Elo-89", source_field="rating", sort_kind="none", align="right"),
     ),
     notes=(
-        Note(id="typical_rating_values", applies_to=("all",), text="Elo-89 ratings are entrant landmarks from the frozen P1-prime-WL prior, not promises about every rikishi at a rank. The table is broadly ordered by rank but was not forced to be perfectly monotone."),
+        Note(id="typical_rating_values", applies_to=("all",), text="Elo-89 ratings are entrant landmarks from the frozen P89 prior, not promises about every rikishi at a rank. The table is broadly ordered by rank but was not forced to be perfectly monotone."),
         Note(id="jd100", applies_to=("all",), text="Below Jd100 the support is low and Jonokuchi has too much churn for Elo-like ratings such as Elo-89 to produce stable public landmarks."),
     ),
 )

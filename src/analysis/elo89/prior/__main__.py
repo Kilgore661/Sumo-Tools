@@ -1,4 +1,4 @@
-"""Command-line entry point for bounded P1-WL literal-prior fitting."""
+"""Command-line entry point for bounded P89 literal-prior fitting."""
 
 from __future__ import annotations
 

@@ -30,7 +30,7 @@ The criticisms below ask four different questions:
 | One scalar state | Structurally cannot express persistent non-transitive or context-specific effects; their size in sumo is unmeasured | Research question and interpretation limit |
 | No individual uncertainty state | Ratings with very different support can have the same value; calibration work shows that rating maturity matters | Deliberately outside the point-rating model; open comparative question |
 | Divisional \(K\) is a coarse proxy | Small aggregate improvement, but the exact schedule was not optimised and boundary evidence is thin | Accepted trade-off and research question |
-| P1-WL is future-informed within its fitting period | Results through September 2026 helped construct the table used within that history | Disclosure; the table is fixed from 30 October 2026 |
+| P89 is future-informed within its fitting period | Results through September 2026 helped construct the table used within that history | Disclosure; the table was fixed on 6 November 2026 |
 | Sparse and high-churn lower ranks | Fewer observations, irregular prior shapes and the largest normalisation contributions | Qualified interpretation and further research |
 | Population normalisation affects displayed changes | Contribution audit found generally modest effects relative to ending ratings but potentially material effects on particular changes | Accepted with disclosure |
 | Fixed global mean does not stabilise every chii | Measured rank-specific movement and reversals through time | Limits cross-era and rank-level interpretation |
@@ -66,7 +66,7 @@ later forecasts or another declared measurement objective.
 ## 2. A point rating conceals how well it is known
 
 Two rikishi can have the same Elo-89 rating when one value rests on hundreds
-of eligible bouts and the other is principally a P1-WL first rating. The
+of eligible bouts and the other is principally a P89 first rating. The
 printed number contains no confidence interval, rating deviation, effective
 sample size or age-of-evidence measure.
 
@@ -77,9 +77,9 @@ about whether the two point ratings support that 60% estimate securely.
 Retrospective calibration work on closely related candidates found materially
 weaker calibration when an immature rating faced a much more established one.
 That is evidence that rating support matters, although it is not a direct
-measurement of uncertainty in the final P1-WL model.
+measurement of uncertainty in the final P89 model.
 
-P1-WL reduces initial weakness but cannot solve it. It supplies a better point
+P89 reduces initial weakness but cannot solve it. It supplies a better point
 before personal evidence accumulates; it does not say how uncertain that point
 is. Nor does Elo-89 widen uncertainty during inactivity. Retaining a point
 estimate without inventing a decline is defensible, but presenting it as
@@ -112,12 +112,12 @@ The appropriate verdict is not that divisional \(K\) failed. It improved the
 declared aggregate scores. The inclusion of variable \(K\) has better evidence
 than the exact boundaries and values through which it is implemented.
 
-## 4. P1-WL imports the banzuke and future information
+## 4. P89 imports the banzuke and future information
 
-P1-WL addresses a real weakness in equal initialisation. It also changes the
+P89 addresses a real weakness in equal initialisation. It also changes the
 epistemic character of the model.
 
-First, P1-WL uses chii as evidence. Elo-89 is therefore not wholly independent
+First, P89 uses chii as evidence. Elo-89 is therefore not wholly independent
 of the banzuke when a first rating is assigned. This does not make later
 ratings numerical copies of rank: bout results subsequently move individuals
 freely. It does mean that early agreement between rating and chii is partly
@@ -130,13 +130,13 @@ ratings. The comparison can show internal usefulness and reject poor
 constructions, but it is not an unseen-future test. The table was fixed on 30
 October 2026, so results from November 2026 onward cannot alter it.
 
-Third, P1-WL is a population average indexed by chii. Individuals at the same
+Third, P89 is a population average indexed by chii. Individuals at the same
 chii can differ greatly, especially in high-churn lower divisions where a rank
 can mix long-term lower-division rikishi, rapidly rising talent and careers
 with very little bout evidence. A useful average can still be a poor
 first estimate for a particular person.
 
-P1-WL is therefore best understood as a historically fitted regulariser. It is
+P89 is therefore best understood as a historically fitted regulariser. It is
 more useful than equal initialisation in the tested history, but it should not
 be presented as the ability naturally belonging to a rank.
 
@@ -147,7 +147,7 @@ competitors. Jonokuchi and low Jonidan have high churn, short records, rapid
 risers, weak long-stayers and historically changing banzuke depth. Many
 careers supply few eligible bouts before their ratings can become mature.
 
-The P1-WL rank curve is not strictly monotone. Most reversals, including the
+The P89 rank curve is not strictly monotone. Most reversals, including the
 largest, occur among sparsely supported lower chii, but reversals are not
 confined to them. They may reflect real population mixtures, changing banzuke
 structure, sparse support, model failure or several of these at once. Silently
@@ -170,7 +170,7 @@ At the instant a common shift is applied, every active rating gap, ordering
 and Elo probability is unchanged. It is therefore tempting to call
 normalisation cosmetic. That is incomplete for two reasons.
 
-First, later first ratings come from fixed P1-WL. A shifted incumbent
+First, later first ratings come from fixed P89. A shifted incumbent
 population has different gaps from those later ratings, so subsequent
 forecasts and updates can differ.
 
@@ -268,13 +268,13 @@ forecast. The current contract also led the declared proper-score comparisons
 used to select its main policies. The model therefore contains genuine
 predictive information about the eligible results.
 
-That evidence is retrospective. P1-WL was fitted using the broad period being
+That evidence is retrospective. P89 was fitted using the broad period being
 scored, and the population policy and diagnostics were developed after
 extensive inspection of the same historical system. Bootstrap intervals
 quantify sampling variation conditional on that process. They do not undo
 information reuse or account for every researcher choice.
 
-The model and P1-WL table were fixed on 30 October 2026. The strongest next
+The model and P89 table were fixed on 6 November 2026. The strongest next
 validation is therefore to score genuinely later basho without changing them.
 Rolling-origin experiments could supply additional historical evidence if the
 first-rating table and every model choice were reconstructed using only
@@ -288,7 +288,7 @@ probability” and leaves open how well the measured advantage will persist.
 
 ### Disclose
 
-- P1-WL is future-informed within the retrospective fitting period through
+- P89 is future-informed within the retrospective fitting period through
   September 2026 and fixed thereafter.
 - A rating is a point estimate whose support varies by rikishi and date.
 - Rating changes include population adjustments.

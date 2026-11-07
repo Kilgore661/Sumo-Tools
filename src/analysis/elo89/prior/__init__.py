@@ -1,4 +1,4 @@
-"""Production of fitted P1-WL literal-prior derivation inputs."""
+"""Production of fitted literal-prior derivation inputs for P89."""
 
 from .producer import PriorRun, produce_prior
 

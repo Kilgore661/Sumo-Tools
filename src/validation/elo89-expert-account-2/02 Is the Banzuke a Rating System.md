@@ -40,7 +40,7 @@ able to compete.
 
 None of this requires us to treat chii as “mere labels”. Chii contain valuable
 information about performance. Elo-89 itself acknowledges that information:
-its P1-WL table uses banzuke position when a rikishi receives his first rating.
+its P89 table uses banzuke position when a rikishi receives his first rating.
 
 The narrower question is whether the information in chii already supplies the
 kind of measure that Elo-89 is intended to construct.
@@ -132,7 +132,7 @@ views together tell a richer story than either alone. No discrepancy, by
 itself, identifies which explanation is correct.
 
 The comparison also needs one important qualification: Elo-89 is not wholly
-independent of chii. P1-WL uses banzuke position when a rikishi's first rating
+independent of chii. P89 uses banzuke position when a rikishi's first rating
 is assigned. Early agreement between his rating and chii is therefore partly
 built into the model. Subsequent eligible results can reduce the influence of
 that starting value, but agreement—especially for a rating supported by few

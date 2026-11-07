@@ -37,7 +37,7 @@ In outline, Elo-89:
 - begins in January 1989—the source of “89” in its name;
 - uses paired binary win/loss results selected under a declared bout policy;
 - assigns a first rating to a rikishi without an existing rating from his
-  banzuke position, using a fixed table called **P1-WL**;
+  banzuke position, using a fixed table called **P89**;
 - makes ratings more or less responsive according to broad rank group through
   a divisional **K** schedule; and
 - applies common shifts to keep the active population centred on a fixed

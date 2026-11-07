@@ -47,7 +47,7 @@ downloaded source data
         v
 canonical History --------+---------------------+
         |                  |                     |
-        |          frozen P1-prime-WL            v
+        |              frozen P89                v
         |          paired prior          other History analyses
         |                  |                     |
         +------------------+                     v
@@ -79,7 +79,7 @@ protocol are recorded in [Site Build Data Integrity and History
 Consistency](2026-10-30%20Site%20Build%20Data%20Integrity%20and%20History%20Consistency.md).
 
 The diagram is conceptual rather than a claim that canonical `History` is
-mutated. P1-prime-WL is a frozen source-controlled replay input. The Elo-89
+mutated. P89 is a frozen source-controlled replay input. The Elo-89
 replay produces separately identified artifacts keyed back to basho, rikishi
 and bouts. The bundle combines those artifacts
 with model-independent History derivations and other sources such as
@@ -88,7 +88,7 @@ presentation distinct.
 
 ## Elo-89 production output
 
-The accepted Elo-89 definition is retained: frozen P1-prime-WL entrant ratings,
+The accepted Elo-89 definition is retained: frozen P89 entrant ratings,
 `q = 400`, the selected divisional-k schedule, the canonical post-1988 binary
 bout domain, and common whole-population mean restoration at the start and end
 of each basho.
@@ -98,7 +98,7 @@ basho-start ratings, raw day-end ratings, normalised basho-end ratings, a bout
 ledger and basho-boundary adjustments. This is an output layer around the
 accepted model, not a change to the model.
 
-The run output preserves the P1-prime-WL input and records the inputs and policies
+The run output preserves the P89 input and records the inputs and policies
 used sufficiently clearly for the run to be reproduced and understood.
 
 ## Publication-data producers

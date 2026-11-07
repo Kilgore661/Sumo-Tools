@@ -105,7 +105,7 @@ population. A table fitted from later outcomes can be useful for historical
 reconstruction, but it must not be described as prospectively available at an
 earlier date.
 
-Elo-89 fixes P1-WL on 30 October 2026 using eligible results through the
+Elo-89 fixes P89 on 6 November 2026 using eligible results through the
 September 2026 basho. Alternative fitting boundaries can be evaluated
 separately, but adopting one would revise the fitted artifact rather than
 silently update it.
@@ -179,7 +179,7 @@ The status of an alternative matters.
 | Constant versus divisional \(K\) | Controlled retrospective comparison |
 | Equal versus informed first ratings | Controlled retrospective comparison |
 | No population adjustment versus whole-population preservation | Direct retrospective comparison with the first-rating input held fixed |
-| P1-WL as a first-rating table | Evaluated retrospectively within its fitting history and through the complete Elo-89 calculation |
+| Informed first-rating tables | Evaluated retrospectively within their fitting history; P89 inherits a tested fitted-source lineage and has replay/build verification, but the incremental predictive effect of support-weighted aggregation was not isolated |
 | Chii order as a favourite | Separate descriptive baseline, not a matched probability comparison |
 | Comprehensive \(q\) or expectation-curve search | Not performed for the final contract |
 | Uncertainty evolution during inactivity | Not evaluated comparatively |
@@ -285,7 +285,7 @@ contract remains the same.
 
 Examples include:
 
-- Elo-89 with a refitted P1-WL table: the same abstract first-rating rule with
+- Elo-89 with a refitted P89 table: the same abstract first-rating rule with
   a new fitted artifact which must be identified;
 - Elo-89 with an uncertainty coordinate: a different state model;
 - Elo-89 with uncertainty-dependent \(K\): a different update model; and

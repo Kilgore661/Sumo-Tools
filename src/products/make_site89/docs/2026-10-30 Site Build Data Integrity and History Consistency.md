@@ -20,7 +20,7 @@ downloaded source data
         v
 canonical History --------+---------------------+
         |                  |                     |
-        |          frozen P1-prime-WL            v
+        |              frozen P89                v
         |          paired prior          other History analyses
         |                  |                     |
         +------------------+                     v
@@ -44,7 +44,7 @@ other sources ----------------------------------+
               static website tree
 ```
 
-Canonical `History` is not mutated by this process. P1-prime-WL is a frozen,
+Canonical `History` is not mutated by this process. P89 is a frozen,
 source-controlled input rather than something refitted during a site build.
 The Elo-89 replay and other analyses produce separately identifiable artifacts
 keyed back to History basho, rikishi and bouts. The website combines those
@@ -117,24 +117,24 @@ TBD.
 Given a valid `History`, the rating path is conceptually:
 
 ```text
-frozen P1-prime-WL paired prior
+frozen P89 paired prior
             |
 History ----+-- replay Elo-89 over the required interval
                     |
                     +-- rating, forecast and adjustment artifacts
 ```
 
-The installed P1-prime-WL artifact was derived from:
+The installed P89 artifact was derived from:
 
 - the exact input `History`;
 - the inclusive `last-prior-basho`; and
-- the P1-WL fitting algorithm and configuration; and
+- the fixed-point fitting algorithm and configuration; and
 - direct support-weighted aggregation of the fitted literal cells.
 
 The production default is 2026/09. It is the final basho included, not the
 first basho excluded. The Elo-89 replay may extend beyond that value, and
 never-rated rikishi appearing later are still initialised from the frozen
-P1-prime-WL table. Routine replay and site builds do not refit it.
+P89 table. Routine replay and site builds do not refit it.
 
 Artifact names should be readable, while content hashes provide exact
 identity. Manifests should connect a readable build identifier to hashes of

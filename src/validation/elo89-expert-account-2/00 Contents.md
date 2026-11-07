@@ -99,7 +99,7 @@ What is Elo-89?
 
 9. [The Exact Elo-89 Model](09%20The%20Exact%20Elo-89%20Model.md)
    Specify the epoch, evidence domain, active population, `q`, divisional K,
-   P1-WL, population operations, frozen persistence and
+   P89, population operations, frozen persistence and
    observation stages.
 
 10. [Why Elo-89 Makes Those Choices](10%20Why%20Elo-89%20Makes%20Those%20Choices.md)
@@ -107,7 +107,7 @@ What is Elo-89?
     required for reproducibility or left as an open question.
 
 11. [Critique of Elo-89](11%20Critique%20of%20Elo-89.md)
-    Assess one-dimensional strength, point uncertainty, P1-WL's future-
+    Assess one-dimensional strength, point uncertainty, P89's future-
     informed fitting period, normalisation, drift, inactivity, immature
     ratings, historical interpretation and known limitations.
 
@@ -120,6 +120,11 @@ What is Elo-89?
     have already been compared or that every choice is arbitrary.
 
 ## Appendix
+
+[Appendix B: The Elo-89 Entrant Prior](Appendix%20B%20-%20The%20Elo-89%20Entrant%20Prior.md)
+is a preliminary technical account of how P89 was fitted, why its construction
+is not uniquely determined, and how evidence eligibility and support-weighted
+aggregation are defined.
 
 [Research and Implementation Guide](Appendix%20-%20Research%20and%20Implementation%20Guide.md)
 collects the principal explanatory accounts, empirical findings,

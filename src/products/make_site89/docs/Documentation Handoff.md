@@ -1,8 +1,8 @@
 # Elo89 documentation hand-off
 
-> **Superseded 6 November 2026.** This hand-off and the incomplete HTML
-> `Elo89 Account` package are retained as development history. The current
-> account begins at
+> **Superseded 6 November 2026.** This hand-off is retained as development
+> history; the incomplete HTML `Elo89 Account` package is likewise retained and
+> marked as superseded. The current account begins at
 > [`src/validation/elo89-expert-account/00 Contents.md`](../../../validation/elo89-expert-account/00%20Contents.md).
 > The historical source notes below remain useful, but their proposed writing
 > sequence is no longer the active documentation plan.
@@ -29,13 +29,10 @@ The website overview will sit elsewhere and reference this account. Readers
 self-select through descriptive headings as the narrative progresses from
 simple interpretation through mathematics to evidence and open questions.
 
-The [contents](Elo89%20Account%20-%20Contents.html) is the maintained outline.
-[Requirements](Elo89%20Account%20Requirements.html) records the writing policy.
-Sections 1–4 are saved. Section 7, [Where Do Initial Ratings Come
-From?](Elo89%20Account%20-%2007%20Where%20Do%20Initial%20Ratings%20Come%20From.html),
-is now saved and explicitly labelled **draft**. It preserves the agreed
-opening and the construction/evidence discussion reached in conversation;
-it is not a completed specification. Sections 5, 6 and 8–11 are not drafted.
+At the time, an HTML contents page, writing requirements and sections 1–4 and
+7 had been saved. That incomplete package has since been superseded and
+retained as historical material; the description below records the historical
+position only.
 
 ## Work then proposed
 
@@ -95,8 +92,8 @@ inform the wording without being presented as a causal test of normalisation.
 The retained prior producer and the subsequent Elo89 replay use different
 population operations. Do not silently treat them as the same algorithm.
 
-The producer in `src/analysis/equelo_bkp1/` uses departure redistribution during
-each replay. Between passes it restores the unweighted chii-map mean to 1517,
+The fitted literal-prior producer uses departure redistribution during each
+replay. Between passes it restores the unweighted chii-map mean to 1517,
 allocating the correction in proportion to each chii's observation count.
 That operation can change map differences; it is not a uniform shift.
 
@@ -114,13 +111,10 @@ be mistaken for the production construction.
 
 Useful sources:
 
-- [Producer README](../../../analysis/equelo_bkp1/README.md),
-  [solver](../../../analysis/equelo_bkp1/solve.py),
-  [replay](../../../analysis/equelo_bkp1/simulate.py) and
-  [recentering](../../../analysis/equelo_bkp1/recenter.py).
-- [Producer manifest](../../../../files/output/analysis/equelo_bkp1/manifest.json)
-  and [iteration record](../../../../files/output/analysis/equelo_bkp1/iterations.csv).
-- [Persisted P1-prime-WL prior](../../../analysis/equelo_prior_aggregation/results/priors.csv),
+- [P89 prior-production account](../../../analysis/elo89/prior/README.md) and
+  [producer](../../../analysis/elo89/prior/producer.py).
+- [P89 aggregation account](../../../analysis/equelo_prior_aggregation/README.md).
+- [Persisted P89 prior](../../../analysis/equelo_prior_aggregation/results/priors.csv),
   [strict production loader](../../../analysis/elo89/prior_loader.py), and
   [aggregation decision](../../../validation/elo89-expert-account/Matters%20Arising/Prior%20Aggregation/README.md).
 - The older `equelo_population_policy.predict_candidate.load_alpha_prior`

@@ -28,8 +28,8 @@ remains partly a modelling judgement.
 | Binary fought-result domain | Modelling judgement | Uses recorded W/L results while excluding fusen and other outcomes outside the binary fought-bout model | Alternative numerical treatments of fusen were not compared comprehensively |
 | \(q=400\) | Convention with diagnostic support | Gives rating gaps their conventional Elo interpretation and is adequately calibrated for mature ratings | It was not selected by a comprehensive search |
 | Divisional \(K\) | Empirical evidence and modelling judgement | Retrospective comparisons favoured faster adjustment in lower divisions | The exact values were not independently optimised; division is only a proxy for maturity and change |
-| P1-WL first ratings | Empirical evidence and modelling judgement | Rank-informed initialisation reduces the weakness of ratings with little bout evidence | The table is future-informed within its fitting period, and sparse chii remain difficult |
-| Fixed P1-WL table | Reproducibility requirement | Keeps later calculations comparable and allows subsequent results to test a genuinely fixed prior | Freezing does not make the table timeless or uniquely correct |
+| P89 first ratings | Empirical evidence and modelling judgement | Rank-informed initialisation reduces the weakness of ratings with little bout evidence; P89 uses all represented W/L evidence and support-weighted aggregation | The table is future-informed within its fitting period, and sparse chii remain difficult |
+| Fixed P89 table | Reproducibility requirement | Keeps later calculations comparable and allows subsequent results to test a genuinely fixed prior | Freezing does not make the table timeless or uniquely correct |
 | Whole-population mean preservation | Empirical evidence and anchoring judgement | It performed better than the tested no-adjustment alternative and maintains a declared longitudinal coordinate | A fixed mean does not prove absolute equality of the scale across eras |
 | Start and end common shifts | Modelling and accounting judgement | The start shift handles membership change; the end shift absorbs net mass from unequal-\(K\) bouts | Common shifts preserve current differences but can contribute to displayed rating changes |
 | No bout update without an eligible result | Modelling judgement | No fought-bout evidence supplies no measured direction or magnitude of individual change | The point estimate can remain unchanged while confidence in it becomes less secure |
@@ -105,29 +105,37 @@ The resulting rating mass is small relative to membership effects, and the
 end-of-basho common shift accounts for it exactly at active-population level.
 That makes the consequence controlled, not nonexistent.
 
-## Why use P1-WL?
+## Why use P89?
 
 Equal initialisation is simple only in notation. At the January 1989 boundary
 it would assign an established Yokozuna and a low-ranked rikishi the same
 state; later, it would ignore information already present in the banzuke when
 a first rating is required.
 
-P1-WL uses chii as limited starting evidence. It aims to place a first rating
+P89 uses chii as limited starting evidence. It aims to place a first rating
 nearer a useful part of the scale, reducing initialisation lag without forcing
 subsequent ratings to remain aligned with the banzuke. Retrospective
 comparisons show that informed initialisation materially improves proper
 scores, especially for ratings with little bout evidence.
 
-The qualification is important. P1-WL was estimated from the same historical
+P89 includes every represented binary win or loss whether or not kimarite is
+recorded. Its literal chii values are combined by direct support weighting,
+including east/west and every numbered Y, O, S and K position present. This
+uses all represented cells without giving a rare cell the same influence as a
+heavily supported one. The construction and its alternatives are recorded in
+the preliminary
+[Appendix B](Appendix%20B%20-%20The%20Elo-89%20Entrant%20Prior.md).
+
+The qualification is important. P89 was estimated from the same historical
 period in which many of its first ratings are evaluated. Later career evidence
 therefore helped determine values used earlier in that period. These results
 show retrospective usefulness and internal coherence, not unseen-data
 validation. Low-support chii also remain less securely estimated than common
 ones.
 
-## Why hold P1-WL fixed?
+## Why hold P89 fixed?
 
-P1-WL was fitted using eligible results through the September 2026 basho
+P89 was fitted using eligible results through the September 2026 basho
 and then fixed. Extending Elo-89 through later basho does not re-estimate it.
 
 This boundary serves two purposes. It makes a release reproducible: the same
@@ -154,7 +162,7 @@ consistent with the mechanism.
 
 A common shift cannot change probabilities among the rikishi active when it is
 applied. It does, however, change the coordinate they carry relative to fixed
-P1-WL values used for later first ratings. This explains how an operation
+P89 values used for later first ratings. This explains how an operation
 which preserves current differences can affect later forecasts.
 
 The policy is an administered anchor, not a theorem that average sumo ability
@@ -226,7 +234,7 @@ It is not the true model of sumo or the winner of every possible evaluation.
 
 The most informative new evidence would include:
 
-- prospective or rolling-origin results for the fixed P1-WL model;
+- prospective or rolling-origin results for the fixed P89 model;
 - a declared \(q\) or expectation-curve comparison which protects the
   calibration of mature ratings;
 - a responsiveness policy based directly on rating support or uncertainty,

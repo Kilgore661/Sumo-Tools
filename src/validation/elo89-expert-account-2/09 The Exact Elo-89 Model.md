@@ -12,7 +12,7 @@ probability equation. In particular it denotes:
 - one stored point rating for each previously rated rikishi;
 - the \(q=400\) logistic expectation rule;
 - a rank-level \(K\) schedule;
-- first-rating initialisation from the fixed P1-WL table;
+- first-rating initialisation from the fixed P89 table;
 - no rating change while a rikishi is outside the active population;
 - common start- and end-of-basho shifts which preserve a fixed active-
   population mean; and
@@ -32,10 +32,10 @@ style interaction or explicit model of torikumi selection.
 | Excluded result | Paired fusen outcomes FS/FP; every other non-W/L outcome |
 | Expectation scale | \(q=400\) |
 | \(K\) | 10 for Yokozuna/Ozeki/Sekiwake/Komusubi; 15 for Maegashira; 25 for Juryo; 35 below Juryo |
-| First rating | Fixed paired P1-WL value for the current chii |
+| First rating | Fixed paired P89 value for the current chii |
 | Active population | Banzuke members |
 | Inactivity | A stored rating receives no bout update or population shift while its rikishi is outside the active population |
-| Target mean | Raw mean of the first non-empty active population after P1-WL initialisation |
+| Target mean | Raw mean of the first non-empty active population after P89 initialisation |
 | Population operation | One common shift to the target before the basho and another after its bouts |
 | Defined observations | Basho start, pre- and post-bout, day end, and normalised basho end |
 
@@ -47,7 +47,7 @@ An Elo-89 calculation requires:
 
 1. banzuke and bout records beginning in January 1989;
 2. an inclusive final basho determined by those records;
-3. the paired P1-WL first-rating table; and
+3. the paired P89 first-rating table; and
 4. the fixed \(K\) schedule.
 
 The model does not require one permanent final date: extending the record
@@ -82,38 +82,40 @@ s_A=
 \tag{9.1}
 \]
 
-## P1-WL: the first-rating table
+## P89: the first-rating table
 
-P1-WL answers a narrow question: what rating should Elo-89 assign before a
+P89 answers a narrow question: what rating should Elo-89 assign before a
 rikishi has ever had an Elo-89 rating? It is a table indexed by banzuke chii,
 not a table of the current abilities of the rikishi occupying those chii. See
-the [P1-WL production account](../../analysis/elo89/prior/README.md) for the
+the [P89 production account](../../analysis/elo89/prior/README.md) and
+[preliminary Appendix B](Appendix%20B%20-%20The%20Elo-89%20Entrant%20Prior.md) for the
 exact values used. A rikishi who already has a stored rating is not assigned
 another first rating.
 
-Elo-89 uses a fixed **paired P1-WL table**. It does not estimate that table
-again while calculating ratings. East and west values belonging to the same
-rank pair are averaged, and numbered positions above Maegashira are treated as
-the same rank level. This produces one value for labels such as Y, O, S, K,
-M1, J1 and so on.
+Elo-89 uses a fixed **paired P89 table**. It does not estimate that table
+again while calculating ratings. Literal cells are combined by direct support
+weighting. East and west retain their observed support; every numbered Y, O,
+S and K position present contributes to its rank-family value. Other ranks
+retain their number while side and annotation are removed. This produces one
+value for labels such as Y1, O1, S1, K1, M1, J1 and so on.
 
-Every chii to which the model is applied must have a P1-WL value; a
+Every chii to which the model is applied must have a P89 value; a
 neighbouring rank is not substituted for a missing value.
 
 ### How the table was obtained
 
-P1-WL was estimated retrospectively from eligible results beginning in January
+P89 was estimated retrospectively from eligible results beginning in January
 1989 by relating ratings to banzuke chii. Its purpose is to give a first rating
 that is closer to the level indicated by the banzuke, thereby reducing
 initialisation lag.
 
-The table was fixed on **30 October 2026** using history through the September
+The table was accepted and fixed on **6 November 2026** using history through the September
 2026 basho. Later results do not alter it, and a rikishi receiving his first
 rating after the freeze date receives a value from this same table. Within the
-fitted period P1-WL is future-informed: later career results contributed to
+fitted period P89 is future-informed: later career results contributed to
 values used for earlier first ratings. Agreement between those ratings and
 chii during that period is therefore not independent validation. From
-November 2026 onward, P1-WL acts as a fixed prior because subsequent results
+November 2026 onward, P89 acts as a fixed prior because subsequent results
 did not contribute to its construction. A different fitting boundary would
 define a different first-rating table.
 
@@ -132,7 +134,7 @@ A_t=\{\text{rikishi on the basho banzuke}\}.
 
 At each basho, every member of \(A_t\) who already has a stored rating
 continues from that rating. A member without a stored rating receives the
-P1-WL value for his chii in basho \(t\). A stored rating belonging to a rikishi
+P89 value for his chii in basho \(t\). A stored rating belonging to a rikishi
 outside \(A_t\) receives neither bout updates nor common population shifts.
 
 A banzuke member remains active even if he has no rated bout in that basho.
@@ -146,7 +148,7 @@ uncertainty during inactivity.
 ## The fixed target mean
 
 After the first non-empty active population has been formed and every member
-has been initialised from P1-WL, Elo-89 calculates
+has been initialised from P89, Elo-89 calculates
 
 \[
 \mu^*=\frac{1}{|A_1|}\sum_{i\in A_1}R_i.
@@ -186,7 +188,7 @@ R_i\leftarrow R_i+c_t^{\mathrm{start}}
 This restores the mean after changes in membership. Because it is a common
 shift, it preserves every rating difference and every Elo probability among
 the current active rikishi at that instant. It changes their shared coordinate
-relative to the fixed P1-WL values from which later first ratings will be
+relative to the fixed P89 values from which later first ratings will be
 assigned.
 
 The resulting state is the **basho-start rating** observation.
@@ -279,7 +281,7 @@ model, provided the observation stage is named.
 The recurrence can be summarised as follows:
 
 1. Form the active population from the basho banzuke.
-2. Continue each member from his stored rating, assigning P1-WL only where no
+2. Continue each member from his stored rating, assigning P89 only where no
    stored rating exists.
 3. At the first basho, set the target mean from this initial active
    population.
@@ -291,7 +293,7 @@ The recurrence can be summarised as follows:
 7. Retain every stored rating for use in later basho. A rating outside the
    active population remains numerically unchanged.
 
-These rules, the paired P1-WL values, the \(K\) table and the input records are
+These rules, the paired P89 values, the \(K\) table and the input records are
 sufficient to reconstruct the rating states.
 
 ## Observation stages
@@ -303,7 +305,7 @@ A public label must identify which one it uses.
 ## Scope boundary
 
 This chapter says what the Elo-89 contract calculates. It has not argued that
-January 1989, P1-WL, this \(K\) schedule or whole-population normalisation is
+January 1989, P89, this \(K\) schedule or whole-population normalisation is
 uniquely correct. Nor has it claimed that a fixed population mean establishes
 stable rating meaning at every chii or across every historical period.
 

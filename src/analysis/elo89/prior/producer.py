@@ -1,4 +1,4 @@
-"""Produce a bounded, immutable P1-WL literal-prior run."""
+"""Produce a bounded, immutable literal-prior run for P89."""
 
 from __future__ import annotations
 
@@ -53,7 +53,7 @@ def produce_prior(
     history_source: str = "provided History",
     progress: Callable[[IterationRow], None] | None = None,
 ) -> PriorRun:
-    """Fit P1-WL through and including ``last_prior_basho``.
+    """Fit the P89 literal source through and including ``last_prior_basho``.
 
     Output is written to the next unused ``run-NNN`` directory beneath the
     boundary directory. Existing runs are never overwritten.
@@ -92,7 +92,7 @@ def produce_prior(
     dates = sorted(selected)
     manifest = {
         "schema_version": 1,
-        "artifact": "Elo-89 P1-WL literal-prior source",
+        "artifact": "Elo-89 P89 literal-prior source",
         "history": {
             "source": history_source,
             "start": str(dates[0]),
