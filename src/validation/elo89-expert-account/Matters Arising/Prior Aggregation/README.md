@@ -3,8 +3,9 @@
 ## Status
 
 Concluded on 6 November 2026. P1-prime-WL (`P1'-WL`) is accepted as the
-official successor Elo-89 entrant prior. Canonical installation, replay, and
-dependent artifact regeneration remain implementation work.
+official successor Elo-89 entrant prior. The strict production loader has
+been installed and a complete candidate Elo-89 replay and site build have
+been verified against the frozen artifact.
 
 ## Question
 
@@ -110,16 +111,21 @@ The combined experimental table remains the audit artifact. The standalone
 
 ## Production consequence
 
-The fixed paired prior is now persisted. The remaining production tranche
-must:
+The Elo-89 producer now loads the persisted paired file strictly and records
+its path and SHA-256 identity. A complete candidate replay through 2026/09 and
+the dependent `make_site89` build succeeded without changing replay
+mathematics or bout eligibility. Public typical-rating and provenance wording
+now describes the artifact as P1-prime-WL rather than as a simple east/west
+average.
 
-1. replace dynamic aggregation in the Elo-89 producer with a strict paired-
-   prior loader;
-2. record the frozen prior and derivation hashes in production provenance;
-3. replay the complete Elo-89 history without changing replay mathematics;
-4. regenerate the complete `files/output/analysis/site89_bundle`; and
-5. revise public typical-rating and provenance wording that describes the
-   prior as a simple east/west average.
+The verified candidate outputs are:
 
-Until that tranche is complete, the accepted successor contract and the
-currently installed production artifact must be described separately.
+```text
+files/output/analysis/site89_bundle_p1_prime_wl/
+files/output/make_site89_p1_prime_wl/
+```
+
+The replay retained the `1989/01` through `2026/09` history interval, 581,634
+rated bouts, 3,034 excluded fusen and 3 other excluded outcomes. These are
+candidate verification artifacts; this record does not claim that the
+ordinary deployment path has been published.

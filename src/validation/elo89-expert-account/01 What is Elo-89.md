@@ -42,8 +42,8 @@ In outline, Elo-89:
 - begins with the substantially represented record in January 1989—the source
   of “89” in its name;
 - uses paired binary win/loss results selected under a declared bout policy;
-- gives a newly represented or returning rikishi an initial rating derived
-  from his banzuke position through a fixed table called **P1**;
+- gives a rikishi without a carried rating an initial rating derived from his
+  banzuke position through the frozen **P1-prime-WL** entrant-prior table;
 - makes ratings more or less responsive according to broad rank group through
   a divisional **K** schedule; and
 - applies common shifts to keep the represented population centred on a fixed

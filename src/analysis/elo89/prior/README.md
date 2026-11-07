@@ -1,8 +1,9 @@
-# Elo-89 prior production
+# Elo-89 literal-prior production
 
-This package produces the fixed P1-WL initial ratings used by Elo-89. It is
-production code derived from the accepted validation work; it does not repeat
-the P1-versus-P1-WL experiment.
+This package produces immutable fitted P1-WL **literal-chii** tables. Those
+tables are derivation inputs, not the paired prior consumed directly by the
+Elo-89 replay. Production Elo-89 uses the separately persisted P1-prime-WL
+table selected by the prior-aggregation work.
 
 The input History is bounded from 1989/01 through `--last-prior-basho`, with
 both endpoints included. The default final basho is declared in
@@ -21,49 +22,40 @@ files/output/analysis/elo89/prior/YYYY-MM/run-NNN/
     manifest.json
 ```
 
-## Accepted and paired tables
+## Fitted source and installed prior
 
-`src.analysis.elo89.config` declares which immutable run is accepted by
-the currently installed Elo-89 replay. The installed fitted table is:
+The accepted fitted P1-WL source is:
 
 ```text
 files/output/analysis/elo89/prior/2026-09/run-001/prior.csv
 ```
 
-That fitting output contains separate values for east and west chii. When
-Elo-89 loads it, values belonging to the same rank pair are averaged. Every
-production replay writes the resulting paired table as `prior.csv` in the
-replay output. In the standard site-data bundle, the exact paired values used
-are therefore in:
+That output contains separate literal chii ratings and their support. The
+accepted aggregation applies direct support weighting to every literal cell
+mapped to a consumer key, including east/west and every numbered Y/O/S/K
+position present. The resulting 484-row P1-prime-WL table is persisted at:
+
+[`equelo_prior_aggregation/results/priors.csv`](../../equelo_prior_aggregation/results/priors.csv)
+
+Its SHA-256 is
+`41430ce50f61bf2769ee7b37e4c964d5ecd00e78fe554a9790a869ad35955d38`.
+`src.analysis.elo89.config` identifies this file as the installed replay
+prior. The replay loads its exact `rank_pair,ordinal,rating` schema strictly;
+it does not refit or reaggregate the prior. Every production replay copies the
+values it consumed to its own `prior.csv`. In the standard site-data bundle
+that copy is:
 
 [`files/output/analysis/site89_bundle/sources/elo89/prior.csv`](../../../../files/output/analysis/site89_bundle/sources/elo89/prior.csv)
 
-The adjacent `manifest.json` records the fitted table's path and SHA-256 hash,
-as well as the number of rank pairs written. Both CSV files are generated
-artifacts under `files/output`; they are not source-controlled files.
+The adjacent `manifest.json` records the installed table's path and SHA-256
+hash, as well as the number of rank pairs written. The bundle copy is a
+generated artifact; the installed source under `results` is source controlled.
 
 On 6 November 2026, the project accepted P1-prime-WL as the official successor
 entrant prior. It applies direct support weighting to every P1-WL literal cell
 mapped to a paired key, including east/west and every numbered Y/O/S/K position
 present. The decision and exact experimental artifact hashes are recorded in
 [`Prior Aggregation`](../../../validation/elo89-expert-account/Matters%20Arising/Prior%20Aggregation/README.md).
-
-The successor is not yet installed by `src.analysis.elo89.config`. Production
-will consume the frozen 484-row strict table at
-[`equelo_prior_aggregation/results/priors.csv`](../../equelo_prior_aggregation/results/priors.csv).
-Its SHA-256 is
-`41430ce50f61bf2769ee7b37e4c964d5ecd00e78fe554a9790a869ad35955d38`.
-The remaining promotion work is to update the loader and provenance and then
-regenerate the full Elo-89 replay and site-data bundle.
-
-## Publication TBD
-
-**TBD: finalise the content and stable repository location of P1-WL.** The
-current fitted and paired tables are generated artifacts under `files/output`
-and are therefore absent from a clean checkout. Before the expert account is
-published as a permanent repository document, the accepted values and the
-provenance needed to identify them must be placed at a stable, source-controlled
-location and the links above updated.
 
 There is deliberately no output-path command-line option. Existing runs are
 never overwritten, and run numbering is local to the selected boundary.

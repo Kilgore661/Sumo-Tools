@@ -1,4 +1,4 @@
-"""Produce a bounded, immutable P1-WL prior run."""
+"""Produce a bounded, immutable P1-WL literal-prior run."""
 
 from __future__ import annotations
 
@@ -92,7 +92,7 @@ def produce_prior(
     dates = sorted(selected)
     manifest = {
         "schema_version": 1,
-        "artifact": "Elo-89 P1-WL prior",
+        "artifact": "Elo-89 P1-WL literal-prior source",
         "history": {
             "source": history_source,
             "start": str(dates[0]),

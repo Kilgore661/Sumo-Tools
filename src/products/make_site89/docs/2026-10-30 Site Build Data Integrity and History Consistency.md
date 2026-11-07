@@ -18,26 +18,24 @@ the surrounding production process.
 downloaded source data
         |
         v
-canonical History
-        |
-        +-----------------------------+
-        |                             |
-        v                             v
-P1-WL fitting                  other History analyses
-        |                      and derived artifacts
-        v                             |
-Elo-89 replay                        |
-        |                             |
-        v                             |
-rating artifacts                     |
-        |                             |
-        +-------------+---------------+
-                      |
-bio data and          |
-other sources --------+
-                      |
-                      v
-              website data bundle
+canonical History --------+---------------------+
+        |                  |                     |
+        |          frozen P1-prime-WL            v
+        |          paired prior          other History analyses
+        |                  |                     |
+        +------------------+                     v
+                           |             other derived artifacts
+                           v                     |
+                    Elo-89 replay                |
+                           |                     |
+                           v                     |
+                    rating artifacts ------------+
+                                                 |
+bio data and                                    |
+other sources ----------------------------------+
+                                                 |
+                                                 v
+                                       website data bundle
                       |
                       v
                  make_site89
@@ -46,10 +44,11 @@ other sources --------+
               static website tree
 ```
 
-Canonical `History` is not mutated by this process. P1-WL, the Elo-89 replay
-and other analyses produce separately identifiable artifacts keyed back to
-its basho, rikishi and bouts. The website combines those artifacts with other
-sources and presentation material.
+Canonical `History` is not mutated by this process. P1-prime-WL is a frozen,
+source-controlled input rather than something refitted during a site build.
+The Elo-89 replay and other analyses produce separately identifiable artifacts
+keyed back to History basho, rikishi and bouts. The website combines those
+artifacts with other sources and presentation material.
 
 ## Source acquisition: intended operating model
 
@@ -118,28 +117,24 @@ TBD.
 Given a valid `History`, the rating path is conceptually:
 
 ```text
-History
-    |
-    +-- select results through and including last-prior-basho
-    |       |
-    |       +-- fit and persist P1-WL
-    |
-    +-- replay Elo-89 over the required interval
-            using the fixed P1-WL artifact
+frozen P1-prime-WL paired prior
             |
-            +-- rating, forecast and adjustment artifacts
+History ----+-- replay Elo-89 over the required interval
+                    |
+                    +-- rating, forecast and adjustment artifacts
 ```
 
-The P1-WL artifact depends on:
+The installed P1-prime-WL artifact was derived from:
 
 - the exact input `History`;
 - the inclusive `last-prior-basho`; and
-- the fitting algorithm and configuration.
+- the P1-WL fitting algorithm and configuration; and
+- direct support-weighted aggregation of the fitted literal cells.
 
 The production default is 2026/09. It is the final basho included, not the
 first basho excluded. The Elo-89 replay may extend beyond that value, and
-never-rated rikishi appearing later are still initialised from the fixed
-P1-WL table.
+never-rated rikishi appearing later are still initialised from the frozen
+P1-prime-WL table. Routine replay and site builds do not refit it.
 
 Artifact names should be readable, while content hashes provide exact
 identity. Manifests should connect a readable build identifier to hashes of

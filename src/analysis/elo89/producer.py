@@ -5,11 +5,11 @@ from __future__ import annotations
 from pathlib import Path
 
 from src.analysis.equelo.expt1.params import load_divisional_k_fn
-from src.analysis.equelo_population_policy.predict_candidate import load_alpha_prior
 from src.sumo_core.History import History
 
 from .config import ACCEPTED_PRIOR_PATH
 from .output import Elo89OutputPaths, write_elo89_outputs
+from .prior_loader import load_paired_prior
 from .replay import Q, replay_elo89
 
 
@@ -33,7 +33,7 @@ def produce_elo89(
             "Elo-89 production requires a History beginning at 1989/01; "
             f"received {first!r}"
         )
-    prior, _conversion = load_alpha_prior(prior_path)
+    prior = load_paired_prior(prior_path)
     run = replay_elo89(
         history=history,
         start_date=dates[0],

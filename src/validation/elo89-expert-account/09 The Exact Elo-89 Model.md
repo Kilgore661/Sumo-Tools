@@ -19,7 +19,7 @@ probability equation. In particular it denotes:
 - one carried point rating for each active rikishi;
 - the (q=400) logistic expectation rule;
 - a rank-level K schedule;
-- initialisation from the frozen P1 entrant-prior artifact;
+- initialisation from the frozen P1-prime-WL entrant-prior artifact;
 - removal and reinitialisation across absence from the active population;
 - common start- and end-of-basho shifts which preserve a fixed active-
   population mean; and
@@ -40,11 +40,11 @@ style interaction or explicit model of torikumi selection.
 | Excluded result | Paired fusen outcomes FS/FP; every other non-W/L outcome |
 | Expectation scale | (q=400) |
 | K | 10 for Y/O/S/K; 15 for M; 25 for J; 35 below Juryo or when chii is absent |
-| Entrant rating | Frozen paired P1 value for the current chii; the minimum P1 value when no chii exists |
+| Entrant rating | Frozen P1-prime-WL value for the current chii; the minimum table value when no chii exists |
 | Active population | Banzuke members, plus participants in rated W/L results represented for that basho |
 | Departure | Absence from the next active population discards the rating |
-| Return | Treated as a new entrant and assigned P1 again |
-| Target mean | Raw mean of the first non-empty active population after P1 initialisation |
+| Return | Treated as a new entrant and assigned P1-prime-WL again |
+| Target mean | Raw mean of the first non-empty active population after prior initialisation |
 | Population operation | One common shift to the target before the basho and another after its bouts |
 | Bout chronology | Basho, then day, then canonical rikishi pair |
 | Published internal observations | Basho start, pre- and post-bout, day end, and normalised basho end |
@@ -57,7 +57,7 @@ An Elo-89 production replay consumes:
 
 1. a `History` whose first represented basho is January 1989;
 2. an inclusive final basho determined by that history;
-3. the paired P1 prior table; and
+3. the frozen paired P1-prime-WL prior table; and
 4. the fixed K configuration.
 
 The producer rejects a history whose first sorted date is not `1989/01`. It
@@ -105,52 +105,50 @@ s_A=
 The orientation has no substantive effect; it provides deterministic bout
 identity and output order.
 
-## P1: the entrant-prior artifact
+## P1-prime-WL: the entrant-prior artifact
 
-P1 answers a narrow question: what rating should Elo-89 assign before a
-rikishi has an active carried rating? It is a table indexed by banzuke chii,
-not a table of the current abilities of the rikishi occupying those chii.
+P1-prime-WL answers a narrow question: what rating should Elo-89 assign before
+a rikishi has an active carried rating? It is a frozen table indexed by
+banzuke chii, not a table of the current abilities of the rikishi occupying
+those chii. Elo-89 consumes the table; it does not estimate it during replay.
 
-The replay consumes a frozen **paired P1 table**. It does not estimate that
-table again while calculating Elo-89. For a represented chii, annotations are
-removed and east and west values belonging to the same rank pair are averaged
-without support weights. Numbered positions above Maegashira are collapsed to
-their level's first position by the retained rank-family policy. This produces
-one value for labels such as Y, O, S, K, M1, J1 and so on.
+Selected values show its scale and broad shape:
 
-If a rikishi has no chii, the replay uses the minimum value in the paired P1
-table. If a non-null represented chii maps to no P1 entry, the replay fails;
-it does not silently choose a neighbouring rank.
+| Chii | Initial rating |
+| --- | ---: |
+| Y1 | 2525.42 |
+| O1 | 2400.89 |
+| S1 | 2359.51 |
+| K1 | 2323.05 |
+| M1 | 2301.52 |
+| J1 | 2141.95 |
+| Ms1 | 2016.07 |
+| Sd1 | 1700.27 |
+| Jd1 | 1478.13 |
 
-### How the frozen source table was produced
+The complete table is broadly ordered in the way these examples suggest, but
+it is not a rule-derived monotone scale. Local reversals and discontinuities,
+especially around division boundaries and sparsely represented lower ranks,
+remain visible rather than being smoothed away.
 
-The side-specific source for P1 was constructed by a separate iterative
-procedure over the post-1988 history:
+At a high level, the table comes from a fixed-point fit over historical bout
+results. The selected `WL` fit includes represented binary wins and losses
+even when kimarite is missing. Its literal chii cells are then combined by
+direct support weighting: east and west retain their observed support, and
+every numbered Y, O, S and K position present contributes to its rank-family
+value. That aggregation replaced the equal-cell averaging which had placed K1
+below M1 in both the earlier P1 and P1-WL paired tables.
 
-1. every chii in the producer's represented domain starts at 1,517;
-2. the history is replayed with (q=400), the retained K schedule and the
-   legacy departure-redistribution population rule;
-3. basho-start ratings are pooled by chii and averaged to obtain a revised
-   chii map;
-4. enough correction mass to restore an unweighted map mean of 1,517 is
-   allocated among chii in proportion to their observation counts; and
-5. the revised map becomes the entrant table for the next pass.
+The result is called **P1-prime-WL**: “prime” identifies the support-weighted
+aggregation, and “WL” identifies the corrected bout-eligibility rule. The
+construction is historically fitted and future-informed: later careers help
+determine values assigned to earlier entrants. There is no uniquely obvious
+way to construct such a prior. A planned Appendix B will give the separate
+technical account of the fitting, alternatives, evidence and decision.
 
-The retained run stopped after 18 passes when the maximum change between
-successive maps was 9.5748 points, below its ten-point stopping tolerance. It
-contained 975 side-specific chii values. The stopping rule establishes what
-artifact was produced; it is not a theorem of unique or exact convergence.
-
-The prior producer uses its own Oracle-prepared history and legacy replay
-eligibility, including exclusion of records whose decision is `blank`. The
-Elo-89 replay itself instead rates every represented W/L result. P1 is also
-future-informed: later history contributed to the table used to initialise
-earlier entrants. These are properties of the fitted artifact's provenance,
-not hidden steps in the Elo-89 recurrence.
-
-The separation is essential. Feeding Elo-89's whole-population operator back
-into the literal-chii fixed-point procedure produced unstable extreme values
-at low-support chii. Elo-89 therefore holds externally produced P1 fixed.
+If a rikishi has no chii, the replay uses the minimum value in the frozen
+table. If a non-null represented chii maps to no entry, the replay fails; it
+does not silently choose a neighbouring rank.
 
 ## Active population and lifecycle
 
@@ -167,7 +165,8 @@ The union matters to the formal implementation even though the current
 production ledger contains no rated bout participant with a missing chii.
 
 Before basho (t), every rikishi in (A_{t-1}\setminus A_t) loses his carried
-rating. A rikishi in (A_t) without a carried rating is initialised from P1
+rating. A rikishi in (A_t) without a carried rating is initialised from
+P1-prime-WL
 using his chii for basho (t). Thus one-basho absence from the active set is a
 departure, and later reappearance is a new initialisation. The previous rating
 is not archived for restoration.
@@ -182,7 +181,7 @@ lost all underlying ability.
 ## The fixed target mean
 
 After the first non-empty active population has been formed and every member
-has been initialised from P1, Elo-89 calculates
+has been initialised from P1-prime-WL, Elo-89 calculates
 
 \[
 \mu^*=\frac{1}{|A_1|}\sum_{i\in A_1}R_i.
@@ -190,7 +189,7 @@ has been initialised from P1, Elo-89 calculates
 \]
 
 This becomes the target mean for the entire run. It is not the 1,517 mean used
-inside the upstream P1 producer and it is not a separately chosen round
+inside the upstream prior producer and it is not a separately chosen round
 number. It depends on the first active population and the frozen paired prior.
 The current production artifact records approximately 1,569.6961, but the
 definition is Equation 9.3 rather than that rounded observation.
@@ -223,7 +222,8 @@ R_i\leftarrow R_i+c_t^{\mathrm{start}}
 This restores the mean after changes in membership. Because it is a common
 shift, it preserves every rating difference and every Elo probability among
 the current active rikishi at that instant. It changes their shared coordinate
-relative to the fixed P1 values from which future entrants will be initialised.
+relative to the fixed P1-prime-WL values from which future entrants will be
+initialised.
 
 The resulting state is the **basho-start rating** observation.
 
@@ -317,7 +317,7 @@ The recurrence can be summarised as follows:
 ```text
 form active set from banzuke members and rated-bout participants
 discard ratings belonging to the previous active set but not this one
-initialise every active rikishi without a rating from frozen paired P1
+initialise every active rikishi without a rating from frozen P1-prime-WL
 on the first non-empty basho, set the target to the resulting raw mean
 shift every active rating by one common amount to restore the target mean
 record basho-start ratings
@@ -334,8 +334,8 @@ record normalised basho-end ratings
 carry those ratings forward for rikishi who remain active
 ```
 
-This algorithm, the paired P1 values, the K table and the represented history
-are sufficient to reconstruct the rating states.
+This algorithm, the paired P1-prime-WL values, the K table and the represented
+history are sufficient to reconstruct the rating states.
 
 ## Production observations and artifacts
 
@@ -343,8 +343,8 @@ One production run writes:
 
 | Artifact | Meaning |
 | --- | --- |
-| `prior.csv` | The paired P1 values actually consumed by the run |
-| `basho_start_ratings.json` | State after membership changes, P1 initialisation and the start shift |
+| `prior.csv` | The frozen P1-prime-WL values actually consumed by the run |
+| `basho_start_ratings.json` | State after membership changes, prior initialisation and the start shift |
 | `day_end_ratings.json` | State after each represented day's eligible bout updates, before the basho-end shift |
 | `basho_end_ratings.json` | State after the end shift |
 | `bout_ledger.csv` | Pre-bout ratings, probability, result, K values, deltas and immediate post-bout ratings |
@@ -366,7 +366,7 @@ The existing named-model table says that off-banzuke results are excluded and
 reported. The retained Elo-89 selector does not perform that exclusion. It
 rates every represented W/L result and the replay explicitly adds rated-bout
 participants to the active population even when they are absent from the
-banzuke. In that case they receive the unranked P1 fallback and K=35.
+banzuke. In that case they receive the unranked prior fallback and K=35.
 
 The current production ledger through September 2026 contains no such rated
 participant, so the two descriptions happen to produce the same published
@@ -376,10 +376,10 @@ rule rather than repeating the older prose claim.
 
 ### 2. Artifact identity in the manifest
 
-The output bundle copies the exact paired prior values it consumed, so the
-replay input is preserved. Its manifest does not currently record a SHA-256
-for that copied prior, the K configuration, the source history or the replay
-code. It records paths and a free-text history description instead.
+The output bundle copies the exact paired prior values it consumed, and its
+manifest records the source-controlled prior's path and SHA-256. The manifest
+does not yet bind the K configuration, source History or replay code through
+stable hashes; those remain paths or descriptions.
 
 That is weaker than the three-layer reproducibility standard in Chapter 8. A
 release can still be audited from its copied inputs and ledger, but the
@@ -390,7 +390,8 @@ identities would strengthen provenance without changing the Elo-89 equations.
 ## Scope boundary
 
 This chapter says what Elo-89 calculates. It has not argued that January 1989,
-P1, this K schedule or whole-population preservation is uniquely correct. Nor
+P1-prime-WL, this K schedule or whole-population preservation is uniquely
+correct. Nor
 has it claimed that a fixed population mean establishes stable rating meaning
 at every chii or across every historical period.
 

@@ -1,4 +1,4 @@
-"""Production of the fixed P1-WL prior used by Elo-89."""
+"""Production of fitted P1-WL literal-prior derivation inputs."""
 
 from .producer import PriorRun, produce_prior
 

@@ -2,9 +2,10 @@
 
 ## Status
 
-Working contents for a new, separate expert-facing account. This workspace is
-not part of the public website and does not replace or revise the existing
-Elo89 account files.
+Working contents for the current expert-facing account. This workspace is not
+yet part of the public website. It supersedes the incomplete HTML Elo89
+account package as the active writing base; those files remain as development
+history.
 
 The aim is to write a complete account first. Once its definitions, argument,
 evidence and criticism are satisfactory, relevant portions can be adapted for
@@ -84,7 +85,8 @@ What is Elo-89?
 
 9. [The Exact Elo-89 Model](09%20The%20Exact%20Elo-89%20Model.md)
    Specify the epoch, evidence domain, represented population, `q`, divisional
-   K, P1, chronology, population operations, persistence rules and observation
+   K, the frozen P1-prime-WL entrant prior, chronology, population operations,
+   persistence rules and observation
    stages.
 
 10. [Why Elo-89 Makes Those Choices](10%20Why%20Elo-89%20Makes%20Those%20Choices.md)
@@ -92,7 +94,8 @@ What is Elo-89?
     inherited for continuity or left unresolved.
 
 11. [Critique of Elo-89](11%20Critique%20of%20Elo-89.md)
-    Assess one-dimensional strength, point uncertainty, future-informed P1,
+    Assess one-dimensional strength, point uncertainty, the future-informed
+    entrant prior,
     normalisation, drift, reinitialisation, immature ratings, historical
     interpretation and known defects.
 
@@ -103,6 +106,16 @@ What is Elo-89?
 13. [Other Choices Are Possible](13%20Other%20Choices%20Are%20Possible.md)
     Invite explicit alternatives without implying that untested alternatives
     have already been compared or that every choice is arbitrary.
+
+## Planned appendix
+
+**Appendix B: The Elo-89 Entrant Prior** will give the interested expert the
+separate technical account of how the prior was fitted, why its construction
+is not uniquely determined, how missing-kimarite eligibility and aggregation
+were tested, and why P1-prime-WL was selected. Writing that appendix is a
+separate project. The main account states what the frozen prior does, why an
+informed prior is used, and the limitations needed to interpret it; it does
+not reproduce the construction audit.
 
 ## Research-audit principle
 
@@ -152,8 +165,9 @@ explains a retained choice.
 
 ## Existing material remains separate
 
-The existing HTML account drafts and public prose remain unchanged. They are
-sources to mine, not files governed by this contents page. The principal
+The old HTML account draft package under `src/products/make_site89/docs` is
+superseded by this account and is retained only as development history. Its
+files are sources to mine, not files governed by this contents page. The principal
 orientation note for this workspace is the adjacent
 [Elo-89 Ratings Narrative Handoff](../../products/make_site89/docs/2026%2010%2019%20Elo-89%20Ratings%20Narrative%20Handoff.md).
 

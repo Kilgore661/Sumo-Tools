@@ -41,8 +41,8 @@ constant K.
 | `RikId` identity and forecast-before-update chronology | Engineering necessity | Preserves one career across shikona changes and prevents the result being used in its own forecast | These choices support a valid experiment; they are not empirical discoveries about ability |
 | (q=400) | Inherited convention with diagnostic support | Keeps the canonical Basic Elo probability scale; mature-rating calibration supplied no compelling reason for a global change | It was not chosen by a comprehensive search and is not proved optimal |
 | Divisional K | Evidence-led selection plus inherited schedule | It modestly improved retrospective log and Brier loss, and lets lower-division ratings respond faster | The exact K values were not independently optimised; division is only a proxy for rating maturity |
-| P1 initialisation | Evidence-led selection plus modelling judgement | Informed initialisation supplies most of the gain over Basic Elo and avoids pretending all entrants are initially equal | P1 is future-informed, low-support chii remain problematic, and its construction contains judgement |
-| Fixed P1 | Evidence-led rejection of feedback | Re-solving the prior through the production population operator recreated extreme low-support values | Fixing the artifact does not establish that P1 is timeless or uniquely correct |
+| P1-prime-WL initialisation | Evidence-led selection plus modelling judgement | Informed initialisation supplies most of the gain over Basic Elo; the WL and support-weighting corrections remove two arbitrary exclusions from the selected artifact | The prior is future-informed, low-support chii remain problematic, and its construction contains judgement |
+| Frozen prior | Evidence-led rejection of feedback | Re-solving the prior through the production population operator recreated extreme low-support values | Fixing the artifact does not establish that P1-prime-WL is timeless or uniquely correct |
 | Whole-population mean preservation | Evidence-led selection plus anchoring judgement | It gave the best tested aggregate log and Brier loss and controls the coordinate carried by incumbents relative to future entrants | The old model retained slightly better aggregate calibration error; a fixed mean does not prove absolute cross-era equivalence |
 | Start and end common shifts | Modelling and accounting judgement | The start shift handles turnover; the end shift exactly absorbs unequal-K mass while preserving current differences | The end correction is tiny and adds almost no tested predictive benefit |
 | Departure discards; return reinitialises | Modelling judgement | Defines a clean represented-population lifecycle and uses current chii evidence on return | It was not selected against a persisted-rating return model |
@@ -152,9 +152,9 @@ improvement still came from the prior. The benefit was concentrated where it
 should be: new and immature ratings.
 
 This establishes that informed starting information is useful in the tested
-history. It does not by itself select P1.
+history. It does not by itself select a particular prior.
 
-## Why P1 rather than the older prior?
+## Why P1-prime-WL rather than the older prior?
 
 The old informed prior was a contextual construction and remained slightly
 better than early P1 candidates in retrospective prediction. P1 was developed
@@ -178,14 +178,28 @@ P1 was accepted as a credible, reproducible prior which repaired a known
 construction pathology while preserving most measured predictive value. It
 was not selected because it won every score: it did not.
 
-Both prior artifacts use later history to initialise earlier entrants in the
-retrospective evaluation. The result is model-selection evidence and an
-internal coherence check, not unseen-data validation.
+Two later corrections produced the current P1-prime-WL artifact. First,
+P1-WL admitted represented binary W/L bouts even when kimarite was missing;
+controlled evaluation found the resulting prior acceptable. Second, direct
+support weighting replaced equal averaging of literal chii cells. The old
+aggregation gave a low-support K2 cell the same influence as K1 and ignored
+east/west support differences, producing the narratively anomalous K1-below-
+M1 result in both P1 and P1-WL. Under the selected aggregation K1 is 2323.05
+and M1 is 2301.52.
 
-## Why hold P1 fixed?
+These corrections did not establish a uniquely correct entrant model. They
+removed two arbitrary features from the chosen construction while preserving
+the previously tested rationale for informed initialisation. The detailed
+construction and decision record is deferred to the planned Appendix B.
 
-It might appear tidier to produce P1 using the same whole-population operation
-used by the final replay. That was tested. When the operator was allowed to
+These fitted prior artifacts use later history to initialise earlier entrants
+in the retrospective evaluation. The result is model-selection evidence and
+an internal coherence check, not unseen-data validation.
+
+## Why hold the prior fixed?
+
+It might appear tidier to produce the prior using the same whole-population
+operation used by the final replay. That was tested. When the operator was allowed to
 feed back into the literal-chii fixed-point loop, low-support values became
 extreme again: the two-observation `Jk73w` cell rose to about 3,168, and the
 solve took 71 iterations rather than 18.
@@ -197,11 +211,11 @@ self-generating loop.
 
 The retained boundary is evidence-led:
 
-1. P1 is an externally fitted, frozen initialisation artifact; and
+1. P1-prime-WL is an externally fitted, frozen initialisation artifact; and
 2. whole-population preservation operates only during the subsequent Elo-89
    replay.
 
-Re-estimating P1 on later data may create a new fitted release, but it is not a
+Re-estimating the prior on later data may create a new fitted release, but it is not a
 step performed at every production replay.
 
 ## Why preserve the whole-population mean?
@@ -211,8 +225,8 @@ the active mean moving when entrants and departures carry different ratings
 into and out of an open population. Elo-89 needs an anchor if ratings printed
 at different dates are to remain on one administered coordinate.
 
-Three policies were compared with canonical P1 held fixed on the same 574,863
-bouts:
+Three policies were compared with the then-canonical P1 held fixed on the
+same 574,863 bouts:
 
 | Population policy | Mean log loss | Mean Brier loss | Aggregate ECE |
 | --- | ---: | ---: | ---: |
@@ -229,7 +243,7 @@ slightly lower aggregate ECE.
 The improvement was concentrated in younger ratings. This matches the
 mechanism: a common shift cannot change probabilities among present rikishi at
 the instant it is applied, but it changes the coordinate incumbents carry
-relative to fixed P1 ratings assigned to later entrants.
+relative to fixed prior ratings assigned to later entrants.
 
 The policy was therefore selected on the predeclared primary log-loss
 criterion with corroboration from Brier loss and a coherent mechanism. It was
@@ -251,7 +265,7 @@ every published basho-end population has exactly the target mean.
 
 Both shifts are common additions. They preserve current ranking, gaps and
 matchup probabilities at application time. Over a longer history they are not
-causally inert, because later entrants arrive from fixed P1.
+causally inert, because later entrants arrive from the fixed prior.
 
 The later normalisation audit found that common shifts can contribute
 appreciably to a particular displayed rating change, even though signed
@@ -271,7 +285,8 @@ ability change. Adding automatic decay would turn a plausible story into an
 unmeasured numerical rule.
 
 When a rikishi leaves the represented population, Elo-89 discards the rating;
-on return it uses P1 at the new chii. This was accepted as a clean policy for
+on return it uses the frozen entrant prior at the new chii. This was accepted
+as a clean policy for
 the exceptional returns in the modern domain. It was not selected in a
 controlled comparison with archiving and restoration, time decay or an
 uncertainty-widening model.
@@ -310,7 +325,7 @@ The model is frozen for production, not insulated from criticism. A serious
 alternative would need an exact contract and a like-for-like comparison. The
 most informative new evidence would include:
 
-- prospective or rolling-origin results for the frozen P1 model;
+- prospective or rolling-origin results for the frozen P1-prime-WL model;
 - a declared q or expectation-curve comparison which protects the already
   good calibration of mature ratings;
 - a responsiveness policy based directly on rating support or uncertainty,

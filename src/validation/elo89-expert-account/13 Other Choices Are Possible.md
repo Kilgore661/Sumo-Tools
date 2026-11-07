@@ -175,6 +175,8 @@ The status of alternatives matters.
 | Constant versus divisional K | Controlled factorial comparison |
 | Constant versus informed initialisation | Controlled factorial comparison |
 | Older informed prior versus P1 | Retrospective predictive comparison |
+| P1 versus P1-WL eligibility | Controlled prior and predictive comparison |
+| Equal-cell versus support-weighted aggregation | Controlled P1 and P1-WL prior-map comparison |
 | No population adjustment, Expt2 departure redistribution and whole-population preservation | Direct final comparison with fixed P1 |
 | Chii-order favourite | Separate descriptive baseline on a later snapshot; not a matched probability comparison |
 | Elo-58 historical extension | Separate qualified research model, not a peer final-candidate test |
@@ -278,8 +280,8 @@ artifact identity even if the abstract model contract remains the same.
 
 Examples include:
 
-- `Elo-89 with a corrected P1 artifact`: potentially the same abstract replay
-  contract, but a newly identified fitted artifact and rating release;
+- `Elo-89 with a successor entrant prior`: potentially the same abstract
+  replay contract, but a newly identified fitted artifact and rating release;
 - `Elo-89 with archived return ratings`: a different lifecycle model;
 - `Elo-89 with uncertainty-dependent K`: a different update model; and
 - `Elo-89 ratings rounded to integers`: the same model with a presentation

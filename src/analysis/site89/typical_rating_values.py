@@ -1,4 +1,4 @@
-"""Publish Elo-89's P1 rank-pair prior as public rating landmarks."""
+"""Publish Elo-89's frozen P1-prime-WL prior as public rating landmarks."""
 
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ def produce_typical_rating_values(*, ratings: Elo89Artifacts, output_root: Path)
     for table_order, (table, labels) in enumerate(groups, start=1):
         for row_order, (label, pair) in enumerate(labels, start=1):
             if pair not in ratings.prior:
-                raise ValueError(f"Elo-89 P1 prior has no public landmark for {pair}")
+                raise ValueError(f"Elo-89 P1-prime-WL prior has no public landmark for {pair}")
             rows.append(
                 {
                     "table": table,
@@ -29,7 +29,7 @@ def produce_typical_rating_values(*, ratings: Elo89Artifacts, output_root: Path)
                     "rating": round(ratings.prior[pair]),
                     "support_count": 1,
                     "support_chii": pair,
-                    "policy": "canonical paired P1 entrant rating",
+                    "policy": "frozen P1-prime-WL entrant rating",
                 }
             )
     return write_csv(output_root / "typical_rating_values.csv", rows)

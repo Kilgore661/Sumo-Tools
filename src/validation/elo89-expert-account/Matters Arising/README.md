@@ -175,8 +175,8 @@ including east/west cells and every numbered Y/O/S/K position present. Adopt
 the resulting P1-prime-WL paired values as the official successor entrant
 prior. The retained experiment shows that this corrects the K1-below-M1
 inversion already present in P1 while preserving the separately accepted
-missing-kimarite eligibility rule. Canonical installation, replay, and
-dependent artifact regeneration remain implementation work.
+missing-kimarite eligibility rule. The strict loader is installed, and a
+complete candidate Elo-89 replay and dependent site build have been verified.
 
 ## Concluded supporting matter
 

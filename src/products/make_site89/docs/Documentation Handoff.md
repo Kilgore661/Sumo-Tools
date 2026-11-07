@@ -1,5 +1,12 @@
 # Elo89 documentation hand-off
 
+> **Superseded 6 November 2026.** This hand-off and the incomplete HTML
+> `Elo89 Account` package are retained as development history. The current
+> account begins at
+> [`src/validation/elo89-expert-account/00 Contents.md`](../../../validation/elo89-expert-account/00%20Contents.md).
+> The historical source notes below remain useful, but their proposed writing
+> sequence is no longer the active documentation plan.
+
 Updated 12 September 2026. **The per-chii drift study has been implemented,
 run and verified; documentation work remains postponed pending the author's
 review of its findings.** Read
@@ -15,7 +22,7 @@ question of what a rating system is as a model of sumo. Read it before
 restructuring or resuming the public account; it supplements this implementation
 and evidence handoff rather than changing the model.
 
-## Where we are
+## Historical position at the time of this hand-off
 
 The deliverable is an account of Elo89, not of the whole Sumo Tools website.
 The website overview will sit elsewhere and reference this account. Readers
@@ -30,7 +37,7 @@ is now saved and explicitly labelled **draft**. It preserves the agreed
 opening and the construction/evidence discussion reached in conversation;
 it is not a completed specification. Sections 5, 6 and 8–11 are not drafted.
 
-## Next work
+## Work then proposed
 
 1. Review the completed per-chii drift findings and their limits. The
    implementation, production run and verification checks are complete.
@@ -113,9 +120,11 @@ Useful sources:
   [recentering](../../../analysis/equelo_bkp1/recenter.py).
 - [Producer manifest](../../../../files/output/analysis/equelo_bkp1/manifest.json)
   and [iteration record](../../../../files/output/analysis/equelo_bkp1/iterations.csv).
-- [Conversion](../../../analysis/equelo_population_policy/predict_candidate.py),
-  function `load_alpha_prior`, with rank grouping defined through
-  `rank_pair` in `src/analysis/elo_model_selection/model.py`.
+- [Persisted P1-prime-WL prior](../../../analysis/equelo_prior_aggregation/results/priors.csv),
+  [strict production loader](../../../analysis/elo89/prior_loader.py), and
+  [aggregation decision](../../../validation/elo89-expert-account/Matters%20Arising/Prior%20Aggregation/README.md).
+- The older `equelo_population_policy.predict_candidate.load_alpha_prior`
+  conversion is historical and is not the production loading path.
 - [Saved production prior](../../../../files/output/analysis/site89_bundle/sources/elo89/prior.csv)
   and [production manifest](../../../../files/output/analysis/site89_bundle/sources/elo89/manifest.json).
 - [Normalisation investigation](../../../analysis/elo89_normalisation/docs/Normalisation%20Investigation.md).

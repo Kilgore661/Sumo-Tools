@@ -40,9 +40,9 @@ contract, not because an experiment discovered them.
 | A represented W/L result is rated; paired fusen and other non-W/L outcomes are excluded by the production selector | Evidence domain |
 | Current rating differences map to probabilities with (q=400) | Expectation rule |
 | K is 10 for Y/O/S/K, 15 for M, 25 for J and 35 below Juryo | Update policy |
-| A rikishi without a carried rating is initialised from frozen paired P1 | Initialisation |
+| A rikishi without a carried rating is initialised from frozen P1-prime-WL | Initialisation |
 | The active population is banzuke membership plus participants in selected rated bouts | Population |
-| Leaving that active population discards the rating; return invokes P1 again | Lifecycle |
+| Leaving that active population discards the rating; return invokes the frozen prior again | Lifecycle |
 | Common start- and end-of-basho shifts restore the first active population's mean | Population operator |
 | Forecasts precede their result updates | Chronology |
 | Basho-start, immediate post-bout, day-end and normalised basho-end states are distinct observations | Publication contract |
@@ -117,6 +117,15 @@ was concentrated mainly before 30 prior rated bouts.
 This establishes P1 as a credible initialisation artifact in the tested
 family. It does not establish that P1 is a timeless chii scale or that its
 support-proportional construction was selected solely by predictive evidence.
+
+Subsequent controlled work corrected two properties of that artifact. P1-WL
+included represented binary W/L results with missing kimarite and passed the
+declared evaluation gates. P1-prime-WL then replaced equal-cell aggregation
+with direct support weighting. In both the P1 and P1-WL source fits, that
+change removed the K1-below-M1 inversion; the accepted P1-prime-WL values are
+2323.05 for K1 and 2301.52 for M1. This establishes the identity and rationale
+of the selected frozen prior. It does not establish that no other entrant
+model or smoothing policy could perform better.
 
 ### Whole-population preservation led the tested final candidates
 
@@ -220,8 +229,8 @@ the data uniquely demanded them:
 - Competitive strength is represented by one opponent-sensitive point state.
 - (q=400) is retained rather than selected through a comprehensive search.
 - The exact 10/15/25/35 schedule is used as the variable-K policy.
-- P1's unsmoothed and sometimes non-monotone values are preferable to imposing
-  the curve expected in advance.
+- P1-prime-WL's unsmoothed and sometimes non-monotone values are preferable
+  to imposing the curve expected in advance.
 - A common fixed mean is the chosen longitudinal anchor.
 - Normalisation's measured contribution is acceptable with disclosure.
 - A rikishi who remains represented receives no invented inactivity penalty.
@@ -275,26 +284,25 @@ The project has not established that:
 - Elo-89 beats a fitted probabilistic chii model, an uncertainty-aware model,
   a dynamic paired-comparison model or every other reasonable family;
 - retrospective superiority will persist prospectively; or
-- the current canonical P1 would remain preferred after its missing-kimarite
-  eligibility defect is corrected.
+- the selected P1-prime-WL prior is uniquely optimal among reasonable entrant
+  models.
 
 These are not all prerequisites for publishing a useful model. They define
 the boundary around the claims which publication may safely make.
 
 ## Known defects are not open philosophical questions
 
-Three concrete matters require resolution or corrective work:
+Two concrete implementation matters require resolution or corrective work:
 
-1. canonical P1 excluded known W/L results whose kimarite field was blank;
-2. the off-banzuke W/L policy differs between retained code and named-model
+1. the off-banzuke W/L policy differs between retained code and named-model
    prose; and
-3. production manifests do not yet bind every input and code identity with
+2. production manifests do not yet bind every input and code identity with
    stable hashes.
 
-The first can change fitted values and therefore needs regeneration and
-evaluation. The second currently has no triggering case in the production
-ledger but must be made prospective policy. The third weakens provenance but
-does not change the mathematical output already copied into a bundle.
+The first currently has no triggering case in the production ledger but must
+be made prospective policy. The second weakens provenance but does not change
+the mathematical output already copied into a bundle. The earlier
+missing-kimarite and aggregation defects are resolved by P1-prime-WL.
 
 ## What would count against Elo-89?
 
@@ -310,7 +318,7 @@ Elo-89 could include:
 - severe sensitivity to reasonable prior, K, epoch or population choices;
 - disconnected or weakly bridged populations being used for claims the data
   cannot support;
-- corrected P1 evidence materially degrading the selected system; or
+- later evidence materially degrading the selected prior or system; or
 - model outputs whose documented interpretation no longer serves the site's
   stated purpose.
 
@@ -328,8 +336,8 @@ Elo-89 has established a bounded claim:
 > criterion, and provides a reproducible opponent-sensitive rating history.
 
 It has not established a definitive measure of sumo strength. Its results are
-conditional on a scalar model, a future-informed and presently defective P1
-artifact, a chosen responsiveness policy, an open-population anchor, the
+conditional on a scalar model, a future-informed P1-prime-WL artifact, a
+chosen responsiveness policy, an open-population anchor, the
 observed schedule and a retrospective evidence base.
 
 That combination is enough to justify use with explicit qualifications. It is

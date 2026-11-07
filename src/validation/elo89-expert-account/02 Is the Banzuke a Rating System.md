@@ -44,8 +44,8 @@ able to compete.
 
 None of this requires us to treat chii as “mere labels”. Chii contain valuable
 information about performance. Elo-89 itself acknowledges that information:
-its P1 table uses banzuke position when a rikishi first enters—or re-enters—the
-represented rating population.
+its frozen P1-prime-WL table uses banzuke position when a rikishi first
+enters—or re-enters—the represented rating population.
 
 The narrower question is whether the information in chii already supplies the
 kind of measure that Elo-89 is intended to construct.

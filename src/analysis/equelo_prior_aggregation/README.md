@@ -2,15 +2,16 @@
 
 ## Status
 
-Implemented as a retained, post-fit aggregation experiment. The experiment
-compares policies only and does not alter Elo-89 production. On 6 November
+Implemented as a retained, post-fit aggregation experiment. On 6 November
 2026, the project accepted the support-weighted P1-WL result, P1-prime-WL, as
-the official successor entrant prior. Canonical installation, replay, and
-dependent artifact regeneration remain separate implementation work.
+the official successor entrant prior. The selected table is now persisted and
+loaded strictly by Elo-89; a complete candidate replay and dependent site
+build have been verified. The experiment remains the derivation audit and
+does not perform production replay itself.
 
 ## Purpose
 
-This package will investigate how a side-specific literal-chii entrant prior is
+This package investigates how a side-specific literal-chii entrant prior is
 converted into root-chii values. It is a generic prior-aggregation experiment,
 independent of the Kimarite matter and of any particular prior candidate.
 
@@ -245,5 +246,8 @@ The initial package will not:
 
 The package contains a command-line runner, strict literal-prior loading,
 generic policy aggregation, retained artifact generation, focused tests, and
-one retained run. The accepted P1-prime-WL table is persisted under `results`;
-this package does not yet install it in the Elo-89 replay.
+one retained run. The accepted P1-prime-WL table is persisted under `results`.
+Elo-89 now loads that strict paired table directly; it does not repeat the
+aggregation during replay. A complete candidate replay and `make_site89`
+build through 2026/09 completed with the accepted artifact and preserved the
+expected history and bout counts.

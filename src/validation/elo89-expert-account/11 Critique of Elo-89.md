@@ -36,8 +36,8 @@ The criticisms below therefore ask four different questions:
 | One scalar state | Structurally cannot express persistent non-transitive or context-specific effects; their size in sumo is unmeasured | Research question and interpretation limit |
 | No individual uncertainty state | Ratings with very different support can have the same value; immature-versus-mature calibration is materially weaker | Important limitation; comparator still TBD |
 | Divisional K is a coarse proxy | Small aggregate improvement, but exact schedule was not optimised and cross-boundary behaviour is weaker | Accepted trade-off; candidate for successor research |
-| P1 is future-informed | The evaluation history helped construct the prior used within that history | Disclosure; prospective evidence still absent |
-| P1 omitted known W/L bouts with blank kimarite | Confirmed producer/replay semantic mismatch | Known defect; bounded repair required |
+| P1-prime-WL is future-informed | The evaluation history helped construct the prior used within that history | Disclosure; prospective evidence still absent |
+| Earlier P1 omitted known W/L bouts and used equal-cell aggregation | Controlled repairs produced the selected P1-prime-WL artifact | Resolved in the current prior; retain the audit trail |
 | Sparse and high-churn lower ranks | Earlier fixed points produced extreme rare-rank values; current lower-rank shapes and support remain difficult | Qualified publication and further research |
 | Population normalisation affects displayed changes | Reconciled contribution audit; generally modest relative to end rating but sometimes decisive for the sign of a change | Accepted with disclosure |
 | Fixed global mean does not stabilise each chii | Measured rank-specific movement and reversals through time | Limits cross-era and rank-level interpretation |
@@ -76,8 +76,9 @@ later forecasts or another declared measurement objective.
 ## 2. A point rating conceals how well it is known
 
 Two rikishi can have the same Elo-89 rating when one value rests on hundreds
-of represented bouts and the other is principally a P1 initialisation. The
-printed number contains no confidence interval, rating deviation, effective
+of represented bouts and the other is principally a P1-prime-WL
+initialisation. The printed number contains no confidence interval, rating
+deviation, effective
 sample size or age-of-evidence measure.
 
 This is not the same as uncertainty about the next bout. A 60% matchup
@@ -92,8 +93,9 @@ than 30 prior bouts, compared with 1.12 points at 30--59 and between 0.39 and
 rikishi: it occurred when an immature rating faced a much more established
 one.
 
-P1 reduces this problem but cannot solve it. It supplies a better point before
-personal evidence accumulates; it does not say how uncertain that point is.
+P1-prime-WL reduces this problem but cannot solve it. It supplies a better
+point before personal evidence accumulates; it does not say how uncertain
+that point is.
 Nor does Elo-89 widen uncertainty during inactivity. Retaining the point
 estimate without an invented injury penalty is defensible, while continuing
 to present it as equally well supported would be stronger than the model
@@ -128,13 +130,13 @@ declared aggregate scores. It is that the inclusion of variable K has better
 evidence than the exact boundaries and values through which variability is
 implemented.
 
-## 4. P1 improves initialisation but imports the banzuke and the future
+## 4. P1-prime-WL improves initialisation but imports the banzuke and the future
 
-P1 addresses a real absurdity in equal initialisation. It also changes the
-epistemic character of the model.
+P1-prime-WL addresses a real absurdity in equal initialisation. It also
+changes the epistemic character of the model.
 
-First, P1 uses chii as evidence. The rating system is therefore not wholly
-independent of the banzuke at entry. This does not make later ratings numerical
+First, P1-prime-WL uses chii as evidence. The rating system is therefore not
+wholly independent of the banzuke at entry. This does not make later ratings numerical
 copies of rank: bout results subsequently move individuals freely. It does
 mean that early agreement between rating and chii is partly constructed and
 cannot validate the prior independently.
@@ -144,8 +146,8 @@ it is retrospectively evaluated. Later careers help determine starting values
 assigned to earlier entrants. The comparison can show internal usefulness and
 can reject obviously bad constructions, but it is not an unseen-future test.
 
-Third, P1 is a population average indexed by chii. Individuals at the same
-chii can differ greatly, especially in high-churn lower divisions where a rank
+Third, P1-prime-WL is a population average indexed by chii. Individuals at
+the same chii can differ greatly, especially in high-churn lower divisions where a rank
 may mix future retirees, long-term lower-division rikishi, rising talent and
 returning competitors. A good average can still be a poor initial estimate for
 a particular person.
@@ -154,32 +156,27 @@ The prior is therefore best understood as a historically fitted regulariser.
 It is preferable to declared ignorance in the tested history, but it should
 not be presented as the ability naturally belonging to a rank.
 
-## 5. P1 contains a known bout-eligibility defect
+## 5. Two construction defects were corrected, but construction remains a choice
 
-This criticism is categorically different from the preceding qualifications.
-It concerns inconsistent data semantics in the retained artifact.
+The earlier canonical P1 was fitted on an unnecessarily reduced bout domain:
+it excluded represented binary W/L results when kimarite was blank. Its paired
+consumer table also gave every mapped literal cell equal weight. That allowed
+low-support cells to exert the same influence as heavily supported ones and
+produced K1 below M1.
 
-The Elo-89 production replay rates every represented binary W/L result whether
-or not kimarite is recorded. The replay which generated canonical P1 instead
-skips records whose `decision` field is `blank`. In the parsed History, blank
-commonly means that kimarite is missing, not that the winner and loser are
-unknown.
+Both defects have been corrected in P1-prime-WL. The `WL` source fit uses the
+same positive W/L eligibility principle as the Elo-89 replay. The “prime”
+aggregation weights every literal cell by its observed support, including
+east/west and all numbered Y, O, S and K positions present. Controlled
+comparisons retained the prior's broad shape and corrected the K1/M1
+inversion. Elo-89 now consumes the resulting frozen table directly rather
+than recalculating the aggregation during replay.
 
-Consequently, Elo-89 uses the intended result domain after initialisation but
-uses an entrant prior estimated from an unnecessarily reduced domain. This is
-not evidence that the current ratings are useless and it does not make the
-production bout ledger wrong. It is a correctable defect in a fitted input.
-
-The repair cannot be made by patching selected P1 rows. P1 is the result of an
-iterative replay, aggregation and recentering process, so the whole table must
-be regenerated on one frozen History snapshot with positive W/L eligibility.
-The old and corrected semantics then need like-for-like prior-map and
-predictive comparisons. Adoption should create a newly identified prior
-artifact and rebuild Elo-89; routine website builds should not silently refit
-it.
-
-This is presently the clearest item in the chapter which calls for corrective
-work rather than disclosure alone.
+Resolution does not turn the construction into a theorem. Bout eligibility,
+fixed-point fitting, support weighting and the decision not to impose a
+monotone curve are still modelling choices. Their evidence and alternatives
+belong in the planned Appendix B; the continuing criticism is uncertainty and
+future information, not the two removed defects.
 
 ## 6. The lowest ranks remain the least secure
 
@@ -216,8 +213,8 @@ At the instant a common shift is applied, every active rating gap, ordering
 and Elo probability is unchanged. It is therefore tempting to call
 normalisation cosmetic. That is incomplete for two reasons.
 
-First, later entrants arrive from fixed P1. A shifted incumbent population has
-different gaps from those future entrants, so subsequent forecasts and updates
+First, later entrants arrive from fixed P1-prime-WL. A shifted incumbent
+population has different gaps from those future entrants, so subsequent forecasts and updates
 can differ.
 
 Second, published individual rating changes include every common shift
@@ -269,7 +266,8 @@ constant standard.
 
 If a rikishi remains on the banzuke while missing bouts, Elo-89 retains his
 rating. If he leaves the represented active population, it discards the
-rating; a later return is initialised from P1 at the returning chii.
+rating; a later return is initialised from P1-prime-WL at the returning
+chii.
 
 The rule is clear and accepted for the model, but it is not information-
 neutral. A long personal bout history can be replaced by a group prior because
@@ -284,7 +282,7 @@ the active-population definition operationally clear but substantively
 imperfect as a proxy for career continuity.
 
 No controlled modern-domain comparison has measured the predictive effect of
-reset, restoration, partial shrinkage toward P1 or uncertainty growth. The
+reset, restoration, partial shrinkage toward the entrant prior or uncertainty growth. The
 present rule should therefore be described as a lifecycle policy, not a
 discovery that prior personal evidence has ceased to matter.
 
@@ -315,7 +313,7 @@ Elo-89 led a declared, reproducible comparison. Its mean log loss of 0.675629
 was better than Basic Elo's 0.682753 and neutral prediction's 0.693147, and
 Brier loss supported the same selection. That is genuine evidence.
 
-It is also retrospective. P1 was fitted using the broad period being scored;
+It is also retrospective. The prior was fitted using the broad period being scored;
 the final population policy and diagnostics were developed after extensive
 inspection of the same historical system. Bootstrap intervals quantify
 sampling variation conditional on that process. They do not undo information
@@ -344,7 +342,7 @@ such case, so published values are unaffected, but the prospective policy is
 ambiguous.
 
 The production manifest also does not hash every source needed to identify a
-run: it copies the P1 table but does not bind the prior source manifest, K
+run: it copies the prior table but does not bind the prior source manifest, K
 configuration, History snapshot and code version through stable identities.
 These are fixable engineering and documentation defects. They do not require a
 new statistical model.
@@ -355,15 +353,13 @@ The critique supports three different responses.
 
 ### Correct
 
-- Regenerate and evaluate P1 with outcome-based W/L eligibility so that known
-  results with missing kimarite are no longer discarded.
 - Resolve the off-banzuke eligibility contract before such a case affects a
   production run.
 - Strengthen production artifact identity and hashing.
 
 ### Disclose
 
-- P1 is future-informed in the retrospective evidence.
+- P1-prime-WL is future-informed in the retrospective evidence.
 - A rating is a point estimate whose support varies by rikishi and date.
 - Rating changes include population adjustments.
 - Cross-era comparisons depend on the fixed anchor and changing population.
@@ -396,8 +392,9 @@ Its most important scientific limitation is that one point cannot express
 both strength and uncertainty. Its most important evidential limitation is
 retrospective selection with a future-informed prior. Its most important
 interpretive limitation is that a fixed global mean does not create an
-external timeless standard. Its clearest known defect is the reduced bout
-domain used to fit canonical P1.
+external timeless standard. The previously reduced bout domain and equal-cell
+aggregation have been corrected in P1-prime-WL; that correction does not
+remove the limitations of a historically fitted point prior.
 
 Those conclusions justify correction and continued investigation, not the
 claim that the model has failed. Chapter 12 now separates more formally what
