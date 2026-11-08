@@ -30,6 +30,38 @@ The July 2026 Sawada case demonstrated the complete failure mode:
 5. the failure occurred only after `make_site2` had requested the SFTP
    password and opened a deployment connection.
 
+The same dependency failure recurred during the November 2026 basho. On
+2026-11-08 the tracker correctly downloaded Day 1, rebuilt and published
+History, and refreshed the Live Store. A subsequent `_boot89.ps1` run reached
+`src.analysis.banzuke_compare.publisher`, where
+`FullShikonaStore.from_sources()` raised `KeyError: 13016`. History contained
+four rikishi for which the bio cache had not yet closed:
+
+```text
+13016 Sunamusashi
+13017 Matsunosato
+13018 Hajime
+13019 Shinmichi
+```
+
+Running `py -m src.infra.get_bios` downloaded all four missing raw pages, but
+did not update `rikishi_bios.json`. The documented follow-up command,
+`py -m src.infra.get_bios.parser`, also did not update it: the module entry
+point printed the proposal warning and then executed `sys.exit(0)` before the
+otherwise reachable `main()` call. It therefore reported success to the shell
+while deliberately doing no parsing. The only available operational workaround
+was to import and call `parser.main()` directly, which reparses the full
+catalogue.
+
+This recurrence establishes three separate defects rather than one missing
+file:
+
+1. the build/update chain does not establish BioStore closure before a
+   dependent producer runs;
+2. a missing record escapes as an untyped `KeyError`, so an orchestrator cannot
+   distinguish a repairable dependency gap from an unrelated failure; and
+3. the documented parser command is disabled while returning exit code zero.
+
 If current-banzuke pages are checked or refreshed regularly, most updates will
 not introduce a new rikishi. The correct bio work for those updates is zero.
 When one new rikishi appears, the correct work is to download and parse one
@@ -48,7 +80,8 @@ files/output/infra/get_bios/rikishi/{rikid:05d}.html
     |
     v
 src.infra.get_bios.parser
-    |  currently reparses every HTML file
+    |  intended to reparse every HTML file, but its module entry point exits
+    |  successfully before calling main()
     +--> files/output/infra/get_bios/rikishi_bios.json
     `--> files/output/infra/get_bios/rikishi_bio_missing_fields.csv
 ```
@@ -71,6 +104,9 @@ The change should provide the following behaviour:
    dependency chain with a useful error at the first broken boundary.
 9. Network access remains an explicit update operation; invoking a site build
    should not silently download data.
+10. A bootstrap/update orchestrator may repair a specifically diagnosed
+    missing-bio closure on demand and retry the failed producer once; it must
+    not interpret an arbitrary build failure as permission to download data.
 
 ## Non-Goals
 
@@ -188,6 +224,13 @@ remain available even when the current aggregate is healthy.
 An explicit RikId must fail clearly if its raw HTML file is absent. It must not
 silently remove an existing aggregate record.
 
+As an immediate correctness repair, the current unconditional `sys.exit(0)`
+must be removed from the module entry point. Until incremental mode exists,
+`py -m src.infra.get_bios.parser` should either run the existing full parser or
+exit nonzero with an explicit unsupported-operation message. Printing a
+warning and returning success without producing the documented outputs is not
+an acceptable command contract.
+
 ### 5. Merge results and publish atomically
 
 Incremental mode should:
@@ -246,9 +289,11 @@ If automatic bio download is not initially integrated into the tracker, the
 intermediate safe design is:
 
 * tracker publishes the new History;
-* `_boot.ps1` runs the missing-page downloader and incremental parser before
-  any producer;
-* `make_site2` performs a local completeness preflight and gives the exact
+* `_boot.ps1` and `_boot89.ps1` establish bio closure before any dependent
+  producer, either by preflight or by the typed one-retry recovery described
+  below;
+* `make_site2` and the site89 production chain perform a local completeness
+  preflight and give the exact
   repair commands if a History RikId is absent from BioStore.
 
 `make_site2` must perform local build validation before asking for an SFTP
@@ -271,6 +316,41 @@ Run:
 This validation is still required after incremental parsing is implemented;
 incrementality must not weaken completeness checks.
 
+### 9. Support a typed, bounded repair-and-retry path
+
+An update/bootstrap orchestrator may avoid bio work on the common successful
+path by attempting the local producer first. This is safe only if the failure
+is classified before repair. `FullShikonaStore.from_sources()` should raise a
+domain exception such as `MissingBioRecordsError`, carrying the complete set of
+missing RikIds, rather than allowing the first lookup to raise `KeyError`.
+
+The orchestrator may then apply this bounded policy:
+
+```text
+run the local producer
+    -> success: continue
+    -> MissingBioRecordsError:
+         report the missing RikIds and the repair action
+         download the missing raw bio pages
+         incrementally parse and atomically publish those records
+         validate BioStore closure
+         retry the producer once
+    -> any other failure: propagate it unchanged
+```
+
+The retry count must be one. Failure to download, parse or validate every
+reported RikId must preserve and report the repair failure; it must not loop or
+continue with a partial BioStore. The recovery must not catch a generic
+`Exception`, because unrelated parser, filesystem, bundle and application
+defects must not trigger network activity.
+
+This policy belongs in an explicit update/bootstrap command such as
+`_boot89.ps1` or a Python orchestrator beneath it, not inside the static-site
+assembler. The command must log that it is performing a network repair. This
+keeps ordinary site assembly deterministic while allowing the operator's
+explicit update command to repair an uncommon newly introduced RikId without
+paying the parser cost on every build.
+
 ## Failure Semantics
 
 | Failure | Required result |
@@ -282,6 +362,10 @@ incrementality must not weaken completeness checks.
 | Parser-version mismatch | Incremental run stops and requests `--full` |
 | History requires a bio with no raw page | Coherence validation fails before producer execution or deployment connection |
 | Process terminates after raw-page write | Dirty ledger causes the page to be retried on the next parser run |
+| Parser module is invoked while parsing is disabled | Command exits nonzero; it must not claim success without updating the aggregate |
+| Typed repair succeeds | Failed local producer is retried exactly once |
+| Retried producer fails or closure remains incomplete | Failure is propagated; no further retry occurs |
+| Unrelated producer/build failure | Failure is propagated without running bio download or parsing |
 
 ## Tests
 
@@ -305,6 +389,12 @@ The implementation should include focused tests for the following cases:
    preflight error listing the missing id.
 9. **Build ordering:** local preflight failure occurs before any SFTP password
    prompt or connection attempt.
+10. **Runnable command:** `py -m src.infra.get_bios.parser` either performs its
+    documented mode or exits nonzero with an actionable explanation.
+11. **Typed recovery:** `MissingBioRecordsError` reports all missing RikIds;
+    the orchestrator repairs them and retries the producer exactly once.
+12. **No generic recovery:** an unrelated producer exception performs no
+    download, parse or retry.
 
 Tests should inject temporary input and output roots. They must not read or
 rewrite the real 9,000-page cache.
@@ -313,6 +403,8 @@ rewrite the real 9,000-page cache.
 
 ### Phase 1: Parser boundary and manual incremental mode
 
+* Remove the successful no-op module guard; make the documented parser command
+  truthful.
 * Extract `parse_bio_file()` and result types.
 * Add `--rikid`, `--incremental` and `--full`.
 * Implement merge and atomic aggregate writes.
@@ -333,6 +425,8 @@ page.
 * Put downloader plus incremental parser into the normal update/bootstrap
   chain.
 * Add BioStore/FullShikonaStore completeness preflight.
+* Add a typed missing-bio exception and, if recovery-on-demand is selected,
+  one bounded repair-and-retry in the update/bootstrap orchestrator.
 * Move site build and validation ahead of SFTP connection.
 * Decide whether the tracker publishes History only after bio closure or uses
   an explicitly reported intermediate state.
@@ -354,6 +448,12 @@ The proposal is implemented when all of the following are true:
 * interrupted updates cannot corrupt the published bio aggregate;
 * `make_site2` cannot reach SFTP connection with an incomplete History/BioStore
   domain;
+* `make_site89` dependencies cannot fail with a raw `KeyError` for an
+  incomplete BioStore;
+* the documented parser module never returns success without performing its
+  selected operation;
+* an update/bootstrap recovery catches only the typed missing-bio condition
+  and retries at most once;
 * the normal operational documentation states which command performs an
   incremental refresh and when `--full` is required.
 
