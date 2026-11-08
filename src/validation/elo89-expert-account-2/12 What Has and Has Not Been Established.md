@@ -37,7 +37,7 @@ contract, not because an experiment discovered them.
 | Current rating differences map to probabilities with \(q=400\) | Expectation rule |
 | \(K\) is 10 for Yokozuna/Ozeki/Sekiwake/Komusubi, 15 for Maegashira, 25 for Juryo and 35 below Juryo | Update policy |
 | A rikishi without a stored rating receives the paired P89 value for his current chii | First rating |
-| P89 was fixed on 6 November 2026 using history through the September 2026 basho | Fitted input |
+| P89's evidence boundary was fixed on 30 October 2026 using history through the September 2026 basho; the epsilon-8.5 artifact was promoted on 8 November | Fitted input and provenance |
 | The active population consists of banzuke members | Population |
 | An active rikishi without an eligible result receives no individual bout update; a stored rating outside the active population receives neither bout updates nor population shifts | Inactivity |
 | Common start- and end-of-basho shifts restore the first active population's mean | Population operation |
@@ -109,6 +109,12 @@ pools the underlying observations more defensibly, not because it was shown to
 improve forecast scores. P89 is also future-informed within its fitted
 history; this
 evidence is not an independent chii scale or unseen-data validation.
+
+Holding support weighting fixed, the stopping-threshold comparison retained
+iteration 20 / epsilon 8.5 as the lowest-log-loss candidate and iteration 21 /
+epsilon 8 as the adjacent lowest-Brier-loss candidate. This supports the
+selected stopping point within the tested trajectory. The differences were
+small and retrospective, so it does not establish a universal optimum.
 
 ### Whole-population preservation led the tested population policies
 

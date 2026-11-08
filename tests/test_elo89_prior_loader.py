@@ -21,11 +21,11 @@ def test_loads_persisted_p1_prime_wl_without_transformation() -> None:
     prior = load_paired_prior(ACCEPTED_PRIOR_PATH)
 
     assert len(prior.rating_by_pair) == 484
-    assert prior.rating_by_pair["K1"] == pytest.approx(2323.047888779248)
-    assert prior.rating_by_pair["M1"] == pytest.approx(2301.520014989377)
+    assert prior.rating_by_pair["K1"] == pytest.approx(2324.543725202043)
+    assert prior.rating_by_pair["M1"] == pytest.approx(2303.0923611064345)
     assert prior.source_path == str(ACCEPTED_PRIOR_PATH.resolve())
     assert prior.sha256 == (
-        "41430ce50f61bf2769ee7b37e4c964d5ecd00e78fe554a9790a869ad35955d38"
+        "31ba2ea5430fb6a117b80290e78570cbbb160875febb6af14664a6c64ec93cdf"
     )
 
 

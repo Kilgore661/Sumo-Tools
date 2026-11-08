@@ -27,7 +27,7 @@ files/output/analysis/elo89/prior/YYYY-MM/run-NNN/
 The accepted fitted literal source is:
 
 ```text
-files/output/analysis/elo89/prior/2026-09/run-001/prior.csv
+files/output/analysis/elo89/prior/2026-09/run-002/prior.csv
 ```
 
 That output contains separate literal chii ratings and their support. The
@@ -38,7 +38,7 @@ position present. The resulting 484-row P89 table is persisted at:
 [`equelo_prior_aggregation/results/priors.csv`](../../equelo_prior_aggregation/results/priors.csv)
 
 Its SHA-256 is
-`41430ce50f61bf2769ee7b37e4c964d5ecd00e78fe554a9790a869ad35955d38`.
+`31ba2ea5430fb6a117b80290e78570cbbb160875febb6af14664a6c64ec93cdf`.
 `src.analysis.elo89.config` identifies this file as the installed replay
 prior. The replay loads its exact `rank_pair,ordinal,rating` schema strictly;
 it does not refit or reaggregate the prior. Every production replay copies the
@@ -51,11 +51,22 @@ The adjacent `manifest.json` records the installed table's path and SHA-256
 hash, as well as the number of rank pairs written. The bundle copy is a
 generated artifact; the installed source under `results` is source controlled.
 
-On 6 November 2026, the project accepted P89 as the official Elo-89 entrant
-prior. It applies direct support weighting to every fitted literal cell
-mapped to a paired key, including east/west and every numbered Y/O/S/K position
-present. The decision and exact experimental artifact hashes are recorded in
+On 8 November 2026, the project promoted the iteration-20 literal source,
+selected by epsilon 8.5, as the fitted source for P89. The source is
+byte-for-byte identical to the retained epsilon-sweep iteration-20 artifact,
+whose SHA-256 is
+`8e798ca6ee1d5aa5fe42d5787d9d9887c200b4bb15546f0bb79669858420610f`.
+It applies direct support weighting to every fitted literal cell mapped to a
+paired key, including east/west and every numbered Y/O/S/K position present.
+The original aggregation decision and exact experimental artifact hashes are
+recorded in
 [`Prior Aggregation`](../../../validation/elo89-expert-account/Matters%20Arising/Prior%20Aggregation/README.md).
+
+The promotion followed an apples-to-apples replay of support-weighted
+epsilon-10, epsilon-8.5 and epsilon-8 candidates. Epsilon 8.5 retained the
+lowest mean log loss; epsilon 8 retained the adjacent lowest mean Brier loss.
+The differences were small and retrospective, so this is an early-stopping
+selection within one fitted trajectory rather than prospective validation.
 
 There is deliberately no output-path command-line option. Existing runs are
 never overwritten, and run numbering is local to the selected boundary.

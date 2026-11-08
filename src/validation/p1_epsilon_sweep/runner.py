@@ -69,6 +69,7 @@ DEFAULT_EPSILONS = (
 DEFAULT_OUTPUT_PARENT = ELO89_MATTERS_OUTPUT_ROOT / "P1 Epsilon Sweep" / "output"
 DEFAULT_REFERENCE_PRIOR = Path("files/output/analysis/equelo_bkp1/prior.csv")
 ELO89_START = Date.from_ints(1989, 1)
+PAIRING_POLICIES = ("legacy_unweighted", "support_weighted")
 ITERATION_FIELDS = (
     "iteration",
     "max_prior_change",
@@ -103,11 +104,14 @@ def run_sweep(
     reference_prior_path: Path = DEFAULT_REFERENCE_PRIOR,
     k_config_path: Path = DEFAULT_K_CONFIG,
     eligibility: BoutEligibility = BoutEligibility.P1_WL,
+    pairing_policy: str = "legacy_unweighted",
     history_source: dict[str, object] | None = None,
 ) -> Path:
     """Iterate once, retaining and scoring the first state below each epsilon."""
 
     thresholds = _validate_epsilons(epsilons)
+    if pairing_policy not in PAIRING_POLICIES:
+        raise ValueError(f"Unknown pairing policy: {pairing_policy!r}")
     if output_root.exists():
         raise FileExistsError(f"Refusing to overwrite epsilon sweep: {output_root}")
     dates = sorted(history)
@@ -183,6 +187,7 @@ def run_sweep(
             "recentering": "support-proportional",
             "initial_map": f"every literal chii set to {MODEL_BASE}",
             "convergence_rule": "first iteration with maximum change < epsilon",
+            "candidate_pairing_rule": pairing_policy,
             "k_config": _file_identity(k_path),
         },
         "epsilons_descending": list(thresholds),
@@ -241,7 +246,12 @@ def run_sweep(
         prior_path = priors_root / prior_name
         if not prior_path.exists():
             _write_prior(prior_path, priors, support)
-        candidate = _adopted_prior(priors, prior_path)
+        candidate = _adopted_prior(
+            priors,
+            support,
+            prior_path,
+            pairing_policy=pairing_policy,
+        )
         candidate_run = _run_model(
             contexts, definition, reference_spec, candidate, forecast_k
         )
@@ -302,13 +312,29 @@ def _validate_epsilons(values: tuple[float, ...]) -> tuple[float, ...]:
     return tuple(sorted(values, reverse=True))
 
 
-def _adopted_prior(priors: dict[Chii, float], source: Path) -> AdoptedPrior:
-    grouped: dict[str, list[float]] = defaultdict(list)
+def _adopted_prior(
+    priors: dict[Chii, float],
+    support: dict[Chii, int],
+    source: Path,
+    *,
+    pairing_policy: str = "legacy_unweighted",
+) -> AdoptedPrior:
+    if pairing_policy not in PAIRING_POLICIES:
+        raise ValueError(f"Unknown pairing policy: {pairing_policy!r}")
+    grouped: dict[str, list[tuple[float, int]]] = defaultdict(list)
     for chii, rating in priors.items():
-        grouped[rank_pair(chii)].append(rating)
-    ratings = {
-        pair: sum(values) / len(values) for pair, values in grouped.items()
-    }
+        grouped[rank_pair(chii)].append((rating, support[chii]))
+    if pairing_policy == "support_weighted":
+        ratings = {
+            pair: sum(rating * weight for rating, weight in values)
+            / sum(weight for _rating, weight in values)
+            for pair, values in grouped.items()
+        }
+    else:
+        ratings = {
+            pair: sum(rating for rating, _weight in values) / len(values)
+            for pair, values in grouped.items()
+        }
     return AdoptedPrior(
         source_path=str(source.resolve()),
         sha256=_sha256(source),
@@ -450,6 +476,12 @@ def _parser() -> argparse.ArgumentParser:
         choices=tuple(item.value for item in BoutEligibility),
         default=BoutEligibility.P1_WL.value,
     )
+    parser.add_argument(
+        "--pairing-policy",
+        choices=PAIRING_POLICIES,
+        default="legacy_unweighted",
+        help="conversion from literal chii to paired entrant keys",
+    )
     parser.add_argument("--reference-prior", type=Path, default=DEFAULT_REFERENCE_PRIOR)
     parser.add_argument("--k-config", type=Path, default=DEFAULT_K_CONFIG)
     parser.add_argument("--output", type=Path)
@@ -472,6 +504,7 @@ def main(argv: list[str] | None = None) -> int:
         reference_prior_path=args.reference_prior,
         k_config_path=args.k_config,
         eligibility=BoutEligibility(args.eligibility),
+        pairing_policy=args.pairing_policy,
         history_source={"kind": "annotated History zip", **_file_identity(source_path)},
     )
     return 0

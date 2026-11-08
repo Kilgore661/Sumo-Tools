@@ -1,5 +1,13 @@
 # Prior Aggregation
 
+> **Continuation, 8 November 2026:** The support-weighting policy decided
+> here is unchanged. P89 has since been rebuilt from the selected
+> epsilon-8.5 / iteration-20 literal source. The currently installed paired
+> table has SHA-256
+> `31ba2ea5430fb6a117b80290e78570cbbb160875febb6af14664a6c64ec93cdf`.
+> The hashes and values below identify the original epsilon-10 aggregation
+> decision and remain part of its audit trail.
+
 ## Status
 
 Concluded on 6 November 2026. P1-prime-WL (`P1'-WL`) is accepted as the

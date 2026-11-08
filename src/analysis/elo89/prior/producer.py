@@ -31,7 +31,7 @@ from ..config import (
 
 
 ELO89_START = Date.from_ints(1989, 1)
-EPSILON = 10.0
+EPSILON = 8.5
 MAX_ITERATIONS = 200
 
 

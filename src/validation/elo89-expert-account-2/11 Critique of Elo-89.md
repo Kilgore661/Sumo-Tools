@@ -30,7 +30,7 @@ The criticisms below ask four different questions:
 | One scalar state | Structurally cannot express persistent non-transitive or context-specific effects; their size in sumo is unmeasured | Research question and interpretation limit |
 | No individual uncertainty state | Ratings with very different support can have the same value; calibration work shows that rating maturity matters | Deliberately outside the point-rating model; open comparative question |
 | Divisional \(K\) is a coarse proxy | Small aggregate improvement, but the exact schedule was not optimised and boundary evidence is thin | Accepted trade-off and research question |
-| P89 is future-informed within its fitting period | Results through September 2026 helped construct the table used within that history | Disclosure; the table was fixed on 6 November 2026 |
+| P89 is future-informed within its fitting period | Results through September 2026 helped construct the table used within that history | Disclosure; evidence was frozen on 30 October 2026 and the selected artifact was promoted on 8 November |
 | Sparse and high-churn lower ranks | Fewer observations, irregular prior shapes and the largest normalisation contributions | Qualified interpretation and further research |
 | Population normalisation affects displayed changes | Contribution audit found generally modest effects relative to ending ratings but potentially material effects on particular changes | Accepted with disclosure |
 | Fixed global mean does not stabilise every chii | Measured rank-specific movement and reversals through time | Limits cross-era and rank-level interpretation |
@@ -274,8 +274,10 @@ extensive inspection of the same historical system. Bootstrap intervals
 quantify sampling variation conditional on that process. They do not undo
 information reuse or account for every researcher choice.
 
-The model and P89 table were fixed on 6 November 2026. The strongest next
-validation is therefore to score genuinely later basho without changing them.
+The evidence boundary for the model and P89 table was fixed on 30 October
+2026; the selected epsilon-8.5 artifact was promoted on 8 November without
+using later results. The strongest next validation is therefore to score
+genuinely later basho without changing them.
 Rolling-origin experiments could supply additional historical evidence if the
 first-rating table and every model choice were reconstructed using only
 information available at each origin.

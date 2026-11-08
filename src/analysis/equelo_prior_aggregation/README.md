@@ -2,7 +2,8 @@
 
 ## Status
 
-Implemented and accepted on 6 November 2026. The selected 484-row paired
+Implemented and accepted on 6 November 2026, then rebuilt from the selected
+epsilon-8.5 literal source on 8 November 2026. The selected 484-row paired
 entrant prior is denoted **P89** (\(P_{89}\)) and is persisted at:
 
 ```text
@@ -10,7 +11,7 @@ src/analysis/equelo_prior_aggregation/results/priors.csv
 ```
 
 Its SHA-256 is
-`41430ce50f61bf2769ee7b37e4c964d5ecd00e78fe554a9790a869ad35955d38`.
+`31ba2ea5430fb6a117b80290e78570cbbb160875febb6af14664a6c64ec93cdf`.
 Elo-89 loads that file strictly and does not repeat the aggregation during
 replay.
 
@@ -52,8 +53,8 @@ K1 and placed the paired Komusubi value below M1. Under P89:
 
 | Rank | Rating |
 |---|---:|
-| K1 | 2323.047889 |
-| M1 | 2301.520015 |
+| K1 | 2324.543725 |
+| M1 | 2303.092361 |
 
 The rule was applied to the whole table, not tuned only to change this pair.
 The complete map is broadly ordered but is not forced to be perfectly
@@ -84,6 +85,15 @@ schema enforcement, replay compatibility and unchanged bout counts. What has
 not been isolated is the incremental predictive effect of replacing the
 legacy aggregation of P1-WL with support weighting. This is narrower than
 saying that P89 or its fitted source was never predictively checked.
+
+The epsilon promotion was separately checked after applying this accepted
+support-weighting rule to each candidate. On the common 581,634-bout fitting
+history, epsilon 10 / iteration 18 had mean log loss 0.677094 and mean Brier
+loss 0.241965; epsilon 8.5 / iteration 20 had 0.677089 and 0.241955; and
+epsilon 8 / iteration 21 had 0.677090 and 0.241953. Log loss is the declared
+primary selection measure, so iteration 20 was promoted. The adjacent Brier
+minimum corroborates the narrow 20--21 region without making epsilon 8.5 a
+theoretically privileged constant.
 
 ## Reproduction
 

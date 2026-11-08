@@ -1,5 +1,15 @@
 # Where We Got To: Expert Account and Appendix B
 
+> **Continuation update, 8 November 2026:** The iteration-20 / epsilon-8.5
+> source described below has now been reproduced exactly, compared after the
+> production support-weighting rule, promoted as `2026-09/run-002`, and passed
+> strict loading, full replay, site-data production and build-only site
+> verification. The installed paired table now has SHA-256
+> `31ba2ea5430fb6a117b80290e78570cbbb160875febb6af14664a6c64ec93cdf`.
+> Appendix B and the current production documentation contain the resulting
+> values. Statements below describing that promotion as outstanding record the
+> state at the original handoff.
+
 **Handoff date:** 7 November 2026
 
 **Repository:** `X:\Sumo-Tools`

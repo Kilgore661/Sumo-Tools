@@ -213,5 +213,5 @@ def test_repository_persists_the_accepted_p1_prime_wl_prior():
     assert tuple(rows[0]) == ("rank_pair", "ordinal", "rating")
     assert len(rows) == 484
     indexed = {row["rank_pair"]: float(row["rating"]) for row in rows}
-    assert indexed["K1"] == pytest.approx(2323.047888779248)
-    assert indexed["M1"] == pytest.approx(2301.520014989377)
+    assert indexed["K1"] == pytest.approx(2324.543725202043)
+    assert indexed["M1"] == pytest.approx(2303.0923611064345)

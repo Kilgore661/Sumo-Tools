@@ -105,10 +105,11 @@ population. A table fitted from later outcomes can be useful for historical
 reconstruction, but it must not be described as prospectively available at an
 earlier date.
 
-Elo-89 fixes P89 on 6 November 2026 using eligible results through the
-September 2026 basho. Alternative fitting boundaries can be evaluated
-separately, but adopting one would revise the fitted artifact rather than
-silently update it.
+Elo-89 fixes P89 at the 30 October 2026 evidence boundary using eligible
+results through the September 2026 basho. The selected epsilon-8.5 artifact
+was promoted on 8 November without moving that boundary. Alternative fitting
+boundaries can be evaluated separately, but adopting one would revise the
+fitted artifact rather than silently update it.
 
 ### Inactivity and uncertainty
 

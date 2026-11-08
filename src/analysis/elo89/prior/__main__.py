@@ -11,7 +11,7 @@ from src.infra.persistence.annotated_serialiser import load_history_with_annotat
 from src.sumo_core.History import Date
 
 from ..config import DEFAULT_LAST_PRIOR_BASHO
-from .producer import produce_prior
+from .producer import EPSILON, produce_prior
 
 
 def parse_basho(value: str) -> Date:
@@ -73,7 +73,7 @@ def main(argv: list[str] | None = None) -> int:
         progress=report,
     )
     print(f"Output: {run.root.resolve()}")
-    print(f"Convergence threshold: {10.0:.6f}")
+    print(f"Convergence threshold: {EPSILON:.6f}")
     print(f"Iterations taken: {run.result.iterations}")
     print(f"Final maximum change: {run.result.final_delta:.6f}")
     print(f"Converged: {run.result.converged}")

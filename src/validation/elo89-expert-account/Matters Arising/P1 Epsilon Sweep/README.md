@@ -52,3 +52,27 @@ The appropriate conclusion is therefore that early stopping is acting as
 material regularisation and that the useful region is approximately
 iterations 18--21.  These retrospective results do not, by themselves,
 justify treating epsilon 8 or 8.5 as definitively better than epsilon 10.
+
+## 2026-11-08 production-aggregation check
+
+The original sweep converted literal cells to paired keys by unweighted
+averaging. Production P89 instead applies direct support weighting. Before
+promoting a stopping point, iterations 18, 20 and 21 were therefore replayed
+again with support weighting held fixed. The retained run is:
+
+```text
+output/epsilon-sweep-support-weighted-2026-11-08/
+```
+
+| Epsilon | Iteration | Mean log loss | Mean Brier loss |
+|---:|---:|---:|---:|
+| 10 | 18 | 0.677094 | 0.241965 |
+| 8.5 | 20 | 0.677089 | 0.241955 |
+| 8 | 21 | 0.677090 | 0.241953 |
+
+Iteration 20 retained the lowest log loss under the production aggregation;
+iteration 21 retained the adjacent Brier minimum. Log loss is the declared
+primary selection measure, so epsilon 8.5 / iteration 20 was promoted. The
+differences are small and use the same history for fitting and scoring. This
+supports a choice among nearby points on the retained trajectory; it is not
+prospective validation or evidence that 8.5 is a privileged constant.

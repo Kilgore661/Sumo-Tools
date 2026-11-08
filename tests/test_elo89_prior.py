@@ -25,13 +25,14 @@ from src.sumo_core.Summary import Summary
 
 def test_accepted_prior_paths_separate_paired_input_from_literal_fit() -> None:
     assert DEFAULT_LAST_PRIOR_BASHO == Date.from_ints(2026, 9)
+    assert producer.EPSILON == 8.5
     assert ACCEPTED_PRIOR_PATH.as_posix() == (
         "src/analysis/equelo_prior_aggregation/results/priors.csv"
     )
     assert ACCEPTED_LITERAL_PRIOR_PATH.as_posix() == (
-        "files/output/analysis/elo89/prior/2026-09/run-001/prior.csv"
+        "files/output/analysis/elo89/prior/2026-09/run-002/prior.csv"
     )
-    assert prior_run_directory(DEFAULT_LAST_PRIOR_BASHO, 1).name == "run-001"
+    assert prior_run_directory(DEFAULT_LAST_PRIOR_BASHO, 2).name == "run-002"
     assert DEFAULT_PRIOR == ACCEPTED_PRIOR_PATH
 
 

@@ -8,7 +8,7 @@ from src.sumo_core.History import Date
 
 
 DEFAULT_LAST_PRIOR_BASHO = Date.from_ints(2026, 9)
-ACCEPTED_PRIOR_RUN = 1
+ACCEPTED_PRIOR_RUN = 2
 PRIOR_OUTPUT_ROOT = Path("files/output/analysis/elo89/prior")
 PRIOR_FILENAME = "prior.csv"
 ACCEPTED_PRIOR_PATH = Path(

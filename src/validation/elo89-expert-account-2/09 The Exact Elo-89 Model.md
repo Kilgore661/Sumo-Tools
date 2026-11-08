@@ -109,15 +109,18 @@ P89 was estimated retrospectively from eligible results beginning in January
 that is closer to the level indicated by the banzuke, thereby reducing
 initialisation lag.
 
-The table was accepted and fixed on **6 November 2026** using history through the September
-2026 basho. Later results do not alter it, and a rikishi receiving his first
-rating after the freeze date receives a value from this same table. Within the
-fitted period P89 is future-informed: later career results contributed to
-values used for earlier first ratings. Agreement between those ratings and
-chii during that period is therefore not independent validation. From
-November 2026 onward, P89 acts as a fixed prior because subsequent results
-did not contribute to its construction. A different fitting boundary would
-define a different first-rating table.
+The evidence boundary was fixed on **30 October 2026** using history through
+the September 2026 basho. The final support-weighted aggregation was accepted
+on 6 November, and the selected epsilon-8.5 source was promoted on 8 November;
+those later provenance dates did not move the evidence boundary. Later
+results do not alter the table, and a rikishi receiving his first rating after
+the freeze date receives a value from this same table. Within the fitted
+period P89 is future-informed: later career results contributed to values used
+for earlier first ratings. Agreement between those ratings and chii during
+that period is therefore not independent validation. From November 2026
+onward, P89 acts as a fixed prior because subsequent results did not
+contribute to its construction. A different fitting boundary would define a
+different first-rating table.
 
 The detailed fitting procedure and the fixed values are available in the
 repository. They are inputs to Elo-89 rather than additional steps in its

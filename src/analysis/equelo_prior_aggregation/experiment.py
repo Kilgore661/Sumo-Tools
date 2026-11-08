@@ -23,7 +23,7 @@ DEFAULT_P1 = Path(
     "p1-wl-comparison-2026-10-25-rerun/p1/prior.csv"
 )
 DEFAULT_P1_WL = Path(
-    "files/output/analysis/elo89/prior/2026-09/run-001/prior.csv"
+    "files/output/analysis/elo89/prior/2026-09/run-002/prior.csv"
 )
 DEFAULT_PERSISTED_PRIOR = Path(__file__).resolve().parent / "results" / "priors.csv"
 POLICIES = (

@@ -109,7 +109,7 @@ The fitting implementation is in
 accepted side-specific fitted artifact is generated at:
 
 ```text
-files/output/analysis/elo89/prior/2026-09/run-001/prior.csv
+files/output/analysis/elo89/prior/2026-09/run-002/prior.csv
 ```
 
 The exact paired values consumed by production are persisted in the

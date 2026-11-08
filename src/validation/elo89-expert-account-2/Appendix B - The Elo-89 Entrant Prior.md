@@ -15,7 +15,7 @@ src/analysis/equelo_prior_aggregation/results/priors.csv
 ```
 
 Its SHA-256 is
-`41430ce50f61bf2769ee7b37e4c964d5ecd00e78fe554a9790a869ad35955d38`.
+`31ba2ea5430fb6a117b80290e78570cbbb160875febb6af14664a6c64ec93cdf`.
 Ordinary Elo-89 replays load this table; they do not refit or reaggregate it.
 
 ## The first-rating problem
@@ -180,11 +180,12 @@ correct fixed point.
 
 ## Stopping the iteration
 
-The production threshold of 10 rating points was initially a pragmatic
+The original production threshold of 10 rating points was a pragmatic
 development choice: it made the procedure terminate in a reasonable time.
-The accepted literal source stopped after 18 iterations, when the largest
-change was about 9.728 points. That number is not a statement that each cell
-is known to ten-point precision.
+That literal source stopped after 18 iterations, when the largest change was
+about 9.728 points. The current source uses epsilon 8.5 and stopped at
+iteration 20, when the largest change was about 8.094 points. Neither number
+is a statement that each cell is known to that precision.
 
 A later epsilon sweep followed the same trajectory much further. It reached
 epsilon 0.1 at iteration 1,171. Predictive performance improved rapidly from
@@ -201,11 +202,22 @@ principle. Greater numerical self-consistency did not produce a better prior
 for probabilistic forecasting. Epsilon is therefore functioning as a
 regularisation parameter, not merely as a numerical tolerance.
 
-The sweep does not yet settle whether official P89 should be rebuilt from the
-epsilon-8.5 or epsilon-8 candidate. Its scores were measured retrospectively
-on the fitting history, the differences near the optimum were small, and the
-final support-weighted P89 construction has not been compared across those
-thresholds. That is an open model-maintenance question.
+The initial sweep converted literal cells by unweighted pairing, whereas P89
+uses support weighting. Before promotion, the epsilon-10, epsilon-8.5 and
+epsilon-8 candidates were therefore replayed again after applying the final
+support-weighting rule. Their mean log losses were respectively 0.677094,
+0.677089 and 0.677090; their mean Brier losses were 0.241965, 0.241955 and
+0.241953. Iteration 20 retained the best log loss, while iteration 21 retained
+the adjacent Brier minimum. Because log loss is the declared primary measure,
+iteration 20 was promoted on 8 November 2026.
+
+The selected literal table was reproduced independently as immutable
+`2026-09/run-002`; it was byte-for-byte identical to the retained sweep table
+and has SHA-256
+`8e798ca6ee1d5aa5fe42d5787d9d9887c200b4bb15546f0bb79669858420610f`.
+The score differences remain very small and use the fitting history, so the
+promotion is retrospective model selection rather than prospective
+validation.
 
 ## What “looked about right” meant
 
@@ -278,15 +290,15 @@ The resulting values include:
 
 | Chii | P89 rating |
 | --- | ---: |
-| Y1 | 2525.42 |
-| O1 | 2400.89 |
-| S1 | 2359.51 |
-| K1 | 2323.05 |
-| M1 | 2301.52 |
-| J1 | 2141.95 |
-| Ms1 | 2016.07 |
-| Sd1 | 1700.27 |
-| Jd1 | 1478.13 |
+| Y1 | 2526.63 |
+| O1 | 2402.10 |
+| S1 | 2360.96 |
+| K1 | 2324.54 |
+| M1 | 2303.09 |
+| J1 | 2143.43 |
+| Ms1 | 2017.45 |
+| Sd1 | 1701.36 |
+| Jd1 | 1479.00 |
 
 The upper-rank sequence is now narratively coherent, but monotonicity was not
 imposed as a constraint. Local reversals and division-boundary discontinuities
@@ -294,15 +306,21 @@ remain visible where the fitted construction produces them.
 
 ## Open matters before this appendix is final
 
-### Should epsilon 10 be replaced?
+### Why epsilon 8.5 replaced epsilon 10
 
-The existing evidence makes epsilon 8.5 a serious candidate if log loss is
-the primary selection measure, and epsilon 8 a serious candidate if Brier loss
-is primary. Neither should silently replace epsilon 10. The complete exercise
-would need to regenerate the literal maps, apply the final support-weighted
-aggregation, compare proper scores and sparse-cell behaviour, and verify the
-dependent Elo-89 replay and site build. Any promotion would create a new
-fitted artifact requiring an explicit decision.
+Iteration 20 was selected because log loss is the declared primary measure
+and it remained the lowest-loss candidate after the production
+support-weighting rule was applied consistently. Iteration 21's slightly lower
+Brier loss is corroborating evidence that the useful region is narrow, not a
+reason to imply that both scores have the same exact optimum. The rebuilt map
+changed the 484 paired values by a mean absolute 1.47 points relative to the
+epsilon-10 release; the largest absolute change was 14.91 points in a sparse
+lower-tail cell. Inspection found no new upper-rank or boundary pathology.
+
+The promotion was explicit: it created a new immutable literal run, a new
+paired-table hash, updated configuration and pinned tests, and passed strict
+loading, full Elo-89 replay, site-data production and a build-only website
+assembly. It did not move the fitting boundary or impose smoothing.
 
 ### How else should mapping space be explored?
 
@@ -347,8 +365,9 @@ The support-weighted aggregation itself was audited against alternative
 pooling rules and accepted because it represents the underlying observations
 more defensibly. A separate predictive comparison did not isolate the
 incremental effect of replacing the fitted source's legacy aggregation with
-support weighting. The evidence therefore supports the fitted lineage
-inherited by P89, but it does not establish that support weighting improves
+support weighting. The later epsilon comparison held support weighting fixed;
+it establishes the ordering of the nearby stopping points under the production
+aggregation, but it still does not establish that support weighting improves
 prediction.
 
 The fixed-point equation is not part of what has been established. The
@@ -370,6 +389,12 @@ The literal-prior producer is documented in:
 
 ```text
 src/analysis/elo89/prior/README.md
+```
+
+The accepted literal source is:
+
+```text
+files/output/analysis/elo89/prior/2026-09/run-002/prior.csv
 ```
 
 The aggregation experiment and exact promotion decision are documented in:
