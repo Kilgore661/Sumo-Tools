@@ -384,6 +384,47 @@ The upper-rank sequence is now narratively coherent, but monotonicity was not
 imposed as a constraint. Local reversals and division-boundary discontinuities
 remain visible where the fitted construction produces them.
 
+## The Makuuchi--Juryo boundary
+
+The fitted map is not everywhere monotonic in formal banzuke order. The
+clearest example occurs at the Makuuchi--Juryo boundary. J1 is rated 2143.43:
+below M14 at 2163.17, but above M15--M18, whose fitted values decline from
+2119.45 to 1890.82. Support also declines sharply through those deepest
+Maegashira positions, from 393 appearances at M15 to only six at M18. That
+makes the tail estimates less stable, but does not by itself explain the
+direction of the reversal.
+
+Several mechanisms could plausibly contribute, including selective
+interdivision scheduling, promotion constrained by available places, changing
+historical division depth and differences in the populations observed at
+literal boundary ranks. The present analysis does not distinguish among them.
+The reversal is therefore retained and disclosed rather than removed by a
+monotonicity constraint. It should be read as a feature of this fitted,
+schedule-conditioned entrant prior, not as an established fact about the true
+relative ability of all J1 and lower-Maegashira rikishi.
+
+## Schedule-conditioned interpretation
+
+The entrant prior is conditioned on the historical schedule through which its
+evidence was observed. Sumo competition is not an all-play-all experiment:
+rikishi mainly face opponents near them in rank, divisions are connected
+unevenly, interdivision bouts are selective, and later torikumi may depend on
+earlier results. The fitted differences between chii therefore reflect both
+competitive outcomes and the structure of the opportunities available to
+compare them.
+
+Fixed-point iteration does not remove this dependence. It produces a
+self-consistent prior under the observed history and the adopted Elo-89
+algorithm; it does not recover the ratings that would have resulted from a
+balanced or randomly assigned schedule. Connectivity experiments show that
+cross-boundary bouts can identify relative offsets, but do not establish that
+the historical offsets are schedule-free or uniquely attributable to ability.
+
+P89 should consequently be interpreted as a practical, historically fitted
+entrant prior for Elo-89, not as a schedule-independent measurement of the
+natural ability associated with each chii. Local boundary features, including
+the Makuuchi--Juryo reversal, must be read within that limitation.
+
 ## Open matters before this appendix is final
 
 ### Why epsilon 8.5 replaced epsilon 10
@@ -402,21 +443,66 @@ paired-table hash, updated configuration and pinned tests, and passed strict
 loading, full Elo-89 replay, site-data production and a build-only website
 assembly. It did not move the fitting boundary or impose smoothing.
 
-### How else should mapping space be explored?
+### Future work: entrant-prior sensitivity and selection
 
-The retained iteration is only one structured path through mapping space.
-Modern alternatives include regularised direct optimisation, partial pooling,
-hierarchical and Bayesian models, uncertainty-aware estimates, and random or
-quasi-random search. A serious comparison would need to state the objective
-function and regularisation in advance and use held-out or rolling-origin
-evidence. Optimising hundreds of values and evaluating them on the same
-history would reward overfitting rather than discover a better prior.
+P89 was selected from one structured fitting trajectory. That establishes a
+documented practical choice, but does not determine how it compares with the
+wider space of possible entrant priors. Future work should therefore treat
+entrant-prior sensitivity and selection as a distinct research programme,
+holding the rest of Elo-89 fixed while varying the prior.
 
-This is not a peripheral implementation possibility. It is the principal
-unexplored alternative to the way P89's literal source was constructed. It is
-recorded as a separate
-[Entrant Prior Mapping Optimisation](Matters%20Arising/Entrant%20Prior%20Mapping%20Optimisation/README.md)
-matter arising.
+The comparison should include a constant prior, P89, nearby fitted iterations,
+alternative aggregation and smoothing policies, monotonic variants,
+appropriately constrained random priors, and priors produced by regularised
+optimisation or partial pooling. Random priors should form meaningful
+comparison families, such as permutations of P89, smooth maps with comparable
+range and roughness, and controlled perturbations around P89 or a constant,
+rather than a single pathological draw.
+
+Every comparison must state its scoring rule, evaluation population,
+historical fitting and test periods, and structural constraints. It should
+report absolute predictive performance, the incremental effect relative to a
+constant prior, uncertainty across evaluation periods, and P89's position
+within any random-prior distribution. Optimising and evaluating hundreds of
+values on the same history would measure overfitting rather than establish a
+better prior; held-out or rolling-origin evidence is therefore required.
+
+"Best prior" can only mean best under a declared objective, evidence period
+and set of constraints. It does not mean the true mapping from chii to ability.
+Completion of an experiment would not itself replace P89: promotion of another
+prior would require a separate, explicit and reproducible decision.
+
+The detailed programme is maintained separately in
+[Entrant Prior Mapping Optimisation](Matters%20Arising/Entrant%20Prior%20Mapping%20Optimisation/README.md).
+
+#### Support-sensitive uncertainty for sparse chii
+
+A related successor programme should investigate support-sensitive entrant
+uncertainty. P89 currently represents every chii by a point estimate, although
+support varies from hundreds of appearances in well-populated cells to only a
+handful in the lower tail. M18's fitted value, for example, has support of six,
+but enters Elo-89 with the same formal status as the J1 value supported by 449
+appearances.
+
+A Glicko-like extension could retain the fitted chii mean while assigning a
+larger initial rating deviation to entrants at sparsely supported or unstable
+chii. Their subsequent results would then outweigh the starting value more
+quickly than results for entrants whose prior rests on stronger evidence.
+Partial pooling or shrinkage should be considered alongside it: uncertainty
+can reduce the persistence of a weak estimate, but cannot repair its mean.
+
+Support count should not be converted mechanically into rating deviation.
+Appearances are not independent observations, and uncertainty also depends on
+schedule connectivity, population variation and fitting stability. The
+relationship would need calibration through held-out or rolling-origin
+prediction.
+
+Such a model would change the rating state and update algorithm, not merely
+substitute another P table. It should therefore be evaluated as an Elo-89
+successor rather than included as another candidate in a comparison that holds
+Elo-89 fixed. Explicit uncertainty could improve the treatment of sparse and
+immature ratings, but would not by itself remove schedule selection, establish
+the correct chii means or recover unobserved true ability.
 
 ### Can the plausibility judgement be audited?
 
@@ -462,6 +548,22 @@ or a richer entrant model using information beyond chii. Each would answer a
 somewhat different question and would need its own declared evidence domain
 and evaluation. P89 is the present Elo-89 answer: explicit, reproducible and
 frozen, but not beyond criticism.
+
+Taken together, the evidence supports P89 as a practical entrant prior for
+Elo-89. It is explicit, reproducible and historically informed; it has passed
+the retained predictive evaluation, production replay and artifact checks,
+and it provides Elo-89 with a more useful starting structure than treating
+every entrant rank alike. Its values are conditioned on the represented
+history, the observed torikumi network, the adopted fitting algorithm, the
+stopping rule and the support-weighted aggregation policy.
+
+P89 is therefore one selected and frozen candidate, not a definitive mapping
+from chii to true ability. It does not state the ability of any particular
+rikishi, establish that every local ordering is substantively meaningful, or
+demonstrate the smallest possible unobservable initialisation error. It is the
+present documented answer for Elo-89 and should remain unchanged unless a
+later candidate is promoted through an equally explicit, reproducible and
+evidence-based decision.
 
 ## Reproduction and audit trail
 
