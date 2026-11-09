@@ -123,7 +123,6 @@ recorded. Its literal chii values are combined by direct support weighting,
 including east/west and every numbered Y, O, S and K position present. This
 uses all represented cells without giving a rare cell the same influence as a
 heavily supported one. The construction and its alternatives are recorded in
-the preliminary
 [Appendix B](Appendix%20B%20-%20The%20Elo-89%20Entrant%20Prior.md).
 
 The qualification is important. P89 was estimated from the same historical

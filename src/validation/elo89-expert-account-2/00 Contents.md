@@ -122,9 +122,9 @@ What is Elo-89?
 ## Appendix
 
 [Appendix B: The Elo-89 Entrant Prior](Appendix%20B%20-%20The%20Elo-89%20Entrant%20Prior.md)
-is a preliminary technical account of how P89 was fitted, why its construction
-is not uniquely determined, and how evidence eligibility and support-weighted
-aggregation are defined.
+records how P89 was fitted and selected, why its construction is not uniquely
+determined, how evidence eligibility and support-weighted aggregation are
+defined, and which evidential and publication tasks remain open.
 
 [Research and Implementation Guide](Appendix%20-%20Research%20and%20Implementation%20Guide.md)
 collects the principal explanatory accounts, empirical findings,

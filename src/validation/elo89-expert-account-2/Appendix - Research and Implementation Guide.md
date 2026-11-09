@@ -92,7 +92,7 @@ policy and partly a retained modelling judgement.
 ## P89 first ratings
 
 The current production account is the
-[P89 README](../../analysis/elo89/prior/README.md). The preliminary
+[P89 README](../../analysis/elo89/prior/README.md). The
 [Appendix B](Appendix%20B%20-%20The%20Elo-89%20Entrant%20Prior.md) explains the
 evidence rule, iterative mapping search, support-weighted aggregation and evidential
 limits. The retained

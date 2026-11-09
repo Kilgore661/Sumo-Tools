@@ -88,7 +88,7 @@ P89 answers a narrow question: what rating should Elo-89 assign before a
 rikishi has ever had an Elo-89 rating? It is a table indexed by banzuke chii,
 not a table of the current abilities of the rikishi occupying those chii. See
 the [P89 production account](../../analysis/elo89/prior/README.md) and
-[preliminary Appendix B](Appendix%20B%20-%20The%20Elo-89%20Entrant%20Prior.md) for the
+[Appendix B](Appendix%20B%20-%20The%20Elo-89%20Entrant%20Prior.md) for the
 exact values used. A rikishi who already has a stored rating is not assigned
 another first rating.
 

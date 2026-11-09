@@ -1,12 +1,25 @@
-# Preliminary Appendix B: The Elo-89 Entrant Prior
+# Appendix B: The Elo-89 Entrant Prior
 
 ## Status
 
-This is a preliminary technical appendix to the expert account. It records the
-present construction and interpretation of the frozen Elo-89 entrant prior,
-P89, denoted mathematically by \(P_{89}\). It is deliberately more detailed
-than the main account, but it is not a claim that the construction is uniquely
-correct or finally validated.
+This appendix records the construction, selection and interpretation of the
+frozen Elo-89 entrant prior, P89, denoted mathematically by \(P_{89}\). Its
+substantive account is complete. Completion does not mean that the construction
+is uniquely correct or finally validated.
+
+The following work remains explicitly **TBD**:
+
+- reproduce here the audited configurations, evaluation populations and exact
+  scores underlying the general informed-versus-flat initialisation claim;
+- integrate the full-map Plotly chart into the published HTML and generate its
+  embedded data during the documentation build from the persisted P89 table,
+  rather than from a manually copied snapshot; and
+- align the detailed entrant-prior matter arising with the broader sensitivity,
+  selection and support-sensitive uncertainty programme stated here.
+
+These are evidence-presentation, publication and future-research matters. They
+do not alter the identity of the installed P89 artifact or prevent this
+appendix from stating the limits of what has already been established.
 
 The persisted 484-row table used by Elo-89 is:
 
@@ -17,6 +30,11 @@ src/analysis/equelo_prior_aggregation/results/priors.csv
 Its SHA-256 is
 `31ba2ea5430fb6a117b80290e78570cbbb160875febb6af14664a6c64ec93cdf`.
 Ordinary Elo-89 replays load this table; they do not refit or reaggregate it.
+
+The evidence boundary was fixed on **30 October 2026**, using eligible history
+through the September 2026 basho. The final support-weighted aggregation was
+accepted on 6 November, and the epsilon-8.5 source was promoted on 8 November.
+Those later provenance dates did not move the evidence boundary.
 
 ## The first-rating problem
 
@@ -100,8 +118,11 @@ rating is transparent, but it is not informationally neutral: it deliberately
 gives the model states which are implausibly alike. Retained controlled
 comparisons found that rank-informed first ratings improved retrospective log
 and Brier loss relative to flat initialisation, particularly while ratings
-contained little accumulated bout evidence. The final account should attach
-the audited configurations, evaluation populations and scores to that claim.
+contained little accumulated bout evidence. That comparison is recorded in the
+[controlled retrospective model comparison](../../analysis/elo_model_selection/docs/Results%201.md).
+This appendix does not yet reproduce its audited configurations, evaluation
+populations and exact scores; that evidence-presentation task remains one of
+the explicit TBD items above.
 
 That evidence supports informed initialisation in general; it does not
 uniquely identify P89. The choice of the particular P89 table rests on three
@@ -384,6 +405,17 @@ The upper-rank sequence is now narratively coherent, but monotonicity was not
 imposed as a constraint. Local reversals and division-boundary discontinuities
 remain visible where the fitted construction produces them.
 
+## Full-map chart
+
+The retained
+[Plotly full-map prototype](assets/p89-chart-prototype.html) displays all 484
+paired values, with marker size representing support and open diamonds marking
+cells with support below 50. It provides an overview plus separate upper-rank,
+Makushita, Sandanme, Jonidan and Jonokuchi panels. The prototype embeds a
+snapshot of the installed table. Generating that snapshot from the persisted
+P89 input during the final HTML build remains TBD, as recorded in the status
+section.
+
 ## The Makuuchi--Juryo boundary
 
 The fitted map is not everywhere monotonic in formal banzuke order. The
@@ -425,7 +457,7 @@ entrant prior for Elo-89, not as a schedule-independent measurement of the
 natural ability associated with each chii. Local boundary features, including
 the Makuuchi--Juryo reversal, must be read within that limitation.
 
-## Open matters before this appendix is final
+## Selection qualifications and future work
 
 ### Why epsilon 8.5 replaced epsilon 10
 
@@ -504,7 +536,7 @@ Elo-89 fixed. Explicit uncertainty could improve the treatment of sparse and
 immature ratings, but would not by itself remove schedule selection, establish
 the correct chii means or recover unobserved true ability.
 
-### Can the plausibility judgement be audited?
+### Further audit of the plausibility judgement
 
 The historical judgement that the selected map looked about right should be
 documented more precisely without pretending that its criteria were fixed in
