@@ -74,6 +74,86 @@ Neither objection makes random or modern optimisation methods illegitimate.
 It means only that they are alternative modelling programmes, not neutral
 solutions. They have not yet been carried out for Elo-89.
 
+## Why P89 was adopted
+
+The case for P89 should be separated into two questions. The first concerns
+the configured model as a whole: does \(\operatorname{Elo}_{89}(P)\), using
+some declared entrant prior \(P\), predict eligible bouts better than a
+neutral 50--50 forecast? The second concerns the entrant prior specifically:
+holding the rest of Elo-89 fixed, what changes when one \(P\) is substituted
+for another? The 50--50 comparison principally tests whether the configured
+rating system contains predictive information. Comparisons with flat or
+alternative entrant priors test the contribution and selection of \(P\).
+
+These are not independent hurdles which every candidate prior must pass
+separately. If, on the same bouts and scoring rule, an informed-prior
+configuration performs better than flat initialisation, and the
+flat-initialisation configuration performs better than 50--50, the ordering
+already implies that the informed configuration also performs better than
+50--50. The comparisons nevertheless answer different interpretive questions
+and should be reported separately.
+
+The starting reason for using an informed prior is that flat initialisation
+discards information already expressed by the banzuke. At the January 1989
+epoch, assigning an established Yokozuna and a low-ranked rikishi the same
+rating is transparent, but it is not informationally neutral: it deliberately
+gives the model states which are implausibly alike. Retained controlled
+comparisons found that rank-informed first ratings improved retrospective log
+and Brier loss relative to flat initialisation, particularly while ratings
+contained little accumulated bout evidence. The final account should attach
+the audited configurations, evaluation populations and scores to that claim.
+
+That evidence supports informed initialisation in general; it does not
+uniquely identify P89. The choice of the particular P89 table rests on three
+further considerations.
+
+First, P89 has a reproducible fitted construction. Its literal source uses
+every represented binary W/L bout from January 1989 through September 2026,
+including otherwise eligible bouts with missing kimarite. Literal cells are
+combined into the paired consumer table by direct support weighting, so
+represented banzuke appearances rather than arbitrary cell labels determine
+their influence. This makes the construction explicit and auditable, although
+it does not prove that support weighting is uniquely optimal.
+
+Second, early stopping was selected using predictive evidence. Along the
+retained fitting trajectory, performance improved rapidly from the flat
+starting map, reached its best observed region around iterations 20--21, and
+then deteriorated as numerical convergence continued. After applying the
+production support-weighting rule consistently, iteration 20, selected by
+epsilon 8.5, had the lowest mean log loss of the nearby candidates; iteration
+21, selected by epsilon 8, had the lowest mean Brier loss. Because log loss is
+the declared primary measure, iteration 20 was promoted. The differences were
+small, and the same history was used for fitting and evaluation, so this is
+retrospective model selection rather than prospective validation.
+
+Third, the selected table passed operational and plausibility checks. It was
+reproduced byte-for-byte from the retained iteration-20 result, passed strict
+schema and hash validation, completed an Elo-89 replay, generated the
+dependent site-data bundle and supported a complete website build. Its broad
+numerical scale and rank curve remain intelligible, while known local
+reversals and sparse lower-tail irregularities have been retained and
+disclosed rather than silently smoothed. These checks establish
+reproducibility, compatibility and face plausibility; they are not independent
+proof of predictive superiority or true ability.
+
+Replay consistency also supplies a limited acceptance check. Reapplying the
+declared replay-and-aggregation procedure does not radically contradict the
+selected source. A candidate which failed that test would be difficult to
+defend. Passing it, however, establishes only approximate consistency with a
+project-defined procedure. It does not show that
+\(P_{89}=F(P_{89})\) is true exactly, that the operator \(F\) is uniquely
+appropriate, or that its fixed point would be substantively correct.
+
+P89 was therefore adopted as a reproducible, historically informed and
+schedule-conditioned answer to Elo-89's first-rating problem. The evidence
+supports informed initialisation and selects iteration 20 within the tested
+fitting trajectory. It does not establish that P89 is the natural ability
+associated with each chii, that all rikishi at one chii have equal ability, or
+that the table minimises an unobservable gap between first rating and true
+strength. The strongest defensible claim is narrower: P89 is the current
+explicit entrant prior under which Elo-89 performs usefully, with known
+retrospective, scheduling and support limitations.
+
 ## Mean preservation is a separate policy
 
 Elo-89 was designed for an open population. With equal K, a played bout

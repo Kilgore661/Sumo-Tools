@@ -135,3 +135,37 @@ without requiring a kimarite. The required `P1` correction, controlled
 regeneration, predictive comparison, adoption procedure and `_boot89.ps1`
 boundary are recorded in
 [`Elo-89 P1 Missing-Kimarite Repair.md`](Elo-89%20P1%20Missing-Kimarite%20Repair.md).
+
+### Analysis-dependent documentation
+
+The experts' accounts, other project documentation and published HTML contain
+charts, tables, statistics, examples and incidental factual claims whose truth
+depends on project data, analytical methods or both. A claim such as the number
+of yokozuna in a period may look like ordinary prose while still being a
+derived result. It can become stale when the represented History changes, but
+also when rank parsing, population rules, aggregation, weighting, eligibility
+rules, parameters, policy choices or other algorithms change.
+
+The project must identify these analysis-dependent documentary elements and
+replace manually maintained results with a deterministic documentation-build
+mechanism. That mechanism should be driven by persisted, identified inputs,
+versioned algorithms, explicit parameters and recorded policy choices. It must
+cover prose values and examples as well as conspicuous tables and charts, and
+it should support the experts' accounts, project documentation and public HTML
+rather than solving the problem separately in only one publisher.
+
+Each generated result should retain enough provenance to identify the data,
+code, configuration and method that produced it. The build should detect or
+fail on results that are stale, irreproducible or inconsistent with the
+currently installed analysis. Required work therefore includes:
+
+- inventorying data- and method-dependent claims across documentation and
+  publication outputs;
+- ensuring that their required inputs and intermediate analytical results are
+  persisted or reproducibly derivable;
+- defining a shared way to insert generated charts, tables and inline prose
+  values into source documents;
+- recording the relevant data, algorithm, parameter, policy and code-version
+  provenance; and
+- adding build-time checks that expose stale or non-reproducible documentary
+  claims.
