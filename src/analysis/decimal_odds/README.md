@@ -13,6 +13,22 @@ covered bout it reports:
 It does not yet load results, score forecasts, retain a market price history or
 publish website data.
 
+## Relationship to Torikumi infrastructure
+
+[`src.infra.torikumi`](../../infra/torikumi/README.md) already acquires the
+complete published bout schedule for an active or immediate upcoming basho.
+This package does not currently consume its `Future` artifact: the first
+script starts from the selected bouts present in an external-odds file and
+resolves those rikishi independently.
+
+A later day-by-day analysis could use `Future` as the canonical source of
+published future pairings, use `History` for completed pairings and outcomes,
+then add pre-bout ratings and optional external odds here in the analysis
+layer. External odds will remain partial coverage. Torikumi infrastructure
+should continue to own acquisition and schedule identity, while this package
+owns probability and market comparisons. This is a potential integration
+boundary, not an existing dependency or a settled site requirement.
+
 The package is split into:
 
 - `analysis.py`: name resolution, rating selection and probability calculations;
