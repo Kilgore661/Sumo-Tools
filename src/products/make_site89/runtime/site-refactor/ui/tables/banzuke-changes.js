@@ -23,7 +23,7 @@ const BANZUKE_SCAN_TABLE_SPEC = [
   { key: "row_number", ...banzukeRowNumberColumn() },
   { key: "chii", id: "chii", label: "Chii", heading: "Chii", sort_kind: "chii_ordinal" },
   { key: "shikona", id: "shikona", label: "Shikona", heading: "Shikona", help: "Rikishi fighting name.", sort_kind: "text" },
-  { key: "direction", id: "direction", label: "⇅", heading: "⇅", help: "Banzuke movement.", sort_kind: "text" },
+  { key: "delta", id: "delta", label: "ΔBz", heading: "ΔBz", help: "Banzuke movement. See Notes.", note_id: "note_delta", sort_kind: "numeric", align: "right" },
   { key: "rating", id: "rating", label: "Elo-89", heading: "Elo-89", help: "Model rating at the start of this basho. See Ratings & Models.", sort_kind: "numeric", align: "right" },
   {
     key: "previous_basho",
@@ -31,7 +31,6 @@ const BANZUKE_SCAN_TABLE_SPEC = [
     children: [
       { key: "old_chii", id: "old_chii", label: "Chii", heading: "Chii", sort_kind: "chii_ordinal" },
       { key: "result", id: "result", label: "Result", heading: "Result", help: "Result movement means rank-group movement. See Notes.", note_id: "note_result", sort_kind: "record" },
-      { key: "delta", id: "delta", label: "ΔBz", heading: "ΔBz", help: "Size of movement. See Notes.", note_id: "note_delta", sort_kind: "numeric", align: "right" },
     ],
   },
 ];
@@ -149,18 +148,8 @@ function renderBanzukeScanHead(visiblePaths, columns, sortState, boundaries) {
   ].join("");
 }
 
-// A lone movement column needs no one-column "Previous Basho" group. Flatten
-// that projection so its complete visible heading is the compact ΔBz label.
-function banzukeScanHeadingSpec(visiblePaths) {
-  const deltaOnly = visiblePaths.has("previous_basho.delta")
-    && !visiblePaths.has("previous_basho.old_chii")
-    && !visiblePaths.has("previous_basho.result");
-  if (!deltaOnly) return BANZUKE_SCAN_TABLE_SPEC;
-  return BANZUKE_SCAN_TABLE_SPEC.flatMap(node => {
-    if (node.key !== "previous_basho") return [node];
-    const delta = node.children.find(child => child.key === "delta");
-    return [{ ...delta, key: "previous_basho.delta" }];
-  });
+function banzukeScanHeadingSpec(_visiblePaths) {
+  return BANZUKE_SCAN_TABLE_SPEC;
 }
 
 function renderBanzukeScanHeadingCell(cell, column, sortState, boundaries) {
@@ -180,7 +169,7 @@ function renderBanzukeScanHeadingCell(cell, column, sortState, boundaries) {
 
 function banzukeSideColumns(side, state) {
   const identity = { id: "shikona", heading: "Shikona", help: "Rikishi fighting name.", side };
-  const direction = { id: "direction", heading: "⇅", help: "Banzuke movement.", side };
+  const delta = { id: "delta", heading: "ΔBz", help: "Banzuke movement. See Notes.", note_id: "note_delta", side, align: "right" };
   const columns = [];
 
   if (state.rating) columns.push({ id: "rating", heading: "Elo-89", help: "Model rating. See Ratings & Models.", side, align: "right" });
@@ -188,8 +177,7 @@ function banzukeSideColumns(side, state) {
     columns.push({ id: "old_chii", heading: "Previous Chii", side });
     columns.push({ id: "result", heading: "Result", help: "Result movement means rank-group movement. See Notes.", note_id: "note_result", side });
   }
-  columns.push(direction);
-  if (state.delta) columns.push({ id: "delta", heading: "Change", help: "Size of movement. See Notes.", note_id: "note_delta", side, align: "right" });
+  columns.push(delta);
 
   if (side === "east") return [...columns, identity];
   return [identity, ...columns.reverse()];
@@ -200,9 +188,8 @@ function banzukeScanColumns(state) {
 }
 
 function banzukeScanVisiblePaths(state) {
-  const paths = new Set(["row_number", "chii", "shikona", "direction"]);
+  const paths = new Set(["row_number", "chii", "shikona", "delta"]);
   if (state.rating) paths.add("rating");
-  if (state.delta) paths.add("previous_basho.delta");
   if (state.context) {
     paths.add("previous_basho.result");
     paths.add("previous_basho.old_chii");
@@ -264,7 +251,6 @@ function banzukeScanSortValue(column, item) {
   if (column.id === "chii") return banzukeChiiOrdinal(row.bz_chii, side);
   if (column.id === "old_chii") return banzukeChiiOrdinal(row[`${side}_old_chii`], side);
   if (column.id === "result") return recordWins(row[`${side}_result`]);
-  if (column.id === "direction") return movementDirection(row[`${side}_delta`]);
   if (column.id === "shikona") return row[`${side}_shikona`] || "";
   if (column.id === "delta" || column.id === "rating") {
     const number = Number(row[`${side}_${column.id}`]);
@@ -327,10 +313,26 @@ function banzukeGroupPosition(index, count) {
   return "";
 }
 
-function movementDirection(value) {
-  if (String(value).startsWith("+")) return "↑";
-  if (String(value).startsWith("-")) return "↓";
-  return "";
+function banzukeDeltaDisplay(value) {
+  const text = String(value ?? "").trim();
+  if (text.startsWith("+")) return `↑${text.slice(1)}`;
+  if (text.startsWith("-")) return `↓${text.slice(1)}`;
+  return text;
+}
+
+function banzukeDeltaHtml(value) {
+  const display = banzukeDeltaDisplay(value);
+  const match = display.match(/^([↑↓])(.*)$/);
+  if (!match) return escapeHtml(display);
+  return `<span class="banzuke-inline-arrow">${match[1]}</span> ${escapeHtml(match[2])}`;
+}
+
+function banzukeResultHtml(result, movement) {
+  const resultText = String(result ?? "");
+  const movementText = String(movement ?? "");
+  if (!movementText) return escapeHtml(resultText);
+  const separator = resultText ? " " : "";
+  return `${escapeHtml(resultText)}${separator}<span class="banzuke-inline-arrow">${escapeHtml(movementText)}</span>`;
 }
 
 function banzukeSideValue(row, side, columnId) {
@@ -351,10 +353,10 @@ function banzukeSideValue(row, side, columnId) {
   if (columnId === "result") {
     const result = row[`${side}_result`];
     const movement = row[`${side}_result_movement`];
-    return escapeHtml([result, movement].filter(Boolean).join(" "));
+    return banzukeResultHtml(result, movement);
   }
-  if (columnId === "direction") {
-    return movementDirection(row[`${side}_delta`]);
+  if (columnId === "delta") {
+    return banzukeDeltaHtml(row[`${side}_delta`]);
   }
   return escapeHtml(row[`${side}_${columnId}`]);
 }
@@ -382,6 +384,8 @@ export {
   banzukeGroupAttributes,
   banzukeGroupBoundaryAttributes,
   banzukeGroupPosition,
-  movementDirection,
+  banzukeDeltaDisplay,
+  banzukeDeltaHtml,
+  banzukeResultHtml,
   banzukeSideValue,
 };

@@ -5,6 +5,10 @@ import re
 import subprocess
 from pathlib import Path
 
+from src.analysis.site89.basho_results import FIELDS as BASHO_RESULTS_FIELDS
+from src.products.make_site89.manifest.artifacts.standings import BASHO_RESULTS_ARTIFACT
+from src.products.make_site89.manifest.filters import BRB_FILTERS
+
 
 ROOT = Path(__file__).resolve().parents[1]
 NODE = (
@@ -24,6 +28,50 @@ MODULE = (
 LAYOUT_MODULE = ROOT / "src/products/make_site89/runtime/site-refactor/ui/layout.js"
 
 
+def test_basho_results_public_model_excludes_ratings_fit_and_nu_chii() -> None:
+    assert "analysis_context" not in {item.id for item in BRB_FILTERS}
+    assert "changes_context" not in {item.id for item in BRB_FILTERS}
+    assert "nu_chii" not in {item.id for item in BRB_FILTERS}
+    assert "nu_chii" not in {column.id for column in BASHO_RESULTS_ARTIFACT.columns}
+    assert "nu_chii" not in BASHO_RESULTS_FIELDS
+    assert "nu_chii_ordinal" not in BASHO_RESULTS_FIELDS
+
+
+def test_basho_results_hides_removed_ratings_fit_and_nu_chii_columns() -> None:
+    script = f"""
+import {{ buildBashoResultsPresentationModel, renderBashoResultsPresentationTable }} from {json.dumps(MODULE.as_uri())};
+
+const model = buildBashoResultsPresentationModel({{
+  rows: [{{
+    shikona: "Test Rikishi",
+    chii: "M13w",
+    chii_ordinal: "1027002",
+    rating: "1800",
+    score: "5-10",
+  }}],
+  state: {{
+    previous_context: false,
+    rating_context: true,
+  }},
+  entry: {{ latest_day: 15 }},
+  title: "Makuuchi Results, May 2026",
+}});
+console.log(renderBashoResultsPresentationTable(model));
+"""
+    result = subprocess.run(
+        [str(NODE), "--input-type=module", "-e", script],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        encoding="utf-8",
+        text=True,
+    )
+
+    assert "Ratings Fit" not in result.stdout
+    assert "Elo Chii" not in result.stdout
+    assert "nuChii" not in result.stdout
+
+
 def test_basho_result_counts_are_centred_with_hyphen_columns() -> None:
     script = f"""
 import {{ buildBashoResultsPresentationModel, renderBashoResultsPresentationTable }} from {json.dumps(MODULE.as_uri())};
@@ -38,10 +86,7 @@ const model = buildBashoResultsPresentationModel({{
   }}],
   state: {{
     previous_context: true,
-    changes_context: false,
     rating_context: false,
-    analysis_context: false,
-    nu_chii: false,
   }},
   entry: {{ latest_day: 15 }},
   title: "Makuuchi Results, May 2026",

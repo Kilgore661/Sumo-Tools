@@ -22,7 +22,9 @@ export {
   renderBanzukeSideCell,
   renderBanzukeScanCell,
   banzukeCellAttributes,
-  movementDirection,
+  banzukeDeltaDisplay,
+  banzukeDeltaHtml,
+  banzukeResultHtml,
   banzukeSideValue,
 } from "./tables/banzuke-changes.js";
 

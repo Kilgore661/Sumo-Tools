@@ -260,10 +260,7 @@ function bashoResultsHref(basho) {
     `month=${encodeURIComponent(basho.slice(4, 6))}`,
     "division=makuuchi",
     "previous=false",
-    "changes=false",
     "ratings=false",
-    "analysis=false",
-    "nu_chii=false",
   ].join("&");
 }
 

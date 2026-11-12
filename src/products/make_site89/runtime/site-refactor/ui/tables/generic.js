@@ -208,7 +208,6 @@ function isColumnVisible(column, groups, state) {
   if (!group) return false;
   if (group.always_visible) {
     if (column.id === "rating" || column.id === "rating_delta") return Boolean(state.rating_context);
-    if (column.id === "nu_chii") return Boolean(state.nu_chii);
     return true;
   }
   if (group.controlling_filter_id) return Boolean(state[group.controlling_filter_id]);

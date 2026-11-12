@@ -20,32 +20,7 @@ const TRANSITIONAL_TABLE_SPEC = [
     column("shikona", "Shikona", { sort_kind: "text", presentation: PRESENTATION.NAME }),
   ]),
   group("before", "Before Basho", recordSpec()),
-  group("selected", "Current/After", [
-    ...recordSpec(),
-    column("next_bp", "nuChii", {
-      sort_kind: "chii_ordinal",
-      sort_path: "next_bp_ordinal",
-      presentation: PRESENTATION.RANK,
-    }),
-  ]),
-  group("changes", "Next Basho", [
-    group("movement", "⇅", [
-      column("bp", "Chii", {
-        help: "See Notes.",
-        note_id: "note_chii_movement",
-        sort_kind: "movement_symbol",
-        sort_default_direction: "descending",
-        presentation: PRESENTATION.SPECIAL_NON_NUMERIC,
-      }),
-      column("division", "Div", {
-        help: "See Notes.",
-        note_id: "note_division_movement",
-        sort_kind: "movement_symbol",
-        sort_default_direction: "descending",
-        presentation: PRESENTATION.SPECIAL_NON_NUMERIC,
-      }),
-    ], { help: "See Notes.", note_id: "note_movement" }),
-  ]),
+  group("selected", "Current/After", recordSpec()),
 ];
 
 function recordSpec() {
@@ -64,21 +39,6 @@ function recordSpec() {
           presentation: PRESENTATION.RATING,
         }),
       ]),
-      group("analysis", "Ratings Fit", [
-        group("banzuke_error", "Error", [
-          column("direction", "Dir", {
-            sort_kind: "movement_symbol",
-            sort_default_direction: "descending",
-            presentation: PRESENTATION.SPECIAL_NON_NUMERIC,
-          }),
-          column("magnitude", "Mag", { sort_kind: "numeric", presentation: PRESENTATION.NUMERIC_MAGNITUDE }),
-        ]),
-        column("rbbp", "Elo Chii", {
-          sort_kind: "chii_ordinal",
-          sort_path: "rbbp_ordinal",
-          presentation: PRESENTATION.RANK,
-        }),
-      ], { help: "See TBD" }),
     ]),
     group("result", "Result", [
       column("wins", "W", { sort_kind: "numeric", presentation: PRESENTATION.COMPACT_COUNT }),

@@ -17,7 +17,6 @@ from src.analysis.elo89.api import Elo89Artifacts
 from src.analysis.sumo_history.basho_results.build import DIVISION_IDS, DIVISION_LABELS
 from src.analysis.sumo_history.basho_results.dates import (
     basho_label,
-    next_history_date,
     payload_file_name,
     previous_represented_date,
     represented_dates,
@@ -36,7 +35,7 @@ FIELDS = (
     "graph_shikona", "chii", "chii_ordinal", "score",
     "previous_delta_direction", "previous_delta", "previous_result",
     "previous_rank_level_movement", "previous_chii", "previous_chii_ordinal",
-    "previous_rating", "rating", "rating_delta", "nu_chii", "nu_chii_ordinal",
+    "previous_rating", "rating", "rating_delta",
     "highest_chii", "promotion_kind", "promotion_status", "promotion_required",
     "promotion_previous_result",
 )
@@ -78,17 +77,14 @@ def produce_basho_results(
 def _rows(history, date, ratings, names):
     dates = represented_dates(history)
     previous_date = previous_represented_date(dates, date)
-    next_date = next_history_date(history, date)
     current = history(date)
     previous = None if previous_date is None else history(previous_date)
-    following = None if next_date is None else history(next_date)
     deltas = {} if previous is None else calculate_local_deltas(previous.banzuke, current.banzuke)
     annotations = current_basho_annotations(history, date)
     rows = []
     for rid in sorted(current.banzuke.riks, key=lambda value: current.banzuke.get_chii(value)):
         chii = current.banzuke.get_chii(rid)
         old_chii = previous.banzuke.rikchii.get(rid) if previous is not None else None
-        new_chii = following.banzuke.rikchii.get(rid) if following is not None else None
         start = ratings.start_rating(date, rid)
         end = ratings.end_rating(date, rid)
         movement = deltas.get(rid)
@@ -112,8 +108,6 @@ def _rows(history, date, ratings, names):
                 "previous_rating": rating_text(start),
                 "rating": rating_text(end),
                 "rating_delta": delta_text(None if start is None or end is None else end - start),
-                "nu_chii": "-" if new_chii is None else str(new_chii),
-                "nu_chii_ordinal": "-" if new_chii is None else new_chii.ordinal(),
             }
         annotation = annotations.get(rid)
         row.update(

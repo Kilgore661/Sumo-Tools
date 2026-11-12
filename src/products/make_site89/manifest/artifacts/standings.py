@@ -60,7 +60,7 @@ BASHO_RESULTS_ARTIFACT = IndexedTableArtifact(
     column_groups=(
         ColumnGroup(id="identity", heading="", always_visible=True, columns=("row_number", "shikona", "chii")),
         ColumnGroup(id="previous_basho", heading="Previous Basho", controlling_filter_id="previous_context", columns=("previous_chii", "previous_result")),
-        ColumnGroup(id="result_state", heading="After/During", always_visible=True, columns=("score", "rating", "rating_delta", "nu_chii")),
+        ColumnGroup(id="result_state", heading="After/During", always_visible=True, columns=("score", "rating", "rating_delta")),
     ),
     columns=(
         TableColumn(id="row_number", heading="#", group="identity", always_visible=True, sort_kind="none", align="center"),
@@ -71,14 +71,10 @@ BASHO_RESULTS_ARTIFACT = IndexedTableArtifact(
         TableColumn(id="score", heading="Score", source_field="score", group="result_state", always_visible=True, sort_kind="record", align="center"),
         TableColumn(id="rating", heading="Elo-89", source_field="rating", group="result_state", sort_kind="numeric", align="center"),
         TableColumn(id="rating_delta", heading="Delta Elo-89", source_field="rating_delta", group="result_state", sort_kind="numeric", align="right"),
-        TableColumn(id="nu_chii", heading="nuChii", source_field="nu_chii", group="result_state", sort_key="nu_chii_ordinal", sort_kind="chii_ordinal"),
     ),
     default_sort_column="chii",
     notes=(
         Note(id="note_annotations", applies_to=("all",), text="On the current basho only, an asterisk means the rikishi is at a new career-high chii for the first time on this banzuke. A parenthesised number is the remaining site-defined Ozeki32 wins target; an exclamation mark identifies an unresolved site-defined YokYDJ prospect; a tick means the relevant results condition was achieved. These are indicators, not official JSA promotion rules or guarantees. See Promotion > Ozeki and Promotion > Yokozuna."),
         Note(id="note_result", applies_to=("all",), text="Result shows the number of wins, losses, absences and prizes."),
-        Note(id="note_movement", applies_to=("changes_context",), text="Movement notes placeholder. Replace with meaningful movement documentation."),
-        Note(id="note_chii_movement", applies_to=("changes_context",), text="Chii movement notes placeholder. Replace with meaningful chii movement documentation."),
-        Note(id="note_division_movement", applies_to=("changes_context",), text="Division movement notes placeholder. Replace with meaningful division movement documentation."),
     ),
 )

@@ -4,10 +4,7 @@ import {
   BASHO_RESULTS_TABLE_ID,
   DEFAULT_BASHO_RESULTS_SORT_PATH,
 } from "./shared.js";
-import {
-  compareValues,
-  rankLevelMovementMarker,
-} from "./values.js";
+import { compareValues } from "./values.js";
 import { PRIZE_DISPLAY_ORDER } from "./table-spec.js";
 import { terminalNodes } from "./render.js";
 
@@ -85,7 +82,6 @@ function sortValueForLeaf(leaf, row) {
   const value = row[leaf.sort_path || leaf.path];
   if (leaf.sort_kind === "record") return recordWins(value);
   if (leaf.sort_kind === "prize_set") return prizeSortValue(value);
-  if (leaf.sort_kind === "movement_symbol") return movementSortValue(value);
   if (leaf.sort_kind === "numeric" || leaf.sort_kind === "chii_ordinal") {
     const number = Number(value);
     return Number.isNaN(number) ? null : number;
@@ -129,13 +125,6 @@ function prizeSortValue(value) {
   );
 }
 
-function movementSortValue(value) {
-  const movement = rankLevelMovementMarker(value);
-  if (movement === "\u2191") return 2;
-  if (movement === "\u2193") return 0;
-  return 1;
-}
-
 function recordWins(value) {
   // Warning! Warning! Dr. Smith! This parses compact result strings because
   // the structured Result emitter shape open issue has not been resolved.
@@ -156,6 +145,5 @@ export {
   sortDefaultDirection,
   toggledSortDirection,
   prizeSortValue,
-  movementSortValue,
   recordWins,
 };

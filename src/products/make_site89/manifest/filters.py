@@ -140,7 +140,6 @@ BANZUKE_CHANGES_FILTERS = (
         values=DIVISION_FILTER_VALUES,
     ),
     Filter(id="context", label="Previous Basho", control="checkbox", default=False, url_key="context"),
-    Filter(id="delta", label="Change", control="checkbox", default=False, url_key="delta", help="Size of movement. See Notes."),
     Filter(
         id="rating",
         label="Elo-89 Ratings",
@@ -183,33 +182,11 @@ BRB_FILTERS = (
         url_key="previous",
     ),
     Filter(
-        id="changes_context",
-        label="Next Basho",
-        control="checkbox",
-        default=False,
-        url_key="changes",
-    ),
-    Filter(
         id="rating_context",
         label="Elo-89 Ratings",
         control="checkbox",
         default=False,
         url_key="ratings",
-    ),
-    Filter(
-        id="analysis_context",
-        label="Ratings Fit",
-        control="checkbox",
-        default=False,
-        url_key="analysis",
-        help="See TBD",
-    ),
-    Filter(
-        id="nu_chii",
-        label="nuChii",
-        control="checkbox",
-        default=False,
-        url_key="nu_chii",
     ),
 )
 

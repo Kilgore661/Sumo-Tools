@@ -93,19 +93,6 @@ BASHO_RESULTS_TABLE_SPEC: tuple[TableSpecNode, ...] = (
                         ),
                     ),
                     column("rating", "Rating"),
-                    group(
-                        "rbbc",
-                        (
-                            group(
-                                "banzuke_error",
-                                (
-                                    column("direction", "Direction"),
-                                    column("magnitude", "Int"),
-                                ),
-                            ),
-                            column("rbbp", "BP"),
-                        ),
-                    ),
                 ),
             ),
         ),
@@ -128,19 +115,6 @@ BASHO_RESULTS_TABLE_SPEC: tuple[TableSpecNode, ...] = (
                         ),
                     ),
                     column("rating", "Rating"),
-                    group(
-                        "rbbc",
-                        (
-                            group(
-                                "banzuke_error",
-                                (
-                                    column("direction", "Direction"),
-                                    column("magnitude", "Int"),
-                                ),
-                            ),
-                            column("rbbp", "BP"),
-                        ),
-                    ),
                 ),
             ),
         ),

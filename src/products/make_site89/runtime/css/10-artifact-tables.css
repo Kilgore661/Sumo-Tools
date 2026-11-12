@@ -137,6 +137,12 @@
   white-space: nowrap;
 }
 
+.banzuke-changes-table .banzuke-inline-arrow {
+  display: inline-block;
+  position: relative;
+  bottom: 0.2em;
+}
+
 .artifact-table td[data-align="right"] {
   text-align: right;
 }

@@ -106,12 +106,8 @@ function noteApplies(note, state) {
   const applies = note.applies_to || ["all"];
   if (applies.includes("all")) return true;
   if (applies.includes("previous_basho")) return Boolean(state.previous_context);
-  if (applies.includes("changes_context")) return Boolean(state.changes_context);
   if (applies.includes("rating_context")) return Boolean(state.rating_context);
-  if (applies.includes("analysis_context")) return Boolean(state.analysis_context);
-  if (applies.includes("nu_chii")) return Boolean(state.nu_chii);
   if (applies.includes("context")) return Boolean(state.context);
-  if (applies.includes("delta")) return Boolean(state.delta);
   if (applies.includes("rating")) return Boolean(state.rating);
   if (applies.includes("banzuke_style")) return Boolean(state.banzuke_style);
   if (applies.includes(state.metric_group_preset)) return true;

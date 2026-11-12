@@ -2,20 +2,16 @@
 
 import { BASHO_RESULTS_TABLE_ID } from "./shared.js";
 import { TRANSITIONAL_TABLE_SPEC } from "./table-spec.js";
-import {
-  buildRecordAnalyses,
-  transitionalRowValues,
-} from "./values.js";
+import { transitionalRowValues } from "./values.js";
 
 // Build the complete UI model consumed by the Basho Results recursive renderer.
 function buildBashoResultsPresentationModel({ rows, state, entry, title }) {
   const visiblePaths = bashoResultsVisiblePaths(state);
-  const analyses = buildRecordAnalyses(rows || []);
   return {
     id: BASHO_RESULTS_TABLE_ID,
     header: bashoResultsHeader(title, entry),
     table_spec: resolveSelectedHeading(TRANSITIONAL_TABLE_SPEC, entry),
-    values: (rows || []).map((row, index) => transitionalRowValues(row, index, analyses)),
+    values: (rows || []).map((row, index) => transitionalRowValues(row, index)),
     projection: { visible_paths: visiblePaths },
   };
 }
@@ -54,12 +50,6 @@ function bashoResultsVisiblePaths(state) {
     "selected.result.absences",
     "selected.result.prizes",
   ];
-  if (state.changes_context) {
-    visible.push(
-      "changes.movement.bp",
-      "changes.movement.division",
-    );
-  }
   if (state.previous_context) {
     visible.push(
       "before.context.skill.bp",
@@ -77,23 +67,6 @@ function bashoResultsVisiblePaths(state) {
       "selected.context.skill.rating",
       "selected.context.skill.rating_delta",
     );
-  }
-  if (state.analysis_context) {
-    if (state.previous_context) {
-      visible.push(
-        "before.context.analysis.banzuke_error.direction",
-        "before.context.analysis.banzuke_error.magnitude",
-        "before.context.analysis.rbbp",
-      );
-    }
-    visible.push(
-      "selected.context.analysis.banzuke_error.direction",
-      "selected.context.analysis.banzuke_error.magnitude",
-      "selected.context.analysis.rbbp",
-    );
-  }
-  if (state.nu_chii) {
-    visible.push("selected.next_bp");
   }
   return visible;
 }
