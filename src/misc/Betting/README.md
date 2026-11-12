@@ -16,17 +16,24 @@ Chrome is used by default. Run the downloader with:
 python download_sumo_odds.py
 ```
 
+The command prints a timestamped message for every attempt. If no events are
+available, or a transient Playwright error prevents an acquisition, it waits
+30 minutes and tries again. It exits after the first odds file is successfully
+written; press `Ctrl+C` to stop it while it is waiting.
+
 Useful options:
 
 ```powershell
 python download_sumo_odds.py --headed
 python download_sumo_odds.py --browser-channel msedge
 python download_sumo_odds.py --output-dir odds
+python download_sumo_odds.py --retry-minutes 10
+python download_sumo_odds.py --once
 ```
 
-When the sumo page is available but has no current events, the command exits
-with status 1 and reports that no odds file was written. An empty listing does
-not produce a Playwright timeout traceback.
+`--once` preserves one-shot behaviour: an empty listing exits with status 1
+after reporting that no odds file was written. An empty listing does not
+produce a Playwright timeout traceback.
 
 If neither Chrome nor Edge is installed, install Playwright's browser once:
 

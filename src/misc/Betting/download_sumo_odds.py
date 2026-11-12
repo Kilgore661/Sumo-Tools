@@ -11,6 +11,7 @@ import argparse
 import json
 import re
 import sys
+import time
 from collections import defaultdict
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
@@ -19,7 +20,14 @@ from typing import Any
 from urllib.parse import urljoin, urlparse
 from zoneinfo import ZoneInfo
 
-from playwright.sync_api import Browser, BrowserContext, Page, TimeoutError, sync_playwright
+from playwright.sync_api import (
+    Browser,
+    BrowserContext,
+    Error as PlaywrightError,
+    Page,
+    TimeoutError,
+    sync_playwright,
+)
 
 
 DEFAULT_URL = "https://www.marathonbet.com/en/betting/sumo"
@@ -312,12 +320,33 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--timezone", default="Europe/London")
     parser.add_argument("--browser-channel", default="chrome", choices=("chrome", "msedge"))
     parser.add_argument("--headed", action="store_true", help="Show the browser window")
+    parser.add_argument(
+        "--retry-minutes",
+        type=positive_minutes,
+        default=30.0,
+        help="Minutes between unsuccessful attempts (default: 30)",
+    )
+    parser.add_argument(
+        "--once",
+        action="store_true",
+        help="Make one attempt instead of retrying until an odds file is written",
+    )
     return parser.parse_args()
 
 
-def main() -> int:
-    args = parse_args()
-    timezone = ZoneInfo(args.timezone)
+def positive_minutes(value: str) -> float:
+    try:
+        minutes = float(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("retry minutes must be a number") from exc
+    if minutes <= 0:
+        raise argparse.ArgumentTypeError("retry minutes must be greater than zero")
+    return minutes
+
+
+def download_once(args: argparse.Namespace, timezone: ZoneInfo) -> bool:
+    """Make one complete acquisition attempt and report whether files were written."""
+
     with sync_playwright() as playwright:
         browser = launch_browser(playwright, args.headed, args.browser_channel)
         try:
@@ -331,7 +360,7 @@ def main() -> int:
                     "No sumo events are currently listed; no odds file was written.",
                     file=sys.stderr,
                 )
-                return 1
+                return False
 
             events: list[Event] = []
             for number, seed in enumerate(seeds, start=1):
@@ -343,7 +372,50 @@ def main() -> int:
     paths = write_results(events, args.output_dir, args.url, args.timezone)
     for path in paths:
         print(path.resolve())
-    return 0
+    return bool(paths)
+
+
+def run_download_loop(
+    args: argparse.Namespace, *, sleep_function=time.sleep
+) -> int:
+    """Retry at the requested interval until one acquisition writes an odds file."""
+
+    timezone = ZoneInfo(args.timezone)
+    attempt = 0
+    while True:
+        attempt += 1
+        attempted_at = datetime.now(timezone).strftime("%Y-%m-%d %H:%M:%S %Z")
+        print(
+            f"[{attempted_at}] Attempt {attempt}: checking for sumo odds...",
+            file=sys.stderr,
+            flush=True,
+        )
+        try:
+            succeeded = download_once(args, timezone)
+        except PlaywrightError as exc:
+            detail = str(exc).splitlines()[0]
+            print(f"Attempt {attempt} failed: {detail}", file=sys.stderr)
+            succeeded = False
+        if succeeded:
+            print(f"Attempt {attempt} succeeded.", file=sys.stderr)
+            return 0
+        if args.once:
+            return 1
+        print(
+            f"Retrying in {args.retry_minutes:g} minutes.",
+            file=sys.stderr,
+            flush=True,
+        )
+        sleep_function(args.retry_minutes * 60.0)
+
+
+def main() -> int:
+    args = parse_args()
+    try:
+        return run_download_loop(args)
+    except KeyboardInterrupt:
+        print("\nStopped while waiting for sumo odds.", file=sys.stderr)
+        return 130
 
 
 if __name__ == "__main__":
