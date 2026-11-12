@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Download Marathonbet sumo events and odds into timestamped JSON files.
+"""Download Marathonbet sumo events and odds into event-start JSON files.
 
 The site is rendered client-side, so this scraper uses Playwright with an
 installed Chrome/Edge browser.  It does not log in or place bets.
@@ -106,6 +106,19 @@ def unique_event_seeds(page: Page, base_url: str, timezone: ZoneInfo) -> list[Ev
                     displayed_start = start.strftime("%Y-%m-%d %H:%M")
             found.append(EventSeed(url, start, displayed_start))
     return found
+
+
+def discover_event_seeds(
+    page: Page, base_url: str, timezone: ZoneInfo
+) -> list[EventSeed]:
+    """Wait for a valid sumo page, then return any currently listed events."""
+
+    page.get_by_role("heading", name=re.compile(r"\bSumo\b", re.IGNORECASE)).first.wait_for(
+        state="visible", timeout=15_000
+    )
+    dismiss_cookie_banner(page)
+    expand_event_groups(page)
+    return unique_event_seeds(page, base_url, timezone)
 
 
 def parse_displayed_start(page_lines: list[str], now: datetime) -> tuple[datetime | None, str | None, int | None]:
@@ -311,15 +324,14 @@ def main() -> int:
             context = browser.new_context(timezone_id=args.timezone, locale="en-GB")
             listing = context.new_page()
             listing.goto(args.url, wait_until="commit", timeout=45_000)
-            listing.get_by_text("Japan", exact=True).wait_for(
-                state="visible", timeout=15_000
-            )
-            dismiss_cookie_banner(listing)
-            expand_event_groups(listing)
-            seeds = unique_event_seeds(listing, args.url, timezone)
+            seeds = discover_event_seeds(listing, args.url, timezone)
             listing.close()
             if not seeds:
-                raise RuntimeError("No sumo event links were found on the page")
+                print(
+                    "No sumo events are currently listed; no odds file was written.",
+                    file=sys.stderr,
+                )
+                return 1
 
             events: list[Event] = []
             for number, seed in enumerate(seeds, start=1):

@@ -24,6 +24,10 @@ python download_sumo_odds.py --browser-channel msedge
 python download_sumo_odds.py --output-dir odds
 ```
 
+When the sumo page is available but has no current events, the command exits
+with status 1 and reports that no odds file was written. An empty listing does
+not produce a Playwright timeout traceback.
+
 If neither Chrome nor Edge is installed, install Playwright's browser once:
 
 ```powershell
