@@ -6,6 +6,7 @@ from src.products import build_site89
 def test_live_store_workflow_produces_bundle_and_forwards_existing_flags(
     monkeypatch,
     tmp_path: Path,
+    capsys,
 ) -> None:
     full_history = object()
     selected_history = object()
@@ -40,6 +41,8 @@ def test_live_store_workflow_produces_bundle_and_forwards_existing_flags(
         "NEW_BANZUKE_JSON",
         tmp_path / "absent-banzuke.json",
     )
+    times = iter((100.0, 206.4))
+    monkeypatch.setattr(build_site89, "time", lambda: next(times))
 
     bundle = tmp_path / "bundle"
     output = tmp_path / "site"
@@ -60,6 +63,7 @@ def test_live_store_workflow_produces_bundle_and_forwards_existing_flags(
     assert captured["production"]["future"] is None
     assert captured["production"]["new_banzuke"] is None
     assert forwarded == argv
+    assert "Complete run after 106.4s" in capsys.readouterr().out
 
 
 def test_no_build_skips_live_store_and_bundle_production(monkeypatch) -> None:

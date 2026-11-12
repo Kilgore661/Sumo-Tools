@@ -37,6 +37,60 @@ document should link to it rather than create a competing specification.
 
 ## Unordered captured items
 
+### Artifact epochs and pre-1989 result coverage
+
+The Sumo '89 site-data producer currently requires a History beginning at
+`1989/01` and passes that same History to rating-dependent and
+model-independent artifacts.  The restriction is required by Elo-89, but it is
+not automatically appropriate for descriptive artifacts which can consume the
+complete banzuke History beginning at `1958/01`.  Each published artifact must
+declare the History epoch required by its meaning instead of inheriting the
+rating model's epoch accidentally.
+
+First Chii Appearance exposed the problem.  Its producer reports the first
+represented bout involving a rikishi assigned each exact chii; it does not
+report the first appearance of that chii on a banzuke.  Although its chart uses
+`1958/01` as the base for encoding month values, Sumo '89 supplies only the
+post-1988 History, so the base date does not extend its coverage.  The resulting
+single-series chart cannot answer the intended question about incomplete
+pre-1989 results and has been excluded from the Sumo '89 navigation.
+
+A replacement should use the full History from `1958/01` and publish two dates
+for every exact chii:
+
+- its first appearance on a represented banzuke; and
+- its first represented bout appearance, if any.
+
+The difference is an observation lag which can reveal the historical results
+coverage boundary.  It is not by itself proof of missing source data because a
+rikishi occupying a chii may legitimately have had no bout.  The replacement
+must retain that distinction, represent a missing bout date explicitly, and
+state that `1958/01` is the left boundary of the available banzuke History
+rather than necessarily the historical invention date of a chii.
+
+The wider review must classify the remaining public and research artifacts as
+rating-dependent, result-dependent, banzuke-dependent or mixed, and record
+their History inputs and epochs in bundle provenance.  It must also ask whether
+an epoch boundary has a material effect on the question answered, rather than
+assuming that every artifact capable of using the 1958 History must do so.
+Finish Chances by Wins, Win Probability by Ranks and Rating Changes consistently
+use the post-1988 record or Elo-89.  Rolling Wins-Based Ranking uses only recent
+backward-looking windows, so the History epoch is immaterial while those
+windows remain well inside the represented period.  These artifacts may remain
+published with their periods and dependencies stated.  Division Persistence
+could be extended to the 1958 banzuke record, but that possibility alone does
+not establish that its present epoch materially misrepresents its result; the
+effect and the intended historical question should be assessed before its
+publication policy is changed.
+
+The YokYDJ and Ozeki32 promotion artifacts present a separate provenance issue.
+Their prose cites calculated figures and conclusions, but those published
+claims are not yet tied to an identified reproducible run recording the input
+History, observation period, population, code revision and saved outputs.  Do
+not infer their epochs from nearby current code or from the periods used by
+other artifacts.  Establish the provenance of the cited results before revising
+their claims or deciding whether either promotion artifact has an epoch issue.
+
 ### Resolved: `Date` and `IntDate` were not interoperable History keys
 
 The live parser formerly populated History with an `IntDate` subclass while

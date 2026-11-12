@@ -5,6 +5,7 @@ import sys
 
 import pytest
 
+import src.products.make_site89.__main__ as site89_main
 from src.products.make_site89.__main__ import build_parser
 from src.products.make_site89.deploy import (
     DeployTarget,
@@ -74,6 +75,24 @@ def test_cli_accepts_make_site2_style_local_only_mode() -> None:
     args = build_parser().parse_args(["--local-only"])
 
     assert args.local_only
+
+
+def test_build_only_reports_its_own_elapsed_time(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    output = SimpleNamespace(
+        entrypoint=tmp_path / "index.html",
+        file_count=380,
+    )
+    monkeypatch.setattr(site89_main, "build_site", lambda **_kwargs: output)
+    times = iter((10.0, 16.8))
+    monkeypatch.setattr(site89_main, "time", lambda: next(times))
+
+    site89_main.main(["--build-only"])
+
+    assert "Built in 6.8s" in capsys.readouterr().out
 
 
 def test_local_only_filters_configured_sftp_target(tmp_path: Path) -> None:

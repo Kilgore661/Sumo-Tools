@@ -112,7 +112,7 @@ function groupedChartLayout(artifact, rowsBySource) {
   };
 }
 
-function orderedBarLayout(artifact, trace) {
+function orderedPointLayout(artifact, trace) {
   const maxY = Math.max(...trace.y, 0);
   const yTicks = monthIndexTicks(maxY, artifact);
   const useAutoXTicks = artifact.id === "first_chii_appearance";
@@ -196,6 +196,6 @@ function categoryBarLayout(artifact, trace) {
 export {
   stackedBarLayout,
   groupedChartLayout,
-  orderedBarLayout,
+  orderedPointLayout,
   categoryBarLayout,
 };

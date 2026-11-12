@@ -103,7 +103,7 @@ def main(argv: list[str] | None = None) -> None:
             )
             if result.public_url:
                 print(result.public_url)
-    print(f"Elapsed: {time() - started:.1f}s")
+    print(f"Built in {time() - started:.1f}s")
 
 
 if __name__ == "__main__":

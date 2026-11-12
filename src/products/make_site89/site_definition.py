@@ -162,7 +162,7 @@ PAGES = PageRegistry(
                 "Earliest observed bout appearance at "
                 '<a href="https://sumodb.sumogames.de/">SumoDB</a> for each chii.'
             ),
-            status=PageStatus.PROMOTED,
+            status=PageStatus.EXCLUDED,
             artifact=artifact("first_chii_appearance", "chart"),
         ),
         "career_comparisons": PageDefinition(

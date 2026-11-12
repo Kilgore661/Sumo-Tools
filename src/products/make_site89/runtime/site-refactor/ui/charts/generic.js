@@ -3,11 +3,11 @@
 export {
   renderStackedBarChart,
   renderGroupedLineChart,
-  renderOrderedBarChart,
+  renderOrderedPointChart,
   renderCategoryBarChart,
   renderArtifactSubheading,
   renderCategoryBarPlot,
-  renderOrderedBarPlot,
+  renderOrderedPointPlot,
   renderGroupedLinePlot,
   renderStackedBarPlot,
 } from "./generic-renderers.js";
@@ -16,13 +16,13 @@ export {
   stackedBarRows,
   stackedBarTraceSpec,
   groupedLineTraceSpec,
-  orderedBarTraceSpec,
+  orderedPointTraceSpec,
   stackedBarTraces,
   groupedLineTraces,
-  orderedBarTrace,
+  orderedPointTrace,
   categoryBarTrace,
   orderedRows,
-  orderedBarHoverTemplate,
+  orderedPointHoverTemplate,
   groupedLineHoverTemplate,
   stackedBarGroupOrder,
   chartGroupOrder,
@@ -31,6 +31,6 @@ export {
 export {
   stackedBarLayout,
   groupedChartLayout,
-  orderedBarLayout,
+  orderedPointLayout,
   categoryBarLayout,
 } from "./generic-layouts.js";

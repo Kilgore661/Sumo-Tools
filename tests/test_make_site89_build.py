@@ -109,6 +109,25 @@ def test_site_uses_elo89_title(tmp_path: Path) -> None:
     assert "The Sumo &#x27;89 Lab" in output.entrypoint.read_text(encoding="utf-8")
 
 
+def test_first_chii_appearance_is_excluded_from_publication(tmp_path: Path) -> None:
+    output = build_site(
+        data_bundle=write_bundle(tmp_path / "bundle"),
+        output_root=tmp_path / "output",
+        cache_mode="prod",
+    )
+    manifest = json.loads(
+        (output.root / "runtime" / "site-manifest.json").read_text(encoding="utf-8")
+    )
+    index = output.entrypoint.read_text(encoding="utf-8")
+
+    assert "first_chii_appearance" not in manifest["artifacts"]
+    assert "first_chii_appearance" not in {
+        panel["page_id"] for panel in manifest["ui"]["content_panels"]
+    }
+    assert 'data-page-id="first_chii_appearance"' not in index
+    assert "First chii appearance" not in index
+
+
 def test_goats_link_excludes_pre_1989_rikishi(tmp_path: Path) -> None:
     output = build_site(
         data_bundle=write_bundle(tmp_path / "bundle"),

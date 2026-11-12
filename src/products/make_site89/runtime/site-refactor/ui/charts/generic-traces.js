@@ -20,9 +20,9 @@ function groupedLineTraceSpec(artifact) {
   return trace;
 }
 
-function orderedBarTraceSpec(artifact) {
-  const trace = artifact.traces.find(candidate => candidate.kind === "bar");
-  if (!trace) throw new Error(`No bar trace for ${artifact.id}`);
+function orderedPointTraceSpec(artifact) {
+  const trace = artifact.traces.find(candidate => candidate.kind === "point");
+  if (!trace) throw new Error(`No point trace for ${artifact.id}`);
   return trace;
 }
 
@@ -71,25 +71,27 @@ function groupedLineTraces(artifact, rowsBySource) {
   });
 }
 
-function orderedBarTrace(artifact, rowsBySource) {
+function orderedPointTrace(artifact, rowsBySource) {
   const rows = orderedRows(artifact, rowsBySource);
-  const trace = orderedBarTraceSpec(artifact);
+  const trace = orderedPointTraceSpec(artifact);
   const dateFields = artifact.provenance.date_fields || [];
   return {
-    type: "bar",
+    type: "scatter",
+    mode: "markers",
     x: rows.map(row => row[trace.x]),
     y: rows.map(row => Number(row[trace.y])),
     customdata: rows.map(row => [
       row[artifact.provenance.order_field],
       dateFields.length === 2 ? dateLikeDisplayFromParts(row[dateFields[0]], row[dateFields[1]]) : "",
     ]),
-    hovertemplate: orderedBarHoverTemplate(trace, artifact),
+    hovertemplate: orderedPointHoverTemplate(trace, artifact),
   };
 }
 
 function categoryBarTrace(artifact, rowsBySource) {
   const rows = chartRows(artifact, rowsBySource);
-  const trace = orderedBarTraceSpec(artifact);
+  const trace = artifact.traces.find(candidate => candidate.kind === "bar");
+  if (!trace) throw new Error(`No bar trace for ${artifact.id}`);
   const rowByCategory = new Map(rows.map(row => [dateLikeDisplay(row[trace.x]), row]));
   const categories = artifact.x_axis.order_values.length
     ? artifact.x_axis.order_values.map(value => dateLikeDisplay(value))
@@ -110,7 +112,7 @@ function orderedRows(artifact, rowsBySource) {
   return [...rows].sort((left, right) => Number(left[orderField]) - Number(right[orderField]));
 }
 
-function orderedBarHoverTemplate(trace, artifact) {
+function orderedPointHoverTemplate(trace, artifact) {
   const orderField = artifact.provenance.order_field;
   const dateFields = artifact.provenance.date_fields || [];
   const lines = [
@@ -154,13 +156,13 @@ export {
   stackedBarRows,
   stackedBarTraceSpec,
   groupedLineTraceSpec,
-  orderedBarTraceSpec,
+  orderedPointTraceSpec,
   stackedBarTraces,
   groupedLineTraces,
-  orderedBarTrace,
+  orderedPointTrace,
   categoryBarTrace,
   orderedRows,
-  orderedBarHoverTemplate,
+  orderedPointHoverTemplate,
   groupedLineHoverTemplate,
   stackedBarGroupOrder,
   chartGroupOrder,

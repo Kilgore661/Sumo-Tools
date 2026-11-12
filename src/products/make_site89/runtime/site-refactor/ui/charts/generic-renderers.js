@@ -9,14 +9,14 @@ import {
 import {
   categoryBarTrace,
   groupedLineTraces,
-  orderedBarTrace,
+  orderedPointTrace,
   stackedBarRows,
   stackedBarTraces,
 } from "./generic-traces.js";
 import {
   categoryBarLayout,
   groupedChartLayout,
-  orderedBarLayout,
+  orderedPointLayout,
   stackedBarLayout,
 } from "./generic-layouts.js";
 
@@ -50,8 +50,8 @@ function renderGroupedLineChart(artifact, rowsBySource) {
   ].join("");
 }
 
-// Render the common title and Plotly host for an ordered bar chart.
-function renderOrderedBarChart(artifact, rowsBySource) {
+// Render the common title and Plotly host for an ordered point chart.
+function renderOrderedPointChart(artifact, rowsBySource) {
   const rows = chartRows(artifact, rowsBySource);
   if (!rows.length) {
     return `<p>No ${escapeHtml(artifact.heading)} data is available.</p>`;
@@ -101,18 +101,18 @@ function renderCategoryBarPlot(artifact, rowsBySource) {
   );
 }
 
-function renderOrderedBarPlot(artifact, rowsBySource) {
+function renderOrderedPointPlot(artifact, rowsBySource) {
   const host = document.getElementById(chartElementId(artifact));
   if (!host) return;
   if (!window.Plotly) {
     host.innerHTML = "<p>Plotly is not available.</p>";
     return;
   }
-  const trace = orderedBarTrace(artifact, rowsBySource);
+  const trace = orderedPointTrace(artifact, rowsBySource);
   Plotly.react(
     host,
     [trace],
-    orderedBarLayout(artifact, trace),
+    orderedPointLayout(artifact, trace),
     PLOTLY_CONFIG
   );
 }
@@ -150,11 +150,11 @@ function renderStackedBarPlot(artifact, rowsBySource) {
 export {
   renderStackedBarChart,
   renderGroupedLineChart,
-  renderOrderedBarChart,
+  renderOrderedPointChart,
   renderCategoryBarChart,
   renderArtifactSubheading,
   renderCategoryBarPlot,
-  renderOrderedBarPlot,
+  renderOrderedPointPlot,
   renderGroupedLinePlot,
   renderStackedBarPlot,
 };

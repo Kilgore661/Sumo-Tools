@@ -23,10 +23,10 @@ DIVISION_STABILITY_ARTIFACT = ChartArtifact(
 )
 
 FIRST_CHII_APPEARANCE_ARTIFACT = ChartArtifact(
-    id="first_chii_appearance", heading="First Chii Appearance", kind="chart", renderer="ordered_bar_chart",
+    id="first_chii_appearance", heading="First Chii Appearance", kind="chart", renderer="ordered_point_chart",
     data_binding=DataBinding(kind="csv", sources=("appearances",)),
     data_sources=(DataSource(id="appearances", label="First observed appearance", path="banzuke-rank/rank-history/first-chii-appearance/data/appearances.csv", media_type="text/csv"),),
-    traces=(ChartTrace(id="first_appearance", label="First appearance", kind="bar", x="chii", y="first_appearance_month_index"),),
+    traces=(ChartTrace(id="first_appearance", label="First appearance", kind="point", x="chii", y="first_appearance_month_index"),),
     x_axis=ChartAxis(id="x", source_field="chii", label="Chii"),
     y_axis=ChartAxis(id="y", source_field="first_appearance_month_index", label="First appearance"),
     provenance={"order_field": "ordinal", "x_tickangle": -45, "max_x_tick_labels": 40, "base_year": 1958, "base_month": 1, "date_fields": ("year", "month")},

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from time import time
 
 from src.analysis.site89.producer import produce_site89_bundle
 from src.infra.history_artifacts import POST_1988_START_YEAR, history_from_year
@@ -20,6 +21,7 @@ from src.products.make_site89.__main__ import (
 def main(argv: list[str] | None = None) -> None:
     """Run the live-store-first Sumo '89 production and deployment workflow."""
 
+    started = time()
     args = build_parser().parse_args(argv)
     reject_conflicting_modes(args)
 
@@ -42,6 +44,7 @@ def main(argv: list[str] | None = None) -> None:
         print(f"Produced site-data bundle: {args.data_bundle}")
 
     run_make_site89(argv)
+    print(f"Complete run after {time() - started:.1f}s")
 
 
 if __name__ == "__main__":
