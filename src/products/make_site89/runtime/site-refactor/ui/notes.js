@@ -14,10 +14,9 @@ function renderNotes(artifact, state) {
   return [
     '<aside class="notes-panel" data-notes-panel>',
     '<div class="notes-hider-strip">',
-    '<button class="notes-toggle" type="button" data-notes-toggle aria-expanded="true" aria-label="Hide notes" title="Hide notes">˅</button>',
+    '<button class="notes-toggle" type="button" data-notes-toggle aria-expanded="true" aria-label="Hide notes" title="Hide notes">Notes ˅</button>',
     '</div>',
     '<div class="notes-content" data-notes-body>',
-    '<h4>Notes</h4>',
     '<ol>',
     ...notes.map(note => `<li data-note-id="${escapeHtml(note.id)}">${escapeHtml(note.text)}</li>`),
     '</ol>',
@@ -87,7 +86,7 @@ function cssEscape(value) {
 function applyNotesCollapsedState(panel, body, toggle, collapsed) {
   panel.classList.toggle("notes-panel-collapsed", collapsed);
   body.hidden = collapsed;
-  toggle.textContent = collapsed ? "˄" : "˅";
+  toggle.textContent = collapsed ? "Notes ˄" : "Notes ˅";
   toggle.setAttribute("aria-label", collapsed ? "Show notes" : "Hide notes");
   toggle.title = collapsed ? "Show notes" : "Hide notes";
   toggle.setAttribute("aria-expanded", collapsed ? "false" : "true");
@@ -107,6 +106,7 @@ function noteApplies(note, state) {
   if (applies.includes("all")) return true;
   if (applies.includes("previous_basho")) return Boolean(state.previous_context);
   if (applies.includes("rating_context")) return Boolean(state.rating_context);
+  if (applies.includes("ratings_fit")) return Boolean(state.ratings_fit);
   if (applies.includes("context")) return Boolean(state.context);
   if (applies.includes("rating")) return Boolean(state.rating);
   if (applies.includes("banzuke_style")) return Boolean(state.banzuke_style);

@@ -148,6 +148,14 @@ BANZUKE_CHANGES_FILTERS = (
         url_key="rating",
         help="Model ratings. See Ratings & Models.",
     ),
+    Filter(
+        id="ratings_fit",
+        label="Ratings Fit",
+        control="checkbox",
+        default=False,
+        url_key="ratings_fit",
+        help="Compare official banzuke order with Elo-89 order.",
+    ),
     Filter(id="banzuke_style", label="Banzuke Style", control="checkbox", default=True, url_key="banzuke_style"),
 )
 

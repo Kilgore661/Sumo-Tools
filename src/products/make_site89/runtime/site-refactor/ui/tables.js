@@ -25,6 +25,8 @@ export {
   banzukeDeltaDisplay,
   banzukeDeltaHtml,
   banzukeResultHtml,
+  buildBanzukeRatingsFit,
+  ratingsFitErrorHtml,
   banzukeSideValue,
 } from "./tables/banzuke-changes.js";
 

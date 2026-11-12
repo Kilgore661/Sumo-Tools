@@ -33,6 +33,14 @@ const BANZUKE_SCAN_TABLE_SPEC = [
       { key: "result", id: "result", label: "Result", heading: "Result", help: "Result movement means rank-group movement. See Notes.", note_id: "note_result", sort_kind: "record" },
     ],
   },
+  {
+    key: "ratings_fit",
+    label: "Ratings Fit",
+    children: [
+      { key: "delta_chii", id: "delta_chii", label: "ΔChii", heading: "ΔChii", help: "Difference between official and Elo-89 order. See Notes.", note_id: "note_delta_chii", sort_kind: "numeric", align: "right" },
+      { key: "nu_chii", id: "nu_chii", label: "νChii", heading: "νChii", help: "Official slot assigned by Elo-89 order. See Notes.", note_id: "note_nu_chii", sort_kind: "chii_ordinal" },
+    ],
+  },
 ];
 
 // Render Banzuke Changes in either banzuke-style or scan-table form.
@@ -65,30 +73,39 @@ function renderBanzukeStyleTable(rows, state) {
   const rowNumberColumn = banzukeRowNumberColumn();
   const eastColumns = banzukeSideColumns("east", state);
   const westColumns = banzukeSideColumns("west", state);
+  const ratingsFit = buildBanzukeRatingsFit(rows);
+  const hasSubgroups = state.ratings_fit || state.context;
+  const headingRowspan = hasSubgroups ? 3 : 2;
   return [
     '<table class="artifact-table banzuke-changes-table">',
     '<thead>',
     '<tr>',
-    `<th rowspan="2" ${banzukeGroupAttributes(rowNumberColumn.id, "only")}>${escapeHtml(rowNumberColumn.heading)}</th>`,
+    `<th rowspan="${headingRowspan}" ${banzukeGroupAttributes(rowNumberColumn.id, "only")}>${escapeHtml(rowNumberColumn.heading)}</th>`,
     `<th colspan="${eastColumns.length}" ${banzukeGroupAttributes("east", "only")}>East</th>`,
-    `<th rowspan="2" ${banzukeGroupAttributes("rank", "only")}>Rank</th>`,
+    `<th rowspan="${headingRowspan}" ${banzukeGroupAttributes("rank", "only")}>Rank</th>`,
     `<th colspan="${westColumns.length}" ${banzukeGroupAttributes("west", "only")}>West</th>`,
     '</tr>',
     '<tr>',
-    ...eastColumns.map(column => renderBanzukeStyleHeadingCell(column)),
-    ...westColumns.map(column => renderBanzukeStyleHeadingCell(column)),
+    ...renderBanzukeStyleSecondHeadingRow(eastColumns),
+    ...renderBanzukeStyleSecondHeadingRow(westColumns),
     '</tr>',
+    ...(hasSubgroups ? [
+      '<tr>',
+      ...eastColumns.filter(isBanzukeStyleGroupedColumn).map(column => renderBanzukeStyleHeadingCell(column)),
+      ...westColumns.filter(isBanzukeStyleGroupedColumn).map(column => renderBanzukeStyleHeadingCell(column)),
+      '</tr>',
+    ] : []),
     '</thead>',
     '<tbody>',
     ...rows.map((row, index) => [
       '<tr>',
       renderBanzukeStyleRowNumberCell(index),
       ...eastColumns.map((column, columnIndex) =>
-        renderBanzukeSideCell(row, column, banzukeGroupPosition(columnIndex, eastColumns.length))
+        renderBanzukeSideCell(row, column, banzukeGroupPosition(columnIndex, eastColumns.length), ratingsFit)
       ),
       `<td scope="row" ${banzukeGroupAttributes("rank", "only")}>${escapeHtml(row.bz_chii)}</td>`,
       ...westColumns.map((column, columnIndex) =>
-        renderBanzukeSideCell(row, column, banzukeGroupPosition(columnIndex, westColumns.length))
+        renderBanzukeSideCell(row, column, banzukeGroupPosition(columnIndex, westColumns.length), ratingsFit)
       ),
       '</tr>',
     ].join("")),
@@ -103,8 +120,13 @@ function renderBanzukeScanTable(artifact, rows, state) {
   const columns = banzukeScanColumns(state);
   const boundaries = groupBoundaryMap(BANZUKE_SCAN_TABLE_SPEC, visiblePaths, columns);
   const sortState = currentBanzukeScanSortState(artifact, columns);
+  const ratingsFit = buildBanzukeRatingsFit(rows);
   const sideRows = sortBanzukeScanRows(
-    rows.flatMap(row => ["east", "west"].map(side => ({ row, side })))
+    rows.flatMap(row => ["east", "west"].map(side => ({
+      row,
+      side,
+      ratingsFit: ratingsFit.get(row[`${side}_rikishi_id`]),
+    })))
       .filter(item => item.row[`${item.side}_rikishi_id`]),
     columns,
     sortState
@@ -113,7 +135,7 @@ function renderBanzukeScanTable(artifact, rows, state) {
     '<table class="artifact-table banzuke-changes-table">',
     renderBanzukeScanHead(visiblePaths, columns, sortState, boundaries),
     '<tbody>',
-    ...sideRows.map(({ row, side }, index) => [
+    ...sideRows.map(({ row, side, ratingsFit: rowRatingsFit }, index) => [
       '<tr>',
       ...columns.map(column => renderBanzukeScanCell(
         row,
@@ -121,6 +143,7 @@ function renderBanzukeScanTable(artifact, rows, state) {
         column,
         index,
         boundaries.position(column.path),
+        rowRatingsFit,
       )),
       '</tr>',
     ].join("")),
@@ -167,20 +190,59 @@ function renderBanzukeScanHeadingCell(cell, column, sortState, boundaries) {
   return renderTableHeading(column, sortState, attributes.join(" "));
 }
 
+function renderBanzukeStyleSecondHeadingRow(columns) {
+  if (!columns.some(isBanzukeStyleGroupedColumn)) {
+    return columns.map(column => renderBanzukeStyleHeadingCell(column));
+  }
+  const rendered = [];
+  const renderedGroups = new Set();
+  for (const column of columns) {
+    if (isBanzukeStyleGroupedColumn(column)) {
+      if (!renderedGroups.has(column.heading_group)) {
+        const groupColumns = columns.filter(
+          candidate => candidate.heading_group === column.heading_group
+        );
+        rendered.push(
+          `<th colspan="${groupColumns.length}" data-column-id="${escapeHtml(column.heading_group)}">`
+          + escapeHtml(column.heading_group_label)
+          + '</th>'
+        );
+        renderedGroups.add(column.heading_group);
+      }
+      continue;
+    }
+    const attributes = banzukeCellAttributeParts(column);
+    rendered.push(
+      `<th rowspan="2" ${attributes.join(" ")}>`
+      + renderLabelWithHelp(column.heading, column.help, { noteId: column.note_id })
+      + '</th>'
+    );
+  }
+  return rendered;
+}
+
+function isBanzukeStyleGroupedColumn(column) {
+  return Boolean(column.heading_group);
+}
+
 function banzukeSideColumns(side, state) {
   const identity = { id: "shikona", heading: "Shikona", help: "Rikishi fighting name.", side };
   const delta = { id: "delta", heading: "ΔBz", help: "Banzuke movement. See Notes.", note_id: "note_delta", side, align: "right" };
-  const columns = [];
+  const ratingsFit = [
+    { id: "delta_chii", heading: "ΔChii", help: "Difference between official and Elo-89 order. See Notes.", note_id: "note_delta_chii", side, align: "right", heading_group: "ratings_fit", heading_group_label: "Ratings Fit" },
+    { id: "nu_chii", heading: "νChii", help: "Official slot assigned by Elo-89 order. See Notes.", note_id: "note_nu_chii", side, heading_group: "ratings_fit", heading_group_label: "Ratings Fit" },
+  ];
+  const columns = state.ratings_fit ? [...ratingsFit] : [];
 
   if (state.rating) columns.push({ id: "rating", heading: "Elo-89", help: "Model rating. See Ratings & Models.", side, align: "right" });
   if (state.context) {
-    columns.push({ id: "old_chii", heading: "Previous Chii", side });
-    columns.push({ id: "result", heading: "Result", help: "Result movement means rank-group movement. See Notes.", note_id: "note_result", side });
+    columns.push({ id: "old_chii", heading: "Chii", side, heading_group: "previous_basho", heading_group_label: "Previous Basho" });
+    columns.push({ id: "result", heading: "Result", help: "Result movement means rank-group movement. See Notes.", note_id: "note_result", side, heading_group: "previous_basho", heading_group_label: "Previous Basho" });
   }
   columns.push(delta);
+  columns.push(identity);
 
-  if (side === "east") return [...columns, identity];
-  return [identity, ...columns.reverse()];
+  return side === "east" ? columns : [...columns].reverse();
 }
 
 function banzukeScanColumns(state) {
@@ -194,6 +256,10 @@ function banzukeScanVisiblePaths(state) {
     paths.add("previous_basho.result");
     paths.add("previous_basho.old_chii");
   }
+  if (state.ratings_fit) {
+    paths.add("ratings_fit.delta_chii");
+    paths.add("ratings_fit.nu_chii");
+  }
   return paths;
 }
 
@@ -205,18 +271,18 @@ function renderBanzukeStyleRowNumberCell(index) {
   return `<td ${banzukeGroupAttributes("row_number", "only", "right")}>${escapeHtml(String(index + 1))}</td>`;
 }
 
-function renderBanzukeSideCell(row, column, groupPosition = "") {
+function renderBanzukeSideCell(row, column, groupPosition = "", ratingsFit = new Map()) {
   const rikishiId = row[`${column.side}_rikishi_id`];
   const attributes = banzukeCellAttributes(column, groupPosition);
   if (!rikishiId) return `<td${attributes}></td>`;
-  return `<td${attributes}>${banzukeSideValue(row, column.side, column.id)}</td>`;
+  return `<td${attributes}>${banzukeSideValue(row, column.side, column.id, ratingsFit.get(rikishiId))}</td>`;
 }
 
-function renderBanzukeScanCell(row, side, column, index, groupPosition = "") {
+function renderBanzukeScanCell(row, side, column, index, groupPosition = "", ratingsFit = null) {
   if (column.id === "row_number") {
     return `<td${banzukeCellAttributes(column, groupPosition)}>${escapeHtml(String(index + 1))}</td>`;
   }
-  return `<td${banzukeCellAttributes(column, groupPosition)}>${banzukeSideValue(row, side, column.id)}</td>`;
+  return `<td${banzukeCellAttributes(column, groupPosition)}>${banzukeSideValue(row, side, column.id, ratingsFit)}</td>`;
 }
 
 function currentBanzukeScanSortState(artifact, columns) {
@@ -246,12 +312,14 @@ function sortBanzukeScanRows(rows, columns, sortState) {
 }
 
 function banzukeScanSortValue(column, item) {
-  const { row, side } = item;
+  const { row, side, ratingsFit } = item;
   if (column.id === "row_number") return null;
   if (column.id === "chii") return banzukeChiiOrdinal(row.bz_chii, side);
   if (column.id === "old_chii") return banzukeChiiOrdinal(row[`${side}_old_chii`], side);
   if (column.id === "result") return recordWins(row[`${side}_result`]);
   if (column.id === "shikona") return row[`${side}_shikona`] || "";
+  if (column.id === "delta_chii") return ratingsFit?.signedError ?? null;
+  if (column.id === "nu_chii") return ratingsFit?.nuChiiOrdinal ?? null;
   if (column.id === "delta" || column.id === "rating") {
     const number = Number(row[`${side}_${column.id}`]);
     return Number.isNaN(number) ? null : number;
@@ -327,6 +395,52 @@ function banzukeDeltaHtml(value) {
   return `<span class="banzuke-inline-arrow">${match[1]}</span> ${escapeHtml(match[2])}`;
 }
 
+function buildBanzukeRatingsFit(rows) {
+  const candidates = rows.flatMap(row => ["east", "west"].map(side => {
+    const rikishiId = row[`${side}_rikishi_id`];
+    const chii = row[`${side}_chii`];
+    const ratingText = String(row[`${side}_rating`] ?? "").trim();
+    const rating = Number(ratingText);
+    const chiiOrdinal = banzukeChiiOrdinal(chii, side);
+    if (!rikishiId || !ratingText || Number.isNaN(rating) || chiiOrdinal === null) {
+      return null;
+    }
+    return { rikishiId, chii, chiiOrdinal, rating };
+  })).filter(Boolean);
+
+  const byBanzuke = [...candidates].sort((left, right) =>
+    left.chiiOrdinal - right.chiiOrdinal || left.rating - right.rating
+  );
+  const byRating = [...candidates].sort((left, right) =>
+    right.rating - left.rating || left.chiiOrdinal - right.chiiOrdinal
+  );
+  const banzukePositions = new Map();
+  const ratingPositions = new Map();
+  byBanzuke.forEach((item, index) => banzukePositions.set(item.rikishiId, index + 1));
+  byRating.forEach((item, index) => ratingPositions.set(item.rikishiId, index + 1));
+
+  const values = new Map();
+  for (const item of candidates) {
+    const banzukePosition = banzukePositions.get(item.rikishiId);
+    const ratingPosition = ratingPositions.get(item.rikishiId);
+    const nuChiiSlot = byBanzuke[ratingPosition - 1];
+    values.set(item.rikishiId, {
+      signedError: banzukePosition - ratingPosition,
+      nuChii: nuChiiSlot.chii,
+      nuChiiOrdinal: nuChiiSlot.chiiOrdinal,
+    });
+  }
+  return values;
+}
+
+function ratingsFitErrorHtml(signedError) {
+  if (signedError === null || signedError === undefined || signedError === 0) {
+    return "";
+  }
+  const signedText = signedError > 0 ? `+${signedError}` : String(signedError);
+  return banzukeDeltaHtml(signedText);
+}
+
 function banzukeResultHtml(result, movement) {
   const resultText = String(result ?? "");
   const movementText = String(movement ?? "");
@@ -335,7 +449,7 @@ function banzukeResultHtml(result, movement) {
   return `${escapeHtml(resultText)}${separator}<span class="banzuke-inline-arrow">${escapeHtml(movementText)}</span>`;
 }
 
-function banzukeSideValue(row, side, columnId) {
+function banzukeSideValue(row, side, columnId, ratingsFit = null) {
   if (columnId === "chii") return escapeHtml(row[`${side}_chii`]);
   if (columnId === "shikona") {
     return annotatedShikona(
@@ -358,6 +472,12 @@ function banzukeSideValue(row, side, columnId) {
   if (columnId === "delta") {
     return banzukeDeltaHtml(row[`${side}_delta`]);
   }
+  if (columnId === "delta_chii") {
+    return ratingsFitErrorHtml(ratingsFit?.signedError);
+  }
+  if (columnId === "nu_chii") {
+    return escapeHtml(ratingsFit?.nuChii || "");
+  }
   return escapeHtml(row[`${side}_${columnId}`]);
 }
 
@@ -368,6 +488,7 @@ export {
   renderBanzukeScanTable,
   renderBanzukeScanHead,
   renderBanzukeScanHeadingCell,
+  renderBanzukeStyleSecondHeadingRow,
   banzukeSideColumns,
   banzukeScanColumns,
   banzukeScanVisiblePaths,
@@ -386,6 +507,8 @@ export {
   banzukeGroupPosition,
   banzukeDeltaDisplay,
   banzukeDeltaHtml,
+  buildBanzukeRatingsFit,
+  ratingsFitErrorHtml,
   banzukeResultHtml,
   banzukeSideValue,
 };
