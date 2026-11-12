@@ -22,7 +22,7 @@ import {
 const BANZUKE_SCAN_TABLE_SPEC = [
   { key: "row_number", ...banzukeRowNumberColumn() },
   { key: "chii", id: "chii", label: "Chii", heading: "Chii", sort_kind: "chii_ordinal" },
-  { key: "shikona", id: "shikona", label: "Shikona", heading: "Shikona", help: "Rikishi fighting name.", sort_kind: "text" },
+  { key: "shikona", id: "shikona", label: "Shikona", heading: "Shikona", help: "Rikishi fighting name. See Notes.", note_id: "note_annotations", sort_kind: "text" },
   { key: "delta", id: "delta", label: "ΔBz", heading: "ΔBz", help: "Banzuke movement. See Notes.", note_id: "note_delta", sort_kind: "numeric", align: "right" },
   { key: "rating", id: "rating", label: "Elo-89", heading: "Elo-89", help: "Model rating at the start of this basho. See Ratings & Models.", sort_kind: "numeric", align: "right" },
   {
@@ -226,7 +226,7 @@ function isBanzukeStyleGroupedColumn(column) {
 }
 
 function banzukeSideColumns(side, state) {
-  const identity = { id: "shikona", heading: "Shikona", help: "Rikishi fighting name.", side };
+  const identity = { id: "shikona", heading: "Shikona", help: "Rikishi fighting name. See Notes.", note_id: "note_annotations", side };
   const delta = { id: "delta", heading: "ΔBz", help: "Banzuke movement. See Notes.", note_id: "note_delta", side, align: "right" };
   const ratingsFit = [
     { id: "delta_chii", heading: "ΔChii", help: "Difference between official and Elo-89 order. See Notes.", note_id: "note_delta_chii", side, align: "right", heading_group: "ratings_fit", heading_group_label: "Ratings Fit" },
@@ -239,7 +239,7 @@ function banzukeSideColumns(side, state) {
     columns.push({ id: "old_chii", heading: "Chii", side, heading_group: "previous_basho", heading_group_label: "Previous Basho" });
     columns.push({ id: "result", heading: "Result", help: "Result movement means rank-group movement. See Notes.", note_id: "note_result", side, heading_group: "previous_basho", heading_group_label: "Previous Basho" });
   }
-  columns.push(delta);
+  if (state.delta_bz) columns.push(delta);
   columns.push(identity);
 
   return side === "east" ? columns : [...columns].reverse();
@@ -250,7 +250,8 @@ function banzukeScanColumns(state) {
 }
 
 function banzukeScanVisiblePaths(state) {
-  const paths = new Set(["row_number", "chii", "shikona", "delta"]);
+  const paths = new Set(["row_number", "chii", "shikona"]);
+  if (state.delta_bz) paths.add("delta");
   if (state.rating) paths.add("rating");
   if (state.context) {
     paths.add("previous_basho.result");

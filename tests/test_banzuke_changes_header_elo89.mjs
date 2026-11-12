@@ -19,8 +19,8 @@ function tableHead(html) {
   return html.match(/<thead>[\s\S]*?<\/thead>/)?.[0] || "";
 }
 
-test("Elo-89 follows the always-visible ΔBz column in scan view", () => {
-  const state = { context: false, rating: true };
+test("Elo-89 follows the selected ΔBz column in scan view", () => {
+  const state = { context: false, rating: true, delta_bz: true };
   const head = tableHead(renderBanzukeScanTable(artifact, [], state));
 
   assert.deepEqual(
@@ -30,6 +30,25 @@ test("Elo-89 follows the always-visible ΔBz column in scan view", () => {
   assert.match(head, /data-column-path="delta"[^>]*>.*ΔBz/);
   assert.doesNotMatch(head, /Previous Basho/);
   assert.equal((head.match(/<tr>/g) || []).length, 1);
+});
+
+test("ΔBz is hidden by default in both banzuke layouts", () => {
+  const state = { context: false, rating: false, ratings_fit: false, delta_bz: false };
+  assert.deepEqual(
+    banzukeScanColumns(state).map(column => column.id),
+    ["row_number", "chii", "shikona"],
+  );
+  assert.doesNotMatch(tableHead(renderBanzukeStyleTable([], state)), /ΔBz/);
+});
+
+test("Shikona headings link their help to the annotation Note", () => {
+  const state = { context: false, rating: false, ratings_fit: false, delta_bz: false };
+  const scanHead = tableHead(renderBanzukeScanTable(artifact, [], state));
+  const banzukeHead = tableHead(renderBanzukeStyleTable([], state));
+
+  assert.equal((scanHead.match(/data-note-id="note_annotations"/g) || []).length, 1);
+  assert.equal((banzukeHead.match(/data-note-id="note_annotations"/g) || []).length, 2);
+  assert.match(scanHead, /Rikishi fighting name\. See Notes\./);
 });
 
 test("Previous Basho contains only Chii and Result after ΔBz moves out", () => {
@@ -52,6 +71,7 @@ test("banzuke style replaces each direction column with ΔBz", () => {
   const head = tableHead(renderBanzukeStyleTable([], {
     context: false,
     rating: true,
+    delta_bz: true,
   }));
 
   assert.equal((head.match(/data-column-id="delta"/g) || []).length, 2);
@@ -84,7 +104,7 @@ test("Result movement arrows use the aligned inline-arrow treatment", () => {
 });
 
 test("Ratings Fit is the final scan-table group", () => {
-  const state = { context: true, rating: true, ratings_fit: true };
+  const state = { context: true, rating: true, ratings_fit: true, delta_bz: true };
   assert.deepEqual(
     banzukeScanColumns(state).map(column => column.id),
     [
@@ -101,7 +121,7 @@ test("Ratings Fit is the final scan-table group", () => {
 });
 
 test("Banzuke Style mirrors Ratings Fit and Previous Basho subcolumns", () => {
-  const state = { context: true, rating: true, ratings_fit: true };
+  const state = { context: true, rating: true, ratings_fit: true, delta_bz: true };
   assert.deepEqual(
     banzukeSideColumns("east", state).map(column => column.id),
     [

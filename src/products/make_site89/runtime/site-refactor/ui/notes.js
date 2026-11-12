@@ -107,6 +107,7 @@ function noteApplies(note, state) {
   if (applies.includes("previous_basho")) return Boolean(state.previous_context);
   if (applies.includes("rating_context")) return Boolean(state.rating_context);
   if (applies.includes("ratings_fit")) return Boolean(state.ratings_fit);
+  if (applies.includes("delta_bz")) return Boolean(state.delta_bz);
   if (applies.includes("context")) return Boolean(state.context);
   if (applies.includes("rating")) return Boolean(state.rating);
   if (applies.includes("banzuke_style")) return Boolean(state.banzuke_style);

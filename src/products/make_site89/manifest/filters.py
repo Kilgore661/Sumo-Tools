@@ -156,6 +156,14 @@ BANZUKE_CHANGES_FILTERS = (
         url_key="ratings_fit",
         help="Compare official banzuke order with Elo-89 order.",
     ),
+    Filter(
+        id="delta_bz",
+        label="ΔBz",
+        control="checkbox",
+        default=False,
+        url_key="delta_bz",
+        help="Show movement from the previous banzuke. See Notes.",
+    ),
     Filter(id="banzuke_style", label="Banzuke Style", control="checkbox", default=True, url_key="banzuke_style"),
 )
 
