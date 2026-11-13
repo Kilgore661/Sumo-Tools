@@ -1,4 +1,5 @@
 import json, os
+from datetime import date
 from enum import Enum
 from typing import Any, Dict, Type, List
 from zipfile import ZipFile, ZIP_DEFLATED
@@ -127,6 +128,11 @@ class SumoSerialiser(BaseSerialiser):
     def _serialise_daily_results(cls, daily: DailyResults) -> Dict:
         return {
             "torikumi": list(daily.torikumi),
+            "calendar_date": (
+                daily.calendar_date.isoformat()
+                if daily.calendar_date is not None
+                else None
+            ),
             "results_lookup": {
                 f"{k[0]},{k[1]}": cls._serialise_bout_result(v)
                 for k, v in daily.results_lookup.items()
@@ -152,7 +158,12 @@ class SumoSerialiser(BaseSerialiser):
         
         return DailyResults(
             torikumi=Torikumi([Pair(RikId(x[0]), RikId(x[1])) for x in data["torikumi"]]),
-            results_lookup=results_lookup
+            results_lookup=results_lookup,
+            calendar_date=(
+                date.fromisoformat(data["calendar_date"])
+                if data.get("calendar_date")
+                else None
+            ),
         )
 
     @classmethod

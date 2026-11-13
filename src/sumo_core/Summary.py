@@ -1,4 +1,5 @@
 from typing import Union, Literal
+from datetime import date
 from dataclasses import dataclass
 from .BasicPrimitives import Day, Torikumi, Pair, RikId, Pair
 from .BasicEnums import Outcome, Symbol
@@ -117,6 +118,7 @@ class DailyResults:
     A DailyResults consists of:
     - torikumi       : the set of scheduled bouts
     - results_lookup : a partial function from Pair to BoutResult
+    - calendar_date  : the exact civil date of this basho day, when preserved
 
     This class intentionally performs no internal validation.
     In the established model, the relevant consistency constraints are enforced
@@ -126,6 +128,7 @@ class DailyResults:
 
     torikumi: Torikumi
     results_lookup: ResultLookup
+    calendar_date: date | None = None
 ################################################################################
 
 class Summary(dict):

@@ -10,6 +10,7 @@ from ...sumo_core.Kimarite import Kimarite
 from ...sumo_core.BasicPrimitives import RikId, Day, Torikumi
 from .parser_warning_logger import logger
 from .parser2_utils import RESULTS_DIR
+from .basho_calendar import parse_daily_calendar_date
 
 def _parse_bout_kimarite( kimarite_str: str) -> Union[Kimarite, Literal["fusen"], Literal["blank"]]:
     """Convert kimarite string from source to proper enum value"""
@@ -66,6 +67,8 @@ def _parse_daily_results( year: int, month: int, day: Day,
     header_match = header_pat.fullmatch(text)
     if not header_match:
         return None
+    parsed_calendar_date = parse_daily_calendar_date(text)
+    calendar_date = None if parsed_calendar_date is None else parsed_calendar_date[1]
     
     text = header_match.group(7)  # Rest of text after header
 
@@ -235,7 +238,8 @@ def _parse_daily_results( year: int, month: int, day: Day,
         try:
             return DailyResults(
                 torikumi=torikumi,
-                results_lookup=results_lookup
+                results_lookup=results_lookup,
+                calendar_date=calendar_date,
             )
         except (ValueError, TypeError) as e:
             print(f"Error creating daily results for {year}/{month}/{day}: {e}")
