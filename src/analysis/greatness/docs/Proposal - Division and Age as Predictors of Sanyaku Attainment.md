@@ -233,19 +233,33 @@ san'yaku appearances are not additional successes.
 ### Failure
 
 The rikishi is known to have retired without subsequently reaching san'yaku.
-Use parsed `Intai` evidence where available. A disappearance from a banzuke by
-itself must not automatically be treated as retirement.
+Use parsed `Intai` evidence where available. Otherwise, at the analysis cutoff,
+absence from both the formal History banzuke and the dated career rows on the
+downloaded rikishi page is retirement evidence. Absence from formal History
+alone is insufficient because Maezumo and non-ranking status rows are omitted
+from History.
 
 ### Right-censored
 
 The rikishi has not subsequently reached san'yaku and his career remains active
-at the History cutoff. He has not failed; the outcome is not known yet.
+at the History cutoff. Activity means either a formal rank in History or a
+cutoff career row with `Mz`, `Bg`, `Kg`, or `Sj`. He has not failed; the outcome
+is not known yet.
 
 ### Unknown
 
-The rikishi has no later san'yaku event, is not demonstrably active at the
-cutoff, and lacks reliable retirement evidence. Unknown cases must remain
+The rikishi has no later san'yaku event and the cutoff lifecycle evidence is
+missing, invalid, unrecognised, or contradictory. Unknown cases must remain
 separate from both failures and right-censored active careers.
+
+This two-source rule is grounded in the rating-persistence census. Among 437
+post-1988 gap/return events, 436 were Jonokuchi-to-unranked-to-Jonokuchi and 424
+had an explicit Maezumo row; Sokokurai was the sole substantively different
+modern return. The career-page status row therefore resolves the apparent
+retirements caused by History's deliberate exclusion of Maezumo without making
+formal-banzuke presence the sole test of activity. The shared parser lives in
+`infra.get_bios.career_rows`; a future first-class career-status structure would
+be a cleaner ownership boundary than rereading cached HTML in this analysis.
 
 ## Probability reporting
 
@@ -296,6 +310,7 @@ Produce one auditable row per qualifying observation with at least:
 | `first_sanyaku_basho` | Event basho, blank if none observed |
 | `first_sanyaku_chii` | First san'yaku chii, blank if none observed |
 | `outcome` | `success`, `failure`, `right_censored`, or `unknown` |
+| `outcome_evidence` | Exact lifecycle rule or source status supporting `outcome` |
 | `follow_up_basho` | Represented basho from observation to event/cutoff |
 | `intai` | Parsed retirement basho when available |
 
@@ -384,7 +399,8 @@ than independently reproducing the boundary rule.
 - locate first later san'yaku appearance;
 - distinguish success, known failure, right-censored, and unknown;
 - retain event, retirement, cutoff, and follow-up evidence;
-- avoid treating disappearance alone as retirement.
+- combine formal History presence with the cutoff career-page status so that
+  unranked-but-active rikishi are not treated as retired.
 
 ### `probabilities.py`
 
@@ -695,13 +711,8 @@ foreign recruitment should be added only when the source data supports them
 reliably. Entry-route groups would need their own persisted provenance and
 audit counts rather than being inferred silently from age.
 
-Another possible presentation is a chart of an individual rikishi's historical
-cohort prognosis over time. A state-probability step line could change whenever
-his completed age or division changes, with debut-probability markers at first
-division appearances, and stop at first san'yaku attainment, retirement, or the
-history cutoff. Such a chart must be described as the trajectory of matched
-age-and-division cohort probabilities, not as a personalised ability model or
-as probabilities that were necessarily available contemporaneously.
+Career charts based on division, rank number, and age are now specified and
+implemented in `Proposal - Career Sanyaku Prospect Charts.md`.
 
 Possible later extensions, only if justified by a specific question, include:
 
@@ -709,10 +720,8 @@ Possible later extensions, only if justified by a specific question, include:
   reaching Sekiwake;
 - entry route as a cohort parameter, including ordinary progression,
   tsukedashi/direct entry, and first arrival from above;
-- per-rikishi charts showing how matched cohort prospects change with age and
-  division over time;
 - division tenure as an additional predictor;
-- exact Maegashira number or broader chii bands;
+- alternative rank pooling or broader chii bands;
 - era-stratified estimates;
 - competing-risk modelling and uncertainty intervals;
 - arbitrary destination divisions or rank groups.

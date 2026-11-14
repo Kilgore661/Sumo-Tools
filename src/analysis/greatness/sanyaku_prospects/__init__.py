@@ -1,5 +1,6 @@
-"""Prospective san'yaku probabilities from division-and-age cohorts."""
+"""Prospective san'yaku probabilities and rank-state career charts."""
 
 from .producer import produce
+from .cached_charts import render_cached_career_charts
 
-__all__ = ["produce"]
+__all__ = ["produce", "render_cached_career_charts"]

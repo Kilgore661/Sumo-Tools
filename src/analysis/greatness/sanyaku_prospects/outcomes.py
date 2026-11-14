@@ -4,6 +4,7 @@ from src.infra.get_bios.api import BioStore, BioBashoDate
 from src.sumo_core.History import History
 
 from .cohorts import PendingObservation
+from .lifecycle import classify_non_success_outcome
 from .model import CohortObservation, Population
 
 
@@ -14,6 +15,7 @@ def classify_observations(
     bios: BioStore,
     population: Population,
     coverage,
+    cutoff_statuses,
 ) -> tuple[CohortObservation, ...]:
     latest_ids = history[population.cutoff].banzuke.riks
     cutoff_bio = BioBashoDate.from_history_date(population.cutoff)
@@ -22,17 +24,19 @@ def classify_observations(
         event = first_sanyaku.get(item.rikishi_id)
         if event is not None and event[0] > item.basho_index:
             outcome = "success"
+            outcome_evidence = "later_sanyaku"
             follow_up = event[0] - item.basho_index
             event_basho = population.dates[event[0]]
             event_chii = str(event[1])
         else:
             bio = bios[item.rikishi_id]
-            if bio.intai is not None and bio.intai <= cutoff_bio:
-                outcome = "failure"
-            elif item.rikishi_id in latest_ids:
-                outcome = "right_censored"
-            else:
-                outcome = "unknown"
+            outcome, outcome_evidence = classify_non_success_outcome(
+                item.rikishi_id,
+                bio=bio,
+                latest_ids=latest_ids,
+                cutoff_bio=cutoff_bio,
+                cutoff_statuses=cutoff_statuses,
+            )
             follow_up = len(population.dates) - 1 - item.basho_index
             event_basho = ""
             event_chii = ""
@@ -54,6 +58,7 @@ def classify_observations(
                 first_sanyaku_basho=str(event_basho),
                 first_sanyaku_chii=event_chii,
                 outcome=outcome,
+                outcome_evidence=outcome_evidence,
                 follow_up_basho=follow_up,
                 intai="" if bio.intai is None else str(bio.intai),
             )

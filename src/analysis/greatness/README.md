@@ -24,8 +24,12 @@ for the debut result.
 Run it with:
 
 ```powershell
-python -m src.analysis.greatness.sanyaku_prospects
+python -m src.analysis.greatness.sanyaku_prospects --rebuild
 ```
+
+`--rebuild` performs the complete historical calculation and is intentionally
+opt-in. Without it, the CLI renders requested charts from the existing
+rank-state CSV bundle and does not load History or recompute probabilities.
 
 The default run uses the live History, parsed bios, downloaded daily-result
 pages, the first represented basho as the supporting boundary, and writes to:
@@ -35,9 +39,10 @@ files/output/analysis/greatness/sanyaku_prospects
 ```
 
 The output bundle contains atomic cohort observations, debut and state
-probabilities, population and exclusion audits, exact basho-date coverage,
-outcome counts, and a manifest. Ages are completed years on the exact civil
-date of Day 1 parsed from the downloaded results pages.
+probabilities, basho-level rank-state observations and probabilities,
+population and exclusion audits, exact basho-date coverage, outcome counts,
+and a manifest. Ages are completed years on the exact civil date of Day 1
+parsed from the downloaded results pages.
 
 ### Exact-age date provenance
 
@@ -62,7 +67,13 @@ and archived histories predate the field and have not yet been rebuilt with it.
 
 San'yaku means Komusubi, Sekiwake, Ozeki, or Yokozuna. `M` means Maegashira
 only. Known retirement without later san'yaku is failure; active careers are
-right-censored; unresolved disappearances remain unknown.
+right-censored. Activity at the cutoff is checked in both ranked History and
+the dated career rows on the downloaded rikishi page. This matters because
+Maezumo (`Mz`) and the non-ranking statuses `Bg`, `Kg`, and `Sj` are not formal
+banzuke positions and therefore do not appear in History. A rikishi absent
+from both sources at the cutoff is treated as retired. Missing, invalid,
+unrecognised, or contradictory source evidence remains `unknown`, and the
+atomic CSV records the exact `outcome_evidence` used.
 
 The adopted minimal notion of greatness is reaching san'yaku at least once.
 Only first attainment matters: later returns to san'yaku do not create further
@@ -96,22 +107,50 @@ successive divisions. The current calculation also does not classify whether
 a first appearance was reached from below, by direct entry, or from above.
 Entry route is a possible future cohort axis, not part of the present output.
 
-### Future work
+### Career prospect charts
 
-Two natural extensions have been identified but are not part of the current
-producer:
+The same producer can render a rikishi's whole pre-san'yaku career as a Plotly
+HTML chart. Supply one or more IDs:
 
-- stratify debut probability by entry route where the data can support a
-  reliable classification; and
-- chart an individual rikishi's matched state probability over time as his age
-  or division changes, with debut-probability markers at first division
-  appearances.
+```powershell
+python -m src.analysis.greatness.sanyaku_prospects `
+  --chart-rikishi-id 12320 `
+  --chart-rikishi-id 12226
+```
 
-The latter would show the trajectory of historical age-and-division cohort
-prospects, not a personalised model of the rikishi's ability.
+This fast path requires an existing bundle produced by at least one
+`--rebuild`. To refresh the underlying analysis and produce charts in the same
+run, combine the options:
 
-The full specification and caveats are in
-`docs/Proposal - Division and Age as Predictors of Sanyaku Attainment.md`.
+```powershell
+python -m src.analysis.greatness.sanyaku_prospects --rebuild `
+  --chart-rikishi-id 12320
+```
+
+Each pre-san'yaku banzuke appearance supplies one point at the rikishi's exact
+age. Its probability
+is selected by division, rank number, and completed age; east and west are
+pooled. First san'yaku attainment adds a terminal 100% point with a special
+marker. A career without san'yaku simply ends without an artificial 0% point.
+The proportion counts each rikishi once within a rank-age cell, while the raw
+banzuke-observation count is retained separately. The HTML uses pinned CDN
+Plotly and retains basho date, rank, completed age, unique cohort counts, and
+observation count in hover data. The title states the question directly: the
+historical probability of eventually attaining san'yaku, given rank and age.
+
+Support is measured by unique resolved rikishi. Points with 20 or more are
+solid green, 10--19 are solid amber for low support, and 1--9 are solid red for
+very low support. A cell with no resolved rikishi remains a gap. These are
+presentation categories, not formal confidence intervals.
+
+These charts show trajectories of historical matched-cohort proportions,
+not personalised ability models or estimates necessarily available at the
+time. Formal uncertainty intervals remain deferred.
+
+The specifications and caveats are in:
+
+- `docs/Proposal - Division and Age as Predictors of Sanyaku Attainment.md`;
+- `docs/Proposal - Career Sanyaku Prospect Charts.md`.
 
 ## Exploratory modules
 

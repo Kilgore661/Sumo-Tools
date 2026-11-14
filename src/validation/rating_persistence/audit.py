@@ -8,7 +8,6 @@ from collections import Counter, defaultdict
 from dataclasses import asdict, dataclass
 from datetime import datetime
 import hashlib
-from html import unescape
 import json
 from pathlib import Path
 import re
@@ -16,6 +15,7 @@ from time import perf_counter
 from typing import Iterable
 
 from src.infra.live_store.api import get_history, published_name_file
+from src.infra.get_bios.career_rows import CareerRow, parse_career_rows
 from src.infra.persistence.annotated_serialiser import load_history_with_annotations
 from src.sumo_core.BasicEnums import Division, MSD
 from src.sumo_core.BasicPrimitives import RikId
@@ -26,18 +26,6 @@ from src.validation.paths import RATING_PERSISTENCE_OUTPUT_ROOT
 
 DEFAULT_RIKISHI_PAGES = Path("files/output/infra/get_bios/rikishi")
 DEFAULT_OUTPUT_ROOT = RATING_PERSISTENCE_OUTPUT_ROOT / "output"
-
-ROW_PATTERN = re.compile(r"<tr>\s*(.*?)\s*</tr>", re.DOTALL | re.IGNORECASE)
-BASHO_PATTERN = re.compile(r"Banzuke\.aspx\?b=(\d{6})", re.IGNORECASE)
-CELL_PATTERN = re.compile(r"<td\b[^>]*>(.*?)</td>", re.DOTALL | re.IGNORECASE)
-TAG_PATTERN = re.compile(r"<[^>]+>")
-
-
-@dataclass(frozen=True, slots=True)
-class CareerRow:
-    date: Date
-    status: str
-
 
 @dataclass(frozen=True, slots=True)
 class GapEvent:
@@ -194,34 +182,6 @@ def census_gap_events(
         ),
         page_source,
     )
-
-
-def parse_career_rows(html: str, *, rikishi_id: int) -> tuple[CareerRow, ...]:
-    """Parse the date and rank/status cell from each SumoDB career row."""
-
-    result: list[CareerRow] = []
-    seen: set[Date] = set()
-    for row_match in ROW_PATTERN.finditer(html):
-        row_html = row_match.group(1)
-        date_match = BASHO_PATTERN.search(row_html)
-        if date_match is None:
-            continue
-        cells = CELL_PATTERN.findall(row_html)
-        if len(cells) < 2:
-            raise ValueError(
-                f"Rikishi {rikishi_id} career row {date_match.group(1)} "
-                "has fewer than two cells"
-            )
-        raw_date = date_match.group(1)
-        date = Date.from_ints(int(raw_date[:4]), int(raw_date[4:]))
-        if date in seen:
-            raise ValueError(f"Rikishi {rikishi_id} has duplicate career row {date}")
-        seen.add(date)
-        status = _cell_text(cells[1]) or "??"
-        result.append(CareerRow(date=date, status=status))
-    if not result:
-        raise ValueError(f"Rikishi {rikishi_id} page has no dated career rows")
-    return tuple(sorted(result, key=lambda item: item.date))
 
 
 def write_outputs(
@@ -514,10 +474,6 @@ how often the current Elo-89 replay discards a previously informed rating and
 which kinds of careers are affected. It does not yet show whether persistence,
 reinitialisation, decay, or another rule predicts post-return bouts better.
 """
-
-
-def _cell_text(value: str) -> str:
-    return unescape(TAG_PATTERN.sub("", value)).replace("\xa0", " ").strip()
 
 
 def _division(chii: Chii) -> str:

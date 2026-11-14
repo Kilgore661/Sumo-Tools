@@ -6,7 +6,8 @@ from collections import Counter
 from dataclasses import asdict
 from pathlib import Path
 
-from .model import OutputPaths, Population
+from .career_charts import write_career_charts
+from .model import CareerChartPoint, OutputPaths, Population
 
 
 def write_bundle(
@@ -17,9 +18,13 @@ def write_bundle(
     observations,
     debut_probabilities,
     state_probabilities,
+    rank_state_observations,
+    rank_state_probabilities,
+    career_chart_points,
     source_manifest: dict[str, str],
 ) -> OutputPaths:
     output_root.mkdir(parents=True, exist_ok=True)
+    career_charts = write_career_charts(output_root / "career_charts", career_chart_points)
     paths = OutputPaths(
         root=output_root,
         population_summary=output_root / "population_summary.csv",
@@ -29,6 +34,10 @@ def write_bundle(
         outcome_summary=output_root / "outcome_summary.csv",
         debut_probabilities=output_root / "probability_by_division_debut_age.csv",
         state_probabilities=output_root / "probability_by_division_state_age.csv",
+        rank_state_observations=output_root / "rank_state_observations.csv",
+        rank_state_probabilities=output_root / "probability_by_rank_state_age.csv",
+        career_chart_points=output_root / "career_chart_points.csv",
+        career_charts=career_charts,
         manifest=output_root / "manifest.json",
     )
     exclusion_counts = Counter(row.reason for row in population.exclusions)
@@ -71,9 +80,16 @@ def write_bundle(
     _write_dicts(paths.outcome_summary, ("cohort_type", "outcome", "count"), outcome_rows)
     _write_dataclasses(paths.debut_probabilities, debut_probabilities)
     _write_dataclasses(paths.state_probabilities, state_probabilities)
+    _write_dataclasses(paths.rank_state_observations, rank_state_observations)
+    _write_dataclasses(paths.rank_state_probabilities, rank_state_probabilities)
+    _write_dicts(
+        paths.career_chart_points,
+        tuple(CareerChartPoint.__dataclass_fields__),
+        (asdict(row) for row in career_chart_points),
+    )
 
     manifest = {
-        "schema_version": 1,
+        "schema_version": 5,
         "analysis": "division and age as predictors of eventual sanyaku attainment",
         "sources": source_manifest,
         "epoch": str(population.epoch),
@@ -81,9 +97,39 @@ def write_bundle(
         "age_policy": "completed years on exact basho Day 1",
         "sanyaku": ["K", "S", "O", "Y"],
         "risk_divisions": ["M", "J", "Ms", "Sd", "Jd", "Jk"],
+        "rank_state_policy": "division plus rank number plus completed age; east/west and annotations pooled",
+        "rank_state_observation_unit": "one eligible pre-sanyaku banzuke appearance",
+        "rank_state_probability_unit": "one unique rikishi per division, rank number, and age cell",
+        "support_tiers_by_unique_resolved_rikishi": {
+            "supported": "20 or more",
+            "low": "10 to 19",
+            "very_low": "1 to 9",
+            "undefined": "0",
+        },
         "outcomes": ["success", "failure", "right_censored", "unknown"],
+        "lifecycle_policy": {
+            "failure": "later sanyaku absent and bio Intai present, or absent from both cutoff formal banzuke and cutoff career rows",
+            "right_censored": "present on cutoff formal banzuke or cutoff status is Mz, Bg, Kg, or Sj",
+            "unknown": "cutoff career page/status missing, invalid, unrecognised, or contradictory",
+        },
         "headline_counts": dict(summary),
-        "artifacts": [path.name for path in paths.__dict__.values() if isinstance(path, Path) and path != output_root and path.name != "manifest.json"],
+        "chart_rikishi_ids": sorted({row.rikishi_id for row in career_chart_points}),
+        "artifacts": [
+            path.relative_to(output_root).as_posix()
+            for path in (
+                paths.population_summary,
+                paths.population_exclusions,
+                paths.basho_date_coverage,
+                paths.cohort_observations,
+                paths.outcome_summary,
+                paths.debut_probabilities,
+                paths.state_probabilities,
+                paths.rank_state_observations,
+                paths.rank_state_probabilities,
+                paths.career_chart_points,
+                *paths.career_charts,
+            )
+        ],
     }
     paths.manifest.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     return paths
