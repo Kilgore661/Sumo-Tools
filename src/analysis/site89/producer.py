@@ -10,7 +10,9 @@ from typing import Callable
 
 from src.analysis.elo89 import Elo89Artifacts, produce_elo89
 from src.analysis.elo89.producer import DEFAULT_PRIOR
+from src.analysis.ages.average_age_by_division import produce_average_age_by_division
 from src.infra.get_bios.api import load_bio_store
+from src.infra.parser.parser2_utils import RESULTS_DIR
 from src.infra.new_banzuke.api import NewBanzuke
 from src.infra.torikumi import Future
 from src.sumo_core.History import History
@@ -41,6 +43,7 @@ def produce_site89_bundle(
     prior_path: Path = DEFAULT_PRIOR,
     future: Future | None = None,
     new_banzuke: NewBanzuke | None = None,
+    results_root: Path = Path(RESULTS_DIR),
     progress: Callable[[str], None] | None = None,
 ) -> Path:
     report = progress if progress is not None else lambda _message: None
@@ -92,6 +95,7 @@ def produce_site89_bundle(
             f"Torikumi snapshot {future.date} is stale relative to published "
             f"New Banzuke {new_banzuke.date}"
         )
+    bios = load_bio_store()
     artifacts = {
         # Keep these reports at artifact boundaries: some producers take long
         # enough that a silent build otherwise looks stalled.
@@ -158,17 +162,26 @@ def produce_site89_bundle(
         history=history,
         output_root=site_root / "current-sumo/standings-by-wins/data",
     )
+    report("Producing age analysis...")
+    artifacts["average_age_by_division"] = (
+        produce_average_age_by_division(
+            history=history,
+            bios=bios,
+            output_root=site_root / "age/average-age-by-division/data",
+            results_root=results_root,
+        ),
+    )
     report("Producing rikishi bio data...")
     artifacts["rikishi_bio_data"] = (
         produce_rikishi_bio_data(
             history=history,
-            bios=load_bio_store(),
+            bios=bios,
             output_root=site_root / "rikishi/bio-data/data",
         ),
     )
 
     expected = {
-        "banzuke_changes", "banzuke_division_by_era", "basho_results_browser",
+        "average_age_by_division", "banzuke_changes", "banzuke_division_by_era", "basho_results_browser",
         "career_comparisons", "career_length", "division_stability", "finish_by_chii",
         "first_chii_appearance", "highest_rating", "longest_careers",
         "fastest_risers",
@@ -182,6 +195,7 @@ def produce_site89_bundle(
     producer_names.update(
         {
             "banzuke_changes": "src.analysis.site89.banzuke_changes",
+            "average_age_by_division": "src.analysis.ages.average_age_by_division",
             "basho_results_browser": "src.analysis.site89.basho_results",
             "career_comparisons": "src.analysis.site89.career_comparisons",
             "highest_rating": "src.analysis.site89.highest_rating",

@@ -49,26 +49,65 @@ function stackedBarTraces(artifact, rowsBySource) {
 }
 
 // Convert grouped source rows into Plotly line traces.
-function groupedLineTraces(artifact, rowsBySource) {
+function groupedLineTraces(artifact, rowsBySource, state = {}) {
   const rows = chartRows(artifact, rowsBySource);
   const trace = groupedLineTraceSpec(artifact);
   const groups = chartGroupOrder(artifact, rows, trace);
   const defaultVisible = artifact.provenance.default_visible || [];
   return groups.map(group => {
     const groupRows = rows.filter(row => row[trace.group_by] === group);
-    return {
+    const plotlyTrace = {
       type: "scatter",
       mode: "lines",
       name: group,
       x: groupRows.map(row => dateLikeDisplay(row[trace.x])),
-      y: groupRows.map(row => Number(row[trace.y])),
-      visible: defaultVisible.length && !defaultVisible.includes(group) ? "legendonly" : true,
-      hovertemplate: groupedLineHoverTemplate(trace, artifact.provenance.hover_fields || []),
+      y: groupRows.map(row => numericOrNull(row[trace.y])),
+      visible: groupedLineTraceVisibility(group, defaultVisible, state.group_visibility),
+      hovertemplate: artifact.provenance.hover_template || groupedLineHoverTemplate(trace, artifact.provenance.hover_fields || []),
       customdata: groupRows.map(row =>
         (artifact.provenance.hover_fields || []).map(field => row[field])
       ),
     };
+    const errorFields = trace.error_y || [];
+    if (state.error_bars && errorFields.length === 2) {
+      const lower = errorFields[0];
+      const upper = errorFields[1];
+      const array = groupRows.map(row => positiveDifference(row[upper], row[trace.y]));
+      const arrayminus = groupRows.map(row => positiveDifference(row[trace.y], row[lower]));
+      plotlyTrace.error_y = {
+        type: "data",
+        symmetric: false,
+        array,
+        arrayminus,
+        visible: true,
+        color: "#d7e0ef",
+        thickness: 1.5,
+        width: 3,
+      };
+    }
+    return plotlyTrace;
   });
+}
+
+function positiveDifference(high, low) {
+  const highValue = Number(high);
+  const lowValue = Number(low);
+  return Number.isFinite(highValue) && Number.isFinite(lowValue)
+    ? Math.max(0, highValue - lowValue)
+    : 0;
+}
+
+function numericOrNull(value) {
+  if (value === null || value === undefined || String(value).trim() === "") return null;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+
+function groupedLineTraceVisibility(group, defaultVisible, savedVisibility = null) {
+  if (savedVisibility && Object.hasOwn(savedVisibility, group)) {
+    return savedVisibility[group] === true ? true : "legendonly";
+  }
+  return defaultVisible.length && !defaultVisible.includes(group) ? "legendonly" : true;
 }
 
 function orderedPointTrace(artifact, rowsBySource) {
@@ -166,4 +205,7 @@ export {
   groupedLineHoverTemplate,
   stackedBarGroupOrder,
   chartGroupOrder,
+  positiveDifference,
+  numericOrNull,
+  groupedLineTraceVisibility,
 };

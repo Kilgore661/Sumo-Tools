@@ -9,6 +9,7 @@ export {
   renderCategoryBarPlot,
   renderOrderedPointPlot,
   renderGroupedLinePlot,
+  groupedLineVisibility,
   renderStackedBarPlot,
 } from "./generic-renderers.js";
 
@@ -26,6 +27,7 @@ export {
   groupedLineHoverTemplate,
   stackedBarGroupOrder,
   chartGroupOrder,
+  groupedLineTraceVisibility,
 } from "./generic-traces.js";
 
 export {

@@ -491,3 +491,13 @@ WIN_PROBABILITY_BY_STANDING_FILTERS = (
         url_key="error_bars",
     ),
 )
+
+AVERAGE_AGE_BY_DIVISION_FILTERS = (
+    Filter(
+        id="error_bars",
+        label="Min & Max",
+        control="checkbox",
+        default=False,
+        url_key="error_bars",
+    ),
+)

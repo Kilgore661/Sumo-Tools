@@ -117,7 +117,7 @@ function renderOrderedPointPlot(artifact, rowsBySource) {
   );
 }
 
-function renderGroupedLinePlot(artifact, rowsBySource) {
+function renderGroupedLinePlot(artifact, rowsBySource, state = {}) {
   const host = document.getElementById(chartElementId(artifact));
   if (!host) return;
   if (!window.Plotly) {
@@ -126,10 +126,18 @@ function renderGroupedLinePlot(artifact, rowsBySource) {
   }
   Plotly.react(
     host,
-    groupedLineTraces(artifact, rowsBySource),
+    groupedLineTraces(artifact, rowsBySource, state),
     groupedChartLayout(artifact, rowsBySource),
     PLOTLY_CONFIG
   );
+}
+
+function groupedLineVisibility(host) {
+  if (!host?.data) return null;
+  return Object.fromEntries(host.data.map(trace => [
+    trace.name,
+    trace.visible === undefined || trace.visible === true,
+  ]));
 }
 
 function renderStackedBarPlot(artifact, rowsBySource) {
@@ -156,5 +164,6 @@ export {
   renderCategoryBarPlot,
   renderOrderedPointPlot,
   renderGroupedLinePlot,
+  groupedLineVisibility,
   renderStackedBarPlot,
 };

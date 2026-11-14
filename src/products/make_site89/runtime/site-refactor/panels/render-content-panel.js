@@ -4,7 +4,7 @@ import { contentPanel } from "../core/dom.js";
 import { getRuntimeManifest } from "../core/manifest-store.js";
 import { readFilterUrlState, writePanelUrl } from "../core/url-state.js";
 import { fetchCsv, fetchJson, fetchText } from "../data/http.js";
-import { renderCareerComparisonsChart, renderCareerComparisonsControls, renderCareerLengthArtifact, renderCareerLengthPlot, renderCategoryBarChart, renderCategoryBarPlot, renderFinishByChiiChart, renderFinishByChiiPlot, renderGroupedLineChart, renderGroupedLinePlot, renderOrderedPointChart, renderOrderedPointPlot, renderStackedBarChart, renderStackedBarPlot, renderStandingWinProbabilityChart, renderStandingWinProbabilityPlot, resolveCareerLengthView, resolveFilterValue, resolveSelectedDataSourceId, wireCareerComparisonsControls } from "../ui/charts.js";
+import { groupedLineVisibility, renderCareerComparisonsChart, renderCareerComparisonsControls, renderCareerLengthArtifact, renderCareerLengthPlot, renderCategoryBarChart, renderCategoryBarPlot, renderFinishByChiiChart, renderFinishByChiiPlot, renderGroupedLineChart, renderGroupedLinePlot, renderOrderedPointChart, renderOrderedPointPlot, renderStackedBarChart, renderStackedBarPlot, renderStandingWinProbabilityChart, renderStandingWinProbabilityPlot, resolveCareerLengthView, resolveFilterValue, resolveSelectedDataSourceId, wireCareerComparisonsControls } from "../ui/charts.js";
 import { buildBashoResultsPresentationModel, renderBashoResultsPresentationTable, wireBashoResultsPresentationSorting } from "../ui/basho-results-table.js";
 import { buildRatingChangesPresentationModel, renderRatingChangesPresentationTable, selectedRatingChangesEntry, wireRatingChangesPresentationSorting } from "../ui/rating-changes-table.js";
 import { filterValueLabel, monthLabel, renderFilterSection, resolveBanzukeChangesDivision, resolveBashoCalendarState, resolveFilterState, resolveSelectedDataValue, resolveSelectedDivision, resolveSelectedFilterValueFromSource, resolveStandingsDivision, resolveStandingsWindow, selectedIndexEntry, selectedStandingsSource, wireFilterSection } from "../ui/filters.js";
@@ -404,7 +404,7 @@ async function renderChartContentPanel(panel, artifact, overrideState = null) {
     return;
   }
   if (artifact.renderer === "grouped_line_chart") {
-    await renderGroupedLineChartContentPanel(panel, artifact);
+    await renderGroupedLineChartContentPanel(panel, artifact, overrideState);
     return;
   }
   if (artifact.renderer === "ordered_point_chart") {
@@ -581,23 +581,33 @@ async function renderStackedBarChartContentPanel(panel, artifact) {
   wireNotesPanel();
   wirePAPanelLayout();
 }
-async function renderGroupedLineChartContentPanel(panel, artifact) {
+async function renderGroupedLineChartContentPanel(panel, artifact, overrideState = null) {
+  const filters = panel.contents.filter_section?.filters || [];
+  const state = overrideState || resolveFilterState(filters, readFilterUrlState(filters));
   const rowsBySource = await fetchArtifactCsvSet(artifact);
+  writePanelUrl(panel.page_id, filters, state, { replace: true });
+  const contentBodyClass = filters.length ? "content-body" : "content-body content-body-no-filters";
   contentPanel.innerHTML = [
     '<section class="content-panel">',
     `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
     renderContentSummary(panel.heading.summary),
-    '<div class="content-body content-body-no-filters">',
+    `<div class="${contentBodyClass}">`,
+    renderFilterSection(panel.contents.filter_section, state),
     '<section class="pa-panel">',
     '<div class="pa-slot">',
     renderGroupedLineChart(artifact, rowsBySource),
     '</div>',
-    renderNotes(artifact, {}),
+    renderNotes(artifact, state),
     '</section>',
     '</div>',
     '</section>'
   ].join("");
-  renderGroupedLinePlot(artifact, rowsBySource);
+  renderGroupedLinePlot(artifact, rowsBySource, state);
+  wireFilterSection(panel, state, (targetPanel, nextState) => {
+    const host = document.getElementById(`${artifact.id}-chart`);
+    nextState.group_visibility = groupedLineVisibility(host);
+    return renderContentPanel(targetPanel, nextState);
+  });
   wireNotesPanel();
   wirePAPanelLayout();
 }

@@ -240,6 +240,17 @@ RESEARCH_NAVIGATION = NavigationTree(
                     ),
                 ),
         nav(
+                    "age",
+                    "Age",
+                    "age",
+                    nav(
+                        "average_age_by_division",
+                        "Average age by division",
+                        "average-age-by-division",
+                        page_id="average_age_by_division",
+                    ),
+                ),
+        nav(
                     "banzuke_rank",
                     "Banzuke & Rank",
                     "banzuke-rank",

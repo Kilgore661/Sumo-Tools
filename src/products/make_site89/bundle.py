@@ -17,6 +17,7 @@ SITE_FILES_DIRECTORY = "site"
 REQUIRED_ARTIFACT_IDS = frozenset(
     {
         "banzuke_changes",
+        "average_age_by_division",
         "banzuke_division_by_era",
         "basho_results_browser",
         "career_comparisons",
@@ -42,6 +43,7 @@ REQUIRED_ARTIFACT_IDS = frozenset(
 )
 
 REQUIRED_FILES = {
+    "average_age_by_division": ("age/average-age-by-division/data/average_age_by_division.csv",),
     "banzuke_changes": ("current-sumo/banzuke-changes/site_config.json", "current-sumo/banzuke-changes/data/banzuke_change_report.csv"),
     "banzuke_division_by_era": ("banzuke-rank/banzuke-structure-over-time/banzuke-division-by-era/data/divisions.csv",),
     "basho_results_browser": ("sumo-history/basho-results/data/basho_results_index.json",),

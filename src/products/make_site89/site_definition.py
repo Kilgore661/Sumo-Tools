@@ -155,6 +155,17 @@ PAGES = PageRegistry(
             status=PageStatus.PROMOTED,
             artifact=artifact("division_stability", "chart"),
         ),
+        "average_age_by_division": PageDefinition(
+            id="average_age_by_division",
+            title="Average Age by Division",
+            summary="How the average age of banzuke rikishi in each division changed over time.",
+            status=PageStatus.PROMOTED,
+            artifact=artifact(
+                "average_age_by_division",
+                "chart",
+                producer="analysis.ages.average_age_by_division",
+            ),
+        ),
         "first_chii_appearance": PageDefinition(
             id="first_chii_appearance",
             title="First Chii Appearance",
