@@ -38,14 +38,17 @@ but Codex normally cannot access mapped network drives.
 | `src/sumo_core`           | Core domain model.                                            |
 | `src/infra`               | Scraping, parsing, persistence, tracker and live store.       |
 | `src/analysis`            | Derived views, public tools, experiments and reports.         |
-| `src/products/make_site2` | Current static publication system.                            |
+| `src/products/make_site89` | Current post-1988/Elo-89 static publication system.          |
+| `src/products/make_site2` | Legacy 1958+/Equelo publication system and reference.         |
 | `docs`                    | Project-level orientation and working conventions.            |
 | `files/output`            | Local generated data and build artifacts; not tracked by git. |
 
 ## Data Sources
 
-Most build paths use a `History` object. There are two common ways to provide
-one:
+Most analysis and production paths use a `History` object. The current public
+site deliberately selects the represented History from January 1989 onward;
+full-history analyses remain separate research unless explicitly incorporated
+into that production contract.
 
 > **Important data-model caveat:** the parsed banzuke intentionally excludes
 > mae-zumo (`Mz`), although `Mz` rikishi and bouts can still appear in source
@@ -53,17 +56,16 @@ one:
 > absence from basho activity. See
 > [`docs/Mae-zumo (Mz) Data Semantics and Audit.md`](docs/Mae-zumo%20(Mz)%20Data%20Semantics%20and%20Audit.md).
 
-1. Use the live store:
-   
-   ```powershell
-   py -m src.products.make_site2 --build-only
-   ```
+The normal live-store-first site build is:
 
-2. Use a local History zip, useful for quick repeatable tests:
-   
-   ```powershell
-   py -m src.products.make_site2 --build-only --history-zip ".\files\output\Historys\1978_01 to 1980_11.zip"
-   ```
+```powershell
+.\_boot89.ps1 --build-only
+```
+
+`src.analysis.site89` produces the coherent site-data bundle; make_site89 then
+validates and presents it. See
+[`src/products/make_site89/README.md`](src/products/make_site89/README.md) for
+the production boundary and other build modes.
 
 History zips live under `files/output/Historys` on this machine, but
 `files/output` is ignored by git. A fresh clone will not contain those zips.
@@ -85,17 +87,17 @@ rather than relying on GitHub connector search:
 
 ```powershell
 git ls-files "tests/*"
-git ls-files "tests/test_make_site2*.py"
+git ls-files "tests/test_make_site89*"
 ```
 
-For make_site2 work, run focused tests that protect the current change rather
-than assuming every historical test remains current. Useful starting points for
-recent Basho Results and table-sorting work are:
+For make_site89 work, run focused tests that protect the current change rather
+than assuming every historical test remains current. Useful starting points
+for the site shell and bundle contract are:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest -s `
-  .\tests\test_make_site2_basho_results_redesign.py `
-  .\tests\test_make_site2_table_sorting.py
+  .\tests\test_make_site89_build.py `
+  .\tests\test_make_site89_bundle.py
 ```
 
 Broaden to all tests only when the focused checks are understood:
@@ -108,39 +110,39 @@ Tests may be current, stale or legacy. Treat failures as project facts to
 classify, not as automatic proof that product code is wrong or that the
 environment is broken.
 
-Pytest does not replace browser-functional inspection. For make_site2 browser
-behaviour, build the site, serve the output on the shared preview port
-`8766`, and inspect `http://localhost:8766/` when the environment supports it.
+Pytest does not replace browser-functional inspection. make_site89 must be
+viewed over HTTP because its pages fetch produced JSON and CSV data.
 
-## make_site2 Status
+## Publication Systems
 
-`make_site2` currently has the most developed documentation because it has been the active work area, not because it defines the purpose of Sumo-Tools. Treat it as one tool/probe in the wider project: a publication-oriented probe whose output happens to be a static public site. The project’s broader purpose remains building tools, analyses and exhibits from professional sumo data. That said,
+`make_site89` is the current publication system. It accompanied two related
+changes:
 
-`make_site2` is the current publication system. Its active docs are in:
+- replacement of the earlier 1958+/Equelo production scope with one coherent
+  post-1988 History and Elo-89 model; and
+- separation of upstream analysis and site-data production from the static
+  site assembler and renderer.
+
+Its package overview is:
 
 ```text
-src/products/make_site2/docs
+src/products/make_site89/README.md
 ```
 
-Start with:
+The detailed implementation record is in:
 
-- `src/products/make_site2/docs/README.md`
-- `src/products/make_site2/docs/01 Requirements.md`
-- `src/products/make_site2/docs/02 Specification.md`
-- `src/products/make_site2/docs/10 Open Issues and Deferred Design.md`
-- `src/products/make_site2/docs/10.1 Selected History Coherence Audit.md`
+- `src/products/make_site89/docs/Implementation Plan.md`
+- `src/products/make_site89/docs/Production Documentation Strategy.md`
+- `src/products/make_site89/docs/2026-10-30 Site Build Data Integrity and History Consistency.md`
 
-Current high-level status:
+`make_site2` is retained as legacy code and as evidence about the earlier
+1958+/Equelo site. It is not the current production path, and make_site89 does
+not import it. Its documentation remains useful for historical behavior and
+design context but does not govern new public-site work.
 
-- The explicit `Contents -> FilterSection? . PAPanel -> PA . Notes` page
-  structure is implemented.
-- Canonical single-shell `?page=...` public links are implemented.
-- Selected-History coherence is the active production P0: a normal public build
-  must not silently present copied History-dependent material as coherent with
-  an explicit History selection. Quick local/inspection builds may temporarily
-  allow reduced or caveated output, but that policy still needs to be made
-  explicit in code and visible output.
-- Deployment target safety remains an open operational improvement.
+This distinction concerns publication scope, not the value of historical data.
+Full-history work may still be run as research and can be reconsidered if the
+project later adopts a systematic multi-epoch production design.
 
 ## Documentation Map
 
@@ -152,7 +154,8 @@ Current high-level status:
 | `docs/Project Map.md`                    | Public-site product map and candidate pages.                       |
 | `docs/What is an Equelo Rating.md`       | Foundational explanation, assumptions and validation of Equelo.    |
 | `docs/House Style.md`                    | Writing and documentation conventions.                             |
-| `src/products/make_site2/docs/README.md` | make_site2 documentation authority and reading order.              |
+| `src/products/make_site89/README.md`     | Current site purpose, production boundary and documentation map.   |
+| `src/products/make_site2/docs/README.md` | Legacy make_site2 documentation and historical design record.      |
 
 Archived docs are useful evidence, but active numbered docs and current review
 documents govern current work.
