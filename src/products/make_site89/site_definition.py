@@ -166,6 +166,13 @@ PAGES = PageRegistry(
                 producer="analysis.ages.average_age_by_division",
             ),
         ),
+        "prospects": PageDefinition(
+            id="prospects",
+            title="San'yaku Prospects",
+            summary="How historical chances of reaching san'yaku changed with a rikishi's rank and age.",
+            status=PageStatus.PROMOTED,
+            artifact=artifact("prospects", "chart", producer="analysis.prospects"),
+        ),
         "first_chii_appearance": PageDefinition(
             id="first_chii_appearance",
             title="First Chii Appearance",

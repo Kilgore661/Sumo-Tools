@@ -63,3 +63,27 @@ AVERAGE_AGE_BY_DIVISION_ARTIFACT = ChartArtifact(
         Note(id="average_age_day_one", applies_to=("all",), text="Age is continuous age in years on the exact civil date of Day 1. Maezumo is excluded because it is not a formal banzuke division."),
     ),
 )
+
+
+PROSPECTS_ARTIFACT = ChartArtifact(
+    id="prospects",
+    heading="San'yaku Prospects",
+    kind="chart",
+    renderer="prospects",
+    data_binding=DataBinding(kind="json", sources=("trajectory_master",)),
+    data_sources=(
+        DataSource(
+            id="trajectory_master",
+            label="Prospect trajectories",
+            path="age/prospects/data/trajectory_master.json",
+            media_type="application/json",
+        ),
+    ),
+    provenance={"default_x": "age", "legend_title": "Rikishi"},
+    notes=(
+        Note(id="prospects_meaning", applies_to=("all",), text="Each ordinary point is the historical proportion of resolved rikishi who eventually reached san'yaku, matched by division, rank number and completed age. It is not a personalised forecast of ability."),
+        Note(id="prospects_support", applies_to=("all",), text="Marker colour describes unique resolved-rikishi support: green 20 or more, amber 10–19, and red 1–9. Unresolved careers remain in audit counts but not the displayed proportion."),
+        Note(id="prospects_endpoint", applies_to=("all",), text="The gold star marks first attainment of Komusubi, Sekiwake, Ozeki or Yokozuna. A career without san'yaku simply ends; no artificial zero is added."),
+        Note(id="prospects_scope", applies_to=("all",), text="The calculation uses complete represented careers beginning after the January 1989 boundary and exact age on Day 1 of each basho."),
+    ),
+)

@@ -11,7 +11,10 @@ from typing import Callable
 from src.analysis.elo89 import Elo89Artifacts, produce_elo89
 from src.analysis.elo89.producer import DEFAULT_PRIOR
 from src.analysis.ages.average_age_by_division import produce_average_age_by_division
+from src.analysis.prospects import produce as produce_prospects
 from src.infra.get_bios.api import load_bio_store
+from src.infra.get_bios.career_rows import DEFAULT_RIKISHI_PAGES
+from src.infra.get_bios.parser import OUTPUT_JSON as DEFAULT_BIOS_JSON
 from src.infra.parser.parser2_utils import RESULTS_DIR
 from src.infra.new_banzuke.api import NewBanzuke
 from src.infra.torikumi import Future
@@ -22,6 +25,7 @@ from .basho_results import produce_basho_results
 from .career_comparisons import produce_career_comparisons
 from .highest_rating import produce_highest_rating
 from .model_independent import produce_model_independent
+from .prospects import produce_prospects_site_data
 from .rating_changes import produce_rating_changes
 from .rikishi_bio_data import produce_rikishi_bio_data
 from .standings import produce_standings
@@ -44,6 +48,7 @@ def produce_site89_bundle(
     future: Future | None = None,
     new_banzuke: NewBanzuke | None = None,
     results_root: Path = Path(RESULTS_DIR),
+    career_pages_root: Path = DEFAULT_RIKISHI_PAGES,
     progress: Callable[[str], None] | None = None,
 ) -> Path:
     report = progress if progress is not None else lambda _message: None
@@ -171,6 +176,26 @@ def produce_site89_bundle(
             results_root=results_root,
         ),
     )
+    report("Producing san'yaku prospects analysis...")
+    prospects_root = work_root / "prospects"
+    produce_prospects(
+        history=history,
+        bios=bios,
+        results_root=results_root,
+        output_root=prospects_root,
+        career_pages_root=career_pages_root,
+        source_manifest={
+            "history": history_source,
+            "bios": str(DEFAULT_BIOS_JSON),
+            "daily_results": str(results_root),
+            "rikishi_pages": str(career_pages_root),
+        },
+    )
+    artifacts["prospects"] = produce_prospects_site_data(
+        history=history,
+        prospects_root=prospects_root,
+        output_root=site_root / "age/prospects/data",
+    )
     report("Producing rikishi bio data...")
     artifacts["rikishi_bio_data"] = (
         produce_rikishi_bio_data(
@@ -187,7 +212,7 @@ def produce_site89_bundle(
         "fastest_risers",
         "makuuchi_rank_by_era", "most_career_losses", "most_career_wins",
         "most_consecutive_bouts", "rank_at_retirement", "rating_changes",
-        "rikishi_bio_data", "standings_by_wins", "torikumi", "typical_rating_values", "win_probability_by_standing",
+        "prospects", "rikishi_bio_data", "standings_by_wins", "torikumi", "typical_rating_values", "win_probability_by_standing",
     }
     if set(artifacts) != expected:
         raise AssertionError(f"Incomplete site89 artifact set: {sorted(set(artifacts) ^ expected)}")
@@ -198,6 +223,7 @@ def produce_site89_bundle(
             "average_age_by_division": "src.analysis.ages.average_age_by_division",
             "basho_results_browser": "src.analysis.site89.basho_results",
             "career_comparisons": "src.analysis.site89.career_comparisons",
+            "prospects": "src.analysis.site89.prospects",
             "highest_rating": "src.analysis.site89.highest_rating",
             "longest_careers": "src.analysis.site89.longest_careers",
             "fastest_risers": "src.analysis.fastest.milestone_matrix",

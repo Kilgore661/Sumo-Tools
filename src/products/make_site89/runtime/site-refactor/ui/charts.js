@@ -96,3 +96,11 @@ export {
   chartElementId,
   resolveFilterValue,
 } from "./charts/shared.js";
+
+export {
+  renderProspectsControls,
+  renderProspectsChart,
+  wireProspectsControls,
+  renderProspectsPlot,
+  prospectsTraces,
+} from "./charts/prospects.js";

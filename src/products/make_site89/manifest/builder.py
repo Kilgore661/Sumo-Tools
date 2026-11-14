@@ -120,6 +120,11 @@ PANEL_DECLARATIONS: dict[str, PanelDeclaration] = {
         filters=f.AVERAGE_AGE_BY_DIVISION_FILTERS,
         artifact=a.AVERAGE_AGE_BY_DIVISION_ARTIFACT,
     ),
+    "prospects": PanelDeclaration(
+        filters=(),
+        artifact=a.PROSPECTS_ARTIFACT,
+        public_url_keys=("rikishi", "x"),
+    ),
     "first_chii_appearance": PanelDeclaration(
         filters=(),
         artifact=a.FIRST_CHII_APPEARANCE_ARTIFACT,

@@ -4,7 +4,7 @@ import { contentPanel } from "../core/dom.js";
 import { getRuntimeManifest } from "../core/manifest-store.js";
 import { readFilterUrlState, writePanelUrl } from "../core/url-state.js";
 import { fetchCsv, fetchJson, fetchText } from "../data/http.js";
-import { groupedLineVisibility, renderCareerComparisonsChart, renderCareerComparisonsControls, renderCareerLengthArtifact, renderCareerLengthPlot, renderCategoryBarChart, renderCategoryBarPlot, renderFinishByChiiChart, renderFinishByChiiPlot, renderGroupedLineChart, renderGroupedLinePlot, renderOrderedPointChart, renderOrderedPointPlot, renderStackedBarChart, renderStackedBarPlot, renderStandingWinProbabilityChart, renderStandingWinProbabilityPlot, resolveCareerLengthView, resolveFilterValue, resolveSelectedDataSourceId, wireCareerComparisonsControls } from "../ui/charts.js";
+import { groupedLineVisibility, renderCareerComparisonsChart, renderCareerComparisonsControls, renderCareerLengthArtifact, renderCareerLengthPlot, renderCategoryBarChart, renderCategoryBarPlot, renderFinishByChiiChart, renderFinishByChiiPlot, renderGroupedLineChart, renderGroupedLinePlot, renderOrderedPointChart, renderOrderedPointPlot, renderProspectsChart, renderProspectsControls, renderStackedBarChart, renderStackedBarPlot, renderStandingWinProbabilityChart, renderStandingWinProbabilityPlot, resolveCareerLengthView, resolveFilterValue, resolveSelectedDataSourceId, wireCareerComparisonsControls, wireProspectsControls } from "../ui/charts.js";
 import { buildBashoResultsPresentationModel, renderBashoResultsPresentationTable, wireBashoResultsPresentationSorting } from "../ui/basho-results-table.js";
 import { buildRatingChangesPresentationModel, renderRatingChangesPresentationTable, selectedRatingChangesEntry, wireRatingChangesPresentationSorting } from "../ui/rating-changes-table.js";
 import { filterValueLabel, monthLabel, renderFilterSection, resolveBanzukeChangesDivision, resolveBashoCalendarState, resolveFilterState, resolveSelectedDataValue, resolveSelectedDivision, resolveSelectedFilterValueFromSource, resolveStandingsDivision, resolveStandingsWindow, selectedIndexEntry, selectedStandingsSource, wireFilterSection } from "../ui/filters.js";
@@ -431,7 +431,28 @@ async function renderChartContentPanel(panel, artifact, overrideState = null) {
     await renderCareerComparisonsContentPanel(panel, artifact, overrideState);
     return;
   }
+  if (artifact.renderer === "prospects") {
+    await renderProspectsContentPanel(panel, artifact);
+    return;
+  }
   throw new Error(`Unsupported artifact renderer: ${artifact.renderer}`);
+}
+async function renderProspectsContentPanel(panel, artifact) {
+  const data = await fetchJson(artifact.data_sources[0].path);
+  const axis = new URLSearchParams(window.location.search).get("x") === "date" ? "date" : "age";
+  contentPanel.innerHTML = [
+    '<section class="content-panel">',
+    `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
+    renderContentSummary(panel.heading.summary),
+    '<div class="content-body">',
+    renderProspectsControls(axis),
+    '<section class="pa-panel"><div class="pa-slot">',
+    renderProspectsChart(artifact),
+    '</div>', renderNotes(artifact, {}), '</section></div></section>',
+  ].join("");
+  wireProspectsControls(artifact, data);
+  wireNotesPanel();
+  wirePAPanelLayout();
 }
 async function renderCareerComparisonsContentPanel(panel, artifact, overrideState = null) {
   const filters = panel.contents.filter_section.filters;
@@ -684,4 +705,4 @@ function bashoResultsTitle(state, entry, filters) {
   return `${division} Results for ${label}`;
 }
 
-export { renderContentPanel, renderTorikumiContentPanel, renderIndexedTableContentPanel, renderBanzukeChangesContentPanel, renderSectionedTableContentPanel, renderGenericTableContentPanel, renderFastestRisersContentPanel, renderProseContentPanel, renderStandingsContentPanel, renderChartContentPanel, renderStandingWinProbabilityContentPanel, renderCareerLengthContentPanel, renderCareerComparisonsContentPanel, renderFinishByChiiContentPanel, renderStackedBarChartContentPanel, renderGroupedLineChartContentPanel, renderOrderedPointChartContentPanel, renderCategoryBarChartContentPanel, fetchArtifactCsvSet, renderArtifactTitleBlock, artifactTitle, bashoResultsTitle, renderNoBashoContentPanel, artifactForPAPanel };
+export { renderContentPanel, renderTorikumiContentPanel, renderIndexedTableContentPanel, renderBanzukeChangesContentPanel, renderSectionedTableContentPanel, renderGenericTableContentPanel, renderFastestRisersContentPanel, renderProseContentPanel, renderStandingsContentPanel, renderChartContentPanel, renderStandingWinProbabilityContentPanel, renderCareerLengthContentPanel, renderCareerComparisonsContentPanel, renderProspectsContentPanel, renderFinishByChiiContentPanel, renderStackedBarChartContentPanel, renderGroupedLineChartContentPanel, renderOrderedPointChartContentPanel, renderCategoryBarChartContentPanel, fetchArtifactCsvSet, renderArtifactTitleBlock, artifactTitle, bashoResultsTitle, renderNoBashoContentPanel, artifactForPAPanel };

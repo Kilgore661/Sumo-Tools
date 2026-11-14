@@ -249,6 +249,12 @@ RESEARCH_NAVIGATION = NavigationTree(
                         "average-age-by-division",
                         page_id="average_age_by_division",
                     ),
+                    nav(
+                        "prospects",
+                        "Prospects",
+                        "prospects",
+                        page_id="prospects",
+                    ),
                 ),
         nav(
                     "banzuke_rank",

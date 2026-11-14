@@ -3,9 +3,15 @@
 This package contains analyses concerned with championship achievement,
 progression to san'yaku, and related proxies for sustained prominence.
 
+> **Legacy research package.** These analyses use the independently selected
+> full History (normally 1958+) and are outside the make_site89 production
+> chain. They remain runnable for research and reproducibility. The current
+> 1989+ website calculation is owned by `src.analysis.prospects`; production
+> code must not import the greatness implementation.
+
 ## San'yaku prospects
 
-The production analysis is `sanyaku_prospects`. It estimates two distinct
+The legacy full-history analysis is `sanyaku_prospects`. It estimates two distinct
 eventual-attainment probabilities:
 
 1. reaching san'yaku after first appearing in division/rank group `D` at age

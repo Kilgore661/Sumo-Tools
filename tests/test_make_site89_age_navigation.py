@@ -13,11 +13,15 @@ def test_age_contains_average_age_by_division_in_research_navigation() -> None:
     assert "age" not in {item.id for item in public_items}
     assert age.label == "Age"
     assert age.href is None
-    assert len(age.children) == 1
+    assert len(age.children) == 2
     artifact = age.children[0]
     assert artifact.id == "average_age_by_division"
     assert artifact.included
     assert artifact.href == "index.html?page=average_age_by_division&error_bars=false"
+    prospects = age.children[1]
+    assert prospects.id == "prospects"
+    assert prospects.included
+    assert prospects.href == "index.html?page=prospects"
     assert [item.id for item in items].index("age") == [item.id for item in items].index("rikishi") + 1
     assert '<span class="nav-label">Age</span>' in render_site_shell(shell)
 
@@ -34,3 +38,7 @@ def test_age_contains_average_age_by_division_in_research_navigation() -> None:
     assert error_bars["id"] == "error_bars"
     assert error_bars["label"] == "Min & Max"
     assert error_bars["default"] is False
+
+    prospects_artifact = manifest["artifacts"]["prospects"]
+    assert prospects_artifact["renderer"] == "prospects"
+    assert prospects_artifact["data_sources"][0]["path"] == "age/prospects/data/trajectory_master.json"
