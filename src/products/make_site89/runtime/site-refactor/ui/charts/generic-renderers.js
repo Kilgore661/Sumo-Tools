@@ -129,7 +129,24 @@ function renderGroupedLinePlot(artifact, rowsBySource, state = {}) {
     groupedLineTraces(artifact, rowsBySource, state),
     groupedChartLayout(artifact, rowsBySource),
     PLOTLY_CONFIG
-  );
+  ).then(() => attachGroupedLineLegendHandler(host));
+}
+
+function attachGroupedLineLegendHandler(host) {
+  if (!host?.on || host.__groupedLineLegendHandlerAttached) return;
+  host.__groupedLineLegendHandlerAttached = true;
+  host.on("plotly_legenddoubleclick", event => {
+    const visibility = strictLegendVisibility(host.data || [], event.curveNumber);
+    if (visibility) Plotly.restyle(host, { visible: visibility });
+    return false;
+  });
+}
+
+function strictLegendVisibility(traces, selectedIndex) {
+  if (!Number.isInteger(selectedIndex) || selectedIndex < 0 || selectedIndex >= traces.length) {
+    return null;
+  }
+  return traces.map((_, index) => index === selectedIndex ? true : "legendonly");
 }
 
 function groupedLineVisibility(host) {
@@ -165,5 +182,7 @@ export {
   renderOrderedPointPlot,
   renderGroupedLinePlot,
   groupedLineVisibility,
+  attachGroupedLineLegendHandler,
+  strictLegendVisibility,
   renderStackedBarPlot,
 };

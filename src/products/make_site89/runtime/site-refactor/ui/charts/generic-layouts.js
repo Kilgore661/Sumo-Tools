@@ -104,6 +104,8 @@ function groupedChartLayout(artifact, rowsBySource) {
       y: 1,
       xanchor: "left",
       x: 1.02,
+      itemclick: "toggle",
+      itemdoubleclick: false,
     },
     font: {
       family: "Arial, Helvetica, sans-serif",

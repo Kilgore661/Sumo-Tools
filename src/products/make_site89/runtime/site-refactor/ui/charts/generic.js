@@ -10,6 +10,8 @@ export {
   renderOrderedPointPlot,
   renderGroupedLinePlot,
   groupedLineVisibility,
+  attachGroupedLineLegendHandler,
+  strictLegendVisibility,
   renderStackedBarPlot,
 } from "./generic-renderers.js";
 

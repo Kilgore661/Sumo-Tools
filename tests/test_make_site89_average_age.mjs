@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 
-import { groupedLineTraces, groupedLineVisibility } from "../src/products/make_site89/runtime/site-refactor/ui/charts/generic.js";
+import { attachGroupedLineLegendHandler, groupedChartLayout, groupedLineTraces, groupedLineVisibility, strictLegendVisibility } from "../src/products/make_site89/runtime/site-refactor/ui/charts/generic.js";
 
 const artifact = {
   id: "average_age_by_division",
@@ -14,6 +14,8 @@ const artifact = {
     hover_fields: ["start_date"],
     hover_template: "Mean=%{y:.2f}<extra></extra>",
   },
+  x_axis: { label: "Basho", order_values: [], minimum: null, maximum: null },
+  y_axis: { label: "Age (years)", order_values: [], minimum: null, maximum: null },
 };
 const rowsBySource = { average_ages: [
   { basho: "2020/01", division: "Makuuchi", mean_age_years: "28", min_age_years: "20", max_age_years: "40", start_date: "2020-01-12" },
@@ -64,3 +66,28 @@ const persistence = groupedLineTraces(persistenceArtifact, { persistence: [
 ] });
 assert.deepEqual(persistence.map(trace => trace.visible), [true, "legendonly"]);
 assert.ok(persistence.every(trace => !("error_y" in trace)));
+
+assert.deepEqual(
+  strictLegendVisibility([{ name: "Makuuchi" }, { name: "Juryo" }], 0),
+  [true, "legendonly"],
+);
+assert.deepEqual(
+  strictLegendVisibility([{ name: "Makuuchi" }, { name: "Juryo" }], 0),
+  [true, "legendonly"],
+  "double-clicking an already isolated trace must not restore all traces",
+);
+assert.equal(strictLegendVisibility([], 0), null);
+const groupedLayout = groupedChartLayout(artifact, rowsBySource);
+assert.equal(groupedLayout.legend.itemclick, "toggle");
+assert.equal(groupedLayout.legend.itemdoubleclick, false);
+
+const handlers = {};
+const restyles = [];
+globalThis.Plotly = { restyle: (...args) => restyles.push(args) };
+const host = {
+  data: [{ name: "Makuuchi", visible: true }, { name: "Juryo", visible: "legendonly" }],
+  on: (eventName, handler) => { handlers[eventName] = handler; },
+};
+attachGroupedLineLegendHandler(host);
+assert.equal(handlers.plotly_legenddoubleclick({ curveNumber: 0 }), false);
+assert.deepEqual(restyles[0][1], { visible: [true, "legendonly"] });

@@ -15,6 +15,8 @@ export {
   renderOrderedPointPlot,
   renderGroupedLinePlot,
   groupedLineVisibility,
+  attachGroupedLineLegendHandler,
+  strictLegendVisibility,
   renderStackedBarPlot,
   stackedBarRows,
   stackedBarTraceSpec,
