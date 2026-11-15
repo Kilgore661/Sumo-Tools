@@ -61,6 +61,7 @@ AVERAGE_AGE_BY_DIVISION_ARTIFACT = ChartArtifact(
         Note(id="average_age_population", applies_to=("all",), text="The mean, youngest and oldest ages include only rikishi with exact birth dates. Contributor and missing-date counts are shown in the hover text; missing birth dates may vary systematically by period or division."),
         Note(id="average_age_range", applies_to=("all",), text="Min & Max shows the observed youngest-to-oldest range, not uncertainty around the mean."),
         Note(id="average_age_day_one", applies_to=("all",), text="Age is continuous age in years on the exact civil date of Day 1. Maezumo is excluded because it is not a formal banzuke division."),
+        Note(id="average_age_jonokuchi_may", applies_to=("all",), text="The saw-toothed nature of the Jonokuchi trace is due to the influx of newcomers each May."),
     ),
 )
 

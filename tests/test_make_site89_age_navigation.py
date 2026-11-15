@@ -30,6 +30,11 @@ def test_age_contains_average_age_by_division_in_research_navigation() -> None:
     assert declared["renderer"] == "grouped_line_chart"
     assert declared["traces"][0]["error_y"] == ["min_age_years", "max_age_years"]
     assert declared["provenance"]["default_visible"] == ["Makuuchi"]
+    assert any(
+        note["id"] == "average_age_jonokuchi_may"
+        and "influx of newcomers each May" in note["text"]
+        for note in declared["notes"]
+    )
     panel = next(
         panel for panel in manifest["ui"]["content_panels"]
         if panel["page_id"] == "average_age_by_division"
