@@ -75,7 +75,7 @@ RATING_CHANGES_ARTIFACT = IndexedTableArtifact(
     default_sort_descending=True,
     notes=(
         Note(id="note_delta", applies_to=("all",), text="Δ is the Elo-89 rating-point change over the selected window."),
-        Note(id="note_basis", applies_to=("all",), text="Expected basis counts possible scheduled bouts in the window; actual basis counts bouts actually fought."),
+        Note(id="note_basis", applies_to=("all",), text="Expected basis counts the maximum bouts for which a rikishi could have been scheduled within the represented part of the window. A completed basho contributes 15 for Makuuchi and Juryo or 7 for the lower divisions. In an incomplete current basho, Makuuchi and Juryo contribute one per completed day; lower divisions use an approximate one per two completed days, capped at 7. Actual basis counts bouts actually fought."),
         Note(id="note_normalised", applies_to=("normalised",), text="Normalised values divide each bout's rating movement by the K-factor used for that bout."),
     ),
 )

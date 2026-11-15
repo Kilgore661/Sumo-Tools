@@ -85,7 +85,10 @@ def _rows(history, ratings, names, metrics, dates, start, target):
         end_rating = float(end_values[rid_text])
         delta = end_rating - start_rating
         expected = sum(
-            _possible_bouts(chii)
+            _possible_bouts(
+                chii,
+                represented_days=_represented_days(history, date, target),
+            )
             for date in window_dates
             for chii in (history(date).banzuke.rikchii.get(rid),)
             if chii is not None
@@ -115,8 +118,27 @@ def _rows(history, ratings, names, metrics, dates, start, target):
     return sorted(rows, key=lambda row: (-float(row["delta"]), row["chii_ordinal_at_end"] or 10**9, row["shikona"]))
 
 
-def _possible_bouts(chii) -> int:
-    return 15 if isinstance(chii.level, MSD) or chii.level == Division.JURYO else 7
+def _represented_days(history: History, date, target) -> int:
+    """Return the represented portion of a basho for the expected denominator.
+
+    Earlier basho in a change window are treated as complete. Only the latest
+    target basho may be in progress.
+    """
+
+    if date != target:
+        return 15
+    last_defined = history(date).summary.last_defined()
+    return 0 if last_defined is None else min(15, int(last_defined))
+
+
+def _possible_bouts(chii, *, represented_days: int = 15) -> int:
+    days = max(0, min(15, represented_days))
+    if isinstance(chii.level, MSD) or chii.level == Division.JURYO:
+        return days
+    # Lower-division rikishi normally fight once in each two-day block. This
+    # is deliberately an approximation for an in-progress basho: the precise
+    # day within a block differs by rikishi.
+    return min(7, (days + 1) // 2)
 
 
 def _division_id(chii) -> str:
