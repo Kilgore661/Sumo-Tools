@@ -1,5 +1,6 @@
 *~
 *.swp
+*.un~
 __pycache__
 /files/output/*
 # Validation generators write to files/output/validation. Keep any legacy or
@@ -9,3 +10,5 @@ __pycache__
 /.venv/
 /venv/
 /.pytest_cache/
+/src/misc/Betting/browser_profile/
+/src/misc/Betting/odds/bet365/diagnostics/
