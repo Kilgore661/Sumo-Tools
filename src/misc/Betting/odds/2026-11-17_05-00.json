@@ -1,0 +1,176 @@
+{
+  "source": "https://www.marathonbet.com/en/betting/sumo",
+  "timezone": "Europe/London",
+  "scraped_at": "2026-11-16T16:10:58.333319+00:00",
+  "event_start": "2026-11-17T05:00:00+00:00",
+  "events": [
+    {
+      "name": "Aonishiki vs Kirishima",
+      "competitor_1": "Aonishiki",
+      "competitor_2": "Kirishima",
+      "start": "2026-11-17T05:00:00+00:00",
+      "displayed_start": "2026-11-17 05:00",
+      "tournament": "Sumo. Japan. Kyushu Basho. Fukuoka",
+      "url": "https://www.marathonbet.com/en/betting/event/sumo/japan-kyushu-basho/aonishiki-vs-kirishima",
+      "odds": [
+        {
+          "outcome": "Aonishiki",
+          "price": "1.56",
+          "market": "Fight Result (2-Way)"
+        },
+        {
+          "outcome": "Kirishima",
+          "price": "2.27",
+          "market": "Fight Result (2-Way)"
+        }
+      ]
+    },
+    {
+      "name": "Asanoyama vs Takayasu",
+      "competitor_1": "Asanoyama",
+      "competitor_2": "Takayasu",
+      "start": "2026-11-17T05:00:00+00:00",
+      "displayed_start": "2026-11-17 05:00",
+      "tournament": "Sumo. Japan. Kyushu Basho. Fukuoka",
+      "url": "https://www.marathonbet.com/en/betting/event/sumo/japan-kyushu-basho/asanoyama-vs-takayasu",
+      "odds": [
+        {
+          "outcome": "Asanoyama",
+          "price": "1.65",
+          "market": "Fight Result (2-Way)"
+        },
+        {
+          "outcome": "Takayasu",
+          "price": "2.11",
+          "market": "Fight Result (2-Way)"
+        }
+      ]
+    },
+    {
+      "name": "Churanoumi vs Fujiseiun",
+      "competitor_1": "Churanoumi",
+      "competitor_2": "Fujiseiun",
+      "start": "2026-11-17T05:00:00+00:00",
+      "displayed_start": "2026-11-17 05:00",
+      "tournament": "Sumo. Japan. Kyushu Basho. Fukuoka",
+      "url": "https://www.marathonbet.com/en/betting/event/sumo/japan-kyushu-basho/churanoumi-vs-fujiseiun",
+      "odds": [
+        {
+          "outcome": "Churanoumi",
+          "price": "2.19",
+          "market": "Fight Result (2-Way)"
+        },
+        {
+          "outcome": "Fujiseiun",
+          "price": "1.60",
+          "market": "Fight Result (2-Way)"
+        }
+      ]
+    },
+    {
+      "name": "Fujinokawa vs Fujiryoga",
+      "competitor_1": "Fujinokawa",
+      "competitor_2": "Fujiryoga",
+      "start": "2026-11-17T05:00:00+00:00",
+      "displayed_start": "2026-11-17 05:00",
+      "tournament": "Sumo. Japan. Kyushu Basho. Fukuoka",
+      "url": "https://www.marathonbet.com/en/betting/event/sumo/japan-kyushu-basho/fujinokawa-vs-fujiryoga",
+      "odds": [
+        {
+          "outcome": "Fujinokawa",
+          "price": "1.71",
+          "market": "Fight Result (2-Way)"
+        },
+        {
+          "outcome": "Fujiryoga",
+          "price": "2.02",
+          "market": "Fight Result (2-Way)"
+        }
+      ]
+    },
+    {
+      "name": "Hakunofuji vs Kotozakura",
+      "competitor_1": "Hakunofuji",
+      "competitor_2": "Kotozakura",
+      "start": "2026-11-17T05:00:00+00:00",
+      "displayed_start": "2026-11-17 05:00",
+      "tournament": "Sumo. Japan. Kyushu Basho. Fukuoka",
+      "url": "https://www.marathonbet.com/en/betting/event/sumo/japan-kyushu-basho/hakunofuji-vs-kotozakura",
+      "odds": [
+        {
+          "outcome": "Hakunofuji",
+          "price": "2.19",
+          "market": "Fight Result (2-Way)"
+        },
+        {
+          "outcome": "Kotozakura",
+          "price": "1.60",
+          "market": "Fight Result (2-Way)"
+        }
+      ]
+    },
+    {
+      "name": "Onosato vs Atamifuji",
+      "competitor_1": "Onosato",
+      "competitor_2": "Atamifuji",
+      "start": "2026-11-17T05:00:00+00:00",
+      "displayed_start": "2026-11-17 05:00",
+      "tournament": "Sumo. Japan. Kyushu Basho. Fukuoka",
+      "url": "https://www.marathonbet.com/en/betting/event/sumo/japan-kyushu-basho/onosato-vs-atamifuji",
+      "odds": [
+        {
+          "outcome": "Onosato",
+          "price": "1.43",
+          "market": "Fight Result (2-Way)"
+        },
+        {
+          "outcome": "Atamifuji",
+          "price": "2.62",
+          "market": "Fight Result (2-Way)"
+        }
+      ]
+    },
+    {
+      "name": "Takerufuji vs Hoshoryu",
+      "competitor_1": "Takerufuji",
+      "competitor_2": "Hoshoryu",
+      "start": "2026-11-17T05:00:00+00:00",
+      "displayed_start": "2026-11-17 05:00",
+      "tournament": "Sumo. Japan. Kyushu Basho. Fukuoka",
+      "url": "https://www.marathonbet.com/en/betting/event/sumo/japan-kyushu-basho/takerufuji-vs-hoshoryu",
+      "odds": [
+        {
+          "outcome": "Takerufuji",
+          "price": "3.20",
+          "market": "Fight Result (2-Way)"
+        },
+        {
+          "outcome": "Hoshoryu",
+          "price": "1.30",
+          "market": "Fight Result (2-Way)"
+        }
+      ]
+    },
+    {
+      "name": "Ura vs Yoshinofuji",
+      "competitor_1": "Ura",
+      "competitor_2": "Yoshinofuji",
+      "start": "2026-11-17T05:00:00+00:00",
+      "displayed_start": "2026-11-17 05:00",
+      "tournament": "Sumo. Japan. Kyushu Basho. Fukuoka",
+      "url": "https://www.marathonbet.com/en/betting/event/sumo/japan-kyushu-basho/ura-vs-yoshinofuji",
+      "odds": [
+        {
+          "outcome": "Ura",
+          "price": "2.36",
+          "market": "Fight Result (2-Way)"
+        },
+        {
+          "outcome": "Yoshinofuji",
+          "price": "1.52",
+          "market": "Fight Result (2-Way)"
+        }
+      ]
+    }
+  ]
+}

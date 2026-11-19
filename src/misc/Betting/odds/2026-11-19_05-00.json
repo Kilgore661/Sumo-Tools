@@ -1,0 +1,134 @@
+{
+  "source": "https://www.marathonbet.com/en/betting/sumo",
+  "timezone": "Europe/London",
+  "scraped_at": "2026-11-18T20:11:12.969101+00:00",
+  "event_start": "2026-11-19T05:00:00+00:00",
+  "events": [
+    {
+      "name": "Aonishiki vs Atamifuji",
+      "competitor_1": "Aonishiki",
+      "competitor_2": "Atamifuji",
+      "start": "2026-11-19T05:00:00+00:00",
+      "displayed_start": "2026-11-19 05:00",
+      "tournament": "Sumo. Japan. Kyushu Basho. Fukuoka",
+      "url": "https://www.marathonbet.com/en/betting/event/sumo/japan-kyushu-basho/aonishiki-vs-atamifuji",
+      "odds": [
+        {
+          "outcome": "Aonishiki",
+          "price": "1.65",
+          "market": "Fight Result (2-Way)"
+        },
+        {
+          "outcome": "Atamifuji",
+          "price": "2.11",
+          "market": "Fight Result (2-Way)"
+        }
+      ]
+    },
+    {
+      "name": "Asanoyama vs Fujiseiun",
+      "competitor_1": "Asanoyama",
+      "competitor_2": "Fujiseiun",
+      "start": "2026-11-19T05:00:00+00:00",
+      "displayed_start": "2026-11-19 05:00",
+      "tournament": "Sumo. Japan. Kyushu Basho. Fukuoka",
+      "url": "https://www.marathonbet.com/en/betting/event/sumo/japan-kyushu-basho/asanoyama-vs-fujiseiun",
+      "odds": [
+        {
+          "outcome": "Asanoyama",
+          "price": "1.71",
+          "market": "Fight Result (2-Way)"
+        },
+        {
+          "outcome": "Fujiseiun",
+          "price": "2.02",
+          "market": "Fight Result (2-Way)"
+        }
+      ]
+    },
+    {
+      "name": "Churanoumi vs Hakunofuji",
+      "competitor_1": "Churanoumi",
+      "competitor_2": "Hakunofuji",
+      "start": "2026-11-19T05:00:00+00:00",
+      "displayed_start": "2026-11-19 05:00",
+      "tournament": "Sumo. Japan. Kyushu Basho. Fukuoka",
+      "url": "https://www.marathonbet.com/en/betting/event/sumo/japan-kyushu-basho/churanoumi-vs-hakunofuji",
+      "odds": [
+        {
+          "outcome": "Churanoumi",
+          "price": "2.11",
+          "market": "Fight Result (2-Way)"
+        },
+        {
+          "outcome": "Hakunofuji",
+          "price": "1.65",
+          "market": "Fight Result (2-Way)"
+        }
+      ]
+    },
+    {
+      "name": "Onosato vs Kirishima",
+      "competitor_1": "Onosato",
+      "competitor_2": "Kirishima",
+      "start": "2026-11-19T05:00:00+00:00",
+      "displayed_start": "2026-11-19 05:00",
+      "tournament": "Sumo. Japan. Kyushu Basho. Fukuoka",
+      "url": "https://www.marathonbet.com/en/betting/event/sumo/japan-kyushu-basho/onosato-vs-kirishima",
+      "odds": [
+        {
+          "outcome": "Onosato",
+          "price": "1.50",
+          "market": "Fight Result (2-Way)"
+        },
+        {
+          "outcome": "Kirishima",
+          "price": "2.41",
+          "market": "Fight Result (2-Way)"
+        }
+      ]
+    },
+    {
+      "name": "Takerufuji vs Kotozakura",
+      "competitor_1": "Takerufuji",
+      "competitor_2": "Kotozakura",
+      "start": "2026-11-19T05:00:00+00:00",
+      "displayed_start": "2026-11-19 05:00",
+      "tournament": "Sumo. Japan. Kyushu Basho. Fukuoka",
+      "url": "https://www.marathonbet.com/en/betting/event/sumo/japan-kyushu-basho/takerufuji-vs-kotozakura",
+      "odds": [
+        {
+          "outcome": "Takerufuji",
+          "price": "2.62",
+          "market": "Fight Result (2-Way)"
+        },
+        {
+          "outcome": "Kotozakura",
+          "price": "1.43",
+          "market": "Fight Result (2-Way)"
+        }
+      ]
+    },
+    {
+      "name": "Ura vs Fujiryoga",
+      "competitor_1": "Ura",
+      "competitor_2": "Fujiryoga",
+      "start": "2026-11-19T05:00:00+00:00",
+      "displayed_start": "2026-11-19 05:00",
+      "tournament": "Sumo. Japan. Kyushu Basho. Fukuoka",
+      "url": "https://www.marathonbet.com/en/betting/event/sumo/japan-kyushu-basho/ura-vs-fujiryoga",
+      "odds": [
+        {
+          "outcome": "Ura",
+          "price": "2.02",
+          "market": "Fight Result (2-Way)"
+        },
+        {
+          "outcome": "Fujiryoga",
+          "price": "1.71",
+          "market": "Fight Result (2-Way)"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "source": "https://www.marathonbet.com/en/betting/sumo",
+  "timezone": "Europe/London",
+  "scraped_at": "2026-11-18T20:11:12.969101+00:00",
+  "event_start": null,
+  "events": [
+    {
+      "name": "Fujinokawa vs Hoshoryu",
+      "competitor_1": "Fujinokawa",
+      "competitor_2": "Hoshoryu",
+      "start": null,
+      "displayed_start": null,
+      "tournament": "Sumo. Japan. Kyushu Basho. Fukuoka",
+      "url": "https://www.marathonbet.com/en/betting/event/sumo/japan-kyushu-basho/fujinokawa-vs-hoshoryu",
+      "odds": [
+        {
+          "outcome": "Fujinokawa",
+          "price": "1.89",
+          "market": "Fight Result (2-Way)"
+        },
+        {
+          "outcome": "Hoshoryu",
+          "price": "1.81",
+          "market": "Fight Result (2-Way)"
+        }
+      ]
+    }
+  ]
+}

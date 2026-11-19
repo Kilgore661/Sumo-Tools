@@ -1,0 +1,176 @@
+{
+  "source": "https://www.bet365.com/#/AS/B160/",
+  "timezone": "Europe/London",
+  "scraped_at": "2026-11-17T15:09:01.239520+00:00",
+  "event_start": "2026-11-18T05:00:00+00:00",
+  "events": [
+    {
+      "name": "Aonishiki vs Takerufuji",
+      "competitor_1": "Aonishiki",
+      "competitor_2": "Takerufuji",
+      "start": "2026-11-18T05:00:00+00:00",
+      "displayed_start": "Wed 18 Nov 05:00",
+      "tournament": "November Grand Tournament",
+      "url": "https://www.bet365.com/#/AC/B160/C21182062/D1/E140895437/F2/",
+      "odds": [
+        {
+          "outcome": "Aonishiki",
+          "price": "1.3",
+          "market": "To Win Bout"
+        },
+        {
+          "outcome": "Takerufuji",
+          "price": "3.4",
+          "market": "To Win Bout"
+        }
+      ]
+    },
+    {
+      "name": "Asanoyama vs Fujiryoga",
+      "competitor_1": "Asanoyama",
+      "competitor_2": "Fujiryoga",
+      "start": "2026-11-18T05:00:00+00:00",
+      "displayed_start": "Wed 18 Nov 05:00",
+      "tournament": "November Grand Tournament",
+      "url": "https://www.bet365.com/#/AC/B160/C21182062/D1/E140895437/F2/",
+      "odds": [
+        {
+          "outcome": "Asanoyama",
+          "price": "1.727273",
+          "market": "To Win Bout"
+        },
+        {
+          "outcome": "Fujiryoga",
+          "price": "2",
+          "market": "To Win Bout"
+        }
+      ]
+    },
+    {
+      "name": "Atamifuji vs Kotozakura",
+      "competitor_1": "Atamifuji",
+      "competitor_2": "Kotozakura",
+      "start": "2026-11-18T05:00:00+00:00",
+      "displayed_start": "Wed 18 Nov 05:00",
+      "tournament": "November Grand Tournament",
+      "url": "https://www.bet365.com/#/AC/B160/C21182062/D1/E140895437/F2/",
+      "odds": [
+        {
+          "outcome": "Atamifuji",
+          "price": "1.615385",
+          "market": "To Win Bout"
+        },
+        {
+          "outcome": "Kotozakura",
+          "price": "2.2",
+          "market": "To Win Bout"
+        }
+      ]
+    },
+    {
+      "name": "Churanoumi vs Takayasu",
+      "competitor_1": "Churanoumi",
+      "competitor_2": "Takayasu",
+      "start": "2026-11-18T05:00:00+00:00",
+      "displayed_start": "Wed 18 Nov 05:00",
+      "tournament": "November Grand Tournament",
+      "url": "https://www.bet365.com/#/AC/B160/C21182062/D1/E140895437/F2/",
+      "odds": [
+        {
+          "outcome": "Churanoumi",
+          "price": "1.8",
+          "market": "To Win Bout"
+        },
+        {
+          "outcome": "Takayasu",
+          "price": "1.909091",
+          "market": "To Win Bout"
+        }
+      ]
+    },
+    {
+      "name": "Fujiseiun vs Yoshinofuji",
+      "competitor_1": "Fujiseiun",
+      "competitor_2": "Yoshinofuji",
+      "start": "2026-11-18T05:00:00+00:00",
+      "displayed_start": "Wed 18 Nov 05:00",
+      "tournament": "November Grand Tournament",
+      "url": "https://www.bet365.com/#/AC/B160/C21182062/D1/E140895437/F2/",
+      "odds": [
+        {
+          "outcome": "Fujiseiun",
+          "price": "2",
+          "market": "To Win Bout"
+        },
+        {
+          "outcome": "Yoshinofuji",
+          "price": "1.727273",
+          "market": "To Win Bout"
+        }
+      ]
+    },
+    {
+      "name": "Kirishima vs Hoshoryu",
+      "competitor_1": "Kirishima",
+      "competitor_2": "Hoshoryu",
+      "start": "2026-11-18T05:00:00+00:00",
+      "displayed_start": "Wed 18 Nov 05:00",
+      "tournament": "November Grand Tournament",
+      "url": "https://www.bet365.com/#/AC/B160/C21182062/D1/E140895437/F2/",
+      "odds": [
+        {
+          "outcome": "Kirishima",
+          "price": "1.571429",
+          "market": "To Win Bout"
+        },
+        {
+          "outcome": "Hoshoryu",
+          "price": "2.25",
+          "market": "To Win Bout"
+        }
+      ]
+    },
+    {
+      "name": "Onosato vs Fujinokawa",
+      "competitor_1": "Onosato",
+      "competitor_2": "Fujinokawa",
+      "start": "2026-11-18T05:00:00+00:00",
+      "displayed_start": "Wed 18 Nov 05:00",
+      "tournament": "November Grand Tournament",
+      "url": "https://www.bet365.com/#/AC/B160/C21182062/D1/E140895437/F2/",
+      "odds": [
+        {
+          "outcome": "Onosato",
+          "price": "1.5",
+          "market": "To Win Bout"
+        },
+        {
+          "outcome": "Fujinokawa",
+          "price": "2.5",
+          "market": "To Win Bout"
+        }
+      ]
+    },
+    {
+      "name": "Ura vs Hakunofuji",
+      "competitor_1": "Ura",
+      "competitor_2": "Hakunofuji",
+      "start": "2026-11-18T05:00:00+00:00",
+      "displayed_start": "Wed 18 Nov 05:00",
+      "tournament": "November Grand Tournament",
+      "url": "https://www.bet365.com/#/AC/B160/C21182062/D1/E140895437/F2/",
+      "odds": [
+        {
+          "outcome": "Ura",
+          "price": "2.25",
+          "market": "To Win Bout"
+        },
+        {
+          "outcome": "Hakunofuji",
+          "price": "1.571429",
+          "market": "To Win Bout"
+        }
+      ]
+    }
+  ]
+}
