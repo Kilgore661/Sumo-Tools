@@ -14,6 +14,7 @@ from src.infra.torikumi.persistence import DEFAULT_FUTURE_PATH
 from src.products.make_site89.__main__ import (
     build_parser,
     main as run_make_site89,
+    prepare_deployment_targets,
     reject_conflicting_modes,
 )
 
@@ -24,6 +25,7 @@ def main(argv: list[str] | None = None) -> None:
     started = time()
     args = build_parser().parse_args(argv)
     reject_conflicting_modes(args)
+    prepared_targets = prepare_deployment_targets(args)
 
     if not args.no_build:
         full_history = get_history()
@@ -43,7 +45,7 @@ def main(argv: list[str] | None = None) -> None:
         )
         print(f"Produced site-data bundle: {args.data_bundle}")
 
-    run_make_site89(argv)
+    run_make_site89(argv, prepared_targets=prepared_targets)
     print(f"Complete run after {time() - started:.1f}s")
 
 

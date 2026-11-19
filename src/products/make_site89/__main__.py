@@ -1,4 +1,4 @@
-"""Command entry point for make_site89 builds and local deployment."""
+"""Command entry point for make_site89 builds and deployment."""
 
 from __future__ import annotations
 
@@ -9,6 +9,7 @@ from time import time
 from .build import DEFAULT_OUTPUT_ROOT, build_site
 from .deploy import (
     DEFAULT_DEPLOY_TARGETS_PATH,
+    DeployTarget,
     build_output_from_existing,
     deploy_targets,
     load_deployment_plan,
@@ -24,7 +25,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
             "Build the post-1988 Elo-89 site from a produced data bundle and "
-            "deploy it to the configured local-server target."
+            "deploy it to the configured targets."
         )
     )
     parser.add_argument(
@@ -50,7 +51,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--build-only",
         action="store_true",
-        help="Build the output tree and do not copy it to the local server.",
+        help="Build the output tree without deploying it.",
     )
     parser.add_argument(
         "--no-build",
@@ -60,10 +61,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--local-only",
         action="store_true",
-        help=(
-            "Deploy only to local win_copy targets. make_site89 currently has "
-            "only its local Apache target."
-        ),
+        help="Deploy only to local win_copy targets and skip remote SFTP.",
     )
     return parser
 
@@ -75,15 +73,33 @@ def reject_conflicting_modes(args: argparse.Namespace) -> None:
         raise SystemExit("--prod does not apply with --no-build")
 
 
-def main(argv: list[str] | None = None) -> None:
+def prepare_deployment_targets(
+    args: argparse.Namespace,
+) -> tuple[DeployTarget, ...]:
+    """Select targets and authenticate remote connections before building."""
+
+    if args.build_only:
+        return ()
+    plan = load_deployment_plan(DEFAULT_DEPLOY_TARGETS_PATH)
+    targets = select_deploy_targets(plan, local_only=args.local_only)
+    return preflight_deploy_targets(targets)
+
+
+def main(
+    argv: list[str] | None = None,
+    *,
+    prepared_targets: tuple[DeployTarget, ...] | None = None,
+) -> None:
     started = time()
     args = build_parser().parse_args(argv)
     reject_conflicting_modes(args)
     targets = ()
     if not args.build_only:
-        plan = load_deployment_plan(DEFAULT_DEPLOY_TARGETS_PATH)
-        targets = select_deploy_targets(plan, local_only=args.local_only)
-        targets = preflight_deploy_targets(targets)
+        targets = (
+            prepared_targets
+            if prepared_targets is not None
+            else prepare_deployment_targets(args)
+        )
     if args.no_build:
         output = build_output_from_existing(args.output)
         print(f"Using existing build: {output.root}")

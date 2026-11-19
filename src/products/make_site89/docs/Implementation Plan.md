@@ -189,10 +189,10 @@ generated tree without refreshing inputs or rerunning production.
 7. The generated HTTP-served static tree is written to
    `files/output/make_site89`.
 8. Unless `--build-only` is supplied, that tree is copied to the configured
-   local Apache directory `A:/local/html/sumo-tools89`. `--local-only` has the
-   same target-selection meaning as in `make_site2`; `--no-build` deploys an
-   existing generated tree. The target is configured in
-   `distro/make_site89_targets.json`.
+   local Apache directory `A:/local/html/sumo-tools89` and uploaded by SFTP to
+   `/var/www/html/sumo-tools89` on the public server. `--local-only` skips the
+   remote target; `--no-build` deploys an existing generated tree. The targets
+   are configured in `distro/make_site89_targets.json`.
 
 The site must be viewed through HTTP. Opening `index.html` through `file://`
 shows the shell but prevents the fetch-based pages from loading their produced

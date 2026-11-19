@@ -29,7 +29,7 @@ def test_live_store_workflow_produces_bundle_and_forwards_existing_flags(
     monkeypatch.setattr(
         build_site89,
         "run_make_site89",
-        lambda argv: forwarded.extend(argv),
+        lambda argv, *, prepared_targets: forwarded.extend(argv),
     )
     monkeypatch.setattr(
         build_site89,
@@ -81,9 +81,39 @@ def test_no_build_skips_live_store_and_bundle_production(monkeypatch) -> None:
     monkeypatch.setattr(
         build_site89,
         "run_make_site89",
-        lambda argv: forwarded.extend(argv),
+        lambda argv, *, prepared_targets: forwarded.extend(argv),
     )
 
     build_site89.main(["--no-build", "--local-only"])
 
     assert forwarded == ["--no-build", "--local-only"]
+
+
+def test_deployment_preflight_happens_before_live_store_work(monkeypatch) -> None:
+    events = []
+    prepared_targets = (object(),)
+
+    monkeypatch.setattr(
+        build_site89,
+        "prepare_deployment_targets",
+        lambda args: events.append("preflight") or prepared_targets,
+    )
+    monkeypatch.setattr(
+        build_site89,
+        "get_history",
+        lambda: events.append("history") or object(),
+    )
+    monkeypatch.setattr(build_site89, "history_from_year", lambda *_args: object())
+    monkeypatch.setattr(build_site89, "produce_site89_bundle", lambda **_kwargs: None)
+    monkeypatch.setattr(
+        build_site89,
+        "run_make_site89",
+        lambda _argv, *, prepared_targets: events.append(
+            ("build", prepared_targets)
+        ),
+    )
+
+    build_site89.main([])
+
+    assert events[:2] == ["preflight", "history"]
+    assert events[-1] == ("build", prepared_targets)

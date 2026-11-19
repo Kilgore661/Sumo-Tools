@@ -66,15 +66,43 @@ def test_existing_build_requires_index(tmp_path: Path) -> None:
 def test_repository_target_is_separate_from_make_site2() -> None:
     plan = load_deployment_plan(Path("distro/make_site89_targets.json"))
 
-    target = plan.targets["local_apache"]
-    assert target.location == "A:/local/html/sumo-tools89"
-    assert target.url == "http://192.168.0.146/sumo-tools89/"
+    local = plan.targets["local_apache"]
+    assert local.location == "A:/local/html/sumo-tools89"
+    assert local.url == "http://192.168.0.146/sumo-tools89/"
+
+    remote = plan.targets["remote_661"]
+    assert remote.method == "sftp"
+    assert remote.host == "www.661.org.uk"
+    assert remote.user == "root"
+    assert remote.location == "/var/www/html/sumo-tools89"
+    assert remote.url == "http://68.66.241.105/sumo-tools89/"
+    assert remote.password_env == "GEOLOCATION"
+    assert remote.password_required
+    assert plan.default_targets == ("local_apache", "remote_661")
 
 
 def test_cli_accepts_make_site2_style_local_only_mode() -> None:
     args = build_parser().parse_args(["--local-only"])
 
     assert args.local_only
+
+
+def test_local_only_filters_remote_before_password_preflight(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    checked = []
+
+    def preflight(targets):
+        checked.extend(targets)
+        return targets
+
+    monkeypatch.setattr(site89_main, "preflight_deploy_targets", preflight)
+    args = build_parser().parse_args(["--local-only"])
+
+    targets = site89_main.prepare_deployment_targets(args)
+
+    assert tuple(target.name for target in targets) == ("local_apache",)
+    assert tuple(target.method for target in checked) == ("win_copy",)
 
 
 def test_build_only_reports_its_own_elapsed_time(
@@ -223,4 +251,6 @@ def test_sftp_uploads_generated_tree_without_remote_deletion(
         "/remote/site/index.html",
         "/remote/site/runtime/site.js",
     ]
-    assert "uploading 2/2: runtime/site.js" in capsys.readouterr().out
+    console = capsys.readouterr().out
+    assert "uploading 2/2: runtime/site.js" in console
+    assert "created" not in console

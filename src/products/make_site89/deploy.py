@@ -220,7 +220,6 @@ def _ensure_remote_dir(sftp, remote_dir: str) -> None:
         sftp.stat(remote_dir)
     except FileNotFoundError:
         sftp.mkdir(remote_dir)
-        print(f"created {remote_dir}")
 
 
 def _ensure_remote_tree(sftp, remote_dir: str) -> None:
