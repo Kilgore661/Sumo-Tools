@@ -163,10 +163,11 @@ The combined research question is:
 > Is there a repeatable combination of source, VPN location, browser state,
 > language and acquisition time that yields sumo odds consistently?
 
-The sources considered so far are Marathonbet, Bet365 and NetBet. There may be
-others. Marathonbet and Bet365 have experimental odds scrapers in this folder;
-NetBet has so far received only an HTTP reachability survey and does not yet
-have a sumo-odds scraper.
+The active sources are Marathonbet and Bet365. There may be others. Both have
+experimental odds scrapers in this folder. NetBet appeared in the first HTTP
+reachability surveys but has been dropped from consideration because obtaining
+odds requires a login. Its historical probe results remain evidence about the
+experiment and should not be deleted.
 
 The place matrix must include `none`: an explicit no-VPN state using the
 ordinary network connection. It is a first-class baseline, not a fallback, and
@@ -182,13 +183,23 @@ The first near-catalogue surveys produced these results:
 | Marathonbet | 217 | 31 | 157 | 25 | 4 |
 | Bet365, first full run | 217 | 1 | 149 | 1 | 66 |
 | Bet365, second full run | 215 | 3 | 194 | 1 | 17 |
-| NetBet | 215 | 171 | 0 | 0 | 44 |
+| NetBet (subsequently excluded) | 215 | 171 | 0 | 0 | 44 |
 
 The Bet365 200 responses came from Estonia in both full runs and from
 Luxembourg and Slovenia in the second. This is evidence that those homepage
 requests succeeded on those occasions, not that those locations always work.
 The variation in ExpressVPN failures between runs also shows that rapid
 location switching can degrade the experiment itself.
+
+The later `X:\VPN\vpn_probe` collector produced two complete all-location runs
+with 216 prepared places in each. Bet365 returned 200 at 52 and 62 places, with
+44 succeeding in both runs. Marathonbet returned 200 at 31 and 32 places, with
+all 31 first-run successes recurring. Seventeen places returned 200 for both
+active sites in both runs. This stronger evidence supersedes the early
+impression that Bet365 was necessarily hardest to reach: Marathonbet had the
+lower 200 rate, while Bet365 varied more. These are still HTTP reachability
+results, not proof of rendered sumo odds. `Direct` was consistent across both
+runs: Bet365 returned 200 and Marathonbet returned 403.
 
 These counts must not be read as a map of where a bookmaker is legal or where
 sumo odds are available. In particular:

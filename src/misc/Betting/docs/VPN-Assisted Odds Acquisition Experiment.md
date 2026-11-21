@@ -41,9 +41,12 @@ Use the following notation:
 - `r` is a repeated experimental run; and
 - an observation concerns one `(s, p, r)` combination.
 
-The initial sites are Marathonbet, Bet365 and NetBet. Marathonbet and Bet365
-already have fragile source-specific odds prototypes. NetBet has only been
-surveyed for HTTP reachability. Other candidate sites may be added without
+The active initial sites are Marathonbet and Bet365, both of which already have
+fragile source-specific odds prototypes. NetBet was included in the first HTTP
+surveys but has been removed from the active candidate set because obtaining
+odds requires a login. Its historical observations remain useful evidence about
+the probe itself, but a reachable NetBet homepage does not advance the public
+odds-acquisition experiment. Other candidate sites may be added without
 changing the experimental model.
 
 ## What must be distinguished
@@ -198,7 +201,7 @@ The first near-catalogue HTTP surveys on 2026-11-18 produced:
 | Marathonbet | 217 | 31 | 157 | 25 | 4 |
 | Bet365, first full run | 217 | 1 | 149 | 1 | 66 |
 | Bet365, second full run | 215 | 3 | 194 | 1 | 17 |
-| NetBet | 215 | 171 | 0 | 0 | 44 |
+| NetBet (subsequently excluded) | 215 | 171 | 0 | 0 | 44 |
 
 Estonia returned HTTP 200 for Bet365 in both full runs. Luxembourg and
 Slovenia also returned 200 in the second. This is evidence about those
@@ -213,6 +216,40 @@ cannot generally be reclassified as simple ExpressVPN connection failures.
 These surveys are not maps of bookmaker legality. A response can reflect the
 bookmaker, infrastructure provider, VPN-address reputation, client identity,
 local regulation or another intermediary.
+
+### Replicated `vpn_probe` evidence
+
+The `X:\VPN` sandbox subsequently implemented a repeatable `vpn_probe`
+collector with randomized place order, `Direct` as a first-class place,
+append-only observations, verified exit-IP readiness, bounded operations and
+recovery from an unresponsive ExpressVPN control plane. Two complete
+all-location runs finished on 20 and 21 November 2026.
+
+| Target | First run: HTTP 200 | Second run: HTTP 200 | Places returning 200 in both |
+| --- | ---: | ---: | ---: |
+| Bet365 | 52/216 | 62/216 | 44 |
+| Marathonbet | 31/216 | 32/216 | 31 |
+| NetBet, now excluded | 216/216 | 216/216 | 216 |
+
+Seventeen place names returned HTTP 200 for both active sites in both runs.
+Most places received a different exit IP in the second run, so this replication
+supports treating the ExpressVPN place as the actionable selector and the exit
+IP as an observation rather than a permanent identity.
+
+`Direct`, the ordinary UK connection with ExpressVPN disconnected, was also
+reproduced: Bet365 returned 200 and Marathonbet returned 403 in both runs. This
+confirms the value of keeping `Direct` in the matrix rather than assuming that
+a VPN is always helpful.
+
+This supersedes the early impression that Bet365 was necessarily the hardest
+site to reach. In the controlled replicated runs, Marathonbet had the lower 200
+rate, while Bet365 was more variable between runs. These remain lightweight
+HTTP observations, not evidence that either site rendered sumo odds.
+
+The sandbox's current default configuration still includes NetBet. Future
+Betting-directed cohorts should omit it. Historical NetBet rows must not be
+deleted or silently pooled with later two-target cohorts; the effective target
+list and protocol belong in each run's provenance.
 
 ## Repeated, non-greedy survey
 
@@ -293,8 +330,14 @@ or deciding not to build generalized acquisition infrastructure.
 
 ## Immediate next design task
 
-Specify a Betting-owned repeated survey that can consume the useful ideas in
-`X:\VPN` without assuming that repository is permanent. The specification
-should define batching, scheduling, raw observation format, aggregation and
-451 exclusions before choosing Selenium, Playwright or a package boundary.
+The sandbox now implements the lightweight repeated HTTP survey well enough to
+collect useful evidence. Before changing its target list, it should persist the
+complete effective configuration and ordered target manifest for each run so
+that the three-target historical cohort cannot be confused with later
+Bet365/Marathonbet cohorts.
+
+The next Betting-owned design question is the browser stage: how selected
+site/place candidates will be tested with an ordinary browser for rendered
+application content, language, sumo availability and priced bouts. Selenium,
+Playwright and the eventual package boundary remain implementation choices.
 
