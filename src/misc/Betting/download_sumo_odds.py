@@ -16,17 +16,21 @@ from collections import defaultdict
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any
 from urllib.parse import urljoin, urlparse
 from zoneinfo import ZoneInfo
 
 from playwright.sync_api import (
-    Browser,
     BrowserContext,
     Error as PlaywrightError,
     Page,
     TimeoutError,
     sync_playwright,
+)
+
+from src.misc.Betting.probes.browser import (
+    close_attached_browser,
+    find_browser,
+    start_browser,
 )
 
 
@@ -271,19 +275,6 @@ def scrape_event(context: BrowserContext, seed: EventSeed, timezone: ZoneInfo) -
         page.close()
 
 
-def launch_browser(playwright: Any, headed: bool, channel: str) -> Browser:
-    try:
-        return playwright.chromium.launch(channel=channel, headless=not headed)
-    except Exception as first_error:
-        try:
-            return playwright.chromium.launch(headless=not headed)
-        except Exception:
-            raise RuntimeError(
-                f"Could not launch the '{channel}' browser or Playwright Chromium. "
-                "Install Chrome/Edge, or run: python -m playwright install chromium"
-            ) from first_error
-
-
 def output_name(start: str | None) -> str:
     if not start:
         return "unknown_start.json"
@@ -319,7 +310,26 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output-dir", type=Path, default=Path("odds"))
     parser.add_argument("--timezone", default="Europe/London")
     parser.add_argument("--browser-channel", default="chrome", choices=("chrome", "msedge"))
-    parser.add_argument("--headed", action="store_true", help="Show the browser window")
+    display = parser.add_mutually_exclusive_group()
+    display.add_argument(
+        "--headed",
+        dest="headed",
+        action="store_true",
+        help="Show the browser window (default)",
+    )
+    display.add_argument(
+        "--headless",
+        dest="headed",
+        action="store_false",
+        help="Run without showing the browser",
+    )
+    parser.set_defaults(headed=True)
+    parser.add_argument(
+        "--profile-dir",
+        type=Path,
+        default=Path("files/output/misc/Betting/browser_profiles/marathonbet"),
+    )
+    parser.add_argument("--browser-path", type=Path, default=None)
     parser.add_argument(
         "--retry-minutes",
         type=positive_minutes,
@@ -347,12 +357,20 @@ def positive_minutes(value: str) -> float:
 def download_once(args: argparse.Namespace, timezone: ZoneInfo) -> bool:
     """Make one complete acquisition attempt and report whether files were written."""
 
+    browser_path = args.browser_path or find_browser(args.browser_channel)
     with sync_playwright() as playwright:
-        browser = launch_browser(playwright, args.headed, args.browser_channel)
+        print(f"Starting {browser_path.name}...", file=sys.stderr, flush=True)
+        process, port = start_browser(browser_path, args.profile_dir, args.headed)
+        browser = None
         try:
-            context = browser.new_context(timezone_id=args.timezone, locale="en-GB")
-            listing = context.new_page()
-            listing.goto(args.url, wait_until="commit", timeout=45_000)
+            browser = playwright.chromium.connect_over_cdp(f"http://127.0.0.1:{port}")
+            context = browser.contexts[0]
+            listing = context.pages[0] if context.pages else context.new_page()
+            response = listing.goto(args.url, wait_until="commit", timeout=45_000)
+            if response is not None and response.status >= 400:
+                raise RuntimeError(
+                    f"Marathonbet returned HTTP {response.status} for {args.url}"
+                )
             seeds = discover_event_seeds(listing, args.url, timezone)
             listing.close()
             if not seeds:
@@ -367,7 +385,7 @@ def download_once(args: argparse.Namespace, timezone: ZoneInfo) -> bool:
                 print(f"[{number}/{len(seeds)}] {seed.url}", file=sys.stderr)
                 events.append(scrape_event(context, seed, timezone))
         finally:
-            browser.close()
+            close_attached_browser(browser, process)
 
     paths = write_results(events, args.output_dir, args.url, args.timezone)
     for path in paths:

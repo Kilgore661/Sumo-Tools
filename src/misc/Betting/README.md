@@ -48,6 +48,22 @@ experiment; it should be corrected when the production package is designed.
 Successful JSON downloads are evidence and must not be discarded merely
 because their present locations are provisional.
 
+The retained November 2026 evidence is also consolidated in
+`special_outputs/2026-11-basho-odds.csv`. It has one row per priced bout and
+records the bout date and basho day, both rikishi and their decimal odds, the
+source site, acquisition time, and the VPN place and exit IP when those were
+recorded. The older prototype downloads pre-date acquisition provenance, so
+their VPN-place and exit-IP fields are blank rather than inferred. The
+`unknown_start.json` Marathonbet capture is assigned to 2026-11-19 (Day 12):
+it was scraped on the preceding evening as next-day odds and matches the
+retained Day 12 evidence.
+
+This CSV represents every successful odds snapshot that is still retained,
+not necessarily every successful invocation. The event-time filenames can
+replace an earlier acquisition of the same event. For example, two successful
+Bet365 attempts for Day 15 were logged, but the second replaced the first JSON
+snapshot, so only the later prices can be recovered without inventing data.
+
 Both prototypes write the same broad JSON model:
 
 - source URL, timezone and acquisition timestamp;
@@ -66,7 +82,9 @@ is a production-design question, not part of these prototypes.
 `download_sumo_odds.py` opens Marathonbet's public sumo listing, discovers the
 currently offered events, follows each event page and reads its visible
 two-way fight-result prices. Events with the same start time are grouped into
-one JSON file.
+one JSON file. It now starts an ordinary installed Chrome or Edge and attaches
+Playwright through the browser's debugging interface, matching the browser
+policy used by the improved probes.
 
 Install the shared dependency from this folder:
 
@@ -85,7 +103,8 @@ The script reports every attempt. If no sumo events are available, or a
 transient Playwright error prevents acquisition, it waits 30 minutes and tries
 again. It exits after the first successful write. `Ctrl+C` stops it; `--once`
 requests one attempt only. Other diagnostic options include `--headed`,
-`--browser-channel msedge` and `--retry-minutes N`.
+`--headless`, `--browser-channel msedge` and `--retry-minutes N`. Headed mode
+is the default.
 
 This retry behavior has already provided some evidence about when Marathonbet
 publishes the next day's odds.
@@ -127,9 +146,9 @@ not run a retry loop.
 
 ## Current daily experiment
 
-For the remainder of the current basho, run both prototypes each day at
-14:30 UK time and retain every successful JSON acquisition. The immediate
-questions are:
+For the remainder of the current basho, start next-day acquisition runs between
+10:00 and 22:00 UK local time and retain every successful JSON acquisition.
+The immediate questions are:
 
 - Are next-day odds available at that time?
 - Does availability differ between the two bookmakers?
@@ -141,6 +160,17 @@ questions are:
 Failures are also observations about availability or scraper fragility, but
 the present goal is to accumulate successful source snapshots rather than to
 turn these scripts into production infrastructure during the trial.
+
+### Dated availability observation
+
+On 21 November 2026, Bet365's eight priced bouts for the final day on
+22 November were visibly available in an ordinary Chrome session using
+`Direct` (ExpressVPN disconnected) by approximately 12:33 GMT. After adapting
+the parser to Bet365's current interleaved rendered-text layout, the probe
+persisted all eight bouts at 12:41 GMT. This establishes that the odds were
+available by that time; it does not establish when Bet365 first published
+them. The captured runtime file is
+`files/output/misc/Betting/bet365/2026-11-22_05-00.json`.
 
 ## VPN-assisted source survey
 
@@ -162,6 +192,32 @@ The proposed next step—two Betting-owned, site-specific acquisition probes
 that adopt selected connection and recording mechanisms from the VPN sandbox—is
 specified in
 [docs/Improved Site-Specific Odds Probes Proposal.md](docs/Improved%20Site-Specific%20Odds%20Probes%20Proposal.md).
+
+The exploratory probes are runnable as modules. Previewing a plan performs no
+network or VPN operations and does not require elevation:
+
+```powershell
+py -m src.misc.Betting.probes.bet365 --plan
+py -m src.misc.Betting.probes.marathonbet --plan
+```
+
+A live run controls ExpressVPN and must be started from an Administrator
+PowerShell. By default Bet365 tries `Direct` followed by the 17 replicated
+common VPN places; Marathonbet tries those 17 VPN places without `Direct`.
+Use repeated `--place` arguments for a short controlled trial:
+
+```powershell
+py -m src.misc.Betting.probes.bet365 --place direct --place 181
+py -m src.misc.Betting.probes.marathonbet --place 181 --place 130
+```
+
+Normal runs may start from 10:00 through 22:00 UK local time. For development,
+`--ignore-window` is explicit. Successful output, browser profiles, attempt
+records and diagnostics go under `files/output/misc/Betting/`. In headed mode,
+Bet365 waits up to 60 seconds after opening a bout route so the operator can
+complete any visible human-confirmation checkbox; the program does not attempt
+to complete or bypass that challenge itself. Override the wait with
+`--manual-wait-seconds N`.
 
 The combined research question is:
 

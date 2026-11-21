@@ -14,11 +14,7 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import re
-import shutil
-import socket
-import subprocess
 import sys
 import time
 from collections import defaultdict
@@ -26,8 +22,6 @@ from dataclasses import asdict, dataclass
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any
-from urllib.error import URLError
-from urllib.request import urlopen
 from zoneinfo import ZoneInfo
 
 from playwright.sync_api import (
@@ -37,10 +31,11 @@ from playwright.sync_api import (
     sync_playwright,
 )
 
+from src.misc.Betting.probes import browser as browser_tools
+
 
 DEFAULT_URL = "https://www.bet365.com/#/AS/B160/"
 DEFAULT_PROFILE_DIR = Path(__file__).resolve().parent / "browser_profile"
-DEBUG_PORT_TIMEOUT_S = 10
 # Ceilings, not delays: each wait returns the moment its condition is met.
 # A person sees these pages in about a second, so hitting a ceiling means
 # the page is not in the state we expect.
@@ -48,6 +43,7 @@ RENDER_TIMEOUT_MS = 5_000
 STEP_TIMEOUT_MS = 3_000
 # A full page load plus Bet365's data arriving takes longer than a view change.
 LOAD_TIMEOUT_MS = 10_000
+DEFAULT_MANUAL_WAIT_SECONDS = 60.0
 # A person never clicks within milliseconds of a page appearing; give the app a
 # moment to finish connecting before the first click.
 SETTLE_MS = 1_000
@@ -300,6 +296,13 @@ def read_bout_route(page: Page) -> str | None:
     )
 
 
+def bout_route_from_url(url: str) -> str | None:
+    """Return a Bet365 Sumo bout route already present in an address."""
+
+    match = re.search(r"#/((?:AC/B160/C\d+/D\d+/E\d+/F\d+/))", url)
+    return f"/{match.group(1)}" if match else None
+
+
 def click_to_win_bout(page: Page) -> bool:
     """Click the 'To Win Bout' row as a person would; True if the address changed."""
 
@@ -383,6 +386,27 @@ def parse_bout_listing(page_lines: list[str], now: datetime) -> Listing:
         line = page_lines[i]
         names = page_lines[i + 1 : i + 3]
         if parse_display_date(line, now) is not None:
+            # Current Bet365 accessibility text places the two column headings
+            # before interleaved rows: time, two names, then the two prices.
+            if page_lines[i + 1 : i + 3] == ["1", "2"]:
+                rows: list[dict[str, Any]] = []
+                i += 3
+                while i + 4 < len(page_lines):
+                    row = page_lines[i : i + 5]
+                    if (
+                        TIME_RE.match(row[0])
+                        and all(is_name(value) for value in row[1:3])
+                        and all(PRICE_RE.match(value) for value in row[3:5])
+                    ):
+                        rows.append(
+                            {"lines": row[:3], "prices": row[3:5]}
+                        )
+                        i += 5
+                        continue
+                    break
+                if rows:
+                    sections.append((line, rows))
+                continue
             date_line, bouts = line, []
             i += 1
         elif (
@@ -459,7 +483,9 @@ def save_diagnostics(page: Page, directory: Path) -> None:
         print(f"Could not save page text: {exc}", file=sys.stderr)
 
 
-def find_bout_listing(page: Page, now: datetime) -> Listing:
+def find_bout_listing(
+    page: Page, now: datetime, manual_wait_ms: int = 0
+) -> Listing:
     """Reach the bout page and return its listing, reporting which route worked."""
 
     started = time.monotonic()
@@ -487,11 +513,23 @@ def find_bout_listing(page: Page, now: datetime) -> Listing:
         if sections:
             report("after clicking 'To Win Bout'")
             return sections
+        route = route or bout_route_from_url(page.url)
         print(
             "The click changed the address but no bouts appeared.",
             file=sys.stderr,
             flush=True,
         )
+        if manual_wait_ms:
+            print(
+                "If Bet365 is asking whether you are human, complete the "
+                f"checkbox in Chrome; waiting up to {manual_wait_ms / 1000:g} seconds...",
+                file=sys.stderr,
+                flush=True,
+            )
+            sections = wait_for_listing(page, now, manual_wait_ms)
+            if sections:
+                report("after manual browser confirmation")
+                return sections
     else:
         print("Clicking 'To Win Bout' did not work.", file=sys.stderr, flush=True)
 
@@ -508,12 +546,14 @@ def find_bout_listing(page: Page, now: datetime) -> Listing:
     return sections
 
 
-def discover_events(page: Page, timezone: ZoneInfo) -> list[Event]:
+def discover_events(
+    page: Page, timezone: ZoneInfo, manual_wait_ms: int = 0
+) -> list[Event]:
     """Read the bouts listed under Bet365's current Sumo 'To Win Bout' market."""
 
     dismiss_cookie_banner(page)
     now = datetime.now(timezone)
-    sections = find_bout_listing(page, now)
+    sections = find_bout_listing(page, now, manual_wait_ms)
     if not sections:
         raise RuntimeError(
             "Bet365's bout page did not show any bouts with prices; "
@@ -530,104 +570,6 @@ def discover_events(page: Page, timezone: ZoneInfo) -> list[Event]:
             context_lines.append(tournament)
         events.extend(parse_candidate_rows(rows, context_lines, now, page.url))
     return events
-
-
-def find_browser(channel: str) -> Path:
-    """Locate the installed Chrome or Edge executable."""
-
-    if channel == "chrome":
-        relative = Path("Google") / "Chrome" / "Application" / "chrome.exe"
-        names = ("chrome", "google-chrome")
-    else:
-        relative = Path("Microsoft") / "Edge" / "Application" / "msedge.exe"
-        names = ("msedge", "microsoft-edge")
-
-    roots = (
-        os.environ.get("ProgramFiles"),
-        os.environ.get("ProgramFiles(x86)"),
-        os.environ.get("LOCALAPPDATA"),
-    )
-    for root in roots:
-        if root and (Path(root) / relative).is_file():
-            return Path(root) / relative
-    for name in names:
-        found = shutil.which(name)
-        if found:
-            return Path(found)
-    raise RuntimeError(
-        f"Could not find an installed {channel} browser; "
-        "install it or pass its location with --browser-path"
-    )
-
-
-def free_port() -> int:
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        sock.bind(("127.0.0.1", 0))
-        return sock.getsockname()[1]
-
-
-def wait_for_debug_port(process: subprocess.Popen[bytes], port: int) -> None:
-    """Wait until the browser is listening for Playwright's connection."""
-
-    deadline = time.monotonic() + DEBUG_PORT_TIMEOUT_S
-    url = f"http://127.0.0.1:{port}/json/version"
-    while time.monotonic() < deadline:
-        if process.poll() is not None:
-            raise RuntimeError(
-                "The browser exited straight after starting; "
-                "is another copy already using the same --profile-dir?"
-            )
-        try:
-            with urlopen(url, timeout=1):
-                return
-        except (URLError, OSError):
-            time.sleep(0.2)
-    raise RuntimeError(
-        f"The browser did not open its debugging port within {DEBUG_PORT_TIMEOUT_S} seconds"
-    )
-
-
-def start_browser(
-    browser_path: Path, profile_dir: Path, headed: bool
-) -> tuple[subprocess.Popen[bytes], int]:
-    """Start the real browser ourselves, with no Playwright automation flags.
-
-    Playwright then only connects to it.  The browser keeps its own profile
-    folder, so cookies and the cookie choice persist between runs.
-    """
-
-    port = free_port()
-    profile_dir.mkdir(parents=True, exist_ok=True)
-    command = [
-        str(browser_path),
-        f"--remote-debugging-port={port}",
-        f"--user-data-dir={profile_dir.resolve()}",
-        "--no-first-run",
-        "--no-default-browser-check",
-        "--lang=en-GB",
-    ]
-    if not headed:
-        command.append("--headless=new")
-    command.append("about:blank")
-    process = subprocess.Popen(
-        command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
-    )
-    try:
-        wait_for_debug_port(process, port)
-    except RuntimeError:
-        stop_browser(process)
-        raise
-    return process, port
-
-
-def stop_browser(process: subprocess.Popen[bytes]) -> None:
-    if process.poll() is not None:
-        return
-    process.terminate()
-    try:
-        process.wait(timeout=5)
-    except subprocess.TimeoutExpired:
-        process.kill()
 
 
 def output_name(start: str) -> str:
@@ -692,33 +634,46 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="Browser executable, if it is not in the usual place",
     )
+    parser.add_argument(
+        "--manual-wait-seconds",
+        type=float,
+        default=DEFAULT_MANUAL_WAIT_SECONDS,
+        help="headed-mode wait for a human-check or delayed bout page (default: 60)",
+    )
     return parser.parse_args()
 
 
 def download_once(args: argparse.Namespace, timezone: ZoneInfo) -> bool:
-    browser_path = args.browser_path or find_browser(args.browser_channel)
+    browser_path = args.browser_path or browser_tools.find_browser(args.browser_channel)
     with sync_playwright() as playwright:
         print(f"Starting {browser_path.name}...", file=sys.stderr, flush=True)
-        process, port = start_browser(browser_path, args.profile_dir, args.headed)
+        process, port = browser_tools.start_browser(
+            browser_path, args.profile_dir, args.headed
+        )
         browser = None
         try:
             browser = playwright.chromium.connect_over_cdp(f"http://127.0.0.1:{port}")
             context = browser.contexts[0]
             page = context.pages[0] if context.pages else context.new_page()
             print("Opening the Bet365 Sumo page...", file=sys.stderr, flush=True)
-            page.goto(args.url, wait_until="commit", timeout=20_000)
+            response = page.goto(args.url, wait_until="commit", timeout=20_000)
+            if response is not None and response.status >= 400:
+                raise RuntimeError(
+                    f"Bet365 returned HTTP {response.status} for {args.url}"
+                )
             try:
-                events = discover_events(page, timezone)
+                manual_wait_ms = (
+                    max(0, int(getattr(args, "manual_wait_seconds", 0) * 1000))
+                    if args.headed
+                    else 0
+                )
+                events = discover_events(page, timezone, manual_wait_ms)
             except (RuntimeError, PlaywrightError):
-                save_diagnostics(page, args.output_dir / "diagnostics")
+                if getattr(args, "diagnostics", True):
+                    save_diagnostics(page, args.output_dir / "diagnostics")
                 raise
         finally:
-            if browser is not None:
-                try:
-                    browser.close()
-                except PlaywrightError:
-                    pass
-            stop_browser(process)
+            browser_tools.close_attached_browser(browser, process)
 
     if not events:
         print(

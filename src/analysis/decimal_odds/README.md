@@ -13,6 +13,32 @@ covered bout it reports:
 It does not yet load results, score forecasts, retain a market price history or
 publish website data.
 
+## Assessment of the current code
+
+The current implementation is a focused proof of concept for one saved odds
+JSON file and one selected basho day. It already:
+
+- builds a conservative current-banzuke shikona-to-History-ID index;
+- selects the Elo-89 ratings immediately before the requested day;
+- computes each rikishi's Elo-89 probability and equivalent decimal odds;
+- converts the two quoted prices to raw implied probabilities;
+- removes the two-way overround by proportional normalization; and
+- prints the comparison, with optional per-rikishi CSV output.
+
+It does **not** yet consume Betting's consolidated odds CSV, calculate a
+bookmaker-implied rating difference, compare that difference with the Elo-89
+rating difference, or produce data for the website. The command selects a
+single JSON file, and its market parser was written around Marathonbet's
+`Fight Result (2-Way)` label. Bet365's `To Win Bout` label would currently be
+rejected even though its saved prices are also two-way prices.
+
+Identity resolution currently accepts only a normalized shikona found on the
+selected banzuke. Of the 29 distinct bookmaker shikona retained for the
+November 2026 experiment, 27 resolve directly. The two exceptions are
+`Fujseiun` for History's `Fujiseiun` (ID 12702) and `Hoseryu` for `Hoshoryu`
+(ID 12451). No bookmaker alias or opponent-based inference exists yet, so
+either spelling currently causes the analysis to fail explicitly.
+
 ## Relationship to Torikumi infrastructure
 
 [`src.infra.torikumi`](../../infra/torikumi/README.md) already acquires the
@@ -62,3 +88,30 @@ selected banzuke and unmatched or ambiguous identities fail explicitly.
 Elo fair decimal odds are `1 / p`. Market implied probabilities begin as
 `1 / quoted_price`; the displayed market comparison removes the two-way
 overround by normalizing those two values to sum to one.
+
+## Possible next postprocessor
+
+The next exploratory step, if pursued, is a postprocessor over Betting's
+consolidated odds CSV. For each bout it would convert the normalized market
+probability to the rating difference implied by Basic Elo at `q=400`:
+
+```text
+market_rating_difference = 400 * log10(p / (1 - p))
+```
+
+It could then compare that value with the two rikishi's pre-bout Elo-89 rating
+difference. This is only a proposed analysis; it has not been implemented.
+
+Identity resolution for that postprocessor should remain conservative. If
+one bookmaker shikona resolves and the other does not, an unambiguous canonical
+bout for that day can identify the unknown opponent; the program should emit
+and retain a warning that inference occurred. If neither shikona resolves, or
+the bout lookup is missing or ambiguous, processing should stop with a useful
+fatal error. Completed bouts can come from History; a not-yet-completed day's
+canonical pairing would require the retained Torikumi schedule.
+
+Bookmaker page details such as displayed chii are outside this proposed first
+step. If chii later matters, History should remain the canonical source. The
+eventual meaning and presentation of the website's `Torikumi` menu item are
+still open questions, so the analysis should not pre-emptively encode page
+requirements that may prove moot.

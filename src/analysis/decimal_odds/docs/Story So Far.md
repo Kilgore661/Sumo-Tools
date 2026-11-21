@@ -86,3 +86,42 @@ altering that code.
 
 Until those decisions are made, the package should remain an analysis tool and
 should not feed the published site.
+
+## Assessment after the November odds collection
+
+The retained experiment now has a consolidated bout-level CSV under Betting's
+`special_outputs` directory. It contains 127 priced-bout observations from
+Days 5 through 15: 87 from Marathonbet and 40 from Bet365. It preserves the
+bookmaker, quoted decimal prices and available acquisition provenance. Older
+prototype captures do not contain VPN place or exit IP, and an event-time
+filename may have overwritten an earlier successful acquisition of the same
+event. The CSV therefore consolidates the successful snapshots that remain,
+not every successful invocation that ever occurred.
+
+The existing `decimal_odds` code does not read that CSV. It reads one source
+JSON and one day, resolves names only against the current banzuke, and produces
+Elo probability versus normalized market probability. It does not calculate a
+market-equivalent rating difference. Its two-way-market recognition is also
+specific to Marathonbet's label, so the saved Bet365 `To Win Bout` market is
+not yet accepted by the analysis even though the acquisition parser has
+already converted its fractional prices to decimal prices.
+
+The consolidated data exposes two real identity discrepancies among 29 unique
+bookmaker shikona: Bet365 supplied `Fujseiun` for Fujiseiun (History ID 12702),
+and Marathonbet supplied `Hoseryu` for Hoshoryu (History ID 12451). The other
+27 names resolve through ordinary case-and-whitespace normalization. These are
+evidence that the next analysis needs an auditable identity policy, not a
+reason to introduce general fuzzy matching.
+
+One proposed policy is to infer a single unknown shikona from the known
+opponent and the canonical bout for that day, while issuing and retaining a
+warning. Two unknown shikona, no matching bout or an ambiguous lookup should
+be fatal until examined. This remains a proposed rule rather than current
+behaviour.
+
+If a postprocessor is written, its first analytical addition would be to turn
+the overround-normalized market probability into the Basic-Elo rating
+difference implied at `q=400`, then compare it with the two pre-bout Elo-89
+ratings. That bout-level comparison is the only settled direction. Bookmaker
+chii, results presentation, ticks and crosses, summaries and the eventual
+website `Torikumi` page remain deliberately unspecified.

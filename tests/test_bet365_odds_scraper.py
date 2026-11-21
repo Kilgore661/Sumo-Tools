@@ -7,6 +7,7 @@ from zoneinfo import ZoneInfo
 import pytest
 
 from src.misc.Betting.download_bet365_sumo_odds import (
+    bout_route_from_url,
     decimal_price,
     open_route_fresh,
     parse_args,
@@ -65,6 +66,45 @@ def test_parse_bout_listing_aligns_bouts_with_price_columns() -> None:
                 {
                     "lines": ["05:00", "Atamifuji", "Hoshoryu"],
                     "prices": ["5/6", "5/6"],
+                },
+            ],
+        )
+    ]
+
+
+def test_parse_bout_listing_accepts_interleaved_rendered_rows() -> None:
+    now = datetime(2026, 11, 21, 12, tzinfo=ZoneInfo("Europe/London"))
+    page_lines = [
+        "Sumo",
+        "November Grand Tournament",
+        "To Win Bout",
+        "Sun 22 Nov",
+        "1",
+        "2",
+        "05:00",
+        "Aonishiki",
+        "Kotozakura",
+        "4/7",
+        "5/4",
+        "05:00",
+        "Asanoyama",
+        "Kinbozan",
+        "8/15",
+        "11/8",
+        "Information and transmission delays",
+    ]
+
+    assert parse_bout_listing(page_lines, now) == [
+        (
+            "Sun 22 Nov",
+            [
+                {
+                    "lines": ["05:00", "Aonishiki", "Kotozakura"],
+                    "prices": ["4/7", "5/4"],
+                },
+                {
+                    "lines": ["05:00", "Asanoyama", "Kinbozan"],
+                    "prices": ["8/15", "11/8"],
                 },
             ],
         )
@@ -133,6 +173,13 @@ def test_open_route_fresh_sets_address_then_reloads() -> None:
 
     assert page.visited == "https://www.bet365.com/#/AC/B160/C1/D1/E2/F2/"
     assert page.reloaded
+
+
+def test_bout_route_is_recovered_from_address_after_click() -> None:
+    assert bout_route_from_url(
+        "https://www.bet365.com/#/AC/B160/C21182062/D1/E140895437/F2/"
+    ) == "/AC/B160/C21182062/D1/E140895437/F2/"
+    assert bout_route_from_url("https://www.bet365.com/#/AS/B160/") is None
 
 
 def test_browser_is_headed_by_default(monkeypatch) -> None:
