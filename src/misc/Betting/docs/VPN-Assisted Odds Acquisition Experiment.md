@@ -340,4 +340,6 @@ The next Betting-owned design question is the browser stage: how selected
 site/place candidates will be tested with an ordinary browser for rendered
 application content, language, sumo availability and priced bouts. Selenium,
 Playwright and the eventual package boundary remain implementation choices.
+The current proposal for that stage is
+[Improved Site-Specific Odds Probes Proposal.md](Improved%20Site-Specific%20Odds%20Probes%20Proposal.md).
 

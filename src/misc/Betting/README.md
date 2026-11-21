@@ -158,6 +158,11 @@ boundaries remain open.
 The full experimental design is in
 [docs/VPN-Assisted Odds Acquisition Experiment.md](docs/VPN-Assisted%20Odds%20Acquisition%20Experiment.md).
 
+The proposed next step—two Betting-owned, site-specific acquisition probes
+that adopt selected connection and recording mechanisms from the VPN sandbox—is
+specified in
+[docs/Improved Site-Specific Odds Probes Proposal.md](docs/Improved%20Site-Specific%20Odds%20Probes%20Proposal.md).
+
 The combined research question is:
 
 > Is there a repeatable combination of source, VPN location, browser state,
