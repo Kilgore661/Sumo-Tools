@@ -6,15 +6,24 @@ standalone descriptive baseline, with no Elo fitting or probability calibration.
 See [Findings](docs/Findings.md) for the motivation, recorded results, relationship
 to the earlier Elo scores, and the agreed limits of this probe.
 
-The proposed matched test of current production Elo89 against the higher-chii
+The completed matched test of current production Elo89 against the higher-chii
 rule is specified in
-[Proposal: Matched Elo89 versus Chii Winner Accuracy](docs/Proposal%20-%20Matched%20Elo89%20vs%20Chii%20Accuracy.md).
+[Proposal: Matched Elo89 versus Chii Winner Accuracy](docs/Proposal%20-%20Matched%20Elo89%20vs%20Chii%20Accuracy.md)
+and recorded in [Findings](docs/Findings.md). On the common 583,115-bout domain,
+production Elo89 selected 57.774% of winners and higher chii selected 52.635%.
+The predeclared ordering `Elo89 > higher chii > random choice` was confirmed
+on the matched historical record. This is a necessary retrospective
+validation, not a claim that Elo89 is the best possible model.
 
 Run from the repository root:
 
 ```powershell
 python -m src.analysis.chii_prediction
 python -m src.analysis.chii_prediction --start 1989/01 --end 2026/07
+python -m src.analysis.chii_prediction.compare_elo89 `
+  --history-zip "files/output/Historys/1989_01 to 2026_11.zip" `
+  --evaluation-start 1989/01 `
+  --evaluation-end 2026/11
 ```
 
 Options: `--history-zip PATH`, `--start YYYY/MM`, `--end YYYY/MM`,
