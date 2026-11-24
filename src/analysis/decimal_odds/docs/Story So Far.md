@@ -98,13 +98,13 @@ filename may have overwritten an earlier successful acquisition of the same
 event. The CSV therefore consolidates the successful snapshots that remain,
 not every successful invocation that ever occurred.
 
-The existing `decimal_odds` code does not read that CSV. It reads one source
-JSON and one day, resolves names only against the current banzuke, and produces
-Elo probability versus normalized market probability. It does not calculate a
-market-equivalent rating difference. Its two-way-market recognition is also
-specific to Marathonbet's label, so the saved Bet365 `To Win Bout` market is
-not yet accepted by the analysis even though the acquisition parser has
-already converted its fractional prices to decimal prices.
+The original `compare_next_day_odds` code does not read that CSV. It reads one
+source JSON and one day, resolves names only against the current banzuke, and
+produces Elo probability versus normalized market probability. Its two-way
+market recognition is specific to Marathonbet's label, so the saved Bet365
+`To Win Bout` market is not accepted by that original command even though the
+acquisition parser has already converted its fractional prices to decimal
+prices.
 
 The consolidated data exposes two real identity discrepancies among 29 unique
 bookmaker shikona: Bet365 supplied `Fujseiun` for Fujiseiun (History ID 12702),
@@ -113,15 +113,19 @@ and Marathonbet supplied `Hoseryu` for Hoshoryu (History ID 12451). The other
 evidence that the next analysis needs an auditable identity policy, not a
 reason to introduce general fuzzy matching.
 
-One proposed policy is to infer a single unknown shikona from the known
-opponent and the canonical bout for that day, while issuing and retaining a
-warning. Two unknown shikona, no matching bout or an ambiguous lookup should
-be fatal until examined. This remains a proposed rule rather than current
-behaviour.
+The new `compare_rating_differences` postprocessor implements the conservative
+identity policy discussed after the collection. It infers a single unknown
+shikona from the known opponent and the canonical bout for that day, while
+printing and retaining a warning. Two unknown shikona, no matching bout or an
+ambiguous lookup are fatal. History supplies completed-day pairings and the
+retained Torikumi snapshot may supply a future pairing. The two observed
+misspellings resolve successfully under this rule without an alias table.
 
-If a postprocessor is written, its first analytical addition would be to turn
-the overround-normalized market probability into the Basic-Elo rating
-difference implied at `q=400`, then compare it with the two pre-bout Elo-89
-ratings. That bout-level comparison is the only settled direction. Bookmaker
-chii, results presentation, ticks and crosses, summaries and the eventual
-website `Torikumi` page remain deliberately unspecified.
+The postprocessor turns the overround-normalized market probability into the
+signed Basic-Elo rating difference implied at `q=400`, then compares it with
+the signed first-minus-second pre-bout Elo-89 rating difference. Its CSV
+retains the inputs, fair probabilities and odds, both rating gaps, their
+difference, identity methods and warnings. It requires the exact rating
+snapshot immediately before each day and fails rather than substituting stale
+ratings. Bookmaker chii, results presentation, ticks and crosses, summaries
+and the eventual website `Torikumi` page remain deliberately unspecified.

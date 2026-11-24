@@ -1,8 +1,9 @@
 # Decimal odds comparison
 
-This exploratory package joins a saved next-day external odds file to the
-selected banzuke and the accepted Elo-89 rating artifacts. For each externally
-covered bout it reports:
+This exploratory package joins saved external odds to the selected banzuke and
+the accepted Elo-89 rating artifacts. It contains the original one-JSON
+comparison and a consolidated-CSV rating-difference postprocessor. Across
+those tools it can report:
 
 - canonical rikishi identity;
 - Elo-89 rating immediately before the selected day;
@@ -13,10 +14,10 @@ covered bout it reports:
 It does not yet load results, score forecasts, retain a market price history or
 publish website data.
 
-## Assessment of the current code
+## Assessment of the original one-file comparison
 
-The current implementation is a focused proof of concept for one saved odds
-JSON file and one selected basho day. It already:
+`compare_next_day_odds.py` is the original focused proof of concept for one
+saved odds JSON file and one selected basho day. It:
 
 - builds a conservative current-banzuke shikona-to-History-ID index;
 - selects the Elo-89 ratings immediately before the requested day;
@@ -25,27 +26,28 @@ JSON file and one selected basho day. It already:
 - removes the two-way overround by proportional normalization; and
 - prints the comparison, with optional per-rikishi CSV output.
 
-It does **not** yet consume Betting's consolidated odds CSV, calculate a
-bookmaker-implied rating difference, compare that difference with the Elo-89
-rating difference, or produce data for the website. The command selects a
-single JSON file, and its market parser was written around Marathonbet's
-`Fight Result (2-Way)` label. Bet365's `To Win Bout` label would currently be
-rejected even though its saved prices are also two-way prices.
+That command does not consume Betting's consolidated odds CSV or calculate
+rating differences. Its market parser was written around Marathonbet's
+`Fight Result (2-Way)` label, so Bet365's `To Win Bout` label is rejected even
+though its saved prices are also two-way prices. The separate postprocessor
+documented below handles the consolidated CSV directly and therefore does not
+depend on those source market labels.
 
-Identity resolution currently accepts only a normalized shikona found on the
-selected banzuke. Of the 29 distinct bookmaker shikona retained for the
-November 2026 experiment, 27 resolve directly. The two exceptions are
+The original command accepts only a normalized shikona found on the selected
+banzuke. Of the 29 distinct bookmaker shikona retained for the November 2026
+experiment, 27 resolve directly. The two exceptions are
 `Fujseiun` for History's `Fujiseiun` (ID 12702) and `Hoseryu` for `Hoshoryu`
-(ID 12451). No bookmaker alias or opponent-based inference exists yet, so
-either spelling currently causes the analysis to fail explicitly.
+(ID 12451). The new postprocessor resolves these from the known opponent and
+canonical bout, while the original command still fails on them explicitly.
 
 ## Relationship to Torikumi infrastructure
 
 [`src.infra.torikumi`](../../infra/torikumi/README.md) already acquires the
 complete published bout schedule for an active or immediate upcoming basho.
-This package does not currently consume its `Future` artifact: the first
-script starts from the selected bouts present in an external-odds file and
-resolves those rikishi independently.
+The original command does not consume its `Future` artifact: it starts from
+the selected bouts present in an external-odds file and resolves those rikishi
+independently. The rating-difference postprocessor can use `Future` only when
+it must infer one unknown shikona from a not-yet-completed canonical bout.
 
 A later day-by-day analysis could use `Future` as the canonical source of
 published future pairings, use `History` for completed pairings and outcomes,
@@ -58,7 +60,10 @@ boundary, not an existing dependency or a settled site requirement.
 The package is split into:
 
 - `analysis.py`: name resolution, rating selection and probability calculations;
-- `compare_next_day_odds.py`: the command-line analysis script; and
+- `compare_next_day_odds.py`: the original one-JSON command-line analysis;
+- `rating_differences.py`: consolidated-row identity resolution and rating-gap
+  calculations;
+- `compare_rating_differences.py`: the consolidated CSV postprocessor;
 - `docs/Story So Far.md`: background, findings and open requirements.
 
 Run the script against the newest JSON in `src/misc/Betting/odds` and the live
@@ -89,29 +94,53 @@ Elo fair decimal odds are `1 / p`. Market implied probabilities begin as
 `1 / quoted_price`; the displayed market comparison removes the two-way
 overround by normalizing those two values to sum to one.
 
-## Possible next postprocessor
+## Odds/Elo rating-difference postprocessor
 
-The next exploratory step, if pursued, is a postprocessor over Betting's
-consolidated odds CSV. For each bout it would convert the normalized market
-probability to the rating difference implied by Basic Elo at `q=400`:
+`compare_rating_differences.py` reads Betting's consolidated odds CSV. For
+each bout it converts the normalized market probability to the rating
+difference implied by Basic Elo at `q=400`:
 
 ```text
 market_rating_difference = 400 * log10(p / (1 - p))
 ```
 
-It could then compare that value with the two rikishi's pre-bout Elo-89 rating
-difference. This is only a proposed analysis; it has not been implemented.
+It compares that signed first-rikishi-minus-second-rikishi value with the two
+pre-bout Elo-89 ratings and writes both differences and
+`market_minus_elo89_difference`. The output also retains the quoted prices,
+overround, no-overround probabilities and fair odds, rating cutoff, History
+IDs and identity-resolution method.
 
-Identity resolution for that postprocessor should remain conservative. If
-one bookmaker shikona resolves and the other does not, an unambiguous canonical
-bout for that day can identify the unknown opponent; the program should emit
-and retain a warning that inference occurred. If neither shikona resolves, or
-the bout lookup is missing or ambiguous, processing should stop with a useful
-fatal error. Completed bouts can come from History; a not-yet-completed day's
-canonical pairing would require the retained Torikumi schedule.
+Identity resolution remains conservative. If one bookmaker shikona resolves
+and the other does not, an unambiguous canonical bout for that day identifies
+the unknown opponent. The program prints a warning and retains it in the
+output row. If neither shikona resolves, or the bout lookup is missing or
+ambiguous, processing stops with a fatal error. Completed bouts come from
+History; the retained Torikumi schedule can supply a not-yet-completed day.
+Rows whose two shikona resolve do not require a schedule lookup.
 
-Bookmaker page details such as displayed chii are outside this proposed first
-step. If chii later matters, History should remain the canonical source. The
+Run all rows for which the rating artifacts contain an exact pre-day snapshot:
+
+```powershell
+py -m src.analysis.decimal_odds.compare_rating_differences `
+  --history-zip ".\files\output\Historys\1989_01 to 2026_11.zip"
+```
+
+Use repeatable `--day` options for a partial run while later rating snapshots
+are not yet available:
+
+```powershell
+py -m src.analysis.decimal_odds.compare_rating_differences `
+  --history-zip ".\files\output\Historys\1989_01 to 2026_11.zip" `
+  --day 10 --day 11
+```
+
+Ordinary output is
+`files/output/analysis/decimal_odds/2026-11-odds-elo-differences.csv`.
+Missing exact pre-bout ratings are fatal; the comparer never substitutes an
+older, stale rating snapshot.
+
+Bookmaker page details such as displayed chii are outside this first step. If
+chii later matters, History should remain the canonical source. The
 eventual meaning and presentation of the website's `Torikumi` menu item are
 still open questions, so the analysis should not pre-emptively encode page
 requirements that may prove moot.
