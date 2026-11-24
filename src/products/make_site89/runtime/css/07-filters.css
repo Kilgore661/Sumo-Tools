@@ -108,3 +108,49 @@
 .basho-navigation-buttons button[data-basho-nav="last"] .basho-navigation-icon {
   height: 22px;
 }
+
+.torikumi-day-control > .choice-label {
+  display: block;
+}
+
+.torikumi-day-table {
+  border-collapse: separate;
+  border-spacing: 0.35rem 0.15rem;
+  margin-left: 1em;
+  margin-top: 0.2rem;
+}
+
+.torikumi-day-table td {
+  height: 1.35em;
+  padding: 0;
+  text-align: center;
+  width: 1.6rem;
+}
+
+.torikumi-day-table button {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  line-height: 1.35;
+  padding: 0;
+  text-align: center;
+}
+
+.torikumi-day-table button:disabled {
+  color: var(--artifact-muted-fg);
+  cursor: default;
+}
+
+.torikumi-day-table button[aria-pressed="true"] {
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.torikumi-day-table button:not(:disabled):focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: 2px;
+}

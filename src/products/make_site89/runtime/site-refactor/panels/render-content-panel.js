@@ -14,7 +14,7 @@ import { buildFastestRisersPresentationModel } from "../ui/fastest-risers/model.
 import { renderFastestRisersTable } from "../ui/fastest-risers/render.js";
 import { wirePAPanelLayout } from "../ui/layout.js";
 import { renderNotes, wireNotesPanel } from "../ui/notes.js";
-import { renderTorikumiTable, selectedTorikumiEntry } from "../ui/torikumi.js";
+import { renderTorikumiSummary, renderTorikumiTable, selectedTorikumiEntry } from "../ui/torikumi.js";
 import { banzukeScanColumns, renderBanzukeChangesTable, renderGenericTable, renderIndexedTable, renderSectionedTable, renderStandingsTable, standingsRowsForState, wireTableSorting } from "../ui/tables.js";
 import { escapeHtml } from "../utils/html.js";
 
@@ -64,40 +64,55 @@ async function renderContentPanel(panel, overrideState = null) {
   throw new Error(`Unsupported artifact kind: ${artifact.kind}`);
 }
 
-// Render future-day selection and the fixed East / West table.
+// Render historical or forthcoming torikumi for the selected basho and day.
 async function renderTorikumiContentPanel(panel, artifact, overrideState = null) {
   const filters = panel.contents.filter_section.filters;
   const state = overrideState || resolveFilterState(filters, readFilterUrlState(filters));
   const index = await fetchJson(artifact.indexed_source.index_path);
-  const selectedEntry = selectedTorikumiEntry(index, state.torikumi_day);
-  if (!selectedEntry) {
-    contentPanel.innerHTML = [
-      '<section class="content-panel">',
-      `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
-      renderContentSummary(panel.heading.summary),
-      '<div class="content-body"><section class="pa-panel"><div class="pa-slot">',
-      '<p>No torikumi</p>',
-      '</div></section></div>',
-      '</section>',
-    ].join("");
-    return;
-  }
-  const dataRoot = artifact.indexed_source.index_path.replace(/[^/]+$/, "");
-  const payloadPath = selectedEntry[artifact.indexed_source.payload_path_field];
-  const rows = await fetchCsv(`${dataRoot}${payloadPath.replace(/^data\//, "")}`);
+  const selectedBasho = resolveBashoCalendarState(index, state);
+  state.basho_year = selectedBasho.year;
+  state.basho_month = selectedBasho.month;
+  const bashoEntry = selectedBasho.entry;
   const divisionIds = (index.divisions || []).map(division => division.id);
   const requestedDivision = state.division || index.default_division;
   const selectedDivision = divisionIds.includes(requestedDivision)
     ? requestedDivision
     : (divisionIds[0] || "makuuchi");
-  state.torikumi_day = String(selectedEntry.day);
   state.division = selectedDivision;
+  const selectedDay = bashoEntry
+    ? selectedTorikumiEntry(bashoEntry, state.torikumi_day)
+    : null;
+  state.torikumi_day = selectedDay ? String(selectedDay.day) : "";
   writePanelUrl(panel.page_id, filters, state, { replace: true });
-  const divisionRows = rows.filter(row => row.division_id === selectedDivision);
-  const ratingsCutoff = selectedEntry.ratings_cutoff || index.ratings_cutoff;
-  const ratingsNote = ratingsCutoff
-    ? `Forecasts use Elo89 ratings at ${escapeHtml(ratingsCutoff)}.`
-    : "Elo89 rating cutoff is unavailable.";
+
+  let artifactContent = "";
+  let notesContent = "";
+  if (!bashoEntry) {
+    artifactContent = `<p>There was no basho in ${escapeHtml(monthLabel(selectedBasho.month))} ${escapeHtml(selectedBasho.year)}</p>`;
+  } else if (selectedDay) {
+    const dataRoot = artifact.indexed_source.index_path.replace(/[^/]+$/, "");
+    const payloadPath = bashoEntry[artifact.indexed_source.payload_path_field];
+    const rows = await fetchCsv(`${dataRoot}${payloadPath.replace(/^data\//, "")}`);
+    const divisionRows = rows.filter(row => (
+      String(row.day) === String(selectedDay.day) && row.division_id === selectedDivision
+    ));
+    const division = (index.divisions || []).find(candidate => candidate.id === selectedDivision);
+    const divisionLabel = division?.label || selectedDivision;
+    const ratingsNote = selectedDay.ratings_cutoff
+      ? `Odds use Elo89 ratings at ${escapeHtml(selectedDay.ratings_cutoff)}.`
+      : "Elo89 rating cutoff is unavailable.";
+    const summary = selectedDay.summaries?.[selectedDivision];
+    artifactContent = [
+      '<div class="artifact-title-block">',
+      `<h4>${escapeHtml(divisionLabel)} Torikumi for ${escapeHtml(bashoEntry.label)}, Day ${escapeHtml(selectedDay.day)}</h4>`,
+      `<p>${ratingsNote}</p>`,
+      renderTorikumiSummary(summary),
+      '</div>',
+      renderTorikumiTable(divisionRows),
+    ].join("");
+    notesContent = renderNotes(artifact, state);
+  }
+
   contentPanel.innerHTML = [
     '<section class="content-panel">',
     `<h2 id="content-title">${escapeHtml(panel.heading.title)}</h2>`,
@@ -105,12 +120,14 @@ async function renderTorikumiContentPanel(panel, artifact, overrideState = null)
     '<div class="content-body">',
     renderFilterSection(panel.contents.filter_section, state, index),
     '<section class="pa-panel"><div class="pa-slot">',
-    `<div class="artifact-title-block"><h4>${escapeHtml(index.basho)}, ${escapeHtml(selectedEntry.label)}</h4>`,
-    `<p>${ratingsNote}</p></div>`,
-    renderTorikumiTable(divisionRows),
-    '</div></section></div></section>',
+    artifactContent,
+    '</div>',
+    notesContent,
+    '</section></div></section>',
   ].join("");
   wireFilterSection(panel, state, renderContentPanel, index);
+  if (selectedDay) wireNotesPanel();
+  wirePAPanelLayout();
 }
 // Restrict artifact notes to the note ids owned by the current PAPanel.
 function artifactForPAPanel(panel, artifact) {

@@ -15,6 +15,7 @@ from src.infra.torikumi.model import Future, FutureBout, FutureDay
 from src.infra.torikumi.parser import parse_torikumi_page
 from src.infra.torikumi.persistence import load_future, save_future
 from src.infra.torikumi.scraper import refresh_future
+from src.sumo_core.BasicEnums import Outcome
 from src.sumo_core.BasicPrimitives import Day, Month, RikId, Year
 from src.sumo_core.Chii import Chii
 from src.sumo_core.History import Date
@@ -239,22 +240,25 @@ def test_annotation_uses_latest_existing_rating_snapshot(tmp_path: Path) -> None
     index = json.loads(paths[0].read_text(encoding="utf-8"))
     with paths[1].open(newline="", encoding="utf-8") as stream:
         row = next(csv.DictReader(stream))
-    day_14 = index["entries"][13]
+    basho = index["entries"][0]
+    day_14 = basho["days"][13]
     assert day_14["day"] == "14"
     assert day_14["disabled"] is False
     assert day_14["ratings_cutoff"] == "end of Day 9"
-    assert index["default_day"] == "14"
-    assert len(index["entries"]) == 15
-    assert index["entries"][14] == {
+    assert index["default_day"] is None
+    assert index["default_basho"] == "2026/09"
+    assert len(basho["days"]) == 15
+    assert basho["days"][14] == {
         "day": "15",
         "label": "Day 15",
         "disabled": True,
     }
     assert row["east_shikona"] == "Fred"
     assert row["division_id"] == "makuuchi"
-    assert row["east_probability"] == "24%"
-    assert row["west_probability"] == "76%"
-    assert "result" not in row
+    assert row["east_odds"] == "4.16"
+    assert row["west_odds"] == "1.32"
+    assert row["prediction_side"] == "west"
+    assert row["prediction_result"] == "pending"
 
 
 def test_empty_future_produces_no_torikumi_index(tmp_path: Path) -> None:
@@ -283,8 +287,8 @@ def test_empty_future_produces_no_torikumi_index(tmp_path: Path) -> None:
     )
 
     index = json.loads(paths[0].read_text(encoding="utf-8"))
-    assert len(index["entries"]) == 15
-    assert all(entry["disabled"] for entry in index["entries"])
+    assert len(index["entries"]) == 1
+    assert all(entry["disabled"] for entry in index["entries"][0]["days"])
     assert index["default_day"] is None
 
 
@@ -330,9 +334,9 @@ def test_annotation_marks_mz_rating_and_probabilities_as_unknown(tmp_path: Path)
         row = next(csv.DictReader(stream))
     assert row["division_id"] == "juryo"
     assert row["east_elo89"] == "-"
-    assert row["west_elo89"] == "1600"
-    assert row["east_probability"] == "-"
-    assert row["west_probability"] == "-"
+    assert row["west_elo89"] == "1600.0"
+    assert row["east_odds"] == "-"
+    assert row["west_odds"] == "-"
 
     del ratings.basho_start_ratings[str(DATE)]["2"]
     with pytest.raises(ValueError, match="rating for banzuke rikishi 2"):
@@ -351,3 +355,84 @@ def test_annotation_marks_mz_rating_and_probabilities_as_unknown(tmp_path: Path)
                 MappingProxyType({RikId(1): "Fred", RikId(2): "Bill"})
             ),
         )
+
+
+def test_historical_results_score_favourites_and_profit_without_fusen(
+    tmp_path: Path,
+) -> None:
+    pairs = [
+        (RikId(2), RikId(1), Outcome.W, Outcome.L),
+        (RikId(4), RikId(3), Outcome.W, Outcome.L),
+        (RikId(6), RikId(5), Outcome.FS, Outcome.FP),
+    ]
+    results = {
+        (east, west): SimpleNamespace(
+            rikishi1=east,
+            outcome1=east_outcome,
+            rikishi2=west,
+            outcome2=west_outcome,
+        )
+        for east, west, east_outcome, west_outcome in pairs
+    }
+    ranks = {RikId(rid): Chii.from_str(f"M{rid}e") for rid in range(1, 7)}
+    ratings = Elo89Artifacts(
+        root=tmp_path,
+        manifest={"q": 400.0},
+        prior={},
+        basho_start_ratings={
+            str(DATE): {
+                "1": 1600.0, "2": 1400.0,
+                "3": 1500.0, "4": 1700.0,
+                "5": 1550.0, "6": 1450.0,
+            }
+        },
+        day_end_ratings={},
+        basho_end_ratings={},
+        bout_ledger=(),
+    )
+    future = Future(
+        date=DATE,
+        completed_through=Day(1),
+        generated_at=NOW,
+        days=(),
+    )
+
+    paths = produce_torikumi(
+        history={
+            DATE: SimpleNamespace(
+                banzuke=SimpleNamespace(rikchii=ranks),
+                summary={
+                    Day(1): SimpleNamespace(
+                        torikumi=set(results),
+                        results_lookup=results,
+                    )
+                },
+            )
+        },
+        future=future,
+        ratings=ratings,
+        output_root=tmp_path,
+        names=FullShikonaStore(
+            MappingProxyType({
+                RikId(rid): f"Rikishi {rid}" for rid in range(1, 7)
+            })
+        ),
+    )
+
+    index = json.loads(paths[0].read_text(encoding="utf-8"))
+    day = index["entries"][0]["days"][0]
+    summary = day["summaries"]["makuuchi"]
+    assert summary["correct"] == 1
+    assert summary["scored"] == 2
+    assert summary["fusen_excluded"] == 1
+    assert summary["draw_excluded"] == 0
+    assert summary["favourite_profit"] == pytest.approx(-0.683772)
+    assert summary["winner_profit"] == pytest.approx(3.478505)
+    assert summary["chii_scored"] == 2
+    assert summary["chii_profit"] == pytest.approx(-2.0)
+
+    with paths[1].open(newline="", encoding="utf-8") as stream:
+        rows = list(csv.DictReader(stream))
+    assert [row["prediction_result"] for row in rows] == [
+        "incorrect", "correct", "excluded"
+    ]

@@ -190,12 +190,13 @@ def test_upcoming_torikumi_uses_projected_start_ratings(tmp_path: Path) -> None:
     )
 
     index = json.loads(paths[0].read_text(encoding="utf-8"))
-    with paths[1].open(newline="", encoding="utf-8") as stream:
+    with paths[2].open(newline="", encoding="utf-8") as stream:
         row = next(csv.DictReader(stream))
-    assert index["basho"] == "2026/11"
-    assert index["entries"][0]["ratings_cutoff"] == "projected start of basho"
-    assert row["east_elo89"] == "1600"
-    assert row["west_elo89"] == "1400"
+    november = index["entries"][1]
+    assert november["basho"] == "2026/11"
+    assert november["days"][0]["ratings_cutoff"] == "projected start of basho"
+    assert row["east_elo89"] == "1600.0"
+    assert row["west_elo89"] == "1400.0"
 
 
 def _history(date: Date, *, completed: Day):

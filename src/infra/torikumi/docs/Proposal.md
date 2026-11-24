@@ -2,8 +2,9 @@
 
 ## Status
 
-This document records the implemented work-in-progress design. The public
-name `Torikumi` remains provisional while the artifact is evaluated.
+This document records the original prospective-only design. It has been
+superseded by the historical/current artifact described in the parent
+`README.md`; the acquisition and lifecycle sections remain useful background.
 
 ## Motivation
 

@@ -86,8 +86,8 @@ PAGES = PageRegistry(
         ),
         "torikumi": PageDefinition(
             id="torikumi",
-            title="Torikumi for Future Days",
-            summary="Upcoming bouts annotated with Elo89 ratings and win forecasts.",
+            title="Torikumi",
+            summary="Day-by-day bouts, fair Elo89 odds and prediction results.",
             status=PageStatus.PROMOTED,
             artifact=artifact(
                 "torikumi",

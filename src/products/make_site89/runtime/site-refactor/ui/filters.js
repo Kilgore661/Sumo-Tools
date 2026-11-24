@@ -92,16 +92,30 @@ function wireFilterSection(panel, state, renderPanel, index = null) {
       if (!input) continue;
       nextState[filter.id] = filter.control === "checkbox" ? input.checked : input.value;
     }
+    if (control.name === "basho_year" || control.name === "basho_month") {
+      nextState.torikumi_day = "";
+    }
     writePanelUrl(panel.page_id, filters, nextState, { replace: false });
     renderPanel(panel, nextState).catch(error => {
       contentPanel.innerHTML = `<p>${escapeHtml(error.message)}</p>`;
     });
   });
   form.addEventListener("click", event => {
+    const dayButton = event.target.closest("button[data-torikumi-day]");
+    if (dayButton) {
+      const filters = panel.contents.filter_section.filters;
+      const nextState = { ...state, torikumi_day: dayButton.dataset.torikumiDay };
+      writePanelUrl(panel.page_id, filters, nextState, { replace: false });
+      renderPanel(panel, nextState).catch(error => {
+        contentPanel.innerHTML = `<p>${escapeHtml(error.message)}</p>`;
+      });
+      return;
+    }
     const button = event.target.closest("button[data-basho-nav]");
     if (!button || !index) return;
     const nextState = bashoNavigationState(button.dataset.bashoNav, index, state);
     if (!nextState) return;
+    nextState.torikumi_day = "";
     const filters = panel.contents.filter_section.filters;
     writePanelUrl(panel.page_id, filters, nextState, { replace: false });
     renderPanel(panel, nextState).catch(error => {
@@ -278,13 +292,16 @@ function renderFilter(filter, state, index, rowsBySource = {}) {
   }
   const values = filterValues(filter, state, index, rowsBySource);
   const selected = selectedFilterValue(filter, state, index);
+  if (filter.id === "torikumi_day") {
+    return renderTorikumiDayGrid(filter, values, selected);
+  }
   if (values.length <= 7) {
     return renderRadioChoice(filter, values, selected);
   }
   return renderDropdownChoice(filter, values, selected);
 }
 function filterValues(filter, state, index, rowsBySource) {
-  if (filter.id === "torikumi_day" && index) return torikumiDayValues(index);
+  if (filter.id === "torikumi_day" && index) return torikumiDayValues(index, state);
   if (filter.id === "basho_date" && index) return bashoSelectorValues(index);
   if (filter.id === "basho_year" && index) return supportedBashoYears(index);
   if (filter.id === "basho_month" && index) return SUMO_MONTHS;
@@ -293,11 +310,11 @@ function filterValues(filter, state, index, rowsBySource) {
 }
 function selectedFilterValue(filter, state, index) {
   if (filter.id === "torikumi_day" && index) {
-    const values = torikumiDayValues(index).filter(value => !value.disabled);
+    const values = torikumiDayValues(index, state).filter(value => !value.disabled);
     const selected = String(state[filter.id] || "");
     return values.some(value => value.value === selected)
       ? selected
-      : String(index.default_day || values[0]?.value || "");
+      : "";
   }
   if (filter.id === "basho_date" && index) {
     return selectedIndexEntry(index, state[filter.id]).basho;
@@ -321,12 +338,40 @@ function renderRadioChoice(filter, values, selected) {
     '</div>'
   ].join("");
 }
-function torikumiDayValues(index) {
-  return (index.entries || []).map(entry => ({
+function torikumiDayValues(index, state = {}) {
+  let entries = index.entries || [];
+  if (entries.some(entry => entry.basho)) {
+    const selected = resolveBashoCalendarState(index, state).entry;
+    entries = selected?.days || [];
+  }
+  return entries.map(entry => ({
     value: String(entry.day),
     label: entry.label || `Day ${entry.day}`,
-    disabled: entry.disabled === true || !entry.payload_path,
+    disabled: entry.disabled === true,
   }));
+}
+function renderTorikumiDayGrid(filter, values, selected) {
+  const cells = values.map(value => {
+    const selectedAttr = value.value === selected ? ' aria-pressed="true"' : ' aria-pressed="false"';
+    const disabledAttr = value.disabled ? " disabled" : "";
+    return [
+      '<td>',
+      `<button type="button" data-torikumi-day="${escapeHtml(value.value)}"${selectedAttr}${disabledAttr}>${escapeHtml(value.value)}</button>`,
+      '</td>',
+    ].join("");
+  });
+  cells.push('<td aria-hidden="true"></td>');
+  return [
+    `<div class="torikumi-day-control" role="group" aria-label="${escapeHtml(filter.label)}">`,
+    `<span class="choice-label">${renderLabelWithHelp(filter.label, filter.help)}</span>`,
+    `<input type="hidden" name="${escapeHtml(filter.id)}" value="${escapeHtml(selected)}">`,
+    '<table class="torikumi-day-table"><tbody>',
+    ...Array.from({ length: 4 }, (_, row) => (
+      `<tr>${cells.slice(row * 4, row * 4 + 4).join("")}</tr>`
+    )),
+    '</tbody></table>',
+    '</div>',
+  ].join("");
 }
 function renderDropdownChoice(filter, values, selected) {
   return [
@@ -381,4 +426,4 @@ function divisionId(value) {
   return String(value || "").toLowerCase().replace(/\s+/g, "_");
 }
 
-export { filterValueLabel, resolveFilterState, coerceFilterValue, resolveSelectedDivision, resolveBanzukeChangesDivision, resolveStandingsWindow, resolveStandingsDivision, selectedStandingsSource, wireFilterSection, selectedIndexEntry, latestIndexEntry, bashoSelectorValues, resolveBashoCalendarState, monthLabel, renderFilterSection, renderFilter, filterValues, selectedFilterValue, renderRadioChoice, renderDropdownChoice, dataSelectorValues, resolveSelectedFilterValueFromSource, resolveSelectedDataValue, normalizedSourceValue, divisionId, torikumiDayValues };
+export { filterValueLabel, resolveFilterState, coerceFilterValue, resolveSelectedDivision, resolveBanzukeChangesDivision, resolveStandingsWindow, resolveStandingsDivision, selectedStandingsSource, wireFilterSection, selectedIndexEntry, latestIndexEntry, bashoSelectorValues, resolveBashoCalendarState, monthLabel, renderFilterSection, renderFilter, filterValues, selectedFilterValue, renderRadioChoice, renderDropdownChoice, renderTorikumiDayGrid, dataSelectorValues, resolveSelectedFilterValueFromSource, resolveSelectedDataValue, normalizedSourceValue, divisionId, torikumiDayValues };

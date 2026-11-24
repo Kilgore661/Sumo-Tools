@@ -198,16 +198,21 @@ from src.infra.torikumi import (
 ## Publication integration
 
 The Sumo '89 boot workflows produce `NewBanzuke`, refresh `Future`, and then
-produce the site-data bundle. `src.analysis.site89.torikumi` combines the
-snapshot with:
+produce the site-data bundle. `src.analysis.site89.torikumi` combines History
+and the current snapshot with:
 
 - the matching History or upcoming banzuke;
 - Elo-89 ratings immediately before each published day; and
 - projected next-basho start ratings when the target is not yet in History.
 
-It writes one CSV per available day plus a fifteen-day index. The browser keeps
-the Torikumi menu entry enabled even when no days are available and then shows
-`No torikumi` as the page-content state.
+It writes one CSV per basho plus an index containing the fifteen day states and
+daily division summaries. The public page uses the Basho Results calendar
+selector and a four-column day grid. No day is selected by default; unavailable
+days are disabled. Selecting a day shows the bouts, fair decimal Elo89 odds,
+the favourite prediction and (where results exist) whether it was correct.
+Fusen and exact rating ties are omitted from the tally. The summary also shows
+the return from staking £1 on each favourite, £1 on each higher-chii rikishi
+and, as a hindsight benchmark, £1 on each winner.
 
 ## Relationship to decimal-odds analysis
 
@@ -218,14 +223,12 @@ bouts in an external-odds file and resolves their identities independently,
 whereas this package acquires the complete published schedule and deliberately
 contains no ratings or market policy.
 
-There is a natural future connection. A day-by-day bout analysis could use
-this package's `Future` snapshot as the canonical source for published future
-pairings, combine completed days and outcomes from `History`, attach the
-pre-bout rating snapshot in the analysis layer, and add external odds only for
-the bouts they cover. That would reuse Torikumi acquisition without moving
-probability, result-scoring or presentation decisions into infrastructure.
-This is a recorded direction, not an implemented dependency or settled
-publication specification.
+The public Torikumi artifact now performs the first three steps of that
+connection: it uses `Future` for published future pairings, `History` for
+completed schedules and outcomes, and pre-bout ratings for fair odds. External
+market odds remain separate exploratory work. Probability, scoring and
+presentation policy remain in the analysis/product layers rather than this
+infrastructure package.
 
 ## Tests and deeper documentation
 

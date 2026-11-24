@@ -19,11 +19,14 @@
   text-align: right;
 }
 
-.torikumi-table .probability-east {
-  padding-right: 0.35rem;
+.torikumi-table .torikumi-prediction {
+  text-align: left;
 }
 
-.torikumi-table .probability-west {
-  padding-left: 0.35rem;
-  text-align: left;
+.torikumi-day-summary {
+  margin-block: 0.8rem 1rem;
+}
+
+.torikumi-day-summary p {
+  margin-block: 0.2rem;
 }

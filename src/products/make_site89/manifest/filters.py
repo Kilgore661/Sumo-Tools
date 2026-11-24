@@ -208,10 +208,24 @@ BRB_FILTERS = (
 
 TORIKUMI_FILTERS = (
     Filter(
+        id="basho_year",
+        label="Year",
+        control="select",
+        default="latest",
+        url_key="year",
+    ),
+    Filter(
+        id="basho_month",
+        label="Month",
+        control="select",
+        default="latest",
+        url_key="month",
+    ),
+    Filter(
         id="torikumi_day",
         label="Day",
         control="select",
-        default="latest",
+        default="",
         url_key="day",
     ),
     Filter(
