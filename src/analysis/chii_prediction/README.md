@@ -6,6 +6,10 @@ standalone descriptive baseline, with no Elo fitting or probability calibration.
 See [Findings](docs/Findings.md) for the motivation, recorded results, relationship
 to the earlier Elo scores, and the agreed limits of this probe.
 
+The proposed matched test of current production Elo89 against the higher-chii
+rule is specified in
+[Proposal: Matched Elo89 versus Chii Winner Accuracy](docs/Proposal%20-%20Matched%20Elo89%20vs%20Chii%20Accuracy.md).
+
 Run from the repository root:
 
 ```powershell
